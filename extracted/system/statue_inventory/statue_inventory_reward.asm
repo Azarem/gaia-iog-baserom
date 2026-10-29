@@ -207,7 +207,7 @@ StatueRewardAlreadyClaimed {
 }
 
 ---------------------------------------------
-; A statue that is not the one being awarded (match byte differs from globalScriptIndex, and its own flag is still clear): restores X and idles hidden. (The old label StatueRewardWrongTab borrowed 'tab' from the inventory slot logic; there is no tab in scene $FD.)
+; A statue that is not the one being awarded (match byte differs from globalScriptIndex, and its own flag is still clear): restores X and idles hidden.
 
 StatueRewardNotThisStatue {
     PLX 

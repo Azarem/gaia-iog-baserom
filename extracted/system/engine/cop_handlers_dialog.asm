@@ -72,7 +72,7 @@ DialogueOptions {
     RTL 
 
   loc_00A8A6:
-    LDA #$2000            ; Set displayModeFlags bit 13 ($2000); no reader of this bit was found (OQ-51)
+    LDA #$2000            ; Set displayModeFlags bit 13 ($2000); no reader of this bit was found
     TSB $displayModeFlags
     LDA #$0F00
     STA $joypadMaskInv    ; joypadMaskInv = $0F00: D-pad directions are the auto-repeat buttons during menu navigation
@@ -89,7 +89,7 @@ DialogueOptions {
     AND #$0800            ; Save actor $10 bit 11 ($0800, cutscene-active)
     PHA 
     LDA #$0800
-    TRB $10               ; Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (inferred, OQ-54)
+    TRB $10               ; Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (inferred)
     LDA [$0A]             ; Read the two byte operands as one word: menu parameters for MenuSelectionHandler (not a pointer)
     INC $0A
     INC $0A
@@ -140,7 +140,7 @@ PrintDialogString {
     AND #$0800            ; Save actor $10 bit 11 ($0800, cutscene-active)
     PHA 
     LDA #$0800
-    TRB $10               ; Clear it for the duration of the text (inferred reason, OQ-54)
+    TRB $10               ; Clear it for the duration of the text (inferred reason)
     LDA $joypadMaskStd    ; Save joypadMaskStd (suppressed buttons)
     STZ $joypadMaskStd    ; Clear it so the text renderer sees every button (A/B to advance)
     PHA 

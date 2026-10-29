@@ -1,4 +1,4 @@
-; Dialog template strings (Bank 01, 117397-117670): 22 word pointers ($00-$15) to 22 short dialog strings that the [TPL:nn] control code ($C2, DialogCmd_InsertTemplate) splices into the string being drawn. The handler doubles the operand, switches DBR to this bank, reads the pointer from dialog_template_table and draws the template with a recursive JSL DialogStringRenderer; afterwards it restores the cursor ($0998), the string pointer and the bank, so the caller's string continues where it stopped. The old note ('Dark Space transforms', 'templates $08-$11 are size presets', '$12 is the world map prompt', '$13-$15 are silent screen effects') had every range shifted by one and the main purpose wrong: most templates select the colours of a speaker.
+; Dialog template strings (Bank 01, 117397-117669): 22 word pointers ($00-$15) to 22 short dialog strings that the [TPL:nn] control code ($C2, DialogCmd_InsertTemplate) splices into the string being drawn. The handler doubles the operand, switches DBR to this bank, reads the pointer from dialog_template_table and draws the template with a recursive JSL DialogStringRenderer; afterwards it restores the caller's string pointer, the bank and the processor flags, and reloads the cursor from $0998, where the template's last character left it, so a [DLG] template positions the text that follows (the speaker templates only set colours, palette and sound, so they leave the cursor where it was). Most templates select the colours of a speaker.
 ; 
 ; === THE TAGS USED HERE (DialogStringRenderer; all numbers in the tags are hex) ===
 ; 
@@ -7,7 +7,7 @@
 ; - [SFX:ss] (DialogCmd_SetSfx): the per-character sound effect id kept in $0996 ([SFX:0] = silent). DialogCmd_OpenDialogueBox resets it to $10, the typing click.
 ; - [DLG:col,row] (DialogCmd_SetPosition) and [SIZ:w,h] (DialogCmd_OpenDialogueBox): put the cursor at a column and row, then open a box w columns wide and h rows high.
 ; 
-; === THE 22 TEMPLATES (uses = occurrences of [TPL:nn] in the extracted strings, whole-file count) ===
+; === THE 22 TEMPLATES (uses = occurrences of [TPL:nn] in the extracted strings, comment lines excluded) ===
 ; 
 ; | Id | Effect | Uses | Seen before |
 ; |----|--------|------|-------------|
@@ -22,10 +22,10 @@
 ; | $08-$0B | box 13 columns x 1 / 2 / 3 / 4 rows at column 3, row 6 (upper box) | 9 / 28 / 303 / 122 | narration and cutscene text |
 ; | $0C-$0F | box 13 columns x 1 / 2 / 3 / 4 rows at column 3, row $11 (the lower default position) | 2 / 4 / 55 / 19 | |
 ; | $10 | the same box as $0F (a duplicate) | 6 | house descriptions |
-; | $11 | 14 x 3 box at column 2, row $14 and the text 'Where do you go?' | 49 | the route menus ([TPL:11][SFX:0] Quit [N] ...) |
+; | $11 | 14 x 3 box at column 2, row $14 and the text 'Where do you go?' | 37 | the route menus ([TPL:11][SFX:0] Quit [N] ...) |
 ; | $12-$15 | the colours of $00, $01, $02 and $04 without the SFX tag (silent speaker colours) | 7 / 7 / 4 / 7 | Will:, Kara:, Will's mother:, Will's father: in the long cutscene strings |
 ; 
-; The speaker names come from the 'Name:' that follows the tag in the strings. Which of the two colour words is the glyph and which the outline was not checked at runtime (OQ-I065-1). The table is 44 bytes, the 22 strings 229 bytes.
+; The speaker names come from the 'Name:' that follows the tag in the strings. Not traced: which of the two colour words is the glyph and which the outline. The table is 44 bytes, the 22 strings 229 bytes.
 ---------------------------------------------
 
 ?BANK 01
@@ -145,7 +145,7 @@ dialog_template_0F_box_low_4 `[DLG:3,11][SIZ:D,4]`
 dialog_template_10_box_low_4_dup `[DLG:3,11][SIZ:D,4]`
 
 ---------------------------------------------
-; Template $11 (49 uses): position column 2, row $14 (20), box 14 columns x 3 rows, the text 'Where do you go?' and a newline. The route menus ([TPL:11][SFX:0] Quit [N] ...) put the choices after it.
+; Template $11 (37 uses): position column 2, row $14 (20), box 14 columns x 3 rows, the text 'Where do you go?' and a newline. The route menus ([TPL:11][SFX:0] Quit [N] ...) put the choices after it.
 
 dialog_template_11_where_do_you_go `[DLG:2,14][SIZ:E,3]Where do you go?[N]`
 

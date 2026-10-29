@@ -1,6 +1,6 @@
 ; Diary-menu highlight-band thinker for scene $FA (Bank 00, 48049-48203; spawned through thinker_spawn_0CEB18, the scene-$FA slot of the scene thinker table).
 ; 
-; Every frame it chooses HDMA tables for the PPU window-1 position registers WH0/WH1 ($2126/$2127; the operand #26 of COP QueueHdmaDirect is that B-bus register, see hdma_channel_config) from three cursor words kept by sFA_diary_menu, where a negative value means 'none': $0D92 = slot cursor, $0D96 = copy-target slot, $0D98 = tab / settings-row cursor. DiaryMenuInit sets WOBJSEL = $22 (window 1 is the colour window) and CGWSEL = $82 (main screen black inside it), so each table lays a band over the rows under a cursor; the band appearance is decoded from the registers, not observed (OQ-I057-3).
+; Every frame it chooses HDMA tables for the PPU window-1 position registers WH0/WH1 ($2126/$2127; the operand #26 of COP QueueHdmaDirect is that B-bus register, see hdma_channel_config) from three cursor words kept by sFA_diary_menu, where a negative value means 'none': $0D92 = slot cursor, $0D96 = copy-target slot, $0D98 = tab / settings-row cursor. DiaryMenuInit sets WOBJSEL = $22 (window 1 is the colour window) and CGWSEL = $82 (main screen black inside it), so each table lays a band over the rows under a cursor; the band appearance is decoded from the registers, not observed.
 ; 
 ; === TABLES ===
 ; 

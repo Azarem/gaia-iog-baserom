@@ -111,7 +111,7 @@
 ; 
 ; 3. Aura Barrier (178559–178710): AuraBarrierMain sets flags, spawns VRAM DMA loader, waits for tile upload, loads FX palette, spawns orbital children, and runs the expand→orbit→shrink lifecycle. AuraBarrierEnd clears flags and returns to idle. AuraVramDmaLoader does a one-shot DMA of Aura tile graphics.
 ; 
-; 4. Aura Orbital System (178711–179002): AuraOrbitalSpawner spawns 2-4 orbital children (count depends on upgrade flag $0B1E), manages 240-frame orbit rotation expanding from diameter 0 to 64, then runs a 30-frame shrink. UpdateOrbitalPositions iterates children with angle spacing via ApplyOrbitalOffsetFromRef. AuraProjectileChild is the individual orbiting sprite with 3-frame animation. AuraProjectileShrink reverses the animation and flags for removal.
+; 4. Aura Orbital System (178711–179002): AuraOrbitalSpawner spawns 2-4 orbital children (count depends on upgrade flag $0B1E), manages 240-frame orbit rotation expanding from diameter 0 to 64, then runs a 30-frame shrink. UpdateOrbitalPositions iterates children with angle spacing via ApplyOrbitalOffsetFromRef. AuraProjectileChild is the individual orbiting sprite; its set (spriteset_aura) has 3 animations of 4 frames. AuraProjectileShrink reverses the animation and flags for removal.
 ; 
 ; 5. Dark Friar (179003–179701): DarkFriarMain sets flags, spawns VRAM DMA, loads palette, spawns a palette reset thinker (#4A), and dispatches by facing direction. Each directional handler (South/North/West/East) spawns a projectile and trail at character-appropriate offsets. DarkFriarProjectile is the initial flash sprite. DarkFriarTrailSouth and DarkFriarTrailEastWest are the growing trail actors with optional collision (enabled by upgrade level $0B1C). DarkFriarBounceLoop keeps the trail travelling until it leaves the screen, and at upgrade level 2 holding attack runs DarkFriarDisableCollide, which detonates it into fragments on demand. DarkFriarOnHit spawns 4 fragment actors at 90° intervals. DarkFriarFragmentInit sets up spiraling outward motion, DarkFriarFragmentLoop applies the reversed velocity every frame until the fragment leaves the screen (actor flag $4000), then it dies.
 
@@ -549,7 +549,7 @@ AuraProjectileChild {
     STA $0E
 
   loc_02BB13:
-    COP [SetMetasprite] ( @spriteset_aura ) ; Set metasprite table to table_179000 (Aura orbital projectile graphics)
+    COP [SetMetasprite] ( @spriteset_aura ) ; Metasprite set spriteset_aura (Aura orbital projectile graphics)
     COP [StageSpriteFrame] ( #00 )
     COP [AnimOnce]
     COP [StageSpriteFrame] ( #01 )

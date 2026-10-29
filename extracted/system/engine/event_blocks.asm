@@ -32,7 +32,7 @@
 ; === VISIBILITY CHECK ===
 ; 
 ; A tile is queued only when its pixel position is inside the camera window: (pixelX + 16 − scrollH) < $0111 and (pixelY − ((scrollV − 16) AND $FFF0)) in 0..$F0. Layer 0 and QueueVisibleTileVram use bg1ScrollH / mapScrollV; the layer 1 path uses effectScrollH / effectScrollV.
-; QueueVisibleTileVram contract: carry set = off-screen (nothing queued); carry clear and Z set = queue full (the LDX #0 exists only to force Z); carry clear on success, where Z is whatever the caller's flags were (PLP restores them, OQ-62). DrawChestTiles in warps_interaction is its other caller and ignores the result.
+; QueueVisibleTileVram contract: carry set = off-screen (nothing queued); carry clear and Z set = queue full (the LDX #0 exists only to force Z); carry clear on success, where Z is whatever the caller's flags were (PLP restores them). DrawChestTiles in warps_interaction is its other caller and ignores the result.
 ; 
 ; === HELPER ROUTINES ===
 ; 
@@ -566,7 +566,7 @@ AnimateEventBlock {
 ; 
 ; On-screen: reads the mapLayerTilemap byte, ×8 indexes metatileMapLayer ($7E2000), copies its four tile words to $0802/$0806/$080A/$080E + Y, and stores PixelToVramAddress (BG1 nametable) and the +1 / +$20 / +$21 neighbours as the four address words ($0800/$0804/$0808/$080C + Y). Y advances by $10 per metatile.
 ; 
-; Returns: carry set = off-screen; carry clear + Z set = queue full (Y reached $0100, LDX #0 forces Z); carry clear otherwise (Z is inherited from the caller's flags, OQ-62). Also used by DrawChestTiles in warps_interaction.
+; Returns: carry set = off-screen; carry clear + Z set = queue full (Y reached $0100, LDX #0 forces Z); carry clear otherwise (Z is inherited from the caller's flags). Also used by DrawChestTiles in warps_interaction.
 
 QueueVisibleTileVram {
     PHP 

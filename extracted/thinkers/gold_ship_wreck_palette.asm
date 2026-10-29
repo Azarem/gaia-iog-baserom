@@ -1,4 +1,4 @@
-; Palette-phase thinker of the Gold Ship wreck scenes (Bank 00, 46705-46802). The old name (incan_ruins_transform_palette) and notes said 'Incan Ruins', but the three scene_thinkers lists that spawn it are $2B (ship wreck), $2D (ship wreck interior) and $2F (adrift), all Gold Ship scenes, and the flags it reads, $4D and $52, are set and cleared by dc2F_adrift (also gs2E_sleep and gs2B_erik). The old doc claims about Larai Cliff / Angkor and scene indexes 34-36 are wrong.
+; Palette-phase thinker of the Gold Ship wreck scenes (Bank 00, 46705-46802). The three scene_thinkers lists that spawn it are $2B (ship wreck), $2D (ship wreck interior) and $2F (adrift), all Gold Ship scenes, and the flags it reads, $4D and $52, are set and cleared by dc2F_adrift (also gs2E_sleep and gs2B_erik).
 ; 
 ; === PHASE PICK (spawn only) ===
 ; 
@@ -10,13 +10,13 @@
 ; 
 ; === FLAG $4D: GoldShipWreckPaletteFlag4D ===
 ; 
-; Bundle #34 once (a one-shot: 16 colours at $70, palette 7, and one colour at $59), then the scene-setup latch $FF is set and bundle #33 (the same 12-strip cycle as #1A with other colour values) loops while $FF stays set. When the latch is cleared (next scene setup or inventory open) the thinker restarts with #34. The old note 'alternate between #34 and #33' is wrong: #34 plays once per latch cycle.
+; Bundle #34 once (a one-shot: 16 colours at $70, palette 7, and one colour at $59), then the scene-setup latch $FF is set and bundle #33 (the same 12-strip cycle as #1A with other colour values) loops while $FF stays set. When the latch is cleared (next scene setup or inventory open) the thinker restarts with #34. #34 plays once per latch cycle.
 ; 
 ; === FLAG $52: GoldShipWreckPaletteFlag52 ===
 ; 
-; Kills the thinker at the list head ($5A) and the one in the next pool slot (+$10): the first two thinkers spawned, which are scanline_band_hdma_thinker records 0 and 1 in all three lists (pool slots are handed out in ascending order from $0F00). KillThinker works on the slot in X and uses D only for its operand pointer, so D can stay on this thinker. Then it fills palette-buffer bytes $7F0A40-$7F0A5F, colours $20-$2F (palette 2), with $1421 (very dark blue, R1 G1 B5) so the colours the cycle used stay flat, sets colour 0 ($7F0A00) to $1442, applies bundle #36 (17 colours at $50, 16 at $70), sets $FF and waits for the latch to clear before repeating the fill and #36 (the kills are not repeated). The old 'CGRAM entries $40-$5F' are buffer byte offsets.
+; Kills the thinker at the list head ($5A) and the one in the next pool slot (+$10): the first two thinkers spawned, which are scanline_band_hdma_thinker records 0 and 1 in all three lists (pool slots are handed out in ascending order from $0F00). KillThinker works on the slot in X and uses D only for its operand pointer, so D can stay on this thinker. Then it fills palette-buffer bytes $7F0A40-$7F0A5F, colours $20-$2F (palette 2), with $1421 (very dark blue, R1 G1 B5) so the colours the cycle used stay flat, sets colour 0 ($7F0A00) to $1442, applies bundle #36 (17 colours at $50, 16 at $70), sets $FF and waits for the latch to clear before repeating the fill and #36 (the kills are not repeated).
 ; 
-; What $4D and $52 mean in story terms (adrift day / night / starvation phase) and what the colours depict is not decoded (OQ-I044-1).
+; What $4D and $52 mean in story terms (adrift day / night / starvation phase) and what the colours depict is not decoded.
 ---------------------------------------------
 
 !cgramPalette                   7F0A00

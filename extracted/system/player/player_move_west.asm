@@ -12,7 +12,7 @@
 ; 
 ; === TILE TYPES ===
 ; 
-; $05 west-facing slope and $0A east-facing slope (WestRampDescend / WestRampAscend), $07 ladder tile (DiagLadderTile), $0E and above solid. Types $06 and $09 are wall-like types whose meaning is undecoded (audit OQ-16 in tile_collision_physics); this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.
+; $05 west-facing slope and $0A east-facing slope (WestRampDescend / WestRampAscend), $07 ladder tile (DiagLadderTile), $0E and above solid. Types $06 and $09 are wall-like types whose meaning is undecoded; this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.
 ; 
 ; === SLOPE RAMPS ===
 ; 
@@ -68,14 +68,14 @@ DispatchWestMove {
   loc_02DB93:
     JSR $&tile_collision.ProbeCurrentTL ; ProbeCurrentTL: leading top-left corner (the west edge)
     BCC loc_02DB9F
-    CMP #$06              ; Type $06 at the current TL goes to the code_02DC4B wall-slide handler (type meaning undecoded, audit OQ-16)
+    CMP #$06              ; Type $06 at the current TL goes to the code_02DC4B wall-slide handler (type meaning undecoded)
     BNE loc_02DB9F
     JMP $&code_02DC4B
 
   loc_02DB9F:
     JSR $&tile_collision.ProbeCurrentBL ; ProbeCurrentBL: leading bottom-left corner (the west edge)
     BCC loc_02DBAB
-    CMP #$09              ; Type $09 at the current BL goes to the code_02DC9F wall-slide handler (type meaning undecoded, audit OQ-16)
+    CMP #$09              ; Type $09 at the current BL goes to the code_02DC9F wall-slide handler (type meaning undecoded)
     BNE loc_02DBAB
     JMP $&code_02DC9F
 
@@ -360,7 +360,7 @@ WestRampDescend {
     CLC 
     ADC $26
     STA $26
-    CLC                   ; Mix the X sub-pixels into the Y sum: the following bit-2 test adds one more pixel of Y (purpose unclear, OQ-I029-3)
+    CLC                   ; Mix the X sub-pixels into the Y sum: the following bit-2 test adds one more pixel of Y (purpose unclear)
     ADC $20
     CLC 
     ADC $22
@@ -580,7 +580,7 @@ WestRampAscend {
     CLC 
     ADC $26
     STA $26
-    CLC                   ; Mix the X sub-pixels into the Y sum: the following bit-2 test removes one pixel of Y (purpose unclear, OQ-I029-3)
+    CLC                   ; Mix the X sub-pixels into the Y sum: the following bit-2 test removes one pixel of Y (purpose unclear)
     ADC $20
     CLC 
     ADC $22
@@ -913,7 +913,7 @@ WallSlidePushUp {
 ---------------------------------------------
 ; Y push of the north-side wall slide (code_02DC4B / code_02DC77 chain); also used by player_move_east. Mirror of WallSlidePushUp.
 ; 
-; Uses the complemented Y sub-tile nibble; the valid push is POSITIVE ($02 << 2 in $24, Y grows, down) and the overshoot case clears $AA bits $0440. The original player_move_east comments called this push 'slide upward'; the arithmetic says downward and the east notes now agree (UNVERIFIED-RUNTIME, OQ-I029-4).
+; Uses the complemented Y sub-tile nibble; the valid push is POSITIVE ($02 << 2 in $24, Y grows, down) and the overshoot case clears $AA bits $0440.
 
 WallSlidePushDown {
     LDA $26               ; WallSlidePushDown: builds a positive Y push (down) in $24 from the complemented Y sub-tile position and $02

@@ -33,7 +33,7 @@
 ; 
 ; gs2B_seth, nvAE_stone_girl2, wa79_lance, fr32_creep, eu95_ann, sc01_fisherman and ec0A_right_guard each end their gift script with JML @hidden_red_jewel.HiddenRedJewelInventoryFull when GiveItem reports a full inventory. They do not use the interact handler or the flag range above.
 ; 
-; Whether the jewel is visible and what the metasprite looks like was not checked (OQ-I041-7).
+; Whether the jewel is visible and what the metasprite looks like was not checked.
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'

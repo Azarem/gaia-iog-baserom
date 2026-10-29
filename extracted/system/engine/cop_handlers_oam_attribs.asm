@@ -4,7 +4,7 @@
 ; 
 ; === DEPTH PRIORITY ($B2–$B5) ===
 ; 
-; Set or clear bits of the actor flag word $10 that override the Y-based sort key of SortActorsByDepth. Bit 1 ($0002, SetPriorityMax) forces key $0000: first OAM index, drawn in front of every other actor. Bit 0 ($0001, SetPriorityMin) forces key $01FE: last OAM index, drawn behind every other actor. Max wins when both are set. Typical use: a falling or flying actor takes Max while airborne (ceiling tiles, seagulls, falling orbs) and drops to Min once it rests on the floor. The only reader of these two bits found in the extracted code is the depth sort; older docs call them 'collision priority', which the code does not support.
+; Set or clear bits of the actor flag word $10 that override the Y-based sort key of SortActorsByDepth. Bit 1 ($0002, SetPriorityMax) forces key $0000: first OAM index, drawn in front of every other actor. Bit 0 ($0001, SetPriorityMin) forces key $01FE: last OAM index, drawn behind every other actor. Max wins when both are set. Typical use: a falling or flying actor takes Max while airborne (ceiling tiles, seagulls, falling orbs) and drops to Min once it rests on the floor. The only reader of these two bits found in the extracted code is the depth sort; no collision role was found for them.
 ; 
 ; === OAM ATTRIBUTE MASK ($B6–$BB) ===
 ; 

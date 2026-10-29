@@ -1,4 +1,4 @@
-; Slope physics for eastward player movement (186435-187085, Bank 02). The four handlers are entered ONLY from DispatchEastMove (player_move_east); the west dispatcher (player_move_west) has its own ramp code (WestRampDescend and friends) and does not call here. The older header said 'shared between east and diagonal dispatchers'.
+; Slope physics for eastward player movement (186435-187085, Bank 02). The four handlers are entered ONLY from DispatchEastMove (player_move_east); the west dispatcher (player_move_west) has its own ramp code (WestRampDescend and friends) and does not call here.
 ; 
 ; They call back into player_move_west (CancelVerticalPhase), player_move_east (EastWallNorthDiag / EastWallSouthDiag), player_move_south (SnapYSouthCollision) and player_move_ns (SnapYNorthCollision).
 ; 
@@ -9,13 +9,11 @@
 ;   EastRampUp   : ProbeCurrentBL read $0A (late path of DispatchEastMove)
 ;   WestRampDown : ProbeCurrentBL read $05
 ; 
-; (The header of player_move_east says the $05 FindSlopeForEastMove result goes to WestRampDown; its code jumps to WestRampUp.)
-; 
 ; Tile types: $0A (east-facing) is a surface that falls toward the east, Y grows with X; $05 (west-facing) rises toward the east. Both direct paths agree: $0A adds the X velocity to Y ($26 += $20), $05 subtracts it. 'Up' / 'Down' in the names is not the Y direction: EastRampUp's direct path also descends.
 ; 
 ; === COORDINATES ===
 ; 
-; $1A is the probe pixel X and $1E the probe pixel Y (tile_collision convention). '$1A -= 8' therefore moves the probe 8 px WEST; it is not 'Y up' as many older inline comments said. ProbeCurrentTR leaves $1A = X + 8 and $1E = Y - 16 (hitbox top row); ProbeCurrentBR leaves $1A = X + 8 and $1E = Y (bottom + 1); ProbeCurrentBL leaves $1A = X - 8 and $1E = Y. The -8 / +8 therefore lands on the hitbox centre column X. FutureTR minus 9 is one pixel west of the post-step centre column.
+; $1A is the probe pixel X and $1E the probe pixel Y (tile_collision convention). '$1A -= 8' therefore moves the probe 8 px WEST; it does not move the probe in Y. ProbeCurrentTR leaves $1A = X + 8 and $1E = Y - 16 (hitbox top row); ProbeCurrentBR leaves $1A = X + 8 and $1E = Y (bottom + 1); ProbeCurrentBL leaves $1A = X - 8 and $1E = Y. The -8 / +8 therefore lands on the hitbox centre column X. FutureTR minus 9 is one pixel west of the post-step centre column.
 ; 
 ; === COMMON FLOW ===
 ; 
@@ -25,7 +23,7 @@
 ;    - direct entries (the first samples hit the slope cell or the cell next to it, no crossing test): $26 -/+= $20, the X velocity copied 1:1 into Y (a 45-degree slope).
 ;    - after the future probe: CheckTileBoundaryXor (Z clear = this step crosses a 16-px column line). No crossing: plain ApplyMovementDeltas. Crossing: n = ((X + step) in px) AND $0F, the pixels past the line. EastRampDown: $26 += 4n; WestRampUp: $26 -= 4n; then +4 / -4 (one pixel; positions are quarter pixels) when bit 2 of ($26 + $20 + $22) is set (a Y position plus X values, as in the original). EastRampUp / WestRampDown instead set $24 = $20 - 4n / 4n - $20, which ApplyMovementDeltas applies.
 ; 4. playerFlags |= $1000 (on slope / ramp), then the FutureTR and FutureBR wall check ($0E+ = solid): both open -> ApplyMovementDeltas; TR open and BR solid -> SnapYSouthCollision; TR solid and BR open -> SnapYNorthCollision; both solid -> corner snap.
-; 5. Corner snap: X = (left edge of the post-step position, floored to a 16-px column line) + 8, so it only ever moves west; $26 += old X + $20 - new X (the distance pulled back); $20, $24 and playerSpeedEw are zeroed and SetActorCollisionFlag is called. The Y compensation has the same sign in the $0A and $05 handlers (OQ-I038-2).
+; 5. Corner snap: X = (left edge of the post-step position, floored to a 16-px column line) + 8, so it only ever moves west; $26 += old X + $20 - new X (the distance pulled back); $20, $24 and playerSpeedEw are zeroed and SetActorCollisionFlag is called. The Y compensation has the same sign in the $0A and $05 handlers.
 ; 
 ; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
 ---------------------------------------------
@@ -180,7 +178,7 @@ EastRampDown {
 ; East ramp post-move corner fix when future TR is passable but BR is solid: calls SnapYSouthCollision then ApplyMovementDeltas; reached from EastRampDown/EastRampUp wall probes.
 
 RampSnapEastSouthBrWall {
-    REP #$20              ; TR open, BR solid: SnapYSouthCollision (the old text said TR-only and SnapXEastCollision)
+    REP #$20              ; TR open, BR solid: SnapYSouthCollision
     JSR $&player_move_south.SnapYSouthCollision
     JMP $&tile_collision.ApplyMovementDeltas
 }
@@ -189,7 +187,7 @@ RampSnapEastSouthBrWall {
 ; East ramp path when TR is blocked but BR is open: SnapYNorthCollision then ApplyMovementDeltas.
 
 RampSnapEastNorthTrWall {
-    REP #$20              ; TR solid, BR open: SnapYNorthCollision (the old text said BR-only)
+    REP #$20              ; TR solid, BR open: SnapYNorthCollision
     JSR $&player_move_ns.SnapYNorthCollision
     JMP $&tile_collision.ApplyMovementDeltas
 }
@@ -388,7 +386,7 @@ WestRampUp {
 ; West ramp analogue of the TR-open BR-solid case: SnapYSouthCollision then ApplyMovementDeltas from WestRampDown/WestRampUp probes.
 
 RampSnapWestSouthBrWall {
-    REP #$20              ; TR open, BR solid: SnapYSouthCollision (the old text said TR-only and SnapXEastCollision)
+    REP #$20              ; TR open, BR solid: SnapYSouthCollision
     JSR $&player_move_south.SnapYSouthCollision
     JMP $&tile_collision.ApplyMovementDeltas
 }
@@ -397,13 +395,13 @@ RampSnapWestSouthBrWall {
 ; West ramp TR-blocked BR-open case: SnapYNorthCollision then ApplyMovementDeltas.
 
 RampSnapWestNorthTrWall {
-    REP #$20              ; TR solid, BR open: SnapYNorthCollision (the old text said BR-only)
+    REP #$20              ; TR solid, BR open: SnapYNorthCollision
     JSR $&player_move_ns.SnapYNorthCollision
     JMP $&tile_collision.ApplyMovementDeltas
 }
 
 ---------------------------------------------
-; Entered from DispatchEastMove when ProbeCurrentBL read $05. Samples (X, bottom + 1) for $05; no crossing -> code_02DA0E (Y -= $20); crossing: $24 = 4n - $20 (n as in EastRampUp), negative (upward) while 4n < $20. Y grows downward, so the older 'positive, producing upward displacement' was wrong. Finishes at code_02DA19.
+; Entered from DispatchEastMove when ProbeCurrentBL read $05. Samples (X, bottom + 1) for $05; no crossing -> code_02DA0E (Y -= $20); crossing: $24 = 4n - $20 (n as in EastRampUp), negative (upward, since Y grows downward) while 4n < $20. Finishes at code_02DA19.
 
 WestRampDown {
     JSR $&player_move_west.CancelVerticalPhase ; WestRampDown: descend west-facing slope $05 while moving east (+X)

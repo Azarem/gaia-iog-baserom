@@ -1,6 +1,6 @@
 ; Slow horizontal ripple thinker (Bank 00): one sine-wave HDMA table feeding BG1HOFS, started and animated once the scene has finished loading.
 ; 
-; Spawned by scene $32 (Freejia) and scenes $E9 / $EA (the mansion), spawn parameter $00 (unused). Dao has its own copy, dao_sine_hdma_slow. The old description ("8-step wave on channel $8800, 40-byte table, vertical distortion, Dao and ending-comet scenes") mixed up the operands:
+; Spawned by scene $32 (Freejia) and scenes $E9 / $EA (the mansion), spawn parameter $00 (unused). Dao has its own copy, dao_sine_hdma_slow. The operands:
 ;   - $7F0008,X = 8 is the wave AMPLITUDE (BuildSineHdmaTable multiplies the sine table by it).
 ;   - InitSineHdma ( #$8800, #40 ): $8800 is the WRAM table base ($7E8800), $40 = 64 is the wave period in scanlines per HDMA entry. Each of its four tables therefore has 256 / 64 = 4 repeat-mode entries (count $C0, 64 lines each) that all point at the same 64 data words at table + $0100.
 ;   - TickSineHdma ( #01, #02 ): #01 is the delay, so the phase advances once every 2 calls (every other frame); #02 is a byte offset into the camera scroll words (cameraTargetX / cameraTargetY + 2) that the table builder uses.

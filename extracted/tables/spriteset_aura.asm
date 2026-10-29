@@ -1,4 +1,4 @@
-; Aura Barrier orbital spriteset (Bank 17, 1544192-1544618 = $17:9000): 3 animations ($00-$02), 12 frame records, 12 sprite groups, 30 sub-sprites. Only user: AuraProjectileChild in attack_ability_system (COP SetMetasprite ( @spriteset_aura )); AuraOrbitalSpawner makes 2 or 4 of those actors (4 when the upgrade flag $0B1E is set) and moves them around the player. The old note said '4 animation frames for the rotating barrier sprites': the table holds 3 animations of 4 frames. The struct format is described in the spriteset_freedan block note.
+; Aura Barrier orbital spriteset (Bank 17, 1544192-1544617 = $17:9000): 3 animations ($00-$02), 12 frame records, 12 sprite groups, 30 sub-sprites. Only user: AuraProjectileChild in attack_ability_system (COP SetMetasprite ( @spriteset_aura )); AuraOrbitalSpawner makes 2 or 4 of those actors (4 when the upgrade flag $0B1E is set) and moves them around the player. The struct format is described in the spriteset_freedan block note.
 ; 
 ; === ANIMATIONS ===
 ; 
@@ -12,9 +12,9 @@
 ; 
 ; === ART AND PALETTE ===
 ; 
-; Every tile word is in $0440-$046F: tile numbers $40-$6F with the palette bits (9-11) = 2, i.e. sprite palette 2 (CGRAM $A0-$AF). AuraVramDmaLoader uploads $0600 bytes (48 tiles) of misc_fx_1CC480 to VRAM $4400 with COP AdhocVramDma, and AuraBarrierMain copies 7 colours of fx_palette_198090 to CGRAM $A9 ($A9-$AF); AuraBarrierPaletteFX cycles them. That VRAM $4400 is tile $40 of the first sprite name table assumes the sprite name base is $4000 (OBSEL was not traced, OQ-I066-3).
+; Every tile word is in $0440-$046F: tile numbers $40-$6F with the palette bits (9-11) = 2, i.e. sprite palette 2 (CGRAM $A0-$AF). AuraVramDmaLoader uploads $0600 bytes (48 tiles) of misc_fx_1CC480 to VRAM $4400 with COP AdhocVramDma, and AuraBarrierMain copies 7 colours of fx_palette_198090 to CGRAM $A9-$AF; AuraBarrierPaletteFX cycles bundle #5B over colours $A1-$A8 of the same palette (the bundle writes only $A1-$A8). The statement that VRAM $4400 is tile $40 of the first sprite name table assumes the sprite name base is $4000 (OBSEL not traced).
 ; 
-; Checks: 426 bytes = 6 (table) + 3 x 18 (lists of 4 records + the hidden $FFFF) + 12 x 13 (group headers) + 30 x 7 (sub-sprites).
+; Byte budget: 426 bytes = 6 (table) + 3 x 18 (lists of 4 records + the hidden $FFFF) + 12 x 13 (group headers) + 30 x 7 (sub-sprites).
 ---------------------------------------------
 
 ?BANK 17

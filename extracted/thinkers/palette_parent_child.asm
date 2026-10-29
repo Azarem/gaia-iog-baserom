@@ -4,7 +4,7 @@
 ; 
 ; The child restarts PaletteStart #03 and runs PaletteStep in a BRA loop: PaletteStep yields until the next sub-entry is due and falls through when the bundle ends, so the palette cycles for as long as the flag is set. While the child runs the parent does not touch the palette. The child keeps its own bundle ID in its own $7F0002, so parent and child are independent users of bundle #03.
 ; 
-; Spawn records in scene_thinkers.asm: scene $FD (thinker_spawn_0CEB30) and scene $FF (thinker_spawn_0CEB46), each with spawn parameter byte #03 (the same bundle number; the script hard-codes #03 and overwrites the parameter), next to scanline_band_hdma_thinker and ambient_palette_cycler ($FF also spawns inventory_bg3_scroll_hdma). docs/code/bank0C-scene-spawn-tables-comet.md lists the thinker for 'World Map, Inventory'; only $FD and $FF appear in the records (OQ-I040-3). Which scripts set and clear flag #01 in those scenes was not traced (OQ-I040-3).
+; Spawn records in scene_thinkers.asm: scene $FD (thinker_spawn_0CEB30) and scene $FF (thinker_spawn_0CEB46), each with spawn parameter byte #03 (the same bundle number; the script hard-codes #03 and overwrites the parameter), next to scanline_band_hdma_thinker and ambient_palette_cycler ($FF also spawns inventory_bg3_scroll_hdma). docs/code/bank0C-scene-spawn-tables-comet.md lists the thinker for 'World Map, Inventory'; only $FD and $FF appear in the records. Which scripts set and clear flag #01 in those scenes was not traced.
 ---------------------------------------------
 
 !chatPtr                        7F000A

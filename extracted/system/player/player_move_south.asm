@@ -6,8 +6,8 @@
 ; 
 ; - Probe* routines (tile_collision) return A = collision type nibble and carry SET for any nonzero type, with the probed map index left in $00. Solid is A >= $0E, tested by the callers here.
 ; - MapCellRight / MapCellLeft / MapCellUp read the index in $00 and return the neighbouring cell in X; the callers commit it with STX $00 before ReadCollisionNibble.
-; - CheckSubTileAlignX / Y: carry CLEAR = the probe edge is flush with a tile line (the hitbox covers a single column / row), carry SET = it straddles two cells. A is preserved. Several older comments in this file had the two cases the wrong way round.
-; - Types seen here: $02 ladder, $08 vine (can only be entered while walking south; the north dispatcher treats $08 as a wall), $03 / $0C slopes, $06 / $09 undecoded wall-like types (audit OQ-16, OQ-I033-4). The 'North' / 'South' in SouthWallNorth* / SouthWallSouth* names comes from the type ($09 / $06), not from a direction.
+; - CheckSubTileAlignX / Y: carry CLEAR = the probe edge is flush with a tile line (the hitbox covers a single column / row), carry SET = it straddles two cells. A is preserved.
+; - Types seen here: $02 ladder, $08 vine (can only be entered while walking south; the north dispatcher treats $08 as a wall), $03 / $0C slopes, $06 / $09 undecoded wall-like types. The 'North' / 'South' in SouthWallNorth* / SouthWallSouth* names comes from the type ($09 / $06), not from a direction.
 ; 
 ; === DispatchSouthMove ORDER ===
 ; 
@@ -22,15 +22,15 @@
 ; 
 ; === WALL SNAP AND CORNER ASSIST ===
 ; 
-; SouthBlockedWall first tries AutoAlignEW_South (a 2 px X nudge toward the open column). A nudge keeps playerSpeedNs, so the player keeps pushing and slides past the corner on the next tick; no nudge goes through SnapYSouthCollision, which zeroes playerSpeedNs. Both end in the shared floor ((Y + $24) AND $FFC0, then $24 = 0): the feet end flush against the top of the blocked row. The old header called this a '64px grid'; it is a 16-pixel row line expressed in sub-pixels.
+; SouthBlockedWall first tries AutoAlignEW_South (a 2 px X nudge toward the open column). A nudge keeps playerSpeedNs, so the player keeps pushing and slides past the corner on the next tick; no nudge goes through SnapYSouthCollision, which zeroes playerSpeedNs. Both end in the shared floor ((Y + $24) AND $FFC0, then $24 = 0): the feet end flush against the top of the blocked row.
 ; 
 ; === SLOPES ===
 ; 
-; SouthSlopeRight ($03) and SouthSlopeLeft ($0C) require the matching type under both feet, otherwise SouthBlockedWall. The slope flag (playerFlags $1000, set through the high byte playerStateByte $09AF bit $10) is set when the feet are on a tile line, when the cell above is the same slope type, or when the row offset of the new Y is >= 8; only a misaligned player with a different cell above and an offset < 8 moves without it. The old header described the first two cases as 'applies movement deltas directly' (it was the other way round). SouthSlopeLeft additionally runs slopeFracAccum: the step is replaced by accumulator >> 4 whenever that is nonzero, so ticks alternate between the full step and a very small one (effective slow-down unverified, OQ-I033-3). Which diagonal each slope type follows is not decoded here; the older 'right-descending / left-descending' wording is unverified.
+; SouthSlopeRight ($03) and SouthSlopeLeft ($0C) require the matching type under both feet, otherwise SouthBlockedWall. The slope flag (playerFlags $1000, set through the high byte playerStateByte $09AF bit $10) is set when the feet are on a tile line, when the cell above is the same slope type, or when the row offset of the new Y is >= 8; only a misaligned player with a different cell above and an offset < 8 moves without it. SouthSlopeLeft additionally runs slopeFracAccum: the step is replaced by accumulator >> 4 whenever that is nonzero, so ticks alternate between the full step and a very small one (effective slow-down unverified). Which diagonal each slope type follows is not decoded here.
 ; 
 ; === WALL-LIKE TYPES $09 / $06 ===
 ; 
-; SouthWallNorthInteract (left foot on $09) and SouthWallSouthInteract (right foot on $06) are mirror images. If the opposite top corner is the same type the player is fully stopped (ClearMovementDeltas). Otherwise the handler probes the destination, tests the cells beside it, and either clears playerSpeedNs (ClearSpeedNS_3 / _4), floors Y, or takes the slide: ComputeSouthSnapOffset measures how far the step penetrates and FineAdjustXWest / FineAdjustXEast move X out of the wall. By the arithmetic the $09 / left-foot case pushes the player EAST (SnapXWestCollision moves X to the next tile centre east, FineAdjustXWest ends east of the old X) and the $06 / right-foot case pushes WEST (SnapXEastCollision floors to the tile centre, FineAdjustXEast ends west of the old X). Earlier text called the East variant a slide 'toward the east edge'; the 'East' / 'West' in those names names the side the wall is on.
+; SouthWallNorthInteract (left foot on $09) and SouthWallSouthInteract (right foot on $06) are mirror images. If the opposite top corner is the same type the player is fully stopped (ClearMovementDeltas). Otherwise the handler probes the destination, tests the cells beside it, and either clears playerSpeedNs (ClearSpeedNS_3 / _4), floors Y, or takes the slide: ComputeSouthSnapOffset measures how far the step penetrates and FineAdjustXWest / FineAdjustXEast move X out of the wall. By the arithmetic the $09 / left-foot case pushes the player EAST (SnapXWestCollision moves X to the next tile centre east, FineAdjustXWest ends east of the old X) and the $06 / right-foot case pushes WEST (SnapXEastCollision floors to the tile centre, FineAdjustXEast ends west of the old X). The 'East' / 'West' in the FineAdjustX* names names the side the wall is on.
 ; 
 ; Includes: DispatchSouthMove, SouthBlockedWall, SnapYSouthCollision, SouthInteractTile (ladder), SouthStairsTile (vine), SouthSlopeRight / Left, SouthWallNorthInteract / SouthWallNorthProbe, SouthWallSouthInteract, SouthSlideJumpShim, ClearSpeedNS_3 / _4, AutoAlignEW_South, ComputeSouthSnapOffset, FineAdjustXEast / FineAdjustXWest.
 ---------------------------------------------
@@ -64,7 +64,7 @@ DispatchSouthMove {
     JMP $&SouthWallNorthInteract
 
   loc_02D382:
-    CMP #$03              ; Type $03 slope under the left foot: SouthSlopeRight (slope geometry undecoded, OQ-I033-3)
+    CMP #$03              ; Type $03 slope under the left foot: SouthSlopeRight (slope geometry undecoded)
     BNE loc_02D389
     JMP $&SouthSlopeRight
 
@@ -155,7 +155,7 @@ SnapYSouthCollision {
     LDA $24               ; New Y = (Y + $24) AND $FFC0: post-step Y floored to a 16-pixel row line, feet flush with the top of the blocked row
     CLC 
     ADC $26
-    AND #$FFC0            ; 64 sub-pixels = 16 pixels = one tile row (the old header called this a 64px grid)
+    AND #$FFC0            ; 64 sub-pixels = 16 pixels = one tile row
     STA $26
     STZ $24
     PLP 
@@ -176,7 +176,7 @@ SnapYSouthCollision {
     PLY 
     BRA SouthBlockedWall  ; Then snap like a wall: Y floored to a row line and AutoAlignEW_South gets a try first
 
-; Vine reached while walking south. Column-aligned (carry clear): go straight in. Straddling (carry set): the cell to the RIGHT must also be type $08, otherwise blocked (an older comment said the cell below). Sets playerFlags $0800 (script / ability lock) through the high byte playerStateByte, switches the player to ClimbVineEntry (which sets actor flag $0200 and hides the use-item button), clears the wait counter and floors Y through SnapYSouthCollision (which also zeroes playerSpeedNs).
+; Vine reached while walking south. Column-aligned (carry clear): go straight in. Straddling (carry set): the cell to the RIGHT must also be type $08, otherwise blocked. Sets playerFlags $0800 (script / ability lock) through the high byte playerStateByte, switches the player to ClimbVineEntry (which sets actor flag $0200 and hides the use-item button), clears the wait counter and floors Y through SnapYSouthCollision (which also zeroes playerSpeedNs).
 
   SouthStairsTile:
     JSR $&tile_collision.CheckSubTileAlignX ; Vine: carry clear (single column) enters directly; carry set requires the cell to the right to be $08 as well
@@ -233,7 +233,7 @@ SouthSlopeRight {
 }
 
 ---------------------------------------------
-; Slope type $0C: same dispatch as SouthSlopeRight (right foot must be $0C, same three conditions for the slope flag), followed by the slopeFracAccum step reduction. slopeFracAccum ($09C6): clamp negative to zero, += $24, step = accumulator >> 4; if the step is nonzero $24 becomes the step and the accumulator drops by step << 4, otherwise $24 is left at the full value. Net effect: alternating full and tiny steps (OQ-I033-3). player_move_controller zeroes the accumulator when the NS speed is zero.
+; Slope type $0C: same dispatch as SouthSlopeRight (right foot must be $0C, same three conditions for the slope flag), followed by the slopeFracAccum step reduction. slopeFracAccum ($09C6): clamp negative to zero, += $24, step = accumulator >> 4; if the step is nonzero $24 becomes the step and the accumulator drops by step << 4, otherwise $24 is left at the full value. Net effect: alternating full and tiny steps. player_move_controller zeroes the accumulator when the NS speed is zero.
 
 SouthSlopeLeft {
     JSR $&tile_collision.ProbeCurrentBR ; Right foot: type must be $0C as well; a mismatch is a wall
@@ -356,7 +356,7 @@ SouthWallNorthProbe {
 }
 
 ---------------------------------------------
-; Right foot (current BR) on type $06; mirror of SouthWallNorthInteract. Current top-left $06 stops the player. Otherwise ProbeFutureBR: when the row is off a tile line and FutureBR is $06 the cell left of it and the one above must be empty (else ClearSpeedNS_4), then the slide runs. In every other case SnapXEastCollision (X floored to the tile centre, i.e. moved WEST) and FutureBR is re-probed: still $06 slides; otherwise $24 is zeroed, SnapYNorthCollision runs and the move is applied. The slide is ComputeSouthSnapOffset then FineAdjustXEast. Using the NORTH snap here adds one extra row ($40) after the floor; see OQ-I033-2.
+; Right foot (current BR) on type $06; mirror of SouthWallNorthInteract. Current top-left $06 stops the player. Otherwise ProbeFutureBR: when the row is off a tile line and FutureBR is $06 the cell left of it and the one above must be empty (else ClearSpeedNS_4), then the slide runs. In every other case SnapXEastCollision (X floored to the tile centre, i.e. moved WEST) and FutureBR is re-probed: still $06 slides; otherwise $24 is zeroed, SnapYNorthCollision runs and the move is applied. The slide is ComputeSouthSnapOffset then FineAdjustXEast. Using the NORTH snap here adds one extra row ($40) after the floor.
 
 SouthWallSouthInteract {
     JSR $&tile_collision.ProbeCurrentTL ; Current top-left corner: also $06 means the player is boxed in
@@ -388,7 +388,7 @@ SouthWallSouthInteract {
     BEQ loc_02D574
     REP #$20              ; Still blocked: back to 16-bit A
     STZ $24
-    JSR $&player_move_ns.SnapYNorthCollision ; SnapYNorthCollision floors then adds $40, one row further south than SnapYSouthCollision would (OQ-I033-2)
+    JSR $&player_move_ns.SnapYNorthCollision ; SnapYNorthCollision floors then adds $40, one row further south than SnapYSouthCollision would
     JMP $&tile_collision.ApplyMovementDeltas
 
   loc_02D574:
@@ -414,7 +414,7 @@ SouthSlideJumpShim {
 ---------------------------------------------
 ; Corner assist for a blocked south step: nudge X by 2 pixels toward the open column. Returns carry CLEAR when X was nudged, carry SET when nothing happened.
 ; 
-; Gates: $AA bit $0040 (the horizontal phase ran this tick), an actor solid mark in the collision byte at X, or n = 0 each return carry set. n = ((X >> 2) - 8) AND $0F is the left-edge offset inside its 16-pixel column (X is the centre, the left edge is X - 8). n >= 6: east nudge, if FutureBR is passable (< $0E): $22 is shifted by -$20 so the helper works on the left edge, NudgeAxisPlus8Clamped adds 8 sub-pixels, then +$20 restores the reference. n <= 8 (also when the east test failed): west nudge, if FutureBL is passable, through NudgeAxisMinus8Clamped (-8 sub-pixels). The old text had the ranges as '6-8' and '1-5'.
+; Gates: $AA bit $0040 (the horizontal phase ran this tick), an actor solid mark in the collision byte at X, or n = 0 each return carry set. n = ((X >> 2) - 8) AND $0F is the left-edge offset inside its 16-pixel column (X is the centre, the left edge is X - 8). n >= 6: east nudge, if FutureBR is passable (< $0E): $22 is shifted by -$20 so the helper works on the left edge, NudgeAxisPlus8Clamped adds 8 sub-pixels, then +$20 restores the reference. n <= 8 (also when the east test failed): west nudge, if FutureBL is passable, through NudgeAxisMinus8Clamped (-8 sub-pixels).
 
 AutoAlignEW_South {
     REP #$20
@@ -541,7 +541,7 @@ ComputeSouthSnapOffset {
 }
 
 ---------------------------------------------
-; X correction for the $06 / right-foot case. n = left-edge offset in its column (16 when flush). If n + $02 <= 16 only ApplyMovementDeltas runs. Otherwise $02 becomes 16 - $02, the left edge is set to (column line, one column back when flush) | $02, and $22 = (left edge + 8) << 2. Because 16 - $02 < n in that branch, the net movement is WEST by n + $02 - 16 pixels (away from a wall under the right foot), not east as the old header said. $02 can reach $1F; above $10 the subtraction goes negative and the ORA produces a wrapped X. FineAdjustXWest handles that range (it subtracts 16); this routine does not (OQ-I033-1).
+; X correction for the $06 / right-foot case. n = left-edge offset in its column (16 when flush). If n + $02 <= 16 only ApplyMovementDeltas runs. Otherwise $02 becomes 16 - $02, the left edge is set to (column line, one column back when flush) | $02, and $22 = (left edge + 8) << 2. Because 16 - $02 < n in that branch, the net movement is WEST by n + $02 - 16 pixels (away from a wall under the right foot), not east. $02 can reach $1F; above $10 the subtraction goes negative and the ORA produces a wrapped X. FineAdjustXWest handles that range (it subtracts 16); this routine does not.
 
 FineAdjustXEast {
     LDX $playerActor      ; Player actor base for the pixel X read below
@@ -560,7 +560,7 @@ FineAdjustXEast {
     JMP $&tile_collision.ApplyMovementDeltas ; No correction: apply the move
 
   loc_02D672:
-    LDA #$0010            ; t > 16: $02 = 16 - $02. For $02 above $10 this goes negative and the ORA below wraps X (OQ-I033-1)
+    LDA #$0010            ; t > 16: $02 = 16 - $02. For $02 above $10 this goes negative and the ORA below wraps X
     SEC 
     SBC $02
     STA $02

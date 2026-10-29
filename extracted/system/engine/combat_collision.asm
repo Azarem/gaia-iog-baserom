@@ -14,7 +14,7 @@
 ; 
 ; Two-phase collision detection:
 ; 
-; Phase 1 (outer loop): For each enemy in the render list, for each actor WITHOUT $0400, requires $0080 set in $10 (role unresolved, OQ-8), $0040 clear (not dead/orb) and $12 $0010 clear (not damage-immune). If eligible, calls PlayerAttackHitTest.
+; Phase 1 (outer loop): For each enemy in the render list, for each actor WITHOUT $0400, requires $0080 set in $10 (role unresolved), $0040 clear (not dead/orb) and $12 $0010 clear (not damage-immune). If eligible, calls PlayerAttackHitTest.
 ; 
 ; Phase 2 (inner loop at CombatCollision_InnerLoop): After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision. Uses AABB overlap testing on hitbox fields ($20–$23). Two paths based on $20 flag: normal ($76E0 exclusion mask) or friendly ($74E0 mask + extendedFlags $0010 check).
 ; 
@@ -207,7 +207,7 @@ RunCombatCollision {
 ; 
 ; Two-phase collision detection per enemy:
 ; 
-; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility (actors without $0400 only): bit 7 ($0080) of $10 set (role unresolved, OQ-8), bit 6 ($0040) clear (not dead/orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
+; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility (actors without $0400 only): bit 7 ($0080) of $10 set (role unresolved), bit 6 ($0040) clear (not dead/orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
 ; 
 ; Phase 2 (enemy-hits-player test): After phase 1, constructs the current enemy's AABB from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at CombatCollision_InnerLoop), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
 ; 

@@ -62,7 +62,7 @@
 ; - A table that covers fewer than 224 lines ends with an explicit count-0 byte; the PPU register then simply keeps the last value written for the rest of the frame.
 ; - The window path hard-codes a 3-byte stride, which only matches register pair WH0/WH1 (mode 1).
 ; - All reads of the table use absolute addressing under DBR $81, which mirrors ROM bank 01.
-; - Runtime behaviour of the individual entries (what the screen looks like) was not checked; see the questions file.
+; - Runtime behaviour of the individual entries (what the screen looks like) was not checked.
 ---------------------------------------------
 
 ?INCLUDE 'hardware_math'

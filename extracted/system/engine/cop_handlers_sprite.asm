@@ -13,7 +13,7 @@
 ; Used by four effect actors (awB4_snake_pit_fx, fr32_laborer_npc ×2, dc2F_adrift_fx): a script runs SetScratchPointer (art source: word in animScratch, bank in animScratch+2), SetMetasprite, SetTileStreamAnim (animation index, VRAM word address in $24), then AdvanceSpriteAnim in a loop. Each AdvanceSpriteAnim call waits while the previous DMA is pending ($B2 nonzero), stages one frame (32 bytes, or 128 when the byte at +$0D of the frame's sprite data is nonzero) taken from animScratch + 32 × (byte at +$12) to the VRAM word address in $24 (the NMI performs the DMA), loads the hold time into $08 and yields. At the end of a list the counter restarts and the script continues past the op.
 ; 
 ; === Animation index byte (ProcessAnimFlag) ===
-; $FF keeps the current index. Bit 7 selects the mirrored variant: the low 7 bits go to $28 and the horizontal flip bit $4000 of the OAM attribute word $0E is set; without bit 7 the flip bit is cleared. Both flip updates are skipped when bit 1 ($0002) of the actor status $12 is set: that bit is a persistent mirror lock, not a facing flag (awB0_zombie sets it after a mirrored StageSprAndHitbox and sE8_dark_gaia right after SetHMirror; OQ-I022-1).
+; $FF keeps the current index. Bit 7 selects the mirrored variant: the low 7 bits go to $28 and the horizontal flip bit $4000 of the OAM attribute word $0E is set; without bit 7 the flip bit is cleared. Both flip updates are skipped when bit 1 ($0002) of the actor status $12 is set: that bit is a persistent mirror lock, not a facing flag (awB0_zombie sets it after a mirrored StageSprAndHitbox and sE8_dark_gaia right after SetHMirror).
 ; 
 ; Uses in extracted/: AnimOnce 2075, StageSpriteFrame 1200, AnimLoop 1048, StageSpriteLoop 455, StageSpriteMoveY 331, StageSpriteMoveX 310, StageSpriteLoopMoveX 278, StageSpriteLoopMoveY 252, StageSprAndHitbox 229, SetMetasprite 186, AnimOneFrame 165, StageSpriteMoveXY 68, StageSpriteLoopMoveXY 61, WaitForAnimFrame 29, SetTileStreamAnim 4, AdvanceSpriteAnim 4.
 ---------------------------------------------
@@ -328,7 +328,7 @@ StageSpriteLoopMoveXY {
 ; - $FF: keep $28 unchanged and return (the flip bit is not touched either).
 ; - bit 7 set: $28 = low 7 bits; unless $12 bit 1 is set, set the horizontal flip $4000 in the OAM attribute word $0E (the mirrored variant of the animation).
 ; - otherwise: $28 = the byte; unless $12 bit 1 is set, clear the flip bit.
-; $12 bit 1 therefore acts as a mirror lock that freezes the flip state across later Stage ops (OQ-I022-1). Returns with RTS.
+; $12 bit 1 therefore acts as a mirror lock that freezes the flip state across later Stage ops. Returns with RTS.
 
 ProcessAnimFlag {
     STZ $2A               ; Clear frame counter — new stage always starts at frame 0

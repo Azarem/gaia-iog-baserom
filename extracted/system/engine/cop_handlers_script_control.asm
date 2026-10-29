@@ -4,7 +4,7 @@
 ; 
 ; Call/return uses a single slot, retPtr1 ($7F0004), so calls do not nest. SetSavedPtr stores an explicit &Code operand; CallNear and CallNearDeferred store the address after their own operand and jump to the target. RestoreSavedPtr and ReturnWithSignal jump back to the slot and clear it, or yield when it is empty (ReturnWithSignal also returns A = $FFFF).
 ; 
-; Loops: LoopStart saves the count and the loop-head PC, LoopEnd decrements the count and, until it reaches zero, sets $00 to the loop head and yields (so at least one frame per iteration). A count of 0 would wrap to 65536 iterations (no guard). Pooled actors (X ≥ $1000) keep the count and head in their own fields loopCounter ($7F0014) and retPtr2 ($7F001E). Thinkers (X < $1000) use the arrays loopCounterActor ($7F2102) and loopStartPcActor ($7F2100) indexed by X; those two mnemonic names say 'Actor' but they are the thinker variants (rename proposal 90).
+; Loops: LoopStart saves the count and the loop-head PC, LoopEnd decrements the count and, until it reaches zero, sets $00 to the loop head and yields (so at least one frame per iteration). A count of 0 would wrap to 65536 iterations (no guard). Pooled actors (X ≥ $1000) keep the count and head in their own fields loopCounter ($7F0014) and retPtr2 ($7F001E). Thinkers (X < $1000) use the arrays loopCounterActor ($7F2102) and loopStartPcActor ($7F2100) indexed by X; those two mnemonic names say 'Actor' but they are the thinker variants.
 ; 
 ; SetInteractHandler (#C0, 322 uses in scripts) stores a &Code pointer in chatPtr ($7F000A), the routine the interaction system runs when the player talks to or touches the actor.
 ---------------------------------------------
@@ -20,7 +20,7 @@
 
 ---------------------------------------------
 
-; COP #C0 with one &Code operand. Stores it in the actor's chatPtr ($7F000A), the routine the interaction system runs when the player talks to or touches the actor. Used by NPCs, chests and inspectable objects (322 uses). The copdef name is SetInteractHandler; 'SetOnInteract' is only a stale name in the docs.
+; COP #C0 with one &Code operand. Stores it in the actor's chatPtr ($7F000A), the routine the interaction system runs when the player talks to or touches the actor. Used by NPCs, chests and inspectable objects (322 uses). The copdef name is SetInteractHandler.
 
 SetInteractHandler {
     TYX 
@@ -39,7 +39,7 @@ SetInteractHandler {
 SetEntryHere {
     TYX 
     LDA $0C               ; Load current script bank to actor $02 (entry bank byte)
-    STA $02               ; Entry bank → $02 (16-bit store: $03 also receives stack junk from $0D, OQ-69)
+    STA $02               ; Entry bank → $02 (16-bit store: $03 also receives stack junk from $0D)
     LDA $0A               ; Load script PC to actor $00 (entry resume address)
     STA $00
     STA $02, S

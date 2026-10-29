@@ -139,7 +139,7 @@ DialogStringRenderer {
     BEQ DialogString_CharLoop
     LDA $00
     PHA 
-    LDA #$0001            ; Set displayModeFlags bit 0 so the BG3 staging buffer is re-uploaded (consumer not traced; see audit OQ-23)
+    LDA #$0001            ; Set displayModeFlags bit 0 so the BG3 staging buffer is re-uploaded (consumer not traced)
     TSB $displayModeFlags
     JSR $&WaitNFrames_PerChar
     PLA 
@@ -240,7 +240,7 @@ DialogCmd_SetPosition {
 ---------------------------------------------
 ; Recursively render a template string from the dialog_template_table pointer table.
 ; 
-; Reads a 1-byte operand (template index), multiplies by 2 for the word-sized pointer table, switches DBR to the template bank, and calls DialogStringRenderer recursively via JSL. Restores the VRAM cursor, string pointer, bank, and processor state on return.
+; Reads a 1-byte operand (template index), multiplies by 2 for the word-sized pointer table, switches DBR to the template bank, and calls DialogStringRenderer recursively via JSL. Restores the caller's string pointer, bank and processor flags on return, and reloads the VRAM cursor from $0998, where the template's last character left it (DialogCmd_Return hands the cursor back only through $0998), so a [DLG] template positions the text that follows.
 
 DialogCmd_InsertTemplate {
     PHP 

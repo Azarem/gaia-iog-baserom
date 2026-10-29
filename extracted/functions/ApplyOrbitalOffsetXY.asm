@@ -6,7 +6,7 @@
 ; 
 ; The sign travels in the carry flag from the table lookup through Multiply8x8Unsigned, which preserves carry. The routine clobbers A, Y and the flags; X (the actor slot) and D are preserved. It ends with A and the index registers 16-bit.
 ; 
-; Callers (3 sites): gw8A_sand_fanger (2) and awB1_goldcap (1, where the X diameter grows by 3 and the Y diameter by 2 per step so the path spirals outward). The old header also listed statue_inventory_reward, which uses ApplyOrbitalOffsetFromRef instead.
+; Callers (3 sites): gw8A_sand_fanger (2) and awB1_goldcap (1, where the X diameter grows by 3 and the Y diameter by 2 per step so the path spirals outward).
 ---------------------------------------------
 
 ?INCLUDE 'hardware_math'

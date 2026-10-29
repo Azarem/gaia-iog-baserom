@@ -4,7 +4,7 @@
 ; 
 ; AllocateActorBefore/After allocate with D temporarily 0, splice the new slot into the doubly-linked actor list ($04 = prev, $06 = next, head/tail in $56/$58) before or after the current actor (X = D = current), then call CopyActorState. UnlinkActor removes the actor at X from the list and calls ReturnActorSlot, which pushes the slot back on the free list and decrements the counters. It must be entered with D = X (the actor being freed); Die, MarkDeath, KillPrev and KillNext all arrange that.
 ; 
-; CopyActorState (spawner X = D, new actor Y) copies $0E, $10, $12, the X/Y position, animation index and frame counter, the spriteset/metasprite/stats pointers and the spriteset bank. It forces $2000 on in $10 and clears $0803 there, clears $1000 in $12 (the display-filter flag), and stores the spawner's slot in $0024 (OQ-65). It zeroes parentId, the $2C/$2E movement chain pointers, moveScratch1/2, the $08 timer and chatPtr, and, except in scene $FF (inventory), also extendedFlags and the callback fields.
+; CopyActorState (spawner X = D, new actor Y) copies $0E, $10, $12, the X/Y position, animation index and frame counter, the spriteset/metasprite/stats pointers and the spriteset bank. It forces $2000 on in $10 and clears $0803 there, clears $1000 in $12 (the display-filter flag), and stores the spawner's slot in $0024. It zeroes parentId, the $2C/$2E movement chain pointers, moveScratch1/2, the $08 timer and chatPtr, and, except in scene $FF (inventory), also extendedFlags and the callback fields.
 ; 
 ; MarkChildActor sets the new actor's parentId to the spawner's parentId, or to the spawner's own slot if it has none. SetActorBody applies the current characterForm's body_table entry (6 bytes per form) to the actor's spriteset pointer and bank and clears playerFlags bit $8000 (sprite override). AnimFrameLookup returns the word at move_chain_table[A×2], the head pointer of a movement delta chain; its callers are the force-move COP handlers. AllocateSpecialActor appends a slot from the thinker pool to the thinker list (tail in $5C). PaletteResetAndKillThinker is a thinker script body: COP PaletteRestart, PaletteStep, KillThinker.
 ---------------------------------------------
@@ -41,7 +41,7 @@
 
 ; Internal JSR helper that removes the actor at X from the scene's doubly-linked list ($04 previous, $06 next).
 ; 
-; Patches the neighbours and the head/tail pointers at $56/$58, then calls ReturnActorSlot. Must be entered with D = X: ReturnActorSlot zeroes D and then sets D = X again. Callers: Die and MarkDeath (the actor itself), KillPrev and KillNext (they switch D and X to the victim first). Removing a sole list entry leaves actorListLast ($58) stale (OQ-66).
+; Patches the neighbours and the head/tail pointers at $56/$58, then calls ReturnActorSlot. Must be entered with D = X: ReturnActorSlot zeroes D and then sets D = X again. Callers: Die and MarkDeath (the actor itself), KillPrev and KillNext (they switch D and X to the victim first). Removing a sole list entry leaves actorListLast ($58) stale.
 
 UnlinkActor {
     LDY $0004, X          ; Load prev pointer of actor being removed
@@ -216,14 +216,14 @@ MarkChildActor {
 ---------------------------------------------
 ; Initialise the new actor Y from the spawner X (= D). See the file header for the field list.
 ; 
-; $10: ORA #$2000 forces that bit on and AND #$F7FC clears $0803 (bit meanings: OQ-60). $12: clears $1000 (runs in display-filter mode). $0024 receives the spawner's slot (OQ-65). Zeroes parentId, $2C/$2E, moveScratch1/2, $08 and chatPtr; extendedFlags and the callback block are zeroed only when sceneCurrent ≠ $FF.
+; $10: ORA #$2000 forces that bit on and AND #$F7FC clears $0803 (bit meanings: $2000 hides the actor from SortActorsByDepth, $0001 / $0002 are the depth-sort priority bits of SetPriorityMin / SetPriorityMax, $0800 not traced). $12: clears $1000 (runs in display-filter mode). $0024 receives the spawner's slot. Zeroes parentId, $2C/$2E, moveScratch1/2, $08 and chatPtr; extendedFlags and the callback block are zeroed only when sceneCurrent ≠ $FF.
 
 CopyActorState {
     PHX 
     LDA $0E
     STA $000E, Y
     LDA $10
-    ORA #$2000            ; Force $2000 on (not 'preserve'); AND #$F7FC below clears $0803 (OQ-60)
+    ORA #$2000            ; Force $2000 on (not 'preserve'); AND #$F7FC below clears $0803 ($0001 / $0002 = depth-sort priority bits, $0800 not traced)
     AND #$F7FC            ; Clear bits on new actor: movement flags and animation-active bits
     STA $0010, Y
     LDA $12
@@ -238,7 +238,7 @@ CopyActorState {
     LDA $2A               ; Copy frame counter ($2A)
     STA $002A, Y
     TXA 
-    STA $0024, Y          ; $0024 = spawner's slot (scripts later use $24 as scratch; reader of the initial value unknown, OQ-65)
+    STA $0024, Y          ; $0024 = spawner's slot (scripts later use $24 as scratch; reader of the initial value unknown)
     LDA $statsPtr, X      ; Copy statsPtr, metaspritePtr, spritesetPtr via stack (cross-actor copy)
     PHA 
     LDA $metaspritePtr, X

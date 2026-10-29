@@ -9,10 +9,6 @@
 ;    Gem decision: TestFlag_0300 (event flag $0300 + scene = this scene's clear reward was already claimed) set, or orbitAngle nonzero (enemies remain): drop a gem when the stats byte +3 (gemDropType) is nonzero, through EnemyGemDropRouter. Last enemy with the reward still unclaimed: no gem, the stat reward replaces it.
 ;    Field reveal: deathActionIdx ($7F0024,X) nonzero and event flag $0100 + idx still clear: set it and spawn SpawnFieldRevealEffect (flags $0342, with $12 $1000), handing it the index.
 ; 5. EnemyStatBonusReward (last enemy only): enemy_clear_reward_table[scene] selects the pickup (0 none, 1 HP, 2 STR, 3 or more DEF) unless the scene flag $0300 is already set. It sets displayModeFlags $0080 (display-filter actor mode: only actors with $12 $1000 run, so the world freezes while the pickup plays), spawns reward_actors.e_hp_increase / e_str_increase / e_def_increase (flags $1000, $12 $1000) and Dies. RewardActorVFX sets the scene flag later (see reward_actors).
-; 
-; === CORRECTIONS ===
-; 
-; The old header said ComposeDigitSprites_AtCursor assigns this as the OnDeath callback during enemy setup (no code there references it; the engine falls back to it when $7F1004 is empty), that it is about 360 bytes (it spans about 614), that it calls ClearLowHere (the COP is ClearSolidHere) and that the $12 $1000 write is a 'priority boost'. The comment on the first block said the gem drop is skipped when scene flag $0300 is set; it is the opposite: gems drop when the flag is set or enemies remain. EnemyDropSystem.asm repeated the inverted condition (corrected there). The 'about 20 enemy actor scripts' were 13 JumpFar sites, EnemyDefeatDispatch, 2 statues and 3 engine sites.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_clear_reward_table'
@@ -167,7 +163,7 @@ EnemyDefeatBossCleanup {
 }
 ---------------------------------------------
 
-; Gem-type dispatcher, reached with A = the stats byte +3 (gemDropType, nonzero) when this scene's reward flag $0300 is set or enemies remain (not, as the old note said, when the flag is clear). Two DEC operations select the spawn: 1 = SpawnDropGem1 (fixed $83), 2 = SpawnDropGem2 (fixed $84), otherwise SpawnDropByHpTier (the weighted picker). Each spawn uses SpawnListAppend with flags $0420 and jumps back to DefeatHideAndRelease.
+; Gem-type dispatcher, reached with A = the stats byte +3 (gemDropType, nonzero) when this scene's reward flag $0300 is set or enemies remain. Two DEC operations select the spawn: 1 = SpawnDropGem1 (fixed $83), 2 = SpawnDropGem2 (fixed $84), otherwise SpawnDropByHpTier (the weighted picker). Each spawn uses SpawnListAppend with flags $0420 and jumps back to DefeatHideAndRelease.
 
 EnemyGemDropRouter {
     DEC                   ; A = enemy stat byte +3 (gemDropType): 1 = fixed $83 gem, 2 = fixed $84 gem, otherwise the weighted picker

@@ -18,13 +18,13 @@
 ; 
 ; === SPC MUSIC CHANGE (254378–254549) ===
 ; 
-; StartMusic and FadeThenStartMusic (cop_handlers_audio) spawn a thinker that enters at SpcTransferMusicData or SpcFadeOutHandshake with the music ID in chatPtr. The thinker talks to the SPC sound engine through port commands on APUIO0 (docs/audio/spc-disassembly.md, ProcessPortCommand): $F1 = CmdFadeOut (sets the engine's fade counters $30/$31 to $FF), $F0 = CmdStop, $FF = jump into the engine's resident clone of the IPL loader (sub_0f89), which posts $BBAA and speaks the boot-ROM upload protocol; $01 enters the engine's ASL-to-$02 path (ClearAramTail, stream pointer from ARAM $0FFC). OQ-61 is answered here: SpcFadeOutHandshake's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (whether the fade is audible before the following $01/$F0 commands is OQ-I021-2).
+; StartMusic and FadeThenStartMusic (cop_handlers_audio) spawn a thinker that enters at SpcTransferMusicData or SpcFadeOutHandshake with the music ID in chatPtr. The thinker talks to the SPC sound engine through port commands on APUIO0 (docs/audio/spc-disassembly.md, ProcessPortCommand): $F1 = CmdFadeOut (sets the engine's fade counters $30/$31 to $FF), $F0 = CmdStop, $FF = jump into the engine's resident clone of the IPL loader (sub_0f89), which posts $BBAA and speaks the boot-ROM upload protocol; $01 enters the engine's ASL-to-$02 path (ClearAramTail, stream pointer from ARAM $0FFC). SpcFadeOutHandshake's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (not traced: whether the fade is audible before the following $01/$F0 commands).
 ; 
 ; Sequence: the thinker stages the ID in musicTransitionState; the main loop's LoadMusicFromTransitionState (once per pass, after UpdateHUD) turns it into a music_pointer_array entry, enables NMI and joypad and runs spc_transfer.SpcBlockTransfer (blocking; the NMI calls UpdateFrameFull each frame meanwhile), then stores $FFFF, which releases the thinker: it waits two actor ticks (COP WaitByte #01 = N + 1 ticks: a plain delay, not an SPC acknowledgment), sends $01, clears sfxQueueCh1 and musicTransitionState and dies.
 ; 
 ; === AD-HOC VRAM DMA (258512–258561) ===
 ; 
-; DmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03–$7F0C09 (source word, source bank, destination word = trigger, byte count). It only runs from the NMI handler, which has just programmed VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 for it, and it is skipped when dmaSkipFlag is set or when displayModeFlags bit 3 selected the player-tile path instead. Writers must store the size before the destination (the destination arms the transfer; OQ-64).
+; DmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03–$7F0C09 (source word, source bank, destination word = trigger, byte count). It only runs from the NMI handler, which has just programmed VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 for it, and it is skipped when dmaSkipFlag is set or when displayModeFlags bit 3 selected the player-tile path instead. Writers must store the size before the destination (the destination arms the transfer).
 ---------------------------------------------
 
 ?BANK 03
@@ -360,14 +360,14 @@ SetupHdmaChannel_Direct {
 ---------------------------------------------
 ; Entry of the FadeThenStartMusic thinker: request the SPC engine's fade-out, then hand over to SpcTransferMusicData.
 ; 
-; 1. Sends $F1 to APUIO0 (the engine's CmdFadeOut: fade counters $30/$31 = $FF; answers OQ-61) and yields one frame. If APUIO0 does not echo $F1 the routine returns and runs again next frame.
+; 1. Sends $F1 to APUIO0 (the engine's CmdFadeOut: fade counters $30/$31 = $FF) and yields one frame. If APUIO0 does not echo $F1 the routine returns and runs again next frame.
 ; 2. With the echo seen, sends $01 and yields again. If APUIO0 now reads zero, execution falls into SpcTransferMusicData; otherwise it returns and retries.
 ; 
-; Runs as a thinker script: each COP SetEntryHereAndYield suspends it until the next frame, so the handshake costs a few frames but never blocks the main loop. Whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later is OQ-I021-2.
+; Runs as a thinker script: each COP SetEntryHereAndYield suspends it until the next frame, so the handshake costs a few frames but never blocks the main loop. Not traced: whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later.
 
 SpcFadeOutHandshake {
     SEP #$20
-    LDA #$F1              ; Port command $F1 = SPC engine CmdFadeOut (fade counters $30/$31 = $FF); answers OQ-61
+    LDA #$F1              ; Port command $F1 = SPC engine CmdFadeOut (fade counters $30/$31 = $FF)
     STA $APUIO0
     REP #$20
     COP [SetEntryHereAndYield] ; Yield — wait one frame for SPC to process

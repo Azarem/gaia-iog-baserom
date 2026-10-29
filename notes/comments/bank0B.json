@@ -4,7 +4,7 @@
     "772263": "Draw the region warning text (boot_title_strings) on BG3",
     "772270": "BG3 only — text layer for PAL boot",
     "772277": "Re-entry point is the RTL below: yields every frame, the lockout screen is never left",
-    "772285": "Bit 14 of displayModeFlags: no reader found (OQ-I034-1)",
+    "772285": "Bit 14 of the displayModeFlags word = bit 6 of hudDisableFlag ($09ED): HUD off",
     "772294": "Colour 0 of the palette staging buffer = black backdrop",
     "772300": "Enable FastROM (3.58 MHz bus)",
     "772305": "TM = $10: only the sprite layer (bit 4 = OBJ) on the main screen, no BG",

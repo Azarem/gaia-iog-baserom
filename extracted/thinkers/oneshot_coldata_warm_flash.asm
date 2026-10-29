@@ -2,7 +2,7 @@
 ; 
 ; COLDATA: bit $20 selects red, $40 green, $80 blue, the low five bits are the intensity; a write only changes the channels whose bits are set. $66 sets red and green to 6, $82 sets blue to 2. Whether the colour is added or subtracted, and where, is decided by CGWSEL / CGADSUB, which this thinker does not touch (the scene's display preset sets them).
 ; 
-; Spawned by scene thinker lists $0CE850 (scene $23, slot $02) and $0CE872 (scene $27, slot $00) in tables/scene_thinkers.asm; the earlier note named them 'Larai Cliff and related overworld scenes', which is not backed by the table (scene names are not decoded). The tint holds until another COLDATA write: UploadCgramPalette rewrites COLDATA from backdropColors ($7F0C00-02) every NMI, bytes without channel bits change nothing, and scene_lifecycle zeroes those bytes at scene setup. Palette-bundle code can target backdropColors again (OQ-I033-5).
+; Spawned by scene thinker lists $0CE850 (scene $23, slot $02) and $0CE872 (scene $27, slot $00) in tables/scene_thinkers.asm (scene names are not decoded). The tint holds until another COLDATA write: UploadCgramPalette rewrites COLDATA from backdropColors ($7F0C00-02) every NMI, bytes without channel bits change nothing, and scene_lifecycle zeroes those bytes at scene setup. Palette-bundle code can target backdropColors again.
 ---------------------------------------------
 
 !COLDATA                        2132

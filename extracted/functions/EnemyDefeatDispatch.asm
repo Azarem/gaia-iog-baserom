@@ -3,13 +3,13 @@
 ; === FLOW ===
 ; 
 ; - $0AEC = 1 (this is the last enemy): clear the ForceDir bits ($6000 of $12), halt movement (StageMoveXY #0, #0 selects the zero chain; moveScratch1 / 2 = $7F002C / $7F002E cleared) and JumpFar into StandardEnemyDefeatHandler, which decrements the counters itself, plays the full defeat and gives the clear reward (EnemyStatBonusReward when the remaining count reaches 0).
-; - Otherwise: CallNear EnemyDefeatDispatch_CountKill (below), then SpawnAfterFlags ( @field_reveal_object, #$0020 ), store the remaining count (orbitAngle, saved by the subroutine) in the child's $26 and Die. field_reveal_object treats a nonzero $26 as 'use this enemy's own stats': FieldRevealFromActorStats reads the low two bits of the stat-table byte at +3 of the defeated enemy: 0 = nothing, 1 / 2 / 3 = a gem pickup worth 1 / 2 / 5 gems (item $83 / $84 / $85). So every kill but the last can drop its own gem. The HP / STR / DEF items of field_reveal_object come only from its room-reward tier path, which this caller does not use (the old note said 'Spawn stat gem reveal', and an earlier version of this note called the byte a HP / STR / DEF gem).
+; - Otherwise: CallNear EnemyDefeatDispatch_CountKill (below), then SpawnAfterFlags ( @field_reveal_object, #$0020 ), store the remaining count (orbitAngle, saved by the subroutine) in the child's $26 and Die. field_reveal_object treats a nonzero $26 as 'use this enemy's own stats': FieldRevealFromActorStats reads the low two bits of the stat-table byte at +3 of the defeated enemy: 0 = nothing, 1 / 2 / 3 = a gem pickup worth 1 / 2 / 5 gems (item $83 / $84 / $85). So every kill but the last can drop its own gem. The HP / STR / DEF items of field_reveal_object come only from its room-reward tier path, which this caller does not use.
 ; 
 ; EnemyDefeatDispatch_CountKill (a CallNear subroutine, returns with RestoreSavedPtr): death sound #03 (the standard handler uses #06), BCD decrement of $0AEE, hex decrement of $0AEC stored also in orbitAngle ($7F0010,X) for the spawned actors, halt movement, spawn EnemyDeathFlash (flags $0302), SetDungeonKillFlag (the actor's enemyNum bit in the wramFlags bitfield), $10 |= $2000 (script-driven run path), ClearSolidHere when extendedFlags bit $0008 is set, and the field-reveal bookkeeping: when deathActionIdx ($7F0024) is nonzero and event flag $0100 + idx is not yet set (TestFlag_0100 carry clear), set it and spawn SpawnFieldRevealEffect (flags $0342) with the index copied into the child's deathActionIdx.
 ; 
-; Differences from StandardEnemyDefeatHandler: no boss / stat-table checks (the three callers are ordinary enemies), no WaitByte, no EnemyGemDropRouter call (a field_reveal_object child is spawned instead; it reads the same stat-table byte at +3), and the flash does not get the $12 bit $1000 (the display-filter qualifier that lets an actor run in RunActors_DisplayFiltered; StandardEnemyDefeatHandler sets it on its flash). The old header said it 'decrements ... plays death SFX, spawns death flash, sets dungeon kill flag, optionally clears collision tile' which is right; it did not explain the field_reveal_object spawn or the callers.
+; Differences from StandardEnemyDefeatHandler: no boss / stat-table checks (the three callers are ordinary enemies), no WaitByte, no EnemyGemDropRouter call (a field_reveal_object child is spawned instead; it reads the same stat-table byte at +3), and the flash does not get the $12 bit $1000 (the display-filter qualifier that lets an actor run in RunActors_DisplayFiltered; StandardEnemyDefeatHandler sets it on its flash).
 ; 
-; Edge case: the test is for exactly 1. If $0AEC were 0 the counters would wrap to $FFFF / $99 (BCD) and $26 would be nonzero (OQ-I046-4). UNVERIFIED-RUNTIME.
+; Edge case: the test is for exactly 1. If $0AEC were 0 the counters would wrap to $FFFF / $99 (BCD) and $26 would be nonzero. Not traced: whether any caller can reach this with $0AEC = 0.
 ---------------------------------------------
 
 ?INCLUDE 'EnemyDeathFlash'
@@ -31,7 +31,7 @@
 ; Entry (X = defeated actor). Last enemy ($0AEC = 1): halt and JumpFar to StandardEnemyDefeatHandler. Otherwise run EnemyDefeatDispatch_CountKill, spawn field_reveal_object with the remaining count in $26, and Die.
 
 EnemyDefeatDispatch {
-    LDA $enemiesRemaining ; Exactly 1 means the last enemy (a count of 0 would wrap the counters, OQ-I046-4)
+    LDA $enemiesRemaining ; Exactly 1 means the last enemy (a count of 0 would wrap the counters)
     CMP #$0001
     BNE EnemyDefeatDispatch_NotLast
     LDA #$6000            ; Last enemy: clear the ForceDir bits and halt movement (zero chains, delta words cleared)

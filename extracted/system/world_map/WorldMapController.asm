@@ -28,7 +28,7 @@
 ; Mode7PerspectiveInit (scene thinker, see mode7_perspective) sets the global words $B8 := $0400, $B6 := 0, $BC := 0 and the centre $CA/$CC := ($0D54, $0D56). Per frame it turns them into the M7A-M7D HDMA tables:
 ; - $B8 is the divisor at the top scanline: smaller = zoomed out, larger = zoomed in ($80 is about 1:1).
 ; - $B6 is how much the divisor grows per scanline: 0 = flat map, larger = stronger perspective.
-; - $BC is the rotation index (512 steps per turn). Route steps change it, so the map turns during a trip. The old comments called it elevation.
+; - $BC is the rotation index (512 steps per turn). Route steps change it, so the map turns during a trip.
 ; - $CA/$CC are the world X/Y (map centre). cameraTargetX/Y follow as centre - ($80, $70).
 ; 
 ; === TIMELINE ===
@@ -103,7 +103,7 @@ WorldMapController [
     STA $characterForm
     COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker ) ; Palette reset thinker, bundle $0B = Will's 15 normal colours at CGRAM $81-$8F (PaletteRestart + PaletteStep, then it kills itself)
     JSL $@flag_helpers.ClearAllWramFlags ; Clear all WRAM event flags for clean world map state
-    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker ) ; Same palette reset thinker spawned a second time (reason not known, OQ-I059-2)
+    COP [SpawnThinkerParam] ( #0B, @actor_pool.PaletteResetAndKillThinker ) ; Same palette reset thinker spawned a second time (reason not known)
     COP [SpawnAfterFlags] ( @ArrivalAndTravelSetup, #$3800 ) ; Spawn ArrivalAndTravelSetup as linked child with flags $3800
     LDA #$FFFC            ; Suppress nearly all buttons in joypadCurrent (shipped $FFFC, vanilla $FFF0); Start is still read from joypadRaw
     TSB $joypadMaskStd
@@ -113,7 +113,7 @@ WorldMapController [
     PHX                   ; Save actor index, switch to child actor index (Y from SpawnAfterFlags)
     TYX 
     LDA $animScratch2, X
-    ORA #$0804            ; Child's animScratch2 |= $0804 (bits 2 and 11, the thinker filter flags; effect on an actor not verified, OQ-I059-1)
+    ORA #$0804            ; Child's animScratch2 |= $0804 (bits 2 and 11, the thinker filter flags; effect on an actor not verified)
     STA $animScratch2, X
     PLX 
     LDA $worldMapChoiceId ; Reload destination → $24 for option dispatch
@@ -165,7 +165,7 @@ ArrivalAndTravelSetup {
     COP [TickGravity]     ; moveScratch2 := the gravity-curve delta for this tick
     LDA $moveScratch2, X  ; Add this tick's TickGravity delta (moveScratch2) to $B8 below
     CLC 
-    ADC $00B8             ; Mode 7 divisor $B8 += delta (negative): about $0400 down to about $34, the view zooms out (OQ-I059-4)
+    ADC $00B8             ; Mode 7 divisor $B8 += delta (negative): about $0400 down to about $34, the view zooms out
     STA $00B8
     COP [SetEntryHereAndYield] ; Yield 1 of 2 in each pass: the actor resumes after this COP on the next tick
     COP [LoopEnd]         ; Yield 2 of 2: a non-final LoopEnd sets $00 to the loop head and yields; the 44th pass falls through into the next line in the same tick
@@ -630,7 +630,7 @@ LookupMapName {
 
   LookupMapNameLoop:
     LDA $&world_map_scene_names, X ; Scene id of entry X (3-byte entries: id, name pointer)
-    BEQ LookupMapNameMiss ; Zero id byte = end; the table has no terminator entry, so a miss would run on into the strings (OQ-I059-7)
+    BEQ LookupMapNameMiss ; Zero id byte = end; the table has no terminator entry, so a miss would run on into the strings
     CMP $0000             ; Compare against target area ID ($0000)
     BEQ LookupMapNameFound ; Match → load name pointer
     INX                   ; No match: advance X by 3 (each entry = 1 byte ID + 2 byte pointer)
@@ -648,7 +648,7 @@ LookupMapName {
     PLP 
     RTS 
 
-; Zero id byte reached (no match, OQ-I059-7): restore DBR / X / P and return with Y unchanged.
+; Zero id byte reached (no match): restore DBR / X / P and return with Y unchanged.
 
   LookupMapNameMiss:
     PLB 

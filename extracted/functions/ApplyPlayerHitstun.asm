@@ -1,15 +1,15 @@
-; Player damage and knockback entry (Bank 00, 50071-50198), called by JSL from enemy attack scripts. Registers: A = damage with bit 15 as a 'heavy hit' flag, Y = knockback direction code (0 south, 1 north, 2 west, 3 east, 4 or more = none). The old header said 'damage in Y and knockback metadata on the stack' and that damage is halved; neither is true.
+; Player damage and knockback entry (Bank 00, 50071-50198), called by JSL from enemy attack scripts. Registers: A = damage with bit 15 as a 'heavy hit' flag, Y = knockback direction code (0 south, 1 north, 2 west, 3 east, 4 or more = none).
 ; 
 ; === STEPS ===
 ; 
 ; 1. $0000 := Y (absolute scratch, kept for later) and $0002 := 0. ASL moves bit 15 of A into carry: when set, $0002 := $FFC4 (the heavy-hit counter). LSR restores the damage with bit 15 cleared; it is NOT halved (ASL then LSR cancel out).
 ; 2. playerHp := max(0, playerHp - damage). D and X become the player actor.
 ; 3. Player flags $10 |= $0080 (hit reaction); the iframe counter ($7F0028) := $0002 if nonzero, else $003C. A positive counter is hit-stun, a negative one is recovery / invincibility (see actor_execution).
-; 4. If playerFlags bit $0800 (script / ability lock) is set, no stagger is spawned: only the D-pad bits $0F00 of joypadMaskStd are cleared. Otherwise HitStaggerMain is spawned with COP SpawnListAppend ( entry, 0, 0, #$2400 ): $2400 is the child's FLAGS word ($2000 script-driven, $0400 player victim), not a priority as the old header says. Y = the child slot afterwards.
-; 5. Y = $1FC0 means the actor pool was full and the spawn failed: the D-pad bits $0F00 are cleared (some callers hide them first; the child that would have restored them does not exist). The code still falls through to the child-setup stores below with Y = $1FC0, unlike ApplyInteractionDamage, which skips them (OQ-I046-2).
+; 4. If playerFlags bit $0800 (script / ability lock) is set, no stagger is spawned: only the D-pad bits $0F00 of joypadMaskStd are cleared. Otherwise HitStaggerMain is spawned with COP SpawnListAppend ( entry, 0, 0, #$2400 ): $2400 is the child's FLAGS word ($2000 script-driven, $0400 player victim). Y = the child slot afterwards.
+; 5. Y = $1FC0 means the actor pool was full and the spawn failed: the D-pad bits $0F00 are cleared (some callers hide them first; the child that would have restored them does not exist). The code still falls through to the child-setup stores below with Y = $1FC0, unlike ApplyInteractionDamage, which skips them. The stores are indexed by that Y; what they hit at $1FC0 plus the field offset is not traced.
 ; 6. Child setup: extendedFlags bit $0020 of the player is copied to the child, the direction code from $0000 goes into the child's $28, and its $2C / $2E are zeroed. Hit sound: PlaySoundCh2 #07 (always the Will sound; combat_collision picks #08 for Freedan and Shadow).
 ; 
-; The function never HIDES the D-pad (the old header said it masks joypad input 'for heavy hits or when the climbing flag is active'): it only reveals it on the two no-stagger paths. Callers such as gw82_archer and ir1F_stone_guard hide it themselves (TSB #$0F00) before the JSL, and HitStaggerReleasePlayer reveals it when the stagger ends.
+; The function never HIDES the D-pad: it only reveals it on the two no-stagger paths. Callers such as gw82_archer and ir1F_stone_guard hide it themselves (TSB #$0F00) before the JSL, and HitStaggerReleasePlayer reveals it when the stagger ends.
 ; 
 ; Because HitStaggerReleasePlayer overwrites the iframe counter with $FFE2 when the slide ends, the $003C written here only lasts until then (about 17 ticks).
 ; 
@@ -21,7 +21,7 @@
 ; | gw83_asp (3 sites) | 1, 1, $8001 (heavy) | 4, 4, 4 (no knockback) |
 ; | ir1F_stone_guard (4 sites) | $0B02 + 2, $0B02 + 2, 2, 2 | 0, 1, 3, 2 |
 ; 
-; $0B02 is the difficulty level (ram_map.txt), so the stone guard's two strongest hits add it to a base of 2. The old docs say about 12 callers; there are 9. Combat hits from the player's own attacks and from contact use combat_collision's inline code instead.
+; $0B02 is the difficulty level (ram_map.txt), so the stone guard's two strongest hits add it to a base of 2. Combat hits from the player's own attacks and from contact use combat_collision's inline code instead.
 ; 
 ; Everything here is UNVERIFIED-RUNTIME (no emulator trace); read from the code.
 ---------------------------------------------

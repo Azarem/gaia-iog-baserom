@@ -10,10 +10,6 @@
 ;   - Byte 2: index for the rotation chain ($00BC); 0 = still
 ;   - Byte 3: tick count n; the step runs n + 1 ticks
 ; Every array is 4n + 1 bytes: a hidden $FF ends it ($FE, subroutine, is never used). The indices used are 1 (+1 per tick), 2 (-1), $11 (alternating +1, 0) and $12 (alternating -1, 0) for X and Y, and 1 (+1) or 2 (-1) for rotation; a step never mixes rotation with movement, so a route turns the map and runs straight in one of eight directions.
-; 
-; === CORRECTIONS ===
-; 
-; The old header read the four bytes as flags (animation / speed nibbles), direction (turn left / right), a spare byte and a pixel distance; that reading is wrong, there are no turn codes and byte 3 is a tick count, not a distance.
 ---------------------------------------------
 
 ---------------------------------------------

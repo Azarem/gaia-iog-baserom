@@ -10,12 +10,12 @@
 ; 
 ; === TARGET (skipped while playerFlags bit $0100, forced walk, is set) ===
 ; 
-; Per axis, with P = the player actor's pixel position (not the adjusted one): t = P - $80. If t is negative or below cameraOffset, the target is cameraOffset (left / top limit). Otherwise e = t + $100; if e is at or beyond cameraBounds the target is cameraBounds - $100, else it is t. So cameraOffset is the left / top edge of the scene's window and cameraBounds the right / bottom edge. There is no dead zone: the old note called the P - 128 centring a 'dead zone'.
-; Both axes use the constants $80 and $100. Horizontally that centres the player in the 256-pixel view; vertically the target puts the player 128 lines below the top of a 224-line screen, 16 lines below the middle (OQ-I049-4). The result goes to cameraTargetX / cameraTargetY.
+; Per axis, with P = the player actor's pixel position (not the adjusted one): t = P - $80. If t is negative or below cameraOffset, the target is cameraOffset (left / top limit). Otherwise e = t + $100; if e is at or beyond cameraBounds the target is cameraBounds - $100, else it is t. So cameraOffset is the left / top edge of the scene's window and cameraBounds the right / bottom edge. There is no dead zone.
+; Both axes use the constants $80 and $100. Horizontally that centres the player in the 256-pixel view; vertically the target puts the player 128 lines below the top of a 224-line screen, 16 lines below the middle. The result goes to cameraTargetX / cameraTargetY.
 ; 
 ; === DELTAS ===
 ; 
-; effectDeltaX := cameraTargetX - bg1ScrollH and effectDeltaY := cameraTargetY - mapScrollV ($068E, the vertical scroll that UploadScrollRegisters writes to BG1VOFS; the old comment said BG2). This also runs while the forced walk holds the target, so the deltas keep following whatever forced_walk wrote to the target.
+; effectDeltaX := cameraTargetX - bg1ScrollH and effectDeltaY := cameraTargetY - mapScrollV ($068E, the vertical scroll that UploadScrollRegisters writes to BG1VOFS). This also runs while the forced walk holds the target, so the deltas keep following whatever forced_walk wrote to the target.
 ; 
 ; === DEAD CODE ===
 ; 
@@ -122,7 +122,7 @@ camera_scroll_controller [
     STA $cameraTargetX
     LDA $16               ; Player pixel Y
     SEC 
-    SBC #$0080            ; t = Y - 128: same constant as X although the screen is 224 lines tall (OQ-I049-4)
+    SBC #$0080            ; t = Y - 128: same constant as X although the screen is 224 lines tall
     BMI loc_00EB79        ; Underflow → clamp to top offset
     CMP $cameraOffsetY
     BMI loc_00EB79        ; Below top limit → clamp

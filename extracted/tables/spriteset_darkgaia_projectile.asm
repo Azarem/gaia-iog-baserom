@@ -1,4 +1,4 @@
-; Sprite set of the Dark Gaia fight projectiles (Bank 17, 1560576-1561584, 1008 bytes). The old note ('Will's Psycho Dash and Psycho Slide projectile sprites', 'ranged abilities') was wrong: the only user is the four Projectile* actors of player_character (ProjectileSouth/North/West/East), which the Attack* pieces spawn only in scene $E8 (flags $0602); Psycho Dash and Psycho Slide do not use it.
+; Sprite set of the Dark Gaia fight projectiles (Bank 17, 1560576-1561583, 1008 bytes). The only user is the four Projectile* actors of player_character (ProjectileSouth/North/West/East), which the Attack* pieces spawn only in scene $E8 (flags $0602); Psycho Dash and Psycho Slide do not use it.
 ; 
 ; Structure (the sprite-set format is documented once in the spriteset_freedan block note): 8 animations, 12 sprite groups of 9 sub-sprites each (76 bytes per group).
 ; 
@@ -8,11 +8,11 @@
 ; | $01 | projectile_launch_north | 3 (5, 2, 2) | ProjectileNorth launch, MoveY #0A |
 ; | $02 | projectile_launch_west | 3 (5, 2, 2) | ProjectileWest launch, MoveX #0A |
 ; | $03 | projectile_launch_east | 3 (5, 2, 2) | ProjectileEast launch, MoveX #09 |
-; | $04-$07 | projectile_travel_south, 17D04E, 17D054, 17D05A | 1 (9) each | looping travel pose of South/North/West/East, MoveY/MoveX #0F or #10 |
+; | $04-$07 | projectile_travel_south, projectile_travel_north, projectile_travel_west, projectile_travel_east | 1 (9) each | looping travel pose of South/North/West/East, MoveY/MoveX #0F or #10 |
 ; 
 ; Each travel animation holds a single frame that is the LAST group of its launch animation (e.g. $04 = sprite_group_17D3A4, the last frame of $00), so the projectile keeps its final launch pose while it flies; the 16 frame records therefore use only 12 groups. The ProjectileSouth/North/West/East actors die when they leave the screen, so the travel animation never ends on its own.
 ; 
-; Totals: pointer table 16 bytes, frame lists 80 bytes (4 x 14 + 4 x 6), groups 912 bytes. The tile graphics these sub-sprites draw were not traced (OQ-I067-3).
+; Totals: pointer table 16 bytes, frame lists 80 bytes (4 x 14 + 4 x 6), groups 912 bytes. Not traced: the tile graphics these sub-sprites draw.
 ---------------------------------------------
 
 ?BANK 17

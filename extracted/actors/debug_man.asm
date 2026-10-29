@@ -16,7 +16,7 @@
 ; Level 1: Great Wall $82 (DebugWarpGreatWall), LAST GAIA LOOK = the ending sequence $E5 (DebugWarpLastGaiaLook), EDOWA-DO = Edward Castle $0A (DebugWarpEdowaDo). The ROM order of the last two leaves is the reverse of the row order; the table maps row 3 to the $E5 leaf and row 4 to the $0A leaf.
 ; Level 2: Itory Village $15, Moon Tribe camp $1A, underground castle $0F. Level 3: Euro $91, Natives' Village $AC, Dao $C3. Level 4: Inca Ruins $1C, Freejia $32 (HANANOMIYAKO), Diamond Mine $3E (DAIYAMONDO).
 ; Level 5: Sky Garden $4C, Seaside Palace $5A, Mu $5F. Level 6: Angel Village $69, a second entry point of Natives' Village $AC and of Dao $C3. Level 7: Pyramid $CC, Watermia $78, Angkor Wat $B0.
-; That is 21 leaves; the old header said about 35 destinations, and the old labels for $32 (Gold Ship) and $3E (Diamond Coast) and the swapped $0A / $E5 comments were wrong.
+; That is 21 leaves.
 ---------------------------------------------
 
 !abilityBitmask                 0AA2

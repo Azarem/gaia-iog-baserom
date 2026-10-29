@@ -2,7 +2,7 @@
 ; 
 ; Defines four actor-based camera scroll behaviors used during gameplay and cutscenes. Each actor sets bit 12 ($1000) of its status word ($12; the meaning of that bit was not verified) and then computes per-frame scroll deltas with the hardware multiply/divide unit (MulDivide).
 ; 
-; Spawn parameters: the X/Y bytes of the actor-spawn entry are not positions. The spawner makes them pixel coordinates (tile × 16); TileAlignCoord then packs each into (page << 8 | tile) and ComputeScrollDeltas passes it to MulDivide as the packed operand: low byte = multiplier, high byte = divisor. Zero skips the axis. Spawn bytes seen in extracted/: #11 (most common), #21, #41, #00, #DF (Init only). The −8 px X offset makes the X multiplier one less than the Y one for the same spawn byte (OQ-57).
+; Spawn parameters: the X/Y bytes of the actor-spawn entry are not positions. The spawner makes them pixel coordinates (tile × 16); TileAlignCoord then packs each into (page << 8 | tile) and ComputeScrollDeltas passes it to MulDivide as the packed operand: low byte = multiplier, high byte = divisor. Zero skips the axis. Spawn bytes seen in extracted/: #11 (most common), #21, #41, #00, #DF (Init only). The −8 px X offset makes the X multiplier one less than the Y one for the same spawn byte.
 ; 
 ; The four scroll modes are:
 ; - ScrollCameraInit: aligns both coordinates, runs the delta computation 3 times (identical inputs), copies the Y delta to effectScrollV, then computes once more and moves cameraDeltaX (bit 15 set) into forcedScrollOverride, zeroing cameraDeltaX. Used only with spawn #DF, #DF.
@@ -35,7 +35,7 @@
 ; 
 ; Runs COP LoopStart with count 3 around ComputeScrollDeltas; all three passes use the same inputs, so they give the same result. After the loop, copies cameraDeltaY to effectScrollV ($0690).
 ; 
-; Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. Outside layer1_scroll_actors no reader of $06C8 was found in extracted/ (OQ-57).
+; Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. Outside layer1_scroll_actors no reader of $06C8 was found in extracted/.
 
 ScrollCameraInit [
   actor-def < #00, #00, #2C, {
@@ -62,7 +62,7 @@ ScrollCameraInit [
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaX
     ORA #$8000            ; Set bit 15 on the X delta
-    STA $forcedScrollOverride ; Store in forcedScrollOverride ($06C8); no reader outside layer1_scroll_actors was found (OQ-57)
+    STA $forcedScrollOverride ; Store in forcedScrollOverride ($06C8); no reader outside layer1_scroll_actors was found
     STZ $cameraDeltaX     ; Zero cameraDeltaX after moving its value into the override word
     RTL 
 } >
@@ -91,7 +91,7 @@ ScrollCameraTrack [
 ---------------------------------------------
 ; Vertical-only camera tracking actor-def referenced from scene_actors in Edward's Castle, Itory, Incan Ruins and Dao.
 ; 
-; Sets bit 12, packs the position via TileAlignPosition, then every frame computes only the Y delta through MulDivide when $16 is nonzero. cameraDeltaX is left unchanged and the X parameter ($14) is ignored. Three of its spawns use #21, #00, whose Y parameter is 0, so they compute nothing (OQ-57).
+; Sets bit 12, packs the position via TileAlignPosition, then every frame computes only the Y delta through MulDivide when $16 is nonzero. cameraDeltaX is left unchanged and the X parameter ($14) is ignored. Three of its spawns use #21, #00, whose Y parameter is 0, so they compute nothing.
 
 ScrollCameraVertical [
   actor-def < #00, #00, #2C, {

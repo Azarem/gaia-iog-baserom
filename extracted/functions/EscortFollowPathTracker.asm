@@ -14,7 +14,7 @@
 ; - Player moved: the NPC jumps to the head entry (written 8 recorded frames ago), the head entry is overwritten with the player's current X / Y, and when the head entry's facing differs from $0E the NPC gets animation orbitDiameter + facing + 4 ($28; $2A and $08 cleared). Then the head entry's facing is refreshed with the player's current facing and the head advances by 8.
 ; - Player still: the NPC shows animation orbitDiameter + facing of the head entry (no +4); its position is untouched, the head does not advance and $0E := $FFFF so the next move restarts the walk animation.
 ; 
-; Edge: GetPlayerFacingDirection returns carry set and A >= 4 for an unknown facing; the table index then runs past the four rows (OQ-I052-7). The old header said '9-waypoint ring buffer' and 'each frame advances orbitAngle by 8'; the head advances only on frames where the player moved, and the first use of orbitAngle is a seed, not a timer.
+; Edge: GetPlayerFacingDirection returns carry set and A >= 4 for an unknown facing; the table index then runs past the four rows; whether a caller can reach that case is not traced. The head advances only on frames where the player moved, and the first use of orbitAngle is a seed, not a timer.
 ---------------------------------------------
 
 ?INCLUDE 'GetPlayerFacingDirection'

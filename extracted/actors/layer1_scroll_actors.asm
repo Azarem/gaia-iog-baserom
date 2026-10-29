@@ -12,9 +12,9 @@
 ; 
 ; === VARIABLES ===
 ; 
-; cameraTargetX / Y ($06BE / $06C2): layer-0 scroll target (camera_scroll_controller). cameraDeltaX / Y ($06C0 / $06C4): the layer-1 scroll POSITION, not a delta: CameraSmoothScroll (camera_tilemap) copies them to effectScrollH / V ($068C / $0690, the BG2 scroll) when layerPriorityFlag bit $0400 is set. effectDeltaX / Y ($06E4 / $06E6): written by camera_scroll_controller, how far the camera moved (target - current scroll); the drifters add it so layer 1 follows the camera. effectBoundsX / Y ($0694 / $0698): layer-1 width and height (set in scene_script). effectRenderDeltaX / Y ($06E8 / $06EA): written only by these actors; no reader was found outside scene_lifecycle, which clears them. forcedScrollOverride ($06C8): written here with bit 15 set, the same convention as ScrollCameraInit; no reader found (OQ-I051-2).
+; cameraTargetX / Y ($06BE / $06C2): layer-0 scroll target (camera_scroll_controller). cameraDeltaX / Y ($06C0 / $06C4): the layer-1 scroll POSITION, not a delta: CameraSmoothScroll (camera_tilemap) copies them to effectScrollH / V ($068C / $0690, the BG2 scroll) when layerPriorityFlag bit $0400 is set. effectDeltaX / Y ($06E4 / $06E6): written by camera_scroll_controller, how far the camera moved (target - current scroll); the drifters add it so layer 1 follows the camera. effectBoundsX / Y ($0694 / $0698): layer-1 width and height (set in scene_script). effectRenderDeltaX / Y ($06E8 / $06EA): written only by these actors; no reader was found outside scene_lifecycle, which clears them. forcedScrollOverride ($06C8): written here with bit 15 set, the same convention as ScrollCameraInit; no reader found.
 ; 
-; The old header said the actors seed and integrate velocities for 'cutscene camera takeover' and that Layer1ParallaxRatio refines the other two every frame. The velocity decode and the integration are in the same actor, and Layer1ParallaxRatio is independent: its $14 / $16 are a parallax ratio or a drift, not a subpixel remainder.
+; The velocity decode and the integration are in the same actor, and Layer1ParallaxRatio is independent: its $14 / $16 are a parallax ratio or a drift, not a subpixel remainder.
 ---------------------------------------------
 
 ?INCLUDE 'hardware_math'
@@ -36,7 +36,7 @@
 ---------------------------------------------
 
 ; Layer-1 drift at constant velocity, no bounds. Actor-def: sprite 0, flags 0, header byte $2C. The spawn bytes are decoded into $2C / $2E (see the block note), the offsets are zeroed, and after a WaitByte #01 (2 ticks) the code integrates every frame: $14 / $16 are the accumulated layer-1 X / Y offset.
-; Per frame (after the WaitByte, apparently without an own SetEntryHere: OQ-I051-1): $14 += $2C + effectDeltaX and forcedScrollOverride := $14 | $8000 (X); $16 += $2E + effectDeltaY and cameraDeltaY := $16 (Y); effectRenderDeltaX := the X velocity ($2C), effectRenderDeltaY := cameraDeltaY - effectScrollV. The two axes are not symmetric: X never reaches cameraDeltaX.
+; Per frame (after the WaitByte; the actor has no SetEntryHere of its own): $14 += $2C + effectDeltaX and forcedScrollOverride := $14 | $8000 (X); $16 += $2E + effectDeltaY and cameraDeltaY := $16 (Y); effectRenderDeltaX := the X velocity ($2C), effectRenderDeltaY := cameraDeltaY - effectScrollV. The two axes are not symmetric: X never reaches cameraDeltaX.
 
 Layer1DriftUnbounded [
   actor-def < #00, #00, #2C, {
@@ -84,7 +84,7 @@ Layer1DriftUnbounded [
     STA $16
     STA $effectScrollV
     STA $cameraDeltaY
-    COP [WaitByte] ( #01 ) ; WaitByte #01 = 2 ticks (N + 1); the code below then runs every frame (no SetEntryHere in this actor, OQ-I051-1)
+    COP [WaitByte] ( #01 ) ; WaitByte #01 = 2 ticks (N + 1); the code below then runs every frame (no SetEntryHere in this actor)
     LDA $14
     CLC 
     ADC $2C
@@ -92,7 +92,7 @@ Layer1DriftUnbounded [
     ADC $effectDeltaX     ; $14 += X velocity + effectDeltaX (camera movement), so layer 1 also follows the camera
     STA $14
     ORA #$8000
-    STA $forcedScrollOverride ; X position with bit 15 set goes to forcedScrollOverride; no reader found (OQ-I051-2)
+    STA $forcedScrollOverride ; X position with bit 15 set goes to forcedScrollOverride; no reader found
     LDA $16
     CLC 
     ADC $2E
@@ -112,7 +112,7 @@ Layer1DriftUnbounded [
 ---------------------------------------------
 
 ; Layer-1 parallax ratio or drift, run every frame. The spawner sets $14 (X) and $16 (Y). A word with a nonzero high byte is a RATIO lo / hi: the layer-1 position becomes the camera target x lo / hi (hardware_math.MulDivide: (A low x Y) / A high). $0201 = target x 1 / 2, so layer 1 scrolls at half speed (both sg55 spawns use it for X). With a zero high byte the signed low byte is ADDED every frame instead (for X bit 15 forces this mode too); sg55_mystic_statue sets $16 := $000C, +12 px per frame on cameraDeltaY.
-; The X result goes to forcedScrollOverride ($06C8, no reader found: OQ-I051-2), the Y result to cameraDeltaY. The X half returns through the PEA into Layer1ParallaxRatioY, whose RTL ends the frame.
+; The X result goes to forcedScrollOverride ($06C8, no reader found), the Y result to cameraDeltaY. The X half returns through the PEA into Layer1ParallaxRatioY, whose RTL ends the frame.
 
 Layer1ParallaxRatio {
     COP [SetEntryHere]    ; Per-frame entry

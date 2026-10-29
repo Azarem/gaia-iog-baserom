@@ -2,7 +2,7 @@
 ; 
 ; === SPAWN (code_08CEA3) ===
 ; 
-; Event flag $E8 is the Solid Arm flag: sEA_solid_arm sets it, so after that optional fight Gem no longer appears (JewelerDie). The old header called it 'game complete'. Otherwise the spawn parameter in $0E picks an 8-frame animation group (all six records pass #01, which gives group 0): the animation index $28 is set to group x 8 + 2 (it is an animation index, not a sprite frame). $0E is then replaced by $3000, the OAM attribute word. Gem marks his tile solid, registers JewelerInteract as his chatPtr and idles on a bare RTL; the shared talk handler in global_ambient_dispatcher runs JewelerInteract when the player presses the interact button (A in this build) facing him.
+; Event flag $E8 is the Solid Arm flag: sEA_solid_arm sets it, so after that optional fight Gem no longer appears (JewelerDie). Otherwise the spawn parameter in $0E picks an 8-frame animation group (all six records pass #01, which gives group 0): the animation index $28 is set to group x 8 + 2 (it is an animation index, not a sprite frame). $0E is then replaced by $3000, the OAM attribute word. Gem marks his tile solid, registers JewelerInteract as his chatPtr and idles on a bare RTL; the shared talk handler in global_ambient_dispatcher runs JewelerInteract when the player presses the interact button (A in this build) facing him.
 ; 
 ; === REWARD TIERS (JewelerInteract, JewelerCheck*) ===
 ; 
@@ -340,7 +340,7 @@ JewelerSecretRoom {
 }
 
 ---------------------------------------------
-; Flag $E8 (set by sEA_solid_arm; the old note said 'game complete'): Gem leaves the scene.
+; Flag $E8 (set by sEA_solid_arm): Gem leaves the scene.
 
 JewelerDie {
     COP [Die]             ; Flag $E8 was set: remove Gem from the scene

@@ -4,7 +4,7 @@
 ; 
 ; Sequence: SetMetasprite points the actor at spriteset_pickups_effects, a table of frame lists with one list per animation index; SetSpritePalette #00 sets the actor's OAM palette field (bits $0E00 of $0E) to 0, which leaves every sprite on the palette stored in its sprite group; StageSpriteFrame #01 selects animation list #01 (pickups_effects_01_death_flash), eight frames from the sprite groups 0EE514, 0EE53D, 0EE566, 0EECA9, 0EE58F, 0EECA9, 0EE5F0 and 0EE619 with hold values 2, 2, 2, 1, 0, 0, 2, 2 (a hold of n shows the frame for n + 1 ticks, 19 ticks in all); AnimOnce plays the list once and yields until it ends; then TSB $10 sets $2000 (hidden / script-only) and Die unlinks the actor in the same run, so no rendered frame ever sees the flag. Why it sets the flag is unknown.
 ; 
-; What the animation looks like (the old note said "brief white flash") was not verified: the sprite groups and their palette were not decoded.
+; What the animation looks like was not verified: the sprite groups and their palette were not decoded.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

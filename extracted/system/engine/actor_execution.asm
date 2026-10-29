@@ -40,9 +40,9 @@
 ; 
 ; === ACTOR RECORD FORMAT (InitActorFromSceneData, 249627) ===
 ; 
-; Variable-length record: 7 bytes without stats, 9 bytes when byte 6 is nonzero. Byte 0-1 = X/Y tile (×16→pixels), byte 2 = type flags (bit 0 = addressing mode), bytes 3-4 = code pointer, byte 5 = bank, byte 6 = stats index (0 = no stats, record ends here), byte 7 = enemy number, byte 8 = event-block index (stored as deathActionIdx; the name is historical — see CheckEnemyDefeatedFlag and StageBgChangeFromDeathIdx). Player actors (bit 15 of $10) get special init: load character form body table, set spriteset, compute camera centering.
+; Variable-length record: 7 bytes without stats, 9 bytes when byte 6 is nonzero. Byte 0-1 = X/Y tile (×16→pixels), byte 2 = type flags (bit 0 = addressing mode), bytes 3-4 = code pointer, byte 5 = bank, byte 6 = stats index (0 = no stats, record ends here), byte 7 = enemy number, byte 8 = event-block index (stored as deathActionIdx; the field holds an event-block index, not a death action: see CheckEnemyDefeatedFlag and StageBgChangeFromDeathIdx). Player actors (bit 15 of $10) get special init: load character form body table, set spriteset, compute camera centering.
 ; 
-; Enemies with nonzero enemyNum are checked against the enemy-defeat flags in wramFlags (CheckEnemyDefeatedFlag). The flags are cleared only when the world map is entered, at a few scripted points and on game over, not at every scene change (see flag_helpers, OQ-67). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped.
+; Enemies with nonzero enemyNum are checked against the enemy-defeat flags in wramFlags (CheckEnemyDefeatedFlag). The flags are cleared only when the world map is entered, at a few scripted points and on game over, not at every scene change (see flag_helpers). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped.
 ---------------------------------------------
 
 ?BANK 03
@@ -699,7 +699,7 @@ RunActors_OverlayOnly_CopPostTick {
 ; - Free list at $7E3000 (long pointer $52/$54, bank $7E)
 ; - 16 thinker slots, each $10 bytes, starting at $0F00
 ; - Free list built similarly with $FFFF sentinel
-; - Zeroes $0F00–$0FFF, $7F0E00–$7F0EFF and $7F3000–$7F30FF. The $7F0E00 range is one page below the $7F0F00 page that inventory_overlay saves as the thinkers' extended data; the role of $7F3000 is not traced (see audit OQ-15)
+; - Zeroes $0F00–$0FFF, $7F0E00–$7F0EFF and $7F3000–$7F30FF. The $7F0E00 range is one page below the $7F0F00 page that inventory_overlay saves as the thinkers' extended data; the role of $7F3000 is not traced
 ; 
 ; Scene $FF (the inventory screen, loaded over the running game by inventory_overlay) uses a simplified clear path that skips the $7F2000 callback block and the $7F3000 range — inventory_overlay does not back these up (inferred reason: the paused field actors' callbacks must survive the overlay).
 
@@ -1171,7 +1171,7 @@ InitActorFromSceneData {
 }
 
 ---------------------------------------------
-; Check if an enemy was already defeated, via its enemy-defeat flag bit (wramFlags at $0A80; set by SetDungeonKillFlag/SetWramFlag when the enemy dies). The flags persist until ClearAllWramFlags runs (world map entry, st68_kara, sp58_red_eye) or game over clears them, so whether they survive a room change is still open (OQ-67).
+; Check if an enemy was already defeated, via its enemy-defeat flag bit (wramFlags at $0A80; set by SetDungeonKillFlag/SetWramFlag when the enemy dies). The flags persist until ClearAllWramFlags runs (world map entry, st68_kara, sp58_red_eye) or game over clears them; no reset at ordinary scene changes was found in extracted/ (see flag_helpers).
 ; 
 ; Converts enemy number A to a byte index (÷8 → Y) and bit position (AND #$07 → X). Looks up a bitmask from BitMaskTable_Wram ($01/$02/$04/$08/$10/$20/$40/$80) and ANDs it with the WRAM flag byte at $0A80,Y.
 ; 

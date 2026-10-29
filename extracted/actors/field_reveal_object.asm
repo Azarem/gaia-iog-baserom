@@ -7,14 +7,14 @@
 ; === WHICH PICKUP ===
 ; 
 ; - $26 nonzero, or the room's clear reward already taken (TestFlag_0300(sceneCurrent) set), or tier 0: FieldRevealFromActorStats reads the byte at +3 of the spawner's stat table. & 3 = 0 dies at once; 1 / 2 / 3 = a gem pickup with anim $04 / $05 / $06 and item $83 / $84 / $85 (1 / 2 / 5 gems, given by GiveItemToPlayer).
-; - Otherwise enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item: 1 / 2 / 3 = anim $0C / $0D / $0E (the sprites of e_hp / e_str / e_def_increase) and item $80 / $81 / $82 (Max HP / STR / DEF + 1). These paths also store $FFFF in orbitAngle (no reader found: OQ-I051-4). Nothing here sets scene flag $0300 (reward_actors does for the last-kill reward): OQ-I051-5.
+; - Otherwise enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item: 1 / 2 / 3 = anim $0C / $0D / $0E (the sprites of e_hp / e_str / e_def_increase) and item $80 / $81 / $82 (Max HP / STR / DEF + 1). These paths also store $FFFF in orbitAngle (no reader found). Nothing here sets scene flag $0300 (reward_actors does for the last-kill reward).
 ; 
 ; === DROP AND LIFE ===
 ; 
 ; FieldRevealDrop stores the item id in chatPtr ($7F000A), remembers the spawn Y in $24 and sets $26 := 7 (the step budget). With Y aligned to a 16 px row it probes the tile with BranchIfSolidHere: while the tile is solid it moves one row (16 px) down, at most 8 rows, and stops early on a tile whose collision byte is $0E; after 8 failures the target is the spawn Y + 1. The target goes to moveXAlt / moveYAlt, the actor returns to its spawn Y, flies to the target (MoveToward, 4 px per frame), hops once (Y chain $45: -2, -2, -1, -1, 0, 0, +1, +1, +2, +2), waits 12 ticks (WaitByte #0B) and spawns collect_handler_gem (SpawnAfterMarked #$2300): holding L / R then pulls the pickup toward the player.
-; It then animates in 100-frame blocks. A stat item (anim $0C-$0E, at least 8) repeats forever. A gem (anim $04-$06) switches to anim + 5 after the first block (the blink animations $09 / $0A / $0B, inferred: OQ-I051-7), plays 10 more frames and falls into FieldRevealDieEmpty (Die): a gem lives about 110 frames.
+; It then animates in 100-frame blocks. A stat item (anim $0C-$0E, at least 8) repeats forever. A gem (anim $04-$06) switches to anim + 5 after the first block (the blink animations $09 / $0A / $0B, inferred), plays 10 more frames and falls into FieldRevealDieEmpty (Die): a gem lives about 110 frames.
 ; 
-; The old header said it checks that all enemies are cleared and stages HP / STR / DEF gem sprites. The flag means 'this room's reward is already taken', and only the tier path stages stat items; the gem path stages gems.
+; The flag means 'this room's reward is already taken', and only the tier path stages stat items; the gem path stages gems.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_clear_reward_table'
@@ -67,7 +67,7 @@ field_reveal_tier_cases [
 FieldRevealStatItemHp {
     COP [StageSprAndHitbox] ( #0C )
     LDA #$FFFF
-    STA $orbitAngle, X    ; orbitAngle := $FFFF (no reader found, OQ-I051-4)
+    STA $orbitAngle, X    ; orbitAngle := $FFFF (no reader found)
     LDA #$0080            ; Item $80 = Max HP + 1 (GiveItemToPlayer)
     BRA FieldRevealDrop
 }
@@ -172,7 +172,7 @@ FieldRevealGem5 {
     LDA $collisionLayer, X ; Collision byte of the probed tile (Y = map index left by the probe)
     PLX 
     AND #$00FF
-    CMP #$000E            ; Collision byte $0E ends the scan at this row (meaning open, OQ-I051-6)
+    CMP #$000E            ; Collision byte $0E ends the scan at this row (its meaning is not traced)
     BEQ FieldRevealLaunch
     LDA $16
     CLC 

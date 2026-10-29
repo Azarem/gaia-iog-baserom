@@ -14,7 +14,7 @@
 ; 
 ; === BUTTONS AND FRAME MODEL (this baserom) ===
 ; 
-; BranchIfPressed tests joypadCurrent, the remapped logical bits. The menu uses two face-button bits: $8000 = confirm, $4000 = cancel. The baserom remap defaults (db-us/transforms.json) give physical A the value $8080, physical B $4008, X $0004, Y $0040 and Select $2000, so A confirms, B cancels, and X and Y are software-only bits that the menu ignores (except the widened swap mask, see ArrangePickTarget). A test with $C000 (UseItemTab, StatusViewTab) accepts A or B; the tab bar cancels on $6000 (B or Select). The diary menu can rebind the buttons, and the vanilla ROM tests different masks, so older comments that name "B/Y/X" describe the vanilla layout.
+; BranchIfPressed tests joypadCurrent, the remapped logical bits. The menu uses two face-button bits: $8000 = confirm, $4000 = cancel. The baserom remap defaults (db-us/transforms.json) give physical A the value $8080, physical B $4008, X $0004, Y $0040 and Select $2000, so A confirms, B cancels, and X and Y are software-only bits that the menu ignores (except the widened swap mask, see ArrangePickTarget). A test with $C000 (UseItemTab, StatusViewTab) accepts A or B; the tab bar cancels on $6000 (B or Select). The diary menu can rebind the buttons, and the vanilla ROM tests different masks.
 ; 
 ; Consumption: TSB $joypadHeld masks the given bits out of joypadCurrent until the physical button is released. The code consumes exactly the bit it matched, so a consume of $8000 leaves the $0080 half of A's value visible (never tested here). A D-pad consume is wider than its direction: Up consumes $0B00 (Up, Left and Right) and Down consumes $0700 (Down, Left and Right), so one diagonal press moves one step; Left ($0200) and Right ($0100) consume only themselves.
 ; 
@@ -356,7 +356,7 @@ ArrangeItemsTab {
 }
 
 ---------------------------------------------
-; Second phase of Arrange: pick the swap target. Saves the source cursor ($20 → $2C, $22 → $2E), spawns a second SelectionCursorActor, draws the target strings. B ($4000) → ArrangeCancelTarget; mask $8044 → ArrangePerformSwap. The vanilla ROM tests only the confirm bit here; the transform widens it to $8044, which also accepts the X ($0004) and Y ($0040) bits of the default remap (OQ-I028-1).
+; Second phase of Arrange: pick the swap target. Saves the source cursor ($20 → $2C, $22 → $2E), spawns a second SelectionCursorActor, draws the target strings. B ($4000) → ArrangeCancelTarget; mask $8044 → ArrangePerformSwap. The vanilla ROM tests only the confirm bit here; the transform widens it to $8044, which also accepts the X ($0004) and Y ($0040) bits of the default remap.
 
 ArrangePickTarget {
     COP [PlaySoundCh2] ( #11 ) ; Source slot picked — play confirm sound
@@ -378,7 +378,7 @@ ArrangePickTarget {
     JSR $&PositionGridCursor ; Position target cursor during swap pick
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$4000, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
-    COP [BranchIfPressed] ( #$8044, &ArrangePerformSwap ) ; Mask $8044 also accepts the X and Y bits of the default remap; the vanilla ROM tests only the confirm bit (OQ-I028-1)
+    COP [BranchIfPressed] ( #$8044, &ArrangePerformSwap ) ; Mask $8044 also accepts the X and Y bits of the default remap; the vanilla ROM tests only the confirm bit
     PEA $&ArrangeTargetLoop-1
     COP [BranchIfPressed] ( #$0800, &GridCursorUp )
     COP [BranchIfPressed] ( #$0400, &GridCursorDown )
@@ -389,7 +389,7 @@ ArrangePickTarget {
 }
 
 ---------------------------------------------
-; Execute the swap between source ($2E) and target ($22). Consumes the confirm bit; same-slot is ignored (back to the target loop). 8-bit swap of inventorySlots[$22] and [$2E] through XBA. Refreshes both slot actors: UpdateSlotActorSprite returns Y = the slot ACTOR, which is why STA $0028,Y after it addresses the actor. Equipped tracking: the first test (TYA; CMP inventoryEquippedIndex) compares that actor address, not a slot index, so "target slot was equipped" never matches (OQ-I028-2); the second test (source slot equipped → follow to $22) works. Kills the saved source cursor ($2C) via MarkDeath and returns to the source loop.
+; Execute the swap between source ($2E) and target ($22). Consumes the confirm bit; same-slot is ignored (back to the target loop). 8-bit swap of inventorySlots[$22] and [$2E] through XBA. Refreshes both slot actors: UpdateSlotActorSprite returns Y = the slot ACTOR, which is why STA $0028,Y after it addresses the actor. Equipped tracking: the first test (TYA; CMP inventoryEquippedIndex) compares that actor address, not a slot index, so "target slot was equipped" never matches; the second test (source slot equipped → follow to $22) works. Kills the saved source cursor ($2C) via MarkDeath and returns to the source loop.
 
 ArrangePerformSwap {
     LDA #$8000            ; Consume the confirm bit; a swap of a slot with itself is ignored (next check)
@@ -426,7 +426,7 @@ ArrangePerformSwap {
     JSR $&UpdateSlotActorSprite ; Same: Y = the target slot actor after the call
     PLA 
     STA $0028, Y
-    TYA                   ; Y is now a slot ACTOR address, so this compare with the slot index never matches (OQ-I028-2)
+    TYA                   ; Y is now a slot ACTOR address, so this compare with the slot index never matches
     CMP $inventoryEquippedIndex
     BNE loc_02E631
     LDA $2E

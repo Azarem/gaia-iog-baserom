@@ -36,7 +36,7 @@ ForcedWalkSouth {
     TSB $joypadMaskStd
     STZ $joypadCurrent    ; Zero current input — suppress all player control
     JSR $&ReadDirSprite_YVelocity ; First stream byte → animation index ($0000) and Y velocity curve ($2E)
-    LDA #$2008            ; Clear $2008 in own $10 (bit meanings unverified, OQ-60)
+    LDA #$2008            ; Clear $2008 in own $10 ($0008 = collision-aware movement, $2000 = skipped by SortActorsByDepth)
     TRB $10
     COP [StagePlayerSprFromDP] ; Stage the player sprite: animation index = DP $0000 (set by ReadDirSprite_*)
     COP [RunPlayerAnim]
@@ -248,7 +248,7 @@ ApplyScrollOffset {
 }
 
 ---------------------------------------------
-; Copy this actor's final state to the player actor: position ($14/$16), animation index ($28), $10 with $0008 set and $0200 cleared (OQ-60), and zero the player's $08.
+; Copy this actor's final state to the player actor: position ($14/$16), animation index ($28), $10 with $0008 set (collision-aware movement) and $0200 cleared, and zero the player's $08.
 
 SyncPlayerToCamera {
     LDY $playerActor      ; SyncPlayerToCamera: copy position and state to the player actor
@@ -257,7 +257,7 @@ SyncPlayerToCamera {
     LDA $16               ; Copy local Y to player actor Y position
     STA $0016, Y
     LDA $10
-    ORA #$0008            ; Set $0008 in the player's $10 (bit meaning: OQ-60)
+    ORA #$0008            ; Set $0008 in the player's $10 (collision-aware movement)
     AND #$FDFF            ; Clear $0200 flag on player
     STA $0010, Y
     LDA $28               ; Sync animation index to player actor

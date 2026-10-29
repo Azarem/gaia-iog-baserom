@@ -1,8 +1,8 @@
-; Sprite set of the Dark Space transformation poses (Bank 0F, 1032192-1043845, 11653 bytes). The old note ('Psycho Dash, Psycho Slide, Dark Friar cast, Aura Barrier, Earthquaker', 'special abilities of all three characters') was wrong: body_table row $05 selects this set, and the only code that selects row $05 is the seven Transform_* scripts of sE6_gaia (SetPlayerSpriteDirect #05): Transform_WillToFreedan, _WillToFreedanAlt, _ShadowToFreedan, _FreedanToWill, _ShadowToWill, _WillToShadow and _FreedanToShadow. The tile graphics are abil_sprites_1B8000.
+; Sprite set of the Dark Space transformation poses (Bank 0F, 1032192-1043844, 11653 bytes). body_table row $05 selects this set, and the only code that selects row $05 is the seven Transform_* scripts of sE6_gaia (SetPlayerSpriteDirect #05): Transform_WillToFreedan, _WillToFreedanAlt, _ShadowToFreedan, _FreedanToWill, _ShadowToWill, _WillToShadow and _FreedanToShadow. The tile graphics are abil_sprites_1B8000.
 ; 
 ; Structure (format documented in the spriteset_freedan block note): 19 animations ($00-$12), 697 frame records, 148 printed sprite groups. Byte budget: 38 B pointer table + 2788 B frame records (697 x 4) + 38 B terminators + 8789 B of groups.
 ; 
-; The scripts stage animations $00-$03, $05-$0B, $0D-$10 and $12 (for example Transform_WillToFreedan: $00 once, $02 and $03 as loops, the palette thinker, $08 and $09 as loops, $0A once). Animations $04, $0C and $11 are not referenced by any of the seven scripts (OQ-I067-4).
+; The scripts stage animations $00-$03, $05-$0B, $0D-$10 and $12 (for example Transform_WillToFreedan: $00 once, $02 and $03 as loops, the palette thinker, $08 and $09 as loops, $0A once). Animations $04, $0C and $11 are not referenced by any of the seven scripts.
 ; 
 ; Extractor artefact: two groups that no frame list references are hidden inside the printed rows of sprite_group_0FCF27 and sprite_group_0FD5AA (see their part notes). The 8789 B group area only adds up when these two 69-byte groups are counted.
 ---------------------------------------------
@@ -11,7 +11,7 @@
 
 ---------------------------------------------
 
-; 19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0B), $11 (transform_pose_11).
+; 19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0C), $11 (transform_pose_11).
 
 spriteset_transform_poses [
   &transform_pose_00   ;00
@@ -260,7 +260,7 @@ transform_pose_03 [
 ]
 
 ---------------------------------------------
-; Animation $04: not referenced by the Transform_* scripts (OQ-I067-4).
+; Animation $04: not referenced by the Transform_* scripts.
 
 transform_pose_04 [
   sprite-set < #$0000, &sprite_group_0FD543 >   ;00
@@ -535,9 +535,6 @@ transform_pose_0A [
   sprite-set < #$0077, &sprite_group_0FE0C9 >   ;23
 ]
 
----------------------------------------------
-; Animation $0C: not referenced by the Transform_* scripts (OQ-I067-4).
-
 transform_pose_0B [
   sprite-set < #$0000, &sprite_group_0FDC1D >   ;00
   sprite-set < #$0000, &sprite_group_0FDC46 >   ;01
@@ -562,6 +559,9 @@ transform_pose_0B [
   sprite-set < #$0006, &sprite_group_0FE076 >   ;14
   sprite-set < #$0009, &sprite_group_0FE0C9 >   ;15
 ]
+
+---------------------------------------------
+; Animation $0C: not referenced by the Transform_* scripts.
 
 transform_pose_0C [
   sprite-set < #$0077, &sprite_group_0FE58B >   ;00
@@ -718,7 +718,7 @@ transform_pose_10 [
 ]
 
 ---------------------------------------------
-; Animation $11: not referenced by the Transform_* scripts (OQ-I067-4).
+; Animation $11: not referenced by the Transform_* scripts.
 
 transform_pose_11 [
   sprite-set < #$0000, &sprite_group_0FE940 >   ;00
@@ -1355,7 +1355,7 @@ sprite_group_0FD573 [
 ]
 
 ---------------------------------------------
-; Same extractor artefact as sprite_group_0FCF27, with identical rows: the first 7 are the real group, the trailing rows are an unreferenced 69-byte group that starts at 0FD5E8 (OQ-I067-5).
+; Same extractor artefact as sprite_group_0FCF27, with identical rows: the first 7 are the real group, the trailing rows are an unreferenced 69-byte group that starts at 0FD5E8.
 
 sprite_group_0FD5AA [
   sprite-group < #10, #0B, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [

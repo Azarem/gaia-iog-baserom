@@ -9,13 +9,12 @@
 ;   DP $4E-$5D (8 words: actor free-list pointer $4E/$50, thinker free-list pointer $52/$54, actor list head / tail $56 / $58, thinker list head / tail $5A / $5C) -> $7E:389C
 ;   6 camera words $06BE-$06C9 (cameraTargetX, cameraDeltaX, cameraTargetY, cameraDeltaY, scrollOverrideH, forcedScrollOverride) -> $7E:3890; scrollOverrideV ($06CA) is NOT saved
 ;   MVN copies: $00:0E00 actor free-slot list -> $7E:3490; $7E:3000 thinker free-slot list -> $7E:3590; $00:1000-$1FFF actor slots -> $7F:E000; $7F:1000-$1FFF actor extended data -> $7F:F000; $00:0F00 thinker table (16 slots x $10) -> $7E:3690; $7F:0F00 thinker extended data -> $7E:3790; $7F:0A00 palette staging ($203 bytes) -> $7E:38B4 (restored separately by RestorePaletteBuffer)
-; The older text called $0E00 'hardware shadow registers', $7E:3000 the 'actor pool', $0F00 a 'variable / script page' and $7F:0F00 a 'WRAM scratch page'; the pool code shows the real roles above.
 ; 
 ; === OPEN FLOW (OpenInventoryScreen) ===
 ; 
-; 1. DisableNmiKeepJoypad (NMITIMEN = $01: NMI OFF, joypad auto-read on), EnterForcedBlank (INIDISP $80), HDMAEN = 0. (The older text said 'EnableDisplay'; no such call exists.)
+; 1. DisableNmiKeepJoypad (NMITIMEN = $01: NMI OFF, joypad auto-read on), EnterForcedBlank (INIDISP $80), HDMAEN = 0.
 ; 2. SaveGameState (above).
-; 3. joypadMaskInv = $0F00 (the Up / Down / Left / Right bits). Push effectDeltaX (zeroed), displayModeFlags (set to $4000: every request bit clears; bit 14 has no reader, OQ-I034-1), eventFlags (zeroed; flag byte #00 is the loop's exit flag, so this also re-arms it), sceneCurrent (set to $FF, sceneTableIndex = $01FE). Event flag $FF (bit 7 of $0A1F, the scene-setup-complete latch) is cleared.
+; 3. joypadMaskInv = $0F00 (the Up / Down / Left / Right bits). Push effectDeltaX (zeroed), displayModeFlags (set to $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag at $09ED, the HUD-off bit), eventFlags (zeroed; flag byte #00 is the loop's exit flag, so this also re-arms it), sceneCurrent (set to $FF, sceneTableIndex = $01FE). Event flag $FF (bit 7 of $0A1F, the scene-setup-complete latch) is cleared.
 ; 4. PPU: all window select / logic registers zero (windows off; WH0 = 0 and WH1 = $FF are inert without a W*SEL bit), BG3SC = $78 (tilemap at VRAM word $7800 = byte $F000), BG3 scroll zero, SceneScriptNoMusic builds scene $FF graphics, BG2SC = $0C, BG1SC = bg1ConfigMode = $04 (inventory_menu swaps BG1SC per tab), LoadScenePalettes, palette staging colour 2 = $5B1B (R27 G24 B22), UploadCgramPalette.
 ; 5. Source-pointer cache slots C ($0672) and D ($0675) are invalidated (zeroing addr-hi + bank forces the next lookup to miss, so the scene reload at close re-decompresses those BG tile sources). Camera targets / deltas, the four scroll accumulators, scrollOverrideH / V, forcedScrollOverride, $06CC and $00B2 are zeroed.
 ; 6. ClearVramBufferFull, InitActorPool, SpawnSceneActors, SpawnSceneThinkers, ClearActorRenderList.
@@ -28,9 +27,9 @@
 ; 10. BG3 vertical scroll zero, DisableNmiKeepJoypad, EnterForcedBlank, HDMAEN = 0.
 ; 11. RestoreGameState; then bg1ScrollH / mapScrollV / effectScrollH / effectScrollV are loaded from the restored cameraTargetX / cameraTargetY / cameraDeltaX / cameraDeltaY.
 ; 12. Pop sceneCurrent (sceneTableIndex recomputed), eventFlags, displayModeFlags, effectDeltaX.
-; 13. SceneScriptNoMusic (previous scene's graphics), ApplyAllEventBlocks, PlaceOpenedChestTiles (rewrites the opened 2x2 pattern for chests whose flag is set; the older note said 'warp / barrier markers').
+; 13. SceneScriptNoMusic (previous scene's graphics), ApplyAllEventBlocks, PlaceOpenedChestTiles (rewrites the opened 2x2 pattern for chests whose flag is set).
 ; 14. RestorePaletteBuffer, LoadScenePalettes, LoadPlayerGraphics, ReloadAbilityFX (tiles and palette selected by activeAbilityGfx $00EA).
-; 15. ClearActorRenderList, ClearVramBufferFull, displayModeFlags |= $41 (bit 0 = full BG3 tilemap upload, bit 6 = sine-table rebuild trigger read by BuildSineLookupTable; the older text said 'dialogue'), LoadHudTilemap, then the player sprite cache ($09CC / $09CE) and cachedPrevHp / cachedPrevMaxHp are zeroed so the next frames treat them as changed, joypadMaskInv and the unnamed words $00F4 / $00F8 are zeroed.
+; 15. ClearActorRenderList, ClearVramBufferFull, displayModeFlags |= $41 (bit 0 = full BG3 tilemap upload, bit 6 = sine-table rebuild trigger read by BuildSineLookupTable), LoadHudTilemap, then the player sprite cache ($09CC / $09CE) and cachedPrevHp / cachedPrevMaxHp are zeroed so the next frames treat them as changed, joypadMaskInv and the unnamed words $00F4 / $00F8 are zeroed.
 ; 16. RunBg3Script (BG3 console string), ResetThinkerWaitCounters (resets the wait counter of every THINKER in the list at $5A, not an actor queue), ResetHdmaState, UpdateFrameRender, SetFlagByte #FF (the scene-setup-complete latch cleared in step 3), UpdateFrameRender, INIDISP = $0F, PLP, RTL.
 ---------------------------------------------
 
@@ -114,7 +113,7 @@ OpenInventoryScreen {
     LDA $effectDeltaX     ; Save effectDeltaX; zero until overlay closes
     PHA 
     STZ $effectDeltaX
-    LDA $displayModeFlags ; Save displayModeFlags, then force $4000: every request bit clears; bit 14 has no reader in extracted/ (OQ-I034-1)
+    LDA $displayModeFlags ; Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off)
     PHA 
     LDA #$4000
     STA $displayModeFlags
@@ -163,7 +162,7 @@ OpenInventoryScreen {
     LDX #$0000            ; Invalidate source-pointer cache slots C ($0672) and D ($0675): zeroing addr-hi + bank makes the next lookup a miss
     STX $srcCacheBgC+1    ; 16-bit store: zeroes $0673-$0674 (addr high byte and bank of slot C)
     STX $srcCacheBgD+1    ; 16-bit store: zeroes $0676-$0677 (addr high byte and bank of slot D)
-    LDX #$0000            ; Zero camera targets / deltas and the scroll state; the camera words come back from the save area, the rest does not (OQ-I034-4)
+    LDX #$0000            ; Zero camera targets / deltas and the scroll state; the camera words come back from the save area, the rest does not
     STX $cameraTargetX
     STX $cameraTargetY
     STX $cameraDeltaX
@@ -174,9 +173,9 @@ OpenInventoryScreen {
     STX $effectScrollV
     STX $scrollOverrideH
     STX $forcedScrollOverride
-    STX $scrollOverrideV  ; scrollOverrideV ($06CA) is zeroed here but was not saved, so its old value is lost (OQ-I034-4)
-    STX $06CC             ; Unnamed word $06CC, zeroed with the scroll state and never saved (OQ-I034-4)
-    STX $00B2             ; Unnamed DP word $00B2, outside the saved DP range, zeroed and never restored (OQ-I034-4)
+    STX $scrollOverrideV  ; scrollOverrideV ($06CA) is zeroed here but was not saved, so its old value is lost
+    STX $06CC             ; Unnamed word $06CC, zeroed with the scroll state and never saved
+    STX $00B2             ; Unnamed DP word $00B2, outside the saved DP range, zeroed and never restored
     JSL $@vram_buffer_clear.ClearVramBufferFull ; ClearVramBufferFull — empty tile upload queue before actor spawn
     JSL $@actor_execution.InitActorPool ; InitActorPool — reset actor free list for inventory scene
     JSL $@actor_execution.SpawnSceneActors ; SpawnSceneActors — create inventory menu/cursor actors
@@ -380,7 +379,7 @@ SaveGameState {
 }
 
 ---------------------------------------------
-; Reverse of SaveGameState for everything except the palette staging buffer. DP $4E-$5D comes back before the pages it points into; both are restored before anything runs. scrollOverrideV, $06CC and $00B2 are not restored because they were never saved (OQ-I034-4).
+; Reverse of SaveGameState for everything except the palette staging buffer. DP $4E-$5D comes back before the pages it points into; both are restored before anything runs. scrollOverrideV, $06CC and $00B2 are not restored because they were never saved.
 
 RestoreGameState {
     PHP 

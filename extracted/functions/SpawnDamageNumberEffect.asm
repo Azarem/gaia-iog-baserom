@@ -1,4 +1,4 @@
-; Floating damage-number actor (Bank 00, 56500-56579). One spawn is one 16-frame effect: it draws the damage value as digit sprites above the victim and lets them rise one pixel per frame while following the victim's own movement. The old name (SpawnAttackTrailEffect, 'attack trail') and the old text ('ghost copies interpolated between the previous and current position', '16 frames at position then 16 drifting upward', 'when the player or enemies take damage') do not describe it: there is one 16-iteration loop and no ghost copies.
+; Floating damage-number actor (Bank 00, 56500-56579). One spawn is one 16-frame effect: it draws the damage value as digit sprites above the victim and lets them rise one pixel per frame while following the victim's own movement. There is one 16-iteration loop and no ghost copies.
 ; 
 ; === SPAWN ===
 ; 
@@ -16,7 +16,7 @@
 ; 
 ; === HAZARD ===
 ; 
-; The loop re-reads the victim's position through $24 every frame and never checks that the slot still holds the same actor. If the victim died and its slot were reused within the 16 frames, the number would follow whatever occupies the slot (analysis only, not run; OQ-I041-5).
+; The loop re-reads the victim's position through $24 every frame and never checks that the slot still holds the same actor. If the victim died and its slot were reused within the 16 frames, the number would follow whatever occupies the slot (analysis only, not run).
 ; 
 ; DamageNumberShort_unused is an unreferenced variant of this routine.
 ---------------------------------------------

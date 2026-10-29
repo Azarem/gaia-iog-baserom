@@ -1,6 +1,6 @@
 ; Circular HDMA window generator (spotlight / iris) and its two thinkers (391960-392913, Bank 05).
 ; 
-; It builds a per-scanline table of left and right edges for PPU window 1: QueueHdma uses hdma_channel_config entry #26 (WH0, $2126; transfer mode 1 = two registers, so every scanline writes WH0 = left edge and WH1 = right edge). The edges describe a filled circle, so the window is a circle that can move and grow or shrink. Lines outside the circle get the "empty window" value (left $FF, right $00: left > right, nothing is inside). The old description (diamond-shaped brightness gradient, intensity / radius / centre offset) was wrong: nothing here touches brightness or colour.
+; It builds a per-scanline table of left and right edges for PPU window 1: QueueHdma uses hdma_channel_config entry #26 (WH0, $2126; transfer mode 1 = two registers, so every scanline writes WH0 = left edge and WH1 = right edge). The edges describe a filled circle, so the window is a circle that can move and grow or shrink. Lines outside the circle get the "empty window" value (left $FF, right $00: left > right, nothing is inside). Nothing here touches brightness or colour.
 ; 
 ; === PARAMETERS (direct page $F4-$FE, written by the scene scripts) ===
 ; 
@@ -562,7 +562,7 @@ HdmaEmitHoldSegments {
 }
 
 ---------------------------------------------
-; Emit the circle's repeat-mode entries. In: A = line count (Z set when zero); $02 = pointer to the first row-data word of the first segment; Y = table write pointer. Each loop writes a 3-byte entry whose count byte is (count | $80), so HDMA reads a new data word on every scanline of the segment, with the data pointer in $02; $02 then advances by count x 2 bytes (one word per line). Segments are capped at 127 lines. Bit 7 is HDMA's repeat flag, not a direction flag: the old comment ("direction bit, upward") was wrong.
+; Emit the circle's repeat-mode entries. In: A = line count (Z set when zero); $02 = pointer to the first row-data word of the first segment; Y = table write pointer. Each loop writes a 3-byte entry whose count byte is (count | $80), so HDMA reads a new data word on every scanline of the segment, with the data pointer in $02; $02 then advances by count x 2 bytes (one word per line). Segments are capped at 127 lines. Bit 7 is HDMA's repeat flag, not a direction flag.
 
 HdmaEmitRepeatSegments {
     BNE loc_05FDFD        ; Z set from the caller's A / the last PLA: nothing left

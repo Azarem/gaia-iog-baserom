@@ -1,6 +1,6 @@
 {
-    "npc_props_03": "Animation $03: no actor selects it (OQ-I068-2).",
-    "npc_props_09": "Animation $09: no actor selects it (OQ-I068-2).",
+    "npc_props_03": "Animation $03: no actor selects it.",
+    "npc_props_09": "Animation $09: no actor selects it.",
     "pickups_effects_00_red_jewel": "Animation $00: the red jewel of hidden_red_jewel.",
     "pickups_effects_01_death_flash": "Animation $01: 8 frames, 19 ticks: the enemy death flash and the debris particle.",
     "pickups_effects_04_gem1": "Animation $04: the 1-gem pickup (still frame plus shimmer).",

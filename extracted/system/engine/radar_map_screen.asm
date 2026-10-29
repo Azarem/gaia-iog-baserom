@@ -1,6 +1,6 @@
 ; Radar map screen overlay — the Start-button map of the current area (229567–230416, Bank 03).
 ; 
-; Draws a 17×17-cell view centered on the player. One cell = 4×4 map tiles (64×64 px) = one BG3 tilemap word. Contents: an icon for every unopened treasure chest, a dot for every actor flagged extendedFlags bit 8 (the stat-bearing enemies counted in enemiesRemainingBcd), a second dot type for actors flagged bit 9 (only dark_space.asm sets that bit, so these are probably Dark Space entrances: OQ-63), and a legend with the unopened-chest count and the remaining-enemy count. When the scene still offers an unclaimed clear reward (enemy_clear_reward_table, flag $0300 + scene), a framed 2×2 reward icon and a BG3 label are added. GlobalInputHandler calls RadarScreenSetup once when Start opens the map and RadarBorderAnimate every frame of its display loop.
+; Draws a 17×17-cell view centered on the player. One cell = 4×4 map tiles (64×64 px) = one BG3 tilemap word. Contents: an icon for every unopened treasure chest, a dot for every actor flagged extendedFlags bit 8 (the stat-bearing enemies counted in enemiesRemainingBcd), a second dot type for actors flagged bit 9 (only dark_space.asm sets that bit, so these are probably Dark Space entrances), and a legend with the unopened-chest count and the remaining-enemy count. When the scene still offers an unclaimed clear reward (enemy_clear_reward_table, flag $0300 + scene), a framed 2×2 reward icon and a BG3 label are added. GlobalInputHandler calls RadarScreenSetup once when Start opens the map and RadarBorderAnimate every frame of its display loop.
 ; 
 ; === RENDERING PIPELINE (RadarScreenSetup) ===
 ; 
@@ -55,7 +55,7 @@
 ; 
 ; Waits for any pending adhoc VRAM DMA, queues the icon graphics DMA (512 bytes to VRAM $7700) and waits for it, clears the staging buffer, block-copies the radar layout, computes the viewport and then plots chests, actors, legend counts and the optional clear-reward frame. See the file header for the full pipeline and cell geometry.
 ; 
-; Reward block: when flag $0300 + sceneCurrent is clear and enemy_clear_reward_table[scene] is non-zero it draws a 4×4-cell frame (corner tile $2EE1 with H/V flips, edges $2EE2/$2EE3 with flips) around a 2×2 icon of sequential tiles $32E8–$32EB and runs the BG3 label script. The table value (1=HP, 2=STR, 3=DEF per boss_clear_reward_handler) is only tested for non-zero here; what the icon shows is unverified (OQ-63).
+; Reward block: when flag $0300 + sceneCurrent is clear and enemy_clear_reward_table[scene] is non-zero it draws a 4×4-cell frame (corner tile $2EE1 with H/V flips, edges $2EE2/$2EE3 with flips) around a 2×2 icon of sequential tiles $32E8–$32EB and runs the BG3 label script. The table value (1=HP, 2=STR, 3=DEF per boss_clear_reward_handler) is only tested for non-zero here; what the icon shows is unverified.
 
 RadarScreenSetup {
     LDA $adhocVramDmaDest ; Check if previous ad-hoc VRAM DMA is still pending
@@ -202,7 +202,7 @@ RadarScreenSetup {
     STA $7F044C
     LDA #$EEE3
     STA $7F048C
-    LDA #$32E8            ; 2×2 reward icon in the frame interior: tiles $32E8-$32EB (INC between stores); meaning unverified, OQ-63
+    LDA #$32E8            ; 2×2 reward icon in the frame interior: tiles $32E8-$32EB (INC between stores); meaning unverified
     STA $7F0448
     INC 
     STA $7F044A
@@ -214,7 +214,7 @@ RadarScreenSetup {
     COP [RunBg3Script] ( @system_strings.consolestring_01EAD1 ) ; Display radar label text via BG3 script
 
   loc_038248:
-    LDA #$32E5            ; Tile $32E5 at $7F0626 (purpose unverified, OQ-63)
+    LDA #$32E5            ; Tile $32E5 at $7F0626 (purpose unverified)
     STA $7F0626
     LDA #$0001
     TSB $displayModeFlags ; Request a full BG3 staging upload (displayModeFlags bit 0)

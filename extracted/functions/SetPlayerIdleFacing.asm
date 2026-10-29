@@ -2,7 +2,7 @@
 ; 
 ; Input: A (16-bit) = facing index 0 South, 1 North, 2 West, 3 East (the order of player_idle_entry_table and of GetPlayerFacingDirection); there is no range check. X is set to the player actor slot from $playerActor ($09AA). The routine writes the entry pointer of that actor: $0000,X = the IdleStand* word from the table, $0002,X = the bank byte of IdleStandSouth. The player's script therefore resumes in the idle pose on its next run. It also zeroes the wait counter $0008 and the movement scratch words $002C / $002E, both in the actor's DP page and in the extended data ($7F002C / $7F002E).
 ; 
-; The caller's X is saved with PHX / PLX; Y is untouched; A is clobbered. The old header's 'frame counter' is the wait counter $08. docs/code/bank00/data-tables-memory.md says the table is selected 'based on body form and scene context'; the routine looks only at A (the IdleStand* handlers themselves branch on the Shadow flag byte #00).
+; The caller's X is saved with PHX / PLX; Y is untouched; A is clobbered. docs/code/bank00/data-tables-memory.md says the table is selected 'based on body form and scene context'; the routine looks only at A (the IdleStand* handlers themselves branch on the Shadow flag byte #00).
 ---------------------------------------------
 
 ?INCLUDE 'player_character'
@@ -26,7 +26,7 @@ SetPlayerIdleFacing {
     LDA #$^player_character.IdleStandSouth ; Bank byte of the entry (all four IdleStand* handlers share a bank)
     STA $0002, X
     REP #$20
-    STZ $0008, X          ; Wait counter = 0 (the older header called it a frame counter)
+    STZ $0008, X          ; Wait counter = 0
     STZ $002C, X          ; Clear movement scratch $2C in the actor's DP page
     STZ $002E, X          ; Clear movement scratch $2E in the actor's DP page
     LDA #$0000

@@ -2,20 +2,20 @@
 ; 
 ; === ENTRY CONTRACT ===
 ; 
-; PlayerMoveController (actors/player/player_move_controller) calls it with JSL once per frame when the player actor's flags word ($10) has bit $0008 set (collision-checked movement; the vine, ladder and shimmy states clear it, and then the controller adds the velocity to the position directly, with no collision). X at entry is the CONTROLLER's own actor slot (the old note said the player actor): the tick saves it in the absolute scratch word $000A, and SetActorCollisionFlag later ORs bit $0004 (solid contact this tick) into that slot's $10; the controller copies the bit into the player's $10 when it writes the position back. The tick itself starts by clearing bit $0004 there.
+; PlayerMoveController (actors/player/player_move_controller) calls it with JSL once per frame when the player actor's flags word ($10) has bit $0008 set (collision-checked movement; the vine, ladder and shimmy states clear it, and then the controller adds the velocity to the position directly, with no collision). X at entry is the CONTROLLER's own actor slot: the tick saves it in the absolute scratch word $000A, and SetActorCollisionFlag later ORs bit $0004 (solid contact this tick) into that slot's $10; the controller copies the bit into the player's $10 when it writes the position back. The tick itself starts by clearing bit $0004 there.
 ; 
 ; D is set to $0000 for the whole tick, so the 2-digit operands below are low-RAM scratch words: $20 / $22 = X velocity / position, $24 / $26 = Y velocity / position, all in sub-pixels (4 per pixel, Y grows downward; the controller scaled the position by 4 before the call and wrote them to $22 / $26), $1A / $1E = the last probe's pixel X / Y, $00 / $02 / $04 = scratch, $AA / $AB = per-tick flag words (cleared together). The reference point of the 16x16 hitbox is the centre of its bottom edge.
 ; 
 ; === TWO PHASES ===
 ; 
-; 1. Horizontal: the vertical velocity $24 is parked on the stack and zeroed. $20 = 0 skips the phase. Otherwise $AA bit $0040 is set (see below) and DispatchWestMove (negative $20) or DispatchEastMove (positive $20) runs. The old comments called this bit a 'diagonal flag'; it only records that the horizontal phase ran this tick. Afterwards $22 >> 2 and $26 >> 2 are stored in the player actor's pixel position ($0014 / $0016: the values are POSITIONS, not deltas as the old comments said) and $20 is cleared.
+; 1. Horizontal: the vertical velocity $24 is parked on the stack and zeroed. $20 = 0 skips the phase. Otherwise $AA bit $0040 is set (see below) and DispatchWestMove (negative $20) or DispatchEastMove (positive $20) runs. Afterwards $22 >> 2 and $26 >> 2 are stored in the player actor's pixel position ($0014 / $0016: the values are POSITIONS, not deltas) and $20 is cleared.
 ; 2. Vertical: the parked velocity is popped back into $24. Wall-slide handlers of the horizontal phase can zero the parked word (CancelVerticalPhase in player_move_west), which then cancels this phase. Zero skips it, negative runs DispatchNorthMove, positive runs DispatchSouthMove. The controller commits the final $22 / $26 after the tick returns.
 ; 
-; $AA bits: $0040 = horizontal phase ran (read by AutoAlignEW_North here and AutoAlignEW_South, which refuse to nudge in that case). $0800 and $0400 are tested before the north and south dispatch (the old comments called them 'south wall' and 'east wall' contact), but nothing in extracted/ ever sets them; player_move_west only clears them (TRB #$0840 / #$0440). Those two gates therefore always pass (OQ-I045-1). $AB bit 1 is set by DispatchWestMove and read by player_move_ns.
+; $AA bits: $0040 = horizontal phase ran (read by AutoAlignEW_North here and AutoAlignEW_South, which refuse to nudge in that case). $0800 and $0400 are tested before the north and south dispatch, but nothing in extracted/ ever sets them; player_move_west only clears them (TRB #$0840 / #$0440). Those two gates therefore always pass. $AB bit 1 is set by DispatchWestMove and read by player_move_ns.
 ; 
 ; === AutoAlignEW_North (north counterpart of AutoAlignEW_South) ===
 ; 
-; Called only from the blocked path of DispatchNorthMove. Returns carry CLEAR when X was nudged by 2 pixels toward the open column, carry SET when nothing was done. Gates (carry set): $AA bit $0040, an actor solid mark in the collision byte at the map index left in X by the last probe (high nibble), or n = 0. n = (($22 >> 2) - 8) AND $0F is the offset of the hitbox's LEFT edge (X - 8) inside its 16-pixel column. n >= 6 tries an east nudge first: it needs ProbeFutureTR to return a type below $0E and not $06. If that fails (or n < 6) and n < 9, a west nudge is tried: ProbeFutureTL below $0E and not $09. So n = 1..5 can only go west, 6..8 prefers east, 9..15 can only go east. The old text gave the east range as '6-8' and the west range as 'offset 1-8, via 9+ check'.
+; Called only from the blocked path of DispatchNorthMove. Returns carry CLEAR when X was nudged by 2 pixels toward the open column, carry SET when nothing was done. Gates (carry set): $AA bit $0040, an actor solid mark in the collision byte at the map index left in X by the last probe (high nibble), or n = 0. n = (($22 >> 2) - 8) AND $0F is the offset of the hitbox's LEFT edge (X - 8) inside its 16-pixel column. n >= 6 tries an east nudge first: it needs ProbeFutureTR to return a type below $0E and not $06. If that fails (or n < 6) and n < 9, a west nudge is tried: ProbeFutureTL below $0E and not $09. So n = 1..5 can only go west, 6..8 prefers east, 9..15 can only go east.
 ; Each nudge temporarily subtracts $20 sub-pixels (8 px) from $22 so that the helper tests the left edge, calls NudgeAxisPlus8Clamped (+8) or NudgeAxisMinus8Clamped (-8), then adds $20 back; the 2-pixel nudge itself stays in $22.
 ; 
 ; === NUDGE HELPERS ===
@@ -24,11 +24,11 @@
 ; 
 ; === ComputeYSnapOffset ===
 ; 
-; $02 = 16 - (probe pixel Y AND $0F): the number of pixels to the next row line below, 1..16 ($10 when the probe is already flush). The old header said an aligned probe gives $0000; the code (OR #$FFF0, EOR #$FFFF, INC) gives $10. $1E is a pixel Y, not a sub-pixel position. Called from player_move_ns only (2 sites).
+; $02 = 16 - (probe pixel Y AND $0F): the number of pixels to the next row line below, 1..16 ($10 when the probe is already flush). The computation is OR #$FFF0, EOR #$FFFF, INC. $1E is a pixel Y, not a sub-pixel position. Called from player_move_ns only (2 sites).
 ; 
 ; === DiagSnapCompute_Unused ===
 ; 
-; No reference anywhere in extracted/. It probes the current TL cell and takes the 'wall path' when the type is $06, or when X straddles two columns and the cell to the right is $09 (the same wall-like types as the north handlers; the old text called $06 a 'slope / transition' type and mentioned a DispatchDiag* system that does not exist). On the wall path $02 starts at 0; a nonzero $24 is converted to a pixel step ((>>2) OR #$C000 sign-extends only a NEGATIVE value, so it assumes a north move), negated, added to the saved Y, and if that crosses a 16-px line ($1E bit 4 changes) $02 = $10. The ComputeYSnapOffset formula for the current $1E is then added to $02. The probe coordinates $1A / $1E are saved and restored around the probe.
+; No reference anywhere in extracted/. It probes the current TL cell and takes the 'wall path' when the type is $06, or when X straddles two columns and the cell to the right is $09 (the same wall-like types as the north handlers). On the wall path $02 starts at 0; a nonzero $24 is converted to a pixel step ((>>2) OR #$C000 sign-extends only a NEGATIVE value, so it assumes a north move), negated, added to the saved Y, and if that crosses a 16-px line ($1E bit 4 changes) $02 = $10. The ComputeYSnapOffset formula for the current $1E is then added to $02. The probe coordinates $1A / $1E are saved and restored around the probe.
 ; 
 ; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
 ---------------------------------------------
@@ -96,7 +96,7 @@ PlayerMovementTick {
     BEQ PlayerMovementTick_Exit
     BPL PlayerMovementTick_SouthStep
     LDA $AA
-    BIT #$0800            ; Bit $0800: never set anywhere (OQ-I045-1), so the gate always passes
+    BIT #$0800            ; Bit $0800: never set anywhere, so the gate always passes
     BNE PlayerMovementTick_Exit
     JSR $&player_move_ns.DispatchNorthMove
     BRA PlayerMovementTick_Exit
@@ -105,7 +105,7 @@ PlayerMovementTick {
 
   PlayerMovementTick_SouthStep:
     LDA $AA
-    BIT #$0400            ; Bit $0400: never set anywhere (OQ-I045-1), so the gate always passes
+    BIT #$0400            ; Bit $0400: never set anywhere, so the gate always passes
     BNE PlayerMovementTick_Exit
     JSR $&player_move_south.DispatchSouthMove
 

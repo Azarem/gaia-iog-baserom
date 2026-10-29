@@ -1,4 +1,4 @@
-; Warp table of all scenes (Bank 01, 98868-108894, 10026 bytes): 255 word pointers, indexed by scene ID ($00-$FE, sceneTableIndex $0646), to 200 `warp-def` lists. InitWarpTable (warps_interaction) reads it when a scene is set up; CheckWarpRectangles tests the player against it every frame. The old note described the second list as 'staircase warps with climb-animation offsets'; it holds forced-walk warps (see below), although all of them are vertical walks.
+; Warp table of all scenes (Bank 01, 98868-108893, 10026 bytes): 255 word pointers, indexed by scene ID ($00-$FE, sceneTableIndex $0646), to 200 `warp-def` lists. InitWarpTable (warps_interaction) reads it when a scene is set up; CheckWarpRectangles tests the player against it every frame. The second list holds forced-walk warps (see below), all of them vertical walks.
 ; 
 ; === LIST FORMAT ===
 ; 
@@ -16,11 +16,11 @@
 ; 
 ; Not a scene change: ExecuteForcedWalkWarp keeps the player in the scene, pans the camera and walks the player by script. Layout by BYTE (the extractor splits it into words at the wrong boundaries): +4/+5 camera window (same packing as above, warpScrollParams), +6 direction and pan list (scrollStepTableBase: bit 7 = north, bits 4/5 = east/west, otherwise south; the low nibble indexes forced_walk_pan_table), +7..+12 a 6-byte walk stream `[direction byte][X offset word][Y offset word][final direction byte]` (the pointer to +7 goes to warpFacing; ForcedWalk* in forced_walk adds the offsets to the player position). Example: warp_def_E3 `stair-warp < #29, #27, #02, #02, #$4430, #$0240, #$0000, #08, #$0301 >` = bytes 29 27 02 02 | 30 44 | 40 | 02 00 00 08 01 03: window $4430, south (bit 6 is not decoded), pan list $00, stream: direction 2, X offset 0, Y offset +$0108 (264 px), final direction 3. The next entry ;01 goes back (byte 6 $80 = north, Y offset $FF10 = -240 px).
 ; 
-; Data facts: all 200 are vertical, 100 north (bit 7) and 100 south (bit 6 only, the default). East/West (bits 4/5) never occur, so ForcedWalkEast/West are not reachable from this table. The pan list index in the low nibble of byte 6 is $00 for 143 entries (256-pixel pan), $03 x11, $02 x10, $01 x5, $0D x5, $0E x5 and 21 more spread over $04-$0C and $0F (answers part of OQ-I064-1). Which warp uses which list was still not mapped one by one.
+; Data facts: all 200 are vertical, 100 north (bit 7) and 100 south (bit 6 only, the default). East/West (bits 4/5) never occur, so ForcedWalkEast/West are not reachable from this table. The pan list index in the low nibble of byte 6 is $00 for 143 entries (256-pixel pan), $03 x11, $02 x10, $01 x5, $0D x5, $0E x5 and 21 more spread over $04-$0C and $0F. Not traced: which warp uses which pan list.
 ; 
 ; === OTHER NOTES ===
 ; 
-; GameOverSequence reloads a warp from the entry+4 pointer stored in $0AF4 (every warp) and sceneSaveData (save warps). The two forced-walk entries of warp_def_03 use unusual first stream bytes ($04, $05) (OQ-I068-4). Sampled about 18% by reading (header and pointer table, lists $00-$05, $61-$64, $E1-$E3 and the tail); the counts above were computed over the whole file.
+; GameOverSequence reloads a warp from the entry+4 pointer stored in reviveWarpPtr ($0AF4; every warp) and sceneSaveData (save warps). The two forced-walk entries of warp_def_03 use unusual first stream bytes ($04, $05); not traced: what the walk does with them.
 ---------------------------------------------
 
 ?BANK 01

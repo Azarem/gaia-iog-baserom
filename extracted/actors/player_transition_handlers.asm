@@ -3,19 +3,17 @@
 ; === ENTRY POINTS AND CALLERS (from the pointer writes) ===
 ; 
 ; - SpawnImpactSparkAndDie (50200, the first entry of this file): SpawnListAppend ImpactSparkEffect, then Die. It is the default script written into an actor hit by the player's interaction / push strike (combat_collision.ApplyHitDamageToVictim path 1, together with $10 |= $0040) and is reached by JumpFar from gw8A_sand_fanger (756178).
-; - ImpactSparkEffect (50211): effect actor: SFX $09, frame $2A of spriteset_pickups_effects, then Die. Spawned by SpawnImpactSparkAndDie and by gw82_archer (SpawnListAppend at X +- 14, Y - 14, flags $0302), so it is an impact spark; it reveals no item (it was first called PlayerItemRevealSpawn; OQ-I052-9).
+; - ImpactSparkEffect (50211): effect actor: SFX $09, frame $2A of spriteset_pickups_effects, then Die. Spawned by SpawnImpactSparkAndDie and by gw82_archer (SpawnListAppend at X +- 14, Y - 14, flags $0302), so it is an impact spark; it reveals no item.
 ; - PlayerIdleAnimLoop (50226): idle animation loop. Callers: warps_interaction (while the music upload finishes) and ir29_castoth func_0AA37B.
 ; - PlayerStaticBodyPose / PlayerWalkingIdlePose (50246 / 50261): the flute playback in item_use_system holds body 4 frame $1F, then restores control.
 ; - RestorePlayerControlDirect (50266): JML PlayerIdleEntry. Callers: warps_interaction and ir29_castoth func_0AA391.
-; - PlayerPoseHold / PlayerPoseHoldExit (50270 / 50285): hold body 4 frame $20 (every frame / once, then PlayerIdleEntry). Idle: gs2D_lily, gs2E_sleep, dc2F_adrift, dc31_rescuer. Exit: dc31_kara. They were first called PlayerFreedanRevealIdle / PlayerFreedanRevealExit; the callers do not identify the character as Freedan, so the pose names are neutral (OQ-I052-2).
+; - PlayerPoseHold / PlayerPoseHoldExit (50270 / 50285): hold body 4 frame $20 (every frame / once, then PlayerIdleEntry). Idle: gs2D_lily, gs2E_sleep, dc2F_adrift, dc31_rescuer. Exit: dc31_kara. The callers do not identify the character as Freedan, so the pose names are neutral.
 ; - PlayerIdleEntryJump (50281): a bare JML PlayerIdleEntry; no reference found.
 ; - PlayerFallFromHeight (50297): awBD_fall_trigger. PlayerSkyGardenJumpLanding (50385): sg4D_jump_handler. PlayerAuraTransformEntry (50519): item_use_system.UseItem_Aura (Shadow only, standing still).
 ; 
 ; === FLAG BITS USED ===
 ; 
-; Player actor flags $10: $0008 = normal collision-aware movement (cleared while a script moves the player, set again at the end), $0200 = scripted motion marker (the Psycho Slider and the lunge set it too), $2000 = SortActorsByDepth skips the actor and PlayerIdleEntry yields without acting (meaning open: OQ-I025-2), $0040 = death flag. playerFlags $0800 = script / ability lock. layerPriorityFlag ($06EE) bit $0200 = camera frozen (the old comment called it 'force layer priority'). joypadMaskStd |= $CFFC hides every button except Select / Start (the old comment said $CFF0).
-; 
-; The old header's 'item reveal with metasprite staging' is the ImpactSparkEffect spark.
+; Player actor flags $10: $0008 = normal collision-aware movement (cleared while a script moves the player, set again at the end), $0200 = scripted motion marker (the Psycho Slider and the lunge set it too), $2000 = SortActorsByDepth skips the actor and PlayerIdleEntry yields without acting (meaning not traced), $0040 = death flag. playerFlags $0800 = script / ability lock. layerPriorityFlag ($06EE) bit $0200 = camera frozen. joypadMaskStd |= $CFFC hides every button except Select / Start.
 ---------------------------------------------
 
 ?INCLUDE 'player_character'
@@ -44,10 +42,10 @@ ImpactSparkEffect {
     COP [AnimOnce]
     COP [Die]
 
-; Entered as the player's script. When per-scene flag #00 is set it stages anim $11 (PlayerIdleUseShadowSprite), otherwise anim $01, then loops AnimOnce until the caller redirects the player. What flag #00 means is open (OQ-I052-1).
+; Entered as the player's script. When per-scene flag #00 is set it stages anim $11 (PlayerIdleUseShadowSprite), otherwise anim $01, then loops AnimOnce until the caller redirects the player. What flag #00 means is not traced.
 
   PlayerIdleAnimLoop:
-    COP [BranchOnFlagByte] ( #00, #01, &PlayerIdleUseShadowSprite ) ; Per-scene flag #00 set: anim $11, otherwise anim $01 (OQ-I052-1)
+    COP [BranchOnFlagByte] ( #00, #01, &PlayerIdleUseShadowSprite ) ; Per-scene flag #00 set: anim $11, otherwise anim $01
     COP [StagePlayerSprite] ( #01 )
     BRA PlayerIdleAnimContinue
 }
@@ -120,7 +118,7 @@ PlayerPoseHoldExit {
 }
 
 ---------------------------------------------
-; Fall into the scene (awBD_fall_trigger): hide the buttons, lock the player, leave collision-aware movement, freeze the camera; 4 ticks (WaitByte #03) out of the depth sort, Y -= 128, then 8 passes of fall anim $19 with Y chain 7 (+4 px per frame), landing SFX $2C and frame $1C. Then restore $10 / camera / buttons and return to PlayerIdleEntry (which clears the $0800 lock). Whether the fall ends exactly on the original Y is not checked: OQ-I052-3.
+; Fall into the scene (awBD_fall_trigger): hide the buttons, lock the player, leave collision-aware movement, freeze the camera; 4 ticks (WaitByte #03) out of the depth sort, Y -= 128, then 8 passes of fall anim $19 with Y chain 7 (+4 px per frame), landing SFX $2C and frame $1C. Then restore $10 / camera / buttons and return to PlayerIdleEntry (which clears the $0800 lock). Whether the fall ends exactly on the original Y is not checked.
 
 PlayerFallFromHeight {
     LDA #$CFFC            ; Mask $CFFC in joypadMaskStd: every button except Select / Start is hidden
@@ -210,7 +208,7 @@ PlayerSkyGardenJumpLanding {
 }
 
 ---------------------------------------------
-; Aura (item_use_system.UseItem_Aura, Shadow standing still): lock the player, leave collision-aware movement, $10 |= $0200, body table index 8, frame 0; save X / Y in $24 / $26, align Y to a 16 px row, then search for floor (PlayerAuraAlignToSolidSouth). The terrain type $04 test below decides between the sink and an abort (OQ-I052-4).
+; Aura (item_use_system.UseItem_Aura, Shadow standing still): lock the player, leave collision-aware movement, $10 |= $0200, body table index 8, frame 0; save X / Y in $24 / $26, align Y to a 16 px row, then search for floor (PlayerAuraAlignToSolidSouth). The terrain type $04 test below decides between the sink and an abort.
 
 PlayerAuraTransformEntry {
     LDA #$0800            ; Aura: lock the player (playerFlags $0800, released by PlayerIdleEntry)
@@ -282,13 +280,13 @@ PlayerAuraDescendToFloor {
 }
 
 ---------------------------------------------
-; Type $04 reached: clear $2000, set $10 bit $0002 (meaning open: OQ-I052-5) and slide down with sprite anim 2 / Y chain 1 (+1 px per frame) until the tile type at the actor is 0.
+; Type $04 reached: clear $2000, set $10 bit $0002 (meaning not traced) and slide down with sprite anim 2 / Y chain 1 (+1 px per frame) until the tile type at the actor is 0.
 
 PlayerAuraLandOnSolid {
     LDA #$2000
     TRB $10               ; Clear $2000
     LDA #$0002
-    TSB $10               ; $10 |= $0002 for the landing slide (meaning open, OQ-I052-5)
+    TSB $10               ; $10 |= $0002 for the landing slide (meaning not traced)
 
 ; One pass of the landing slide: anim 2, +1 px per frame, then test the tile type.
 

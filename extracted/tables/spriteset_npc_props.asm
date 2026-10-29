@@ -1,22 +1,22 @@
-; Sprite set of small scene props (Bank 0E, 973312-974144, 832 bytes): the town door, a bone pile, spirits, a sign, flames, a campfire and three single-frame props. The old note ('town furniture, signs, chests, and decorative elements') was too broad: no chest uses it (chests are map tiles drawn by warps_interaction), and there is no furniture.
+; Sprite set of small scene props (Bank 0E, 973312-974143, 832 bytes): the town door, a bone pile, spirits, a sign, flames, a campfire and three single-frame props. No chest uses it (chests are map tiles drawn by warps_interaction).
 ; 
 ; Structure (format in the spriteset_freedan block note): 11 animations, 20 sprite groups. 22 B pointer table + 102 B frame lists (8 one-frame lists of 6 B, 3 four-frame lists of 18 B) + 708 B groups.
 ; 
 ; | Index | Set | Frames (hold) | Users (actors selecting it) |
 ; |-------|-----|---------------|-----------------------------|
-; | $00 | npc_props_00_door_open | 1 | town_door, open frame (1 sub-sprite) |
-; | $01 | npc_props_01_door_closed | 1 | town_door closed frame (6 sub-sprites); fr32_guide |
+; | $00 | npc_props_00_door_open | 1 | town_door, open frame (1 sub-sprite); fr32_locked_door |
+; | $01 | npc_props_01_door_closed | 1 | town_door closed frame (6 sub-sprites); fr32_guide; fr32_locked_door; fr32_kidnapper |
 ; | $02 | npc_props_02_bones | 1 | bone pile: gs2B_bones, nvAC_bones, eu9D_bones; also btDE_olman and pyCD_jackal |
 ; | $03 | npc_props_03 | 1 | no actor |
 ; | $04 | npc_props_04_spirit | 4 (5 each) | spirits: awBF_spirit_guide, btDF_spirits, btE3_dao_travel_spirit, btE4_olman, daC3_babel_travel_spirit, ec10_dp_hint_spirit, mu66_rama_spirits, sE5_epilogue, btDE_olman |
 ; | $05 | npc_props_05_sign | 1 | av69_signs |
-; | $06 | npc_props_06_flame | 4 (3 each) | flames: av6B_flame, ec0A_torch1, ec0A_torch2 |
+; | $06 | npc_props_06_flame | 4 (3 each) | flames: av6B_flame, ec0A_torch1, ec0A_torch2; mu63_spirits (it stages the flame, not a spirit) |
 ; | $07 | npc_props_07_street_prop | 1 | freejia_street_prop |
 ; | $08 | npc_props_08_campfire | 4 (3 each) | st68_campfire |
 ; | $09 | npc_props_09 | 1 | no actor |
 ; | $0A | npc_props_0A_kara | 1 | btE4_kara |
 ; 
-; Users were found by searching for SetMetasprite ( @spriteset_npc_props ) and reading the Stage* operand that follows it (E2); the images were not viewed, so the descriptions of $02, $05, $07 and $0A come from the actor names (OQ-I068-1). Animations $03 and $09 have no user (OQ-I068-2).
+; Users were found by searching for SetMetasprite ( @spriteset_npc_props ) and reading the Stage* operand that follows it; the images were not viewed, so the descriptions of $02, $05, $07 and $0A come from the actor names. No actor selects animations $03 and $09.
 ---------------------------------------------
 
 ?BANK 0E
@@ -52,7 +52,7 @@ npc_props_02_bones [
 ]
 
 ---------------------------------------------
-; Animation $03: no actor selects it (OQ-I068-2).
+; Animation $03: no actor selects it.
 
 npc_props_03 [
   sprite-set < #$0000, &sprite_group_0EDAF7 >
@@ -88,7 +88,7 @@ npc_props_08_campfire [
 ]
 
 ---------------------------------------------
-; Animation $09: no actor selects it (OQ-I068-2).
+; Animation $09: no actor selects it.
 
 npc_props_09 [
   sprite-set < #$0000, &sprite_group_0EDCE7 >

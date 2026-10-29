@@ -9,10 +9,6 @@
 ; === WHERE THE COLOURS LAND ===
 ; 
 ; OBJ palette 2 is used only by the 4 x 2 block of 16 x 16 parts under the emblem in sprite_group_000010 (parts $10 to $17 of the second logo, see spm_boot_logos). The first logo is on OBJ palette 3, which no thinker touches, so in the first visit this thinker runs unseen.
-; 
-; === CORRECTIONS ===
-; 
-; The old name was boot_logo_palette_third (the third spawn slot). The old header called this the 'third and final logo palette thinker' that 'completes the boot logo palette rotation before gameplay begins' and described #56, #57 and #58 as palette animations. It is the third of three parallel thinkers, not a later step, #56 to #58 are palette bundles, and it animates only OBJ palette 2 of the second logo, the Enix logo.
 ---------------------------------------------
 
 ---------------------------------------------

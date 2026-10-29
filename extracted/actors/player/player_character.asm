@@ -4,7 +4,7 @@
 ; 
 ; === BUTTON AND FLAG CONVENTIONS USED IN THIS FILE ===
 ; Logical button masks (after the remap): attack $0080, use-item $0008, L $0020, R $0010 (L/R together $0030), D-pad $0F00 (R $0100, L $0200, Dn $0400, Up $0800). BranchIfPressed/BranchIfNotPressed take a mask word: bit 0 clear tests joypadCurrent (held buttons minus the ones consumed in joypadHeld or hidden by joypadMaskStd), bit 0 set tests joypadRaw (no consumption, no masking). TSB joypadHeld therefore CONSUMES a button (joypadCurrent stops reporting it); it does not inject one. TSB joypadMaskStd with $CFFC hides everything except Start/Select ($3000) and bits 0-1 from joypadCurrent, D-pad included; the ladder and shimmy code reads Up/Down through joypadRaw masks such as $0801 / $0401.
-; Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared while climbing, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 set while the Psycho Slider and the lunge run, $4000 off-screen (set by sprite_composition). The meaning of $0100 and $2000 for the player is open (OQ-I025-1, OQ-I025-2).
+; Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared while climbing, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 set while the Psycho Slider and the lunge run, $4000 off-screen (set by sprite_composition). The meaning of $0100 and $2000 for the player is not traced.
 ; 
 ; 1. CORE IDLE + WALKING (181132–181790)
 ;    PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (8 directional × Shadow variants), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.
@@ -37,7 +37,7 @@
 ; 
 ; 8. LUNGE + PROJECTILES (184138–184272)
 ;    RangedAttackSouth/North/West/East, RangedSetForceX/Y, ProjectileSouth/North/West/East.
-;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, climbStateData = 1 (the Will ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_darkgaia_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set (OQ-I025-5).
+;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, climbStateData = 1 (the Will ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_darkgaia_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set.
 ---------------------------------------------
 
 ?BANK 02
@@ -76,7 +76,7 @@
 ; Player character actor definition table and initialization code.
 ; 
 ; The actor-def header (#00, #08, #85) defines the actor type. The inline init code:
-; 1. Sets $0100 in actor flags $10 and $0001 in $12 (meaning of both bits: OQ-I025-1)
+; 1. Sets $0100 in actor flags $10 and $0001 in $12 (meaning of both bits not traced)
 ; 2. Stores the current actor slot as playerActor ($09AA)
 ; 3. Sets the free101C marker to signal the player actor is active
 ; 4. Checks the game-over wakeup flag ($0AF8) — spawns DeathWakeupMessage if set
@@ -88,7 +88,7 @@ PlayerCharacterDef [
   actor-def < #00, #08, #85, {
 
   code_02C38F:
-    LDA #$0100            ; Init: set $0100 in actor flags $10 and $0001 in $12 (meaning of both bits: OQ-I025-1), then store the actor slot as playerActor
+    LDA #$0100            ; Init: set $0100 in actor flags $10 and $0001 in $12 (meaning of both bits not traced), then store the actor slot as playerActor
     TSB $10
     LDA #$0001
     TSB $12
@@ -111,7 +111,7 @@ PlayerCharacterDef [
 ---------------------------------------------
 ; Main idle state entry and input dispatch loop.
 ; 
-; Clears transient state: the D-pad bits of joypadHeld ($F0FF mask, so held directions are re-detected), playerFlags $2800 (block and script/ability lock), actor flag $0020 (the block marker) and climbStateData; sets actor flag $0100 again. Returns at once when bit $2000 of actor flags $10 is set (SortActorsByDepth treats that bit as hidden; who sets it on the player is OQ-I025-2).
+; Clears transient state: the D-pad bits of joypadHeld ($F0FF mask, so held directions are re-detected), playerFlags $2800 (block and script/ability lock), actor flag $0020 (the block marker) and climbStateData; sets actor flag $0100 again. Returns at once when bit $2000 of actor flags $10 is set (SortActorsByDepth treats that bit as hidden; who sets it on the player is not traced).
 ; 
 ; Saves itself as the return point via SetSavedPtr, clears force movement. Checks for residual speed — if nonzero, jumps to MovingEastWest or MovingNorthSouth for inertial deceleration.
 ; 
@@ -124,12 +124,12 @@ PlayerIdleEntry {
     STA $joypadHeld
     LDA #$2800            ; Clear playerFlags $2800: the script/ability lock $0800 and the guard / Spin Dash stance $2000
     TRB $playerFlags
-    LDA #$0100            ; Set $0100 in actor flags $10 again: block, attack and run-attack code clear it (meaning: OQ-I025-1)
+    LDA #$0100            ; Set $0100 in actor flags $10 again: block, attack and run-attack code clear it (meaning not traced)
     TSB $10
     LDA #$0020            ; Clear $0020 in actor flags $10: the marker the block loop sets (the Psycho Slider marker is $0200, cleared by RunAttackCleanup)
     TRB $10
     STZ $climbStateData   ; Zero climbStateData ($09E0), the Will ability damage bonus that the lunge sets to 1
-    LDA $10               ; Bit $2000 of $10: SortActorsByDepth skips actors with it set; idle then yields without acting (who sets it on the player: OQ-I025-2)
+    LDA $10               ; Bit $2000 of $10: SortActorsByDepth skips actors with it set; idle then yields without acting (who sets it on the player is not traced)
     BIT #$2000
     BEQ loc_02C3EE
     RTL 
@@ -1548,13 +1548,13 @@ AttackSouthWallPush {
 }
 
 AttackNorth {
-    JSR $&AttackInit      ; Attack north: AttackInit, consume the north D-pad bit, Freedan wall-push test (BranchIfSolidSouth: OQ-I025-4)
+    JSR $&AttackInit      ; Attack north: AttackInit, consume the north D-pad bit, Freedan wall-push test (BranchIfSolidSouth)
     LDA #$0800
     TSB $joypadHeld
     LDA $characterForm
     CMP #$0001
     BNE loc_02CD85
-    COP [BranchIfSolidSouth] ( &AttackNorthWallPush ) ; Tests solid SOUTH although this is the north attack; AttackSouth uses the same op (OQ-I025-4)
+    COP [BranchIfSolidSouth] ( &AttackNorthWallPush ) ; Tests solid SOUTH although this is the north attack; AttackSouth uses the same op
     LDA $playerXPos
     AND #$000F
     BEQ loc_02CD85
@@ -1781,7 +1781,7 @@ AttackInit {
 ; 
 ; Reached from AttackSouth when Will (form 0) holds the facing direction during the swing. Calls RangedSetForceY (force move #46, playerFlags $0800, climbStateData = 1, actor flag $0200, extendedFlags $0040), shows sprite #44, animates once, then clears actor flag $0200 and extendedFlags $0040 (AndExtraFlags #$FFBF) and restores the saved ptr.
 ; 
-; North/West/East variants mirror this with sprites #45/#46/#47. North sets $2000 and west sets $4000 in $12, the direction-negate bits tile_collision_physics uses to flip the Y / X delta; the east and south variants need no flip. No projectile is spawned here (OQ-I025-5).
+; North/West/East variants mirror this with sprites #45/#46/#47. North sets $2000 and west sets $4000 in $12, the direction-negate bits tile_collision_physics uses to flip the Y / X delta; the east and south variants need no flip. No projectile is spawned here.
 
 RangedAttackSouth {
     JSR $&RangedSetForceY ; Lunge south: RangedSetForceY (force move #46), sprite #44, play once, then clear $0200 and extendedFlags $0040 and restore the saved ptr
@@ -1847,7 +1847,7 @@ RangedSetForceY {
 ; North/West/East variants use matching sprite pairs and MoveX/MoveY directions.
 
 ProjectileSouth {
-    COP [SetMetasprite] ( @spriteset_darkgaia_projectile ) ; Projectile south: metasprite from table_17D000, initial sprite #00 + MoveY #09, then loop #04 + #0F
+    COP [SetMetasprite] ( @spriteset_darkgaia_projectile ) ; Projectile south: metasprite set spriteset_darkgaia_projectile, initial sprite #00 + MoveY #09, then loop #04 + #0F
     COP [StageSpriteMoveY] ( #00, #09 )
     COP [AnimOnce]
 

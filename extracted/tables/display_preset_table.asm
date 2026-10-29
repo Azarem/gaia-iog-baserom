@@ -1,4 +1,4 @@
-; PPU display presets (Bank 01, 98304-98868): 47 word pointers ($00-$2E) and the 47 ten-byte records they point to. A scene script picks one with scene command $02 (SceneCmd_ConfigDisplay, scene_script); the old note said 'selected by scene metadata', which is not what the code does. SceneCmd_ConfigDisplay documents what each byte does; this note adds what the 47 records contain.
+; PPU display presets (Bank 01, 98304-98867): 47 word pointers ($00-$2E) and the 47 ten-byte records they point to. A scene script picks one with scene command $02 (SceneCmd_ConfigDisplay, scene_script). SceneCmd_ConfigDisplay documents what each byte does; this note adds what the 47 records contain.
 ; 
 ; Record (in the order they are applied): +0 TM and TMW (main-screen layers), +1 TS and TSW (sub-screen layers), +2 CGWSEL, +3 CGADSUB, +4 layer flags, +5 layerPriorityFlag, +6 BGMODE, +7 scroll/HUD flags, +8 and +9 unused.
 ; 
@@ -12,9 +12,9 @@
 ; | +5 | $05 x25, $85 x12, $01 x5, $00 x2, $80, $81, $84 x1 each |
 ; | +6 | $09 x45 (BG mode 1 with BG3 priority), $07 x2 (mode 7: presets $19 and $2D) |
 ; | +7 | $00 x35, $04 x6, $01 x2, $10 x2, $1C x2 (the two mode-7 presets); bit 7 never set, so no preset disables the HUD |
-; | +8, +9 | $00 in all 47 records (closes OQ-5 of the first audit pass) |
+; | +8, +9 | $00 in all 47 records |
 ; 
-; The pointers run in order: record n is at $01805E + 10 x n, so the table is 94 bytes and the records 470 bytes. Which scenes use which preset was not traced (OQ-I068-3).
+; The pointers run in order: record n is at $01805E + 10 x n, so the table is 94 bytes and the records 470 bytes. Not traced: which scenes use which preset.
 ---------------------------------------------
 
 ?BANK 01

@@ -2,7 +2,7 @@
 ; 
 ; Despite the block name (cop_handlers_actor_flags), these are collision probes, not flag setters: both sample the collision layer at the actor's tile and branch on the result (7 script sites between them, in gw82_archer, gw82_eyesore and dm_follower_behavior).
 ; - BranchIfBehindWall (COP #5D): branch when the tile occludes the actor (blocked, out of bounds, or an odd type); fall through (skip the operand) when the actor is visible.
-; - BranchIfCollisionTypeEq (COP #62): branch when the tile's low nibble EQUALS the operand or the position is out of bounds, despite the "Ne" (not-equal) in the COP name (audit rename proposal).
+; - BranchIfCollisionTypeEq (COP #62): branch when the tile's low nibble EQUALS the operand or the position is out of bounds.
 ; 
 ; Both convert the actor position with pixel >> 4 (no −1 row adjustment, unlike TileCollisionQuery / ParseSignedTileOffset in cop_handlers_collision) and read the byte through [$80],Y after CalcTileMapOffset (Y ≥ $4000 = out of the map). The handlers return by writing the next script address to the COP frame ($02,S) and RTI.
 ---------------------------------------------

@@ -1,4 +1,4 @@
-; Hit switch (Bank 00, 51710-51778; formerly named floor_button): a solid, hit-triggered switch that raises one numbered event flag each time it is struck. It is not a pressure plate: the actor is solid (MarkSolidHere), so the player cannot stand on it, and the trigger is the engine's hit callback. The old text ('triggers puzzle state when the player or objects land on the plate', 'used in pyramid puzzle rooms') is wrong.
+; Hit switch (Bank 00, 51710-51778): a solid, hit-triggered switch that raises one numbered event flag each time it is struck. It is not a pressure plate: the actor is solid (MarkSolidHere), so the player cannot stand on it, and the trigger is the engine's hit callback.
 ; 
 ; === INIT ===
 ; 
@@ -11,7 +11,7 @@
 ; 
 ; === PLACEMENT AND FLAG READERS ===
 ; 
-; Seven spawns, all in Great Wall scenes (the old docs say pyramid):
+; Seven spawns, all in Great Wall scenes:
 ; 
 ; | Scene | Area | Position (tile) | Type byte | Flag | Reader of that flag |
 ; |-------|------|-----------------|-----------|------|---------------------|
@@ -22,7 +22,7 @@
 ; | 85 | great_wall/wall_rampway | 64,1D | 09 | $04 | gw85_multi_switch_spear |
 ; | 87 | scene 87 (no area folder in extracted/) | 2F,28 | 1F | $0F | none in the scene's spawn list |
 ; 
-; The gw85 actors run WaitOnFlagByte ( #n, #01 ) followed by ClearFlagByte ( #n ), so in the rampway the flag is a one-shot trigger consumed by the gate or spear. gw83_switch waits on flag $01 and does not clear it. In scene 87 the flag $0F has no waiter among the scene's actors (the gw82_wall_spear actors it spawns use timers only); $0F is also used as an unrelated flag in Babel Tower and Freejia scripts (OQ-I042-3).
+; The gw85 actors run WaitOnFlagByte ( #n, #01 ) followed by ClearFlagByte ( #n ), so in the rampway the flag is a one-shot trigger consumed by the gate or spear. gw83_switch waits on flag $01 and does not clear it. In scene 87 the flag $0F has no waiter among the scene's actors (the gw82_wall_spear actors it spawns use timers only); $0F is also used as an unrelated flag in Babel Tower and Freejia scripts.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

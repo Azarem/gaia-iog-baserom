@@ -1,6 +1,6 @@
-; Static 5-gem pickup actor: shows spriteset_pickups_effects frame #06 and carries item ID $85 in chatPtr. No scene actor list or COP spawn in extracted/ refers to it by name (OQ-I034-3).
+; Static 5-gem pickup actor: shows spriteset_pickups_effects frame #06 and carries item ID $85 in chatPtr. No scene actor list or COP spawn in extracted/ refers to it by name.
 ; 
-; Header bytes: animation state 0 and flags word $0020 (ORed with $4000 by InitActorFromSceneData, so $4020). Bit $0020 marks the actor friendly: when the player overlaps it ApplyInteractionDamage routes to InteractionDamage_NPCChat, which calls GiveItemToPlayer(chatPtr). Item $85 is '+5 gems' (cap 999, SFX #22); DropBodyGem5 spawns the same $85 with the same frame #06, so this is the stationary version of that gem. The older header called it a static NPC / decoration and the chatPtr a dialog bank pointer; neither is supported (the interaction path is UNVERIFIED-RUNTIME).
+; Header bytes: animation state 0 and flags word $0020 (ORed with $4000 by InitActorFromSceneData, so $4020). Bit $0020 marks the actor friendly: when the player overlaps it ApplyInteractionDamage routes to InteractionDamage_NPCChat, which calls GiveItemToPlayer(chatPtr). Item $85 is '+5 gems' (cap 999, SFX #22); DropBodyGem5 spawns the same $85 with the same frame #06, so this is the stationary version of that gem.
 ; 
 ; Pass structure: init stores chatPtr and the metasprite, SetEntryHere marks the re-entry address, then StageSpriteFrame #06 and AnimOnce run on every pass. No SetSpritePalette is issued here, unlike the gem spawners, which use palette #00.
 ---------------------------------------------

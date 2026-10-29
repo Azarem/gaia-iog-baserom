@@ -6,11 +6,11 @@
 ; 
 ; === VARIABLES ===
 ; 
-; cameraTargetX / Y ($06BE / $06C2) are the layer-0 scroll targets (camera_scroll_controller recomputes them each frame). cameraDeltaX / Y ($06C0 / $06C4) are the layer-1 (second background layer) scroll POSITION, not per-frame deltas: the layer1_scroll_actors actors and camera_scroll write them, and CameraSmoothScroll copies them to effectScrollH / V ($068C / $0690, the BG2 scroll) when layerPriorityFlag bit $0400 is set. While that mode is active the drift therefore moves both layers together. These are not the effectDeltaX / Y ($06E4 / $06E6) that camera_scroll_controller writes. Whether the offsets added here survive the recompute is not established statically (OQ-I050-2).
+; cameraTargetX / Y ($06BE / $06C2) are the layer-0 scroll targets (camera_scroll_controller recomputes them each frame). cameraDeltaX / Y ($06C0 / $06C4) are the layer-1 (second background layer) scroll POSITION, not per-frame deltas: the layer1_scroll_actors actors and camera_scroll write them, and CameraSmoothScroll copies them to effectScrollH / V ($068C / $0690, the BG2 scroll) when layerPriorityFlag bit $0400 is set. While that mode is active the drift therefore moves both layers together. These are not the effectDeltaX / Y ($06E4 / $06E6) that camera_scroll_controller writes. Whether the offsets added here survive the recompute is not established statically.
 ; 
 ; === CameraDriftLoopSimple ===
 ; 
-; LoopStart #$78 runs 120 passes, one frame each (every LoopEnd pass yields). Each pass adds r = (RngByte and 3) - 1, that is -1, 0, +1 or +2 (bias +0.5), to cameraTargetY and to cameraDeltaY. Nothing is undone at the end. The same formula is the Y shake in player_character. Then Die. The old note said 'random +-1'.
+; LoopStart #$78 runs 120 passes, one frame each (every LoopEnd pass yields). Each pass adds r = (RngByte and 3) - 1, that is -1, 0, +1 or +2 (bias +0.5), to cameraTargetY and to cameraDeltaY. Nothing is undone at the end. The same formula is the Y shake in player_character. Then Die.
 ; 
 ; === CameraDriftLoopShip ===
 ; 
@@ -113,7 +113,7 @@ CameraDriftLoopSimple {
 ; Y delta step: skipped when $24 = $FFFF, otherwise adds the same offset to cameraDeltaY (clamped to 0).
 
   loc_00D016:
-    LDA $24               ; $24 = $FFFF skips the delta update (OQ-I050-4)
+    LDA $24               ; $24 = $FFFF skips the delta update
     CMP #$FFFF
     BEQ loc_00D02C
     PLA 

@@ -34,10 +34,10 @@
 ; 
 ; === QUIRKS ===
 ; 
-; - Edward's Castle compares playerYPos with == $2D0, not a range. If the player can skip that row the exit never fires; not checked (OQ-I042-5).
-; - The Itory Village exit is disabled while flag $01 is set. $01 is set by unrelated scripts (angel_village, undersea_tunnel, great_wall floor buttons); whether it is cleared on scene load was not traced (OQ-I042-7).
-; - $0D60 is cleared on every path. It is the first word of the six-word companion array at $0D60-$0D6A that WorldMapController scans to place companion dots; why only the first word is cleared is not known (OQ-I042-6).
-; - The old header said the actor 'zeroes $0D60, stages the cursor and falls through to the exit handler'; that is right, but the handlers do not 'fall through': they JMP to OverworldExitFinalize.
+; - Edward's Castle compares playerYPos with == $2D0, not a range. If the player can skip that row the exit never fires; not checked.
+; - The Itory Village exit is disabled while flag $01 is set. $01 is set by unrelated scripts (angel_village, undersea_tunnel, great_wall floor buttons); whether it is cleared on scene load was not traced.
+; - $0D60 is cleared on every path. It is the first word of the six-word companion array at $0D60-$0D6A that WorldMapController scans to place companion dots; why only the first word is cleared is not known.
+; - The handlers do not fall through into OverworldExitFinalize: they JMP to it.
 ---------------------------------------------
 
 !sceneCurrent                   0644
@@ -138,7 +138,7 @@ overworld_exit [
 ; Common tail of every success path: gfxCacheIdxB := $0400, SetEntryHere, RTL. The actor idles here until the scene changes.
 
 OverworldExitFinalize {
-    LDA #$0400            ; gfxCacheIdxB := $0400 on every exit path (purpose of the value not traced, OQ-I042-6)
+    LDA #$0400            ; gfxCacheIdxB := $0400 on every exit path (purpose of the value not traced)
     STA $gfxCacheIdxB
     COP [SetEntryHere]    ; Re-enter at the RTL below from now on: the actor idles until the scene changes
     RTL 
@@ -160,7 +160,7 @@ OverworldExitSouthCape {
     COP [BranchOnFlagByte] ( #26, #01, &OverworldExitSouthCapeFlag26 )
     COP [BranchOnFlagByte] ( #25, #01, &OverworldExitSouthCapeFlag25 )
     LDA #$0000
-    STA $0D60             ; Every success path clears $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)
+    STA $0D60             ; Every success path clears $0D60, the first word of the world map's six-word companion array (effect not traced)
     COP [StageWorldMapChoice] ( #$00D4, #$03A4, #01 ) ; Stage world-map start X, Y and menu id; a nonzero X arms the transition to the world map (see the block note for the values of each handler)
     JMP $&OverworldExitFinalize
 }
@@ -190,7 +190,7 @@ OverworldExitSouthCapeFlag25 {
 
 OverworldExitEdwardCastle {
     LDA $playerYPos
-    CMP #$02D0            ; Exit row: Y exactly $2D0 (equality, not a range; OQ-I042-5)
+    CMP #$02D0            ; Exit row: Y exactly $2D0 (equality, not a range)
     BEQ OverworldExitEdwardCastleStage
     RTL 
 

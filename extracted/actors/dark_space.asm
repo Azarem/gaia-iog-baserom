@@ -11,14 +11,10 @@
 ; === ENTRY (monitor child) ===
 ; 
 ; DarkSpaceInteractionMonitor (hidden child, flags $2300, $24 = variant) runs every frame, but not while displayModeFlags bit $0080 (display-filter actor mode) is set. It tests BranchIfPlayerInRelTiles ( -1, 0, 1, 1 ): the player's tile offset from the portal must satisfy -1 < dx <= 1 and 0 < dy <= 1. Then BranchIfPressed $0801 (raw Up) leads to DarkSpaceMonitorStartWarp, which runs in the MONITOR's context (Y = $04 is the portal):
-; 1. joypadMaskStd |= $CFFC (every button except Select and Start; the ROM has $CFF0 and db-us/transforms.json widens it, as in the other scripts) and the PLAYER's $10 |= $2000: the player becomes hidden (SortActorsByDepth skips actors with bit $2000; this answers part of OQ-I025-2).
+; 1. joypadMaskStd |= $CFFC (every button except Select and Start; the ROM has $CFF0 and db-us/transforms.json widens it, as in the other scripts) and the PLAYER's $10 |= $2000: the player becomes hidden (SortActorsByDepth skips actors with bit $2000).
 ; 2. The monitor's own X/Y := the player's X/Y, SFX $0C on both channels, the monitor's own $2000 cleared (it becomes visible) and animation #1C of spriteset_pickups_effects plays once at the player's spot, then 29 more frames.
 ; 3. The player's X/Y := the portal's X/Y; playerXPos = X - 8, playerYPos = Y - 16 and the tile words playerXTile/YTile (>> 4). That puts the player one tile north of the portal, which is where the room's E6 warp rectangle lies, so the normal warp check fires.
 ; 4. gfxCacheIdxB := $0101 (exit and enter speed 1), gfxCacheIdxA := $0200 (exit effect 0 = fade, enter effect 2 = mosaic), layerPriorityFlag |= $0200 (camera frozen / chests off while the warp runs) and globalScriptIndex := the variant for sE6_gaia's layout switch. The monitor then idles (SetEntryHere + RTL).
-; 
-; === CORRECTIONS ===
-; 
-; The old header said the handler 'copies the player's position onto the portal' (it copies the portal's position onto the player), that the monitor 'triggers when the player is within 1 tile', that $3000 / $2000 are 'display mode bits' / 'display flags: variant 1 / 2' (they are the sprite priority bits of the OAM attribute word; the variant is the spawn parameter) and that $2000 on the player is a 'frozen flag' (it hides him). The $4000 test in DarkSpacePortalOpen is the off-screen flag and a no-op.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'
@@ -82,7 +78,7 @@ DarkSpacePortalInit {
     TRB $10
     LDA #$0B00            ; Flags10 $0B00 (bits $0800, $0200, $0100; meaning not traced)
     TSB $10
-    COP [OrExtraFlags] ( #$0200 ) ; extendedFlags $0200: radar dot (OQ-63)
+    COP [OrExtraFlags] ( #$0200 ) ; extendedFlags $0200: radar dot
     COP [SpawnAfterFlags] ( @DarkSpaceInteractionMonitor, #$2300 ) ; Monitor child: flags $2300 = hidden ($2000) + $0300; Y = child
     LDA $24               ; Variant (0 to 3) for the monitor
     STA $0024, Y

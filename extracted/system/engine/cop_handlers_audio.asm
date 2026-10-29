@@ -1,6 +1,6 @@
 ; COP handlers for SPC700 audio communication and music playback (Bank $00, 8 COP handlers).
 ; 
-; StartMusic (#04) allocates a thinker with AllocateActorAfter and sets its entry to SpcTransferMusicData for the asynchronous SPC upload. FadeThenStartMusic (#05) does the same but enters at SpcFadeOutHandshake, which first sends $F1 on APUIO0: the SPC engine's CmdFadeOut command (fade counters $30/$31 = $FF; docs/audio/spc-disassembly.md), so the 'fade' in the name is real but happens inside the SPC engine, not in 65816 code (answers OQ-61; whether it is audible before the following $01/$F0 commands is OQ-I021-2). Both OR $1000 into the thinker's $12 (it keeps running while the world is frozen, as in MusicJingleActor), clear $1000 in its $10 and store the track in chatPtr.
+; StartMusic (#04) allocates a thinker with AllocateActorAfter and sets its entry to SpcTransferMusicData for the asynchronous SPC upload. FadeThenStartMusic (#05) does the same but enters at SpcFadeOutHandshake, which first sends $F1 on APUIO0: the SPC engine's CmdFadeOut command (fade counters $30/$31 = $FF; docs/audio/spc-disassembly.md), so the 'fade' in the name is real but happens inside the SPC engine, not in 65816 code (not traced: whether it is audible before the following $01/$F0 commands). Both OR $1000 into the thinker's $12 (it keeps running while the world is frozen, as in MusicJingleActor), clear $1000 in its $10 and store the track in chatPtr.
 ; 
 ; PlaySoundCh2 (#06), PlaySoundCh1 (#07) and PlaySoundBoth (#08) write the sfx queue bytes sfxQueueCh1/Ch2 ($06F8/$06F9); WriteApuIo1 (#09) and WriteApuIo0 (#0A) write APUIO1/APUIO0 ($2141/$2140) directly.
 ; 
@@ -43,7 +43,7 @@ StartMusic {
     ORA #$1000            ; Set $1000 in the child's $12 so it keeps running in display-filter mode (as MusicJingleActor does)
     STA $0012, X
     LDA $0010, X
-    AND #$EFFF            ; Clear $1000 in the child's $10 (mask $EFFF clears bit 12, not $0800); meaning of that bit: OQ-60
+    AND #$EFFF            ; Clear $1000 in the child's $10 (mask $EFFF clears bit 12, not $0800); meaning of that bit not traced
     STA $0010, X
     LDA [$0A]             ; Read music bundle ID byte from script
     INC $0A
@@ -56,7 +56,7 @@ StartMusic {
 }
 
 ---------------------------------------------
-; COP #05 with one byte operand (music bundle ID). Same allocation, $12/$10 flag handling and chatPtr as StartMusic, but the thinker's entry is SpcFadeOutHandshake: it sends $F1 on APUIO0 (the SPC engine's CmdFadeOut, performed inside the SPC), waits for the echo, sends $01, and falls into SpcTransferMusicData when the SPC answers zero. OQ-61 answered in I021; audibility of the fade is OQ-I021-2.
+; COP #05 with one byte operand (music bundle ID). Same allocation, $12/$10 flag handling and chatPtr as StartMusic, but the thinker's entry is SpcFadeOutHandshake: it sends $F1 on APUIO0 (the SPC engine's CmdFadeOut, performed inside the SPC), waits for the echo, sends $01, and falls into SpcTransferMusicData when the SPC answers zero. Whether the fade is audible before the following $01/$F0 commands is not traced.
 
 FadeThenStartMusic {
     TYX 

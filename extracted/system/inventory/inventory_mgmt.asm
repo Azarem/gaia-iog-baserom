@@ -10,7 +10,7 @@
 ; 
 ; === STAT-UP ITEMS ===
 ; 
-; Each one clears displayModeFlags bit $0080 (leave the display-filter actor mode, in which RunActors_Normal runs only actors flagged $1000; the chest code in warps_interaction sets it around the call), plays SFX $25, adds 1 to the 8-bit stat and returns with Y = 0. The add is 8-bit signed: only when the old value is $7F does the overflow flag trigger and the stat is set to $55 (85) instead. That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded. The old note called it a cap at $55.
+; Each one clears displayModeFlags bit $0080 (leave the display-filter actor mode, in which RunActors_Normal runs only actors flagged $1000; the chest code in warps_interaction sets it around the call), plays SFX $25, adds 1 to the 8-bit stat and returns with Y = 0. The add is 8-bit signed: only when the old value is $7F does the overflow flag trigger and the stat is set to $55 (85) instead. That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded.
 ; HP Max Up also sets hpToHeal := new max HP - HP (an 8-bit difference), so UpdateHUD refills the bar to the new maximum at 1 HP every 8 frames. STR Up and DEF Up do not touch hpToHeal.
 ; 
 ; === OTHER SPECIAL ITEMS ===
@@ -148,7 +148,7 @@ GiveItemToPlayer {
     CLC 
     ADC #$01
     BVC loc_03F023        ; The 8-bit signed add overflows only when the old value was $7F
-    LDA #$55              ; Overflow: set $55 (a reset, not a cap; other values are unbounded, OQ-I050-1)
+    LDA #$55              ; Overflow: set $55 (a reset, not a cap; other values are unbounded)
 
 ; Stores the new max HP and sets hpToHeal.
 

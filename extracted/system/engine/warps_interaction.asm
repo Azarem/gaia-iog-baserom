@@ -43,7 +43,7 @@
 ; 
 ; === CHEST OPENING ACTOR ===
 ; 
-; ChestOpeningActor runs the fanfare for chests whose record has byte 3 bit 7 set. The music value it handles is the one in musicParentActor ($06F2); other code calls that word the original music ID, so the name is a misnomer (see the audit rename proposals). The sequence:
+; ChestOpeningActor runs the fanfare for chests whose record has byte 3 bit 7 set. The music value it handles is the one in musicParentActor ($06F2); other code calls that word the original music ID, so the name is a misnomer. The sequence:
 ; 1. Saves $06F2 in orbitAngle (per-actor scratch) and spawns SpcTransferMusicData (async SPC upload) as a child; the pool-full result ($1FC0) jumps to the cleanup.
 ; 2. Gives the child its track number (the $26 field set by HandleChestInteraction, #$17, plus 1) in chatPtr and flags it $1000 so it still runs while the world is frozen.
 ; 3. Masks the joypad ($CFFC into joypadMaskStd: every button except Select/Start), flags the player $1000, points the player's state at PlayerIdleAnimLoop and sets playerFlags $0800 (script lock).

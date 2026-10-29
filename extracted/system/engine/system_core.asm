@@ -173,7 +173,7 @@ SystemInit {
     JSL $@vblank_joypad.EnterForcedBlank
     SEC 
     ROR $worldReadyFlag   ; Bit 7 = world-ready flag; permits scene loading
-    LDA $000100           ; Read the byte at $000100 (the 'warmboot signature'); no writer of $83 there was found (OQ-50)
+    LDA $000100           ; Read the byte at $000100 (the 'warmboot signature'); no writer of $83 there was found
     LDY #$0000
     CMP #$83              ; Compare with $83: both outcomes leave Y = 0 (the second LDY #$0000 is identical), so no scene is selected
     BEQ loc_00804C
@@ -201,7 +201,7 @@ SystemInit {
     STA $slopeCurvePtrA
     STA $slopeCurvePtrB
     LDA #$&math_lookup_tables.slope_curve_table+20 ; Deceleration curve pointer = same table + $20 (the +20 operand is hexadecimal)
-    STA $09C0             ; $09C0, $09BE, $09C4 get the same pointer; no other reference to them was found (OQ-52)
+    STA $09C0             ; $09C0, $09BE, $09C4 get the same pointer; no other reference to them was found
     STA $09BE
     STA $09C4
     STA $decelCurvePtr
@@ -459,7 +459,7 @@ UpdateHUD {
     REP #$20
     LDA $enemyHpPending   ; Enemy HP pending? nonzero → refresh display
     BEQ loc_008299
-    LDA #$0019            ; Timer preset $19 (25); overwritten with $3C below, so it never takes effect (OQ-53)
+    LDA #$0019            ; Timer preset $19 (25); overwritten with $3C below, so it never takes effect
     STA $enemyHealthTimer
     COP [RunBg3Script] ( @system_strings.consolestring_01E818 )
     LDA #$0010
@@ -473,7 +473,7 @@ UpdateHUD {
     BEQ loc_0082BD
     DEC $enemyHealthTimer ; Count the hold down; at 0 the bar is cleared at once (no fadeout phase)
     BNE loc_0082BD
-    LDA #$001E            ; $1E (30) is overwritten by the STZ enemyHealthTimer below: no 30-frame fadeout exists (OQ-53)
+    LDA #$001E            ; $1E (30) is overwritten by the STZ enemyHealthTimer below: no 30-frame fadeout exists
     STA $enemyHealthTimer
     STZ $enemyHpCurrentDisplay ; Clear the displayed enemy HP values (enemyHpCurrentDisplay, enemyHpDisplay)
     STZ $enemyHpDisplay

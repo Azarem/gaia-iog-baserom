@@ -13,10 +13,6 @@
 ; === WHERE THE COLOURS LAND ===
 ; 
 ; In sprite_group_000010 (the second logo, spm_boot_logos) OBJ palette 0 colours 8 of the 16 parts of the 4 x 4 emblem block (parts $05 to $0A, $0E, $0F: the lower two rows), OBJ palette 1 the other 8 (parts $00 to $04, $0B to $0D: the upper two rows). Both get the same shine at the same time, so the emblem sweeps in, flashes white and settles.
-; 
-; === CORRECTIONS ===
-; 
-; The three thinkers were first called boot_logo_palette_enix, boot_logo_palette_quintet and boot_logo_palette_third. Those were spawn-order names and read like three companies or three steps; they are one palette cycle, the Enix logo's, split over OBJ palettes 0, 1 and 2 (the old header's 'animates the Enix logo colors' was right for all three). The old header called this the first of three thinkers and the Quintet note said it runs 'after the Enix palette sequence'; they are spawned together and run in parallel. The logo is the second logo of scene $FB, the 4 x 4 emblem with a wordmark under it; I054 left the question of which logo uses OBJ palettes 0 and 1 open (OQ-I054-1) and the sprite tables answer it.
 ---------------------------------------------
 
 ---------------------------------------------

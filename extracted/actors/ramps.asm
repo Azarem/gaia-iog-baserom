@@ -38,7 +38,7 @@
 ; - The climb labels name the direction of travel: RampClimbNorthStep is the loop head of the NORTH climb and RampClimbSouthStep the loop head of the SOUTH climb; RampPlayerClimbWest is the west entry (ramp_east) and RampPlayerClimbNorth the north entry (ramp_north).
 ; - The launch needs exact equality of the player and ramp coordinates on the axis in stage 2. Whether the player's step size always hits it was not checked at runtime.
 ; - RampPlayerClimbEast stores the exit speed through LDX $06 without checking that SpawnAfter succeeded; if the actor pool were full the climb loop would never end. No evidence that this happens in practice.
-; - The player's $10 bit $0200 is set here and by slider_glide; its reader is unknown (see OQ-I032-5).
+; - The player's $10 bit $0200 is set here and by slider_glide; combat_collision includes it in the skip mask ($76E0) of its normal enemy-hits-player pass (the friendly pass uses $74E0, which allows it).
 ---------------------------------------------
 
 ?BANK 00

@@ -11,8 +11,6 @@
 ; === SEQUENCE ===
 ; 
 ; Flags $0342, palette 0, anim $29: three rising passes (Y chains $02, $12, $14), a two-pass hover loop, sprite priority $30, then StageMove to the target at 4 px per frame (TickMove). On arrival: a field_reveal_flash child, a 2-tick wait (WaitByte #01), $10 |= $2000, then ten field_reveal_scatter children (one every 5 ticks: WaitByte #03 is 4 ticks and LoopEnd yields once more; each gets the half-width and half-height), then StageBgChangeFromDeathIdx (SFX $0F on both channels, stages the swap), ApplyBgChange and Die. Each child gets $12 |= $1000 (the display / overlay-active qualifier, which CopyActorState clears).
-; 
-; The old header named an 'Incan Ruins wind trap' as a user (the four callers above are the real ones) and called +3 / +5 the 'target X tile' and 'X size'; they are the width and dstX.
 ---------------------------------------------
 
 ?INCLUDE 'event_block_table'

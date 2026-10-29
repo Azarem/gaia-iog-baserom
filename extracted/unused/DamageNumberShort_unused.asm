@@ -1,4 +1,4 @@
-; Unreferenced shortened variant of SpawnDamageNumberEffect (formerly AttackTrailShort_unused).
+; Unreferenced shortened variant of SpawnDamageNumberEffect.
 ; 
 ; Composes only 4 upward digit-sprite frames plus 32 more (vs 16+16), with a smaller Y offset ($FFF8). Would have rendered a shorter floating damage number. Never called by combat_collision or any actor script.
 ---------------------------------------------

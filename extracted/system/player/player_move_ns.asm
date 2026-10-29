@@ -2,7 +2,7 @@
 ; 
 ; === CONVENTIONS ===
 ; 
-; Positions are sub-pixels (4 per pixel; a 16-px tile is 64, so AND #$FFC0 floors to a row line). $24 / $26 are the Y velocity / position (negative = north, Y grows downward) and $22 is X. $1A / $1E are the probe pixel X / Y and $00 is the map index of the last probe; MapCellUp / Down / Left / Right read $00 and return the new index in X only (a caller that wants to keep it does STX $00; a result that is not stored is lost). CheckSubTileAlignX / Y: carry CLEAR = the probe sits on a 16-px line (flush), carry SET = it straddles two cells. Probe types: $02 ladder, $08 vine, $0E and above solid, $03 / $0C slopes; $06 / $09 are undecoded wall-like types (audit OQ-16, OQ-I029-5), so 'south wall' / 'north wall' below are handler names, not directions.
+; Positions are sub-pixels (4 per pixel; a 16-px tile is 64, so AND #$FFC0 floors to a row line). $24 / $26 are the Y velocity / position (negative = north, Y grows downward) and $22 is X. $1A / $1E are the probe pixel X / Y and $00 is the map index of the last probe; MapCellUp / Down / Left / Right read $00 and return the new index in X only (a caller that wants to keep it does STX $00; a result that is not stored is lost). CheckSubTileAlignX / Y: carry CLEAR = the probe sits on a 16-px line (flush), carry SET = it straddles two cells. Probe types: $02 ladder, $08 vine, $0E and above solid, $03 / $0C slopes; $06 / $09 are undecoded wall-like types, so 'south wall' / 'north wall' below are handler names, not directions.
 ; 
 ; === DISPATCH ORDER (DispatchNorthMove) ===
 ; 
@@ -13,27 +13,25 @@
 ; 5. Plain step: $26 += $24 (Y shrinks). $22 and $20 are not touched; PlayerMovementTick commits the position afterwards.
 ; 6. Blocked path (loc_02D0AF): SetActorCollisionFlag, AutoAlignEW_North (nudge X onto the column grid, carry clear = nudged), then SnapYNorthCollision. After a nudge the Y snap runs without zeroing playerSpeedNs (entry loc_02D0C2), so the player keeps pushing and is walked around the corner a couple of pixels per tick.
 ; 
-; The older header had step 4 reversed ('sub-tile aligned: MapCellRight'); the code runs the MapCellRight probe only when X is NOT flush.
-; 
 ; === SNAPPING ===
 ; 
 ; SnapYNorthCollision: Y' = $24 + $26 (the stepped Y), floored to a row line and moved one row down: $26 = (Y' AND $FFC0) + $40, $24 = 0. The hitbox top (feet - 16 px) then sits flush under the blocking row. In the normal blocked case Y' lies north of the old Y and the result falls between Y' and Y, so it backs the player off the step. Callers that run with $24 parked at 0 (the east and west wall-slide handlers) push the player SOUTH by 1..16 px instead (16 when already flush). The full entry also zeroes playerSpeedNs.
 ; 
 ; === SLOPES ===
 ; 
-; NorthSlopeRight ($03) and NorthSlopeLeft ($0C) are entered when the current TL has that type and need the current TR to match, else the move counts as blocked. The slope flag $09AF bit $10 (playerFlags $1000, on a slope) is set when Y is flush, when the cell below has the same type, or when d >= 8. Here d = 16 - n and n = (($26 + $24) >> 2) AND $0F is the row offset of the top probe inside the slope tile, so d >= 8 means the upper half of the tile; in the lower half (n >= 9, d < 8) the move is applied without the flag. The old text called d < 8 the 'upper half'. The slope directions ('right' / 'left') are undecoded (OQ-I033-3); the old part notes called the same types 'descending' and 'ascending' inconsistently.
+; NorthSlopeRight ($03) and NorthSlopeLeft ($0C) are entered when the current TL has that type and need the current TR to match, else the move counts as blocked. The slope flag $09AF bit $10 (playerFlags $1000, on a slope) is set when Y is flush, when the cell below has the same type, or when d >= 8. Here d = 16 - n and n = (($26 + $24) >> 2) AND $0F is the row offset of the top probe inside the slope tile, so d >= 8 means the upper half of the tile; in the lower half (n >= 9, d < 8) the move is applied without the flag. The slope directions ('right' / 'left') are undecoded.
 ; 
 ; NorthSlopeLeft additionally filters the step through slopeFracAccum ($09C6, shared with the south handlers): a positive leftover is zeroed, then accum += $24. With |accum| >> 4 = 0 the unchanged $24 is applied and accum keeps the sum. Otherwise $24 is REPLACED by -(|accum| >> 4) and accum gains 16 per step. Nothing subtracts the distance that was actually moved, so for $24 = -8 the player alternates a full 2-px step and a 1-sub-pixel step (about 56 percent of the speed on average). UNVERIFIED-RUNTIME.
 ; 
 ; === WALL HANDLERS ===
 ; 
 ; SouthWallHandler (current TL $06) and NorthWallHandler (current TR $09): if the opposite bottom corner (BR / BL) has the same type the player is enclosed and ClearMovementDeltas runs. Otherwise the future corner is probed and CheckSubTileAlignY decides. Y STRADDLING and future type $06 / $09: gap chain. Y flush, or another type: the snap path.
-; Gap chain: the neighbour cell east (SouthWallHandler, MapCellRight) or west (NorthWallHandler, MapCellLeft) of the future corner cell and the cell below that neighbour must both be type 0, else ClearSpeedNS_1 / _2 (playerSpeedNs = 0, nothing applied this tick). Both empty: ComputeYSnapOffset, then FineAdjustXWest / FineAdjustXEast. FineAdjustXWest moves X EAST and FineAdjustXEast moves X WEST (the names refer to the wall side), so SouthWallHandler slides the player east and NorthWallHandler west; the old headers said the opposite.
+; Gap chain: the neighbour cell east (SouthWallHandler, MapCellRight) or west (NorthWallHandler, MapCellLeft) of the future corner cell and the cell below that neighbour must both be type 0, else ClearSpeedNS_1 / _2 (playerSpeedNs = 0, nothing applied this tick). Both empty: ComputeYSnapOffset, then FineAdjustXWest / FineAdjustXEast. FineAdjustXWest moves X EAST and FineAdjustXEast moves X WEST (the names refer to the wall side), so SouthWallHandler slides the player east and NorthWallHandler west.
 ; Snap path: SnapXWestCollision (SouthWallHandler: X to the centre of the next column east, also zeroes playerSpeedEw) or SnapXEastCollision (NorthWallHandler: X floored to its column centre, i.e. west), then the future corner is re-probed. Still $06 / $09: take the slide. Anything else: zero $24 (so SnapYSouthCollision floors the CURRENT Y with no step added) and apply the move.
 ; 
-; SouthWallNudge (future TL $06): $AB bit 1 is set by DispatchWestMove in every tick where the west horizontal phase ran (a negative $20) and is cleared together with $AA at the start of the tick; the old text called it a 'wall interaction flag from a prior collision pass'. If it is set and X is flush, the north step is cancelled ($24 = 0) and the X move is applied. Otherwise MapCellRight from the future TL cell: $0E and above -> zero $24 + SnapYSouthCollision + apply (loc_02D1BC); anything else -> the SouthWallHandler gap chain.
+; SouthWallNudge (future TL $06): $AB bit 1 is set by DispatchWestMove in every tick where the west horizontal phase ran (a negative $20) and is cleared together with $AA at the start of the tick. If it is set and X is flush, the north step is cancelled ($24 = 0) and the X move is applied. Otherwise MapCellRight from the future TL cell: $0E and above -> zero $24 + SnapYSouthCollision + apply (loc_02D1BC); anything else -> the SouthWallHandler gap chain.
 ; 
-; NorthProbeRedirect: reached from DispatchNorthMove when future TL is $09 (X flush) or the east cell is $09. Its MapCellDown + ReadCollisionNibble have no effect (MapCellDown only changes X, the nibble is dropped and MapCellLeft at loc_02D208 reads $00 again), so the chain starts from the cell recorded in $00 (OQ-I039-4).
+; NorthProbeRedirect: reached from DispatchNorthMove when future TL is $09 (X flush) or the east cell is $09. Its MapCellDown + ReadCollisionNibble have no effect (MapCellDown only changes X, the nibble is dropped and MapCellLeft at loc_02D208 reads $00 again), so the chain starts from the cell recorded in $00.
 ; 
 ; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
 ---------------------------------------------
@@ -60,12 +58,12 @@ DispatchNorthMove {
     SEP #$20              ; Vertical-phase entry for negative $24; the horizontal phase already ran this tick. 8-bit probe mode
     JSR $&tile_collision.ProbeCurrentTL ; Probe current top-left tile at player leading north corner; BCC = no TL collision
     BCC loc_02D054
-    CMP #$06              ; Current TL type $06 -> SouthWallHandler (undecoded wall type: 'south wall' is a handler name, OQ-I029-5)
+    CMP #$06              ; Current TL type $06 -> SouthWallHandler (undecoded wall type: 'south wall' is a handler name)
     BNE loc_02D046
     JMP $&SouthWallHandler
 
   loc_02D046:
-    CMP #$03              ; Current TL type $03 -> NorthSlopeRight (slope direction undecoded, OQ-I033-3; the old 'ascending' wording was a guess)
+    CMP #$03              ; Current TL type $03 -> NorthSlopeRight (slope direction undecoded)
     BNE loc_02D04D
     JMP $&NorthSlopeRight
 
@@ -108,7 +106,7 @@ DispatchNorthMove {
     JSR $&tile_collision.MapCellRight ; X straddling: MapCellRight = the cell east of the future TL cell (the future TR cell); STX $00 keeps it
     STX $00
     JSR $&tile_collision.ReadCollisionNibble
-    CMP #$0E              ; That east cell solid ($0E and above): blocked path (the old text said 'below')
+    CMP #$0E              ; That east cell solid ($0E and above): blocked path
     BCS loc_02D0AF
     CMP #$08              ; East cell is a vine ($08): blocked path
     BEQ loc_02D0AF
@@ -174,7 +172,7 @@ DispatchNorthMove {
 }
 
 ---------------------------------------------
-; Current TL $03 while moving north. Needs the current TR to be $03 too, else blocked path. Y flush, or the cell below also $03: set the slope flag and apply. Otherwise d = 16 - n (see the block note): d < 8 applies the move without the flag, d >= 8 sets $09AF bit $10 first. The direction of the slope is undecoded (OQ-I033-3).
+; Current TL $03 while moving north. Needs the current TR to be $03 too, else blocked path. Y flush, or the cell below also $03: set the slope flag and apply. Otherwise d = 16 - n (see the block note): d < 8 applies the move without the flag, d >= 8 sets $09AF bit $10 first. The direction of the slope is undecoded.
 
 NorthSlopeRight {
     JSR $&tile_collision.ProbeCurrentTR ; Right slope ($03): verify matching $03 at current TR corner
@@ -385,11 +383,11 @@ NorthWallHandler {
 }
 
 ---------------------------------------------
-; Entry from DispatchNorthMove when the future TL is $09 (X flush) or the east cell is $09. MapCellDown + ReadCollisionNibble here are dead (the result is unused and the BRA target's MapCellLeft starts from $00), so it simply joins the NorthWallHandler gap chain at loc_02D208 with the cell in $00 (OQ-I039-4).
+; Entry from DispatchNorthMove when the future TL is $09 (X flush) or the east cell is $09. MapCellDown + ReadCollisionNibble here are dead (the result is unused and the BRA target's MapCellLeft starts from $00), so it simply joins the NorthWallHandler gap chain at loc_02D208 with the cell in $00.
 
 NorthProbeRedirect {
     JSR $&tile_collision.MapCellDown ; No effect: MapCellDown only changes X, and MapCellLeft at the BRA target reads $00 again
-    JSR $&tile_collision.ReadCollisionNibble ; Result unused (OQ-I039-4)
+    JSR $&tile_collision.ReadCollisionNibble ; Result unused
     BRA loc_02D208        ; Join the NorthWallHandler gap chain; it starts from the cell in $00
 
 ; Abort of the NorthWallHandler gap chain: playerSpeedNs = 0 and return. No position is applied this tick.

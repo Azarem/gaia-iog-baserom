@@ -1,4 +1,4 @@
-; Enemy drop spawner for gems and heals (Bank 00, 57129-57340). The old names (DarkGemDropSystem, SpawnDarkGemType1 and so on) said 'dark gem', but what drops is a pickup carrying item id $83 to $86 of GiveItemToPlayer: 1, 2 or 5 gems, or a 5 HP heal.
+; Enemy drop spawner for gems and heals (Bank 00, 57129-57340). What drops is a pickup carrying item id $83 to $86 of GiveItemToPlayer: 1, 2 or 5 gems, or a 5 HP heal.
 ; 
 ; === CALLER ===
 ; 
@@ -7,7 +7,7 @@
 ; === THE PICKUP ===
 ; 
 ; The actor carries its item id in chatPtr ($7F000A,X) and has the 'friendly' flag $0020 in its $10 (from the spawn flags). When the player overlaps it, combat_collision.InteractionDamage_NPCChat calls GiveItemToPlayer(chatPtr) and turns the actor into NpcDespawnStub. Ids: $83 = 1 gem, $84 = 2 gems, $85 = 5 gems (cap 999), $86 = hpToHeal += 5 (UpdateHUD refills 1 HP every 8 frames) plus the spark effect and SFX $22.
-; Each entry also spawns a marked child, interaction_handlers.collect_handler_gem (flags $2700), which pulls the pickup toward the player while L / R is held. The pickup is the marked parent ($12 bit $0040 set by SpawnAfterMarked), so its Die also removes the child. Each body clears $10 bit $0400 that the $0420 spawn flags set (see OQ-I049-3).
+; Each entry also spawns a marked child, interaction_handlers.collect_handler_gem (flags $2700), which pulls the pickup toward the player while L / R is held. The pickup is the marked parent ($12 bit $0040 set by SpawnAfterMarked), so its Die also removes the child. Each body clears $10 bit $0400 that the $0420 spawn flags set (combat_collision's player-attack phase skips actors with that bit; why the spawn flags set it first is not traced).
 ; 
 ; === LIFETIME (spriteset_pickups_effects animation lists) ===
 ; 
@@ -41,7 +41,7 @@ SpawnDropGem1 {
     LDA #$0083            ; Item id $83 = 1 gem (given by GiveItemToPlayer on touch)
     STA $chatPtr, X
     LDA #$0400
-    TRB $10               ; Clear $10 bit $0400 that the $0420 spawn flags set (effect: OQ-I049-3)
+    TRB $10               ; Clear $10 bit $0400 that the $0420 spawn flags set (combat_collision's player-attack phase skips actors with it; why it is set first is not traced)
     COP [StageSpriteLoop] ( #04, #0A ) ; Anim 4 for 10 passes: 60-tick still frame plus 5 shimmer frames per pass, about 750 ticks
     COP [AnimLoop]
     COP [StageSpriteLoop] ( #09, #96 ) ; Anim 9 for 150 passes: 2-tick blink per pass, about 300 ticks, then Die

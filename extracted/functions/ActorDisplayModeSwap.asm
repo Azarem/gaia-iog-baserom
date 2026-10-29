@@ -7,7 +7,7 @@
 ; 
 ; Of the 25 actor-def headers in the 22 caller files, 24 start with flags word $1000 or $1800 (bit $2000 already clear, $1000 already set), so for them the $10 update changes nothing and the effective work is $0E = $2000 plus the $24 save. Only eu91_shop_queue starts with $3000, where the $2000 clear is real.
 ; 
-; The older header called $0E 'displayModeFlags' (that is the global at $09EC) and $10 a 'statusWord', and described a swap 'from display mode $2000 to $1000' as if every caller started hidden.
+; The $0E written here is the actor's own attribute word, not the global displayModeFlags ($09EC).
 ; 
 ; Requires M = 0 (16-bit A). Call sites: 23 in 22 NPC actor files: watermia (wa78_women, water_kid, moving_woman, men, children, centipede_man), angel_village (av6B_villagers1-3, ocean_ache, av6C_villagers4-5, av69_signs), seaside_palace (sp5A_villagers), euro (eu91_women1-2, men1-2, shop_queue, merchant twice, eu9D_slaves) and dao sweatshop (daC5_weaver).
 ---------------------------------------------

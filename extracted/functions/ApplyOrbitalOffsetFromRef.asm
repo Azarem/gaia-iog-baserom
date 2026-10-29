@@ -7,8 +7,6 @@
 ; Arithmetic: for each axis the table value (sine_table_8bit for X, signed_cosine_table_8bit for Y, both indexed by the angle byte; the sine table is only a quarter wave and entries 64-255 read on into the cosine table) is turned into a magnitude, the sign is kept in the carry flag, the magnitude times the diameter is formed with Multiply8x8Unsigned (which preserves carry and Y), the high byte of the 16-bit product is taken (>> 8) and negated when the carry says so. The table peak is $7F, so each offset is about +/- diameter / 2 (the name 'diameter' is right: it is the full width of the circle). Angle 0 puts the actor directly BELOW the centre (cosine peak, Y grows downward); $40 is east, $80 north, $C0 west, so increasing angles turn counter-clockwise on screen.
 ; 
 ; Callers: 21 JSL sites in 11 files: attack_ability_system 2, btE4_kara, ec0E_lily, ir29_castoth, mtA1_fire_sprite 5, pyDD_queen_orb_shot, pyDD_queen_spirit_attack, cop_handlers_effects (SpiralStep, with the reference actor in $0000), item_use_system, statue_inventory_reward and unused_mode7_boss 6. 16 use the first entry and 5 the second. The elliptical variant with separate X / Y angles is ApplyOrbitalOffsetXY.
-; 
-; The old header said 'multiplied by orbitDiameter ... result updates actor $14/$16' without the sign, byte-width and rotation direction facts above. UNVERIFIED-RUNTIME (read from the code and the table headers).
 ---------------------------------------------
 
 ?INCLUDE 'hardware_math'

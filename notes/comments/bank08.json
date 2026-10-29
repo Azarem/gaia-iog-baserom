@@ -86,7 +86,7 @@
     "579266": "Block player from walking through",
     "579268": "Clear $2000 (hidden) so the portal is drawn",
     "579273": "Flags10 $0B00 (bits $0800, $0200, $0100; meaning not traced)",
-    "579278": "extendedFlags $0200: radar dot (OQ-63)",
+    "579278": "extendedFlags $0200: radar dot",
     "579282": "Monitor child: flags $2300 = hidden ($2000) + $0300; Y = child",
     "579289": "Variant (0 to 3) for the monitor",
     "579294": "Portal closed frame",

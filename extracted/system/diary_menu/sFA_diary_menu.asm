@@ -4,7 +4,7 @@
 ; 
 ; === DISPLAY SETUP (DiaryMenuInit) ===
 ; 
-; TM = $01 (BG1), TS = $04 (BG3 on the sub screen), so the BG3 text is colour-math-blended over BG1: CGWSEL = $82 (main screen forced black inside the colour window, addend = sub screen), CGADSUB = $41 (add, half intensity, BG1 only). WOBJSEL = $22 enables window 1 for the colour window and the OBJ window; WH0/WH1 are fed by diary_menu_window_dma, which draws the highlight bands (see that file). W34SEL = $88 enables window 2 for BG3/BG4. The camera starts at ($80,$300); displayModeFlags |= $4001 (bit 14 = HUD off, bit 0 = full BG3 upload). Start and Select are masked out of joypadCurrent ($3000 in joypadMaskStd), playerFlags $2800 (script lock $0800 + guard stance $2000) is set until the menu leaves, and the D-pad auto-repeats ($0F00 in joypadMaskInv). The black-inside-window look is decoded from the registers, not observed (OQ-I057-3).
+; TM = $01 (BG1), TS = $04 (BG3 on the sub screen), so the BG3 text is colour-math-blended over BG1: CGWSEL = $82 (main screen forced black inside the colour window, addend = sub screen), CGADSUB = $41 (add, half intensity, BG1 only). WOBJSEL = $22 enables window 1 for the colour window and the OBJ window; WH0/WH1 are fed by diary_menu_window_dma, which draws the highlight bands (see that file). W34SEL = $88 enables window 2 for BG3/BG4. The camera starts at ($80,$300); displayModeFlags |= $4001 (bit 14 = HUD off, bit 0 = full BG3 upload). Start and Select are masked out of joypadCurrent ($3000 in joypadMaskStd), playerFlags $2800 (script lock $0800 + guard stance $2000) is set until the menu leaves, and the D-pad auto-repeats ($0F00 in joypadMaskInv). The black-inside-window look is decoded from the registers, not observed.
 ; RunBg3Script consolestring_01EADC draws the button legend box (A Button: Enter / B Button: Cancel).
 ; 
 ; === DIARY STATE BLOCK ($0D74-$0D9E) ===
@@ -30,7 +30,7 @@
 ; 
 ; === BUTTON TYPES ===
 ; 
-; ApplySoundAndRemap (run when a game starts) reads sound $0B24 and button type $0B26. Type 1 (0) sets remapA = $8000, remapB = $4000, remapX = 0, remapY = $0040; Type 2 (1) only sets remapX = 0 and leaves the other remaps at their current values (the engine defaults). The on-screen legend (dialogstring_0BF63F / 0BF653) reads 'Type 1: A, B, SEL, Y' and 'Type 2: B, Y, SEL, A' against the rows Attack/Talk, Item/Cancel, Item palette, Not used. This baserom's system_init transform changes the default remaps (remapA $8080, remapB $4008, remapY $0040, remapX $0004) and the menu's own button tests ($8000 confirm, $4000 cancel), so what Type 2 does here is unverified (OQ-I057-1).
+; ApplySoundAndRemap (run when a game starts) reads sound $0B24 and button type $0B26. Type 1 (0) sets remapA = $8000, remapB = $4000, remapX = 0, remapY = $0040; Type 2 (1) only sets remapX = 0 and leaves the other remaps at their current values (the engine defaults). The on-screen legend (dialogstring_0BF63F / 0BF653) reads 'Type 1: A, B, SEL, Y' and 'Type 2: B, Y, SEL, A' against the rows Attack/Talk, Item/Cancel, Item palette, Not used. This baserom's system_init transform changes the default remaps (remapA $8080, remapB $4008, remapY $0040, remapX $0004) and the menu's own button tests ($8000 confirm, $4000 cancel), so what Type 2 does here is unverified.
 ; The erase prompt temporarily remaps B/Y in vanilla; transforms.json strips those stubs from the plain extraction, but multi-line rules do not apply under extract:lt (OQ-I026-1), so the stubs stay visible in the line-tracked text.
 ; 
 ; === UNREFERENCED CODE ===
@@ -2055,7 +2055,7 @@ FormatBcdNumber {
 }
 ---------------------------------------------
 
-; Unreferenced bytes extracted as code with the wrong register width. Read with 8-bit A they are LDA $E1 / BIT #$40 / BEQ (to the RTL) / LDA #$04 / JSL $82:81C9 (WaitFrames) / RTL: holding Y ($4000 in the $E0 word) on controller 2 adds a 4-frame wait (slow motion). An overrides.json M = 1 entry at 782923 would extract it correctly (renames ledger R-I057-4).
+; Unreferenced bytes extracted as code with the wrong register width. Read with 8-bit A they are LDA $E1 / BIT #$40 / BEQ (to the RTL) / LDA #$04 / JSL $82:81C9 (WaitFrames) / RTL: holding Y ($4000 in the $E0 word) on controller 2 adds a 4-frame wait (slow motion). An overrides.json M = 1 entry at 782923 would extract it correctly.
 
 DiaryUnused24B_noref {
     LDA $00E1

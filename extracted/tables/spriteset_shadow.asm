@@ -1,6 +1,6 @@
-; Shadow player spriteset (Bank 14, 1343488-1355931 = $14:8000): every frame the player can show in form 2. 76 animations ($00-$4B), 261 frame records, 168 sprite groups, 1273 sub-sprites (at most 14 per group). Chosen by body_table rows $02 and $03 (spriteset bank $94, art shad_sprites_1BC000; row $03 is a copy, OQ-I061-1); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The animation numbering is shared with spriteset_will and spriteset_freedan, and the struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note.
+; Shadow player spriteset (Bank 14, 1343488-1355930 = $14:8000): every frame the player can show in form 2. 76 animations ($00-$4B), 261 frame records, 168 sprite groups, 1273 sub-sprites (at most 14 per group). Chosen by body_table rows $02 and $03 (spriteset bank $94, art shad_sprites_1BC000; row $03 is a copy); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The animation numbering is shared with spriteset_will and spriteset_freedan, and the struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note.
 ; 
-; The old header ('walking, idle, attack and liquify animation frames', 'Shadow's unique morph poses') named poses the code does not use: 'liquify' appears nowhere outside the headers of this file and spriteset_shadow_fx, and the table has the same 76 indices as the Freedan table. Shadow's separate mode body is spriteset_shadow_aura_body (body_table row $08) and the effect sprites are in spriteset_shadow_fx.
+; Shadow's separate mode body is spriteset_shadow_aura_body (body_table row $08) and the effect sprites are in spriteset_shadow_fx.
 ; 
 ; === WHAT DIFFERS FROM THE FREEDAN TABLE (same indices, other frame counts) ===
 ; 
@@ -10,9 +10,9 @@
 ; - Melee attack $36-$39 is 7 frames (holds 3, 2, 1, 0, 0, 1, 2 = 16 ticks), the same frame count as Freedan; guard $3A-$3D is 8 frames of hold 0 (Freedan 4); $42-$43 and $48-$49 are 7 frames, $44-$47 and $4A-$4B one frame of hold 0.
 ; - $3E-$41 (7 frames, holds 3, 1, 8, 4, 3, 3, 8) is not staged by the player scripts.
 ; 
-; === CHECKS ===
+; === TOTALS ===
 ; 
-; All 168 groups have a count byte equal to their number of sub-sprites, all 168 keep the default attack box $F8 $F0 $01 $01, all are referenced, all 76 frame lists are 4n + 2 bytes long (the label spacing of 75 consecutive lists was checked by hand) and 12443 bytes = 152 (table) + 4 x 261 + 2 x 76 (lists and their hidden $FFFF terminators) + 13 x 168 + 7 x 1273.
+; All 168 groups have a count byte equal to their number of sub-sprites, all 168 keep the default attack box $F8 $F0 $01 $01, all are referenced, all 76 frame lists are 4n + 2 bytes long and 12443 bytes = 152 (table) + 4 x 261 + 2 x 76 (lists and their hidden $FFFF terminators) + 13 x 168 + 7 x 1273.
 ---------------------------------------------
 
 ?BANK 14

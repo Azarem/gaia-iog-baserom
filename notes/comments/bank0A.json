@@ -1,7 +1,7 @@
 {
     "697198": "Y = player actor slot address (WRAM $09AA; the slot address is also the actor's DP base)",
     "697201": "Actor flags word ($10) of the player actor",
-    "697204": "Set actor-flag bit $0200 (not playerFlags bit 9, the real game-over bit; see OQ-I030-2)",
+    "697204": "Set actor-flag bit $0200 (not playerFlags bit 9, the real game-over bit)",
     "697207": "Write the flags word back",
     "697210": "RTL without Die or a new entry point: the helper runs again next tick and re-applies the bit",
     "697255": "Clear the hit and dodge callbacks so no hit or dodge can redirect the actor's entry pointer during the glide",
@@ -32,7 +32,7 @@
     "697391": "A.y + B.y",
     "697398": "Same signed divide for Y",
     "697402": "(A.y + B.y) / 2 → midpoint Y",
-    "697407": "Exactly 1 means the last enemy (a count of 0 would wrap the counters, OQ-I046-4)",
+    "697407": "Exactly 1 means the last enemy (a count of 0 would wrap the counters)",
     "697415": "Last enemy: clear the ForceDir bits and halt movement (zero chains, delta words cleared)",
     "697435": "Last enemy: the full standard defeat (it decrements the counters itself)",
     "697440": "Not the last: per-enemy death processing as a near subroutine",

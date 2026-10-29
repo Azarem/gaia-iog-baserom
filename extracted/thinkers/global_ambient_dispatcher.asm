@@ -1,4 +1,4 @@
-; Per-scene hub thinker (Bank 00, 49035-49577, about 545 bytes), spawned in about 60 scene_thinkers lists, usually as the last slot. It has two jobs: it loads the player's sprite palette for the current form once at spawn, and it runs the shared 'talk to the thing in front of you' interaction every frame. It is not an ambient effect, and the trigger is the interact bit of joypadCurrent, not a direction press as the old header said.
+; Per-scene hub thinker (Bank 00, 49035-49577, about 545 bytes), spawned in about 60 scene_thinkers lists, usually as the last slot. It has two jobs: it loads the player's sprite palette for the current form once at spawn, and it runs the shared 'talk to the thing in front of you' interaction every frame. It is not an ambient effect, and the trigger is the interact bit of joypadCurrent, not a direction press.
 ; 
 ; === PALETTE (spawn only) ===
 ; 
@@ -6,16 +6,16 @@
 ; 
 ; === FILTER WORD ===
 ; 
-; thinker-def <#00, #08> gives animScratch2 = $0800 (bit 11 set: also run in the Light runners). GlobalAmbientInteractEntry clears bit 11 in the thinker's own animScratch2, so from then on the dispatcher runs only in RunThinkers_General (the main loop) and is skipped by the lighter frame routines (dialogue, render, music upload): no new talk starts while a dialogue frame loop is running. The old comment called bit 11 an 'interaction ready flag'.
+; thinker-def <#00, #08> gives animScratch2 = $0800 (bit 11 set: also run in the Light runners). GlobalAmbientInteractEntry clears bit 11 in the thinker's own animScratch2, so from then on the dispatcher runs only in RunThinkers_General (the main loop) and is skipped by the lighter frame routines (dialogue, render, music upload): no new talk starts while a dialogue frame loop is running.
 ; 
 ; === TALK INTERACTION (every frame) ===
 ; 
 ; 1. PHD / TCD set D = 0 and joypadCurrent bit $8000 is tested: the interact bit. In the vanilla layout it is the B button (remapB); in this build transforms.json rewrites the system_init defaults to remapA = $8080 and remapB = $4008, so the A button feeds it (together with the attack bit $0080). The notes in this file name the logical bit, not a button. Not pressed: return.
-; 2. GetPlayerFacingDirection: carry SET = no valid facing, return; carry CLEAR = valid (GlobalAmbientFacingValid; the old label said Invalid). A = 0 down, 1 up, 2 left, 3 right, saved in $09EE.
-; 3. A probe point one pixel in front of the player ($18 / $1C = player X / Y plus (0,+1), (0,-1), (-1,0) or (+1,0)) is built. The four probe labels follow the facing code: GlobalAmbientProbeDown handles facing 0 (down), GlobalAmbientProbeUp facing 1 (up), GlobalAmbientProbeLeft facing 2 (left), GlobalAmbientProbeRight facing 3 (right); the old ScanEast / ScanWest / ScanNorth / ScanSouth labels were rotated against these.
+; 2. GetPlayerFacingDirection: carry SET = no valid facing, return; carry CLEAR = valid (GlobalAmbientFacingValid). A = 0 down, 1 up, 2 left, 3 right, saved in $09EE.
+; 3. A probe point one pixel in front of the player ($18 / $1C = player X / Y plus (0,+1), (0,-1), (-1,0) or (+1,0)) is built. The four probe labels follow the facing code: GlobalAmbientProbeDown handles facing 0 (down), GlobalAmbientProbeUp facing 1 (up), GlobalAmbientProbeLeft facing 2 (left), GlobalAmbientProbeRight facing 3 (right).
 ; 4. GlobalAmbientFindActorInFront walks the actor list from actorListFirst and keeps the actor with the smallest |dx| + |dy| to the probe point whose |dx| and |dy| are both below $10 and whose sum is below $20. Only actors with Flags10 bit $1000 count (the third actor-def header byte of NPCs and objects carries it; the player has it clear and is skipped). X = 0 when none is found.
 ; 5. The target is 'in front' when its coordinate along the facing axis is beyond the probe (GlobalAmbientTargetInRange), otherwise it is at or behind the player (GlobalAmbientTargetAtOrBehind). Both need a non-zero chatPtr ($7F000A, set by SetInteractHandler). A target at or behind the player runs its chat routine directly; a target in front first sets the interact bit in joypadHeld.
-; 6. In front and Flags12 ($12) bit $0200 clear: the turn-and-talk path (GlobalAmbientTalkWithSnapshot; it plays no sound, which the old label TalkSound suggested). The target's actor slot ($30 bytes, bank 0) and its extended $7F page ($30 bytes) are copied to $7E:3410-$346F through the RAM MVN stub at $0402 ($0404 = destination bank, $0405 = source bank, A = $2F is the byte count minus one, not a sound number; the old comments called it SFX $2F). The target is then turned to face the player (GlobalAmbientPickTalkAnimFrame), its animation is updated at once, its chat routine runs as a subroutine and, when it returns, both copies are written back (GlobalAmbientTalkRestoreActor). WRAM flags, dialogue and inventory changes made by the chat routine persist, but the NPC's own actor fields (position, animation, entry pointer, flags) are put back as they were; the next-link $06 is kept as it is now when the saved copy had none (it was the list tail).
+; 6. In front and Flags12 ($12) bit $0200 clear: the turn-and-talk path (GlobalAmbientTalkWithSnapshot; it plays no sound). The target's actor slot ($30 bytes, bank 0) and its extended $7F page ($30 bytes) are copied to $7E:3410-$346F through the RAM MVN stub at $0402 ($0404 = destination bank, $0405 = source bank, A = $2F is the byte count minus one, not a sound number). The target is then turned to face the player (GlobalAmbientPickTalkAnimFrame), its animation is updated at once, its chat routine runs as a subroutine and, when it returns, both copies are written back (GlobalAmbientTalkRestoreActor). WRAM flags, dialogue and inventory changes made by the chat routine persist, but the NPC's own actor fields (position, animation, entry pointer, flags) are put back as they were; the next-link $06 is kept as it is now when the saved copy had none (it was the list tail).
 ; 7. Flags12 bit $0200 set (over 150 NPC, sign, book and door actor scripts set it) skips the snapshot, the turn and the animation: the chat routine runs directly (GlobalAmbientDeferToScript).
 ; 8. GlobalAmbientClearTalkInput then clears the interact bit in joypadCurrent and sets it in joypadHeld so the same press cannot trigger again.
 ; 
@@ -112,7 +112,7 @@ GlobalAmbientPaletteUnused {
 }
 
 ---------------------------------------------
-; Interact bit pressed (the old label said direction press). Read the player's facing, build the probe point in front of the player and find the interactable actor there.
+; Interact bit pressed. Read the player's facing, build the probe point in front of the player and find the interactable actor there.
 
 GlobalAmbientOnInteractPress {
     JSL $@GetPlayerFacingDirection ; A = facing 0 down, 1 up, 2 left, 3 right; carry set = no valid facing
@@ -120,7 +120,7 @@ GlobalAmbientOnInteractPress {
     PLD 
     RTL 
 
-; Valid-facing path (BCC after GetPlayerFacingDirection: carry clear = valid; the old label said Invalid). Saves the facing in $09EE and splits into the four probe builders.
+; Valid-facing path (BCC after GetPlayerFacingDirection: carry clear = valid). Saves the facing in $09EE and splits into the four probe builders.
 
   GlobalAmbientFacingValid:
     STA $09EE             ; Save the facing in $09EE (PickTalkAnimFrame later overwrites it with an animation offset)
@@ -135,7 +135,7 @@ GlobalAmbientOnInteractPress {
     BEQ GlobalAmbientProbeLeft ; Facing 2 (left): probe left of the player
     BRA GlobalAmbientProbeRight ; Facing 3 (right): probe right of the player
 
-; Facing 0 = down (the old label said ScanEast): probe point = player X, player Y + 1.
+; Facing 0 = down: probe point = player X, player Y + 1.
 
   GlobalAmbientProbeDown:
     LDA $0014, Y
@@ -151,7 +151,7 @@ GlobalAmbientOnInteractPress {
     BMI GlobalAmbientTargetAtOrBehind ; Target not beyond the probe: at or behind the player
     BRA GlobalAmbientTargetInRange
 
-; Facing 1 = up (the old label said ScanWest): probe point = player X, player Y - 1.
+; Facing 1 = up: probe point = player X, player Y - 1.
 
   GlobalAmbientProbeUp:
     LDA $0014, Y
@@ -167,7 +167,7 @@ GlobalAmbientOnInteractPress {
     BMI GlobalAmbientTargetAtOrBehind ; Target not beyond the probe: at or behind the player
     BRA GlobalAmbientTargetInRange
 
-; Facing 2 = left (the old label said ScanNorth): probe point = player X - 1, player Y.
+; Facing 2 = left: probe point = player X - 1, player Y.
 
   GlobalAmbientProbeLeft:
     LDA $0014, Y
@@ -183,7 +183,7 @@ GlobalAmbientOnInteractPress {
     BMI GlobalAmbientTargetAtOrBehind ; Target not beyond the probe: at or behind the player
     BRA GlobalAmbientTargetInRange
 
-; Facing 3 = right (the old label said ScanSouth): probe point = player X + 1, player Y.
+; Facing 3 = right: probe point = player X + 1, player Y.
 
   GlobalAmbientProbeRight:
     LDA $0014, Y
@@ -409,7 +409,7 @@ GlobalAmbientPickTalkAnimFrame {
     AND #$0001
     BRA GlobalAmbientAnimFacingApply
 
-; The LEFT / RIGHT branch (facing 2 or 3; the old label said Vertical): 2 -> offset 3, 3 -> offset 2.
+; The LEFT / RIGHT branch (facing 2 or 3): 2 -> offset 3, 3 -> offset 2.
 
   GlobalAmbientAnimFacingHorizontal:
     INC                   ; Left / right: after the AND and the two INCs below, 2 -> 3 and 3 -> 2

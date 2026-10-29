@@ -21,9 +21,9 @@
 ; 
 ; player_character spawns DeathWakeupMessage (SpawnAfterFlags $2000) at the start of the next scene when gameOverWakeupFlag ($0AF8) is set. It masks the joypad with $CFFC (Select and Start stay live), clears the flag, waits 3 ticks (WaitByte #02), prints one of three strings chosen by characterForm (0 Will, 1 Freedan, 2 Shadow), unmasks and dies. The message follows a revive as well as a real game over. After a real game over the form is Will (Shadow in $E8), so the Freedan line appears only after a revive as Freedan.
 ; 
-; === CORRECTIONS ===
+; === JOYPAD MASKS AND SOUND ===
 ; 
-; The ROM masks the joypad with $FFF0 (and $CFF0 in DeathWakeupMessage); db-us/transforms.json (block game_over_sequence) widens both to $FFFC / $CFFC so the software-only buttons $0004 and $0008 are masked too, and the extracted asm shows the transformed values. The old comment credited the first block with spawning both helpers (it is a 33-tick wait first); 'sound #$0C' is the 16-bit pair $0C0C on both channels. The old header did not say that 100 gems are paid in the revive case, that the wramFlags are cleared only on a real game over, or that two different warp records are used.
+; The ROM masks the joypad with $FFF0 (and $CFF0 in DeathWakeupMessage); db-us/transforms.json (block game_over_sequence) widens both to $FFFC / $CFFC so the software-only buttons $0004 and $0008 are masked too, and the extracted asm shows the transformed values. 'sound #$0C' is the 16-bit pair $0C0C on both channels.
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'
@@ -62,7 +62,7 @@ GameOverSequence {
     LDA #$FFFC            ; Mask every button and the D-pad (Start and Select too)
     TSB $joypadMaskStd
     COP [WaitByte] ( #20 ) ; WaitByte #20 = 33 ticks
-    COP [SpawnThinker] ( @DeathPaletteFadeThinker ) ; Palette bundles $10 then $0E (OQ-I026-4)
+    COP [SpawnThinker] ( @DeathPaletteFadeThinker ) ; Palette bundles $10 then $0E
     COP [SpawnAfter] ( @GameOverCutsceneSprites ) ; Sparkle spawner, placed at the player
     COP [WaitByte] ( #77 ) ; WaitByte #77 = 120 ticks
     LDA #$8000            ; Clear bit 15 of the player's $10: it leaves DecomposePlayerSprites and is drawn as a plain metasprite

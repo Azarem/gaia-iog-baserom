@@ -1,4 +1,4 @@
-; Item name strings (Bank 01, 130340-130924): a 64-entry pointer table indexed by item ID ($00-$3F) plus the strings it points to, and five dialogue wrapper strings stored at the end of the block. The old note ('item acquisition dialog messages', 'stat increases', 'inventory-full messages, and defaults') was wrong: the 64 strings are the item NAMES (or a short found-message for a few items); the complete messages are the five wrappers.
+; Item name strings (Bank 01, 130340-130923): a 64-entry pointer table indexed by item ID ($00-$3F) plus the strings it points to, and five dialogue wrapper strings stored at the end of the block. The 64 strings are the item names (or a short found-message for a few items); the complete messages are the five wrappers.
 ; 
 ; === HOW IT IS READ ===
 ; 
@@ -7,7 +7,7 @@
 ; | Wrapper | Text | Used by |
 ; |---------|------|---------|
 ; | dialog_item_found | name, 255-frame pause, clear | GiveItem_StoreInSlot (inventory_mgmt): Y returned for a regular pickup |
-; | dialog_item_full | name, 'Your inventory's full!' | GiveItem_InventoryFull (inventory_mgmt), the item-pickup code of combat_collision (line 1563), and chests through GiveItemToPlayer's Y |
+; | dialog_item_full | name, 'Your inventory's full!' | GiveItem_InventoryFull (inventory_mgmt), InteractionDamage_NPCChat in combat_collision (an NPC that gives an item), and chests through GiveItemToPlayer's Y |
 ; | dialog_item_chest | name only | HandleChestInteraction (warps_interaction) overrides Y with it after a successful chest pickup |
 ; | dialog_chest_empty | 'It is empty!' | flag-only chests (warps_interaction); no item name |
 ; | dialog_chest_locked | 'The jewel box is tightly closed.' | chest tile without a scene_chest_table record (warps_interaction); no item name |
@@ -20,8 +20,8 @@
 ; - Full sentence: $01 'You found a Red Jewel! ', $06 'You found an herb! ', $07 (diamond-shaped block), $0E (Crystal Ball), $13 (Rama's Statue), $14 (Magic Dust), $15-$19 (Teapot), $1A 'It's the Mushroom Drops!'.
 ; - Bare name (the wrapper supplies the rest): $02 'Prison Key ', $03/$04 'Incan Statue A/B ', $05 'Incan Melody ', $08 'Wind Melody ', $09 'Lola's Melody ', $0A 'Large Roast ', $10 'Palace Key'.
 ; - Mystic Statues: $38 'It's a Mystic Statue! ', then seven separate copies of 'Mystic Statue ' for $39-$3F.
-; - Blank (a single space): $00, $0B, $0C, $0D, $0F, $11, $12 and the 29 IDs $1B-$37, which share one string. These items print nothing through this table (OQ-I067-1).
-; - $15-$19 all point to the Teapot string, although ram_map names $15-$18 Blue Journal, Lance's Letter, Necklace Stones and Will (OQ-I067-2).
+; - Blank (a single space): $00, $0B, $0C, $0D, $0F, $11, $12 and the 29 IDs $1B-$37, which share one string. These items print nothing through this table.
+; - $15-$19 all point to the Teapot string, although ram_map names $15-$18 Blue Journal, Lance's Letter, Necklace Stones and Will.
 ; 
 ; Layout: 128 bytes of pointers + 456 bytes of strings and wrappers.
 ---------------------------------------------
@@ -145,7 +145,7 @@ item_pickup_text_13 `You found Rama's Statue!`
 item_pickup_text_14 `You found Magic Dust!`
 
 ---------------------------------------------
-; Entries $15-$19: shared 'You found the Teapot!' (OQ-I067-2).
+; Entries $15-$19: shared 'You found the Teapot!'.
 
 item_pickup_text_15 `You found the Teapot! `
 

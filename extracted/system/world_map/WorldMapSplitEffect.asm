@@ -13,7 +13,7 @@
 ; === PHASES (WorldMapSplitEffect) ===
 ; 
 ; Spawn: offset := 0, InitSplitFill, then SetEntryHere. Every frame the thinker re-enters at the check below that. While worldMapChoiceId ($0D58) is nonzero and worldMapRouteId ($0D5A) is zero (destination chosen, no route playing yet) it only rebuilds and queues the tables with the current offset. Otherwise (no destination, or a route id is set) it runs the opening sequence once: 2 frames of rebuild + queue, then 40 frames in which the offset grows by 2 per frame (second line count $18 -> $68, boundary row 151 -> 231, i.e. off the bottom of the 224-line screen), then it parks on a final SetEntryHere that keeps rebuilding and queuing with offset 80.
-; What the strip below the boundary looks like on the world map (and whether it is the intended 'iris') is decoded from the tables, not observed (OQ-I058-1).
+; What the strip below the boundary looks like on the world map (and whether it is the intended 'iris') is decoded from the tables, not observed.
 ---------------------------------------------
 
 !frameCounter                   0036

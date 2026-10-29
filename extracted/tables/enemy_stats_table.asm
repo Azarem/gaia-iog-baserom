@@ -1,15 +1,15 @@
-; Enemy combat stat rows (Bank 01, 109552-109992 = $01:ABF0): 110 rows of 4 bytes < HP, ATK, DEF, gemDropType >. The row number is the stats index: byte 6 of an enemy-spawn record in scene_actors (index $01-$63 in 62 distinct values; 0 = an actor without combat stats). InitActorFromSceneData stores index x 4 + the table address in statsPtr ($7F0020,X) and loads byte 0 into currentHp ($7F0026,X). Boss and special actors set statsPtr themselves with an operand such as enemy_stats_table+154 (the offset is in hex: +154 / 4 = row $55). The old note was wrong about the fourth byte ('Type 0-3, affects damage calculations'), about DEF $7F ('immune to normal damage') and about HP $7F / $FF ('boss-tier').
+; Enemy combat stat rows (Bank 01, 109552-109991 = $01:ABF0): 110 rows of 4 bytes < HP, ATK, DEF, gemDropType >. The row number is the stats index: byte 6 of an enemy-spawn record in scene_actors (index $01-$63 in 62 distinct values; 0 = an actor without combat stats). InitActorFromSceneData stores index x 4 + the table address in statsPtr ($7F0020,X) and loads byte 0 into currentHp ($7F0026,X). Boss and special actors set statsPtr themselves with an operand such as enemy_stats_table+154 (the offset is in hex: +154 / 4 = row $55).
 ; 
-; === FIELDS (read by combat_collision and StandardEnemyDefeatHandler) ===
+; === FIELDS (read by combat_collision, StandardEnemyDefeatHandler and field_reveal_object) ===
 ; 
 ; | Byte | Field | Reader |
 ; |------|-------|--------|
 ; | +0 | HP: the start value of currentHp and the maximum (hitVictimMaxHp) | InitActorFromSceneData, ApplyHitDamageToVictim |
 ; | +1 | ATK: the damage the enemy deals to the player on contact: max(1, ATK - playerDef), then 60 frames of invulnerability | the enemy-hits-player path of combat_collision |
 ; | +2 | DEF: subtracted from the player's total strength: rawDamage = max(1, totalStr - DEF), netDamage = rawDamage + characterForm | ApplyHitDamageToVictim (_DamagePath) |
-; | +3 | gemDropType: 0 = no gem, 1 = SpawnDropGem1, 2 = SpawnDropGem2, 3 or more = SpawnDropByHpTier (EnemyDropSystem) | EnemyGemDropRouter in StandardEnemyDefeatHandler |
+; | +3 | gemDropType: 0 = no gem, 1 = SpawnDropGem1, 2 = SpawnDropGem2, 3 or more = SpawnDropByHpTier (EnemyDropSystem); FieldRevealFromActorStats reads the same byte as value & 3: 0 = nothing, 1 / 2 / 3 = a gem pickup worth 1 / 2 / 5 gems | EnemyGemDropRouter in StandardEnemyDefeatHandler; FieldRevealFromActorStats in field_reveal_object (spawned by EnemyDefeatDispatch for every kill but the last) |
 ; 
-; PlayerAttackHitTest (the player's attack box) does not read DEF: its damage is chainDamage / 2 + 1, with chainDamage accumulating over consecutive hits of one attack (formulas in the combat_collision header). Which attack of the game goes through which of the two routines was not traced at runtime (OQ-I066-2). DEF $7F (21 rows) and $FF (row $46) therefore do not make an enemy immune: in ApplyHitDamageToVictim they only pin every hit to its minimum, 1 + characterForm. Damage and stagger immunity are bits $0010 / $0020 of the actor's $12 flags (EnemyInitBasic sets both), not table data.
+; PlayerAttackHitTest (the player's attack box) does not read DEF: its damage is chainDamage / 2 + 1, with chainDamage accumulating over consecutive hits of one attack (formulas in the combat_collision header). Not traced: which attack of the game goes through which of the two routines. DEF $7F (21 rows) and $FF (row $46) therefore do not make an enemy immune: in ApplyHitDamageToVictim they only pin every hit to its minimum, 1 + characterForm. Bit $0010 of the actor's $12 flags is damage / stagger immunity and bit $0020 is the boss bit (EnemyInitBasic sets both): immunity is flag data, not table data.
 ; 
 ; The gem is only dropped when the scene's clear reward (flag $0300) was already taken or other enemies remain; the last enemy of a scene gives the stat reward of enemy_clear_reward_table instead.
 ; 
@@ -18,7 +18,7 @@
 ; - 18 rows are all zero ($00 $12 $13 $15-$17 $23-$26 $65-$68 $6A-$6D). Row $00 is also the pointer EnemyInitBasic stores: an actor whose statsPtr equals the table address is counted as 'no stats' (no kill counter, no gem, no reward).
 ; - 92 rows have stats: gemDropType 0 in 37, 1 in 21, 2 in 21, 3 in 13. 21 rows have DEF $7F, row $46 has DEF $FF, rows $21 and $22 have HP $FF.
 ; - Rows named by code (statsPtr operands): $01 dc2F_adrift; $08 ec0E_spiney; $11 ec12_skull_chaser and sp5A_phantom_ribber; $31 and $69 mu67_vampires; $33 gw82_archer; $37 gw8A_sand_fanger; $46 twelve switch, blocker and trapped-slave actors (hit_switch, dm3F_switch, dm40_trapped_slave, ec0E_switch, ec11_aqueduct_blocker, ec11_button_voice, ec12_aqueduct_enemy, ir21_switch, pyD6_vader_barrier_lower / upper, sg52_blocker_enemy_a / b); $47 and $48 awB0_zombie; $4D pyD2_haunt; $55-$58 sE8_dark_gaia (and unused_mode7_boss for $55-$57); $5F and $60 sEA_solid_arm; $64 ec0E_lily and ir29_castoth.
-; - 16 rows with stats are neither used by a scene spawn record nor named by code: $06 $07 $09 $1F $20 $21 $22 $38 $39 $3B $40 $41 $4B $52 $53 $59 (OQ-I066-1).
+; - 16 rows with stats are neither used by a scene spawn record nor named by code: $06 $07 $09 $1F $20 $21 $22 $38 $39 $3B $40 $41 $4B $52 $53 $59.
 ; 
 ; The enemy a row belongs to is the actor named in the spawn record, so the table does not say which enemy it describes.
 ---------------------------------------------

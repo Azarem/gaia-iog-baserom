@@ -2,15 +2,15 @@
 ; 
 ; === CONVENTIONS ===
 ; 
-; As in player_move_ns: sub-pixels (4 per pixel), $20 / $22 = X velocity / position, $24 / $26 = Y velocity / position (Y grows downward), $1A / $1E = probe pixel, $00 = map index of the last probe (X still holds it right after a probe), CheckSubTileAlignX / Y carry clear = flush on a 16-px line, carry set = straddling two cells. $06 / $09 are undecoded wall-like types (OQ-I029-5), so 'north wall' / 'south wall' are handler names. In this phase the vertical velocity is parked on PlayerMovementTick's stack and $24 is 0, so the SnapYNorthCollision / SnapYSouthCollision calls here work on the CURRENT Y, not a stepped one.
+; As in player_move_ns: sub-pixels (4 per pixel), $20 / $22 = X velocity / position, $24 / $26 = Y velocity / position (Y grows downward), $1A / $1E = probe pixel, $00 = map index of the last probe (X still holds it right after a probe), CheckSubTileAlignX / Y carry clear = flush on a 16-px line, carry set = straddling two cells. $06 / $09 are undecoded wall-like types, so 'north wall' / 'south wall' are handler names. In this phase the vertical velocity is parked on PlayerMovementTick's stack and $24 is 0, so the SnapYNorthCollision / SnapYSouthCollision calls here work on the CURRENT Y, not a stepped one.
 ; 
 ; === DISPATCH ORDER (DispatchEastMove) ===
 ; 
-; 1. map_coords.FindSlopeForEastMove: slope search at the hitbox centre column (the TR probe X minus 8, i.e. X itself; not a sample 8 px to the left). Z set = slope found: carry set = $05 -> WestRampUp, carry clear = $0A -> EastRampDown. The old header sent $05 to WestRampDown.
+; 1. map_coords.FindSlopeForEastMove: slope search at the hitbox centre column (the TR probe X minus 8, i.e. X itself; not a sample 8 px to the left). Z set = slope found: carry set = $05 -> WestRampUp, carry clear = $0A -> EastRampDown.
 ; 2. ProbeCurrentTR $09 -> EastWallPushDown; ProbeCurrentBR $06 -> EastWallPushUp.
 ; 3. ProbeFutureTR: $0E and above -> blocked path; $09 -> EastWallNorthFlag.
-; 4. CheckSubTileAlignY. Y flush: future TR $06 -> EastWallSouthFlag, anything else on to step 5. Y straddling: future TR $06 -> blocked path; otherwise the cell below the future TR cell (MapCellDown) is read: $0E and above -> blocked, $06 -> EastWallSouthFlag, $09 -> blocked, anything else on to step 5 with A = that lower cell's type. The old header put the MapCellDown read in the aligned case; it is the straddling case.
-; 5. A = $07 -> EastLadderTile (A is the future TR type when Y is flush and the lower cell's type when Y straddles). Then ProbeCurrentBL: $05 -> WestRampDown, $0A -> EastRampUp (the old header had WestRampUp for $05).
+; 4. CheckSubTileAlignY. Y flush: future TR $06 -> EastWallSouthFlag, anything else on to step 5. Y straddling: future TR $06 -> blocked path; otherwise the cell below the future TR cell (MapCellDown) is read: $0E and above -> blocked, $06 -> EastWallSouthFlag, $09 -> blocked, anything else on to step 5 with A = that lower cell's type.
+; 5. A = $07 -> EastLadderTile (A is the future TR type when Y is flush and the lower cell's type when Y straddles). Then ProbeCurrentBL: $05 -> WestRampDown, $0A -> EastRampUp.
 ; 6. Otherwise $22 += $20.
 ; 
 ; Blocked path (loc_02D753): SetActorCollisionFlag, AutoAlignNS_East (Y nudge, carry clear = nudged), then SnapXEastCollision. After a nudge the X snap runs without zeroing playerSpeedEw, so the player keeps pushing east and is walked around the corner.
@@ -19,15 +19,15 @@
 ; 
 ; === WALL-SLIDE HANDLERS ===
 ; 
-; EastWallPushDown (current TR $09, or future TR $09 through EastWallNorthFlag) and EastWallPushUp (current BR $06, or future BR $06 through EastWallSouthFlag) mirror code_02DC4B and code_02DC9F of the west file. They set $AB bit 7 (the Flag entries set bit 2 / bit 3 instead); nothing reads those bits (OQ-I029-3). The probe at the future corner plus CheckSubTileAlignX picks the path. X STRADDLING and the corner type matches ($09 / $06): gap chain. X flush, or another type: SnapYNorthCollision / SnapYSouthCollision first (with $24 = 0: the north snap moves the player DOWN to the next row line, 1..16 px; the south snap floors Y, up to 15 px north), then the corner is re-probed: clear or the same type -> the slide, anything else -> SnapXEastCollision + ApplyMovementDeltas. The old headers had aligned / not aligned the wrong way round.
+; EastWallPushDown (current TR $09, or future TR $09 through EastWallNorthFlag) and EastWallPushUp (current BR $06, or future BR $06 through EastWallSouthFlag) mirror code_02DC4B and code_02DC9F of the west file. They set $AB bit 7 (the Flag entries set bit 2 / bit 3 instead); nothing reads those bits. The probe at the future corner plus CheckSubTileAlignX picks the path. X STRADDLING and the corner type matches ($09 / $06): gap chain. X flush, or another type: SnapYNorthCollision / SnapYSouthCollision first (with $24 = 0: the north snap moves the player DOWN to the next row line, 1..16 px; the south snap floors Y, up to 15 px north), then the corner is re-probed: clear or the same type -> the slide, anything else -> SnapXEastCollision + ApplyMovementDeltas.
 ; 
 ; Gap chains. North (loc_02D7AB): MapCellDown from the future TR cell must be empty or $0A, then MapCellLeft from that cell must be empty or $09. South (loc_02D7FF): MapCellUp from the future BR cell must be empty or $05, then MapCellLeft must be empty or $06. A failed test goes to ClearSpeedEW_5 / _6 (playerSpeedEw = 0, no position applied this tick). Both pass: ComputeEastSnapOffset, then WallSlidePushDown (north handler) or WallSlidePushUp (south handler).
 ; 
-; Push direction: WallSlidePushDown stores a positive $24 and WallSlidePushUp a negative one (player_move_west, OQ-I029-4) and ApplyMovementDeltas adds $24 to Y, so the $09 handler pushes the player SOUTH and the $06 handler pushes NORTH. The old header and comments said the opposite for both. Read together with the west file: TL $06 and TR $09 both push south, BL $09 and BR $06 both push north.
+; Push direction: WallSlidePushDown stores a positive $24 and WallSlidePushUp a negative one (player_move_west) and ApplyMovementDeltas adds $24 to Y, so the $09 handler pushes the player SOUTH and the $06 handler pushes NORTH. Read together with the west file: TL $06 and TR $09 both push south, BL $09 and BR $06 both push north.
 ; 
 ; === AutoAlignNS_East / ComputeEastSnapOffset ===
 ; 
-; AutoAlignNS_East returns carry set (no nudge) when the vertical velocity word parked at $06,S is nonzero (not an 'EW velocity' as the old note said), when the collision byte at the last probe index carries an actor solid mark (high nibble), or when n = (($26 >> 2) AND $0F) is 0. For n >= 4 it nudges Y south ($26 += 8 sub-pixels, clamped at the next row line) if FutureBR is below $0E; failing that, for n <= 10, it nudges north ($26 -= 8, clamped at the row line) if FutureTR is below $0E. So n = 1..3 can only go north, 4..10 prefers south, 11..15 can only go south.
+; AutoAlignNS_East returns carry set (no nudge) when the vertical velocity word parked at $06,S is nonzero, when the collision byte at the last probe index carries an actor solid mark (high nibble), or when n = (($26 >> 2) AND $0F) is 0. For n >= 4 it nudges Y south ($26 += 8 sub-pixels, clamped at the next row line) if FutureBR is below $0E; failing that, for n <= 10, it nudges north ($26 -= 8, clamped at the row line) if FutureTR is below $0E. So n = 1..3 can only go north, 4..10 prefers south, 11..15 can only go south.
 ; 
 ; ComputeEastSnapOffset: $02 = ($1A AND $0F), plus $10 on the wall path when this step moves the probe across a 16-px column line (bit 4 of $1A XOR ($1A - $20 / 4)). The wall path is taken when the current TR is $09, or when Y straddles and the cell below the current TR is $06; otherwise $02 = $1A AND $0F alone. WallSlidePushDown / WallSlidePushUp add a Y-derived offset to $02 and, above $10, push Y by (total AND $0F) pixels.
 ; 
@@ -57,21 +57,21 @@ DispatchEastMove {
     SEP #$20              ; DispatchEastMove: east/+X movement collision dispatch — 8-bit probe mode
     JSR $&map_coords.FindSlopeForEastMove ; FindSlopeForEastMove (map_coords): slope search at the centre column (TR probe X - 8 = X); Z set = found, carry set = $05, clear = $0A
     BNE loc_02D6EB        ; Z clear = no slope: go on to the wall probes; Z set: carry set -> WestRampUp, carry clear -> EastRampDown
-    BCS loc_02D6E8        ; Carry set = $05 -> WestRampUp (the old text said 'below'; the probe is the centre column)
+    BCS loc_02D6E8        ; Carry set = $05 -> WestRampUp (the probe is the centre column)
     JMP $&player_move_ramps.EastRampDown ; Carry clear = $0A -> EastRampDown
 
   loc_02D6E8:
-    JMP $&player_move_ramps.WestRampUp ; WestRampUp (the old header said WestRampDown)
+    JMP $&player_move_ramps.WestRampUp ; WestRampUp
 
   loc_02D6EB:
     JSR $&tile_collision.ProbeCurrentTR ; ProbeCurrentTR at player's leading top-right corner
-    CMP #$09              ; Current TR type $09 -> EastWallPushDown (undecoded wall type, OQ-I029-5)
+    CMP #$09              ; Current TR type $09 -> EastWallPushDown (undecoded wall type)
     BNE loc_02D6F5
     JMP $&EastWallPushDown
 
   loc_02D6F5:
     JSR $&tile_collision.ProbeCurrentBR ; ProbeCurrentBR at leading bottom-right for south-wall check
-    CMP #$06              ; Current BR type $06 -> EastWallPushUp (undecoded wall type, OQ-I029-5)
+    CMP #$06              ; Current BR type $06 -> EastWallPushUp (undecoded wall type)
     BNE loc_02D6FF
     JMP $&EastWallPushUp
 
@@ -86,7 +86,7 @@ DispatchEastMove {
   loc_02D70D:
     JSR $&tile_collision.CheckSubTileAlignY ; Carry clear = Y flush on a row line (TR and BR in one row); carry set = Y straddles two rows. A keeps the future TR type
     BCS loc_02D71B
-    CMP #$06              ; Y flush and future TR $06 -> EastWallSouthFlag (the old text said 'Y misaligned'); anything else goes on to the ladder test
+    CMP #$06              ; Y flush and future TR $06 -> EastWallSouthFlag; anything else goes on to the ladder test
     BNE loc_02D719
     JMP $&EastWallSouthFlag
 
@@ -183,10 +183,10 @@ SnapXEastCollision {
 }
 
 ---------------------------------------------
-; Wall-slide handler for TR $09 while moving east. Sets $AB bit 7, ProbeFutureTR, CheckSubTileAlignX. X straddling and $09: gap chain (loc_02D7AB). Otherwise SnapYNorthCollision (player goes DOWN to the next row line), re-probe: clear or $09 -> slide, else SnapXEastCollision + ApplyMovementDeltas. Slide: ComputeEastSnapOffset + WallSlidePushDown, which pushes Y DOWN (positive $24); the old text said up (OQ-I029-4). See the block note.
+; Wall-slide handler for TR $09 while moving east. Sets $AB bit 7, ProbeFutureTR, CheckSubTileAlignX. X straddling and $09: gap chain (loc_02D7AB). Otherwise SnapYNorthCollision (player goes DOWN to the next row line), re-probe: clear or $09 -> slide, else SnapXEastCollision + ApplyMovementDeltas. Slide: ComputeEastSnapOffset + WallSlidePushDown, which pushes Y DOWN (positive $24). See the block note.
 
 EastWallPushDown {
-    LDA #$80              ; Set $AB bit 7: wall-slide flag, no reader found (OQ-I029-3)
+    LDA #$80              ; Set $AB bit 7: wall-slide flag, no reader found
     TSB $AB
     JSR $&tile_collision.ProbeFutureTR ; ProbeFutureTR at east destination + CheckSubTileAlignX for slide eligibility
     JSR $&tile_collision.CheckSubTileAlignX ; Carry clear = X flush; carry set = X straddles two columns. A keeps the future TR type
@@ -222,7 +222,7 @@ EastWallPushDown {
   loc_02D7D9:
     REP #$20
     JSR $&ComputeEastSnapOffset ; ComputeEastSnapOffset: $02 = push offset (see its note)
-    JMP $&player_move_west.WallSlidePushDown ; WallSlidePushDown: positive $24 (Y grows), so the player is pushed SOUTH; the old comments said up (OQ-I029-4)
+    JMP $&player_move_west.WallSlidePushDown ; WallSlidePushDown: positive $24 (Y grows), so the player is pushed SOUTH
 }
 
 ---------------------------------------------
@@ -249,10 +249,10 @@ EastWallSouthDiag {
 }
 
 ---------------------------------------------
-; Wall-slide handler for BR $06 while moving east. Sets $AB bit 7, ProbeFutureBR, CheckSubTileAlignX. X straddling and $06: gap chain (loc_02D7FF): MapCellUp (empty or $05), then MapCellLeft (empty or $06). Otherwise SnapYSouthCollision (Y floored, up to 15 px north), re-probe: clear or $06 -> slide, else SnapXEastCollision + ApplyMovementDeltas. Slide: ComputeEastSnapOffset + WallSlidePushUp, which pushes Y UP (negative $24); the old text said down.
+; Wall-slide handler for BR $06 while moving east. Sets $AB bit 7, ProbeFutureBR, CheckSubTileAlignX. X straddling and $06: gap chain (loc_02D7FF): MapCellUp (empty or $05), then MapCellLeft (empty or $06). Otherwise SnapYSouthCollision (Y floored, up to 15 px north), re-probe: clear or $06 -> slide, else SnapXEastCollision + ApplyMovementDeltas. Slide: ComputeEastSnapOffset + WallSlidePushUp, which pushes Y UP (negative $24).
 
 EastWallPushUp {
-    LDA #$80              ; Set $AB bit 7: wall-slide flag, no reader found (OQ-I029-3)
+    LDA #$80              ; Set $AB bit 7: wall-slide flag, no reader found
     TSB $AB
     JSR $&tile_collision.ProbeFutureBR ; ProbeFutureBR at east destination + CheckSubTileAlignX for slide eligibility
     JSR $&tile_collision.CheckSubTileAlignX ; Carry clear = X flush; carry set = X straddles two columns. A keeps the future BR type
@@ -298,7 +298,7 @@ EastWallSouthFlag {
   loc_02D835:
     REP #$20
     JSR $&ComputeEastSnapOffset ; ComputeEastSnapOffset: $02 = push offset (see its note)
-    JMP $&player_move_west.WallSlidePushUp ; WallSlidePushUp: negative $24 (Y shrinks), so the player is pushed NORTH; the old comments said down (OQ-I029-4)
+    JMP $&player_move_west.WallSlidePushUp ; WallSlidePushUp: negative $24 (Y shrinks), so the player is pushed NORTH
 
 ; Abort of the south-wall gap chain: playerSpeedEw = 0 and RTS; no position is applied this tick.
 
@@ -318,7 +318,7 @@ AutoAlignNS_East {
     BNE loc_02DB1F
     LDA $collisionLayer, X ; Collision byte at the last probe index (X)
     AND #$00FF            ; BIT #$00F0 on collision layer — special tiles disable auto-align
-    BIT #$00F0            ; High nibble nonzero = an actor solid mark ($F0): no nudge (the old text said 'overlay / special layer')
+    BIT #$00F0            ; High nibble nonzero = an actor solid mark ($F0): no nudge
     BNE loc_02DB1F
     LDA $26               ; n = ($26 >> 2) AND $0F: pixels past the row line (0 = flush)
     LSR 

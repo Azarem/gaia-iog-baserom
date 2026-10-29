@@ -2,24 +2,24 @@
 ; 
 ; === STRUCTURE ===
 ; 
-; DarkSpaceMainInit spawns three children with SpawnAfter: FireflySpawnerLoop, GaiaNpcSprite and GaiaVoiceSparkle. SpawnAfter inserts each new actor right after the parent, so the main actor's $06 link ends up on the LAST one spawned, the voice sparkle (the old notes called it the Gaia NPC link). Every 'LDY $06 / STA $0024, Y' below is therefore the voice sparkle's on / off switch ($FFFF = on, 0 = off), not an NPC interaction lock.
+; DarkSpaceMainInit spawns three children with SpawnAfter: FireflySpawnerLoop, GaiaNpcSprite and GaiaVoiceSparkle. SpawnAfter inserts each new actor right after the parent, so the main actor's $06 link ends up on the LAST one spawned, the voice sparkle. Every 'LDY $06 / STA $0024, Y' below is therefore the voice sparkle's on / off switch ($FFFF = on, 0 = off), not an NPC interaction lock.
 ; It then validates globalScriptIndex ($0AAC: the room variant, written by the portal actor or restored by the diary load; 4 or more becomes 0), keeps it in $0AB2 (saved with the game, restored by the diary menu), clears $0AAC and switch-cases to a layout: 0 DS_LayoutBasic (Gaia only), 1 DS_LayoutTransform (statues chosen by characterForm), 2 DS_LayoutAbility (ability orb chosen by the scene), 3 DS_LayoutSpecial (sets $0AAC = 1 and runs layout 1; this is the pyramid's Dark Space, where GaiaHint_AuraItem tests $0AAC and gives the Aura item).
 ; Every room polls BranchIfPlayerInAbsTiles zones (x1, y1, x2, y2 in tiles): Gaia (7,8)-(9,9) = GaiaDialogueEntry, left statue (3,A)-(5,B), right statue (B,A)-(D,B), exit (5,D)-(B,F) = DarkSpaceExit. Each room has a wait state (the player is still standing in a zone: nothing happens, so a dialogue cannot retrigger) and an active state that dispatches the zones; the *Wait / *TileWait pairs and the loc_ labels after them are these two states.
 ; The called scripts (GaiaDialogueEntry, the *TransformDialogue routines) are entered with CallNear and end with RestoreSavedPtr, which returns to the room loop.
 ; 
 ; === EXIT ===
 ; 
-; DarkSpaceExit masks the joypad, hides the player ($10 |= $2000), puts this actor on him, plays SFX $0C on both channels and the dissolve animation $1C of spriteset_pickups_effects once, waits 30 ticks (WaitByte #1D), then fills the warp words: sceneNext = $0B12 (the scene the player warped from, saved by ExecuteWarp), player spawn X = $0B08 x 16 and Y = ($0B0C + 2) x 16 (the source warp rectangle's tile position), facing 3 and the packed camera window $0B10 / $0B11 -> warpScrollParams. gfxCacheIdxB = $0101 is the transition speed (exit and enter 1), gfxCacheIdxA = $0002 is exit effect 2 = mosaic, enter effect 0 = fade. The old notes called the destination a camera position and $0101 a brightness fade.
+; DarkSpaceExit masks the joypad, hides the player ($10 |= $2000), puts this actor on him, plays SFX $0C on both channels and the dissolve animation $1C of spriteset_pickups_effects once, waits 30 ticks (WaitByte #1D), then fills the warp words: sceneNext = $0B12 (the scene the player warped from, saved by ExecuteWarp), player spawn X = $0B08 x 16 and Y = ($0B0C + 2) x 16 (the source warp rectangle's tile position), facing 3 and the packed camera window $0B10 / $0B11 -> warpScrollParams. gfxCacheIdxB = $0101 is the transition speed (exit and enter 1), gfxCacheIdxA = $0002 is exit effect 2 = mosaic, enter effect 0 = fade.
 ; 
 ; === GAIA DIALOGUE ===
 ; 
-; GaiaDialogueEntry: 6-tick pause (WaitByte #05), voice sparkle on, first visit (event flag $DC) the intro text, then GaiaHealAndHints. If HP < max it prints the 'hurt' text and writes hpToHeal = 40; UpdateHUD turns that request into +1 HP every 8 frames (SFX $0D) until HP = max (the loop yields until then). The hint is chosen by the position of the source scene in GaiaHintSceneTable (34 scenes, one GaiaHint_xx handler each; 21 of them have no text and go straight to the save prompt). GaiaSavePrompt: 'Record what's happened so far?' (DialogueOptions: entry 0 = cancel, 1 = first option, 2 = second option). Record = SaveGameState_Scene for the active slot ($0D8C), SFX $29, 60 ticks (WaitByte #3B), then 'Continue your journey?': Yes (entry 1) = GaiaThenGo, 'Then go.', returns to the room; No (entry 2) = GaiaThenRest, 'Then rest a while.', fades to track $0E (bgm_longing_for_the_past) and the actor yields forever. GaiaThenGo and GaiaThenRest are named after the answers 'Then go.' and 'Then rest a while.'; each is reached from two prompts (they were first called GaiaDontRecord and GaiaContinueJourney after the first prompt only, which made them look swapped for the second).
+; GaiaDialogueEntry: 6-tick pause (WaitByte #05), voice sparkle on, first visit (event flag $DC) the intro text, then GaiaHealAndHints. If HP < max it prints the 'hurt' text and writes hpToHeal = 40; UpdateHUD turns that request into +1 HP every 8 frames (SFX $0D) until HP = max (the loop yields until then). The hint is chosen by the position of the source scene in GaiaHintSceneTable (34 scenes, one GaiaHint_xx handler each; 21 of them have no text and go straight to the save prompt). GaiaSavePrompt: 'Record what's happened so far?' (DialogueOptions: entry 0 = cancel, 1 = first option, 2 = second option). Record = SaveGameState_Scene for the active slot ($0D8C), SFX $29, 60 ticks (WaitByte #3B), then 'Continue your journey?': Yes (entry 1) = GaiaThenGo, 'Then go.', returns to the room; No (entry 2) = GaiaThenRest, 'Then rest a while.', fades to track $0E (bgm_longing_for_the_past) and the actor yields forever. GaiaThenGo and GaiaThenRest are named after the answers 'Then go.' and 'Then rest a while.'; each is reached from two prompts.
 ; 
 ; === FORMS AND ABILITIES ===
 ; 
-; characterForm ($0AD4): 0 Will, 1 Freedan, 2 Shadow. A statue dialogue writes a Transform_* routine into the player actor's entry pointer ($0000 / $0002, $0008 = 0) and sets playerFlags $0800; the player then plays it (player body entry #05, the transformation frames), the routine sets characterForm and DarkSpaceRestoreControl clears $0800 and sends the player back to PlayerIdleEntry. The Shadow statue needs event flag $B4, whose only writer is daC8_neil (the Neil reunion in the Dao dormitory; the old header said it is unlocked at Ankor Wat); first Freedan visit flag $F7, first Shadow visit flag $DD.
+; characterForm ($0AD4): 0 Will, 1 Freedan, 2 Shadow. A statue dialogue writes a Transform_* routine into the player actor's entry pointer ($0000 / $0002, $0008 = 0) and sets playerFlags $0800; the player then plays it (player body entry #05, the transformation frames), the routine sets characterForm and DarkSpaceRestoreControl clears $0800 and sends the player back to PlayerIdleEntry. The Shadow statue needs event flag $B4, whose only writer is daC8_neil (the Neil reunion in the Dao dormitory); first Freedan visit flag $F7, first Shadow visit flag $DD.
 ; The Transform_* routines are a shared library: Transform_WillToShadow is entered from sE5_epilogue, pyDD_mummy_queen, gw8A_sand_fanger, mu67_vampires, sg55_viper, ir29_castoth and btE4_kara; Transform_ShadowToWill from pyDD_mummy_queen, gw8A_sand_fanger, mu67_vampires, sg55_viper, ir29_castoth and pyCD_jackal; Transform_FreedanToWill from sg55_mystic_statue, ir29_transform, ir1C_lily, ec13_lily, pyCD_jackal and mu67_bomb (13 files in all).
-; AbilitySceneTable has 6 entries of (scene, abilityBitmask bit): $15 Psycho Dash $01, $62 Psycho Slider $02, $86 Spin Dash $04, $42 Dark Friar $10, $A7 Aura Barrier $20, $B8 Earthquaker $40, ended by $00. The low nibble holds the Will abilities, the high nibble the Freedan abilities; the old header called byte 1 'ability index + statue type'. The table position is the ability index used by table_08EB8F (names) and table_08EBD3 (descriptions) through globalScriptIndex. DS_LayoutAbility shows the orb for the current scene (BG change $86 and orb at (64,109) for a Will ability, $8B and (64,84) for a Freedan ability); AbilityOrbActor dies when the bit is already in abilityBitmask, otherwise waits for the player at the statue zone, turns him into the form that can use it (Will for the low nibble, Freedan for the high nibble) with LookupAbilityForm, ORs the bit in, plays the orb flight, fanfare (track $18) and the two texts.
+; AbilitySceneTable has 6 entries of (scene, abilityBitmask bit): $15 Psycho Dash $01, $62 Psycho Slider $02, $86 Spin Dash $04, $42 Dark Friar $10, $A7 Aura Barrier $20, $B8 Earthquaker $40, ended by $00. The low nibble holds the Will abilities, the high nibble the Freedan abilities. The table position is the ability index used by table_08EB8F (names) and table_08EBD3 (descriptions) through globalScriptIndex. DS_LayoutAbility shows the orb for the current scene (BG change $86 and orb at (64,109) for a Will ability, $8B and (64,84) for a Freedan ability); AbilityOrbActor dies when the bit is already in abilityBitmask, otherwise waits for the player at the statue zone, turns him into the form that can use it (Will for the low nibble, Freedan for the high nibble) with LookupAbilityForm, ORs the bit in, plays the orb flight, fanfare (track $18) and the two texts.
 ; 
 ; === SPRITES (spm_darkspace_sprites) ===
 ; 
@@ -30,10 +30,6 @@
 ; No reference was found in extracted/ for: DS_AuraItemRoom and its handlers, AuraItemInteraction and its helpers (with dialogstring_08EFEF / 08F003 / 08F060), DarkSpaceAmbientParticle, the code at loc_08DA6B / loc_08DA77 (after an unconditional BRA), and the unused hint strings dialogstring_08DEC6, 08E066, 08E0C7, 08E109, 08E19C, 08E261, 08E2B9 and 08E615.
 ; 
 ; For the Aura cluster (DS_AuraItemRoom, AuraItemInteraction, AuraItemGrant, AuraItemInventoryFull, AuraItemReturnToWait, dialogstring_08EFEF / 08F003 / 08F060) 'no reference' means no reference in extracted code. baserom/patches/APUWaitFixes.patch.asm rewrites AuraItemGrant (AuraItemGrant!) and uses AuraItemInventoryFull and dialogstring_08EFEF.
-; 
-; === CORRECTIONS ===
-; 
-; Replaced claims: byte 1 of AbilitySceneTable is an ability bit, not an index with a statue nibble; the continue prompt's Yes / No were described the other way round; $06 is the voice sparkle, not the Gaia NPC, and $24 is its voice switch; 'Unmask D-pad and face buttons' ($0F00) is the D-pad only; hpToHeal 40 is a heal request (not 'damage flash ticks'); warpDestX / warpDestY and the $0B08-$0B12 values are the player's spawn position and source scene, not a camera; GaiaNpcSprite loops an idle animation (it is not a single frame); the Shadow flag $B4 is set by Neil, not at Ankor Wat; 'spriteset #05 (transformation frames)' is player body entry #05 and the 'transformation spriteset' of the exit effect is spriteset_pickups_effects; Transform_ShadowToFreedan uses SetEntryHereAndYield, not SetEntryExit.
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'
@@ -203,7 +199,7 @@ code_list_08D888 [
 ]
 
 ---------------------------------------------
-; Room for Will: BG changes $88 and $8A, plus $8E and $8F when event flag $B4 is set (the Shadow statue). Zones: Gaia (7,8)-(9,9), left statue (3,A)-(5,B) = Freedan, right statue (B,A)-(D,B) = Shadow, exit (5,D)-(B,F). What the BG changes draw was not decoded (OQ-I056-3).
+; Room for Will: BG changes $88 and $8A, plus $8E and $8F when event flag $B4 is set (the Shadow statue). Zones: Gaia (7,8)-(9,9), left statue (3,A)-(5,B) = Freedan, right statue (B,A)-(D,B) = Shadow, exit (5,D)-(B,F). What the BG changes draw was not decoded.
 
 DS_WillTransformRoom {
     COP [StageBgChange] ( #88 )
@@ -1339,7 +1335,7 @@ AbilityAcquisitionDispatch {
 }
 ---------------------------------------------
 
-; Searches AbilitySceneTable for $0B12 and returns A = 0 when the ability bit is in the low nibble (Will), 1 when it is in the high nibble (Freedan); carry set if the scene is missing (the only caller ignores it). It was first called LookupStatueType after the old 'statue type' reading (there is no statue type).
+; Searches AbilitySceneTable for $0B12 and returns A = 0 when the ability bit is in the low nibble (Will), 1 when it is in the high nibble (Freedan); carry set if the scene is missing (the only caller ignores it).
 
 LookupAbilityForm {
     PHX 
@@ -2049,7 +2045,7 @@ FireflySpawnerLoop {
 }
 
 ---------------------------------------------
-; One firefly: display-filtered, spriteset_pickups_effects animation #02, starts at Y = 0 and a random X (RNG x 2), movement chains 4 / 6 / 8 / 10 on X and one less on Y, removed when Y reaches $FF. The loop would end at once for a negative Y step, so it must move down; the old note said it rises (OQ-I056-2).
+; One firefly: display-filtered, spriteset_pickups_effects animation #02, starts at Y = 0 and a random X (RNG x 2), movement chains 4 / 6 / 8 / 10 on X and one less on Y, removed when Y reaches $FF. The loop would end at once for a negative Y step, so it must move down.
 
 FireflyParticle {
     LDA #$1000            ; Display-filtered

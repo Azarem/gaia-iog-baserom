@@ -386,7 +386,7 @@ UseItem_IncaStatueA_CheckAlt {
 
   loc_0386F5:
     CMP #$0027
-    BEQ UseItem_IncaStatueA_Mismatch        ; Vanilla BNE reaches loc_0386FA either way; transforms.json makes it BEQ UseItem_IncaStatueA_Mismatch (mismatch) in the normal extract (OQ-I026-1)
+    BEQ UseItem_IncaStatueA_Mismatch        ; Vanilla BNE reaches loc_0386FA either way; transforms.json makes it BEQ UseItem_IncaStatueA_Mismatch (mismatch) in the normal extract
 
   loc_0386FA:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
@@ -461,7 +461,7 @@ UseItem_IncaStatueB_CheckAlt {
     CMP #$0037
     BEQ UseItem_IncaStatueB_Mismatch
     CMP #$0038
-    BEQ UseItem_IncaStatueB_Mismatch        ; Vanilla BNE reaches loc_03880D either way; transforms.json makes it BEQ UseItem_IncaStatueB_Mismatch (mismatch) in the normal extract (OQ-I026-1)
+    BEQ UseItem_IncaStatueB_Mismatch        ; Vanilla BNE reaches loc_03880D either way; transforms.json makes it BEQ UseItem_IncaStatueB_Mismatch (mismatch) in the normal extract
 
   loc_03880D:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
@@ -581,7 +581,7 @@ dialogstring_03897C `[DEF]He fit the block[N]into the tile![END]`
 ; 
 ; First of three melody item handlers sharing FluteMusicActorController. Requires Will (form 0) — Freedan/Shadow cannot play. Checks IsMusicPlaying to prevent concurrent melody actors.
 ; 
-; In scene $24 (Gold Ship), if flag $01 is not yet set: enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path (OQ-I026-3). Otherwise hides the buttons via joypadMaskStd |= $CFFC.
+; In scene $24 (Gold Ship), if flag $01 is not yet set: enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path. Otherwise hides the buttons via joypadMaskStd |= $CFFC.
 ; 
 ; Outside scene $24, prints 'nothing happened.' If not Will, prints 'doesn't have the Flute.'
 
@@ -752,7 +752,7 @@ code_038C30 {
 ---------------------------------------------
 ; Lola's Melody success effects — dispatches per-scene results.
 ; 
-; Scene $15: sets flag $40, melody spreads over meadow; if flag $40 is already set it jumps to code_038C68 instead (OQ-I026-2). Scene $11: sets flag $02, voice guides to wall switch. Scene $CD: jumps to code_038C68, which sets flag $01 and clears flag $0E without a message. Fallthrough prints 'nothing happened.'
+; Scene $15: sets flag $40, melody spreads over meadow; if flag $40 is already set it jumps to code_038C68 instead. Scene $11: sets flag $02, voice guides to wall switch. Scene $CD: jumps to code_038C68, which sets flag $01 and clears flag $0E without a message. Fallthrough prints 'nothing happened.'
 
 UseItem_LolaMelody_Effect {
     LDA $sceneCurrent
@@ -765,7 +765,7 @@ UseItem_LolaMelody_Effect {
     BRA code_038C70
 
   loc_038C49:
-    COP [BranchOnFlagByte] ( #40, #01, &code_038C68 ) ; Flag $40 already set (melody played here before): jump to code_038C68, which sets flag $01 and clears $0E with no message (OQ-I026-2)
+    COP [BranchOnFlagByte] ( #40, #01, &code_038C68 ) ; Flag $40 already set (melody played here before): jump to code_038C68, which sets flag $01 and clears $0E with no message
     COP [SetFlagByte] ( #40 )
     COP [PrintDialogString] ( &dialogstring_038CA0 )
     COP [RestoreSavedPtr]

@@ -2,7 +2,7 @@
 ; 
 ; === SEQUENCE ===
 ; 
-; 1. BootLogoInit (both visits): sets displayModeFlags bit 14 (no reader found, OQ-I034-1), clears colour 0 of the palette staging buffer, enables FastROM (MEMSEL = $01), puts only the sprite layer on the main screen (TM = $10, bit 4 = OBJ; no BG is shown), masks the joypad, then reads STAT78 bit 4: 0 = 60 Hz NTSC continues, 1 = 50 Hz PAL jumps to BootLogoPalLockout.
+; 1. BootLogoInit (both visits): sets displayModeFlags bit 14 (bit 14 of the word is bit 6 of hudDisableFlag at $09ED, the HUD-off bit that UpdateHUD tests), clears colour 0 of the palette staging buffer, enables FastROM (MEMSEL = $01), puts only the sprite layer on the main screen (TM = $10, bit 4 = OBJ; no BG is shown), masks the joypad, then reads STAT78 bit 4: 0 = 60 Hz NTSC continues, 1 = 50 Hz PAL jumps to BootLogoPalLockout.
 ; 2. First visit (event flag $10 clear): nudge the actor Y -16, play sprite animation #01 (sprite_group_000112, a 96 x 48 logo on OBJ palette 3) for 2 passes of 60 ticks = 120 ticks, set event flag $10, QueueMapChange to scene $FB itself, Die.
 ; 3. Second visit (flag set): BootLogoSecondPhase plays animation #00 (sprite_group_000010, the Enix logo: an emblem with a wordmark under it, OBJ palettes 0, 1, 2 and 4) for 120 ticks, clears flag $10 and queues scene $FC (title screen), Die.
 ; Event flag $10 is not one of the flags the scene load zeroes (only $00 to $0F are), which is why it survives the reload; it is cleared again at the end because the South Cape church scripts (sc08_*) use the same flag.
@@ -26,7 +26,7 @@
 ; 
 ; === NOTES ===
 ; 
-; The joypad mask in the ROM is $FFFC (db-us/transforms.json rewrites $FFF0 to $FFFC for this block), which hides every pad bit including Start and Select, so no logo can be skipped. The old header said TM = $10 puts BG1 on the main screen and that the mask is $FFF0; TM bit 4 is the OBJ layer and the shipped mask is $FFFC.
+; The joypad mask in the ROM is $FFFC (db-us/transforms.json rewrites $FFF0 to $FFFC for this block), which hides every pad bit including Start and Select, so no logo can be skipped. TM = $10 is bit 4, the OBJ layer; it puts no BG on the main screen.
 ---------------------------------------------
 
 ?INCLUDE 'system_strings'
@@ -46,7 +46,7 @@ sFB_boot_logo [
 ; Entry, both visits. Display set-up (bit 14 of displayModeFlags, black backdrop, FastROM, TM = OBJ only, joypad mask), then STAT78 bit 4 decides: 60 Hz falls through to BootLogoNtsc, 50 Hz jumps to BootLogoPalLockout.
 
   BootLogoInit:
-    LDA #$4000            ; Bit 14 of displayModeFlags: no reader found (OQ-I034-1)
+    LDA #$4000            ; Bit 14 of the displayModeFlags word = bit 6 of hudDisableFlag ($09ED): HUD off
     TSB $displayModeFlags
     LDA #$0000
     STA $cgramPalette     ; Colour 0 of the palette staging buffer = black backdrop
