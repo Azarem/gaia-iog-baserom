@@ -153,10 +153,10 @@ GlobalInputHandler {
     PLX 
     LDA #$10              ; Consume Start again (joypadHeld high byte, $0659) so this closing press cannot reopen the map
     TSB $joypadHeld+1
-    JSL $@vram_buffer_clear.ClearVramBufferPartial ; Clear overlay VRAM to remove radar/pause graphics
+    JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_PreserveHud ; Clear the BG3 staging buffer below the HUD rows to remove the radar/pause graphics
     LDA #$0F              ; Restore full brightness INIDISP = $0F
     STA $INIDISP
-    LDA #$01              ; Set displayModeFlags bit 0 ($01) = VRAM buffer has pending data for next VBlank
+    LDA #$01              ; Set displayModeFlags bit 0 ($01) = BG3 staging buffer has pending data for next VBlank
     TSB $displayModeFlags
     JSL $@system_core.UpdateFrameDialogue ; One UpdateFrameDialogue call to flush VRAM and restore normal display
     PLP 

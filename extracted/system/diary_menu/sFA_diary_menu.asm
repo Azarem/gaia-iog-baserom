@@ -268,7 +268,7 @@ diary_tab_dispatch_table [
 ; Camera pan animation (DiaryCameraPan) scrolls to the selected slot's world position.
 
 DiaryStartJourney {
-    JSR $&DiaryMenuClearVram ; Clear VRAM buffer
+    JSR $&DiaryMenuClearVram ; Clear the BG3 tilemap staging buffer
     COP [PrintDialogStringAlt] ( &dialogstring_0BF437 ) ; "Which Diary?" with 3 slots
     COP [CallNear] ( &DiaryRenderSlotStats ) ; Draw slot stats (HP/STR/DEF)
     COP [RunBg3Script] ( @system_strings.consolestring_01EADC )
@@ -1493,14 +1493,14 @@ DiaryRenderSlotStats {
 }
 ---------------------------------------------
 
-; Clear VRAM buffer — wrapper that preserves registers across ClearVramBufferFull call.
+; Clear the BG3 tilemap staging buffer — wrapper that preserves registers across the ClearBg3TilemapBuffer_Full call.
 
 DiaryMenuClearVram {
     PHP 
     PHX 
     PHD 
     SEP #$20
-    JSL $@vram_buffer_clear.ClearVramBufferFull
+    JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_Full
     PLX 
     PLD 
     PLP 

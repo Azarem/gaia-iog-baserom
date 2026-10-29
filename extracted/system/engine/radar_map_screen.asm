@@ -88,7 +88,7 @@ RadarScreenSetup {
     BRA loc_0380F3
 
   loc_03810B:
-    JSL $@vram_buffer_clear.ClearVramBufferPartial ; Clear VRAM staging buffer before drawing radar content
+    JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_PreserveHud ; Clear the BG3 staging buffer below the HUD rows before drawing radar content
     PHB 
     LDX #$&radar_layout_001E00
     LDY #$0380

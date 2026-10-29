@@ -177,7 +177,7 @@ CheckSceneTransition {
 ; === PHASE 3: LOAD ===
 ; Calls ClearSceneState (the comprehensive scene setup), LoadHudTilemap, UpdateHUD, and a chain of VBlank sync/NMI enable calls. Runs ScreenEnterTransition unless worldReadyFlag was already nonzero, then sets worldReadyFlag to $000F (fully ready). Clears gfxCacheIdxA/B (the transition parameters).
 ; 
-; If $00B4 is nonzero (DisplaySceneTitle sets it to $E0 when it opens the scene-title box): enters a wait loop calling UpdateFrameDialogue until any button is pressed, then clears $00B4/$00B5, clears the staging buffer below the HUD rows (ClearVramBufferPartial, which removes the title box), and sets displayModeFlags bit 0 so the buffer is flushed.
+; If $00B4 is nonzero (DisplaySceneTitle sets it to $E0 when it opens the scene-title box): enters a wait loop calling UpdateFrameDialogue until any button is pressed, then clears $00B4/$00B5, clears the staging buffer below the HUD rows (ClearBg3TilemapBuffer_PreserveHud, which removes the title box), and sets displayModeFlags bit 0 so the buffer is flushed.
 ; 
 ; Finally clears joypadInject and $09AD before returning.
 
@@ -256,7 +256,7 @@ ExecuteSceneTransition {
     BEQ loc_03DA8F
     STZ $00B4             ; Button pressed — clear the wait flag, remove the title box, request a BG3 flush
     STZ $00B5
-    JSL $@vram_buffer_clear.ClearVramBufferPartial ; Clear everything below the HUD rows
+    JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_PreserveHud ; Clear everything below the HUD rows
     LDA #$01
     TSB $displayModeFlags ; Bit 0: BG3 staging buffer pending upload
     JSL $@system_core.UpdateFrameDialogue
@@ -760,7 +760,7 @@ ScreenEnterTransition {
 ; 
 ; === PHASE 2: LOAD SCENE ===
 ; Calls subsystems in order:
-; 1. ClearVramBufferFull — zero the BG3 staging buffer
+; 1. ClearBg3TilemapBuffer_Full — zero the BG3 staging buffer
 ; 2. SceneScriptMain — parse scene script (loads tileset, tilemap, music, display config)
 ; 3. InitCameraBounds — set camera limits from map bounds or custom $0652 data
 ; 4. ApplyAllEventBlocks — apply persistent event-driven tile changes
@@ -859,7 +859,7 @@ ClearSceneState {
     STA $WH1              ; Window 1 right = $FF (full width)
     LDA #$E0
     STA $COLDATA          ; Re-apply COLDATA=$E0 after window setup
-    JSL $@vram_buffer_clear.ClearVramBufferFull ; Zero the BG3 staging buffer, then parse the scene script
+    JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_Full ; Zero the BG3 staging buffer, then parse the scene script
     JSL $@scene_script.SceneScriptMain
     JSL $@InitCameraBounds ; Init camera bounds, apply event blocks, redraw opened chests
     JSL $@event_blocks.ApplyAllEventBlocks
@@ -930,7 +930,7 @@ ClearSceneState {
 ; - Zero word followed by nonzero word: skip command — the second word is a tile count to advance X by (×2 for word offset)
 ; - Zero word followed by zero word: end of stream
 ; 
-; After loading, sets displayModeFlags bit 0 ($0001) to signal that the BG3 staging buffer has pending data for the next VBlank transfer. The stream expands to 159 words (318 bytes), so it fits the first $0140 bytes that ClearVramBufferPartial preserves.
+; After loading, sets displayModeFlags bit 0 ($0001) to signal that the BG3 staging buffer has pending data for the next VBlank transfer. The stream expands to 159 words (318 bytes), so it fits the first $0140 bytes that ClearBg3TilemapBuffer_PreserveHud preserves.
 
 LoadHudTilemap {
     LDA $hudDisableFlag   ; Check hudDisableFlag bit 6 — HUD suppressed by the scene's display preset?

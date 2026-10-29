@@ -1,11 +1,11 @@
-; VRAM buffer clear — zeroes the BG3 tilemap staging buffer at $7F:0200 (192618–192652, Bank 02).
+; BG3 tilemap buffer clear — zeroes the BG3 tilemap staging buffer at $7F:0200 (192618–192652, Bank 02).
 ; 
 ; The buffer is a 32×32-word BG3 tilemap (2048 bytes, 64 bytes per tilemap row). The HUD, dialogue, console-text, menu and radar renderers write tilemap words into it; when displayModeFlags bit 0 is set the engine DMAs it to VRAM $7800 (BG3SC = $78).
 ; 
 ; Two entry points:
 ; 
-; - ClearVramBufferPartial: Zeroes offsets $0140–$07FF. The first $0140 bytes (160 words = 5 tilemap rows) are kept — that is exactly the span LoadHudTilemap fills (HudTilemapData expands to 159 words), so the HUD survives overlay teardown (inferred from the stream length).
-; - ClearVramBufferFull: Zeroes the whole buffer, offsets $0000–$07FF.
+; - ClearBg3TilemapBuffer_PreserveHud: Zeroes offsets $0140–$07FF. The first $0140 bytes (160 words = 5 tilemap rows) are kept — that is exactly the span LoadHudTilemap fills (HudTilemapData expands to 159 words), so the HUD survives overlay teardown (inferred from the stream length).
+; - ClearBg3TilemapBuffer_Full: Zeroes the whole buffer, offsets $0000–$07FF.
 ; 
 ; Both share one word-write loop. Clobbers A; preserves X and P. Assembled for 16-bit index registers (it does not REP #$10 itself).
 ---------------------------------------------
@@ -14,9 +14,9 @@
 
 ---------------------------------------------
 
-; Clear the BG3 staging buffer from offset $0140 to $0800. Keeps the first 320 bytes (the HUD rows written by LoadHudTilemap). Shares the write loop with ClearVramBufferFull.
+; Clear the BG3 staging buffer from offset $0140 to $0800. Keeps the first 320 bytes (the HUD rows written by LoadHudTilemap). Shares the write loop with ClearBg3TilemapBuffer_Full.
 
-ClearVramBufferPartial {
+ClearBg3TilemapBuffer_PreserveHud {
     PHX 
     PHP 
     REP #$20
@@ -28,11 +28,11 @@ ClearVramBufferPartial {
 ---------------------------------------------
 ; Clear the entire BG3 staging buffer ($7F:0200) from offset $0000 to $0800 (2048 bytes) by writing zero words in a loop. A following flush (displayModeFlags bit 0) uploads the cleared words to BG3.
 
-ClearVramBufferFull {
+ClearBg3TilemapBuffer_Full {
     PHX 
     PHP 
     REP #$20
-    LDA #$0000            ; Full clear: zero-fill entire $7F:0200 VRAM staging buffer
+    LDA #$0000            ; Full clear: zero-fill the entire BG3 tilemap staging buffer ($7F:0200)
     TAX                   ; X = 0 — start at buffer offset $0000
 
   loc_02F07E:

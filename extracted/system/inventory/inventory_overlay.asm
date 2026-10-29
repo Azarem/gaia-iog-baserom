@@ -17,7 +17,7 @@
 ; 3. joypadMaskInv = $0F00 (the Up / Down / Left / Right bits). Push effectDeltaX (zeroed), displayModeFlags (set to $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag at $09ED, the HUD-off bit), eventFlags (zeroed; flag byte #00 is the loop's exit flag, so this also re-arms it), sceneCurrent (set to $FF, sceneTableIndex = $01FE). Event flag $FF (bit 7 of $0A1F, the scene-setup-complete latch) is cleared.
 ; 4. PPU: all window select / logic registers zero (windows off; WH0 = 0 and WH1 = $FF are inert without a W*SEL bit), BG3SC = $78 (tilemap at VRAM word $7800 = byte $F000), BG3 scroll zero, SceneScriptNoMusic builds scene $FF graphics, BG2SC = $0C, BG1SC = bg1ConfigMode = $04 (inventory_menu swaps BG1SC per tab), LoadScenePalettes, palette staging colour 2 = $5B1B (R27 G24 B22), UploadCgramPalette.
 ; 5. Source-pointer cache slots C ($0672) and D ($0675) are invalidated (zeroing addr-hi + bank forces the next lookup to miss, so the scene reload at close re-decompresses those BG tile sources). Camera targets / deltas, the four scroll accumulators, scrollOverrideH / V, forcedScrollOverride, $06CC and $00B2 are zeroed.
-; 6. ClearVramBufferFull, InitActorPool, SpawnSceneActors, SpawnSceneThinkers, ClearActorRenderList.
+; 6. ClearBg3TilemapBuffer_Full, InitActorPool, SpawnSceneActors, SpawnSceneThinkers, ClearActorRenderList.
 ; 7. RunActors_Normal x 2, SortActorsByDepth, $FFFF sentinel at the compose buffer, ComposeAllSprites, one UpdateFrameDialogue.
 ; 8. EnableNmiAndJoypad (NMITIMEN $81), VBlankWaitAndJoypad, INIDISP = $0F, DisableNmiKeepJoypad (NMI off again).
 ; 9. Main loop (code_02EE17): UpdateFrameDialogue (RunActors_CutsceneOnly, camera scroll, light HDMA-phase thinkers, sprite compose, one VBlank wait with the NMI pulsed on, light general thinkers), copy bg1ConfigMode to BG1SC, repeat while flag byte #00 equals #00 (BranchOnFlagByte).
@@ -29,7 +29,7 @@
 ; 12. Pop sceneCurrent (sceneTableIndex recomputed), eventFlags, displayModeFlags, effectDeltaX.
 ; 13. SceneScriptNoMusic (previous scene's graphics), ApplyAllEventBlocks, PlaceOpenedChestTiles (rewrites the opened 2x2 pattern for chests whose flag is set).
 ; 14. RestorePaletteBuffer, LoadScenePalettes, LoadPlayerGraphics, ReloadAbilityFX (tiles and palette selected by activeAbilityGfx $00EA).
-; 15. ClearActorRenderList, ClearVramBufferFull, displayModeFlags |= $41 (bit 0 = full BG3 tilemap upload, bit 6 = sine-table rebuild trigger read by BuildSineLookupTable), LoadHudTilemap, then the player sprite cache ($09CC / $09CE) and cachedPrevHp / cachedPrevMaxHp are zeroed so the next frames treat them as changed, joypadMaskInv and the unnamed words $00F4 / $00F8 are zeroed.
+; 15. ClearActorRenderList, ClearBg3TilemapBuffer_Full, displayModeFlags |= $41 (bit 0 = full BG3 tilemap upload, bit 6 = sine-table rebuild trigger read by BuildSineLookupTable), LoadHudTilemap, then the player sprite cache ($09CC / $09CE) and cachedPrevHp / cachedPrevMaxHp are zeroed so the next frames treat them as changed, joypadMaskInv and the unnamed words $00F4 / $00F8 are zeroed.
 ; 16. RunBg3Script (BG3 console string), ResetThinkerWaitCounters (resets the wait counter of every THINKER in the list at $5A, not an actor queue), ResetHdmaState, UpdateFrameRender, SetFlagByte #FF (the scene-setup-complete latch cleared in step 3), UpdateFrameRender, INIDISP = $0F, PLP, RTL.
 ---------------------------------------------
 
@@ -176,7 +176,7 @@ OpenInventoryScreen {
     STX $scrollOverrideV  ; scrollOverrideV ($06CA) is zeroed here but was not saved, so its old value is lost
     STX $06CC             ; Unnamed word $06CC, zeroed with the scroll state and never saved
     STX $00B2             ; Unnamed DP word $00B2, outside the saved DP range, zeroed and never restored
-    JSL $@vram_buffer_clear.ClearVramBufferFull ; ClearVramBufferFull — empty tile upload queue before actor spawn
+    JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_Full ; ClearBg3TilemapBuffer_Full — empty tile upload queue before actor spawn
     JSL $@actor_execution.InitActorPool ; InitActorPool — reset actor free list for inventory scene
     JSL $@actor_execution.SpawnSceneActors ; SpawnSceneActors — create inventory menu/cursor actors
     JSL $@thinker_execution.SpawnSceneThinkers ; SpawnSceneThinkers — create inventory logic controllers
@@ -236,7 +236,7 @@ OpenInventoryScreen {
     JSL $@scene_lifecycle.LoadPlayerGraphics ; LoadPlayerGraphics — restore player sprite tiles to VRAM
     JSR $&ReloadAbilityFX ; ReloadAbilityFX — restore active ability VFX tiles if any
     JSL $@sprite_composition.ClearActorRenderList ; ClearActorRenderList for world-scene sprite compose
-    JSL $@vram_buffer_clear.ClearVramBufferFull ; ClearVramBufferFull — flush stale tile upload queue
+    JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_Full ; ClearBg3TilemapBuffer_Full — flush stale tile upload queue
     LDA #$41              ; A is 8-bit: TSB below sets displayModeFlags bit 0 (full BG3 tilemap upload) and bit 6 (sine-table rebuild trigger)
     TSB $displayModeFlags ; Bit 0: BG3 staging buffer goes to VRAM next NMI. Bit 6: BuildSineLookupTable regenerates the sine tables on the next GenHdmaSine (not dialogue)
     JSL $@scene_lifecycle.LoadHudTilemap ; LoadHudTilemap — restore overworld status bar BG tilemap
