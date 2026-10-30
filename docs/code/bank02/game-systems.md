@@ -449,7 +449,7 @@ If `playerFlags` bit `$0100` set, **RTS** (no carry). Else: `warpFacing` (`$0650
 
 *Evidence: [ASM]*
 
-`playerFlags` \|= `$0100`; player `$10` \|= `$2000`; `STZ scrollStepIndex`; preserve walk sequence in low nibble of `scrollStepTableBase`. Direction from **saved** high bits of entry byte 6: bit `$0020` West, `$0010` East, `$0080` North, else South. `COP [SpawnBefore]` on matching `@forced_walk.ForcedWalk*`. **RTS**.
+`playerFlags` \|= `$0100`; player `$10` \|= `$2000` (hides the sprite and makes `PlayerIdleEntry` return at once; the walk itself is done by the spawned `ForcedWalk*` actor, whose own `$10` has `$2008` cleared at its start; `SyncPlayerToCamera+24` writes the player's `$10` back, clearing `$2000`; measured in scene `$03`: `$2000` set 4 times by `StartForcedWalk+20`, cleared 4 times by `SyncPlayerToCamera+24`); `STZ scrollStepIndex`; preserve walk sequence in low nibble of `scrollStepTableBase`. Direction from **saved** high bits of entry byte 6: bit `$0020` West, `$0010` East, `$0080` North, else South. `COP [SpawnBefore]` on matching `@forced_walk.ForcedWalk*`. **RTS**.
 
 ## Warp System — Rectangle Detection + Scene Transition
 

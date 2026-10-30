@@ -13,7 +13,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 
 import { join, dirname, resolve, relative, isAbsolute } from 'path';
 
 export type NoteValue = string | string[] | null;
-export type CommentValue = string | null | { text: string | null; expect?: string };
+export type CommentValue = string | null | { text: string | null; expect?: string; expectOld?: string };
 
 export interface FileEdit {
     blockNote?: NoteValue;

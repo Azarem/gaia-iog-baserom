@@ -33,7 +33,7 @@ $0DBC — active actor count
 $005C — thinker list head (special actors via AllocateSpecialActor)
 ```
 
-Each actor occupies a **64-byte direct-page-aligned slot**; the slot index (e.g. `$1FC0`) serves as the actor ID returned in **Y**.
+Each actor occupies a **48-byte (`$30`) direct-page slot** (84 slots, `$1000`–`$1F90`; `$1FC0` is the pool-full sentinel); the slot index (e.g. `$1210`) serves as the actor ID returned in **Y**.
 
 ---
 
@@ -361,7 +361,7 @@ Records a **parent link** on a newly spawned child actor. Stores the **current a
 | Source (current X) | Destination (target Y) | Transform |
 |--------------------|------------------------|-----------|
 | `$000E` | `$000E,Y` | Direct copy (OAM XOR flags) |
-| `$0010` | `$0010,Y` | `ORA #$2000` / `AND #$F7FC` — set "newly spawned", clear collision bits |
+| `$0010` | `$0010,Y` | `ORA #$2000` / `AND #$F7FC` — force `$2000` (hidden / script-driven: no sprite, no standard movement; forced on 359 times in the Mesen2 census) and clear `$0800` and the depth-priority bits `$0003` |
 | `$0012` | `$0012,Y` | `AND #$EFFF` — clear interact-enable bit |
 | `$0014`/`$0016` | `$0014,Y`/`$0016,Y` | Position |
 | `$0028`/`$002A` | `$0028,Y`/`$002A,Y` | Animation state |

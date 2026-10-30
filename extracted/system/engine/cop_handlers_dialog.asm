@@ -2,7 +2,7 @@
 ; 
 ; RunBg3Script (COP #BD), DialogueOptions (COP #BE), PrintDialogString (COP #BF) and PrintDialogStringAlt (COP #6B). Each reads its operands through [$0A] and returns to the actor script by writing the advanced $0A into the return frame ($02,S) and executing RTI.
 ; 
-; The three dialogue handlers save and clear two pieces of state while the renderer runs and restore them afterwards: actor $10 bit 11 ($0800, cutscene-active; cleared so that RunActors_CutsceneOnly, run by the renderer's frame updates, does not re-run this actor — inferred) and joypadMaskStd (the buttons suppressed from joypadCurrent; cleared so the renderer sees every button).
+; The three dialogue handlers save and clear two pieces of state while the renderer runs and restore them afterwards: actor $10 bit 11 ($0800, cutscene-active; cleared so that RunActors_CutsceneOnly, run by the renderer's frame updates, does not re-run this actor; measured: with the bit forced back on during a text, PrintDialogString ran 7 times in 12 frames instead of once) and joypadMaskStd (the buttons suppressed from joypadCurrent; cleared so the renderer sees every button).
 ---------------------------------------------
 
 ?BANK 00
@@ -89,7 +89,7 @@ DialogueOptions {
     AND #$0800            ; Save actor $10 bit 11 ($0800, cutscene-active)
     PHA 
     LDA #$0800
-    TRB $10               ; Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (inferred)
+    TRB $10               ; Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (measured for the text handler: with the bit forced on, the caller was re-run)
     LDA [$0A]             ; Read the two byte operands as one word: menu parameters for MenuSelectionHandler (not a pointer)
     INC $0A
     INC $0A
@@ -140,7 +140,7 @@ PrintDialogString {
     AND #$0800            ; Save actor $10 bit 11 ($0800, cutscene-active)
     PHA 
     LDA #$0800
-    TRB $10               ; Clear it for the duration of the text (inferred reason)
+    TRB $10               ; Clear it for the duration of the text (measured: with it forced on, the handler re-entered 7 times in 12 frames)
     LDA $joypadMaskStd    ; Save joypadMaskStd (suppressed buttons)
     STZ $joypadMaskStd    ; Clear it so the text renderer sees every button (A/B to advance)
     PHA 

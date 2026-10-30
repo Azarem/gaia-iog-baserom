@@ -2092,7 +2092,7 @@ DarkSpaceRestoreControl {
     STA $002E, X          ; Override chain Y
     STA $0008, X          ; Frame timer
     LDA $0010, X
-    AND #$FDFF            ; Clear bit 9 ($0200, the scripted-motion marker of the player's $10; not the game-over flag, which is playerFlags $0200)
+    AND #$FDFF            ; Clear bit 9 ($0200, ignore enemy contact, in the player's $10; not the game-over flag, which is playerFlags $0200)
     ORA #$0008            ; Set bit 3: collision-checked movement (vine, ladder and shimmy states clear it)
     STA $0010, X
     LDA #$0F00            ; D-pad bits only ($0F00); the face buttons keep their mask state

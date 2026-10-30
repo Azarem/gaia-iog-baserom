@@ -2,6 +2,7 @@
  * Exports for external tools (Mesen2 MCP server, Lua kit).
  *
  *   npm run export -- labels [--out-dir=<dir>]
+ *   npm run export -- labels --master-lookup=<file> --out=<file.mlb>
  *   npm run export -- scenes [--out=<file>]
  *
  * Documented in `docs/mesen2-exports.md`.
@@ -33,11 +34,17 @@ export interface ExportLabelsOptions {
     outDir?: string;
     /** `db-us/names` folder (default: inside the package root). */
     namesDir?: string;
-    /** `artifacts/master-lookup.json` (default: inside the package root). */
+    /** `artifacts/master-lookup.json` (default: inside the package root). A variant build (`--artifacts-dir=temp/plain`) has its own. */
     masterLookupPath?: string;
+    /**
+     * Write only the rebuilt-ROM labels, to this file (a `.mlb`), instead of the two files in `outDir`.
+     * Use it with `masterLookupPath` so a variant build gets its own label file.
+     */
+    rebuiltOut?: string;
 }
 
 export interface ExportLabelsResult {
+    /** Empty when `rebuiltOut` was used (the original file is not written then). */
     originalPath: string;
     rebuiltPath: string;
     names: number;
@@ -57,7 +64,7 @@ export interface ExportLabelsResult {
  */
 export function exportLabels(pkgRoot: string, options: ExportLabelsOptions = {}): ExportLabelsResult {
     const namesDir = options.namesDir ?? join(pkgRoot, 'db-us', 'names');
-    const lookupPath = options.masterLookupPath ?? join(pkgRoot, 'artifacts', 'master-lookup.json');
+    const lookupPath = options.masterLookupPath ? resolve(options.masterLookupPath) : join(pkgRoot, 'artifacts', 'master-lookup.json');
     const outDir = resolve(pkgRoot, options.outDir ?? join('artifacts', 'labels'));
 
     if (!existsSync(namesDir)) throw new Error(`names folder not found: ${namesDir}`);
@@ -100,10 +107,17 @@ export function exportLabels(pkgRoot: string, options: ExportLabelsOptions = {})
     rebuiltRows.sort((a, b) => a.offset - b.offset || a.label.localeCompare(b.label));
     const rebuiltLines = rebuiltRows.map(row => `SnesPrgRom:${hex(row.offset)}:${row.label}`);
 
-    const originalPath = join(outDir, 'iog-original.mlb');
-    const rebuiltPath = join(outDir, 'iog-rebuilt.mlb');
-    ensureDirFor(originalPath);
-    writeFileSync(originalPath, originalLines.join('\n') + '\n', 'utf-8');
+    let originalPath = '';
+    let rebuiltPath: string;
+    if (options.rebuiltOut) {
+        rebuiltPath = resolve(options.rebuiltOut);
+        ensureDirFor(rebuiltPath);
+    } else {
+        originalPath = join(outDir, 'iog-original.mlb');
+        rebuiltPath = join(outDir, 'iog-rebuilt.mlb');
+        ensureDirFor(originalPath);
+        writeFileSync(originalPath, originalLines.join('\n') + '\n', 'utf-8');
+    }
     writeFileSync(rebuiltPath, rebuiltLines.join('\n') + '\n', 'utf-8');
 
     return {

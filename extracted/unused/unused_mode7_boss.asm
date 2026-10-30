@@ -12,7 +12,7 @@
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'math_lookup_tables'
-?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'SetPlayerIgnoreContactFlag'
 ?INCLUDE 'spriteset_pickups_effects'
 
 !frameCounter                   0036
@@ -859,7 +859,7 @@ code_09B178 {
 code_09B1D5 {
     LDA #$0001
     STA $26
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_09B1FA, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_09BA38, #00, #00, #$2000 )
     COP [WaitByte] ( #1D )

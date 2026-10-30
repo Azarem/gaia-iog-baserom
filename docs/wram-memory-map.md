@@ -64,7 +64,7 @@ $0200 ├───────────────────────�
 $0800 ├───────────────────────────────────────────────────────────┤
       │ DMA parameters, tile query, graphics cache, player state  │ ~1.8 KB
 $1000 ├───────────────────────────────────────────────────────────┤
-      │ Actor direct-page slots (64 bytes × ~64 actors)           │ 4 KB
+      │ Actor direct-page slots ($30 bytes × 84 actors)           │ 4 KB
 $2000 ├───────────────────────────────────────────────────────────┤
       │ MapLayer metatile mappings (RAM→VRAM map)                 │ 2 KB
 $2800 ├───────────────────────────────────────────────────────────┤
@@ -276,7 +276,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$099F` | 2 | `sceneStateHelper` | Scene/state helper variable | `SystemInit` |
 | `$09A2` | 2 | `playerXPos` | Player pixel X position (sprite-adjusted) | `camera_scroll_controller`, movement physics |
 | `$09A4` | 2 | `playerYPos` | Player pixel Y position (sprite-adjusted) | `camera_scroll_controller`, movement physics |
-| `$09AA` | 2 | `playerActor` | Player actor slot index (e.g. `$1FC0`) | All player-referencing code |
+| `$09AA` | 2 | `playerActor` | Player actor slot index (always `$1000`) | All player-referencing code |
 | `$09AC` | 2 | `joypadInject` | Injected joypad override — non-zero replaces `$0656` and skips hardware read | `VBlankWaitAndJoypad` (forced-walk scripts) |
 | `$09AE` | 2 | `playerFlags` | Player state bitmask (see below) | Player character, attack system, slope physics, camera |
 | `$09AF` | 1 | `playerStateByte` | Player state high byte — bit `$08` = stair entry; `$8F` = walking state | `IsPlayerSliderSpriteBank`, stair triggers |
@@ -293,7 +293,7 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$09E0` | 2 | `climbStateData` | Will ability anim table byte from `LoadAbilityDamageA`; added to player STR in `ApplyHitDamageToVictim`. Cleared by `UnlockPlayerAfterClimb` / idle | `attack_ability_system`, `combat_collision`, lunge |
 | `$09E4`–`$09E6` | 4 | `enemyHpValues` | Enemy HP display values (current + max) for boss health bar | HUD enemy health display |
 | `$09EA` | 2 | `enemyHpPending` | Non-zero triggers enemy health bar update in HUD | `UpdateHUD` |
-| `$09EC` | 2 | `displayModeFlags` | Scene display mode — bit `$0008` = special BG3; bit `$0010` = stat refresh; bit `$0080` = display filter (only actors with Flags10/12 bit `$1000` run in `RunActors_DisplayFiltered`); bit `$08` = dialogue display | HUD, NMI, dialogue, sine precompute, chest/stat rewards |
+| `$09EC` | 2 | `displayModeFlags` | Scene display mode — bit `$0008` = special BG3; bit `$0010` = stat refresh; bit `$0080` = display filter (only actors with Flags10/12 bit `$1000` run in `RunActors_DisplayFiltered`; measured during the last-enemy stat reward: set for about 126 frames, the player does not run, the world is frozen); bit `$08` = dialogue display | HUD, NMI, dialogue, sine precompute, chest/stat rewards |
 | `$09ED` | 1 | `hudDisableFlag` | Bit `$40` set → HUD globally disabled (title screen, cutscenes) | `UpdateHUD` early exit |
 | `$09F4` | 2 | `playerActorDp` | Player actor direct page base for camera reads | `camera_scroll_controller` |
 
@@ -420,7 +420,7 @@ Per-button remapping words. `VBlankWaitAndJoypad` reads the hardware pad from `j
 
 ### 2.11 Actor Direct-Page Slots ($1000–$1FFF)
 
-Actors use 64-byte (`$40`) direct-page slots. Each actor's ID **is** its DP base address (e.g. actor `$1FC0` has DP from `$1FC0`–`$1FFF`). When COP dispatches to an actor, `TCD` is set to the actor ID, making offsets `$00`–`$3F` access the actor's local control block.
+Actors use 48-byte (`$30`) direct-page slots: 84 slots from `$1000` to `$1F90` (the pool ends at `$1FC0`, which `SpawnListAppend` and the `SpawnAfter*` COPs return as the "pool full" sentinel). Each actor's ID **is** its DP base address (e.g. the last actor `$1F90` has DP from `$1F90`–`$1FBF`; the player is `$1000`). When COP dispatches to an actor, `TCD` is set to the actor ID, making offsets `$00`–`$2F` access the actor's local control block. Verified at runtime (live slots `$1210`, `$1240`, `$1450`; `InitActorPool`): the stride is `$30`, not `$40`.
 
 | Offset | Size | Name | Description |
 |--------|------|------|-------------|
@@ -433,8 +433,8 @@ Actors use 64-byte (`$40`) direct-page slots. Each actor's ID **is** its DP base
 | `$0C` | 1 | `scriptBank` | Script bank byte (return bank from COP) |
 | `$0D` | 1 | *(dummy)* | Padding for 24-bit `argPtr` |
 | `$0E` | 2 | `oamXorFlags` | Sprite priority, palette line, H/V flip XOR mask |
-| `$10` | 2 | `actorFlags1` | **Flags10** — `$0004` collision priority; `$0008` collision-checked movement; `$0040` dead; `$0080` iframe counter active; `$2000` spawned/script-driven; invisible (`$2200`) |
-| `$12` | 2 | `actorFlags2` | **Flags12** — force-flip, marked-child (`$0040`), display/overlay qualifier (`$1000`, required for filtered actor passes), push-in-progress (`$0010`) |
+| `$10` | 2 | `actorFlags1` | **Flags10** — bit meanings in [Actor flag bits](#actor-flag-bits-flags10--flags12-verified-with-mesen2) below |
+| `$12` | 2 | `actorFlags2` | **Flags12** — bit meanings in [Actor flag bits](#actor-flag-bits-flags10--flags12-verified-with-mesen2) below |
 | `$14` | 2 | `posX` | Actor pixel X position (NW corner of map = origin) |
 | `$16` | 2 | `posY` | Actor pixel Y position |
 | `$18` | 2 | `offsX` | Sprite offset from `posX` (used for scratch/probe X in some contexts) |
@@ -451,7 +451,40 @@ Actors use 64-byte (`$40`) direct-page slots. Each actor's ID **is** its DP base
 | `$2A` | 2 | `sprFrame` | Animation frame of sprite |
 | `$2C` | 2 | `moveX` | Movement data / velocity X |
 | `$2E` | 2 | `moveY` | Movement data / velocity Y |
-| `$30`–`$3F` | 16 | *(script scratch)* | Remaining bytes used as temporary staging by various COP handlers |
+#### Reading an actor slot (runtime facts)
+
+- **Freed slots are not cleared.** `UnlinkActor` and the pool return a slot to the free list but leave its fields in place: a dead actor keeps its entry word, `$10`, `$12` and position until the slot is reused or `InitActorPool` zeroes the pool (scene rebuild). A test "entry word != 0" therefore counts dead actors as live. To find the live actors walk the list: start at `$56` (head) and follow `$06` (`nextActorLink`) until it is `0`.
+- **The entry bank byte (`$02`) is the HiROM mirror**, not the plain ROM bank: code in ROM bank `$08` shows `$88`, bank `$0A` shows `$8A`, bank `$00` shows `$80`, bank `$03` shows `$83`. Compare `entry >> 16` against the mirrored value.
+- **The extended fields are indexed by the actor id itself** (§4.1): the code's `$7F0026,X` with `X = $1210` reads `$7F:1236`, so in a Lua script `currentHp` of a slot `s` is `kit.r16(0x10026 + s)` and the iframe counter `kit.r16(0x10028 + s)` (the harness uses this for every A4 HP read).
+- **Memory callbacks** (Mesen2 Lua) report the full effective address, run before the store, and the program counter they see is the address after the accessing instruction; see `plans/extracted-audit/mesen2-investigation-plan.md` §1.2 and §1.3.
+
+#### Actor flag bits (Flags10 / Flags12, verified with Mesen2)
+
+Source: Campaign A of the Mesen2 investigation (`plans/extracted-audit/mesen2-results/A1`–`A4`, ROM O). "Runtime" = observed by a census or a forced-bit run; "static" = read from the code only. Bits not listed are not verified.
+
+| Word | Bit | Meaning | Evidence |
+|------|-----|---------|----------|
+| `$10` | `$0001` / `$0002` | Depth key read by `SortActorsByDepth+82` (`BIT #$0003`, the only reader seen): `$0002` = draw in front of all actors (COP `SetPriorityMax`, ran 12 times; the landing slide in `PlayerAuraLandOnSolid` sets it too) and wins when both are set; `$0001` = draw behind all actors (COP `SetPriorityMin`, from the extracted source; not run) | runtime (reader, `SetPriorityMax`), static (the rest) |
+| `$10` | `$0004` | Solid contact this frame; cleared by `RunActors_PostTick`, set by the tile collision routines | existing note |
+| `$10` | `$0008` | **Collision-aware movement selector** (`ApplyMovementWithCollision` instead of `ApplyMovement`); not "grounded", not "player-hit". Cleared on the player Will walks through a wall that stops the control run | runtime (A3 X3) |
+| `$10` | `$0010` | Invincible: `ApplyHitDamageToVictim_DamagePath` routes the hit to `HitInvincibleVictim`; also suppresses the blink. No setter ran in 24,190 frames | static |
+| `$10` | `$0040` | Dead (set when the victim's HP reaches 0; `$00C0` at the moment `StandardEnemyDefeatHandler` starts) | runtime |
+| `$10` | `$0080` | Hit-reaction active (set on a victim by `ApplyHitDamageToVictim_DamagePath`, on the player by `ApplyInteractionDamage`; cleared by `RunActors_Normal`). The player's 60-frame counter is `$7F0028` | runtime |
+| `$10` | `$0100` | Player: **vulnerable stance**. Set by `PlayerIdleEntry`, cleared by block, attack, Spin Dash and the run attack. `CombatCollision_NextTarget+19` skips an actor with `$0400` and (`$0040` or `$0100`) as outer-loop source, so with it clear the player is a source and enemy contact hurts it; forced clear: for 160 frames Will took no damage and the enemy took the hit | runtime (A4 K5) |
+| `$10` | `$0200` | **Ignore enemy contact** (player): skipped by the normal contact pass (`CombatCollision_InnerLoop`, mask `$76E0`) and sent to the friendly-only interaction pass (`RunInteractionCollision`, `BIT #$0280`). Set by the Aura Barrier, the Spin Dash, the Psycho Slider, the lunge and `StopPlayerOnDeath`. Forced on, an enemy standing on Will for 120 frames did no damage. Not the game-over flag (that is `playerFlags $0200`) | runtime (A2, A3 X4) |
+| `$10` | `$0400` | Excluded from the interaction mask `$35C0` and the attack-test mask `$36F0`. Carried by the player; set on a victim only by the inline lethal path (`ApplyHitDamageToVictim_DamagePath+223`, when `playerFlags $0010` or the victim's `$12 $0010` is set); drop pickups are spawned with `$0420` and the body clears it one step later (forced on, the pickup cannot be collected) | runtime (A4 K1, K1c, K1d) |
+| `$10` | `$0700` | OR-ed into a picked-up gem by `InteractionDamage_NPCChat` together with the entry `NpcDespawnStub` (the only caller seen): excluded from every collision mask for the one tick before `Die` removes it and its marked child | runtime (A4 K1g) |
+| `$10` | `$0800` | Cutscene-active: `RunActors_CutsceneOnly` runs the actor. `PrintDialogString` saves, clears and restores it on the caller; forced on during a text, the handler re-ran 7 times in 12 frames instead of once | runtime (A4 OQ-54) |
+| `$10` | `$1000` | Display-filter qualifier: with `displayModeFlags $0080` set (stat reward, `RunActors_DisplayFiltered`) an actor runs if `$10` **or** `$12` has bit 12 | runtime (A4 K2g) |
+| `$10` | `$2000` | Hidden / script-driven. Non-player: the script runs but there is no standard movement and no sprite (`RunActors_Normal+45`, `SortActorsByDepth+82`). Player: the sprite is hidden, movement is kept and `PlayerIdleEntry` returns at once. Writers on the player seen at runtime: `StartForcedWalk+20` and `DarkSpaceMonitorStartWarp+19`; cleared by `SyncPlayerToCamera+24` and by the actor pool rebuild (`InitActorPool+54`, which is how the Dark Space warp clears it). Writers found statically but not run: `PlayerFallFromHeight`, `PlayerSkyGardenJumpLanding` (both set `$2200`, clear `$2000` themselves) and `PlayerAuraDescendToFloor` (sets `$2000`, cleared by `PlayerAuraLandOnSolid`) | runtime (A1, A3 X1/X2, A4), static (`player_transition_handlers`) |
+| `$10` | `$4000` | Off-screen (`SortActors_OffScreen` sets it, `SortActorsByDepth` and `SyncPlayerToCamera` clear it) | runtime |
+| `$12` | `$0001` | Set on the player at init (`PlayerCharacterDef+13`); the recovery-iframe route in `ApplyHitDamageToVictim_DamagePath+300` ran only on non-player victims; effect on the player not shown | runtime (partial) |
+| `$12` | `$0002` | Mirror lock read by `ProcessAnimFlag` (+20, +36); set only by scripts, cleared by pool recycle | runtime |
+| `$12` | `$0010` | Stagger-immune: the victim is resolved inline (see `$10 $0400`) | static, A1 obs. 12 |
+| `$12` | `$0200` | Scripted actor: with it set the talk handler calls `GlobalAmbientDeferToScript` (4 of 4 presses); cleared on the same NPC it calls `GlobalAmbientTalkWithSnapshot` and `GlobalAmbientTalkRestoreActor` instead | runtime (A1 OQ-I044-2) |
+| `$12` | `$1000` | Display-filter qualifier (see `$10 $1000`); the death flash needs it to advance while the filter is on | runtime (A4 K2f) |
+
+**Not yet verified** (needs a scene or trigger the sessions did not reach): who clears the player's `$0200` after a boss defeat and whether it survives the two `mu67_vampires` death callbacks; the effect of `$12 $0001` on the player; the `$0008` / `$0200` transitions of `SyncPlayerToCamera` and the `StartMusic` clear of `$10 $1000` (forced walk); the ramp and slider-glide writers of `$0200`; `ClimbX` with `$2000`; `ToggleActorVisibilityFlag` (`sp5B` rooms); a chest-like NPC for `$0700`; the Freejia kidnapper; the `$2F00` damage digits of `PlayerAttackHitTest`; gem types 2 and 3; why drop pickups are spawned with `$0400`.
 
 > **DataCrystal cross-reference:** The DataCrystal Notes page documents the same layout with field names `EntryPtr`, `PrevId`, `NextId`, `WaitTime`, `ArgPtr`, `OamXor`, `Flags10`, `Flags12`, `PosX`, `PosY`, `OffsX`, `OffsY`, `OffsXMir`, `OffsYMir`, `HitboxW`/`E`/`N`/`S`, `Free24`, `Free26`, `SprIdx`, `SprFrame`, `MoveX`, `MoveY`. Our field definitions match exactly.
 
@@ -483,7 +516,7 @@ These regions require long addressing (`LDA $7Exxxx`) since they fall outside th
 
 ### 4.1 Actor Extended Fields ($7F:0000–$7F:002F per slot)
 
-Extended actor state uses `(actor_id − $1000)` as the X index. Each actor has up to `$30` bytes of extended state here.
+Extended actor state is addressed with the actor id as the X index (`$7F:00xx,X` with `X = $1210` is `$7F:12xx`), so the extended block of slot `s` starts at `$7F:0000 + s` (checked at runtime: the HP read at `$7F:0026 + s` matches the stats table). Each actor has up to `$30` bytes of extended state here.
 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|

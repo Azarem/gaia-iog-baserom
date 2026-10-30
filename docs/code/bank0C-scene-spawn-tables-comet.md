@@ -682,7 +682,7 @@ transformation sequence. It is the largest code block in bank 0C.
 
 **Actor-def params:** sprite `#00`, hitbox `#00`, variant `#21`
 
-**Dependencies:** `enemy_stats_table`, `SetPlayerGameOverFlag`, `oneshot_palette_flash_18`,
+**Dependencies:** `enemy_stats_table`, `SetPlayerIgnoreContactFlag`, `oneshot_palette_flash_18`,
 `oneshot_palette_flash_19`, `player_character`, `sE8_thinker_0CEB74`,
 `smooth_follow`, `table_0EE000`
 
@@ -719,7 +719,7 @@ transformation sequence. It is the largest code block in bank 0C.
 | `code_0CF550` | `$0301` | Eye beam telegraph + fire |
 | `code_0CF570` | `$0202` | Downward beam projectile |
 | `code_0CF5AF` | `$0202` | Rising spread projectile |
-| `SetPlayerGameOverFlag` | `$2000` | Player actor `$10` bit `$0200` — combat skip after boss defeat |
+| `SetPlayerIgnoreContactFlag` | `$2000` | Player actor `$10` bit `$0200` — combat skip after boss defeat |
 
 #### Phase 1 — Initial Form
 
@@ -892,7 +892,7 @@ Triggered when Phase 1 HP depletes (death callback `code_0CEF88`):
 
 1. Sets flag byte `#04` (signals all sub-actors: spawners, tentacles, homing entities)
 2. Masks joypad (`$FFF0` → full input lock)
-3. Spawns `SetPlayerGameOverFlag` (player hit skip via actor `$10` bit `$0200`)
+3. Spawns `SetPlayerIgnoreContactFlag` (player hit skip via actor `$10` bit `$0200`)
 4. Spawns explosion debris controller (`code_0CF201`) at relative (0, −32):
    at position (128, 368), uses `table_0EE000` metasprites, 12 cycles each
    spawning paired debris sprites (`code_0CF22F` type A + `code_0CF23C` type B)
@@ -1031,7 +1031,7 @@ The Comet boss references shared code from other banks:
 
 | Reference | Bank | Purpose |
 |-----------|------|---------|
-| `SetPlayerGameOverFlag` | `$0A` | Player actor `$10` bit `$0200` — combat skip after boss defeat |
+| `SetPlayerIgnoreContactFlag` | `$0A` | Player actor `$10` bit `$0200` — combat skip after boss defeat |
 | `enemy_stats_table` (+154, +158, +15C, +160) | `$00` | HP/stats for boss forms and sub-entities |
 | `smooth_follow.CopySiblingFollowState` | `$01` | Homing tentacle behavior |
 | `table_0EE000` | `$0E` | Metasprite frame definitions |

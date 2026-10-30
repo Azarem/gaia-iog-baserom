@@ -13,7 +13,7 @@
 ; 
 ; === FLAG BITS USED ===
 ; 
-; Player actor flags $10: $0008 = normal collision-aware movement (cleared while a script moves the player, set again at the end), $0200 = scripted motion marker (the Psycho Slider and the lunge set it too), $2000 = SortActorsByDepth skips the actor and PlayerIdleEntry yields without acting (meaning not traced), $0040 = death flag. playerFlags $0800 = script / ability lock. layerPriorityFlag ($06EE) bit $0200 = camera frozen. joypadMaskStd |= $CFFC hides every button except Select / Start.
+; Player actor flags $10: $0008 = normal collision-aware movement (cleared while a script moves the player, set again at the end), $0200 = ignore enemy contact (CombatCollision_InnerLoop mask $76E0; the Psycho Slider, the lunge, the Aura Barrier and the death handler set it too), $2000 = hidden: SortActorsByDepth skips the actor and PlayerIdleEntry yields without acting (StartForcedWalk, DarkSpaceMonitorStartWarp and the fall, jump and aura-sink routines of this file set it on the player), $0040 = death flag. playerFlags $0800 = script / ability lock. layerPriorityFlag ($06EE) bit $0200 = camera frozen. joypadMaskStd |= $CFFC hides every button except Select / Start.
 ---------------------------------------------
 
 ?INCLUDE 'player_character'
@@ -67,7 +67,7 @@ PlayerIdleUseShadowSprite {
 
   PlayerStaticBodyPose:
     LDA #$0200
-    TSB $10               ; $10 bit $0200: scripted-motion marker (cleared again by PlayerWalkingIdlePose)
+    TSB $10               ; $10 bit $0200: ignore enemy contact during the flute pose (cleared again by PlayerWalkingIdlePose)
     COP [SetPlayerSpriteDirect] ( #04 ) ; Body table index 4 (the Psycho Slider uses it too)
 
 ; Stage frame $1F and play it once, forever.
@@ -128,7 +128,7 @@ PlayerFallFromHeight {
     LDA #$0008
     TRB $10               ; Leave collision-aware movement ($10 bit $0008) for the scripted fall
     LDA #$2200
-    TSB $10               ; $10 |= $2200: $2000 (skipped by SortActorsByDepth) and $0200 (scripted motion)
+    TSB $10               ; $10 |= $2200: hidden ($2000, skipped by SortActorsByDepth) and ignore enemy contact ($0200)
     LDA #$0200
     TSB $layerPriorityFlag ; Freeze the camera (layerPriorityFlag bit $0200)
     COP [WaitByte] ( #03 ) ; WaitByte #03 = 4 ticks out of the depth sort
@@ -161,7 +161,7 @@ PlayerSkyGardenJumpLanding {
     LDA #$0008
     TRB $10               ; Leave collision-aware movement
     LDA #$2200
-    TSB $10               ; $10 |= $2200: not depth-sorted, scripted motion
+    TSB $10               ; $10 |= $2200: hidden (not depth-sorted) and ignore enemy contact
     COP [NudgePosition] ( #00, #C0 ) ; Y -= 64 (signed $C0)
     COP [SetEntryHereAndYield] ; Yield; the next frame continues here
     LDA #$0200
@@ -280,13 +280,13 @@ PlayerAuraDescendToFloor {
 }
 
 ---------------------------------------------
-; Type $04 reached: clear $2000, set $10 bit $0002 (meaning not traced) and slide down with sprite anim 2 / Y chain 1 (+1 px per frame) until the tile type at the actor is 0.
+; Type $04 reached: clear $2000, set $10 bit $0002 (draw in front of all actors: SortActorsByDepth tests $0003) and slide down with sprite anim 2 / Y chain 1 (+1 px per frame) until the tile type at the actor is 0.
 
 PlayerAuraLandOnSolid {
     LDA #$2000
     TRB $10               ; Clear $2000
     LDA #$0002
-    TSB $10               ; $10 |= $0002 for the landing slide (meaning not traced)
+    TSB $10               ; $10 |= $0002 for the landing slide: draw in front of all actors (SortActorsByDepth BIT #$0003)
 
 ; One pass of the landing slide: anim 2, +1 px per frame, then test the tile type.
 

@@ -12,7 +12,7 @@
 ?INCLUDE 'enemy_stats_table'
 ?INCLUDE 'flag_helpers'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'SetPlayerIgnoreContactFlag'
 ?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
@@ -1248,7 +1248,7 @@ func_0AFA59 {
   loc_0AFA72:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
 
   loc_0AFA81:
     LDA $playerFlags
@@ -1280,7 +1280,7 @@ code_0AFAA0 {
   loc_0AFAB9:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
 
   loc_0AFAC8:
     LDA $playerFlags

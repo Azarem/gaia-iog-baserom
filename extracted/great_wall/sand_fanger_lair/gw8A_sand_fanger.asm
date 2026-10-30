@@ -18,7 +18,7 @@
 ?INCLUDE 'math_lookup_tables'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'SetPlayerIgnoreContactFlag'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'spriteset_pickups_effects'
 
@@ -732,7 +732,7 @@ code_0B8582 {
   loc_0B858D:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
     LDA #$000A
     STA $0000
     LDA #$0014

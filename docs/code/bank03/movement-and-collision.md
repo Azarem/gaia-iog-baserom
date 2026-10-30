@@ -225,9 +225,12 @@ source — only on-screen actors are tested.
 
 ### Combat collision (two-phase)
 
-- **Phase 1** (outer): for each enemy, check player-attacking eligibility
-  (`$0080` hittable AND `$0040` not orb-protected AND `$12`&`$0010` not
-  damage-immune); if eligible, `PlayerAttackHitTest`.
+- **Phase 1** (outer): for each actor without `$10` bit `$0400`, check
+  player-attacking eligibility (`$0080` set = hit-reaction active, `$0040`
+  clear, `$12`&`$0010` clear = not damage-immune); if eligible and the iframe
+  counter is not negative, `PlayerAttackHitTest`. An actor with `$0400` skips
+  phase 1; if it also has `$0040` or `$0100` (the player in its vulnerable
+  stance, or a dead actor) it is not used as the outer-loop source at all.
 - **Phase 2** (inner, `CombatCollision_InnerLoop`): builds the current enemy's
   AABB from metasprite header `$0004`–`$0007`, then tests all actors against it
   for enemy-hits-player overlap using victim slot fields `$0020`–`$0023`. Two
@@ -271,7 +274,7 @@ flag, flipping hitbox X (BCS path negates offsets).
 | `$03BF22` | `PlayerAttackHitTest_End` | end of player attack iteration |
 | `$03BF27` | `ApplyHitDamageToVictim` | process enemy→player contact (damage, knockback, death) |
 | `$03BF84` | `ApplyHitDamageToVictim_DamagePath` | iframe assignment + hit sound |
-| `$03C116` | `HitInvincibleVictim` | invincible player contact (no damage, still triggers reaction) |
+| `$03C116` | `HitInvincibleVictim` | route for a victim with `$10` bit `$0010` (invincible): no damage, still triggers the reaction |
 | `$03C142` | `CalcKnockbackDirection` | hitbox-midpoint comparison → cardinal direction (0=S/1=N/2=W/3=E) |
 | `$03C25B` | `InteractionCollision_Exit` | interaction iteration end |
 | `$03C25E` | `RunInteractionCollision` | NPC/object interaction entry (player bbox vs. interaction hitboxes) |
@@ -330,8 +333,25 @@ metasprite header (`$0004`–`$0007`) — no H-mirror adjustment. On overlap,
 `ApplyInteractionDamage` routes to `InteractionDamage_NPCChat` which attempts
 `GiveItemToPlayer` with `chatPtr`. If inventory is full, shows the overflow
 message. Otherwise shows dialogue and converts the actor to `NpcDespawnStub`
-(sets `$0700` in primary flags `$10` via `ORA #$0700` on `$0010,X` — bits 10+11 —
-to prevent re-interaction within the same screen visit).
+(sets `$0700` in primary flags `$10` via `ORA #$0700` on `$0010,X`: bits 8, 9
+and 10 = `$0100`, `$0200`, `$0400`, which sit in the interaction, contact and
+attack masks, so the actor is out of every pass for the one tick before
+`NpcDespawnStub` runs `Die`; measured on a gem pickup, which is removed with its
+marked child on the next tick).
+
+### Flag bits the collision passes test (verified with Mesen2)
+
+All are bits of the actor's `$10` unless marked `$12`. Full table with
+evidence: [wram-memory-map.md](../../wram-memory-map.md) §"Actor flag bits".
+
+| Bit | Tested by | Effect |
+|-----|-----------|--------|
+| `$0200` | `CombatCollision_InnerLoop` mask `$76E0`; `RunInteractionCollision` `BIT #$0280` | **Ignore enemy contact.** The actor is skipped by the normal contact pass; the interaction pass drops to friendly-only. The friendly mask `$74E0` does not contain it. Set on the player by the Aura Barrier, the Spin Dash, the Psycho Slider, the lunge and `StopPlayerOnDeath` (seen running), by the ramps and the slider glide (code only, not run), and by `SetPlayerIgnoreContactFlag` during boss defeats. Forced on, an enemy standing on Will for 120 frames did no damage; cleared again, damage resumed |
+| `$0100` | `CombatCollision_NextTarget` (`BIT #$0140` after `BIT #$0400`); masks `$35C0` / `$3540` | On the player: vulnerable stance (set by `PlayerIdleEntry`, cleared by block, attack, Spin Dash, run attack). With it cleared and nothing else changed, the enemy took the hit and Will none |
+| `$0400` | masks `$35C0` (interaction) and `$36F0` (attack test); phase-1 gate | Out of the interaction and attack passes. Carried by the player. Set on a victim only by the inline-lethal path of `ApplyHitDamageToVictim_DamagePath` (when `playerFlags $0010` or the victim's `$12 $0010` is set); the stagger death never sets it. Drop pickups are spawned with `$0420` and the body clears it one step later; with it forced on the pickup cannot be collected |
+| `$0080` | phase-1 gate, `RunInteractionCollision` `$0280`, `PlayerMoveController+21`, blink gate | Hit-reaction active; on the player it comes with the 60-frame iframe counter `$7F0028` |
+| `$0010` | `ApplyHitDamageToVictim_DamagePath+8` | Routes the hit to `HitInvincibleVictim`; no setter ran in 24,190 frames, so the meaning comes from the code path |
+| `$12 $0010` | phase-1 gate, `ApplyHitDamageToVictim_DamagePath+169` | Damage / stagger immune; the victim is resolved inline (this is why the Diamond Mine laborers, HP 1, die to one hit and take the `$0400` path) |
 
 ### Cross-references
 

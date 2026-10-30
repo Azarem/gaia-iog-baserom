@@ -11,7 +11,7 @@
     "693693": "ir1F_stone_lord3",
     "693698": "ir1F_stone_lord4",
     "693843": "ir1F_stone_lord5",
-    "697198": "SetPlayerGameOverFlag",
+    "697198": "SetPlayerIgnoreContactFlag",
     "697255": "EnemyPositionSnap",
     "697341": "EnemyInitBasic",
     "697372": "ActorMidpointCalc",

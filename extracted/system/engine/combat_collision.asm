@@ -14,7 +14,7 @@
 ; 
 ; Two-phase collision detection:
 ; 
-; Phase 1 (outer loop): For each enemy in the render list, for each actor WITHOUT $0400, requires $0080 set in $10 (role unresolved), $0040 clear (not dead/orb) and $12 $0010 clear (not damage-immune). If eligible, calls PlayerAttackHitTest.
+; Phase 1 (outer loop): For each enemy in the render list, for each actor WITHOUT $0400, requires $0080 set in $10 (hit-reaction active: ApplyHitDamageToVictim_DamagePath sets it on a victim, RunActors_Normal clears it), $0040 clear (not dead/orb) and $12 $0010 clear (not damage-immune). If eligible, calls PlayerAttackHitTest.
 ; 
 ; Phase 2 (inner loop at CombatCollision_InnerLoop): After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision. Uses AABB overlap testing on hitbox fields ($20–$23). Two paths based on $20 flag: normal ($76E0 exclusion mask) or friendly ($74E0 mask + extendedFlags $0010 check).
 ; 
@@ -46,7 +46,7 @@
 ; 
 ; === DEATH HANDLING ===
 ; 
-; Normal victims get HitStaggerMain spawned and are resolved later in hit_stagger_controller's HitStaggerResolveHit (HP == 0: set $0040, run onDeathCallback ($7F1004,X) or StandardEnemyDefeatHandler). Only victims that skip the stagger (stagger-immune $12 $0010, or playerFlags $0010 terrain shake) are resolved inline here: HP == 0 sets $0040 and either uses onDeathCallback or dispatches StandardEnemyDefeatHandler and sets $0400 (standard defeat flag).
+; Normal victims get HitStaggerMain spawned and are resolved later in hit_stagger_controller's HitStaggerResolveHit (HP == 0: set $0040, run onDeathCallback ($7F1004,X) or StandardEnemyDefeatHandler). Only victims that skip the stagger (stagger-immune $12 $0010, or playerFlags $0010 terrain shake) are resolved inline here: HP == 0 sets $0040 and either uses onDeathCallback or dispatches StandardEnemyDefeatHandler and sets $0400 (the actor then drops out of the interaction and attack-test passes; only these inline victims get it, a victim killed through HitStaggerResolveHit never does).
 ; 
 ; === IFRAME ASSIGNMENT ===
 ; 
@@ -207,7 +207,7 @@ RunCombatCollision {
 ; 
 ; Two-phase collision detection per enemy:
 ; 
-; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility (actors without $0400 only): bit 7 ($0080) of $10 set (role unresolved), bit 6 ($0040) clear (not dead/orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
+; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility (actors without $0400 only): bit 7 ($0080) of $10 set (hit-reaction active), bit 6 ($0040) clear (not dead/orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
 ; 
 ; Phase 2 (enemy-hits-player test): After phase 1, constructs the current enemy's AABB from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at CombatCollision_InnerLoop), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
 ; 
@@ -247,9 +247,9 @@ CombatCollision_EnemyLoop {
     INX 
     INX 
     LDA $0010, Y
-    BIT #$0400            ; $0400 set: take the phase-2 path below; clear: phase-1 test above (docs call $0400 "combat-eligible / standard defeat")
+    BIT #$0400            ; $0400 set: skip the phase-1 attack test and take the phase-2 path below (the player carries it, so does an inline-lethal victim); clear: phase-1 test above
     BEQ CombatCollision_EnemyLoop
-    BIT #$0140            ; $0140 = dead or orb-protected
+    BIT #$0140            ; $0140: a $0400 actor with either bit is not used as the outer-loop source ($0040 dead / orb-protected; $0100 = the player's vulnerable stance, set while idle)
     BNE loc_03BC26
     BIT #$0020            ; $0020 = friendly/NPC flag
     BEQ loc_03BC44
@@ -607,7 +607,7 @@ PlayerAttackHitTest {
     LDA #$&StandardEnemyDefeatHandler
     STA $00
     STZ $08
-    LDA #$0400            ; $0400 = standard defeat flag
+    LDA #$0400            ; $0400: excluded from the interaction and attack-test passes (inline-lethal path: the dying victim stops being a target)
     TSB $10
     BRA loc_03BF08
 
@@ -860,7 +860,7 @@ ApplyHitDamageToVictim_DamagePath {
     LDA #$&StandardEnemyDefeatHandler
     STA $00
     STZ $08
-    LDA #$0400
+    LDA #$0400            ; $0400: excluded from the interaction and attack-test passes (inline-lethal path: the dying victim stops being a target)
     TSB $10
     BRA loc_03C0C8
 
@@ -1204,7 +1204,7 @@ RunInteractionCollision {
     LDA $0010, Y
     BIT #$2040            ; $2040 = COP-script mode or orb → no interaction at all
     BNE InteractionCollision_Exit
-    BIT #$0280            ; $0200 game-over / $0080 iframe-active → friendly NPCs only (FriendlyMode)
+    BIT #$0280            ; $0200 ignore enemy contact (death, Aura Barrier, Spin Dash, slides, ramps) / $0080 hit-reaction active -> friendly NPCs only (FriendlyMode)
     BEQ loc_03C293
     JMP $&InteractionCollision_FriendlyMode
 
@@ -1580,7 +1580,7 @@ InteractionDamage_NPCChat {
     STA $0000, X
     STZ $0008, X
     LDA $0010, X
-    ORA #$0700
+    ORA #$0700            ; $0700: out of the interaction, attack and contact masks; the stub removes the actor on the next tick (measured for the gem pickup)
     STA $0010, X
     SEC 
     RTS 

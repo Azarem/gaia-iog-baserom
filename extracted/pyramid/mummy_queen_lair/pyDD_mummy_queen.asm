@@ -18,7 +18,7 @@
 ?INCLUDE 'pyDD_queen_spirit_attack'
 ?INCLUDE 'RandomPlayerOffset'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'SetPlayerIgnoreContactFlag'
 ?INCLUDE 'smooth_follow_child'
 ?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
@@ -495,7 +495,7 @@ code_0BA9C2 {
   loc_0BA9D5:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_0BA9F2, #00, #E0, #$2300 )
     COP [WaitByte] ( #3B )
     COP [Die]

@@ -547,7 +547,7 @@
     "PlayerAuraDescendToFloor": "Restore the saved X / Y, set $10 bit $2000 and sink: PlayerAuraScanSolidRow.",
     "PlayerAuraLandAnimLoop": "One pass of the landing slide: anim 2, +1 px per frame, then test the tile type.",
     "PlayerAuraLandComplete": "Open tile reached: clear $10 bit $0002, show frame $1C (anim $1C, no movement) and fall into PlayerAuraTransformExit.",
-    "PlayerAuraLandOnSolid": "Type $04 reached: clear $2000, set $10 bit $0002 (meaning not traced) and slide down with sprite anim 2 / Y chain 1 (+1 px per frame) until the tile type at the actor is 0.",
+    "PlayerAuraLandOnSolid": "Type $04 reached: clear $2000, set $10 bit $0002 (draw in front of all actors: SortActorsByDepth tests $0003) and slide down with sprite anim 2 / Y chain 1 (+1 px per frame) until the tile type at the actor is 0.",
     "PlayerAuraScanSolidNext": "Sink 1 px and continue next frame (JumpNextFrame).",
     "PlayerAuraScanSolidRow": "Every 16th pixel row test for terrain type $04 at the actor position; on a match land.",
     "PlayerAuraTransformEntry": "Aura (item_use_system.UseItem_Aura, Shadow standing still): lock the player, leave collision-aware movement, $10 |= $0200, body table index 8, frame 0; save X / Y in $24 / $26, align Y to a 16 px row, then search for floor (PlayerAuraAlignToSolidSouth). The terrain type $04 test below decides between the sink and an abort.",

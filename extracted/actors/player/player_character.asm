@@ -4,7 +4,7 @@
 ; 
 ; === BUTTON AND FLAG CONVENTIONS USED IN THIS FILE ===
 ; Logical button masks (after the remap): attack $0080, use-item $0008, L $0020, R $0010 (L/R together $0030), D-pad $0F00 (R $0100, L $0200, Dn $0400, Up $0800). BranchIfPressed/BranchIfNotPressed take a mask word: bit 0 clear tests joypadCurrent (held buttons minus the ones consumed in joypadHeld or hidden by joypadMaskStd), bit 0 set tests joypadRaw (no consumption, no masking). TSB joypadHeld therefore CONSUMES a button (joypadCurrent stops reporting it); it does not inject one. TSB joypadMaskStd with $CFFC hides everything except Start/Select ($3000) and bits 0-1 from joypadCurrent, D-pad included; the ladder and shimmy code reads Up/Down through joypadRaw masks such as $0801 / $0401.
-; Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared while climbing, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 set while the Psycho Slider and the lunge run, $4000 off-screen (set by sprite_composition). The meaning of $0100 and $2000 for the player is not traced.
+; Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared while climbing, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 ignore enemy contact (set while the Psycho Slider, the lunge, the Aura Barrier and the Spin Dash run, and on death), $4000 off-screen (set by sprite_composition), $0100 vulnerable stance (set by PlayerIdleEntry; while it is set the player is skipped as attacker source and enemy contact hurts it; block, attack and run-attack clear it, and in a forced run with it cleared the enemy took the hit and Will none), $2000 hidden (set on the player by StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor; cleared by SyncPlayerToCamera, by the player_transition_handlers routines that set it, and by the actor pool rebuild).
 ; 
 ; 1. CORE IDLE + WALKING (181132–181790)
 ;    PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (8 directional × Shadow variants), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.
@@ -76,7 +76,7 @@
 ; Player character actor definition table and initialization code.
 ; 
 ; The actor-def header (#00, #08, #85) defines the actor type. The inline init code:
-; 1. Sets $0100 in actor flags $10 and $0001 in $12 (meaning of both bits not traced)
+; 1. Sets $0100 in actor flags $10 and $0001 in $12 ($0100 = vulnerable stance, see the block note; the meaning of $12 $0001 is not traced)
 ; 2. Stores the current actor slot as playerActor ($09AA)
 ; 3. Sets the free101C marker to signal the player actor is active
 ; 4. Checks the game-over wakeup flag ($0AF8) — spawns DeathWakeupMessage if set
@@ -88,7 +88,7 @@ PlayerCharacterDef [
   actor-def < #00, #08, #85, {
 
   code_02C38F:
-    LDA #$0100            ; Init: set $0100 in actor flags $10 and $0001 in $12 (meaning of both bits not traced), then store the actor slot as playerActor
+    LDA #$0100            ; Init: set $0100 (vulnerable stance) in actor flags $10 and $0001 in $12 (meaning not traced), then store the actor slot as playerActor
     TSB $10
     LDA #$0001
     TSB $12
@@ -111,7 +111,7 @@ PlayerCharacterDef [
 ---------------------------------------------
 ; Main idle state entry and input dispatch loop.
 ; 
-; Clears transient state: the D-pad bits of joypadHeld ($F0FF mask, so held directions are re-detected), playerFlags $2800 (block and script/ability lock), actor flag $0020 (the block marker) and climbStateData; sets actor flag $0100 again. Returns at once when bit $2000 of actor flags $10 is set (SortActorsByDepth treats that bit as hidden; who sets it on the player is not traced).
+; Clears transient state: the D-pad bits of joypadHeld ($F0FF mask, so held directions are re-detected), playerFlags $2800 (block and script/ability lock), actor flag $0020 (the block marker) and climbStateData; sets actor flag $0100 again. Returns at once when bit $2000 of actor flags $10 is set (SortActorsByDepth treats that bit as hidden; StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor set it on the player).
 ; 
 ; Saves itself as the return point via SetSavedPtr, clears force movement. Checks for residual speed — if nonzero, jumps to MovingEastWest or MovingNorthSouth for inertial deceleration.
 ; 
@@ -124,12 +124,12 @@ PlayerIdleEntry {
     STA $joypadHeld
     LDA #$2800            ; Clear playerFlags $2800: the script/ability lock $0800 and the guard / Spin Dash stance $2000
     TRB $playerFlags
-    LDA #$0100            ; Set $0100 in actor flags $10 again: block, attack and run-attack code clear it (meaning not traced)
+    LDA #$0100            ; Set $0100 (vulnerable stance) in actor flags $10 again: block, attack and run-attack code clear it
     TSB $10
     LDA #$0020            ; Clear $0020 in actor flags $10: the marker the block loop sets (the Psycho Slider marker is $0200, cleared by RunAttackCleanup)
     TRB $10
     STZ $climbStateData   ; Zero climbStateData ($09E0), the Will ability damage bonus that the lunge sets to 1
-    LDA $10               ; Bit $2000 of $10: SortActorsByDepth skips actors with it set; idle then yields without acting (who sets it on the player is not traced)
+    LDA $10               ; Bit $2000 of $10: hidden, SortActorsByDepth skips it; idle then yields without acting (the routines that set it on the player are listed in the part note)
     BIT #$2000
     BEQ loc_02C3EE
     RTL 

@@ -296,9 +296,13 @@ if (isMainModule) {
                 case 'export': {
                     const what = args[0];
                     if (what === 'labels') {
-                        const result = exportLabels(__pkgRoot, { outDir: values['out-dir'] });
+                        const result = exportLabels(__pkgRoot, {
+                            outDir: values['out-dir'],
+                            masterLookupPath: values['master-lookup'],
+                            rebuiltOut: values['out'],
+                        });
                         console.log(`Names: ${result.names}`);
-                        console.log(`Original: ${result.original} labels -> ${result.originalPath}`);
+                        if (result.originalPath) console.log(`Original: ${result.original} labels -> ${result.originalPath}`);
                         console.log(`Rebuilt:  ${result.rebuilt} labels -> ${result.rebuiltPath}`);
                         if (result.unresolvedInRebuilt.length > 0) {
                             console.log(`Not in master-lookup (left out of the rebuilt file): ${result.unresolvedInRebuilt.length}`);
@@ -313,7 +317,7 @@ if (isMainModule) {
                             process.exit(1);
                         }
                     } else {
-                        console.error('Usage: export labels [--out-dir=<dir>] | export scenes [--out=<file>]');
+                        console.error('Usage: export labels [--out-dir=<dir>] | export labels --master-lookup=<file> --out=<file.mlb> | export scenes [--out=<file>]');
                         process.exit(1);
                     }
                     break;

@@ -198,11 +198,11 @@ Bank `$00` uses the SNES hardware multiplier/divider for movement, sine HDMA, an
 
 ## 3. Variable / Memory Map
 
-Illusion of Gaia's actor system uses a **64-byte direct-page slot per actor** (ID = slot base address, e.g. `$1FC0`) plus **WRAM extended fields** indexed by `(actor_id − $1000), X`. Global game state lives in WRAM `$0036`–`$0FFF` (direct page `$0000` when `D=$0000`).
+Illusion of Gaia's actor system uses a **48-byte (`$30`) direct-page slot per actor** (ID = slot base address, e.g. `$1210`; 84 slots, `$1000`–`$1F90`, with `$1FC0` as the pool-full sentinel) plus **WRAM extended fields** indexed by `(actor_id − $1000), X`. Global game state lives in WRAM `$0036`–`$0FFF` (direct page `$0000` when `D=$0000`).
 
 ### 3.1 Direct Page (Actor-Relative) Variables
 
-When `TCD` points at an actor slot, offsets `$00`–`$3F` address that actor's script control block. The table below covers `$00`–`$36` (55 bytes of the 64-byte slot):
+When `TCD` points at an actor slot, offsets `$00`–`$2F` address that actor's script control block. The table below covers `$00`–`$36`; the rows `$30`–`$36` lie beyond the 48-byte slot (with `D` = an actor ID they reach the first bytes of the next slot; with `D=$0000` they are the global variables, for example `$36`), so they are listed as used by the code, not as actor fields:
 
 | Address | Size | Name | Used By |
 |---------|------|------|---------|
@@ -212,7 +212,7 @@ When `TCD` points at an actor slot, offsets `$00`–`$3F` address that actor's s
 | `$08` | 2 | **Wait counter** | Frame wait/yield/halt; zeroed on spawn and climb lock |
 | `$0A`/`$0C` | 4 | **ArgPtr + script bank** | COP dispatch engine: points past opcode byte; `$0C` = return bank |
 | `$0E` | 2 | **OAM XOR flags** | Sprite priority, palette line, H/V flip XOR mask |
-| `$10` | 2 | **Actor flags word 1** | Collision priority, offscreen, spawned (`$2000`), player-hit (`$0008`), invisible (`$2200`) |
+| `$10` | 2 | **Actor flags word 1** | Collision priority, offscreen, hidden / script-driven (`$2000`), collision-aware movement (`$0008`), hidden and ignore-contact (`$2200`); all bits: `docs/wram-memory-map.md` §2.11 "Actor flag bits" |
 | `$12` | 2 | **Actor flags word 2** | Force-flip, marked-child parent (`$0040`), interact (`$1000`), push-in-progress (`$0010`) |
 | `$14` | 2 | **Position X** (pixels) | All movement, collision, camera, climb, push handlers |
 | `$16` | 2 | **Position Y** (pixels) | All movement, collision, camera, climb, push handlers |
@@ -233,7 +233,7 @@ When `TCD` points at an actor slot, offsets `$00`–`$3F` address that actor's s
 | `$34` | 2 | *(script scratch)* | Temporary staging in COP handlers |
 | `$36` | 2 | **Frame parity counter** | Global when `D=$0000`: NMI increments; sine HDMA double-buffer select |
 
-> **Note:** Offsets `$37`–`$3F` exist within the 64-byte slot but are rarely referenced directly; extended state lives in WRAM `$7F0000+`.
+> **Note:** The actor slot ends at offset `$2F`; extended state lives in WRAM `$7F0000+`, indexed by `(actor_id − $1000)`.
 
 ### 3.2 WRAM Extended Actor Fields
 

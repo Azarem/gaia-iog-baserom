@@ -168,7 +168,7 @@ Geometry note (from block comment): lateral compare is **`trigger − 8 < player
 
 All four **`SliderGlide*`** routines (**live**):
 
-1. Once: **`TSB $10`** with **`$2200`**, **`TRB $10`** with **`$0008`**.
+1. Once: **`TSB $10`** with **`$2200`** (`$2000` hidden / script-driven + `$0200` ignore enemy contact), **`TRB $10`** with **`$0008`** (simple `ApplyMovement`, no collision). The glide itself was not run in the Mesen2 sessions; the bit meanings come from other runs.
 2. **`COP [SetEntryHere]`** — multi-frame execution on the **player** slot.
 3. Move **`$14`** or **`$16`** by **±4** per frame (no collision test).
 4. Decrement **`$7F0020,X`** (`statsPtr` countdown); if non-zero → **`RTL`**.

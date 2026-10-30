@@ -52,7 +52,7 @@ flowchart TB
 
 *Evidence: [ASM] + [XREF]*
 
-**[ASM]** `PlayerIdleEntry` clears `$F0FF` from `joypadHeld`, `$2800` from `playerFlags`, actor `$0020`, and `climbStateData`; re-sets actor `$0100`. Residual `playerSpeedEw` / `playerSpeedNs` → `MovingEastWest` / `MovingNorthSouth`. Dispatch: `GetPlayerFacing` × 14 → row in `PlayerIdleDispatchTable`; scan priority attack (`joypadCurrent` `$0080`) → D-pad cardinals → L/R `$0300` → idle stand.
+**[ASM]** `PlayerIdleEntry` clears `$F0FF` from `joypadHeld`, `$2800` from `playerFlags`, actor `$0020`, and `climbStateData`; re-sets actor `$0100` (the **vulnerable stance**: while it is set enemy contact hurts the player; block, attack, Spin Dash and the run attack clear it, and with it cleared the enemy takes the hit instead). Residual `playerSpeedEw` / `playerSpeedNs` → `MovingEastWest` / `MovingNorthSouth`. Dispatch: `GetPlayerFacing` × 14 → row in `PlayerIdleDispatchTable`; scan priority attack (`joypadCurrent` `$0080`) → D-pad cardinals → L/R `$0300` → idle stand.
 
 **[XREF]** Ladder, vine, and shimmy entry points are reached from `player_move_main` tile redirects (collision types `$02`, `$08`, `$07` in movement code — not defined in `player_character.asm` alone).
 
@@ -305,7 +305,7 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02C38C` | PlayerCharacterDef | Actor-def `#00`, `#08`, `#85`. Init: `TSB $10 #$0100`, `TSB $12 #$0001`, `STA playerActor`, `STA free101C,X`. If `gameOverWakeupFlag` → `DeathWakeupMessage`. Spawns attack (before), move + slope (after), shadow (`SpawnListAppend`, `$2800`). |
+| `$02C38C` | PlayerCharacterDef | Actor-def `#00`, `#08`, `#85`. Init: `TSB $10 #$0100` (vulnerable stance), `TSB $12 #$0001` (recovery-iframe route; its effect on the player is not shown), `STA playerActor`, `STA free101C,X`. If `gameOverWakeupFlag` → `DeathWakeupMessage`. Spawns attack (before), move + slope (after), shadow (`SpawnListAppend`, `$2800`). |
 | `$02C3C8` | PlayerIdleEntry | Main idle state. Clears joypad mask/flags. Clears `$2800` from `$player_flags`. If EW/NS speed non-zero → walking (`MovingEastWest` / `MovingNorthSouth`), else → directional idle dispatch via facing + joypad. |
 | `$02C447` | PlayerIdleDispatchTable | 28-entry table (7 per facing × 4 directions). Selected by combining facing (`$24`) with joypad/action button state. |
 | `$02C47F` | IdleStandSouth | South-facing idle. Shadow variant check → sprite `#00` or `#10`. |
@@ -324,7 +324,7 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C614` | WalkAbortToIdle | `PLA` — drops return address. |
 | `$02C615` | WalkRestoreSaved | `COP [RestoreSavedPtr]`. |
 | `$02C617` | SetAutoWalkTimer | Set `$040C = $000D` (13-frame auto-walk timer). |
-| `$02C61E` | ClimbVineEntry | Actor `$0008` clear, `$0200` set; `joypadMaskStd \|= $0008` (use-item hidden). Sprites `#18`/`#19` entry, loop `#1A`/`#1B`/`#19` with `StageMoveY #07`. |
+| `$02C61E` | ClimbVineEntry | Actor `$0008` clear, `$0200` set (ignore enemy contact); `joypadMaskStd \|= $0008` (use-item hidden). Sprites `#18`/`#19` entry, loop `#1A`/`#1B`/`#19` with `StageMoveY #07`. |
 | `$02C692` | ClimbVineLand | Landing: sound `#2C`, sprite `#1C`. |
 | `$02C6AE` | CheckClimbFrame | Animation frame check. |
 | `$02C6BC` | CheckClimbAttack | Freedan climb check: if `$0AD4==1` and ability `$0040`, check attack button → drop attack. |
@@ -375,10 +375,10 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02CBE4` | SpeedThresholdNS | Shared tail: `\|speed\| >= 4` → too fast for normal attack; else CLC unless `$1000` set (SEC). |
 | `$02CBFF` | RunAttackNS | NS Psycho Slider with anim table A entry 1. |
 | `$02CC52` | RunAttackEW | EW Psycho Slider. |
-| `$02CCA5` | FreezeCameraForAttack | Clears `$0100`, sets `$0200` in `layerPriorityFlag` (`$06EE`) — freezes camera scroll. |
-| `$02CCB0` | RunAttackFlagSetup | Actor `$0200`; `joypadHeld \|= $0080`; `playerFlags \|= $0802` (bits 1 and 11). |
+| `$02CCA5` | FreezeCameraForAttack | Clears actor `$0100` (leaves the vulnerable stance), sets `$0200` in `layerPriorityFlag` (`$06EE`) — freezes camera scroll. |
+| `$02CCB0` | RunAttackFlagSetup | Actor `$0200` (ignore enemy contact); `joypadHeld \|= $0080`; `playerFlags \|= $0802` (bits 1 and 11). |
 | `$02CCC2` | UnfreezeCameraAfterAttack | Clears camera-freeze bit `$0200` from `layerPriorityFlag`. |
-| `$02CCC8` | RunAttackCleanup | Clear actor `$0200`; consume attack in `joypadHeld`; `TRB playerFlags #$0002`. |
+| `$02CCC8` | RunAttackCleanup | Clear actor `$0200` (contact damage is back); consume attack in `joypadHeld`; `TRB playerFlags #$0002`. |
 | `$02CCDA` | AttackSouth | South attack. Freedan wall-slash variant. |
 | `$02CD5B` | AttackNorth | North. |
 | `$02CDDC` | AttackWest | West. |
@@ -391,7 +391,7 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02CF28` | RangedAttackWest | Lunge west; sets `$4000` on `$12` (negate-X), sprite `#46`. |
 | `$02CF37` | RangedAttackEast | Lunge east, sprite `#47`. |
 | `$02CF4A` | RangedSetForceX | `COP [StageForceMoveX]` (`$46`). |
-| `$02CF4F` | RangedSetForceY | `COP [StageForceMoveY]` (`$46`). Sets `$0800`/`$0200`, hitbox `$0040`. |
+| `$02CF4F` | RangedSetForceY | `COP [StageForceMoveY]` (`$46`). Sets `$0800` in `playerFlags` and `$0200` (ignore enemy contact) in the actor flags during the lunge, hitbox `$0040`. |
 | `$02CF68` | ProjectileSouth | Spritemap `spriteset_darkgaia_projectile`, moves Y. |
 | `$02CF82` | ProjectileNorth | Sprites `#01`→`#05`. |
 | `$02CF9C` | ProjectileWest | X-axis. |
@@ -686,7 +686,7 @@ Checks if the player is moving fast enough for a Psycho Slider. Takes absolute v
 
 ### RunAttackNS
 
-Will's north-south Psycho Slider (running slide attack), entered when `RunAttackSpeedCheck` finds absolute `$player_speed_ns` ≥ 3. Loads ability animation table A entry 1 and sets body sprite `#04`. Positive NS speed: south slide using sprites `#0C` → `#0D` (Y force-move loop) → `#0E` finish, zeroing NS speed. Negative speed: north path via `SetForceNE` with sprites `#0F` → `#10` → `#11`. Both paths call `RunAttackFlagSetup` (sets actor `$0200`, consumes attack input, sets `$0802` on `$player_flags`), run the slide distance through `AnimLoop`, then `RunAttackCleanup` and `RestoreSavedPtr` back to idle.
+Will's north-south Psycho Slider (running slide attack), entered when `RunAttackSpeedCheck` finds absolute `$player_speed_ns` ≥ 3. Loads ability animation table A entry 1 and sets body sprite `#04`. Positive NS speed: south slide using sprites `#0C` → `#0D` (Y force-move loop) → `#0E` finish, zeroing NS speed. Negative speed: north path via `SetForceNE` with sprites `#0F` → `#10` → `#11`. Both paths call `RunAttackFlagSetup` (sets actor `$0200` = ignore enemy contact, consumes attack input, sets `$0802` on `$player_flags`), run the slide distance through `AnimLoop`, then `RunAttackCleanup` and `RestoreSavedPtr` back to idle.
 
 
 **Variables:**
@@ -766,7 +766,7 @@ East-facing melee attack — mirror of `AttackWest` with right D-pad consumed (`
 
 ### AttackInit
 
-**[ASM]** `joypadHeld = (joypadCurrent & $0F00) | $0080`; clears actor `$0100`. SFX: Will → `#01`, Freedan/Shadow → `#02` on channel 2. Each `Attack*` then `TSB joypadHeld` with its facing mask (`$0400` south, `$0800` north, etc.).
+**[ASM]** `joypadHeld = (joypadCurrent & $0F00) | $0080`; clears actor `$0100` (leaves the vulnerable stance). SFX: Will → `#01`, Freedan/Shadow → `#02` on channel 2. Each `Attack*` then `TSB joypadHeld` with its facing mask (`$0400` south, `$0800` north, etc.).
 
 
 ## Cross-File Call Graph

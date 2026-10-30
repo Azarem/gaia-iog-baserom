@@ -25,6 +25,7 @@
  *       "comments":  {
  *         "59011": "inline comment",
  *         "59015": { "text": "comment", "expect": "LDA $0A" },
+ *         "59018": { "text": "new text", "expectOld": "substring of the stored comment" },
  *         "59020": null
  *       }
  *     }
@@ -358,27 +359,46 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
             if (!/^\d+$/.test(addr)) { err(`comment key '${addr}' must be a decimal address`); continue; }
             let text: string | null;
             let expect: string | undefined;
-            if (raw !== null && typeof raw === 'object') { text = raw.text ?? null; expect = raw.expect; }
+            let expectOld: string | undefined;
+            if (raw !== null && typeof raw === 'object') { text = raw.text ?? null; expect = raw.expect; expectOld = raw.expectOld; }
             else text = raw;
             if (text !== null) text = text.trim();
             if (text === '') text = null;
 
+            const stored = stores.comments.get(addr);
             const hits = tags.get(addr);
             if (!hits) {
-                err(`comment {${addr}}: address tag not found` +
-                    (tags.size === 0 ? ' (file has no ; {address} tags; run `npm run extract:lt` first)' : ''));
-                continue;
-            }
-            if (hits.length > 1) {
-                err(`comment {${addr}}: tag appears on ${hits.length} lines (${hits.map(h => h + 1).join(', ')}); ambiguous`);
-                continue;
-            }
-            const line = lines[hits[0]];
-            const tagMatch = line.match(TAG)!;
-            const codePart = line.slice(0, tagMatch.index!).trim();
-            if (expect !== undefined && !codePart.toLowerCase().includes(expect.toLowerCase())) {
-                err(`comment {${addr}}: expected '${expect}' on line ${hits[0] + 1} but found '${codePart}'`);
-                continue;
+                // A line that already carries a comment prints no `; {address}` tag, so it cannot be located in the
+                // .asm. It can still be replaced or removed when the spec names a substring of the stored comment
+                // (`expectOld`): the stored text is the guard.
+                if (stored !== undefined && expectOld !== undefined) {
+                    if (!stored.toLowerCase().includes(expectOld.toLowerCase())) {
+                        err(`comment {${addr}}: expectOld '${expectOld}' not found in the stored comment '${stored}'`);
+                        continue;
+                    }
+                    if (expect !== undefined) warn(`comment {${addr}}: 'expect' is ignored for a line that already has a comment (no tag to locate it); use expectOld`);
+                } else {
+                    err(`comment {${addr}}: address tag not found` +
+                        (tags.size === 0 ? ' (file has no ; {address} tags; run `npm run extract:lt` first)'
+                            : stored !== undefined ? ' (the line already has a comment, so no tag is printed: add "expectOld": "<substring of the stored comment>" to replace or remove it)' : ''));
+                    continue;
+                }
+            } else {
+                if (hits.length > 1) {
+                    err(`comment {${addr}}: tag appears on ${hits.length} lines (${hits.map(h => h + 1).join(', ')}); ambiguous`);
+                    continue;
+                }
+                if (expectOld !== undefined) {
+                    err(`comment {${addr}}: expectOld given, but the line has no comment (it prints a tag); use expect`);
+                    continue;
+                }
+                const line = lines[hits[0]];
+                const tagMatch = line.match(TAG)!;
+                const codePart = line.slice(0, tagMatch.index!).trim();
+                if (expect !== undefined && !codePart.toLowerCase().includes(expect.toLowerCase())) {
+                    err(`comment {${addr}}: expected '${expect}' on line ${hits[0] + 1} but found '${codePart}'`);
+                    continue;
+                }
             }
             if (text !== null) {
                 if (/[\r\n]/.test(text)) { err(`comment {${addr}}: must be a single line`); continue; }

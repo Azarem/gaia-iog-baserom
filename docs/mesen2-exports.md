@@ -17,6 +17,8 @@ npm run rebuild -- [<extracted>] [<out.smc>] [<baserom>] [--out=<out.smc>] [--ar
 
 Every rebuild prints the output path, the **SHA-1** of the ROM, its size, the mode and the header checksum. `crc.json` now also has `mode` and `sha1` next to `checksum`, `crc` and `totalSize`.
 
+**Old artifacts (B-05).** A ROM and an `artifacts/crc.json` built before B-01 have no `mode` and no `sha1`. A session that needs the mode (for example the MCP server checking a ROM against `crc.json`) must run `npm run rebuild` again. Do the same when `extracted/` was edited after the last rebuild: the ROM, `master-lookup.json` and the label files are then out of date. After a rebuild run `npm run export -- labels` again.
+
 Both variants need their own extraction (`extract:lt` for tagged, `extract` for plain), so run the sequence once per variant:
 
 ```
@@ -27,7 +29,8 @@ npm run extract    && npm run rebuild -- extracted rebuilt/variants/plain.smc  -
 ## `npm run export -- labels`: Mesen2 `.mlb` files (B-02)
 
 ```
-npm run export -- labels [--out-dir=<dir>]      (default: artifacts/labels)
+npm run export -- labels [--out-dir=<dir>]                          (default: artifacts/labels)
+npm run export -- labels --master-lookup=<file> --out=<file.mlb>    (one file for a variant build, B-04)
 ```
 
 Reads every `db-us/names/bankNN.json` (decimal ROM offset to name) and `artifacts/master-lookup.json` (upper-cased name to hex offset in the **rebuilt** ROM; run `npm run rebuild -- --artifacts` first) and writes:
@@ -36,6 +39,14 @@ Reads every `db-us/names/bankNN.json` (decimal ROM offset to name) and `artifact
 |------|---------|----------|
 | `iog-original.mlb` | the key of the names file (the original ROM) | the original ROM (`Illusion of Gaia.smc`) |
 | `iog-rebuilt.mlb` | the offset of the name in `master-lookup.json` | the rebuilt ROM that produced that lookup |
+
+**Variant builds (B-04).** A build made with `npm run rebuild -- --artifacts-dir=temp/plain ...` has its own `master-lookup.json`. Pass it with `--master-lookup=<file>` and name the output with `--out=<file.mlb>`: only the rebuilt-ROM labels are written (to that file; the original file and `artifacts/labels` are not touched), for example
+
+```
+npm run export -- labels --master-lookup=temp/plain/master-lookup.json --out=temp/plain/iog-plain.mlb
+```
+
+Both paths are relative to the current folder. A variant ROM built without `--artifacts-dir` (or `--artifacts`) has no lookup, so no label file can be made for it: rebuild it again with `--artifacts-dir`.
 
 Lines are `SnesPrgRom:<hex offset>:<label>`. Characters Mesen2 does not accept in a label are replaced by `_` (the command reports how many). Names without a `master-lookup.json` entry are left out of the rebuilt file and listed. Regenerate both files after every names iteration and every rebuild; in the MCP server load them with `load_labels {path, replace:true}` (use one per ROM slot).
 

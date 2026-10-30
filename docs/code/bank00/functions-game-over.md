@@ -19,7 +19,7 @@ These routines implement the player death flow: halt movement, death presentatio
 | Wake-up spawn | `actors/player/player_character.asm` (player init) |
 | Warp record pointers | `system/engine/warps_interaction.asm`, `tables/scene_warps.asm` |
 
-**Naming:** All labels in the table above are extracted symbols. `SetPlayerGameOverFlag` (boss-defeat hit immunity) is a **different** routine in `functions/SetPlayerGameOverFlag.asm` — not part of this death pipeline.
+**Naming:** All labels in the table above are extracted symbols. `SetPlayerIgnoreContactFlag` (boss-defeat contact immunity) is a **different** routine in `functions/SetPlayerIgnoreContactFlag.asm` — not part of this death pipeline.
 
 **Counts:** `CheckPlayerDeath` → `StopPlayerOnDeath`: **1** JSL call site. `GameOverSequence` assignment: **1** site (`CheckPlayerDeath` writes `$0000`/`$0002` on the player actor). `DeathWakeupMessage` spawn: **1** COP site (`player_character` init). Post-death sparkle children: **3** `SpawnAfterOffsetMarked` sites in `GameOverCutsceneSprites`.
 
@@ -90,7 +90,7 @@ Warp **records** (not raw X/Y in `$0AF0`–`$0AF6`): pointer at `$0AF0` or `$0AF
 
 | Function | Address | Est. size | Movable | Call type | Role |
 |----------|---------|-----------|---------|-----------|------|
-| `StopPlayerOnDeath` | `$F3B3` | 22 B | ✓ | JSL | Zero speed/wait; actor `$10` \|= `$0200` |
+| `StopPlayerOnDeath` | `$F3B3` | 22 B | ✓ | JSL | Zero speed/wait; actor `$10` \|= `$0200` (ignore enemy contact: the dead player cannot be hit again) |
 | `GameOverSequence` | `$D62F` | 233 B | **No** | Player entry pointer from `CheckPlayerDeath` | Full death + respawn choice |
 | `DeathPaletteFadeThinker` | `$B5B3` | 13 B | ✓ | COP `SpawnThinker` | Bundles `$10` then `$0E` |
 | `GameOverCutsceneSprites` | `$D718` | 126 B | ✓ | COP `SpawnAfter` | Sparkle spawner |
@@ -107,7 +107,7 @@ Warp **records** (not raw X/Y in `$0AF0`–`$0AF6`): pointer at `$0AF0` or `$0AF
 
 Called once from `CheckPlayerDeath` when `playerHp` is zero. **Y** = player actor address. The caller has already set **`playerFlags` bit 9 (`$0200`)** and replaced the player entry with `GameOverSequence`.
 
-Zeros `playerSpeedEw` / `playerSpeedNs` (`$09B2` / `$09B4`), zeros the actor wait counter `$0008,Y`, and ORs **`$0200` into the player actor's `$0010,Y`** — a different word from `playerFlags`. Does not run fade or scene logic.
+Zeros `playerSpeedEw` / `playerSpeedNs` (`$09B2` / `$09B4`), zeros the actor wait counter `$0008,Y`, and ORs **`$0200` into the player actor's `$0010,Y`** — a different word from `playerFlags`. The actor bit is **ignore enemy contact** (`CombatCollision_InnerLoop` mask `$76E0`, interaction pass `BIT #$0280`), not a game-over marker; measured in three deaths (`$10 = $87C8` afterwards). Does not run fade or scene logic.
 
 ### Cross-References
 
@@ -238,4 +238,4 @@ Does **not** clear `playerFlags` `$0200` or actor `$10` death bits; those are ha
 
 **Verified:** Death entry assignment and JSL in `CheckPlayerDeath`; `$0AF0`–`0AF8` roles and revive vs. real-death branches in `GameOverSequence`; sparkle spawn offsets/timing; `DeathWakeupMessage` spawn condition and `characterForm` dispatch; `DeathPaletteFadeThinker` bundle IDs.
 
-**Notes:** `ComposeDigitSprites_AtCursor` is unrelated to player death (diary debug digits only). `SetPlayerGameOverFlag` sets actor `$10` `$0200` for boss sequences — same bit as `StopPlayerOnDeath` but different purpose. INIDISP fade and palette-bundle thinker run concurrently; doc separates them. Sparkle orbit ramp semantics marked inferred in source block note.
+**Notes:** `ComposeDigitSprites_AtCursor` is unrelated to player death (diary debug digits only). `SetPlayerIgnoreContactFlag` sets actor `$10` `$0200` for boss sequences — the same bit and the same effect as in `StopPlayerOnDeath` (ignore enemy contact; the routine was called `SetPlayerGameOverFlag` before the Mesen2 runs showed that the bit is not a game-over flag). Game over is bit 9 of `playerFlags`. INIDISP fade and palette-bundle thinker run concurrently; doc separates them. Sparkle orbit ramp semantics marked inferred in source block note.

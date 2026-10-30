@@ -195,7 +195,7 @@ RunActors_Normal {
 ---------------------------------------------
 ; Post-tick handler shared by Normal and CopScriptPostTick paths.
 ; 
-; Clears bit 2 ($0004) of $10 — the per-frame solid-contact flag (set by tile_collision_physics BlockH/BlockV) is reset before movement. Then checks bit 3 ($0008 of $10): if set, calls ApplyMovementWithCollision for full tile collision-aware movement; otherwise calls ApplyMovement for simple delta application. (The flag's name is unverified: docs/wram-memory-map.md calls it "player-hit"; here it only selects collision-aware movement.)
+; Clears bit 2 ($0004) of $10 — the per-frame solid-contact flag (set by tile_collision_physics BlockH/BlockV) is reset before movement. Then checks bit 3 ($0008 of $10): if set, calls ApplyMovementWithCollision for full tile collision-aware movement; otherwise calls ApplyMovement for simple delta application. (Measured: with bit 3 cleared on the player, Will walks through a wall that stops him otherwise; the bit selects collision-aware movement and is not a hit flag.)
 ; 
 ; After movement, reads $06 (next actor link). If nonzero, loops back to process the next actor. If zero (end of list), restores DP/flags via PLD/PLP/RTL.
 

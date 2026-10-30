@@ -437,7 +437,7 @@ RampPlayerClimbEast {
     LDA #$0008
     TRB $10               ; Player $10 bit 3 off: collision-aware movement disabled
     LDA #$0200
-    TSB $10               ; Player $10 bit $0200 on (reader unknown)
+    TSB $10               ; Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)
 
   loc_00D4EC:
     COP [StagePlayerMoveXY] ( #21, #10, #00 ) ; Animation $21, X chain $10 (constant -8 per frame), no Y chain
@@ -456,7 +456,7 @@ RampPlayerClimbEast {
     LDA #$0008
     TRB $10               ; Player $10 bit 3 off: collision-aware movement disabled
     LDA #$0200
-    TSB $10               ; Player $10 bit $0200 on (reader unknown)
+    TSB $10               ; Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)
 
   loc_00D50F:
     COP [StagePlayerMoveXY] ( #24, #0F, #00 ) ; Animation $24, X chain $0F (constant +8 per frame), no Y chain
@@ -473,7 +473,7 @@ RampPlayerClimbEast {
     LDA #$0008
     TRB $10               ; Player $10 bit 3 off: collision-aware movement disabled
     LDA #$0200
-    TSB $10               ; Player $10 bit $0200 on (reader unknown)
+    TSB $10               ; Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)
 
 ; Loop head of the NORTH climb: animation $1E, Y chain $10 (-8 per frame), one animation cycle per iteration; after the last iteration playerSpeedNs = $FFF8 and control is restored.
 
@@ -503,7 +503,7 @@ RampPlayerClimbSouth {
     LDA #$0008
     TRB $10               ; Player $10 bit 3 off: collision-aware movement disabled
     LDA #$0200
-    TSB $10               ; Player $10 bit $0200 on (reader unknown)
+    TSB $10               ; Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)
 
 ; Loop head of the SOUTH climb: animation $19, Y chain $0F (+8 per frame), one animation cycle per iteration; after the last iteration playerSpeedNs = $0008 and control is restored.
 

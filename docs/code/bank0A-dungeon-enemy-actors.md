@@ -89,7 +89,7 @@
 | `$0A9EBB` | `$0A9ED3` | 24 | `ir29_castoth` / `array_0A9EBB` | screen-pos | Incan Ruins |
 | `$0A9ED3` | `$0A9EEB` | 24 | `ir29_castoth` / `array_0A9ED3` | screen-pos | Incan Ruins |
 | `$0A9EEB` | `$0AA36E` | 1,155 | `ir29_castoth` / `func_0A9EEB` | Code | Incan Ruins |
-| `$0AA36E` | `$0AA37B` | 13 | `SetPlayerGameOverFlag` | Code | Shared |
+| `$0AA36E` | `$0AA37B` | 13 | `SetPlayerIgnoreContactFlag` | Code | Shared |
 | `$0AA37B` | `$0AA391` | 22 | `ir29_castoth` / `func_0AA37B` | Code | Incan Ruins |
 | `$0AA391` | `$0AA3A7` | 22 | `ir29_castoth` / `func_0AA391` | Code | Incan Ruins |
 | `$0AA3A7` | `$0AA3FD` | 86 | `EnemyPositionSnap` | Code | Shared |
@@ -182,7 +182,7 @@ $0A99D7 ├───────────────────────
         │  Actor defs, AI code, screen-pos arrays, attack logic       │
 $0AA36E ├──────────────────────────────────────────────────────────────┤
         │  SHARED UTILITY CODE                                        │
-        │  SetPlayerGameOverFlag through EnemyDefeatDispatch                            │
+        │  SetPlayerIgnoreContactFlag through EnemyDefeatDispatch                            │
 $0AA4E2 ├──────────────────────────────────────────────────────────────┤
         │  DIAMOND MINE — ACTORS & ENEMIES                            │
         │  Mine NPC laborer, elevator, breakable wall, Flayzer,       │
@@ -464,7 +464,7 @@ This is the second-largest block in the bank, with 24 individual parts.
 | `sub_0AF961`–`sub_0AFA17` | 215 | Code | Damage handling and HP check routines. |
 | `word_0AFA38`–`word_0AFA40` | 16 | Word | Grid position lookup tables (8 bytes each). |
 | `func_0AFA48`–`binary_0AFA51` | 17 | Code+Binary | Remaining combat support code and data. |
-| `func_0AFA59`–`sub_0AFB28` | 236 | Code | Male death callback (`func_0AFA59`), female death callback (`code_0AFAA0`). First kill: defeat dialogue. Second kill: spawns `SetPlayerGameOverFlag` (player hit skip) + defeat effect → `StandardEnemyDefeatHandler`. |
+| `func_0AFA59`–`sub_0AFB28` | 236 | Code | Male death callback (`func_0AFA59`), female death callback (`code_0AFAA0`). First kill: defeat dialogue. Second kill: spawns `SetPlayerIgnoreContactFlag` (player hit skip) + defeat effect → `StandardEnemyDefeatHandler`. |
 | `dialogstring_0AFB45` | 481 | DialogString | Vampire encounter dialogue — intro argument about Mystic Statue, female taunt on male death, male rage on female death. |
 
 **Phase structure:** Phase 1 = grid-based bat swarm attacks + spiral projectiles. Phase 2 (`$00F2` timer): transform anim → bat form (`$0202` flags) with erratic bouncing movement, palette thinker, directional sprite swaps. Dies off-screen or at boundaries. Flags: byte `#86`, `#87`, `#02`; word `#0177` for Neo transition.
@@ -535,7 +535,7 @@ Small utility functions and stubs shared across multiple actors or unreferenced.
 
 | Block | Size | Description |
 |-------|------|-------------|
-| `SetPlayerGameOverFlag` | 13 | **Post-boss hit skip** — Sets actor-flag bit `$0200` on the player slot's `$0010` word so `combat_collision` skips the enemy-hits-player pass (not `playerFlags` game over). Re-applies each frame while the helper actor lives. Referenced by: `mu67_vampires`, `sg55_viper`, `ir29_castoth`, `pyDD_mummy_queen`, `gw8A_sand_fanger`, `sE8_dark_gaia`. |
+| `SetPlayerIgnoreContactFlag` | 13 | **Post-boss hit skip** — Sets actor-flag bit `$0200` on the player slot's `$0010` word so `combat_collision` skips the enemy-hits-player pass (mask `$76E0`; not `playerFlags` game over). Re-applies each frame while the helper actor lives. The bit's effect was measured with a forced run (120 frames of contact, no damage); the boss-defeat sequences themselves were not run, so who clears it afterwards is not known. Referenced by: `mu67_vampires`, `sg55_viper`, `ir29_castoth`, `pyDD_mummy_queen`, `gw8A_sand_fanger`, `sE8_dark_gaia`. |
 | `EnemyPositionSnap` | 86 | **Grid-Snap Movement** — RTI target of COP `SnapToGrid`: clears hit/dodge callbacks, aligns to tile centre (X mod 16 = 8, Y mod 16 = 0), `MoveToward` `#FF`, `#01` (keep animation, 1 px/frame) until flush, then `ResumeAfterSnap`. Five script sites: `av6D_steelbones`, `ec0C_ribber`, `sg4D_cyber` (×3). |
 | `EnemyInitBasic` | 31 | **Chain Destructible Setup** — Turns the laborer's chain into a 1-HP destructible: sets `$0030` (solid+enemy) on `$12`, attaches `enemy_stats_table`, HP = 1, extended flag `$0080`. Used exclusively by `dm3F_laborer` chain spawn. |
 | `ActorMidpointCalc` | 35 | **Midpoint Position Calculator** — Averages parent (`$04`) and grandparent (`$06`) actor X/Y into current actor's `$14`/`$16`. Used for chain/tail following by: `av6E_draco` (tail segments), `mu60_plasma_chain` (chain followers), `dm3D_flayzer` (flame segments). |
@@ -581,7 +581,7 @@ Several common AI patterns recur across actors in this bank:
 | `smooth_follow_child` aimed projectile (straight line) | `pyCC_blaster`, `awB1_wall_walker`, `ec0C_ribber`, `gw8A_sand_fanger`, `pyDD_mummy_queen` (and the unused `unused_follow_chain`) |
 | `ActorMidpointCalc` midpoint following | Draco (tail), Plasma Chain (segments), Flayzer (flame segments) |
 | `EnemyDefeatDispatch` kill-count branch | Dive Bat, Fire Bug, Sand Fanger only |
-| `SetPlayerGameOverFlag` post-defeat player hit skip | Castoth, Viper, Vampires (all 3 bosses) |
+| `SetPlayerIgnoreContactFlag` post-defeat player hit skip | Castoth, Viper, Vampires (all 3 bosses) |
 | `InitSpiral`/`SpiralStep` | Vampires (spiral projectiles) |
 | Wall-following patrol | Eye Stalker, Plasma Snake, Dynapede, Nitropede |
 | Two-phase activation | Skull Chaser (harmless→revived), Knight Armor (statue→combat), Stone Guard (dormant→awake), Eye Stalker (closed→open) |
@@ -600,6 +600,6 @@ Many actors in this bank reference shared engine code:
 - `enemy_stats_table` — HP/ATK/DEF/EXP lookup
 - `table_0EE000` — metasprite frame definitions
 - `smooth_follow` — homing projectile/follower system
-- `SetPlayerGameOverFlag` — player actor `$10` bit `$0200` for combat skip after boss defeat (shared within this bank)
+- `SetPlayerIgnoreContactFlag` — player actor `$10` bit `$0200` for combat skip after boss defeat (shared within this bank)
 - `ActorMidpointCalc` — chain/tail midpoint following (shared within this bank)
 - `EnemyDefeatDispatch` — trimmed defeat path with per-kill `field_reveal_object` spawn (three enemies)

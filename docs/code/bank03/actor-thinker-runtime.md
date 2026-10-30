@@ -179,28 +179,35 @@ also serves as the Direct Page during execution.
 
 | Bit | Mask | Meaning |
 |-----|------|---------|
-| 0 | `$0001` | depth sort: always front (with bit 1 clear) |
-| 1 | `$0002` | depth sort: always behind |
+| 0 | `$0001` | depth sort: always behind (COP `SetPriorityMin`; ignored when bit 1 is set) |
+| 1 | `$0002` | depth sort: always in front of every other actor (COP `SetPriorityMax`; the landing slide in `player_transition_handlers` sets it too) |
 | 2 | `$0004` | solid-contact (set by tile collision, cleared each frame by PostTick) |
-| 3 | `$0008` | grounded — use `ApplyMovementWithCollision` instead of simple `ApplyMovement` |
-| 6 | `$0040` | orb / special state — suppresses combat collision |
-| 7 | `$0080` | iframe active (set when `iframeCounter` is nonzero) |
-| 9 | `$0200` | game-over flag (player only) |
-| 10 | `$0400` | combat-eligible / standard defeat; pause-filter pass (with bit 12) |
-| 11 | `$0800` | cutscene-active — processed by `RunActors_CutsceneOnly` |
-| 12 | `$1000` | display-active / overlay-active; pause-filter pass (with bit 10) |
-| 13 | `$2000` | COP script mode active — dispatch via indirect RTL call |
+| 3 | `$0008` | collision-aware movement — use `ApplyMovementWithCollision` instead of simple `ApplyMovement` (runtime-checked: cleared on the player, Will walks through walls) |
+| 4 | `$0010` | invincible: the hit is routed to `HitInvincibleVictim`; also suppresses the blink (code path only, no setter ran in the Mesen2 sessions) |
+| 6 | `$0040` | dead / orb state — on the player it suppresses all combat collision; set on a victim when its HP reaches 0 |
+| 7 | `$0080` | hit-reaction active (set on a victim by `ApplyHitDamageToVictim_DamagePath`, on the player by `ApplyInteractionDamage` with the 60-frame counter `$7F0028`; cleared by `RunActors_Normal`) |
+| 8 | `$0100` | player: vulnerable stance (set by `PlayerIdleEntry`, cleared by block / attack); also in the interaction and attack masks |
+| 9 | `$0200` | **ignore enemy contact** (skipped by the contact pass, mask `$76E0`; interaction pass friendly-only). Not a game-over flag (that is `playerFlags $0200`) |
+| 10 | `$0400` | excluded from the interaction (`$35C0`) and attack-test (`$36F0`) passes; set on a victim only by the inline-lethal path; drop pickups are spawned with it and clear it one step later |
+| 11 | `$0800` | cutscene-active — processed by `RunActors_CutsceneOnly`; `PrintDialogString` clears and restores it on the caller |
+| 12 | `$1000` | display-filter qualifier: with `displayModeFlags $0080` an actor runs if `$10` or `$12` has it |
+| 13 | `$2000` | hidden and script-driven: no sprite (`SortActorsByDepth` skips it), no standard movement, the script keeps running (`RunActors_Normal+45`); on the player the sprite is hidden but movement is kept |
 | 15 | `$8000` | player actor identifier |
 
 ### Secondary flag bits (`$12`)
 
 | Bit | Mask | Meaning |
 |-----|------|---------|
-| 0 | `$0001` | stagger-type iframe (assigns `$FFEF` negative counter instead of `$0011`) |
+| 0 | `$0001` | recovery-iframe route (`ApplyHitDamageToVictim_DamagePath+300` assigns `$FFEF` instead of `$0011`); set on the player at init, effect on the player not shown |
+| 1 | `$0002` | mirror lock read by `ProcessAnimFlag`; set only by scripts |
 | 2 | `$0004` | pause-filter pass (with bit 12) |
 | 3 | `$0008` | COP movement request — enables collision movement during COP mode |
-| 4 | `$0010` | damage immunity |
-| 12 | `$1000` | display/overlay filter pass |
+| 4 | `$0010` | damage / stagger immunity; the victim is resolved inline |
+| 5 | `$0020` | boss (static) |
+| 9 | `$0200` | scripted actor: the talk handler defers to the actor's script (`GlobalAmbientDeferToScript`) |
+| 12 | `$1000` | display-filter qualifier (see `$10` bit 12) |
+
+Meanings of the `$10` bits 4, 6 to 13 and the `$12` bits above that carry Mesen2 evidence are tabulated with sources in [wram-memory-map.md](../../wram-memory-map.md) §"Actor flag bits".
 
 ### Cross-references
 

@@ -492,7 +492,7 @@ Common `Word New10` values used in spawn ops (`$9A`, `$9C`, `$9E`, `$A0`–`$A4`
 | Value | Meaning |
 |-------|---------|
 | `#$1800` | Interactable + continue-during-dialogue |
-| `#$2000` | Disable render/collision (hidden helper / wait-loop actor) |
+| `#$2000` | Hidden and script-driven: no sprite (`SortActorsByDepth` skips it) and no standard movement, but its script keeps running (hidden helper / wait-loop actor) |
 | `#$2800` | `$2000` + `$0800` (hidden + keep acting in dialogue) |
 
 ### Loop counter locations

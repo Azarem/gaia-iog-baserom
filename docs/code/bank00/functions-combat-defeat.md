@@ -76,6 +76,13 @@ Victim runs StandardEnemyDefeatHandler (X = defeated actor)
 
 Kill accounting uses `SetDungeonKillFlag` (monster ID in actor data), not a generic `$7F0022` increment in this file. Bosses (`extendedFlags` `$0080`) and **no-stats** actors (`statsPtr` = start of `enemy_stats_table`) skip counters, gems, and stat rewards.
 
+**Measured (Mesen2, Diamond Mine scene `$3F`, one eye stalker and both laborers):**
+
+- **Eye stalker kill** (`currentHp` set to 1, one sword hit): the first hit sets `$10 $0080` (stagger path, `$0040` set by `HitStaggerResolveHit`); the victim runs this handler with `$10 = $00C0`, the kill counter `$0AEC` drops 24 to 23, the flash (`EnemyDeathFlash`, `$10 $0302`, `$12 $1000`) appears one frame later, and the gem takes a freed slot at frame +4 with its marked child in the victim's old slot.
+- **`$10 $0400` is not part of the normal death.** It is set on the victim only when the lethal hit resolves inline (`playerFlags $0010` set, or the victim's `$12 $0010` set): `ApplyHitDamageToVictim_DamagePath+223`. The gem is spawned with `$0420` and `DropBodyGem1+12` clears `$0400` one step later; with it forced on the gem could not be picked up (Will stood on it for 88 frames).
+- **Diamond Mine laborers** (HP 1 before the hit, `$12 $0230`, extendedFlags `$0080`): one hit kills; no `currentHp` is written. The death is inline (`$10 $05C0`), runs `EnemyDefeatBossCleanup` (flash and damage digits, no gem, `$0AEC` stays 24) and hides the actor. The Freejia kidnapper was not run.
+- **Slot reuse:** a freed slot keeps its old contents until it is reused or `InitActorPool` zeroes the pool; walk the list from `$56` to find live actors.
+
 **Gem vs stat reward are separate decisions:**
 
 - **`gemDropType`** (byte +3 of the row at `statsPtr`): `0` = never drop a currency gem; `1` / `2` / `3+` → `EnemyGemDropRouter`. Gems run only if the scene clear flag `$0300` is **already set** *or* other enemies remain (`orbitAngle` ≠ 0 after decrement).
@@ -180,6 +187,8 @@ Each path uses `COP [SpawnListAppend]` with flags `$0420`, then `JMP DefeatHideA
 ### Description
 
 **Live** — last-kill branch only. Loads `enemy_clear_reward_table[sceneCurrent]` (direct indexed byte, not a scan). If flag `$0300` already set or tier = 0, `Die` immediately. Otherwise sets `displayModeFlags` `$0080`, spawns one of `reward_actors.e_hp_increase` / `e_str_increase` / `e_def_increase` via `SpawnListAppend` (`$1000`, child `$12` `$1000`), then `Die`. Fanfare, flag `$0300`, and dialog happen inside the spawned actor / `RewardActorVFX`.
+
+**Measured (STR reward, scene `$3F`, counters forced so the kill was the last):** `displayModeFlags` goes `$0000` to `$0080` 4 frames after the victim's death and stays set for at least 120 frames; the reward actor (`$10 = $1000`, `$12 = $1000`) takes the freed slot. While the filter is on **the player does not run** (Will stayed at the same x with Right held; the entry word stayed fixed) and only 0 to 1 non-`$1000` actors moved per sample, against 0 to 10 in the control. The flash advances only with `$12 $1000` (without it it stays `$0302` until the filter ends); the reward actor runs with bit 12 in `$10` **or** `$12`. At the arrival of the pickup the filter goes from `$0080` to `$2000` (text) and the reward actor `$10` goes `$1000` to `$3000`; the text ends about 120 frames later with `displayModeFlags` back to 0. Companions were not tested (none exist in scene `$3F`).
 
 ### Algorithm
 
@@ -369,7 +378,7 @@ Item ids on collection:
 
 ### Description
 
-Immediate `COP [Die]` — one-tick despawn script. After a successful item give or dialogue interaction, `InteractionDamage_NPCChat` in `combat_collision` overwrites the NPC's entry pointer with `#$&NpcDespawnStub` / `#$*NpcDespawnStub`, zeroes its wait counter, and sets `$0700` in `$10` to block re-interaction. The NPC runs this stub on its next tick and is removed from the actor list.
+Immediate `COP [Die]` — one-tick despawn script. After a successful item give or dialogue interaction, `InteractionDamage_NPCChat` in `combat_collision` overwrites the NPC's entry pointer with `#$&NpcDespawnStub` / `#$*NpcDespawnStub`, zeroes its wait counter, and ORs `$0700` into its `$10` (`$0100`, `$0200` and `$0400` are in the interaction, contact and attack masks, so the actor is out of every collision pass and cannot be touched again). The NPC runs this stub on its next tick and is removed from the actor list. Measured on a gem pickup (the only caller seen): the entry becomes `NpcDespawnStub` and `$10` goes `$0020` to `$0720` at the pickup frame; one frame later the gem and its marked child are both out of the list (`Die` ran 6 times and `UnlinkChildrenCascade` once: `Die` cascades to marked children, it does not defer). A chest-like NPC was not run.
 
 ### Algorithm
 

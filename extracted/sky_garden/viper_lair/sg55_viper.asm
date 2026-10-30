@@ -11,7 +11,7 @@
 ?INCLUDE 'flag_helpers'
 ?INCLUDE 'hardware_math'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'SetPlayerIgnoreContactFlag'
 ?INCLUDE 'sg55_viper_arena'
 ?INCLUDE 'sprite_composition'
 ?INCLUDE 'spriteset_pickups_effects'
@@ -1100,7 +1100,7 @@ code_0AD945 {
   loc_0AD950:
     LDA #$0020
     TSB $playerFlags
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_0AD970, #00, #00, #$2300 )
     COP [WaitByte] ( #27 )
     COP [JumpFar] ( @StandardEnemyDefeatHandler )

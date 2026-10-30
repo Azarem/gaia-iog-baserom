@@ -18,7 +18,7 @@ StopPlayerOnDeath {
     STA $playerSpeedNs    ; Stop north-south movement
     STA $0008, Y          ; Zero the actor's wait counter ($08) so GameOverSequence runs on the next tick
     LDA $0010, Y          ; Actor flag word $10
-    ORA #$0200            ; Set actor bit $0200 (not the playerFlags game-over bit; no reader of this actor bit found)
+    ORA #$0200            ; Set actor bit $0200 (not the playerFlags game-over bit): the dead player ignores enemy contact (CombatCollision_InnerLoop mask $76E0)
     STA $0010, Y
     RTL                   ; Return to CheckPlayerDeath
 }

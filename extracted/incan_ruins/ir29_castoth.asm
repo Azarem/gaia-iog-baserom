@@ -18,7 +18,7 @@
 ?INCLUDE 'flag_helpers'
 ?INCLUDE 'player_transition_handlers'
 ?INCLUDE 'sE6_gaia'
-?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'SetPlayerIgnoreContactFlag'
 ?INCLUDE 'spriteset_pickups_effects'
 ?INCLUDE 'StandardEnemyDefeatHandler'
 
@@ -309,7 +309,7 @@ func_0A9C1E {
     STA $0000, Y
     LDA #$0000
     STA $0008, Y
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_0A9C8E, #00, #00, #$2000 )
     COP [WaitByte] ( #3B )
     COP [SetMetasprite] ( @spriteset_pickups_effects )

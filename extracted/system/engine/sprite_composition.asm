@@ -567,7 +567,7 @@ DecomposeActorMetasprites {
     LDA $0010, X          ; Check actor flags for visibility and iframe state
     BIT #$0080            ; $0080: iframe/hit-reaction active (ApplyPlayerHitstun sets it with the counter) — if clear, skip the blink
     BEQ loc_03C896
-    BIT #$0010            ; $0010 (bit 4 of $10): suppresses the blink; meaning not traced (damage immunity is bit 4 of $12, a different word)
+    BIT #$0010            ; $0010 (bit 4 of $10): suppresses the blink and routes a hit to HitInvincibleVictim (no runtime setter seen; $12 bit 4 is the separate immunity)
     BNE loc_03C896
     BIT #$0400            ; No-op test: both outcomes continue at the iframe check below
     BNE loc_03C885

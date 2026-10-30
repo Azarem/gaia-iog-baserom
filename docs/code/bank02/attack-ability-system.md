@@ -107,8 +107,8 @@ Attack/ability companion actor, spawned before the movement controller via `Spaw
 | `$02B946` | ValidateAttackContinue | `playerFlags & $2B00` → same abort path. |
 | `$02B94F` | SavePlayerPosition | Copies the player actor's `$14`/`$16` into DP `$14`/`$16`. |
 | `$02B95D` | CheckAttackChargeable | Carry set unless `playerFlags` `$8000` is clear **and** the player body animation index at `+$28` is `0`–`3` or `$10`–`$13`. |
-| `$02B97F` | AuraBarrierMain | Sets actor `$10` `$0200`, `playerFlags` `$0800`; spawns `AuraVramDmaLoader`; waits for the DMA; copies palette; cast pose; spawns `AuraBarrierPaletteFX` and `AuraOrbitalSpawner`. |
-| `$02B9FC` | AuraBarrierEnd | Clears actor `$10` `$0200`, `RestoreSavedPtr` if `retPtr1` is set, `JMP PlayerIdleEntry`. |
+| `$02B97F` | AuraBarrierMain | Sets actor `$10` `$0200` (Will ignores enemy contact while the barrier is active; measured: forced on, 120 frames of contact did no damage), `playerFlags` `$0800`; spawns `AuraVramDmaLoader`; waits for the DMA; copies palette; cast pose; spawns `AuraBarrierPaletteFX` and `AuraOrbitalSpawner`. |
+| `$02B9FC` | AuraBarrierEnd | Clears actor `$10` `$0200` (Will can be hit again), `RestoreSavedPtr` if `retPtr1` is set, `JMP PlayerIdleEntry`. |
 | `$02BA0C` | AuraVramDmaLoader | `AdhocVramDma(misc_fx_1CC480 → VRAM $4400, $0600 bytes)`, `Die`. |
 | `$02BA17` | AuraOrbitalSpawner | Spawns 2 (4 if `$0B1E` nonzero) `AuraProjectileChild` actors; orbit loop. |
 | `$02BABD` | UpdateOrbitalPositions | Walks the children, `ApplyOrbitalOffsetFromRef` per child. |
@@ -156,7 +156,7 @@ Attack/ability companion actor, spawned before the movement controller via `Spaw
 | `$02C199` | SpinDashLaunch | Pass count → `loopCounter`; `LoadAbilityDamageA(1)`; frame `#1D` loop; clears `$0002`; D-pad direction dispatch. |
 | `$02C1BE` | SpinDashDirEW | Left (`$0200`) → player sprite `#02`, else `#03`. |
 | `$02C1D0` | SpinDashDirNS | Up (`$0800`) → player sprite `#01`, else `#00`. |
-| `$02C1E4` | SpinDashAbort | Clears actor `$10` `$0200`, `RestoreSavedPtr`. |
+| `$02C1E4` | SpinDashAbort | Clears actor `$10` `$0200` (ignore enemy contact, set by `SpinDashMain` while the projectile is guided), `RestoreSavedPtr`. |
 | `$02C1EB` | SpinDashChargeTick | One charge-level decrement per fresh L/R press (alternating by parity of `$26`). |
 | `$02C21C` | KillSpawnedProjectile | `MarkDeath` on the actor id in `orbitDiameter,X` (then zeroes it). |
 | `$02C232` | GuidedProjectileActor | Priority `#30`, metasprite `spriteset_pickups_effects`, D-pad steering with sprites `#3A`–`#3D`, neutral `#39`. |
@@ -229,7 +229,7 @@ Inferred: the file's comments describe this as protection against charging durin
 
 #### AuraBarrierMain
 
-Player-actor entry after `LaunchAuraBarrier`. Sets actor `$10` `$0200` and `playerFlags` `$0800` (script/ability lock), spawns `AuraVramDmaLoader`, and exits to `AuraBarrierEnd` if the spawn returned the pool-exhausted sentinel `Y = $1FC0`. It then waits until the adhoc VRAM DMA destination (`$7F0C07`) is no longer `$4400` (a bounded 8-iteration wait if the actor's Y word `$16` is `$0020`, an unbounded per-frame wait otherwise), copies 7 palette words from `fx_palette_198090` to CGRAM `$A9`, sets body sprite `#06`, plays the cast frames, spawns `AuraBarrierPaletteFX` (id stored in `orbitDiameter,X`), plays sprite `#03` twice, **clears the attack-request bit `$0001`** in `playerFlags`, spawns `AuraOrbitalSpawner` at offset (0, −16), plays sprite `#03` ten times and calls `KillSpawnedProjectile` (which kills the palette FX actor). Control then falls into `AuraBarrierEnd`.
+Player-actor entry after `LaunchAuraBarrier`. Sets actor `$10` `$0200` (**ignore enemy contact**: `CombatCollision_InnerLoop` skips the actor under mask `$76E0`, so the barrier makes Will immune to contact while it is active) and `playerFlags` `$0800` (script/ability lock), spawns `AuraVramDmaLoader`, and exits to `AuraBarrierEnd` if the spawn returned the pool-exhausted sentinel `Y = $1FC0`. It then waits until the adhoc VRAM DMA destination (`$7F0C07`) is no longer `$4400` (a bounded 8-iteration wait if the actor's Y word `$16` is `$0020`, an unbounded per-frame wait otherwise), copies 7 palette words from `fx_palette_198090` to CGRAM `$A9`, sets body sprite `#06`, plays the cast frames, spawns `AuraBarrierPaletteFX` (id stored in `orbitDiameter,X`), plays sprite `#03` twice, **clears the attack-request bit `$0001`** in `playerFlags`, spawns `AuraOrbitalSpawner` at offset (0, −16), plays sprite `#03` ten times and calls `KillSpawnedProjectile` (which kills the palette FX actor). Control then falls into `AuraBarrierEnd`.
 
 #### AuraOrbitalSpawner
 
@@ -362,7 +362,7 @@ Starts at `$26 = $0F`. If `$26` is **odd**, a fresh L press (`$0020` in `joypadC
 
 #### SpinDashDirEW / SpinDashDirNS / SpinDashAbort
 
-`SpinDashDirEW`: left (`$0200`) → player sprite `#02`, otherwise `#03`. `SpinDashDirNS`: up (`$0800`) → `#01`, otherwise `#00`. Both play one frame and fall into `SpinDashAbort`, which clears actor `$10` `$0200` and runs `RestoreSavedPtr`.
+`SpinDashDirEW`: left (`$0200`) → player sprite `#02`, otherwise `#03`. `SpinDashDirNS`: up (`$0800`) → `#01`, otherwise `#00`. Both play one frame and fall into `SpinDashAbort`, which clears actor `$10` `$0200` (end of "ignore enemy contact") and runs `RestoreSavedPtr`.
 
 ### Guided Projectile & Palette FX
 

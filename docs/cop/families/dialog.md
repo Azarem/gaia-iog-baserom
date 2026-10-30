@@ -14,7 +14,7 @@ Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the d
 - `$0656` / `$0658` — `joypadCurrent` / `joypadHeld`; after `$BF` the restored `joypadMaskStd` is re-applied to `joypadCurrent` (`TRB`) and the D-pad bits (`$0F00`) are cleared in `joypadHeld`; after `$6B` only the `joypadHeld` D-pad bits are cleared
 - `$065A` (`joypadMaskStd`) — zeroed during text/menu; restored on exit
 - `$065C` (`joypadMaskInv`) — `$BE` sets **`$0F00`** (the D-pad buttons) as the auto-repeat buttons while the menu is open, and clears it on exit
-- Actor `$10` bit `$0800` (cutscene-active) — saved and cleared during `$BF`/`$6B`/`$BE` so `RunActors_CutsceneOnly` does not re-run the actor while the renderer runs its frame updates (reason inferred), then restored; not a status bar flag
+- Actor `$10` bit `$0800` (cutscene-active) — saved and cleared during `$BF`/`$6B`/`$BE` so `RunActors_CutsceneOnly` does not re-run the actor while the renderer runs its frame updates, then restored (measured: with the bit forced back on while `displayModeFlags $2000` was set, the calling actor was re-run mid-COP and `PrintDialogString` ran 7 times in 12 frames instead of once; in the natural hideout cutscene the calling actor does not carry the bit, so the clear did nothing there); not a status bar flag
 - `$09EC` (`displayModeFlags`) — bit 13 (`$2000`) is set during `$BF`/`$BE` and cleared afterwards (no reader of this bit was found); `$BD` sets bit **`$0001`** (request a full BG3 staging-buffer upload)
 - `MenuSelectionHandler` — choice UI; returns index in **A**
 - `DialogStringRenderer` — wide-string bytecode interpreter (`extracted/system/engine/DialogStringRenderer.asm`)

@@ -369,7 +369,7 @@ CheckAttackChargeable {
 }
 
 AuraBarrierMain {
-    LDA #$0200            ; Set bit 9 ($0200) in actor flags — marks ability FX active on this actor
+    LDA #$0200            ; Set bit 9 ($0200) in actor flags: Will ignores enemy contact while the Aura Barrier is active (CombatCollision_InnerLoop mask $76E0)
     TSB $10
     LDA #$0800            ; Set bit 11 ($0800) in player flags — script/ability lock (Aura Barrier active)
     TSB $playerFlags
@@ -416,7 +416,7 @@ AuraBarrierMain {
 }
 
 AuraBarrierEnd {
-    LDA #$0200            ; Clear ability FX flag ($0200) from actor flags
+    LDA #$0200            ; Clear $0200: the Aura Barrier ends and Will can be hit again
     TRB $10
     LDA $retPtr1, X       ; Check for saved return pointer — restore if one exists
     BEQ loc_02BA09
@@ -1302,7 +1302,7 @@ PsychoDashTrailEast {
     JSR $&LoadAbilityDamageA
     LDA #$0100            ; Clear bit 8 ($0100) from actor flags — end charge visual state
     TRB $10
-    LDA #$0200            ; Set bit 9 ($0200) — guided projectile active state marker
+    LDA #$0200            ; Set bit 9 ($0200): Will ignores enemy contact while the Spin Dash projectile is guided
     TSB $10
     COP [SpawnListAppend] ( @GuidedProjectileActor, #00, #00, #$0302 ) ; Spawn GuidedProjectileActor at player position with special flags $0302
     TYA                   ; Store projectile actor ID in orbitDiameter for later cleanup
@@ -1415,7 +1415,7 @@ SpinDashDirNS {
 }
 
 SpinDashAbort {
-    LDA #$0200            ; Clear bit 9 ($0200) — end guided projectile state
+    LDA #$0200            ; Clear bit 9 ($0200): contact damage is back (SpinDashAbort)
     TRB $10
     COP [RestoreSavedPtr]
 }

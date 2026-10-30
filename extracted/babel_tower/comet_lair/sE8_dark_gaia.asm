@@ -16,7 +16,7 @@
 ?INCLUDE 'oneshot_palette_flash_19'
 ?INCLUDE 'player_character'
 ?INCLUDE 'sE8_comet_display_config'
-?INCLUDE 'SetPlayerGameOverFlag'
+?INCLUDE 'SetPlayerIgnoreContactFlag'
 ?INCLUDE 'smooth_follow'
 ?INCLUDE 'spriteset_pickups_effects'
 
@@ -332,7 +332,7 @@ code_0CF154 {
     COP [SetFlagByte] ( #04 )
     LDA #$FFFC
     TSB $joypadMaskStd
-    COP [SpawnListAppend] ( @SetPlayerGameOverFlag, #00, #00, #$2000 )
+    COP [SpawnListAppend] ( @SetPlayerIgnoreContactFlag, #00, #00, #$2000 )
     COP [SpawnListAppend] ( @code_0CF201, #00, #E0, #$2300 )
     COP [SpawnListAppend] ( @code_0CF1CE, #00, #00, #$0300 )
     COP [SpawnListAppend] ( @code_0CF1DF, #00, #00, #$0300 )

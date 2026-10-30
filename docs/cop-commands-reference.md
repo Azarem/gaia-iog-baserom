@@ -802,7 +802,7 @@ Link helpers:
 
 **`New10` flags** (common values from prologue/cutscenes):
 - `#$1800` — interactable + continue-during-dialogue
-- `#$2000` — disable render/collision (hidden helper / wait-loop actor)
+- `#$2000` — hidden and script-driven: no sprite and no standard movement, the script keeps running (hidden helper / wait-loop actor)
 - `#$2800` — `$2000` + `$0800` (hidden + keep acting in dialogue)
 
 ```asm

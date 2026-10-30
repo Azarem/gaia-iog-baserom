@@ -930,7 +930,7 @@
         "ApplyOrbitalOffsetFromRef": { "start": 62409, "end": 62504, "type": "Code", "movable": true },
         "ApplyOrbitalOffsetXY": { "start": 62514, "end": 62607, "type": "Code", "movable": true },
         "ActorDisplayModeSwap": { "start": 440818, "end": 440841, "type": "Code", "movable": true },
-        "SetPlayerGameOverFlag": { "start": 697198, "end": 697211, "type": "Code", "movable": true },
+        "SetPlayerIgnoreContactFlag": { "start": 697198, "end": 697211, "type": "Code", "movable": true },
         "EnemyPositionSnap": { "start": 697255, "end": 697341, "type": "Code", "movable": true },
         "EnemyInitBasic": { "start": 697341, "end": 697372, "type": "Code", "movable": true },
         "ActorMidpointCalc": { "start": 697372, "end": 697407, "type": "Code", "movable": true },

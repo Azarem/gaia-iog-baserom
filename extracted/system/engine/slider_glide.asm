@@ -9,7 +9,7 @@
 ; Slide axis: exact pixel equality with the trigger (X for the West/East triggers, Y for the North/South triggers). Lateral axis: a 32-pixel window, trigger - 7 .. trigger + $18 inclusive (compare is trigger - 8 < player <= trigger - 8 + $20).
 ; 
 ; === The glide ===
-; On a hit the trigger overwrites the player's entry pointer ($00/$02 of the player actor) with the matching SliderGlide routine and calls LockPlayerForClimb: $0E (the spawn record's type byte >> 1, InitActorFromSceneData mode 1) x 4 is stored as a frame countdown in the PLAYER's statsPtr ($7F0020), the player's velocity words are zeroed, D-pad input is masked (joypadMaskStd $0F00) and playerFlags $0800 is set. The player actor then runs that routine: once, $10 |= $2200 ($2000 = script-driven actor path, $0200 = slide-active flag that RunAttackFlagSetup also sets; its reader is unknown) and $10 bit $0008 (collision-aware movement) is cleared; then every frame the player's X or Y is changed by 4 px directly (no collision test) until the countdown reaches 0: 4 x $0E frames = 16 px per $0E unit (a $0E of 0 would run 65,536 frames). There is no animation during the glide; the slide's looping frame stays on screen.
+; On a hit the trigger overwrites the player's entry pointer ($00/$02 of the player actor) with the matching SliderGlide routine and calls LockPlayerForClimb: $0E (the spawn record's type byte >> 1, InitActorFromSceneData mode 1) x 4 is stored as a frame countdown in the PLAYER's statsPtr ($7F0020), the player's velocity words are zeroed, D-pad input is masked (joypadMaskStd $0F00) and playerFlags $0800 is set. The player actor then runs that routine: once, $10 |= $2200 ($2000 = script-driven actor path, $0200 = ignore-enemy-contact flag (CombatCollision_InnerLoop mask $76E0) that RunAttackFlagSetup also sets) and $10 bit $0008 (collision-aware movement) is cleared; then every frame the player's X or Y is changed by 4 px directly (no collision test) until the countdown reaches 0: 4 x $0E frames = 16 px per $0E unit (a $0E of 0 would run 65,536 frames). There is no animation during the glide; the slide's looping frame stays on screen.
 ; Landing: clear $2000, stage the FINISH frame of the same slide ($14 west, $17 east, $11 north, $0E south), AnimOnce, then UnlockPlayerAfterClimb. That routine does what RunAttackCleanup does (clear $0200, consume the attack bit in joypadHeld, clear playerFlags $0002) plus clearing climbStateData ($09E0, in fact the ability damage bonus that attack_ability_system sets for the slide), re-enabling collision-aware movement and un-masking joypadMaskStd, then RestorePlayerControl returns the player to PlayerIdleEntry.
 ; 
 ; db-us/transforms.json (slider_glide) rewrites two vanilla constants: the attack-bit immediate (the vanilla ROM has a different bit, $0080 here after the button remap) and the joypadMaskStd consumption mask (ends in $FC here instead of the vanilla $F0). Comments here describe the post-transform values. Block is marked non-movable because of the tight $& coupling between triggers and climb handlers.
@@ -277,7 +277,7 @@ IsPlayerSliderSpriteBank {
 ; Player-side glide for a west slide: entry flags once ($10 |= $2200, bit $0008 cleared), then X -4 per frame while the statsPtr countdown runs; at 0 it leaves script-driven mode, stages the west slide's finish frame $14 and calls UnlockPlayerAfterClimb.
 
 SliderGlideWest {
-    LDA #$2200            ; Once on entry: $2000 = script-driven actor path, $0200 = slide-active flag (also set by RunAttackFlagSetup; reader unknown)
+    LDA #$2200            ; Once on entry: $2000 = script-driven actor path, $0200 = ignore enemy contact (also set by RunAttackFlagSetup)
     TSB $10
     LDA #$0008            ; Clear $10 bit $0008 (collision-aware movement) for the glide; UnlockPlayerAfterClimb sets it again
     TRB $10
@@ -305,7 +305,7 @@ SliderGlideWest {
 ; Player-side glide for an east slide: X +4 per frame; finish frame $17.
 
 SliderGlideEast {
-    LDA #$2200            ; Once on entry: script-driven path + slide-active flags (same as SliderGlideWest)
+    LDA #$2200            ; Once on entry: script-driven path ($2000) + ignore enemy contact ($0200), same as SliderGlideWest
     TSB $10
     LDA #$0008
     TRB $10
@@ -333,7 +333,7 @@ SliderGlideEast {
 ; Player-side glide for a north slide: Y -4 per frame (up the screen); finish frame $11.
 
 SliderGlideNorth {
-    LDA #$2200            ; Once on entry: script-driven path + slide-active flags (same as SliderGlideWest)
+    LDA #$2200            ; Once on entry: script-driven path ($2000) + ignore enemy contact ($0200), same as SliderGlideWest
     TSB $10
     LDA #$0008
     TRB $10
@@ -361,7 +361,7 @@ SliderGlideNorth {
 ; Player-side glide for a south slide: Y +4 per frame (down the screen); finish frame $0E.
 
 SliderGlideSouth {
-    LDA #$2200            ; Once on entry: script-driven path + slide-active flags (same as SliderGlideWest)
+    LDA #$2200            ; Once on entry: script-driven path ($2000) + ignore enemy contact ($0200), same as SliderGlideWest
     TSB $10
     LDA #$0008
     TRB $10
@@ -416,7 +416,7 @@ UnlockPlayerAfterClimb {
     TRB $joypadMaskStd
     LDA #$0008            ; $10 bit $0008 = collision-aware movement back on
     TSB $10
-    LDA #$0200            ; Clear $0200 (the slide-active flag set by RunAttackFlagSetup)
+    LDA #$0200            ; Clear $0200 (ignore enemy contact, set by RunAttackFlagSetup)
     TRB $10
     LDA #$0080            ; Consume the attack press in joypadHeld (the bit differs from the vanilla ROM after the button remap) so no new attack starts on exit
     TSB $joypadHeld
@@ -441,7 +441,7 @@ RestorePlayerControl {
     STA $002E, X
     STA $0008, X
     LDA $0010, X
-    AND #$FDFF            ; Clear $0200 (slide-active flag) from the player's status word
+    AND #$FDFF            ; Clear $0200 (ignore enemy contact) from the player's status word
     ORA #$0008            ; Set $0008 (collision-aware movement) in the status word
     STA $0010, X
     LDA #$0F00            ; Unmask D-pad ($0F00) in joypadMaskStd

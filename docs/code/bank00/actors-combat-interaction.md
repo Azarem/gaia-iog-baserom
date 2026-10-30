@@ -138,7 +138,7 @@ The block spans 7 linked parts with internal `$&` references. `HitStaggerMain` r
 | `$7F101C` (`free101C`) | Knockback **tier** on child (0 = 48 px curve, ≥1 = 32 px; player tier 1) |
 | `$28` (child) | Direction code from spawner (not iframe timer) |
 | `$7F002A` (`extendedFlags`) | Victim bit `$0020` = skip collision-checked movement on child |
-| `$10` (child) | Bit `$0008` = collision-checked move; bit `$0400` = player victim |
+| `$10` (child) | Bit `$0008` = collision-checked move; bit `$0400` = player victim (the same bit keeps the helper out of the interaction `$35C0` and attack-test `$36F0` masks; not run in the Mesen2 sessions) |
 | `$2C`, `$2E` | Delta chain heads (from `move_chain_table`) |
 | `$26` | Axis: 0 = Y knockback, 1 = X |
 | `move_chain_table` | Global delta-chain table (`extracted/tables/move_chain_table.asm`); entries `$22` / `$23` for stagger |

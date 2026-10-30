@@ -60,8 +60,8 @@ Sort key by actor flags (`$10`):
 |-----------|-----|
 | bit 13 (`$2000`) hidden | skipped |
 | bits 0+1 (`$0003`) both clear | Y-based key (screen Y inverted via `EOR`, `ASL`) |
-| bit 0 only (`$0001`) | fixed `$01FE` — always front |
-| bit 1 (`$0002`) | fixed `$0000` — always behind |
+| bit 0 only (`$0001`, COP `SetPriorityMin`) | fixed `$01FE` — emitted last, highest OAM index: drawn behind every other actor |
+| bit 1 (`$0002`, COP `SetPriorityMax`) | fixed `$0000` — emitted first, OAM index 0: drawn in front of every other actor; wins when both bits are set. `SetPriorityMax` ran 12 times in the Mesen2 sessions and `SortActorsByDepth+82` (`BIT #$0003`) was the only reader of bits 0 and 1 seen (116,438 reads) |
 
 `BuildFinalList` reads the buckets front-to-back (`PLY`, SP = `$01FF`), producing
 the sorted list at `$0C00`.
