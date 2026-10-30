@@ -272,8 +272,8 @@ flag, flipping hitbox X (BCS path negates offsets).
   `enemyHP = max(0, enemyHP − damage)`.
 - Phase-2 hit (`ApplyHitDamageToVictim`, uses the player's strength and reduces
   the overlapped actor's HP):
-  `totalStr = playerStr + bonus + climbStateData` — `bonus` is `$09E2`
-  (`climbStateData+2`) and is 0 when the hitter (ZP `$08`) is actor slot `$1000`;
+  `totalStr = playerStr + rangedDamageBonus + abilityDamageBonus` —
+  `rangedDamageBonus` is `$09E2` and is 0 when the hitter (ZP `$08`) is actor slot `$1000`;
   `rawDamage = max(1, totalStr − victimStats[2])` (stats[2] = victim DEF);
   `netDamage = rawDamage + characterForm`.
 - Actor touches player (`ApplyInteractionDamage`):
@@ -337,12 +337,12 @@ next calculation.
 ### Ability bonus bytes (`$09E0` / `$09E2`)
 
 `ApplyHitDamageToVictim` damage formula:
-`totalStr = playerStr($0ADE) + bonus + climbStateData($09E0)`, where `bonus` is
-`climbStateData+2` (`$09E2`) and is 0 when the hitter (ZP `$08`) is actor slot `$1000`.
-`$09E0` holds the byte loaded by `LoadAbilityDamageA` (Will); `$09E2` holds
-Freedan's table byte from `LoadAbilityDamageB`. The lunge combo sets `$09E0 = 1`
-for extra effective STR — the mnemonic name `climbStateData` is misleading: this is
-an ability damage bonus, not a climb or elevation flag.
+`totalStr = playerStr($0ADE) + rangedDamageBonus($09E2) + abilityDamageBonus($09E0)`;
+`rangedDamageBonus` is 0 when the hitter (ZP `$08`) is actor slot `$1000` (the player).
+`abilityDamageBonus` holds the byte loaded by `LoadAbilityDamageA` (Will); `rangedDamageBonus` holds
+Freedan's table byte from `LoadAbilityDamageB`. The lunge combo sets `abilityDamageBonus = 1`
+for extra effective STR. (`$09E0` was named `climbStateData` and `$09E2` `climbStateData+2` until
+the mnemonics were renamed: they are damage bonuses, not climb or elevation state.)
 
 ### Friendly-mode behavior
 

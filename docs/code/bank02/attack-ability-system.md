@@ -78,7 +78,7 @@ WillAttackDispatch                         ; reached for characterForm 0 AND 1
 
 **[ASM] Palette FX.** The charge FX actors tint the 15 colors at CGRAM `$81`–`$8F`: `WillAttackPaletteFX` plays bundle `#2A` twice (62 ticks per pass) then `#2B` forever (14 ticks per pass); `FreedanAttackPaletteFX` plays `#4B` twice (50 ticks per pass) then `#2C` forever (16 ticks per pass). `AttackCleanup` kills the actor and restores the colors with the single-frame bundles `#0B` (Will) / `#0C` (Freedan). `AuraBarrierPaletteFX` loops bundle `#5B` (8 colors at CGRAM `$A1`–`$A8`, 16 ticks per cycle).
 
-**[ASM] Ability levels and damage.** `LoadAbilityDamageA/B` do **not** load sprite or hitbox data. Each record in [`ability_damage_tables.asm`](../../../extracted/tables/ability_damage_tables.asm) is `{ word $0000, word pointer to the ability's upgrade-level word, one damage byte per level }`; the loader reads the level from that WRAM word and stores `record[4 + level]` into `climbStateData` (`$09E0`, Will) or `$09E2` (Freedan), the damage bonus that `combat_collision` adds to hit strength (see [LoadAbilityDamageA / B](#loadabilitydamagea)). Level words: `$0B16` Psycho Dash, `$0B18` Psycho Slider, `$0B1A` Spin Dash, `$0B1C` Dark Friar, `$0B1E` Aura Barrier, `$0B20` Earthquaker.
+**[ASM] Ability levels and damage.** `LoadAbilityDamageA/B` do **not** load sprite or hitbox data. Each record in [`ability_damage_tables.asm`](../../../extracted/tables/ability_damage_tables.asm) is `{ word $0000, word pointer to the ability's upgrade-level word, one damage byte per level }`; the loader reads the level from that WRAM word and stores `record[4 + level]` into `abilityDamageBonus` (`$09E0`, Will) or `rangedDamageBonus` (`$09E2`, Freedan), the damage bonus that `combat_collision` adds to hit strength (see [LoadAbilityDamageA / B](#loadabilitydamagea)). Level words: `$0B16` Psycho Dash, `$0B18` Psycho Slider, `$0B1A` Spin Dash, `$0B1C` Dark Friar, `$0B1E` Aura Barrier, `$0B20` Earthquaker.
 
 **[INFERRED]** Gameplay-level labels such as "charge-and-launch flow", "Shadow cannot attack" and the player-facing names of abilities come from the file's naming and comments; the asm only shows that form `>= 2` returns before the attack test.
 
@@ -168,7 +168,7 @@ Attack/ability companion actor, spawned before the movement controller via `Spaw
 | `$02C315` | FreedanAttackPaletteFX | Bundle `#4B` ×2, then `#2C` forever. |
 | `$02C322` | AuraBarrierPaletteFX | Bundle `#5B` forever. |
 | `$02C329` | RecomputeProjectilePos | `$14`/`$16` = player position + stored `$7F100C/E,X` offset. |
-| `$02C33E` | LoadAbilityDamageA | Will: `will_ability_damage_table` → `climbStateData` (`$09E0`). |
+| `$02C33E` | LoadAbilityDamageA | Will: `will_ability_damage_table` → `abilityDamageBonus` (`$09E0`). |
 | `$02C365` | LoadAbilityDamageB | Freedan: `freedan_ability_damage_table` → `$09E2`. |
 
 ### Attack Dispatch & Entry
@@ -378,7 +378,7 @@ Sets DP `$14`/`$16` to the player position plus the stored `$7F100C/E,X` offset.
 
 #### LoadAbilityDamageA / B
 
-`LoadAbilityDamageA` (Will, `will_ability_damage_table` at ROM `121255`) and `LoadAbilityDamageB` (Freedan, `freedan_ability_damage_table` at `121279`) take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store `record[4 + level]` in `climbStateData` (`$09E0`, Will) or `$09E2` (Freedan). Values by level:
+`LoadAbilityDamageA` (Will, `will_ability_damage_table` at ROM `121255`) and `LoadAbilityDamageB` (Freedan, `freedan_ability_damage_table` at `121279`) take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store `record[4 + level]` in `abilityDamageBonus` (`$09E0`, Will) or `rangedDamageBonus` (`$09E2`, Freedan). Values by level:
 
 | Index | Will | Level word | Damage by level | Freedan | Level word | Damage by level |
 |---|---|---|---|---|---|---|

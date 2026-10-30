@@ -868,11 +868,11 @@ DmaRowStrip {
 ---------------------------------------------
 ; Uploads the BG3 tilemap staging buffer (bg3TilemapBuffer, WRAM $7F0200) to the BG3 tilemap in VRAM during V-Blank. BG3SC is initialised to $78, so VRAM $7800 is the BG3 tilemap (32×32 words = $0800 bytes), not sprite graphics; the buffer is the one the console string renderer writes. Called every NMI from system_core.
 ; 
-; First checks hudDisableFlag ($09ED) bit 7 — if set, the upload is suppressed (returns immediately). Then checks displayModeFlags ($09EC) for bits $31 — if none are set, nothing is pending.
+; First checks hudDisableFlag ($09ED) bit 7 — if set, the upload is suppressed (returns immediately): the request bits stay pending and the upload runs in the first NMI after the bit is cleared (measured). No instruction sets this bit; the PAUSE path of GlobalInputHandler clears it. Then checks displayModeFlags ($09EC) for bits $31 — if none are set, nothing is pending.
 ; 
 ; Two transfer modes based on flag bits:
 ; 1. Bit 0 (full update): Transfers $0800 bytes (the whole 32×32 BG3 tilemap) from WRAM $7F0200 to VRAM $7800.
-; 2. Bits 4 or 5 (partial update): Transfers $0140 bytes (160 words = five tile rows) from WRAM $7F0280 to VRAM $7840 (tile row 2 onward). Bits 4 and 5 behave identically: the bit-5 path pre-clears that bit, but the common TRB below clears bits 0, 4 and 5 either way.
+; 2. Bits 4 or 5 (partial update): Transfers $0140 bytes (160 words = five tile rows) from WRAM $7F0280 to VRAM $7840 (tile row 2 onward). Bits 4 and 5 behave identically: the bit-5 path pre-clears that bit, but the common TRB below clears bits 0, 4 and 5 either way. Measured: bit 0 gives the full upload and bit 4 or bit 5 gives the same partial upload (VRAM words $7840-$7983 = staging offsets $80-$1BF), each in the first NMI after the request, which also clears the bit. The ROM only ever requests bit 4 (UpdateHUD, three sites); no instruction sets bit 5.
 ; 
 ; After the transfer, clears the request flags (bits 0,4,5 via TRB with $31). Sets VMAIN=$80, DMAP0=$01, BBAD0=$18, source bank=$7F, then triggers DMA channel 0. (displayModeFlags bit 3 is the separate player-tile DMA request handled in system_core.)
 

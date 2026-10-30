@@ -17,7 +17,7 @@
 - **[ASM]** The block holds six routines: `OpenInventoryScreen` (open, run loop and close in one `JSL`), `ReloadAbilityFX`, `ResetThinkerWaitCounters`, `SaveGameState`, `RestoreGameState`, `RestorePaletteBuffer`. `PHP` / `PLP` bracket `OpenInventoryScreen`; A, X and Y are clobbered.
 - **[ASM]** The "inventory" is scene id `$FF`. `OpenInventoryScreen` sets `sceneCurrent = $00FF`, sets `sceneTableIndex = sceneCurrent × 2` (= `$01FE`), then calls `SceneScriptNoMusic`, `InitActorPool`, `SpawnSceneActors` and `SpawnSceneThinkers`. It reuses the live WRAM actor / thinker pools; that is why `SaveGameState` copies them away first.
 - **[ASM]** The block note lists what is not saved: tile / map data (the scene script reloads it), VRAM (reloaded), and the player / ability sprite tiles (reloaded explicitly by `LoadPlayerGraphics` and `ReloadAbilityFX`).
-- **[XREF]** The only caller found in `extracted/` is `GlobalInputHandler` ([`GlobalInputHandler.asm`](../../../extracted/system/engine/GlobalInputHandler.asm), ROM bank `$03`, `JSL $@inventory_overlay.OpenInventoryScreen`). It runs when `joypadCurrent` has Select (`$2000`) and `playerFlags & $2800` is clear. Before the call it does `TSB joypadHeld` with `$2000` and `VBlankWaitAndJoypad`. After the return it calls `DisableNmiKeepJoypad` and sets `$6000` in `joypadHeld` (Select plus vanilla Y) so neither re-triggers at once. Inside this file the call is a single `JSL`; the caller's input handling is described in the `GlobalInputHandler` block, not here.
+- **[XREF]** The only caller found in `extracted/` is `GlobalInputHandler` ([`GlobalInputHandler.asm`](../../../extracted/system/engine/GlobalInputHandler.asm), ROM bank `$03`, `JSL $@inventory_overlay.OpenInventoryScreen`). It runs when `joypadCurrent` has Select (`$2000`) and `playerFlags & $2800` is clear. Before the call it does `TSB joypadHeld` with `$2000` and `VBlankWaitAndJoypad`. After the return it calls `DisableNmiKeepJoypad` and sets `$6000` in `joypadHeld` (Select plus vanilla Y) so neither re-triggers at once. **Close button (measured, C4):** in the vanilla O build the logical cancel mask `$4000` is the physical **Y** button and B does nothing in the inventory (B held for 6 frames: the menu stayed open; Y closed it); the baserom's remapped build maps the same logical bit to **B**, so docs and patches that cite `$4000` for cancel must say which build they mean. Inside this file the call is a single `JSL`; the caller's input handling is described in the `GlobalInputHandler` block, not here.
 
 ```mermaid
 flowchart TD
@@ -99,7 +99,7 @@ The main loop label `code_02EE17` is an unnamed local label inside `OpenInventor
    | Push # | Value pushed | Live value afterwards |
    |---|---|---|
    | 1 | `effectDeltaX` (`$06E4`) | `STZ` → `$0000` |
-   | 2 | `displayModeFlags` (`$09EC`) | `$4000` (every request bit clear; bit 14 is bit 6 of `hudDisableFlag` at `$09ED`, the HUD-off bit per the asm comment) |
+   | 2 | `displayModeFlags` (`$09EC`) | `$4000` (every request bit clear; bit 14 is bit 6 of `hudDisableFlag` at `$09ED`, the HUD-off bit). **Measured (Mesen2 C4):** the word is `$4000` for two frames only: the scene display command (`SceneCmd_ConfigDisplay`, `TRB #$40` on `$09ED`) clears bit 14 again two frames after the store (store at frame 389, clear at 391 in the run). `UpdateHUD` is not called while the overlay loop runs, so the menu shows no HUD either way |
    | 3 | `eventFlags` (`$0A00`, flags `$00`–`$0F`) | `STZ` → `$0000`; this also clears flag byte `#00`, the loop's exit flag, so the loop starts armed |
    | 4 | `sceneCurrent` (`$0644`) low byte (`AND #$00FF`) | `sceneCurrent = $00FF`; `ASL` → `sceneTableIndex` (`$0646`) = `$01FE` (`sceneTableIndex = sceneCurrent × 2`) |
 
@@ -145,7 +145,7 @@ The main loop label `code_02EE17` is an unnamed local label inside `OpenInventor
 | `$0646` | `sceneTableIndex` | set to `sceneCurrent × 2`, recomputed after the pop |
 | `$065C` | `joypadMaskInv` | `$0F00` while open, zeroed at close |
 | `$06E4` | `effectDeltaX` | pushed, zeroed, popped |
-| `$09EC` | `displayModeFlags` | pushed, `$4000` while open, popped at step 14; then `$41` is OR-ed in by `TSB` at step 16 |
+| `$09EC` | `displayModeFlags` | pushed, `$4000` at open (bit 14 cleared again by the scene display command two frames later), popped at step 14; then `$41` is OR-ed in by `TSB` at step 16. After a close in South Cape the word stays `$0040` for at least 300 frames: bit 0 is consumed by the first NMI, bit 6 (sine rebuild) stays set (its clear is in `cop_handlers_effects`, which a scene without a sine HDMA does not run) |
 | `$0A00` | `eventFlags` | pushed, zeroed, popped |
 | `$0A1F` | `eventFlagsF8toFF` | flag `$FF` cleared at open, set again at close by `SetFlagByte #FF` |
 | `$0AE6` | `bg1ConfigMode` | `$04` at open; copied to `BG1SC` every loop pass |

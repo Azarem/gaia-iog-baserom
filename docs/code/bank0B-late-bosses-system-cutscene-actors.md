@@ -411,7 +411,9 @@ On death, spawns a **smaller secondary ghost** with its own HP (`enemy_stats_tab
 
 #### `sFB_boot_logo` — Boot Sequence Controller (140 bytes)
 
-**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL`), display flags, and joypad mask. Checks `STAT78` bit 4 for ROM configuration. On standard path: animates the Enix logo sprite (`StageSpriteLoop`), toggles flag byte `#10`, and queues map change to `$FC` (title). Alternate path (`BootLogoPalLockout`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_title_strings`.
+**Scene:** `$FB`. Sets fast-ROM mode (`MEMSEL = 1`, `BootLogoInit`; this is the write that turns FastROM on for the whole game, boot frame 84), display flags (`displayModeFlags |= $4000`, HUD off), and joypad mask. Checks `STAT78` bit 4 for ROM configuration (every run took the NTSC path). On standard path: animates the logo sprite (`StageSpriteLoop`), toggles event flag `#10`, and queues map change to `$FC` (title). Alternate path (`BootLogoPalLockout`): loads ending comet palette, runs BG3 boot text via `RunBg3Script` with `boot_title_strings`.
+
+**Two visits, two logos (measured, Mesen2 C3).** The scene runs twice. First visit (flag `#10` clear, cold boot or reset): the first logo (**Nintendo**, with "PRESENTS" under it) fades in at frame 85-100, at frame 203 the flag is set (`$0A02` bit 0) and scene `$FB` is reloaded. Second visit (`BootLogoSecondPhase`, frame 223): the **ENIX** logo ("AN" ... "PRODUCTION"); at frame 343 the flag is cleared again (the South Cape church scripts `sc08_*` use the same flag) and `$FC` is queued; the title is current at frame 360. The flag `#10` survives the reload because the scene load only zeroes event flags `$00`-`$0F`. A **reset always shows the Nintendo logo first**: Mesen2's soft reset keeps WRAM, but the boot WRAM clear zeroes `$0A02` in frame 0, before any scene is chosen (tested with the flag set at the title and with the flag set by the game during the second logo).
 
 #### `sFC_title_intro` — Title Screen Orchestrator (138 bytes)
 

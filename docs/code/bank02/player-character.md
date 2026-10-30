@@ -52,7 +52,7 @@ flowchart TB
 
 *Evidence: [ASM] + [XREF]*
 
-**[ASM]** `PlayerIdleEntry` clears `$F0FF` from `joypadHeld`, `$2800` from `playerFlags`, actor `$0020`, and `climbStateData`; re-sets actor `$0100` (the **vulnerable stance**: while it is set enemy contact hurts the player; block, attack, Spin Dash and the run attack clear it, and with it cleared the enemy takes the hit instead). Residual `playerSpeedEw` / `playerSpeedNs` → `MovingEastWest` / `MovingNorthSouth`. Dispatch: `GetPlayerFacing` × 14 → row in `PlayerIdleDispatchTable`; scan priority attack (`joypadCurrent` `$0080`) → D-pad cardinals → L/R `$0300` → idle stand.
+**[ASM]** `PlayerIdleEntry` clears `$F0FF` from `joypadHeld`, `$2800` from `playerFlags`, actor `$0020`, and `abilityDamageBonus`; re-sets actor `$0100` (the **vulnerable stance**: while it is set enemy contact hurts the player; block, attack, Spin Dash and the run attack clear it, and with it cleared the enemy takes the hit instead). Residual `playerSpeedEw` / `playerSpeedNs` → `MovingEastWest` / `MovingNorthSouth`. Dispatch: `GetPlayerFacing` × 14 → row in `PlayerIdleDispatchTable`; scan priority attack (`joypadCurrent` `$0080`) → D-pad cardinals → L/R `$0300` → idle stand.
 
 **[XREF]** Ladder, ledge-jump, and shimmy entry points are reached from the `player_move_*` tile redirects: ladder = collision type `$02` (`NorthLadderTile` / `SouthLadderTile`), ledge jump = `$08` (`SouthLedgeTile`, south only; `LedgeJumpEntry` is also entered by scene scripts), wall shimmy = `$07` (`WestShimmyTile` / `EastShimmyTile`). The type roles are not defined in `player_character.asm` alone.
 
@@ -526,7 +526,7 @@ East-facing walk state — mirror of `WalkWest` for right D-pad (`#$0100`) and s
 
 ### LedgeJumpEntry
 
-**[ASM]** The ledge jump: the player steps off a ledge and falls until the ground test passes (Mesen2, South Cape `$01`: pose `$18`, then the fall cycle `$1A`/`$19`, about 87 px down onto a roof, landing pose `$1C`). Available to every form (the entry checks no form; Freedan, Will and Shadow all have the animations `$18`–`$1B`). Entered by `SouthLedgeTile` (type `$08` cell, walking south) and by direct writes from `awB3_ledge_jump_trigger` and `pyD0_breakable_wall`. Actor flags: clear `$0008`, set `$0200`; `joypadMaskStd \|= $0008`. Three-sprite loop with `StageMoveY #07`. **`CheckLedgeJumpAttack`:** Freedan (`characterForm == 1`) + `abilityBitmask` `$0040` + attack `$0080` → `LedgeJumpDropAttack`.
+**[ASM]** The ledge jump: the player steps off a ledge and falls until the ground test passes (Mesen2, South Cape `$01`: pose `$18`, then the fall cycle `$1A`/`$19`, about 87 px down onto a roof, landing pose `$1C`). Available to every form (the entry checks no form; Freedan, Will and Shadow all have the animations `$18`–`$1B`). Entered by `SouthLedgeTile` (type `$08` cell, walking south) and by direct writes from `awB3_ledge_jump_trigger` and `pyD0_ledge_jump_trigger`. Actor flags: clear `$0008`, set `$0200`; `joypadMaskStd \|= $0008`. Three-sprite loop with `StageMoveY #07`. **`CheckLedgeJumpAttack`:** Freedan (`characterForm == 1`) + `abilityBitmask` `$0040` + attack `$0080` → `LedgeJumpDropAttack`.
 
 
 **Variables:**

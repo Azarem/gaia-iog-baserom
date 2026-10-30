@@ -130,6 +130,9 @@ displays a simple "PAUSE" text via `COP RunBg3Script` targeting
 `consolestring_01EAC6`, rather than the full radar minimap. Before showing the
 text, `displayModeFlags` bit 15 (`$8000`) is cleared. The screen brightness is
 dimmed to `INIDISP = $09` (9/15). On release, `INIDISP` is restored to `$0F`.
+*(Measured, Mesen2 C4: bit 15 of `displayModeFlags` is `hudDisableFlag` bit 7, the BG3 upload gate of `Bg3TilemapVramDma`. In the one run that executed the `TRB #$8000` (South Cape, Start) the bit was already clear, and no instruction in the ROM sets it, so this clear is defensive. The close of the PAUSE overlay requests a full BG3 upload with `TSB #$01` (offset 229558).)*
+
+**NMITIMEN on the Start / Select paths (measured, Mesen2 C2).** Select: `OpenInventoryScreen`'s teardown already leaves NMITIMEN at `$01`, so the `DisableNmiKeepJoypad` after the call (+73) rewrites `$01` over `$01` (4 of 4). Start: `EnableNmiAndJoypad` (`$81`) then `DisableNmiKeepJoypad` (`$01`) around one VBlank wait (the PAUSE overlay at +122/+130, the hold-to-view loop at +143/+151, 638 loop passes in the run). `$01` means NMI **off**, joypad auto-read **on**; the old comments called it "NMI-only".
 
 **Input consumption (TSB pattern):** Each button handler uses `LDA #$xxxx` /
 `TSB $joypadHeld` to set the button bit in the held-buttons register. This

@@ -6,7 +6,7 @@
 **Game:** Illusion of Gaia (US ROM)  
 **ASM files:** `extracted/system/`, `extracted/actors/`, `extracted/functions/`, `extracted/thinkers/`, `extracted/unused/`
 
-Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CPU reset vector, the NMI/VBlank handler, the COP bytecode dispatch engine, the main game loop, and the entire core utility library. The upper half houses thinkers (background processes for palette/HDMA effects), scene infrastructure actors, combat mechanics, NPC AI, and specialized systems like stair climbing and camera scrolling.
+Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CPU reset vector, the NMI/VBlank handler, the COP bytecode dispatch engine, the main game loop, and the entire core utility library. The upper half houses thinkers (background processes for palette/HDMA effects), scene infrastructure actors, combat mechanics, NPC AI, and specialized systems like the Psycho Slider glide triggers and camera scrolling.
 
 > **COP handler documentation** lives in [`docs/cop/`](../../cop/README.md) and `db-us/copdef.json`. This index covers the system architecture, utility subroutines, actors, thinkers, and functions.
 
@@ -41,7 +41,7 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 18. [Functions: Game Over](#18-functions-game-over) — Death Sequence
 19. [Functions: Player & NPC](#19-functions-player--npc) — Player State, NPC AI, Escort
 20. [Functions: Camera & Motion](#20-functions-camera--motion) — Camera Drift, Orbital Math
-21. [Stair & Climb System](#21-stair--climb-system) — Stair Triggers, Climb Functions
+21. [Slider Glide System](#21-slider-glide-system) — Glide Triggers, Glide Functions
 22. [Camera & Scroll System](#22-camera--scroll-system) — Smooth Follow, Pan, Forced Walk
 23. [Data Tables & Memory Map](#23-data-tables--memory-map) — Tables, Variables, Stack, Statistics
 24. [Statistics](#24-statistics)
@@ -62,7 +62,7 @@ Bank $00 is the **primary system bank** for Illusion of Gaia. It contains the CP
 | `$C1AA`–`$C2BB` | Infrastructure actors: speed zones, dream zoom | [3 actor files](#infrastructure-actors) | [actors-infrastructure](actors-infrastructure.md) |
 | `$C2BB`–`$C9B8` | Player/reward actors, NPC AI, flags, doors, ramps | [16 function/actor files](#player--reward-zone) | [actors-player-rewards](actors-player-rewards.md), [functions-player-npc](functions-player-npc.md) |
 | `$C9B8`–`$D088` | Camera drift, debris, floor buttons, overworld exit | [5 files](#camera--utility-zone) | [functions-camera-motion](functions-camera-motion.md) |
-| `$D088`–`$D877` | Stair/climb system, ramps, game over sequence | [4 files](#stair--death-zone) | [stair-climb-system](stair-climb-system.md), [functions-game-over](functions-game-over.md) |
+| `$D088`–`$D877` | Slider glide system, ramps, game over sequence | [4 files](#slider-glide--death-zone) | [slider-glide-system](slider-glide-system.md), [functions-game-over](functions-game-over.md) |
 | `$D877`–`$E683` | Combat: knockback, defeat pipeline, rewards, pushers | [14 files](#combat-zone) | [actors-combat-interaction](actors-combat-interaction.md), [functions-combat-defeat](functions-combat-defeat.md) |
 | `$E683`–`$F48F` | Camera/scroll engine, forced walks, orbital math | [7 files](#scroll--motion-zone) | [camera-scroll-system](camera-scroll-system.md) |
 | `$F490`–`$FFFF` | *Unmapped tail* (~2.9 KB) | — | — |
@@ -111,7 +111,7 @@ Every block in bank $00 maps to one extracted ASM file. Links go directly to the
 | `cop_handlers_wait` | `$ACC1`–`$ACDF` | `WaitByte` | [`cop_handlers_wait.asm`](../../../extracted/system/engine/cop_handlers_wait.asm) |
 | `actor_pool` | `$AF40`–`$B520` | `UnlinkActor` | [`actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm) |
 | `flag_helpers` | `$B05E`–`$B501` | `TestWramFlag_Offset100` | [`flag_helpers.asm`](../../../extracted/system/engine/flag_helpers.asm) |
-| `slider_glide` | `$D088`–`$D5C0` | `LockPlayerForClimb` | [`slider_glide.asm`](../../../extracted/system/engine/slider_glide.asm) |
+| `slider_glide` | `$D088`–`$D5C0` | `LockPlayerForGlide` | [`slider_glide.asm`](../../../extracted/system/engine/slider_glide.asm) |
 | `smooth_follow` | `$E683`–`$F3B3` | `CopySiblingFollowState` | [`smooth_follow.asm`](../../../extracted/system/engine/smooth_follow.asm) |
 | `camera_scroll` | `$E94D`–`$ED28` | `ScrollCameraInit` | [`camera_scroll.asm`](../../../extracted/system/engine/camera_scroll.asm) |
 | `forced_walk` | `$EB9B`–`$EDA8` | `ForcedWalkSouth` | [`forced_walk.asm`](../../../extracted/system/engine/forced_walk.asm) |
@@ -217,7 +217,7 @@ Listed above in [System Services](#system-services-extractedsystem) and [Palette
 | `overworld_exit` | `$CA42`–`$CD59` | [`actors/overworld_exit.asm`](../../../extracted/actors/overworld_exit.asm) |
 | `camera_drift` | `$CF8E`–`$D088` | [`functions/camera_drift.asm`](../../../extracted/functions/camera_drift.asm) |
 
-### <a id="stair--death-zone"></a>Stair & Death Zone (`$D088`–`$D877`)
+### <a id="slider-glide--death-zone"></a>Slider Glide & Death Zone (`$D088`–`$D877`)
 
 | Block | Range | ASM File |
 |-------|-------|----------|
@@ -296,7 +296,7 @@ Listed above in [System Services](#system-services-extractedsystem) and [Palette
 | 16 | Functions: Game Over | [functions-game-over.md](functions-game-over.md) | 5 | `GameOverSequence` |
 | 17 | Functions: Player & NPC | [functions-player-npc.md](functions-player-npc.md) | 7 | `NpcRandomWanderAI` |
 | 18 | Functions: Camera & Motion | [functions-camera-motion.md](functions-camera-motion.md) | 7 | `ApplyOrbitalOffsetFromRef` |
-| 19 | Stair & Climb | [stair-climb-system.md](stair-climb-system.md) | 13 | `SliderGlideTriggerNorth` |
+| 19 | Slider Glide | [slider-glide-system.md](slider-glide-system.md) | 13 | `SliderGlideTriggerNorth` |
 | 20 | Camera & Scroll | [camera-scroll-system.md](camera-scroll-system.md) | 42 | `ScrollCameraTrack` |
 | 21 | Data & Memory | [data-tables-memory.md](data-tables-memory.md) | — | Reference tables |
 
@@ -732,9 +732,9 @@ Covers ambient camera drift, debris effects, and sin/cos orbital motion math.
 
 ---
 
-## 21. Stair & Climb System
+## 21. Slider Glide System
 
-**→ [stair-climb-system.md](stair-climb-system.md)**
+**→ [slider-glide-system.md](slider-glide-system.md)**
 
 Covers `$00D088`–`$00D5BC`: 13 parts implementing **Psycho Slider glide** triggers and continuation routines. Block is `movable: false` due to tight `$&` coupling to `ramps.asm` (the ramp jump launchers are documented in [ramp-launchers.md](ramp-launchers.md)).
 
@@ -742,14 +742,14 @@ Covers `$00D088`–`$00D5BC`: 13 parts implementing **Psycho Slider glide** trig
 
 | Function | Address | Size | Description |
 |----------|---------|------|-------------|
-| `LockPlayerForClimb` | `$D088` | 38 B | Lock player: set frame count, zero velocity, mask joypad |
-| `UnlockPlayerAfterClimb` | `$D0AE` | 35 B | Restore player to normal after climb completes |
+| `LockPlayerForGlide` | `$D088` | 38 B | Lock player: set frame count, zero velocity, mask joypad |
+| `UnlockPlayerAfterGlide` | `$D0AE` | 35 B | Restore player to normal after the glide completes |
 | `IsPlayerSliderSpriteBank` | `$D204` | 20 B | Require sprite bank `$8F` (bank of `spriteset_will_abilities`) during slide |
 | `RestorePlayerControl` | `$D58A` | 54 B | Reset player to normal walking (shared with ramps.asm) |
 
-### Stair Triggers
+### Glide Triggers
 
-| Trigger | Address | Size | Valid Facing | Climb Target | Scenes |
+| Trigger | Address | Size | Valid Facing | Glide Routine | Scenes |
 |---------|---------|------|--------------|--------------|--------|
 | `SliderGlideTriggerWest` | `$D0D1` | 72 B | $12/$13 | `SliderGlideWest` | Mu Passage |
 | `SliderGlideTriggerEast` | `$D119` | 72 B | $15/$16 | `SliderGlideEast` | Mu Passage |
@@ -757,7 +757,7 @@ Covers `$00D088`–`$00D5BC`: 13 parts implementing **Psycho Slider glide** trig
 | `SliderGlideTriggerNorth` | `$D16A` | 75 B | $0F/$10 | `SliderGlideNorth` | 12 placements in 7 scenes |
 | `SliderGlideTriggerSouth` | `$D1B5` | 79 B | $0C/$0D | `SliderGlideSouth` | 14 placements in 9 scenes |
 
-### Climb Functions
+### Glide Functions
 
 | Function | Address | Size | Movement | End Sprite |
 |----------|---------|------|----------|------------|
@@ -850,7 +850,7 @@ Comprehensive reference covering all data tables, hardware register aliases, the
 | Thinkers (palette + HDMA + system) | 49 | ~3,700 bytes |
 | Actors (infrastructure + combat + effects) | 26 | ~4,000 bytes |
 | Functions (upper half) | 29 | ~3,000 bytes |
-| Stair/climb system | 13 | ~1,336 bytes |
+| Slider glide system | 13 | ~1,336 bytes |
 | Camera/scroll system | 22 | ~3,376 bytes |
 | Data tables | 20+ | ~1,500 bytes |
 | **Total** | **~380+ routines** | **~29,700+ bytes** |
@@ -895,7 +895,7 @@ These blocks have inbound `$&` (2-byte same-bank) references and **cannot** be r
 | `player_transition_handlers` ($C418) | 15+ consumers | Player anim `#$&func_00C4xx` refs |
 | `smooth_follow_child` ($E4DB) | Pyramid, Angkor, etc. | Hard `$&` refs |
 | `large_ramp_booster` ($C963) | — | Tight `$&` proximity to ramp code |
-| `stair trigger system` ($D088) | `ramps.asm` | `JSR $&` cross-file coupling |
+| `slider_glide` ($D088) | `ramps.asm` | `JSR $&` cross-file coupling |
 
 ### Known Issues (Resolved)
 

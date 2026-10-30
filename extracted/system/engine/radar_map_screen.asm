@@ -73,7 +73,7 @@ RadarScreenSetup {
     LDA #$*radar_icons_001C00
     STA $adhocVramDmaBank
     LDA #$7700            ; VRAM destination $7700 for radar icon tile data
-    STA $adhocVramDmaDest ; Writing the destination arms the adhoc DMA; the size is stored after it (writers should store the size first)
+    STA $adhocVramDmaDest ; Destination word = pending flag for the next NMI; the NMI is off here (NMITIMEN = $01), so it cannot run before the size store below
     LDA #$0200            ; Transfer 512 bytes of radar icon graphics
     STA $adhocVramDmaSize
 

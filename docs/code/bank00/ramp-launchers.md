@@ -1,6 +1,6 @@
 # Bank $00 — Ramp Jump Launchers (`ramps.asm`)
 
-**Source:** [`extracted/actors/ramps.asm`](../../../extracted/actors/ramps.asm) (Bank `$00`, ROM offsets 53971–54829, `$D2D3`–`$D62D`) · **Related:** [`stair-climb-system.md`](stair-climb-system.md) (`RestorePlayerControl`, glide), [`actors-infrastructure.md`](actors-infrastructure.md) (`large_ramp_booster`), [`../../bank01-data-tables.md`](../../bank01-data-tables.md) §14c (`ramp_motion_curves`)
+**Source:** [`extracted/actors/ramps.asm`](../../../extracted/actors/ramps.asm) (Bank `$00`, ROM offsets 53971–54829, `$D2D3`–`$D62D`) · **Related:** [`slider-glide-system.md`](slider-glide-system.md) (`RestorePlayerControl`, glide), [`actors-infrastructure.md`](actors-infrastructure.md) (`large_ramp_booster`), [`../../bank01-data-tables.md`](../../bank01-data-tables.md) §14c (`ramp_motion_curves`)
 
 Four invisible launcher actors — `ramp_east`, `ramp_west`, `ramp_north`, `ramp_south` — watch the player. When the player runs into a launcher's window at speed, the launcher takes over the player's script, locks the controls and carries the player a fixed distance along one axis. East/west ramps add a precomputed vertical arc (the player leaps); north/south ramps move the player vertically for a number of animation cycles. They are actors placed through `scene_actors`, not collision tiles.
 

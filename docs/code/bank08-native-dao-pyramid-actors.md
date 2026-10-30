@@ -98,14 +98,14 @@ set (all three girls transformed) before their cutscene activates.
 ### 2.4 Angkor Wat — Entrance & Outer Areas (scenes `angkor_entrance` awB0, `angkor_outer_east` awB2, `angkor_outer_north` awB3, `snake_pit` awB4)
 
 Trigger actors for the Angkor Wat temple exploration. Includes the intro
-narration, stair/ladder triggers, and the snake pit room controller.
+narration, slider glide and ledge-jump triggers, and the snake pit room controller.
 
 | Address | End | Size | Name | Type | Description |
 |---------|-----|------|------|------|-------------|
 | `$0897CB` | `$0897E0` | 21 | `awB4_actor_0897CB` | actor-def | **Snake pit visual init** — body `#28`. One-shot: `SetMetasprite (@table_14C12C)`, `SetAnimScratch (@misc_fx_1CD380)`, `ResetSpriteInit (#00, $2020)`, `LoadSpriteAnimGlobal`. Sets up sprite FX tables for the snake pit room, then returns. Not an NPC |
 | `$0897E0` | `$08985E` | 126 | `awB0_intro` | actor-def | **Angkor intro narration** — body `#30` (trigger). **Flags checked:** `#BE`→skip (spirit guide done), `#B3`→skip (intro already played). **Flags set:** `#B3`. One-shot narration with joypad lock `$CFF0`, wait `#1D` frames: *"Through the jungle, three days journey from the native village, there is a huge temple."* Then dies |
 | `$08985E` | `$0898C8` | 106 | `awBD_actor_08985E` | actor-def | **Cross-map spawn reposition** — body `#20` (invisible trigger). Scans position table `spawn_trigger_0898A8` (5 entries covering scenes `$BB`/`$BD`) against `sceneCurrent`, `playerXPos`, `playerYPos`. On match: locks joypad `$CFF0`, sets player `$0800`, `AddPosition (#00, #80)` (drops 128px), plays 8-frame ladder descent animation, sound `#2C`, restores idle. Then dies |
-| `$0898C8` | `$0898DA` | 18 | `awB2_actor_0898C8` | actor-def | **Outer-east stair trigger** — body `#23`. `ExitIfFlagWord (#$016B, #01)` — dies if stair already used. Otherwise stores `$0E=#$000A` and `JumpScript (@slider_glide.SliderGlideTriggerNorthMain)` for shared east stair handler |
+| `$0898C8` | `$0898DA` | 18 | `awB2_actor_0898C8` | actor-def | **Outer-east slider glide trigger** (`awB2_slider_glide_trigger`) — body `#23`. Waits for flag word `$016B` (`WaitOnFlagWord`, sense 1), stores `$0E=#$000A` (glide length) and `JumpFar (@slider_glide.SliderGlideTriggerNorthMain)`: from there it runs as a north Psycho Slider glide trigger |
 | `$0898DA` | `$08992A` | 80 | `awB3_actor_0898DA` | actor-def | **Outer-north ledge-jump trigger** (`awB3_ledge_jump_trigger`) — body `#30`. **Flags checked:** word `$016E`→skip if set. **Flags set:** word `$016E`. Waits for player in tile bounds `(#6A,#0C)`–`(#6F,#0D)`. On enter: `LoopInit (#14)` (20-pass input mask), `PlaySoundBoth (#$0F0F)`, `StageBgChange (#6E)` + `ApplyBgChange` (map change; what it draws was not viewed), redirects player to `LedgeJumpEntry` (the **ledge-jump** state; the ladder states are `LadderClimb*`), sets `playerFlags` `$0800` |
 | `$08992A` | `$0899AF` | 133 | `awB4_actor_08992A` | actor-def | **Snake pit room controller** — body `#30`. **Flags checked:** `#B5`→skip first-visit FX. **Flags set:** `#B5` (first visit). **Entry:** at player position `($0578,$0010)` — clears/sets player `$0010` bits, redirects to `loc_02C63B` (ladder climbing loop with 3-sprite cycle), sets `$0800`. **First visit only:** color math `TM=#15, CGADSUB=#A1, COLDATA=#FF`, `WaitByte (#B3)`, `SpawnThinker (@oneshot_backdrop_fade_out_1C)`. **Ambient:** `SetEntryHere` loop, `BranchIfButton (#$0F01)` — any D-pad in tile region `(#3D,#0C)`–`(#43,#1B)` or `(#43,#06)`–`(#5D,#1B)` facing north → `PlaySoundCh2 (#08)` |
 
@@ -220,7 +220,7 @@ Hazard and puzzle actors across the pyramid's dungeon rooms.
 
 | Address | End | Size | Name | Type | Description |
 |---------|-----|------|------|------|-------------|
-| `$08B592` | `$08B668` | 214 | `pyD0_actor_08B592` | actor-def | **Ledge-jump trigger** (`pyD0_breakable_wall`, name probably wrong, purpose not established; no HP, hit test or debris, placed only in scenes `$D0` / `$D1`) — body `#30`. **Flags checked:** word `$0170` or `$0171` (per-variant via `$26`). **Flags set:** word `$0170` or `$0171` after BG change. Gate: the player's `$7F0008` byte is `$95` or `$8E` and its animation index `$28` is `$1C` (meaning not traced), then `BranchIfPlayerNear (#01)`. First pass (`$24=0`): draws metatiles `#E8`/`#E9` via `DrawMetatileHere`. Later pass: `PlaySoundCh1 (#15)`, `SwitchCase($26)` → `StageBgChange (#70)` or `(#71)` + `ApplyBgChange`. Redirects player to `LedgeJumpEntry` (the **ledge-jump** state): sets player `$0010` bits. Dies via flag word if already used |
+| `$08B592` | `$08B668` | 214 | `pyD0_actor_08B592` | actor-def | **Ledge-jump trigger** (`pyD0_ledge_jump_trigger`, formerly `pyD0_breakable_wall`: no HP, hit test or debris; placed only in scenes `$D0` / `$D1`, "Meltdown A / B") — body `#30`. **Flags checked:** word `$0170` or `$0171` (per-variant via `$26`). **Flags set:** word `$0170` or `$0171` after BG change. Gate: the player's `$7F0008` byte is `$95` or `$8E` and its animation index `$28` is `$1C` (the ledge-jump landing pose `LedgeJumpLand` stages), then `BranchIfPlayerNear (#01)`. First pass (`$24=0`): draws metatiles `#E8`/`#E9` via `DrawMetatileHere` at the two cells north of the actor (Mesen2, scene `$D0`: cells (38, 20) and (39, 20) change from collision `$00` to `$0E`). Second pass, after the player left the near zone and lands again: `PlaySoundCh1 (#15)`, `SwitchCase($26)` → `StageBgChange (#70)` or `(#71)` + `ApplyBgChange`. Redirects player to `LedgeJumpEntry` (the **ledge-jump** state): sets player `$0010` bits. Dies via flag word if already used |
 | `$08B6F4` | `$08B70D` | 25 | `py_actor_08B6F4` | actor-def | **Portal warp VFX** — body `#09`. Copies parent position, `SetMetasprite (@table_0EE000)`, `StageSpriteFrame (#1C)`, `AnimOnce`, dies. Shared by both pyramid portals |
 | `$08C2DA` | `$08C3FD` | 291 | `pyD6_actor_08C2DA` | actor-def | **Toggle gate A** — body `#0F`, `$12` bits `$0031` (hittable). Stats: `enemy_stats_table+118`, `$currentHp=#$7FFF` (invulnerable switch). **Flags:** local `#0F` (re-entry guard, set/cleared during toggle). Initializes shared counter on actor `$1060`: `$0026←#$FE00`. **Hit callback:** toggles barrier solids between rows `(34–39, 2B–2C)` ↔ `(34–39, 4B–4C)`, increments `$0026` on `$1060`. Counter reaching 0 → clears barriers, sound `#$1515`, resets. `MarkSolidHere` |
 | `$08C3FD` | `$08C4EA` | 237 | `pyD6_actor_08C3FD` | actor-def | **Toggle gate B** — mirror of gate A. Starts barriers at `(4B–4C)`, on hit moves to `(2B–2C)`, **decrements** `$0026`. Counter reaching `$FE00` → clears, resets. Paired with gate A — both must align to open path |
@@ -351,7 +351,7 @@ causes the Gem NPC to die globally.
 | nvAD | `vacant_hut` | 3 | Party rest hut |
 | nvAE | `gorgon_hut` | 5 | Stone girls, Kara departure trigger |
 | awB0 | `angkor_entrance` | 1 | Jungle intro narration |
-| awB2 | `angkor_outer_east` | 1 | Stair trigger |
+| awB2 | `angkor_outer_east` | 1 | Slider glide trigger |
 | awB3 | `angkor_outer_north` | 1 | Ladder climb trigger |
 | awB4 | `snake_pit` | 2 | Snake pit room controller + visual init |
 | awB6 | `angkor_outer_courtyard` | 1 | Explorer remains (Friezer's journal) |
@@ -369,7 +369,7 @@ causes the Gem NPC to die globally.
 | daC9 | `indecision_room` | 1 | Businessman moral dilemma |
 | pyCC | `pyramid_main` | 4 | Entrance portal, dark space, mummy queen portal |
 | pyCD | `puzzle_room` | 7 | Jackal boss, Kara, flame traps, hieroglyph puzzle |
-| pyD0 | *(ladder climb)* | 1 | Ladder trigger |
+| pyD0 | `pyD0_ledge_jump_trigger` | 1 | Ledge-jump trigger (scene `$D0`, plus one placement in `$D1`) |
 | pyD4 | `pyramid_trickle_a` | 1 | Water puzzle (Shadow-only) |
 | pyD6 | `pyramid_vader_a` | 2 | Toggle gate pair |
 | pyD7 | `pyramid_vader_b` | 1 | Sliding sand trap |
@@ -477,6 +477,6 @@ The three villager pairs share interact code across their primary/secondary vari
 | `#E9`–`#EE` | Jeweler reward tiers 1–6 claimed |
 | `#F7` | First Freedan transform |
 | `#FC` | Post-pyramid completion (portal removed) |
-| `$016B` | Angkor east stair used (word) |
+| `$016B` | Angkor outer east: `awB2_slider_glide_trigger` waits for it to be set (word; the setter is not traced here) |
 | `$016E` | Angkor north ladder used (word) |
 | `$0170`/`$0171` | Pyramid ladder used (word, per-variant) |

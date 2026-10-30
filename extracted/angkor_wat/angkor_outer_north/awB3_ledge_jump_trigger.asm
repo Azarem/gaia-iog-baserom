@@ -2,7 +2,7 @@
 ; 
 ; Spawned once, by scene_B3_actors. The actor dies at once when flag word $016E is set. Otherwise it waits (SetEntryHere) until the player stands in the tile box (6A, 0C)-(6F, 0D), then: ORs $CFFC into joypadMaskStd 20 times (LoopStart #14), plays the sound pair #$0F0F, applies BG change #6E (StageBgChange / ApplyBgChange), sets flag word $016E, writes player_character.LedgeJumpEntry into the player actor (address at +$00, bank byte at +$02, $08 and $2A zeroed), sets playerFlags $0800 and dies.
 ; 
-; The jump starts because this script writes LedgeJumpEntry, not because of a type $08 cell. BG change #6E was not decoded or viewed. The earlier names and notes (awB3_vine_reveal, 'grows vines', 'draw the vine tiles', 'ladder trigger') were guesses; what the change draws and where the player lands was not watched.
+; The jump starts because this script writes LedgeJumpEntry, not because of a type $08 cell. BG change #6E was not decoded. Mesen2 (scene $B3, player poked into the tile box): within 10 frames the player's entry word became LedgeJumpEntry (animation $18, playerFlags $0800) and the fall ended at x 1400, y 112 after starting from x 1736, y 204 (not traced further); a before / after diff of the collision map and the layer-0 tilemap showed no changed cell, so what the BG change draws is unknown. The earlier names and notes (awB3_vine_reveal, 'grows vines', 'draw the vine tiles', 'ladder trigger') were guesses.
 ---------------------------------------------
 
 ?INCLUDE 'player_character'

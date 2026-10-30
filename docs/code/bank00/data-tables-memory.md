@@ -1,7 +1,7 @@
 # Bank $00 — Data Tables, Variable Map, Stack Usage & Statistics
 
 **Bank:** `$00` (mirrored at `$80` for FastROM access)  
-**Scope:** All of bank `$00` — system core (`$008000`–`$00B530`), upper-half actors/thinkers/functions (`$00B500`–`$00F4FF`), stair/climb system (`$00D088`–`$00D5BC`), and camera/follow engine (`$00E683`–`$00F292`)  
+**Scope:** All of bank `$00` — system core (`$008000`–`$00B530`), upper-half actors/thinkers/functions (`$00B500`–`$00F4FF`), Psycho Slider glide system (`$00D088`–`$00D5BC`), and camera/follow engine (`$00E683`–`$00F292`)  
 **Sources:** Live `extracted/` ASM
 
 This document consolidates **data tables**, **compile-time includes**, **WRAM/direct-page memory maps**, **stack conventions**, and **bank-wide statistics** for Illusion of Gaia's primary system bank.
@@ -170,7 +170,7 @@ All `?INCLUDE` directives observed in bank `$00` system and upper-half code:
 
 | Include | Used By |
 |---------|---------|
-| `player_character` | Stair triggers (`slider_glide`), `ramps.asm`, `itory_village_fog` thinker |
+| `player_character` | Glide triggers (`slider_glide`), `ramps.asm`, `itory_village_fog` thinker |
 | `ComposeDigitSprites_AtCursor` | Push handlers, `global_ambient_dispatcher`, statue inventory |
 | `flag_helpers` | Statue inventory reward actors |
 | `inventory_spritemap` | Inventory statue slot display |
@@ -224,7 +224,7 @@ When `TCD` points at an actor slot, offsets `$00`–`$2F` address that actor's s
 | `$22` | 2 | *(reserved / script scratch)* | Occasional COP arg staging |
 | `$24` | 2 | **Step counter / target actor index** | Movement direction index, escort target, player actor ref in follow engine |
 | `$26` | 2 | **Scroll accumulator Y** | `ScrollCameraAccumulate` actor — feeds `$06C4` camera delta |
-| `$28` | 2 | **Sprite set / facing index** | Animation staging, stair trigger facing validation, forceball anim range check |
+| `$28` | 2 | **Sprite set / facing index** | Animation staging, slider glide trigger facing validation, forceball anim range check |
 | `$2A` | 2 | **Animation frame** | Current frame index; cleared by `ProcessAnimFlag`, forced walks |
 | `$2C` | 2 | **Velocity X / force X** | Per-frame movement; zeroed on climb lock and hitstun |
 | `$2E` | 2 | **Velocity Y / force Y** | Per-frame movement; anim speed in forced walks (`ReadDirSprite_*`) |
@@ -259,7 +259,7 @@ Extended fields use `(actor_id − $1000)` as the X index into WRAM `$7F0000+`. 
 | `$7F001A,X` | 2 | Target distance Y / anim Y move | `InitSmoothMovement`, movement COPs |
 | `$7F001C,X` | 2 | **Parent actor ID** | Marked children; batch death in `DieExit` |
 | `$7F001E,X` | 2 | Loop start PC (thinker-type) | `LoopInit` / `LoopDecrement` |
-| `$7F0020,X` | 2 | Rearrange index / climb frame counter | `CopyActorState`; stair `LockPlayerForClimb` |
+| `$7F0020,X` | 2 | Rearrange index / glide frame counter | `CopyActorState`; `LockPlayerForGlide` (slider glide) |
 | `$7F0022,X` | 2 | Dungeon monster ID | `SetDungeonKillFlag` COP |
 | `$7F002A,X` | 2 | **Extended flags** | Bit 1 = moving; bit `$0020` = hitstun skip; `SetActorFlags`/`ClearActorFlags` |
 | `$7F002C,X` | 2 | Computed velocity X | `MoveToward`, `ApplyFollowMovement` |
@@ -331,9 +331,9 @@ These low DP addresses are **persistent engine state** — they must not be over
 | `$0658` | 2 | Display flags | Bit `$8000` set after climb unlock |
 | `$0660` | 2 | Raw joypad state | NMI read (`$JOY1L`), button COPs |
 | `$0800` | 1 | DMA skip flag | NMI tilemap DMA bypass |
-| `$09EC` | 2 | Display mode flags | HUD, NMI BG3 mode, sine precompute, dialogue |
-| `$09ED` | 1 | HUD disable flag (bit `$40`) | `UpdateHUD` early exit |
-| `$09E0` | 2 | Climb state data | Cleared by `UnlockPlayerAfterClimb` |
+| `$09EC` | 2 | Display mode flags | NMI BG3 upload requests (bits 0/4/5), player-tile DMA (bit 3), sine rebuild (bit 6), display filter (bit 7), dialogue mode (bit 13, read only by the Mu bomb countdown); full table: [`wram-memory-map.md` Display Mode Flags Reference](../../wram-memory-map.md#display-mode-flags-reference-09ec) |
+| `$09ED` | 1 | HUD disable flag (high byte of `$09EC`) | Bit `$40` (word bit 14): `UpdateHUD` / `LoadHudTilemap` early exit. Bit `$80` (word bit 15): `Bg3TilemapVramDma` skips the upload; nothing sets it |
+| `$09E0` | 2 | Climb state data | Cleared by `UnlockPlayerAfterGlide` |
 
 #### Audio Handshake
 
@@ -403,7 +403,7 @@ These low DP addresses are **persistent engine state** — they must not be over
 
 | Address | Size | Name | Used By |
 |---------|------|------|---------|
-| `$7F0C03`–`$7F0C09` | 8 | Adhoc VRAM DMA params | `AdhocVramDma` COP |
+| `$7F0C03`–`$7F0C09` | 8 | Adhoc VRAM DMA params (`$0C07` dest = pending flag, `$0C09` size) | `AdhocVramDma` COP, `RadarScreenSetup`; consumed by `DmaAdhocVramBlock` in the NMI. Store order and timing: [`wram-memory-map.md` §4.3](../../wram-memory-map.md#43-adhoc-dma-parameters-7f0c037f0c09) |
 | `$7F3100/01`+ | 2 | OAM compose buffer | Main loop sentinel `$FF` at `$00D8` offset |
 
 #### Save / Scene State (referenced from upper-half)
@@ -487,7 +487,7 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | Thinkers | 49 | ~3,500 bytes |
 | Actors | 26 | ~4,000 bytes |
 | Functions (upper half) | 29 | ~3,000 bytes |
-| Stair/climb system | 13 | ~1,336 bytes |
+| Slider glide system | 13 | ~1,336 bytes |
 | Camera/scroll system | 22 | ~3,376 bytes |
 | **Total** | **~380+ routines** | **~28,000+ bytes** |
 
@@ -527,9 +527,9 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 |----------|------|-------------|---------|
 | `VBlankWaitAndJoypad` | $02 | Main loop, frame updates | Begin frame |
 | `EnableNmiAndJoypad` | $02 | Main loop, frame updates | End frame / wait VBlank |
-| `DisableNmiKeepJoypad` | $02 | Main loop, frame updates | NMI off during main-thread work |
+| `DisableNmiKeepJoypad` | $02 | Main loop, frame updates | NMITIMEN = `$01`: NMI off, joypad auto-read on, during main-thread work ([measured call sites](../bank02/hardware-and-init.md#nmitimen-state-by-caller-measured)) |
 | `InitHardwareRegisters` | $02 | SystemInit | PPU register init |
-| `SpcLoadBuiltinEngine` | $02 | SystemInit | Init WRAM/game state |
+| `SpcLoadBuiltinEngine` | $02 | SystemInit | SPC engine upload (boot frames 3-7) |
 | `FlushDirtyTilemapStrips` | $02 | NmiHandler | Upload OAM |
 | `ExecuteSceneTransition` | $03 | SystemInit | Load initial scene |
 | `RunActors_Normal` | $03 | Main loop | Execute all actor scripts |

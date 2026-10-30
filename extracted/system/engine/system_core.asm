@@ -138,10 +138,10 @@ IrqHandler {
 ; Boot phase:
 ; 1. Native 65816 mode, 16-bit registers
 ; 2. Direct page $0000, stack $01FF, data bank $81
-; 3. MEMSEL = 1 (but InitHardwareRegisters writes MEMSEL = 0 afterwards: boot stays SlowROM until sFB_boot_logo enables FastROM)
+; 3. MEMSEL = 1: FastROM timing lasts only for the register-init loop of InitHardwareRegisters, whose last table entry writes MEMSEL = 0. The WRAM clear, the SPC engine upload (video frames 3 to 7 after reset) and the first scene loads run with SlowROM timing until BootLogoInit (frame 84) writes MEMSEL = 1. Measured: the upload takes the same number of master clocks with FastROM timing, because it waits on the SPC port handshake
 ; 4. InitHardwareRegisters, InitSystemVariables, SpcLoadBuiltinEngine, EnterForcedBlank (the display stays off until the first scene transition)
 ; 5. Sets worldReadyFlag bit 7 (permits scene loading)
-; 6. Reads the byte at $000100 and compares it with $83, but both outcomes leave Y = 0, so sceneNext = 0 for the first ExecuteSceneTransition: no scene is selected. No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).
+; 6. Reads the byte at $000100 and compares it with $83, but both outcomes leave Y = 0, so sceneNext = 0 for the first ExecuteSceneTransition: no scene is selected. No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch). InitSystemVariables skips the stack page, so after a cold boot the byte holds power-on RAM contents and after a reset the value the game left there. Measured with the byte at $83, $00, $5A and random power-on values: the branch is taken only for $83 and skips the second LDY; the first sceneNext write (0), the frame of every later boot step and the scene sequence are identical
 ; 7. Gameplay defaults: max speed 9 per axis, HP 8/8, Str 1, Def 0, slope curve pointers, the six hieroglyph plate slots ($0B28-$0B32) = $FFFF, abilityBitmask = 0
 ; 8. sceneNext = $FB (the boot-logo scene, sFB_boot_logo, which hands over to the title screen $FC), then falls into the main loop
 ; 
@@ -166,7 +166,7 @@ SystemInit {
     PHA 
     PLB                   ; Data bank = $81 (FastROM mirror of bank $01)
     LDA #$01
-    STA $MEMSEL           ; MEMSEL = 1; InitHardwareRegisters writes 0 again below, so boot stays SlowROM until sFB_boot_logo
+    STA $MEMSEL           ; MEMSEL = 1: FastROM timing only for the register-init loop; its last table entry writes 0, so the boot stays SlowROM until BootLogoInit
     JSL $@system_init.InitHardwareRegisters
     JSL $@system_init.InitSystemVariables
     JSL $@spc_transfer.SpcLoadBuiltinEngine
@@ -347,7 +347,7 @@ UpdateFrameRender {
 UpdateFrameFull {
     PHP 
     SEP #$20
-    JSL $@vblank_joypad.DisableNmiKeepJoypad ; Enable NMI for partial V-Blank during music transition
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMITIMEN = $01 (NMI off, joypad auto-read on) for the partial V-Blank pass; EnableNmiAndJoypad at the end turns the NMI back on
     PHB 
     LDA #$81
     PHA 

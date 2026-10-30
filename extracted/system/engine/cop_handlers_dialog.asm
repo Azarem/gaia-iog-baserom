@@ -56,7 +56,7 @@ RunBg3Script {
 ---------------------------------------------
 ; COP #BE with two byte operands (read together as one word and passed to MenuSelectionHandler as its menu parameters, e.g. the grid encoding; not a pointer) plus one word (branch table base).
 ; 
-; Requires worldReadyFlag == $000F (otherwise it rewinds the script pointer and yields). Sets displayModeFlags bit 13 ($2000; no reader of this bit was found), sets joypadMaskInv = $0F00 (the D-pad buttons are the auto-repeat ones while the menu is open), clears joypadMaskStd and actor $10 bit 11 for the duration, calls MenuSelectionHandler, and branches through the table entry for the chosen option (table base + choice × 2).
+; Requires worldReadyFlag == $000F (otherwise it rewinds the script pointer and yields). Sets displayModeFlags bit 13 ($2000, dialogue mode; the only reader is the bomb countdown actor in mu67_bomb, which skips its decrement while the bit is set), sets joypadMaskInv = $0F00 (the D-pad buttons are the auto-repeat ones while the menu is open), clears joypadMaskStd and actor $10 bit 11 for the duration, calls MenuSelectionHandler, and branches through the table entry for the chosen option (table base + choice × 2).
 
 DialogueOptions {
     TYX 
@@ -72,7 +72,7 @@ DialogueOptions {
     RTL 
 
   loc_00A8A6:
-    LDA #$2000            ; Set displayModeFlags bit 13 ($2000); no reader of this bit was found
+    LDA #$2000            ; Set displayModeFlags bit 13 ($2000), dialogue mode; the only reader is the mu67_bomb countdown, which pauses while it is set
     TSB $displayModeFlags
     LDA #$0F00
     STA $joypadMaskInv    ; joypadMaskInv = $0F00: D-pad directions are the auto-repeat buttons during menu navigation
@@ -119,11 +119,11 @@ DialogueOptions {
 ---------------------------------------------
 ; COP #BF with one word operand (text pointer).
 ; 
-; Sets displayModeFlags bit 13 ($2000; no reader found), calls UpdateFrameRender to sync the display, clears actor $10 bit 11 and joypadMaskStd, renders the text via DialogStringRenderer, then restores the mask, re-applies it to joypadCurrent (TRB) and clears the D-pad bits ($0F00) in joypadHeld.
+; Sets displayModeFlags bit 13 ($2000, dialogue mode; the only reader is the bomb countdown actor in mu67_bomb, which skips its decrement while the bit is set), calls UpdateFrameRender to sync the display, clears actor $10 bit 11 and joypadMaskStd, renders the text via DialogStringRenderer, then restores the mask, re-applies it to joypadCurrent (TRB) and clears the D-pad bits ($0F00) in joypadHeld.
 
 PrintDialogString {
     TYX 
-    LDA #$2000            ; Set displayModeFlags bit 13 ($2000); no reader found (HUD suppression is hudDisableFlag, not this bit)
+    LDA #$2000            ; Set displayModeFlags bit 13 ($2000), dialogue mode (read only by the mu67_bomb countdown; HUD suppression is hudDisableFlag, not this bit)
     TSB $displayModeFlags
     LDA $0A               ; Load script pointer — UpdateFrameRender clobbers DP
     PHA                   ; Save script state — UpdateFrameRender clobbers direct page

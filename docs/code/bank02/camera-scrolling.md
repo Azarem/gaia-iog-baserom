@@ -341,6 +341,15 @@ NMI routine for the BG3 text tilemap (`bg3TilemapBuffer`, WRAM `$7F0200`, writte
 
 Afterwards `TRB #$31` clears the request bits, `VMAIN = $80`, `DMAP0 = $01`, `BBAD0 = $18`, source bank `$7F`, and DMA channel 0 is triggered. BG3SC is `$78`, so VRAM `$7800` is the BG3 tilemap. Bit 3 of `displayModeFlags` is a separate player-tile DMA request handled in `system_core.asm`.
 
+*Evidence: [RUNTIME] Mesen2 campaign C4 (ROM O; bits forced with the staging buffer filled with marker values and the VRAM read back; plus natural runs in the title, diary, South Cape, church, inventory and credits).*
+
+- **Timing.** The routine is called every NMI (step 7 of `NmiHandler`). A request set by the main thread is served in the **first NMI after it is set** and the bit is cleared in that same NMI, so each request costs exactly one DMA (idle diary scene: 300 frames, no request, no upload). Forced bit 0 with five marker words in the buffer: all five landed in VRAM `$7800`+ in the next NMI.
+- **Partial range.** Bit 4 (and bit 5, forced) copy staging offsets `$80`-`$1BF` to VRAM words `$7840`-`$7983`: only the probes at `+080` and `+1BE` changed, those at `+000`, `+1C0` and `+5BE` did not.
+- **Who requests it.** Bit 0: dialogue renderer (7 sites), `RunBg3Script`, `ExecuteSceneTransition`, `LoadHudTilemap`, inventory open/close and cursor clears, PAUSE overlay close, radar, menu selection, title / diary / credits scripts (as `$4001`). Bit 4: **only `UpdateHUD_Active`** (after an HP / max HP / gem change or an enemy-bar event; three sites). Bit 5: nobody (no instruction sets it); forced, it behaves like bit 4.
+- **The gate.** `hudDisableFlag` bit 7 (`displayModeFlags` word bit 15, `$8000`) is tested first with `BPL`: when set, the routine returns at once every NMI and the request bits **stay pending**; the first NMI after the bit is cleared performs the upload (measured: bit set for 4 frames with a bit-0 request armed, no upload; one frame after the clear the buffer appeared in VRAM). **No instruction in the ROM sets this bit.** Its only write is `TRB #$8000` in the PAUSE path of `GlobalInputHandler` (229493), which found it already clear. Treat it as a dormant "freeze BG3" switch that a patch can use.
+- **Related bits that are not this routine's:** bit 14 (`$4000`, HUD off) is read by `UpdateHUD` and `LoadHudTilemap`, not here. See [Display Mode Flags Reference](../../wram-memory-map.md#display-mode-flags-reference-09ec).
+- **Not examined:** which on-screen elements occupy staging rows 2-6 (VRAM `$7840`-`$7983`) and what the two other `UpdateHUD` bit-4 sites (`system_core.asm:466`, `:482`) redraw.
+
 ## Integration Overview
 
 *Evidence: [XREF] + [INFERRED]. These are cross-file relationships; the specific facts are in the sections above.*

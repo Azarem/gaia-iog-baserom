@@ -1,4 +1,4 @@
-; Psycho Slider glide triggers (Bank 00): five trigger actor-defs (SliderGlideTriggerWest, East, North, South and NorthEntry; 29 actor-spawn records in scene_actors, one more through awB2_stair_climb, which JumpFar's to SliderGlideTriggerNorthMain) plus the helpers LockPlayerForClimb, UnlockPlayerAfterClimb and RestorePlayerControl (the last is also called by three ramp exits in ramps.asm).
+; Psycho Slider glide triggers (Bank 00): five trigger actor-defs (SliderGlideTriggerWest, East, North, South and NorthEntry; 29 actor-spawn records in scene_actors, one more through awB2_slider_glide_trigger, which JumpFar's to SliderGlideTriggerNorthMain) plus the helpers LockPlayerForGlide, UnlockPlayerAfterGlide and RestorePlayerControl (the last is also called by three ramp exits in ramps.asm).
 ; 
 ; === What a trigger detects ===
 ; A trigger runs every frame in its own slot (D = trigger: $14/$16 = its pixel position, $0E = glide length). Y = the player actor. It fires only while Will is Psycho Sliding (RunAttackNS/RunAttackEW in player_character) through its tile: the player's animation index ($28) must be one of the two looping frames of ONE slide direction, and IsPlayerSliderSpriteBank requires the player's sprite bank ($7F0008) to be $8F (the bank of spriteset_will_abilities, which RunAttackNS / RunAttackEW select at the start of every slide with SetPlayerSpriteDirect #04).
@@ -9,10 +9,10 @@
 ; Slide axis: exact pixel equality with the trigger (X for the West/East triggers, Y for the North/South triggers). Lateral axis: a 32-pixel window, trigger - 7 .. trigger + $18 inclusive (compare is trigger - 8 < player <= trigger - 8 + $20).
 ; 
 ; === The glide ===
-; On a hit the trigger overwrites the player's entry pointer ($00/$02 of the player actor) with the matching SliderGlide routine and calls LockPlayerForClimb: $0E (the spawn record's type byte >> 1, InitActorFromSceneData mode 1) x 4 is stored as a frame countdown in the PLAYER's statsPtr ($7F0020), the player's velocity words are zeroed, D-pad input is masked (joypadMaskStd $0F00) and playerFlags $0800 is set. The player actor then runs that routine: once, $10 |= $2200 ($2000 = script-driven actor path, $0200 = ignore-enemy-contact flag (CombatCollision_InnerLoop mask $76E0) that RunAttackFlagSetup also sets) and $10 bit $0008 (collision-aware movement) is cleared; then every frame the player's X or Y is changed by 4 px directly (no collision test) until the countdown reaches 0: 4 x $0E frames = 16 px per $0E unit (a $0E of 0 would run 65,536 frames). There is no animation during the glide; the slide's looping frame stays on screen. Measured on a south trigger ($0E = 7) and a north trigger ($0E = 8): the player moves 112 px south in 28 frames or 128 px north in 32 frames, then the finish animation runs 16 frames (44 and 48 locked frames in total) and the player stands on a free row 7 or 8 tiles from the trigger, past a wall band of two solid rows with open and half-solid rows between them. The player's Y reaches the trigger row because the wall directly below that row stops the slide there, and a slide that has already ended (animation back to idle) fails the sprite-bank check and does not fire.
-; Landing: clear $2000, stage the FINISH frame of the same slide ($14 west, $17 east, $11 north, $0E south), AnimOnce, then UnlockPlayerAfterClimb. That routine does what RunAttackCleanup does (clear $0200, consume the attack bit in joypadHeld, clear playerFlags $0002) plus clearing climbStateData ($09E0, in fact the ability damage bonus that attack_ability_system sets for the slide), re-enabling collision-aware movement and un-masking joypadMaskStd, then RestorePlayerControl returns the player to PlayerIdleEntry.
+; On a hit the trigger overwrites the player's entry pointer ($00/$02 of the player actor) with the matching SliderGlide routine and calls LockPlayerForGlide: $0E (the spawn record's type byte >> 1, InitActorFromSceneData mode 1) x 4 is stored as a frame countdown in the PLAYER's statsPtr ($7F0020), the player's velocity words are zeroed, D-pad input is masked (joypadMaskStd $0F00) and playerFlags $0800 is set. The player actor then runs that routine: once, $10 |= $2200 ($2000 = script-driven actor path, $0200 = ignore-enemy-contact flag (CombatCollision_InnerLoop mask $76E0) that RunAttackFlagSetup also sets) and $10 bit $0008 (collision-aware movement) is cleared; then every frame the player's X or Y is changed by 4 px directly (no collision test) until the countdown reaches 0: 4 x $0E frames = 16 px per $0E unit (a $0E of 0 would run 65,536 frames). There is no animation during the glide; the slide's looping frame stays on screen. Measured on a south trigger ($0E = 7) and a north trigger ($0E = 8): the player moves 112 px south in 28 frames or 128 px north in 32 frames, then the finish animation runs 16 frames (44 and 48 locked frames in total) and the player stands on a free row 7 or 8 tiles from the trigger, past a wall band of two solid rows with open and half-solid rows between them. The player's Y reaches the trigger row because the wall directly below that row stops the slide there, and a slide that has already ended (animation back to idle) fails the sprite-bank check and does not fire.
+; Landing: clear $2000, stage the FINISH frame of the same slide ($14 west, $17 east, $11 north, $0E south), AnimOnce, then UnlockPlayerAfterGlide. That routine does what RunAttackCleanup does (clear $0200, consume the attack bit in joypadHeld, clear playerFlags $0002) plus clearing abilityDamageBonus ($09E0, the ability damage bonus that attack_ability_system sets for the slide), re-enabling collision-aware movement and un-masking joypadMaskStd, then RestorePlayerControl returns the player to PlayerIdleEntry.
 ; 
-; db-us/transforms.json (slider_glide) rewrites two vanilla constants: the attack-bit immediate (the vanilla ROM has a different bit, $0080 here after the button remap) and the joypadMaskStd consumption mask (ends in $FC here instead of the vanilla $F0). Comments here describe the post-transform values. Block is marked non-movable because of the tight $& coupling between triggers and climb handlers.
+; db-us/transforms.json (slider_glide) rewrites two vanilla constants: the attack-bit immediate (the vanilla ROM has a different bit, $0080 here after the button remap) and the joypadMaskStd consumption mask (ends in $FC here instead of the vanilla $F0). Comments here describe the post-transform values. Block is marked non-movable because of the tight $& coupling between triggers and glide routines.
 ---------------------------------------------
 
 ?BANK 00
@@ -23,12 +23,12 @@
 !joypadMaskStd                  065A
 !playerActor                    09AA
 !playerFlags                    09AE
-!climbStateData                 09E0
+!abilityDamageBonus             09E0
 !statsPtr                       7F0020
 
 ---------------------------------------------
 
-; Glide trigger for a WEST-moving Psycho Slide (player animation $12/$13). Needs player X == trigger X exactly and player Y inside the 32-px window trigger Y - 7 .. trigger Y + $18, sprite bank $8F. On success the player is sent to SliderGlideWest (X -4 per frame) and locked by LockPlayerForClimb. 1 spawn site.
+; Glide trigger for a WEST-moving Psycho Slide (player animation $12/$13). Needs player X == trigger X exactly and player Y inside the 32-px window trigger Y - 7 .. trigger Y + $18, sprite bank $8F. On success the player is sent to SliderGlideWest (X -4 per frame) and locked by LockPlayerForGlide. 1 spawn site.
 
 SliderGlideTriggerWest [
   actor-def < #00, #00, #20, {
@@ -73,7 +73,7 @@ SliderGlideTriggerWest [
     STA $0000, Y
     LDA #$*SliderGlideWest
     STA $0002, Y
-    JSR $&LockPlayerForClimb ; Store glide length ($0E x 4 frames) in the player's statsPtr, zero its velocity, mask the D-pad
+    JSR $&LockPlayerForGlide ; Store glide length ($0E x 4 frames) in the player's statsPtr, zero its velocity, mask the D-pad
     RTL 
 } >
 ]
@@ -124,7 +124,7 @@ SliderGlideTriggerEast [
     STA $0000, Y
     LDA #$*SliderGlideEast
     STA $0002, Y
-    JSR $&LockPlayerForClimb ; Lock the player and arm the glide (SliderGlideEast: X +4 per frame)
+    JSR $&LockPlayerForGlide ; Lock the player and arm the glide (SliderGlideEast: X +4 per frame)
     RTL 
 } >
 ]
@@ -149,7 +149,7 @@ SliderGlideTriggerNorthEntry [
 SliderGlideTriggerNorth [
   actor-def < #00, #00, #20, {
 
-; Main per-frame entry of SliderGlideTriggerNorth after SetEntryHere: requires the player in a 32 px X window (trigger X minus 8 through plus $18), Y equal to trigger Y, Psycho Slide sprite bank, and animation $0F or $10, then redirects the player to SliderGlideNorth and calls LockPlayerForClimb; otherwise returns with RTL.
+; Main per-frame entry of SliderGlideTriggerNorth after SetEntryHere: requires the player in a 32 px X window (trigger X minus 8 through plus $18), Y equal to trigger Y, Psycho Slide sprite bank, and animation $0F or $10, then redirects the player to SliderGlideNorth and calls LockPlayerForGlide; otherwise returns with RTL.
 
   SliderGlideTriggerNorthMain:
     COP [SetEntryHere]    ; Set entry for per-frame execution (re-check every frame)
@@ -193,7 +193,7 @@ SliderGlideTriggerNorth [
     STA $0000, Y
     LDA #$*SliderGlideNorth
     STA $0002, Y
-    JSR $&LockPlayerForClimb
+    JSR $&LockPlayerForGlide
     RTL 
 } >
 ]
@@ -247,7 +247,7 @@ SliderGlideTriggerSouth [
     STA $0000, Y
     LDA #$*SliderGlideSouth
     STA $0002, Y
-    JSR $&LockPlayerForClimb
+    JSR $&LockPlayerForGlide
     RTL 
 } >
 ]
@@ -274,19 +274,19 @@ IsPlayerSliderSpriteBank {
 }
 
 ---------------------------------------------
-; Player-side glide for a west slide: entry flags once ($10 |= $2200, bit $0008 cleared), then X -4 per frame while the statsPtr countdown runs; at 0 it leaves script-driven mode, stages the west slide's finish frame $14 and calls UnlockPlayerAfterClimb.
+; Player-side glide for a west slide: entry flags once ($10 |= $2200, bit $0008 cleared), then X -4 per frame while the statsPtr countdown runs; at 0 it leaves script-driven mode, stages the west slide's finish frame $14 and calls UnlockPlayerAfterGlide.
 
 SliderGlideWest {
     LDA #$2200            ; Once on entry: $2000 = script-driven actor path, $0200 = ignore enemy contact (also set by RunAttackFlagSetup)
     TSB $10
-    LDA #$0008            ; Clear $10 bit $0008 (collision-aware movement) for the glide; UnlockPlayerAfterClimb sets it again
+    LDA #$0008            ; Clear $10 bit $0008 (collision-aware movement) for the glide; UnlockPlayerAfterGlide sets it again
     TRB $10
     COP [SetEntryHere]
     LDA $14               ; West glide: player X -4 per frame, written directly (no collision test)
     SEC 
     SBC #$0004
     STA $14
-    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForClimb (the player's statsPtr reused)
+    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForGlide (the player's statsPtr reused)
     DEC 
     BEQ loc_00D238        ; Counter reached zero → play landing sprite and unlock
     STA $statsPtr, X
@@ -297,7 +297,7 @@ SliderGlideWest {
     TRB $10
     COP [StageSpriteFrame] ( #14 ) ; $14 = finish frame of the west Psycho Slide (spriteset_will_abilities)
     COP [AnimOnce]
-    JSR $&UnlockPlayerAfterClimb
+    JSR $&UnlockPlayerAfterGlide
     RTL 
 }
 
@@ -314,7 +314,7 @@ SliderGlideEast {
     CLC 
     ADC #$0004
     STA $14
-    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForClimb
+    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForGlide
     DEC 
     BEQ loc_00D266
     STA $statsPtr, X
@@ -325,7 +325,7 @@ SliderGlideEast {
     TRB $10
     COP [StageSpriteFrame] ( #17 ) ; $17 = finish frame of the east Psycho Slide
     COP [AnimOnce]
-    JSR $&UnlockPlayerAfterClimb
+    JSR $&UnlockPlayerAfterGlide
     RTL 
 }
 
@@ -342,7 +342,7 @@ SliderGlideNorth {
     SEC 
     SBC #$0004
     STA $16
-    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForClimb
+    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForGlide
     DEC 
     BEQ loc_00D294
     STA $statsPtr, X
@@ -353,7 +353,7 @@ SliderGlideNorth {
     TRB $10
     COP [StageSpriteFrame] ( #11 ) ; $11 = finish frame of the north Psycho Slide
     COP [AnimOnce]
-    JSR $&UnlockPlayerAfterClimb
+    JSR $&UnlockPlayerAfterGlide
     RTL 
 }
 
@@ -370,7 +370,7 @@ SliderGlideSouth {
     CLC 
     ADC #$0004
     STA $16
-    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForClimb
+    LDA $statsPtr, X      ; Frame countdown stored by LockPlayerForGlide
     DEC 
     BEQ loc_00D2C2
     STA $statsPtr, X
@@ -381,14 +381,14 @@ SliderGlideSouth {
     TRB $10
     COP [StageSpriteFrame] ( #0E ) ; $0E = finish frame of the south Psycho Slide
     COP [AnimOnce]
-    JSR $&UnlockPlayerAfterClimb
+    JSR $&UnlockPlayerAfterGlide
     RTL 
 }
 ---------------------------------------------
 
 ; Runs in the TRIGGER's context (D = trigger) right after a hit. Stores $0E x 4 (the glide length in frames; 4 px per frame, so 16 px per unit of $0E) in the PLAYER's statsPtr ($7F0020) as a countdown, zeroes the player's $2C/$2E/$08, masks the D-pad ($0F00 into joypadMaskStd) and sets playerFlags $0800 (script/ability lock). The countdown is left at 1 when the glide ends (the zero is never stored back).
 
-LockPlayerForClimb {
+LockPlayerForGlide {
     LDA $0E               ; D = trigger: $0E = glide length in units of 16 px (spawn type byte >> 1 for odd type bytes)
     ASL                   ; ASL ×2: step count = param × 4 (4px/frame × 4 = 16px per unit)
     ASL 
@@ -400,18 +400,18 @@ LockPlayerForClimb {
     STA $002E, X
     STA $0008, X
     PLX 
-    LDA #$0F00            ; Mask D-pad buttons ($0F00) in joypadMaskStd — no input during climb
+    LDA #$0F00            ; Mask D-pad buttons ($0F00) in joypadMaskStd — no input during the glide
     TSB $joypadMaskStd
     LDA #$0800
-    TSB $playerFlags      ; Set playerFlags $0800 (script/ability lock — climb active)
+    TSB $playerFlags      ; Set playerFlags $0800 (script/ability lock — glide active)
     RTS 
 }
 
 ---------------------------------------------
-; End of a glide, standing in for RunAttackCleanup (which the interrupted slide never reaches): zeroes climbStateData ($09E0, the ability damage bonus), clears the consumption bits from joypadMaskStd, sets $10 bit $0008 and clears $0200, consumes the attack press in joypadHeld, clears playerFlags $0002, then RestorePlayerControl.
+; End of a glide, standing in for RunAttackCleanup (which the interrupted slide never reaches): zeroes abilityDamageBonus ($09E0, the ability damage bonus set for the slide), clears the consumption bits from joypadMaskStd, sets $10 bit $0008 and clears $0200, consumes the attack press in joypadHeld, clears playerFlags $0002, then RestorePlayerControl.
 
-UnlockPlayerAfterClimb {
-    STZ $climbStateData   ; $09E0 is the ability damage bonus set for the slide (named climbStateData); zero it because the slide's own cleanup is skipped
+UnlockPlayerAfterGlide {
+    STZ $abilityDamageBonus ; Zero abilityDamageBonus ($09E0), the ability damage bonus set for the slide; the slide's own cleanup is skipped, so zero it here
     LDA #$CFFC            ; Clear the consumed-button bits from joypadMaskStd (the mask differs from the vanilla ROM after the button remap)
     TRB $joypadMaskStd
     LDA #$0008            ; $10 bit $0008 = collision-aware movement back on
@@ -427,7 +427,7 @@ UnlockPlayerAfterClimb {
 }
 ---------------------------------------------
 
-; Returns the player to normal locomotion: entry pointer = PlayerIdleEntry, $2C/$2E/$08 zeroed, $10 = ($10 and $FDFF) or $0008, D-pad un-masked ($0F00 from joypadMaskStd), playerFlags $0800 cleared. Called from UnlockPlayerAfterClimb and from three ramp exits in ramps.asm.
+; Returns the player to normal locomotion: entry pointer = PlayerIdleEntry, $2C/$2E/$08 zeroed, $10 = ($10 and $FDFF) or $0008, D-pad un-masked ($0F00 from joypadMaskStd), playerFlags $0800 cleared. Called from UnlockPlayerAfterGlide and from three ramp exits in ramps.asm.
 
 RestorePlayerControl {
     PHX 

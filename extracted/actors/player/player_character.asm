@@ -13,7 +13,7 @@
 ; 
 ; 2. LEDGE JUMP (181790–182198)
 ;    LedgeJumpEntry, LedgeJumpLand, CheckLedgeJumpFrame, CheckLedgeJumpAttack, LedgeJumpDropAttack, LedgeJumpDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.
-;    Ledge jump: the player steps off a ledge and falls (3-frame alternating sprite cycle, force Y movement #07) until the solid-type test under the feet passes, then lands with pose $1C. Seen in Mesen2 in scene $01 (South Cape): Will walks south onto a type $08 cell, a gap in a mossy wall edge, and drops about 87 px onto the roof below. Entered through a type $08 cell (SouthLedgeTile in player_move_south) or by the scripts awB3_ledge_jump_trigger and pyD0_breakable_wall. It is not limited to Freedan: SouthLedgeTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the animations $18-$1B. Only the drop attack is Freedan-only: CheckLedgeJumpAttack gates it to Freedan (form 1) with abilityBitmask bit 6 ($0040). LedgeJumpDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
+;    Ledge jump: the player steps off a ledge and falls (3-frame alternating sprite cycle, force Y movement #07) until the solid-type test under the feet passes, then lands with pose $1C. Seen in Mesen2 in scene $01 (South Cape): Will walks south onto a type $08 cell, a gap in a mossy wall edge, and drops about 87 px onto the roof below. Entered through a type $08 cell (SouthLedgeTile in player_move_south) or by the scripts awB3_ledge_jump_trigger and pyD0_ledge_jump_trigger. It is not limited to Freedan: SouthLedgeTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the animations $18-$1B. Only the drop attack is Freedan-only: CheckLedgeJumpAttack gates it to Freedan (form 1) with abilityBitmask bit 6 ($0040). LedgeJumpDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
 ; 
 ; 3. LADDER SYSTEM (182198–182461)
 ;    LadderClimbSouth/North, LadderMoveDown/Up, LadderIdleSouth/North (+ Shadow variants), LadderLandBottom, LadderReachTop.
@@ -37,7 +37,7 @@
 ; 
 ; 8. LUNGE + PROJECTILES (184138–184272)
 ;    RangedAttackSouth/North/West/East, RangedSetForceX/Y, ProjectileSouth/North/West/East.
-;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, climbStateData = 1 (the Will ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_darkgaia_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set.
+;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, abilityDamageBonus = 1 (the ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_darkgaia_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set.
 ---------------------------------------------
 
 ?BANK 02
@@ -65,7 +65,7 @@
 !playerSpeedNs                  09B4
 !slopeStepCounter               09B6
 !decelStepCounter               09B8
-!climbStateData                 09E0
+!abilityDamageBonus             09E0
 !abilityBitmask                 0AA2
 !characterForm                  0AD4
 !gameOverWakeupFlag             0AF8
@@ -111,7 +111,7 @@ PlayerCharacterDef [
 ---------------------------------------------
 ; Main idle state entry and input dispatch loop.
 ; 
-; Clears transient state: the D-pad bits of joypadHeld ($F0FF mask, so held directions are re-detected), playerFlags $2800 (block and script/ability lock), actor flag $0020 (the block marker) and climbStateData; sets actor flag $0100 again. Returns at once when bit $2000 of actor flags $10 is set (SortActorsByDepth treats that bit as hidden; StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor set it on the player).
+; Clears transient state: the D-pad bits of joypadHeld ($F0FF mask, so held directions are re-detected), playerFlags $2800 (block and script/ability lock), actor flag $0020 (the block marker) and abilityDamageBonus; sets actor flag $0100 again. Returns at once when bit $2000 of actor flags $10 is set (SortActorsByDepth treats that bit as hidden; StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor set it on the player).
 ; 
 ; Saves itself as the return point via SetSavedPtr, clears force movement. Checks for residual speed — if nonzero, jumps to MovingEastWest or MovingNorthSouth for inertial deceleration.
 ; 
@@ -128,7 +128,7 @@ PlayerIdleEntry {
     TSB $10
     LDA #$0020            ; Clear $0020 in actor flags $10: the marker the block loop sets (the Psycho Slider marker is $0200, cleared by RunAttackCleanup)
     TRB $10
-    STZ $climbStateData   ; Zero climbStateData ($09E0), the Will ability damage bonus that the lunge sets to 1
+    STZ $abilityDamageBonus ; Zero abilityDamageBonus ($09E0), the ability damage bonus that the lunge sets to 1
     LDA $10               ; Bit $2000 of $10: hidden, SortActorsByDepth skips it; idle then yields without acting (the routines that set it on the player are listed in the part note)
     BIT #$2000
     BEQ loc_02C3EE
@@ -481,7 +481,7 @@ SetAutoWalkTimer {
 ---------------------------------------------
 ; Ledge jump: the player steps off a ledge and falls until the ground test under the feet passes. Available to every form; only the drop attack (CheckLedgeJumpAttack) is Freedan-only.
 ; 
-; Three writers put its address into the player actor's entry word ($0000,Y): SouthLedgeTile (player_move_south) when the player walks south onto a type $08 cell, and the one-shot scene scripts awB3_ledge_jump_trigger (Angkor Wat outer north) and pyD0_breakable_wall (Pyramid scenes $D0 and $D1). The scripts enter it with no $08 cell involved.
+; Three writers put its address into the player actor's entry word ($0000,Y): SouthLedgeTile (player_move_south) when the player walks south onto a type $08 cell, and the one-shot scene scripts awB3_ledge_jump_trigger (Angkor Wat outer north) and pyD0_ledge_jump_trigger (Pyramid scenes $D0 and $D1). The scripts enter it with no $08 cell involved.
 ; 
 ; Entry: clear actor flag $0008 (restored by LedgeJumpLand), set actor flag $0200, hide the use-item button ($0008) via joypadMaskStd. Plays the take-off poses (sprites #18, #19).
 ; 
@@ -1786,7 +1786,7 @@ AttackInit {
 ---------------------------------------------
 ; Will-only lunge follow-up — south direction.
 ; 
-; Reached from AttackSouth when Will (form 0) holds the facing direction during the swing. Calls RangedSetForceY (force move #46, playerFlags $0800, climbStateData = 1, actor flag $0200, extendedFlags $0040), shows sprite #44, animates once, then clears actor flag $0200 and extendedFlags $0040 (AndExtraFlags #$FFBF) and restores the saved ptr.
+; Reached from AttackSouth when Will (form 0) holds the facing direction during the swing. Calls RangedSetForceY (force move #46, playerFlags $0800, abilityDamageBonus = 1, actor flag $0200, extendedFlags $0040), shows sprite #44, animates once, then clears actor flag $0200 and extendedFlags $0040 (AndExtraFlags #$FFBF) and restores the saved ptr.
 ; 
 ; North/West/East variants mirror this with sprites #45/#46/#47. North sets $2000 and west sets $4000 in $12, the direction-negate bits tile_collision_physics uses to flip the Y / X delta; the east and south variants need no flip. No projectile is spawned here.
 
@@ -1839,7 +1839,7 @@ RangedSetForceY {
     LDA #$0800
     TSB $playerFlags      ; Set playerFlags $0800 (script/ability lock); PlayerIdleEntry clears it again
     LDA #$0001
-    STA $climbStateData   ; climbStateData = 1: the Will ability damage bonus ($09E0) that combat_collision adds; PlayerIdleEntry zeroes it
+    STA $abilityDamageBonus ; abilityDamageBonus = 1: the ability damage bonus ($09E0) that combat_collision adds; PlayerIdleEntry zeroes it
     LDA #$0200
     TSB $10               ; Set $0200 in actor flags (the bit the Psycho Slider also sets); the lunge exit clears it
     COP [OrExtraFlags] ( #$0040 ) ; Set extendedFlags $0040, the bounce flag tile_collision_physics reads; the lunge exit clears it with AndExtraFlags #$FFBF

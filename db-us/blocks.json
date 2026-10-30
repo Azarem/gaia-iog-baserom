@@ -58,7 +58,7 @@
         "system_core": { "start": 32768, "end": 33901, "type": "Code", "scene": "engine" },
         "slider_glide": { "scene": "engine", "parts": {
             "SliderGlideTriggerWest": { "start": 53457, "end": 53968, "type": "actor-def" },
-            "LockPlayerForClimb": { "start": 53384, "end": 53457, "type": "Code", "order": 53923 },
+            "LockPlayerForGlide": { "start": 53384, "end": 53457, "type": "Code", "order": 53923 },
             "RestorePlayerControl": { "start": 54666, "end": 54720, "type": "Code" }
         } },
         "smooth_follow": { "scene": "engine", "parts": {
@@ -1104,7 +1104,7 @@
         "awB4_snake_pit_fx": { "start": 563147, "end": 563168, "type": "actor-def", "scene": "snake_pit", "movable": true },
         "awB0_intro": { "start": 563168, "end": 563294, "type": "actor-def", "scene": "angkor_entrance", "movable": true },
         "awBD_fall_trigger": { "start": 563294, "end": 563400, "type": "actor-def", "movable": true },
-        "awB2_stair_climb": { "start": 563400, "end": 563418, "type": "actor-def", "scene": "angkor_outer_east", "movable": true },
+        "awB2_slider_glide_trigger": { "start": 563400, "end": 563418, "type": "actor-def", "scene": "angkor_outer_east", "movable": true },
         "awB3_ledge_jump_trigger": { "start": 563418, "end": 563498, "type": "actor-def", "scene": "angkor_outer_north", "movable": true },
         "awB4_snake_pit_entry": { "start": 563498, "end": 563631, "type": "actor-def", "scene": "snake_pit", "movable": true },
         "awB7_sliding_gate": { "start": 563631, "end": 563740, "type": "actor-def", "scene": "angkor_inner_gate", "movable": true },
@@ -1337,7 +1337,7 @@
         } }
     },
     "pyramid": {
-        "pyD0_breakable_wall": { "start": 570770, "end": 570984, "type": "actor-def", "movable": true },
+        "pyD0_ledge_jump_trigger": { "start": 570770, "end": 570984, "type": "actor-def", "movable": true },
         "pyCC_dark_space_portal": { "start": 570984, "end": 571042, "type": "actor-def", "scene": "pyramid_main", "movable": true },
         "pyCC_entrance_portal": { "scene": "pyramid_main", "movable": true, "parts": {
             "pyCC_entrance_portal": { "start": 571042, "end": 571124, "type": "actor-def" },

@@ -24,7 +24,7 @@
 ; 
 ; === AD-HOC VRAM DMA (258512–258561) ===
 ; 
-; DmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03–$7F0C09 (source word, source bank, destination word = trigger, byte count). It only runs from the NMI handler, which has just programmed VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 for it, and it is skipped when dmaSkipFlag is set or when displayModeFlags bit 3 selected the player-tile path instead. Writers must store the size before the destination (the destination arms the transfer).
+; DmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03–$7F0C09 (source word, source bank, destination word = trigger, byte count). It only runs from the NMI handler, which has just programmed VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 for it, and it is skipped when dmaSkipFlag is set or when displayModeFlags bit 3 selected the player-tile path instead. The destination word is the pending flag: the NMI runs the transfer when it is nonzero. Both writers (RadarScreenSetup and the AdhocVramDma COP handler) store the destination before the size. Measured: in every pair (radar screen, credits scene, boot) the NMI was off at both stores and no NMI ran between them. Actors normally run with NMITIMEN = $01, but the first UpdateFrameDialogue pass after a scene load runs RunActors_CutsceneOnly with NMITIMEN = $81, and neither writer guards against an NMI between its two stores there. A writer that can run with the NMI on has to store the size first.
 ---------------------------------------------
 
 ?BANK 03

@@ -21,7 +21,7 @@
 
 ; COP #4F with a long source Address, a VRAM destination word and a size word (7 operand bytes). First call: if the staging block is free (adhocVramDmaDest = 0) it copies the operands into adhocVramDma / adhocVramDmaBank / adhocVramDmaDest / adhocVramDmaSize, sets extendedFlags bit 0 and yields. Later calls (bit 0 set) compare the COP's destination operand with adhocVramDmaDest, which the NMI zeroes when DmaAdhocVramBlock runs; once they differ the transfer is done, bit 0 is cleared and the script resumes after the 7 operand bytes. If the block is busy with another transfer it yields without staging. Every yield rewinds the actor entry address ($00) to this COP so it runs again next frame.
 ; 
-; The destination word is written before the size word, but the NMI fires on a nonzero destination.
+; The destination word is written before the size word, and the NMI runs the transfer when the destination is nonzero. Actors normally execute with NMITIMEN = $01 (NMI off), so no NMI can run between the two stores; UpdateFrameFull switches the NMI off first. The first UpdateFrameDialogue pass after a scene load runs actors with NMITIMEN = $81 and has no such protection.
 
 AdhocVramDma {
     TYX 

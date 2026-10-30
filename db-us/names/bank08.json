@@ -1,8 +1,10 @@
 {
     "560324": "nvAC_hand_man1_destroy",
+    "563400": "awB2_slider_glide_trigger",
     "563418": "awB3_ledge_jump_trigger",
     "570743": "camera_delta_oscillator",
     "570746": "CameraDeltaOscillate",
+    "570770": "pyD0_ledge_jump_trigger",
     "571293": "pyCD_flame_statue2",
     "574847": "pyD7_actor_08C57F",
     "575429": "pyDA_lithograph_full",

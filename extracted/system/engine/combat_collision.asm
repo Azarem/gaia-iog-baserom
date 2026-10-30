@@ -36,7 +36,7 @@
 ;   chainDamage stored at $7F101E,X accumulates across consecutive hits
 ; 
 ; Phase-2 hit (ApplyHitDamageToVictim: uses the PLAYER's strength and reduces the overlapped actor's HP):
-;   totalStr = playerStr + bonus + climbStateData      (bonus = $09E2, 0 when the hitter is actor slot $1000)
+;   totalStr = playerStr + rangedDamageBonus + abilityDamageBonus   (rangedDamageBonus = $09E2, 0 when the hitter is actor slot $1000)
 ;   rawDamage = max(1, totalStr − victimStats[2])      (stats table: [0] max HP, [1] ATK, [2] DEF)
 ;   damage = rawDamage + characterForm
 ;   victimHP = max(0, victimHP − damage)
@@ -96,7 +96,8 @@
 !joypadMaskStd                  065A
 !playerActor                    09AA
 !playerFlags                    09AE
-!climbStateData                 09E0
+!abilityDamageBonus             09E0
+!rangedDamageBonus              09E2
 !enemyHpDisplay                 09E4
 !enemyHpCurrentDisplay          09E6
 !enemyHpPending                 09EA
@@ -680,7 +681,7 @@ PlayerAttackHitTest_End {
 ; Path 1 ($24 nonzero — interaction/push hit): Checks the enemy's scratch1010+6 ($7F1016,X) for a custom interaction handler. If present, overwrites the enemy's entry point. Otherwise, sets the enemy to SpawnImpactSparkAndDie (player_transition_handlers), marks $0040 (death flag), and dispatches knockback velocity by player facing direction (±4 to extVelocityX/Y).
 ; 
 ; Path 2 ($24 zero — combat damage, the code under ApplyHitDamageToVictim_DamagePath): Checks if the victim has $0010 in flags10 (invincible) → routes to HitInvincibleVictim. Otherwise computes damage:
-;   totalStr = playerStr + bonus ($09E2, 0 for hitter slot $1000) + climbStateData
+;   totalStr = playerStr + rangedDamageBonus ($09E2, 0 for hitter slot $1000) + abilityDamageBonus ($09E0)
 ;   rawDamage = max(1, totalStr − victimStats[2])   (stats[2] = DEF)
 ;   netDamage = rawDamage + characterForm
 ; Subtracts from enemy HP, spawns damage digits (spawn flags $2B00, then $12 bit $1000 of the spawned actor is set: the display-filter qualifier that lets it run in RunActors_DisplayFiltered), handles death (onDeathCallback or StandardEnemyDefeatHandler), and spawns HitStaggerMain for knockback.
@@ -746,7 +747,7 @@ ApplyHitDamageToVictim {
 }
 
 ---------------------------------------------
-; Second half of ApplyHitDamageToVictim. Its first two instructions (TXY, RTS) are the landing pad of the PEA label−1 RTS trick that finishes the push/knockback path of the handler (Y = X on return). The rest of the part, entered at loc_03BF86 when $24 is zero, is the combat-damage path: totalStr = playerStr + bonus + climbStateData, rawDamage = max(1, totalStr − victim DEF), netDamage = rawDamage + characterForm, victim HP clamped at 0.
+; Second half of ApplyHitDamageToVictim. Its first two instructions (TXY, RTS) are the landing pad of the PEA label−1 RTS trick that finishes the push/knockback path of the handler (Y = X on return). The rest of the part, entered at loc_03BF86 when $24 is zero, is the combat-damage path: totalStr = playerStr + rangedDamageBonus + abilityDamageBonus, rawDamage = max(1, totalStr − victim DEF), netDamage = rawDamage + characterForm, victim HP clamped at 0.
 ; 
 ; Then it spawns the damage digits (skipped for $12 bit 5 bosses), marks the victim $0080, resolves death inline (onDeathCallback or StandardEnemyDefeatHandler) or spawns HitStaggerMain, dispatches and clears onHitCallback, sets iframeCounter ($FFEF = negative = recovery when $12 bit 0 ($0001) is set, otherwise $0011 = positive = hit-stun: non-player actors skip their tick, the player's tick still runs), plays hit sound #05, updates the HUD HP registers and finally handles the onCollideCallback of the attacker. A player with the invincible flag ($10 bit 4) is diverted to HitInvincibleVictim.
 
@@ -763,11 +764,11 @@ ApplyHitDamageToVictim_DamagePath {
     JMP $&HitInvincibleVictim
 
   loc_03BF94:
-    STZ $20               ; $20 = bonus term: 0, or $09E2 unless the hitter ($08) is actor slot $1000; totalStr = playerStr + bonus + climbStateData
+    STZ $20               ; $20 = rangedDamageBonus term: 0, or $09E2 unless the hitter ($08) is actor slot $1000; totalStr = playerStr + that term + abilityDamageBonus ($09E0)
     LDA $08
     CMP #$1000
     BEQ loc_03BFA2
-    LDA $climbStateData+2
+    LDA $rangedDamageBonus
     STA $20
 
   loc_03BFA2:
@@ -777,7 +778,7 @@ ApplyHitDamageToVictim_DamagePath {
     CLC 
     ADC $20
     CLC 
-    ADC $climbStateData
+    ADC $abilityDamageBonus
     STA $20
     TXA 
     TCD 

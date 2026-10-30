@@ -14,11 +14,11 @@ Primary:
 | `extracted/system/engine/slider_glide.asm` | Triggers, glide routines, lock/unlock helpers, `RestorePlayerControl` |
 | `extracted/actors/ramps.asm` | Cross-bank `JSR $&slider_glide.RestorePlayerControl` from ramp completion |
 | `extracted/tables/scene_actors.asm` | Static `actor-spawn` rows pointing at trigger labels |
-| `extracted/angkor_wat/angkor_outer_east/awB2_stair_climb.asm` | Runtime `JumpFar` into `SliderGlideTriggerNorthMain` |
+| `extracted/angkor_wat/angkor_outer_east/awB2_slider_glide_trigger.asm` | Runtime `JumpFar` into `SliderGlideTriggerNorthMain` |
 
-**Naming:** Section headings use extracted labels (`SliderGlideTriggerWest`, `LockPlayerForClimb`, …). Scene area names below are documentation shorthand tied to `scene_*_actors` tables in `scene_actors.asm`, not separate ROM labels.
+**Naming:** Section headings use extracted labels (`SliderGlideTriggerWest`, `LockPlayerForGlide`, …). Scene area names below are documentation shorthand tied to `scene_*_actors` tables in `scene_actors.asm`, not separate ROM labels.
 
-**Counts:** **5** live trigger implementations (four directional gates plus `SliderGlideTriggerNorthEntry`); **29** static scene placements in `scene_actors.asm` (counted with `rg` this session); **1** additional runtime entry to `SliderGlideTriggerNorthMain` via `awB2_stair_climb`; **11** unique `scene_*_actors` tables contain at least one spawn; **3** external `RestorePlayerControl` call sites in `ramps.asm` (`RampPlayerClimbNorth`, `RampPlayerClimbSouth`, `RampArcDriver`).
+**Counts:** **5** live trigger implementations (four directional gates plus `SliderGlideTriggerNorthEntry`); **29** static scene placements in `scene_actors.asm` (counted with `rg` this session); **1** additional runtime entry to `SliderGlideTriggerNorthMain` via `awB2_slider_glide_trigger`; **11** unique `scene_*_actors` tables contain at least one spawn; **3** external `RestorePlayerControl` call sites in `ramps.asm` (`RampPlayerClimbNorth`, `RampPlayerClimbSouth`, `RampArcDriver`).
 
 ---
 
@@ -43,7 +43,7 @@ Invisible **slider glide triggers** are `actor-def` entries on Psycho Slider lan
 1. Reads the **player** actor (`LDY $playerActor`) and checks proximity (32-pixel lateral window; exact pixel match on the slide axis).
 2. Calls **`IsPlayerSliderSpriteBank`** — carry **clear** only when `$7F0008` (player spriteset bank byte) equals **`$8F`** (bank of `spriteset_will_abilities`, selected at slide start via `SetPlayerSpriteDirect #04`).
 3. Validates **`$28`** (animation index) against the **start/loop** pair for that slide direction (not the finish frames).
-4. On success, writes the player entry pointer to the matching **`SliderGlide*`** routine and **`JSR $&LockPlayerForClimb`** (trigger context: **`D` = trigger slot**, **`$0E` = glide length parameter**).
+4. On success, writes the player entry pointer to the matching **`SliderGlide*`** routine and **`JSR $&LockPlayerForGlide`** (trigger context: **`D` = trigger slot**, **`$0E` = glide length parameter**).
 
 Trigger names match **slide direction**: west slide → `SliderGlideTriggerWest` → `SliderGlideWest` (X − 4/frame); east → `SliderGlideEast` (X + 4); north → `SliderGlideNorth` (Y − 4); south → `SliderGlideSouth` (Y + 4).
 
@@ -87,7 +87,7 @@ Trigger names match **slide direction**: west slide → `SliderGlideTriggerWest`
   +----------+----------+
              v
   +---------------------+
-  | LockPlayerForClimb  |
+  | LockPlayerForGlide  |
   | (trigger $0E ->     |
   |  player statsPtr)   |
   +----------+----------+
@@ -95,7 +95,7 @@ Trigger names match **slide direction**: west slide → `SliderGlideTriggerWest`
   [Player runs SliderGlide* until countdown 0]
              v
   +---------------------+
-  | UnlockPlayerAfterClimb |
+  | UnlockPlayerAfterGlide |
   +----------+----------+
              v
   +---------------------+
@@ -108,9 +108,9 @@ Trigger names match **slide direction**: west slide → `SliderGlideTriggerWest`
 
 ## Shared lock / unlock utilities
 
-### LockPlayerForClimb — **live**
+### LockPlayerForGlide — **live**
 
-**Label:** `LockPlayerForClimb` · **Address:** `$00D088`
+**Label:** `LockPlayerForGlide` · **Address:** `$00D088`
 
 Called from all **five** trigger code paths after redirecting the player entry pointer.
 
@@ -119,13 +119,13 @@ Called from all **five** trigger code paths after redirecting the player entry p
 3. **`TSB $joypadMaskStd`** with **`$0F00`** (mask D-pad; post-`transforms.json` value in this baserom).
 4. **`TSB $playerFlags`** with **`$0800`** (script/ability lock).
 
-### UnlockPlayerAfterClimb — **live**
+### UnlockPlayerAfterGlide — **live**
 
-**Label:** `UnlockPlayerAfterClimb` · **Address:** `$00D0AE`
+**Label:** `UnlockPlayerAfterGlide` · **Address:** `$00D0AE`
 
 Called from all **four** `SliderGlide*` routines when the countdown reaches zero.
 
-1. **`STZ $climbStateData`** (`$09E0` — ability damage bonus for the slide; the interrupted slide never runs its normal cleanup).
+1. **`STZ $abilityDamageBonus`** (`$09E0` — ability damage bonus for the slide; the interrupted slide never runs its normal cleanup).
 2. **`TRB $joypadMaskStd`** with **`$CFFC`** (unmask consumed buttons; differs from vanilla after button remap — see `transforms.json` / block note).
 3. Player **`$10`**: set bit **`$0008`**, clear bit **`$0200`**.
 4. **`TSB $joypadHeld`** with **`$0080`** (consume attack press — remapped attack bit in this baserom).
@@ -150,7 +150,7 @@ Resets the player to **`PlayerIdleEntry`**, zeros **`$002C` / `$002E` / `$0008`*
 
 ## Actor trigger definitions
 
-All five are separate **`actor-def`** blocks in `slider_glide.asm`. Spawn counts are **static placements** in `scene_actors.asm` only (plus the **`awB2_stair_climb`** JumpFar noted under North).
+All five are separate **`actor-def`** blocks in `slider_glide.asm`. Spawn counts are **static placements** in `scene_actors.asm` only (plus the **`awB2_slider_glide_trigger`** JumpFar noted under North).
 
 | Trigger | Slide anim `$28` | Axis / window | Glide target | Static spawns |
 |---------|------------------|---------------|--------------|---------------|
@@ -172,7 +172,7 @@ All four **`SliderGlide*`** routines (**live**):
 2. **`COP [SetEntryHere]`** — multi-frame execution on the **player** slot.
 3. Move **`$14`** or **`$16`** by **±4** per frame (no collision test).
 4. Decrement **`$7F0020,X`** (`statsPtr` countdown); if non-zero → **`RTL`**.
-5. At zero: clear **`$2000`** from **`$10`**, **`COP [StageSpriteFrame]`** with finish frame, **`COP [AnimOnce]`**, **`JSR $&UnlockPlayerAfterClimb`**.
+5. At zero: clear **`$2000`** from **`$10`**, **`COP [StageSpriteFrame]`** with finish frame, **`COP [AnimOnce]`**, **`JSR $&UnlockPlayerAfterGlide`**.
 
 | Routine | Movement | Finish frame operand |
 |---------|----------|----------------------|
@@ -199,7 +199,7 @@ Original ROM, scene `$B5` (single collision layer; South triggers at tiles (6, 1
 - **How the slide meets the trigger Y:** the player's Y reaches the trigger row (Y 218, 223, 224) and the trigger fires on the frame it equals 224; the glide then moves 4 px per frame (228, 232, 236, ...). A slide that has already ended (animation back to idle) at Y 224 fails the sprite-bank check and never fires: in 8 of 32 south cases the player was held at (X, 224) with the slide ended and the Y equality true for 24 frames, never the sprite-bank test. These cases are the outermost offsets (trigger X − 4 on the trigger at X 104, trigger X + 20 on the trigger at X 136), where the player stands against the walls that flank the gap.
 - **Window:** fired at X = trigger + 4, + 12, + 20 (trigger at X 104) and trigger − 4, + 4, + 12 (trigger at X 136); the exact edges `trigger − 7` and `trigger + $18` were not isolated.
 - **Controls:** walking down the same column (no slide) and the slide input without the ability bit never fire.
-- **Not measured:** the East and West triggers (only scene `$62`, whose dual-layer collision was not resolved), `SliderGlideTriggerNorthEntry`, the triggers at (7, 30) and (7, 39), the exact lateral window edges, and the old "stair" name.
+- **Not measured:** the East and West triggers (only scene `$62`, whose dual-layer collision was not resolved), `SliderGlideTriggerNorthEntry`, the triggers at (7, 30) and (7, 39), the exact lateral window edges. (The block, its doc file and `awB2_slider_glide_trigger` were once called "stair" / "climb"; they are Psycho Slider glides.)
 
 ---
 
@@ -207,14 +207,14 @@ Original ROM, scene `$B5` (single collision layer; South triggers at tiles (6, 1
 
 | Location | Role |
 |----------|------|
-| Trigger **`$0E`** | Glide length units (×4 frames, 4 px/frame → 16 px per unit) — read in **`LockPlayerForClimb`** |
+| Trigger **`$0E`** | Glide length units (×4 frames, 4 px/frame → 16 px per unit) — read in **`LockPlayerForGlide`** |
 | Player **`$10`** | `$2200` during glide; `$2000` cleared at landing; bit `$0008` collision-aware movement |
 | Player **`$14` / `$16`** | Position patched by glide |
 | Player **`$28`** | Animation index validated by triggers |
 | **`$7F0008,X`** | Spriteset bank byte (`IsPlayerSliderSpriteBank`) |
 | **`$7F0020,X`** | Glide frame counter (`statsPtr` reuse) |
 | **`$002C` / `$002E` / `$0008`** | Zeroed on lock / restore |
-| **`$climbStateData` (`$09E0`)** | Cleared on unlock |
+| **`$abilityDamageBonus` (`$09E0`)** | Cleared on unlock |
 | **`$joypadMaskStd` / `$playerFlags` / `$joypadHeld`** | Lock, unlock, and restore paths (see asm) |
 
 ---
@@ -223,9 +223,9 @@ Original ROM, scene `$B5` (single collision layer; South triggers at tiles (6, 1
 
 | Caller | Callee |
 |--------|--------|
-| All 5 triggers | `IsPlayerSliderSpriteBank`, `LockPlayerForClimb` |
-| All 4 `SliderGlide*` | `UnlockPlayerAfterClimb` |
-| `UnlockPlayerAfterClimb` | `RestorePlayerControl` |
+| All 5 triggers | `IsPlayerSliderSpriteBank`, `LockPlayerForGlide` |
+| All 4 `SliderGlide*` | `UnlockPlayerAfterGlide` |
+| `UnlockPlayerAfterGlide` | `RestorePlayerControl` |
 | `RampPlayerClimbNorth`, `RampPlayerClimbSouth`, `RampArcDriver` | `slider_glide.RestorePlayerControl` |
 
 ---
@@ -254,7 +254,7 @@ Static placements (grep `SliderGlideTrigger` in `extracted/tables/scene_actors.a
 | `scene_70_actors` | North, South ×1 each | Angel Village |
 | `scene_72_actors` | `NorthEntry` ×1 | Angel Village |
 | `scene_73_actors` | South ×1 | Angel Village |
-| `scene_B2_actors` | South ×1 (+ `awB2_stair_climb` JumpFar to north main) | Angkor Wat |
+| `scene_B2_actors` | South ×1 (+ `awB2_slider_glide_trigger` JumpFar to north main) | Angkor Wat |
 | `scene_B5_actors` | North ×3, South ×3 | Angkor Wat |
 | `scene_BC_actors` | North ×3, South ×3 | Angkor Wat |
 | `scene_BD_actors` | North ×2, South ×2 | Angkor Wat |
@@ -266,7 +266,7 @@ All rows use the `actor-spawn` form in `scene_actors.asm` (coordinates + type by
 
 ## Source validation
 
-**Files checked:** `extracted/system/engine/slider_glide.asm`, `extracted/actors/ramps.asm`, `extracted/tables/scene_actors.asm`, `extracted/angkor_wat/angkor_outer_east/awB2_stair_climb.asm`, `db-us/blocks.json` (read-only).
+**Files checked:** `extracted/system/engine/slider_glide.asm`, `extracted/actors/ramps.asm`, `extracted/tables/scene_actors.asm`, `extracted/angkor_wat/angkor_outer_east/awB2_slider_glide_trigger.asm`, `db-us/blocks.json` (read-only).
 
 **Verified at runtime (Mesen2, B4):** south and north glide length, frame counts and landing rows in scene `$B5`; per-trigger spawn counts re-counted with `rg` (South 14, North 12, NorthEntry 1, East 1, West 1 = 29). **Verified against:** Trigger geometry and animation constants; `IsPlayerSliderSpriteBank` carry semantics; lock/unlock/`RestorePlayerControl` instruction sequence; finish-frame operands; spawn counts per trigger label; ramp `RestorePlayerControl` call sites; `movable` flags as present in JSON vs asm block note.
 

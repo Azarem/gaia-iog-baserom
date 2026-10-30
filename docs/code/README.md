@@ -210,7 +210,7 @@ sequenceDiagram
 | 16 | [functions-game-over.md](bank00/functions-game-over.md) | Death Sequence | `GameOverSequence` |
 | 17 | [functions-player-npc.md](bank00/functions-player-npc.md) | Player & NPC AI | `NpcRandomWanderAI`, `EscortFollowPathTracker` |
 | 18 | [functions-camera-motion.md](bank00/functions-camera-motion.md) | Camera Drift, Orbital | `ApplyOrbitalOffsetFromRef` (21 JSL sites) |
-| 19 | [stair-climb-system.md](bank00/stair-climb-system.md) | Stair Triggers & Climb | `SliderGlideTriggerNorth`, 13 parts |
+| 19 | [slider-glide-system.md](bank00/slider-glide-system.md) | Slider Glide Triggers | `SliderGlideTriggerNorth`, 13 parts |
 | 20 | [camera-scroll-system.md](bank00/camera-scroll-system.md) | Smooth Follow, Pan | `ScrollCameraTrack` (40+ scenes), 42 parts |
 | 21 | [data-tables-memory.md](bank00/data-tables-memory.md) | Tables & Memory Map | Reference tables, DP variables, stack |
 | 22 | [ramp-launchers.md](bank00/ramp-launchers.md) | Ramp Jump Launchers | `ramp_east/west/north/south` (58 placements) |

@@ -1,6 +1,6 @@
 ; Attack ability damage tables (Bank 01, 121255-121303): one table per player form, three abilities each. Each record is { word $0000, word pointer to the ability's upgrade-level word in WRAM, one damage byte per upgrade level }; the tables hold no animation, sprite-frame or hitbox data.
 ; 
-; LoadAbilityDamageA (Will, will_ability_damage_table) and LoadAbilityDamageB (Freedan, freedan_ability_damage_table) in attack_ability_system take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store record[4 + level] in climbStateData ($09E0 for Will, $09E2 for Freedan). combat_collision adds that value to the hit strength.
+; LoadAbilityDamageA (Will, will_ability_damage_table) and LoadAbilityDamageB (Freedan, freedan_ability_damage_table) in attack_ability_system take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store record[4 + level] in abilityDamageBonus ($09E0 for Will) or rangedDamageBonus ($09E2 for Freedan). combat_collision adds that value to the hit strength.
 ; 
 ; | Table | Ability | Level word | Damage by level |
 ; |-------|---------|-----------|------------------|

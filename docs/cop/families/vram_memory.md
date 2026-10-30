@@ -57,6 +57,8 @@ Graphics memory helpers: stage one-off VRAM DMA, copy palette rows into CGRAM st
 
 **Phase B (bit 0 set):** Poll until the staged destination word (`$7F0C07`, zeroed by the NMI's `DmaAdhocVramBlock` when the transfer has run) no longer equals the COP's own destination operand; then clear bit 0, skip 7 operand bytes, **`RTI`**.
 
+**Store order and NMI safety (measured, Mesen2 C1/C2).** Phase A stores the source (`$7F0C03`, bank `$0C05`), then the **destination (`$7F0C07`, which arms the transfer)**, then the **size (`$7F0C09`)**, in that order. This is safe because actors run with NMITIMEN `$01` (NMI off): in 16 COP stagings and 11 radar stagings there was no NMI between the destination and size stores (0 `$36` writes, hardware NMI-enable bit clear at both stores). The exception is the first `UpdateFrameDialogue` pass after a scene load, which runs actors with NMITIMEN `$81`; no staging was seen there, but the handler has no guard. A **patch that calls the handler (or writes the block itself) from code that may run with the NMI on must store the size before the destination.** One staged transfer completes one NMI later (credits run: 15 of 16 completed in 1 NMI, one in 2 because the first NMI skipped the block). In the credits run 19 of 35 handler executions were Phase B polls. Callers: `sF7_credits` (many), Aura Barrier and Dark Friar loaders (`attack_ability_system.asm`, wait on `$7F0C07 != $4400`), `ec0B_cell`, `av74_kara`, `btE1_comet_soon`, `mu67_neil_lily`, `unused_mode7_boss`; only the credits scene was run. Details: [`wram-memory-map.md` §4.3](../../wram-memory-map.md#43-adhoc-dma-parameters-7f0c037f0c09), [NMITIMEN call sites](../../code/bank02/hardware-and-init.md#nmitimen-state-by-caller-measured).
+
 ##### Handler excerpt
 
 ```asm

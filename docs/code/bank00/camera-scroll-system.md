@@ -13,7 +13,7 @@ Three **separate engineering layers** share this address region but do not overl
 
 The **default player camera** for field scenes is **`camera_scroll_controller`** at record `#01` ([`actors-infrastructure.md`](actors-infrastructure.md)), **not** `ScrollCameraTrack`. Track is the most common **slot `#02`** scroll-mode actor (**105** static placements).
 
-**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) · [`functions-camera-motion.md`](functions-camera-motion.md) · [`stair-climb-system.md`](stair-climb-system.md) · [`utility-math-movement.md`](utility-math-movement.md)
+**Related:** [`actors-infrastructure.md`](actors-infrastructure.md) · [`functions-camera-motion.md`](functions-camera-motion.md) · [`slider-glide-system.md`](slider-glide-system.md) · [`utility-math-movement.md`](utility-math-movement.md)
 
 ## Source of truth
 

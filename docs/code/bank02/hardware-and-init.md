@@ -391,6 +391,56 @@ VBlankWaitAndJoypad {
 | `EnterForcedBlank` | **`STA $802100` with `#$80`** |
 | `WaitFrames` | **`JSL $@VBlankWaitAndJoypad`**, **`DEC`**, **`BNE WaitFrames`**, **`RTL`** — **`A = 0` waits 256 frames** (8-bit); asm notes 65536 if A were 16-bit |
 
+### NMITIMEN state by caller (measured)
+
+*Evidence: [RUNTIME] Mesen2 campaign C1/C2 (ROM O, 16 runs, 15,812 writes to `$4200` at all 128 bank aliases; cold boot to title, main loop, scene loads, radar, inventory, PAUSE, chests with a music change, credits, diary).*
+
+**Exactly three instructions write `$4200`** (store counts equal the call-site counts):
+
+| Store | Routine | Value | Meaning | First seen |
+|-------|---------|-------|---------|-----------|
+| `$82:819B` (offset 164251) | `EnableNmiAndJoypad` | `$81` | **NMI on**, joypad auto-read on | boot frame 26 |
+| `$82:81A8` (164264) | `DisableNmiKeepJoypad` | `$01` | **NMI off**, joypad auto-read on | boot frame 3 |
+| `$82:9F44` (171844) | `InitHardwareRegisters`, table row `NMITIMEN = 0` | `$00` | everything off (boot only; 1 write per boot, frame 0) | frame 0 |
+
+`$01` is **not** "NMI-only": bit 7 (NMI enable) is clear, bit 0 (auto-joypad) is set. Several shipped comments called it NMI-only mode; they were wrong and are fixed (`GlobalInputHandler`, `system_core.asm` UpdateFrameFull).
+
+**Main thread work runs with the NMI off.** `MainLoop` calls `DisableNmiKeepJoypad` first (`MainLoop`+4, 4,243 times) and `EnableNmiAndJoypad` last (`MainLoop`+98, 4,236 times): NMITIMEN is `$81` only from the end of one pass to the start of the next, which is the VBlank wait. Consequence: all 4,284 `RunActors_Normal` entries, all `CheckSceneTransition`, `CheckWarpAndChest`, `GlobalInputHandler` and `RadarScreenSetup` entries, and all 119 `RunActors_OverlayOnly` entries ran with NMITIMEN = `$01` and the hardware NMI-enable clear. The loop crosses the VBlank scanlines (241-260) during actor passes without an NMI.
+
+**The exception: the first cutscene pass after a scene load.** `ExecuteSceneTransition` ends its load with `EnableNmiAndJoypad` (+117, 19 of 19 loads) and nothing turns it off before the enter transition. In 16 of the 19 loads the first `UpdateFrameDialogue` pass runs `RunActors_CutsceneOnly` with NMITIMEN = `$81` and the NMI enable bit set; `UpdateFrameDialogue` then calls `EnableNmiAndJoypad` (+71, 16 times with `$81` already written), `VBlankWaitAndJoypad` (+75) and `DisableNmiKeepJoypad` (+79). All later `UpdateFrameDialogue` passes (2,696) run actors with `$01`. The other 3 loads were not analysed. Any code that runs from an actor in that first pass (for example an `AdhocVramDma` COP or the radar writer) can be interrupted by an NMI; see [`wram-memory-map.md` §4.3](../../wram-memory-map.md#43-adhoc-dma-parameters-7f0c037f0c09).
+
+**Call sites** (JSL offsets are decimal; "before" = NMITIMEN just before the call):
+
+| Routine | Caller | Count | Before |
+|---------|--------|------:|--------|
+| Enable (`$81`) | `MainLoop`+98 (33047) | 4,236 | `$01` |
+| | `UpdateFrameDialogue`+71 (33125) | 2,696 / 16 | `$01` / `$81` |
+| | `UpdateFrameRender`+39 (33188) | 13 | `$01` |
+| | `UpdateFrameFull`+68 (33280) | 119 | `$01` |
+| | `SpcSendHeader`+44, `SpcSendRecord`+48 | 16 each | `$01` |
+| | `OpenInventoryScreen`+260 (192006) | 4 | `$01` |
+| | `GlobalInputHandler`+122, +143 (229498, 229519) | 7, 638 | `$01` |
+| | `RadarScreenSetup`+60 (229627) | 11 | `$01` |
+| | `ExecuteSceneTransition`+117 (252523) | 19 | `$01` |
+| | `LoadMusicFromTransitionState`+34 | 2 | `$01` |
+| Disable (`$01`) | `MainLoop`+4 (32953) | 4,243 | `$81` |
+| | `UpdateFrameDialogue`+79 (33133), `UpdateFrameRender`+47 (33196) | 2,708, 13 | `$81` |
+| | `UpdateFrameFull`+3 (33215) | 119 | `$81` |
+| | `SpcSendHeader`+24, `SpcSendRecord`+17 | mostly `$01`, 16 `$81`, boot `$00` | |
+| | `OpenInventoryScreen`+3, +273, +299 | 4 each | `$01`, `$81`, `$01` |
+| | `GlobalInputHandler`+73, +130, +151 | 4, 7, 636 | `$01`, `$81`, `$81` |
+| | `RadarScreenSetup`+68 | 11 | `$81` |
+| | `ExecuteSceneTransition`+15 (252421) | 19 | `$01` |
+| | `LoadMusicFromTransitionState`+42 | 2 | `$81` |
+
+`VBlankWaitAndJoypad` entered with the NMI **off** (it polls RDNMI): `WaitFrames` (814 entries, from `SpcMusicLoadCmd`), `ExecuteSceneTransition`+113 (19), `GlobalInputHandler`+65 (4), `TitleToDiaryTransition`+33 (1). Entered with the NMI **on**: `MainLoop`, `UpdateFrameDialogue`+75, `UpdateFrameRender`+43, `OpenInventoryScreen`+264, `GlobalInputHandler`+126/+147, `RadarScreenSetup`+64 (7,624 entries).
+
+**`UpdateFrameFull`** (called from the NMI during a blocking music upload) calls `DisableNmiKeepJoypad` **first** (119 of 119 entries see `$81`) and `EnableNmiAndJoypad` last: it turns the NMI off while it runs actors from inside the NMI. The comment that called the first call "Enable NMI for partial V-Blank" was wrong.
+
+**PAUSE / Select paths.** `GlobalInputHandler`'s Select path writes `$01` over an existing `$01` (the `OpenInventoryScreen` teardown already leaves it there, 4 of 4); the Start paths write `$81` then `$01` around one VBlank wait.
+
+**Boot timeline of NMITIMEN** (cold power-on): `$00` at frame 0, `$01` from frame 3 (`SpcLoadBuiltinEngine` polls RDNMI with the NMI off; `WaitFrames` of `SpcMusicLoadCmd` too), first `$81` at frame 26, first `NmiHandler` at frame 27. Not reached by any run: the three `DisableNmiKeepJoypad` / `EnableNmiAndJoypad` pairs in `sFA_diary_menu.asm`, `radar_map_screen.asm:84-86`, `gs2C_crow_crew` and `sFC_title_start_handler` waits.
+
 ---
 
 ## QuintetLzDecompress.asm
@@ -528,7 +578,7 @@ Then loop **`SystemInitConstants`**: load destination word; **`BMI`** ends table
 
 *Evidence: [ASM]*
 
-**`LDX #0`**, loop: **`REP #$20`**, load **`PpuRegisterInitTable,X`** as address; **`BMI`** exit; **`TAY`**, **`SEP #$20`**, load value byte at **`+2,X`**, **`STA $0000,Y`**, **`INX` ×3**. Each entry is **`register-init < address word, value byte >`**, not an offset from `$2100`. Terminator: **negative address word**. Last entry **`MEMSEL = 0`** (asm: after **`SystemInit`** wrote **`MEMSEL = 1`**, this restores slow ROM until later code enables FastROM).
+**`LDX #0`**, loop: **`REP #$20`**, load **`PpuRegisterInitTable,X`** as address; **`BMI`** exit; **`TAY`**, **`SEP #$20`**, load value byte at **`+2,X`**, **`STA $0000,Y`**, **`INX` ×3**. Each entry is **`register-init < address word, value byte >`**, not an offset from `$2100`. Terminator: **negative address word**. Last entry **`MEMSEL = 0`** (asm: after **`SystemInit`** wrote **`MEMSEL = 1`**, this restores slow ROM until later code enables FastROM). **Measured (Mesen2 C3, 3 cold boots, 6 soft resets):** `$420D` is written three times in a boot: `$80:8027` = 1 (frame 0), this table row = 0 (frame 0, `$82:9F44`) and `BootLogoInit` = 1 (frame 84; again at frame 223 for the second logo). FastROM timing is therefore live only for the 76-row register loop (16,714 master clocks, 0.05 frame); the WRAM clear, the SPC engine upload (frames 3-7), the first scene loads and the scene `$FB` music upload (frames 59-65) all run with SlowROM timing. See [`system-core.md`](../bank00/system-core.md) for the full boot timeline.
 
 ### CacheSlotIndices
 

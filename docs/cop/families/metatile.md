@@ -125,7 +125,7 @@ DrawMetatileHere {
 ##### How it is used
 
 ```asm
-; extracted/pyramid/pyD0_breakable_wall.asm
+; extracted/pyramid/pyD0_ledge_jump_trigger.asm
 COP [DrawMetatileHere] ( #E8 )
 COP [DrawMetatileHere] ( #E9 )
 ```

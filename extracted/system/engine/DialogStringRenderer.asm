@@ -139,7 +139,7 @@ DialogStringRenderer {
     BEQ DialogString_CharLoop
     LDA $00
     PHA 
-    LDA #$0001            ; Set displayModeFlags bit 0 so the BG3 staging buffer is re-uploaded (consumer not traced)
+    LDA #$0001            ; Set displayModeFlags bit 0: Bg3TilemapVramDma uploads the whole BG3 staging buffer to VRAM $7800 in the next NMI and clears the bit
     TSB $displayModeFlags
     JSR $&WaitNFrames_PerChar
     PLA 

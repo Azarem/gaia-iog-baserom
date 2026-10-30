@@ -35,7 +35,7 @@
 ; 
 ; Palette FX (bundle contents decoded from palette_bundles): WillAttackPaletteFX = #2A twice then #2B forever; FreedanAttackPaletteFX = #4B twice then #2C forever (both tint the 15 colors at CGRAM $81–$8F, which AttackCleanup restores with the single-frame bundles #0B/#0C); AuraBarrierPaletteFX = #5B forever (8 colors at CGRAM $A1–$A8, a blue-to-white ramp, 16 ticks per cycle). Dark Friar also starts bundle #4A through a thinker: a white flash on $81–$8F fading back to Freedan's normal colors over 36 ticks.
 ; 
-; Ability tables: LoadAbilityDamageA (will_ability_damage_table, Will) and LoadAbilityDamageB (freedan_ability_damage_table, Freedan) do not hold sprite or hitbox data. Each 6-byte record is { word 0, word pointer to the ability's upgrade-level word, then one damage byte per level }; the loader reads the level from that WRAM word ($0B16 Psycho Dash, $0B18 Psycho Slider, $0B1A Spin Dash; $0B1C Dark Friar, $0B1E Aura Barrier, $0B20 Earthquaker) and stores record[4 + level] to climbStateData ($09E0, Will) or $09E2 (Freedan), the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.
+; Ability tables: LoadAbilityDamageA (will_ability_damage_table, Will) and LoadAbilityDamageB (freedan_ability_damage_table, Freedan) do not hold sprite or hitbox data. Each 6-byte record is { word 0, word pointer to the ability's upgrade-level word, then one damage byte per level }; the loader reads the level from that WRAM word ($0B16 Psycho Dash, $0B18 Psycho Slider, $0B1A Spin Dash; $0B1C Dark Friar, $0B1E Aura Barrier, $0B20 Earthquaker) and stores record[4 + level] to abilityDamageBonus ($09E0, Will) or rangedDamageBonus ($09E2, Freedan), the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.
 ; 
 ; === TRAIL FOLLOWERS (TrailFollowerSprA, 179702–179872) ===
 ; 
@@ -81,7 +81,8 @@
 !playerSpeedNs                  09B4
 !slopeStepCounter               09B6
 !decelStepCounter               09B8
-!climbStateData                 09E0
+!abilityDamageBonus             09E0
+!rangedDamageBonus              09E2
 !abilityBitmask                 0AA2
 !characterForm                  0AD4
 !animScratch                    7F0000
@@ -982,7 +983,7 @@ TrailPositionInit {
 ; 
 ; 4. Guided Projectile (180764–180999): KillSpawnedProjectile cleans up a stored actor reference via MarkDeath. GuidedProjectileActor stores its offset from the player, responds to D-pad input for 4-directional steering (Right=#3D, Left=#3C, Up=#3B, Down=#3A sprites), and runs a per-frame animation/collision loop.
 ; 
-; 5. Palette FX & Utilities (181000–181131): WillAttackPaletteFX cycles palettes #2A→#2B. FreedanAttackPaletteFX cycles #4B→#2C. AuraBarrierPaletteFX loops #5B infinitely. RecomputeProjectilePos adds stored offsets to current player position. LoadAbilityDamageA reads will_ability_damage_table (Will), LoadAbilityDamageB freedan_ability_damage_table (Freedan). Both store the damage byte for the current upgrade level to climbStateData ($09E0 Will, $09E2 Freedan); see the block note.
+; 5. Palette FX & Utilities (181000–181131): WillAttackPaletteFX cycles palettes #2A→#2B. FreedanAttackPaletteFX cycles #4B→#2C. AuraBarrierPaletteFX loops #5B infinitely. RecomputeProjectilePos adds stored offsets to current player position. LoadAbilityDamageA reads will_ability_damage_table (Will), LoadAbilityDamageB freedan_ability_damage_table (Freedan). Both store the damage byte for the current upgrade level to abilityDamageBonus ($09E0, Will) or rangedDamageBonus ($09E2, Freedan); see the block note.
 
 ComputeParentOffset {
     LDY $24               ; Load parent actor ID from DP $24 for position reference
@@ -1644,7 +1645,7 @@ LoadAbilityDamageA {
     PLA 
     LDA $@ability_damage_tables.will_ability_damage_table+4, X
     AND #$00FF
-    STA $climbStateData   ; climbStateData ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Slider 5/8, Spin Dash 4/7)
+    STA $abilityDamageBonus ; abilityDamageBonus ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Slider 5/8, Spin Dash 4/7)
     PLX 
     RTS 
 }
@@ -1668,7 +1669,7 @@ LoadAbilityDamageB {
     PLA 
     LDA $@ability_damage_tables.freedan_ability_damage_table+4, X
     AND #$00FF
-    STA $climbStateData+2 ; $09E2 = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7)
+    STA $rangedDamageBonus ; rangedDamageBonus ($09E2) = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7)
     PLX 
     RTS 
 }

@@ -71,7 +71,7 @@
 ?INCLUDE 'awB1_goldcap'
 ?INCLUDE 'awB1_gorgon'
 ?INCLUDE 'awB1_wall_walker'
-?INCLUDE 'awB2_stair_climb'
+?INCLUDE 'awB2_slider_glide_trigger'
 ?INCLUDE 'awB3_ledge_jump_trigger'
 ?INCLUDE 'awB4_snake_pit_entry'
 ?INCLUDE 'awB4_snake_pit_fx'
@@ -466,7 +466,7 @@
 ?INCLUDE 'pyCD_kara'
 ?INCLUDE 'pyCD_puzzle'
 ?INCLUDE 'pyCE_tuts'
-?INCLUDE 'pyD0_breakable_wall'
+?INCLUDE 'pyD0_ledge_jump_trigger'
 ?INCLUDE 'pyD2_haunt'
 ?INCLUDE 'pyD4_falling_orb'
 ?INCLUDE 'pyD6_vader_barrier_lower'
@@ -3757,7 +3757,7 @@ scene_B1_actors [
 scene_B2_actors [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #07, #27, #00, @awB2_stair_climb >   ;02
+  actor-spawn < #07, #27, #00, @awB2_slider_glide_trigger >   ;02
   actor-spawn < #07, #1E, #13, @slider_glide.SliderGlideTriggerSouth >   ;03
   enemy-spawn < #0B, #6D, #00, @awB1_goldcap, #42, #30, #00 >   ;04
   enemy-spawn < #08, #0C, #00, @awB1_goldcap, #42, #31, #00 >   ;05
@@ -4144,7 +4144,7 @@ scene_CF_actors [
 scene_D0_actors [
   actor-spawn < #05, #0A, #30, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #26, #15, #01, @pyD0_breakable_wall >   ;02
+  actor-spawn < #26, #15, #01, @pyD0_ledge_jump_trigger >   ;02
   enemy-spawn < #2B, #15, #00, @pyCC_mystic_ball.pyCC_mystic_ball3, #4F, #20, #00 >   ;03
   enemy-spawn < #1E, #15, #00, @pyCC_mystic_ball.pyCC_mystic_ball3, #4F, #21, #00 >   ;04
   enemy-spawn < #27, #12, #00, @pyCC_mystic_ball.pyCC_mystic_ball2, #4F, #22, #00 >   ;05
@@ -4158,7 +4158,7 @@ scene_D0_actors [
 scene_D1_actors [
   actor-spawn < #05, #0A, #30, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
-  actor-spawn < #36, #19, #03, @pyD0_breakable_wall >   ;02
+  actor-spawn < #36, #19, #03, @pyD0_ledge_jump_trigger >   ;02
   actor-spawn < #32, #49, #00, @pyCC_entrance_portal >   ;03
   enemy-spawn < #35, #19, #00, @pyCC_mystic_ball.pyCC_mystic_ball3, #4F, #30, #00 >   ;04
   enemy-spawn < #36, #19, #00, @pyCC_mystic_ball.pyCC_mystic_ball3, #4F, #31, #00 >   ;05

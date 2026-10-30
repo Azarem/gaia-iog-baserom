@@ -282,6 +282,12 @@ transfers the specified byte count from the source to VRAM, then clears the
 destination to signal completion. The queue is single-entry; only one ad-hoc
 transfer can be pending at a time.
 
+*Runtime (Mesen2 C1):* the clear happens in the first NMI after the staging
+(26 of 27 transfers; 2 NMIs once, when the first NMI skipped the block because
+`dmaSkipFlag` or `displayModeFlags` bit 3 was set). Both writers store the
+destination before the size and are safe only because the NMI is off during
+actor code (NMITIMEN `$01`); see [`wram-memory-map.md` §4.3](../../wram-memory-map.md#43-adhoc-dma-parameters-7f0c037f0c09).
+
 ---
 
 ## save_system — `$03D916`–`$03D9E8`

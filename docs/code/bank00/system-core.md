@@ -189,7 +189,7 @@ None.
 
 Central system entry after reset. Performs complete hardware and game-state initialization once, then enters an infinite main loop that drives one logical frame per iteration. The loop is **not** interrupt-driven for game logic — it runs on the main thread and synchronizes to VBlank via `EnableNmiAndJoypad` at the end of each iteration. NMI handles PPU/DMA separately (see [`nmi-handler.md`](nmi-handler.md)).
 
-The init phase configures the 65816 (16-bit A/X, DP=`$0000`, SP=`$01FF`, DBR=`$81`), enables FastROM, initializes PPU/VRAM/WRAM/actors, validates SRAM, loads the first scene, seeds HUD/stat pointers, and sets the title screen as the next scene (`$scene_next = $FB`).
+The init phase configures the 65816 (16-bit A/X, DP=`$0000`, SP=`$01FF`, DBR=`$81`), writes `MEMSEL = 1` (live only until the register table's last row writes `MEMSEL = 0`; the real FastROM enable is `BootLogoInit` at frame 84), initializes the PPU registers, clears WRAM, uploads the SPC engine, reads the `$0100` byte (no effect), runs a first `ExecuteSceneTransition` with `scene_next = 0` (no scene selected; it only sets up the engine), seeds HUD/stat pointers, and queues the boot-logo scene (`$scene_next = $FB`).
 
 The main loop at **`MainLoop`** executes 22 ordered steps every frame: frame begin, scene transitions, map/scroll, scene load, palette animation, scene logic, frame counters, actor scripts, OAM composition, full collision pipeline, position integration, BG scroll, HDMA, map tiles, sprites, HUD, deferred DMA, and frame end.
 
@@ -202,16 +202,38 @@ The main loop at **`MainLoop`** executes 22 ordered steps every frame: frame beg
 | 3 | `LDA #$0000` / `TCD` | Direct page register = `$0000` |
 | 4 | `LDA #$01FF` / `TCS` | Stack pointer = `$01FF` |
 | 5 | `LDA #$81` / `PHA` / `PLB` | Data bank register (DBR) = `$81` for WRAM `$0000`–`$7FFF` |
-| 6 | `LDA #$01` / `STA $MEMSEL` | Enable FastROM mapping (3.58 MHz) |
-| 7 | `JSL InitHardwareRegisters` | Initialize PPU control registers (bank `$02`) |
-| 8 | `JSL InitSystemVariables` | Clear VRAM to blank tiles |
-| 9 | `JSL SpcLoadBuiltinEngine` | Initialize WRAM / global game state |
-| 10 | `JSL EnterForcedBlank` | Initialize actor linked lists and pool |
-| 11 | SRAM check | Read `$000100`; if magic byte = `$83`, valid save exists (affects starting scene path) |
+| 6 | `LDA #$01` / `STA $MEMSEL` | `MEMSEL = 1`: FastROM timing for the register loop only. The last row of `PpuRegisterInitTable` writes `MEMSEL = 0` again (frame 0), so the boot stays SlowROM until `BootLogoInit` (frame 84) |
+| 7 | `JSL InitHardwareRegisters` | Initialize PPU control registers from the 76-row table (bank `$02`); `NMITIMEN = 0` row, `MEMSEL = 0` row |
+| 8 | `JSL InitSystemVariables` | Clear WRAM (three DMA zero fills; the stack page `$0100`-`$01FF` is skipped, so `$0A02` flag bits are cleared but `$0100` is not) and write the init constant table |
+| 9 | `JSL SpcLoadBuiltinEngine` | Upload the SPC engine (video frames 3-7 after reset, ~1.59 M master clocks, same duration under FastROM timing: it waits on the SPC port handshake) |
+| 10 | `JSL EnterForcedBlank` | `INIDISP = $80` |
+| 11 | `$0100` check | Read `$000100` and compare with `$83`; both outcomes leave `Y = 0`, so `scene_next = 0` for the first `ExecuteSceneTransition` either way. **No effect** (measured with `$83`, `$00`, `$5A`, 150 and random power-on values: identical frames and clocks). Not a save marker; see [`wram-memory-map.md` §2.2](../../wram-memory-map.md#22-sram-region-010001ff) |
 | 12 | `JSL ExecuteSceneTransition` | Load initial scene data |
 | 13 | HUD pointer init | Copy addresses from `slope_curve_table` (slope curve/HUD pointer region) into `$09BA`–`$09C4` |
 | 14 | Stat display init | Seed HP/STR/DEF counters at `$0ACA`–`$0ADE` (playerMaxHp=8, playerHp=8, playerStr=1, playerDef=0) |
-| 15 | Title screen | `STA $scene_next` with `$FB` — queue title scene |
+| 15 | Boot logos | `STA $scene_next` with `$FB` — queue the boot-logo scene (`sFB_boot_logo`; it queues the title `$FC` itself) |
+
+#### Boot timeline (measured, cold power-on, Mesen2 C3)
+
+Frame 0 is the first instruction after the reset vector; frames are video frames. Two cold boots were frame-identical; soft resets (WRAM kept) are identical too, except that the register-init and WRAM-clear steps run on the old contents.
+
+| Frame | Event | Notes |
+|------:|-------|-------|
+| 0 | `ResetVector`, `SystemInit`, `MEMSEL = 1`, register loop (`NMITIMEN = 0`, `MEMSEL = 0`), WRAM clear | `$0A02` (event flag bits `$10`-`$17`) cleared; `$0100` not written |
+| 3 | `SpcLoadBuiltinEngine` | first APUIO write; NMITIMEN `$01` from here (writes `$00` -> `$01`) |
+| 3-7 | SPC engine upload | 6,045 APUIO writes, SlowROM |
+| 7 | `$0100` read, first `ExecuteSceneTransition` with `scene_next = 0` | |
+| 26 | `AfterSceneTransition`; `INIDISP = $00` for one frame; `scene_next = $FB`; first `EnableNmiAndJoypad` (`$81`) | |
+| 27 | `sceneCurrent = $FB`; first `NmiHandler`; second `ExecuteSceneTransition` | |
+| 59-65 | scene `$FB` music upload (`SpcBlockTransfer`) | SlowROM |
+| 84 | `BootLogoInit` writes `MEMSEL = 1` | FastROM on from here; 81 frames after the first APUIO write |
+| 85-100 | first logo (Nintendo, "PRESENTS") fades in | |
+| 203 | event flag `$10` set (`$0A02` 0 -> 1), scene `$FB` reloaded | |
+| 223 | `BootLogoInit` again (second visit), second logo (ENIX, "AN ... PRODUCTION") | |
+| 343 | flag `$10` cleared, `scene_next = $FC` | |
+| 360 | `sceneCurrent = $FC` (title) | |
+
+Notes: Mesen2 fills WRAM with random power-on values (the boot is identical anyway); FastROM from reset would save only 4 of the 84 frames, all in the first scene loads; a reset keeps WRAM but the boot clears `$0A02`, so the Nintendo logo always plays first (event flag `$10` logic in [`bank0B-late-bosses-system-cutscene-actors.md`](../bank0B-late-bosses-system-cutscene-actors.md)).
 
 #### Main Loop Algorithm (`MainLoop`)
 
@@ -245,7 +267,7 @@ The main loop at **`MainLoop`** executes 22 ordered steps every frame: frame beg
 
 | Address | Size | Name / Role | Access |
 |---------|------|-------------|--------|
-| `$000100` | 1 | SRAM magic byte | Read — `$83` = valid save |
+| `$000100` | 1 | "SRAM magic byte" (misnomer) | Read once per boot, no effect (see step 11) |
 | `$00D8` | 2 | OAM write offset | R/W — index into `$7F3100` OAM buffer |
 | `$7F3100`+ | 2 | OAM sentinel slot | Write — `$FF` marks end of sprite list |
 | `$scene_next` | 2 | Next scene ID | Write — set to `$FB` for title |
@@ -284,18 +306,18 @@ These three routines provide **subset main loops** for modes that must advance t
 
 Abbreviated frame update for **dialogue boxes and cutscenes**. Keeps the world visible and animated (sprites, scroll, HDMA, map tile refresh) but **skips** collision detection, actor COP execution, scene logic, palette animation, and the full collision response pipeline. Used when the text engine needs to pump frames while blocking player control.
 
-Clears `$09EC` bit `$08` (dialogue display flag) as part of its setup. Writes the OAM sentinel at `$7F3100+$00D8` like the main loop.
+Clears `$09EC` bit `$08` (the player-tile DMA request, `TRB #$08` at `UpdateFrameDialogue`+68, just before the final `EnableNmiAndJoypad`; not a "dialogue display" flag: the dialogue-mode bit is bit 13, set and cleared by the COP handlers) so the NMI takes the normal VRAM path for the next frame. Writes the OAM sentinel at `$7F3100+$00D8` like the main loop.
 
 #### Algorithm
 
 | Step | Call | Purpose |
 |------|------|---------|
 | 1 | Save context | `PHB/PHA/XBA/PHA/PHX/PHY/PHD`; `D=$0000`, `DBR=$81` |
-| 2 | Clear `$09EC` bit 8 | Exit dialogue-display mode flag |
+| 2 | *(order in the asm differs: the `TRB #$08` of `$09EC` sits at +68, after step 12)* | see description |
 | 3 | `VBlankWaitAndJoypad` | Begin frame |
 | 4 | `DisableNmiKeepJoypad` | NMI off during cutscene frame pump (same joypad/NMI contract as main loop) |
 | 5 | `RunThinkers_General_Light` | Map/scroll helper (lightweight vs `RunThinkers_General`) |
-| 6 | `RunActors_CutsceneOnly` | Dialogue-specific sprite prep |
+| 6 | `RunActors_CutsceneOnly` | Dialogue-specific sprite prep. **NMITIMEN is `$01` here in 2,696 of 2,712 passes; in the first pass after a scene load (16 of 19 loads) it is `$81` with the NMI on**, because `ExecuteSceneTransition` ends with `EnableNmiAndJoypad` ([measured](../bank02/hardware-and-init.md#nmitimen-state-by-caller-measured)) |
 | 7 | OAM sentinel | `$7F3100/01 + $00D8` ← `$FF` |
 | 8 | `SortActorsByDepth` | OAM sort/compose |
 | 9 | `CameraSmoothScroll` ×2 | BG scroll (layers 0 and 2) |
@@ -378,7 +400,7 @@ Does not call `UpdateHUD`, the normal actor pass (`RunActors_Normal`) or the res
 |------|------|---------|
 | 1 | `PHP` / `PHB` | Save flags and data bank |
 | 2 | Set `DBR=$81` | WRAM data bank |
-| 3 | `DisableNmiKeepJoypad` | NMI off during overlay frame pump |
+| 3 | `DisableNmiKeepJoypad` | NMITIMEN `$01` (NMI off) while the overlay pass runs inside the NMI. Measured: 119 of 119 entries saw `$81` before this call and `$01` after it; the old comment "Enable NMI for partial V-Blank" on this call was wrong (the matching enable is step 13) |
 | 4 | `VBlankPartial` | Frame begin variant (NMI-safe) |
 | 5 | `RunThinkers_General_Light` | Scroll finalize |
 | 6 | `RunActors_OverlayOnly` | Actor update pass (subset of full actor run) |
@@ -415,6 +437,8 @@ Does not call `UpdateHUD`, the normal actor pass (`RunActors_Normal`) or the res
 #### Description
 
 Updates the **BG3 status bar overlay** showing HP, DEF, STR, gem count, and enemy health bar. Runs once per main-loop frame (step 20) and from `UpdateFrameRender`. Early exit if `$09ED` bit `$40` is set (HUD globally disabled — e.g. title screen, some cutscenes).
+
+**Measured (Mesen2 C4):** `UpdateHUD` is entered every frame and leaves at the bit test (idle diary scene: 300 of 300 entries). While `displayModeFlags` bit 14 (`$4000`) is set nothing is redrawn: with HP and gems changed in South Cape the HUD stayed stale (5 full pips, gems 0) and was redrawn through the partial BG3 upload (`displayModeFlags` bit 4) in the next frames after the bit was cleared; in scene `$FA` (diary) the HUD never appears while the bit is set. The bit is set by the title / diary / boot-logo / credits scripts and by `OpenInventoryScreen` (which the scene display command clears two frames later); `LoadHudTilemap` has the same gate. Bit 4 is requested only here (three sites, two observed). Bit layout: [Display Mode Flags Reference](../../wram-memory-map.md#display-mode-flags-reference-09ec).
 
 Handles three distinct visual behaviors:
 

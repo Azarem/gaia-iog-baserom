@@ -98,7 +98,7 @@
 !playerSpeedNs                  09B4
 !playerSpriteCachePtr           09CC
 !playerSpriteCacheBank          09CE
-!climbStateData                 09E0
+!abilityDamageBonus             09E0
 !displayModeFlags               09EC
 !hudDisableFlag                 09ED
 !eventFlags                     0A00
@@ -175,7 +175,7 @@ CheckSceneTransition {
 ; Stores the resolved scene to sceneCurrent and computes the doubled scene index ($0646) for table lookups.
 ; 
 ; === PHASE 3: LOAD ===
-; Calls ClearSceneState (the comprehensive scene setup), LoadHudTilemap, UpdateHUD, and a chain of VBlank sync/NMI enable calls. Runs ScreenEnterTransition unless worldReadyFlag was already nonzero, then sets worldReadyFlag to $000F (fully ready). Clears gfxCacheIdxA/B (the transition parameters).
+; Calls ClearSceneState (the comprehensive scene setup), LoadHudTilemap, UpdateHUD, and a chain of VBlank sync/NMI enable calls. The last call of the chain, EnableNmiAndJoypad, leaves NMITIMEN = $81 into the enter transition: the first UpdateFrameDialogue pass runs RunActors_CutsceneOnly with the NMI on, and the DisableNmiKeepJoypad at the end of that pass turns it off. Runs ScreenEnterTransition unless worldReadyFlag was already nonzero, then sets worldReadyFlag to $000F (fully ready). Clears gfxCacheIdxA/B (the transition parameters).
 ; 
 ; If $00B4 is nonzero (DisplaySceneTitle sets it to $E0 when it opens the scene-title box): enters a wait loop calling UpdateFrameDialogue until any button is pressed, then clears $00B4/$00B5, clears the staging buffer below the HUD rows (ClearBg3TilemapBuffer_PreserveHud, which removes the title box), and sets displayModeFlags bit 0 so the buffer is flushed.
 ; 
@@ -816,7 +816,7 @@ ClearSceneState {
     STX $enemyHealthTimer
     STX $enemiesRemaining
     STX $enemiesRemainingBcd
-    STX $climbStateData   ; Clear climb state, actor count, DMA flag
+    STX $abilityDamageBonus ; Clear climb state, actor count, DMA flag
     STX $00DA
     STX $activeActorCount
     STX $playerSpriteCachePtr

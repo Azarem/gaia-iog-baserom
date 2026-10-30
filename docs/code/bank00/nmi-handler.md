@@ -51,7 +51,7 @@ VBlankWaitAndJoypad at loop start|     Optional UpdateFrameFull (music upload)
 
 - **Direct page:** Handler does **not** **`PHD`/`PLD`**. It uses DP-relative **`$36`**, **`$66`**, **`$00AC`–`$00B2`** expecting **DP = `$0000`**. This matches **`SystemInit`** (`TCD` → `$0000`) and **`UpdateFrameFull`** (sets **`TCD`** before nested work). Custom code that enables NMI must keep **DP = 0** during VBlank sync (see `AGENTS.md` / patch docs).
 - **DBR:** Set to **`$81`** after save (FastROM data bank for WRAM **`$0000`** reads).
-- **Interrupt masking:** Handler runs with CPU interrupt state from entry; main loop typically has enabled NMI via **`NMITIMEN`** = **`$81`** (`EnableNmiAndJoypad`).
+- **Interrupt masking:** Handler runs with CPU interrupt state from entry; the NMI is enabled (**`NMITIMEN` = `$81`**, `EnableNmiAndJoypad`) **only during the VBlank wait** at the end of a main-loop pass. The main thread (actors, collision, COP handlers) runs with **`NMITIMEN` = `$01`** (NMI off, joypad auto-read on), so an NMI never interrupts it; the one exception is the first `UpdateFrameDialogue` pass after a scene load (16 of 19 loads), which runs `RunActors_CutsceneOnly` with `$81`. `UpdateFrameFull` (called from this handler during a music upload) switches the NMI off first. Measured table: [`hardware-and-init.md` §NMITIMEN state by caller](../bank02/hardware-and-init.md#nmitimen-state-by-caller-measured).
 
 ### Execution flow (source order)
 
@@ -82,7 +82,7 @@ Steps marked **HW** touch PPU/APU/DMA registers; **GL** touch game WRAM only.
 
 ```text
 displayModeFlags bit 3 ($08) set?
-  YES -> JSL DmaPlayerTilesToVram (bank $03)  [player-tile / special BG3 path]
+  YES -> JSL DmaPlayerTilesToVram (bank $03)  [player-tile path; clears the bit]
   NO  -> dmaSkipFlag ($0800) nonzero?
           YES -> JSL FlushVramWriteQueue ONLY (event_blocks)
           NO  -> JSL DmaAdhocVramBlock (hdma_dma_spc)
@@ -90,6 +90,8 @@ displayModeFlags bit 3 ($08) set?
                  JSR ExecuteVramDma
         -> merge at HDMA re-enable (step 10)
 ```
+
+**Adhoc transfer timing (measured, Mesen2 C1).** The transfer staged at `$7F:0C03`-`$7F:0C09` runs in the first NMI after the staging (the destination word `$7F:0C07` is the pending flag; `DmaAdhocVramBlock` zeroes it, clear latency 1 NMI in 26 of 27 cases and 2 NMIs once, when the first NMI skipped the block because `dmaSkipFlag` or `displayModeFlags` bit 3 was set). Both writers store the destination before the size and are safe because no NMI can run between their two stores; see [`wram-memory-map.md` §4.3](../../wram-memory-map.md#43-adhoc-dma-parameters-7f0c037f0c09). `Bg3TilemapVramDma` (step 7) is a separate, earlier upload driven by `displayModeFlags` bits 0/4/5 and gated by `hudDisableFlag` bit 7; see [Display Mode Flags Reference](../../wram-memory-map.md#display-mode-flags-reference-09ec).
 
 **Ordering note:** Adhoc path runs **`DmaAdhocVramBlock`** before **`FlushVramWriteQueue`** then **`ExecuteVramDma`** (DP **`$AC`–`$B2`**). **`dmaSkipFlag`** bypasses adhoc staging and **`ExecuteVramDma`** but still **flushes** the VRAM write queue.
 
@@ -103,7 +105,7 @@ displayModeFlags bit 3 ($08) set?
 | `$0800` | `dmaSkipFlag` | 9 | Nonzero → skip adhoc + **`ExecuteVramDma`** |
 | `$06F8` | `sfxQueueCh1` | 14 | Pending SFX ID for APU (even frames) |
 | `$06FA` | `musicTransitionState` | 13–14 | **`0`** idle; **`>0`** SPC upload → **`UpdateFrameFull`**; **`$FFFF`** finished |
-| `$09EC` | `displayModeFlags` | 9 | Bit **`$08`** → **`DmaPlayerTilesToVram`** instead of normal path |
+| `$09EC` | `displayModeFlags` | 7, 9 | Step 7 (`Bg3TilemapVramDma`): bits **`$01`** (full BG3 upload, `$0800` bytes `$7F:0200` → VRAM `$7800`), **`$10`/`$20`** (partial, `$0140` bytes → VRAM `$7840`), gated by `$09ED` bit 7. Step 9: bit **`$08`** → **`DmaPlayerTilesToVram`** instead of normal path |
 | `$00AC`–`$00B2` | (DP staging) | 9 | **`ExecuteVramDma`** source/dest/size |
 
 ### Cross-references

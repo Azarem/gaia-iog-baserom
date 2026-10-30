@@ -110,7 +110,7 @@ GlobalInputHandler {
     TSB $joypadHeld
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; Sync to VBlank before opening inventory overlay
     JSL $@inventory_overlay.OpenInventoryScreen ; Open the full inventory screen UI
-    JSL $@vblank_joypad.DisableNmiKeepJoypad ; Restore NMI-only mode (disable joypad auto-read during inventory teardown)
+    JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMITIMEN = $01: NMI off, joypad auto-read stays on (OpenInventoryScreen already leaves it in this state)
     LDA #$6000            ; $6000 = Select + vanilla Y: consume both on return so neither re-triggers at once (logical $0008 is not included)
     TSB $joypadHeld
     PLP 
@@ -143,7 +143,7 @@ GlobalInputHandler {
     PHX 
 
   loc_03808F:
-    JSL $@vblank_joypad.EnableNmiAndJoypad ; Display loop: enable NMI+joypad, wait for VBlank (joypad is read), back to NMI-only
+    JSL $@vblank_joypad.EnableNmiAndJoypad ; Display loop: NMITIMEN = $81 for one VBlank wait (joypad is read), then back to $01 (NMI off, joypad auto-read on)
     JSL $@vblank_joypad.VBlankWaitAndJoypad
     JSL $@vblank_joypad.DisableNmiKeepJoypad
     JSR $&radar_map_screen.RadarBorderAnimate ; Animate the radar border color (BGR555 palette cycle on odd frames)

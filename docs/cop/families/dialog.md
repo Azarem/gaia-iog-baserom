@@ -15,7 +15,7 @@ Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the d
 - `$065A` (`joypadMaskStd`) — zeroed during text/menu; restored on exit
 - `$065C` (`joypadMaskInv`) — `$BE` sets **`$0F00`** (the D-pad buttons) as the auto-repeat buttons while the menu is open, and clears it on exit
 - Actor `$10` bit `$0800` (cutscene-active) — saved and cleared during `$BF`/`$6B`/`$BE` so `RunActors_CutsceneOnly` does not re-run the actor while the renderer runs its frame updates, then restored (measured: with the bit forced back on while `displayModeFlags $2000` was set, the calling actor was re-run mid-COP and `PrintDialogString` ran 7 times in 12 frames instead of once; in the natural hideout cutscene the calling actor does not carry the bit, so the clear did nothing there); not a status bar flag
-- `$09EC` (`displayModeFlags`) — bit 13 (`$2000`) is set during `$BF`/`$BE` and cleared afterwards (no reader of this bit was found); `$BD` sets bit **`$0001`** (request a full BG3 staging-buffer upload)
+- `$09EC` (`displayModeFlags`) — bit 13 (`$2000`, dialogue mode) is set during `$BF`/`$BE` and cleared afterwards. Its **only reader** is the Mu bomb countdown actor (`mu67_bomb.asm:145-147`), which skips its decrement and tick sound while the bit is set (measured: timer frozen at `$0133` for the 360 frames the bit was forced, then one step per 60 frames; church dialogue: 4 sets, 4 clears). It does not suppress the HUD (that is `hudDisableFlag` bit 6) and does not mask input; `$BD` sets bit **`$0001`** (request a full BG3 staging-buffer upload)
 - `MenuSelectionHandler` — choice UI; returns index in **A**
 - `DialogStringRenderer` — wide-string bytecode interpreter (`extracted/system/engine/DialogStringRenderer.asm`)
 - `ConsoleStringRenderer` — BG3 tilemap command interpreter
@@ -50,7 +50,7 @@ Text output and branching choice menus. **`PrintDialogString` (`$BF`)** is the d
 
 ##### What it does
 
-1. Sets **`displayModeFlags` bit 13** (`$2000`; no reader of this bit was found).
+1. Sets **`displayModeFlags` bit 13** (`$2000`; read only by the `mu67_bomb` countdown, which pauses while it is set).
 2. Saves script bank/PC, runs **`UpdateFrameRender`** once to sync the framebuffer.
 3. Saves and clears actor **`$10` bit `$0800`** (cutscene-active).
 4. Clears **`joypadMaskStd`**, switches **DBR** to the script bank, and **`JSL DialogStringRenderer`** with the **`&DialogString`** pointer.
@@ -116,7 +116,7 @@ COP [DialogueOptions] ( #04, #00, &DebugMenuTable1 )
 ##### What it does
 
 1. If **`worldReadyFlag ≠ $000F`**, rewinds script PC and **`RTL`** (retry next frame).
-2. Sets **`displayModeFlags` bit 13** (`$2000`; no reader found), sets **`joypadMaskInv = $0F00`** (the D-pad buttons are the auto-repeat buttons while the menu is open), saves and clears actor **`$10` bit `$0800`**.
+2. Sets **`displayModeFlags` bit 13** (`$2000`; read only by the `mu67_bomb` countdown), sets **`joypadMaskInv = $0F00`** (the D-pad buttons are the auto-repeat buttons while the menu is open), saves and clears actor **`$10` bit `$0800`**.
 3. Clears **`joypadMaskStd`** so the menu handler sees every button.
 4. Reads layout **`Word`** from script → **`JSL MenuSelectionHandler`** → **`ASL`** (index × 2).
 5. Reads branch table base **`Word`**, adds index, restores the saved bit and `joypadMaskStd`, clears `joypadMaskInv` and bit 13, loads **`&Code`** from the table entry, **`RTI`** to chosen handler.

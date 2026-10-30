@@ -754,7 +754,7 @@ Command `$02` reads a preset index, indexes `display_preset_table` (10-byte reco
 | 2 | Write TM/TS/TMW/TSW, CGWSEL/CGADSUB from table |
 | 3 | Parse flag byte: priority bits, scroll bases, interleave |
 | 4 | Write BGMODE, BG1SC, BG2SC from table bytes 5–7 |
-| 5 | Store `$06EE`, `$06EF`; update `$09ED` bit `$40` for BG3 |
+| 5 | Store `$06EE`, `$06EF`; update `$09ED` bit `$40` (HUD off, `displayModeFlags` bit 14): always `TRB #$40` first, then `TSB #$40` only if record byte +7 bit 7 is set. No record of `display_preset_table` has it, so the command only ever **clears** the HUD-off bit (measured, Mesen2 C4: it undoes `OpenInventoryScreen`'s `$4000` store two frames after the inventory opens) |
 
 **Variables:**
 

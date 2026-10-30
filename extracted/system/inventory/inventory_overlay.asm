@@ -113,7 +113,7 @@ OpenInventoryScreen {
     LDA $effectDeltaX     ; Save effectDeltaX; zero until overlay closes
     PHA 
     STZ $effectDeltaX
-    LDA $displayModeFlags ; Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off)
+    LDA $displayModeFlags ; Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off). The scene display command (SceneCmd_ConfigDisplay) clears bit 14 again two frames later (measured)
     PHA 
     LDA #$4000
     STA $displayModeFlags
