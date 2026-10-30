@@ -25,7 +25,7 @@
 ; 4. playerFlags |= $1000 (on slope / ramp), then the FutureTR and FutureBR wall check ($0E+ = solid): both open -> ApplyMovementDeltas; TR open and BR solid -> SnapYSouthCollision; TR solid and BR open -> SnapYNorthCollision; both solid -> corner snap.
 ; 5. Corner snap: X = (left edge of the post-step position, floored to a 16-px column line) + 8, so it only ever moves west; $26 += old X + $20 - new X (the distance pulled back); $20, $24 and playerSpeedEw are zeroed and SetActorCollisionFlag is called. The Y compensation has the same sign in the $0A and $05 handlers.
 ; 
-; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
+; Traced on a walking player (tick by tick with registers): which handler runs for a $05 or $0A cell in each direction, the CancelVerticalPhase stack word, the EastRampDown column-crossing step ($26 gains 4n plus a Y-phase-dependent 4) and the corner snap of both EastRampDown ($26 +8 / +4 / +4 sub-pixels; the player moves south 2 px per tick against the wall) and WestRampUp ($26 +8 / +4 / +4 / +4 sub-pixels; the pixel Y stays the same in 3 of 4 traced ticks). In every traced corner snap the added amount equals old X + $20 - new X. Not traced: the crossing arithmetic of WestRampUp, EastRampUp and WestRampDown.
 ---------------------------------------------
 
 ?BANK 02

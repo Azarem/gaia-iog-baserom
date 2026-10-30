@@ -2,7 +2,7 @@
 ; 
 ; === CONVENTIONS ===
 ; 
-; Positions are sub-pixels (4 per pixel; a 16-px tile is 64, so AND #$FFC0 floors to a row line). $24 / $26 are the Y velocity / position (negative = north, Y grows downward) and $22 is X. $1A / $1E are the probe pixel X / Y and $00 is the map index of the last probe; MapCellUp / Down / Left / Right read $00 and return the new index in X only (a caller that wants to keep it does STX $00; a result that is not stored is lost). CheckSubTileAlignX / Y: carry CLEAR = the probe sits on a 16-px line (flush), carry SET = it straddles two cells. Probe types: $02 ladder, $08 vine, $0E and above solid, $03 / $0C slopes; $06 / $09 are undecoded wall-like types, so 'south wall' / 'north wall' below are handler names, not directions.
+; Positions are sub-pixels (4 per pixel; a 16-px tile is 64, so AND #$FFC0 floors to a row line). $24 / $26 are the Y velocity / position (negative = north, Y grows downward) and $22 is X. $1A / $1E are the probe pixel X / Y and $00 is the map index of the last probe; MapCellUp / Down / Left / Right read $00 and return the new index in X only (a caller that wants to keep it does STX $00; a result that is not stored is lost). CheckSubTileAlignX / Y: carry CLEAR = the probe sits on a 16-px line (flush), carry SET = it straddles two cells. Probe types: $02 ladder, $08 vine, $0E and above solid, $03 / $0C slopes; $06 / $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right), so 'south wall' / 'north wall' below are handler names, not directions.
 ; 
 ; === DISPATCH ORDER (DispatchNorthMove) ===
 ; 

@@ -2,7 +2,7 @@
 ; 
 ; === CONVENTIONS ===
 ; 
-; As in player_move_ns: sub-pixels (4 per pixel), $20 / $22 = X velocity / position, $24 / $26 = Y velocity / position (Y grows downward), $1A / $1E = probe pixel, $00 = map index of the last probe (X still holds it right after a probe), CheckSubTileAlignX / Y carry clear = flush on a 16-px line, carry set = straddling two cells. $06 / $09 are undecoded wall-like types, so 'north wall' / 'south wall' are handler names. In this phase the vertical velocity is parked on PlayerMovementTick's stack and $24 is 0, so the SnapYNorthCollision / SnapYSouthCollision calls here work on the CURRENT Y, not a stepped one.
+; As in player_move_ns: sub-pixels (4 per pixel), $20 / $22 = X velocity / position, $24 / $26 = Y velocity / position (Y grows downward), $1A / $1E = probe pixel, $00 = map index of the last probe (X still holds it right after a probe), CheckSubTileAlignX / Y carry clear = flush on a 16-px line, carry set = straddling two cells. $06 / $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right), so 'north wall' / 'south wall' are handler names. In this phase the vertical velocity is parked on PlayerMovementTick's stack and $24 is 0, so the SnapYNorthCollision / SnapYSouthCollision calls here work on the CURRENT Y, not a stepped one.
 ; 
 ; === DISPATCH ORDER (DispatchEastMove) ===
 ; 

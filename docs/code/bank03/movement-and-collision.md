@@ -126,7 +126,7 @@ column, with `mapRowStrideL0` (`$0693`) controlling metatile page stride.
 | `$03D6E9` | `TileCollision_PassV` | no collision: carry clear |
 | `$03D6EF` | `TileCollision_CheckAdjacentV` | sub-tile boundary test: if misaligned, check tile below |
 | `$03D704` | `TileCollision_SolidV` | transfer tile offset → `BlockV` |
-| `$03D708` | `CheckActorOnSpecialTile` | probe for special tile patterns (`$06` diagonal, `$00`/`$09` L-shape) |
+| `$03D708` | `CheckActorOnSpecialTile` | probe for special tile patterns (`$06` pair on a diagonal, `$00` with `$09` to the right and below) |
 | `$03D78A` | `CalcTileMapOffset` | convert (column, row) tile coords to collision map byte offset |
 | `$03D7B4` | `AdvanceTileOffsetY` | advance tile offset by one column |
 | `$03D7CA` | `AdvanceTileOffsetX` | advance tile offset by one row |
@@ -169,6 +169,26 @@ are detected:
 
 When SEC is returned, the caller skips normal collision — the actor moves freely
 through these special formations.
+
+**Runtime-verified patterns (B3, 56 cases).** The routine runs only for actors whose
+`$10` bit `$0008` is set; the player has its own controller (`player_move_*`) and never
+calls it. With an existing NPC (bit forced on in a disposable state) moved E, W, S, N or
+E+S over a probe cell P = (X − 8, Y − 16) >> 4 that is not 16-aligned, `CheckActorOnSpecialTile`
+exits through exactly one of two exits (`SpecialSEC` / `SpecialCLC`), independent of the
+move direction:
+
+| Cells | Exit |
+|-------|------|
+| `$06` at P and `$06` at (+1, +1) | SEC |
+| `$00` at P, `$09` at (+1, 0) and `$09` at (0, +1) | SEC |
+| `$06` at P only; `$06` at P plus a neighbour at (+1, 0), (0, +1) or (+1, −1) | CLC |
+| `$00` at P with `$09` only at (+1, 0) or only at (0, +1) | CLC |
+| `$09` at P, (+1, 0) and (0, +1); `$00` at P with `$06` at (+1, 0) and (0, +1); no cells | CLC |
+
+With the `$0008` bit clear the routine is not called. `$06` and `$09` are the two
+diagonal-edge cells of the quadrant mask (see
+[`wram-memory-map.md` §4.10](../../wram-memory-map.md)); why the test needs the (+1, +1)
+neighbour is not traced.
 
 ### Bounce mechanism (`CollisionY_Setup`)
 

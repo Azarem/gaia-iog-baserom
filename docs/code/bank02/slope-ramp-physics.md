@@ -79,7 +79,19 @@ Companion actor spawned by `PlayerCharacterDef` via `COP [SpawnAfter]` (`slope_r
 4. If both speed words zero and `playerFlags` `$1000`: reset `slopeStepCounter` and `decelStepCounter`; probe at `playerXPos`/`playerYPos` — current cell, `MapCellRight`, `MapCellDown`, `MapCellRight` from below cell; first matching handler wins; else `SlopeFlatExit`.
 5. If both speed words zero and `$1000` clear → `SlopeFlatDecelerate`.
 
-**Inferred:** The moving probe Y offset (−8 from actor Y) and stopped probe (`playerXPos`/`playerYPos`) sample different world points; the asm block note marks the gameplay consequence as an open question.
+**[Runtime-verified, B3]** The moving probe reads pixel (actor X, actor Y − 8) in 263 of 263 traced events; the stopped-latch probe reads (`$09A2`, `$09A4`) = (actor X − 8, actor Y − 16) in 11 of 11 events, and `$1A`/`$1E` equal them. The two probes sample different world points; why is intent, not decidable at run time.
+
+**[Runtime-verified, B3]** On a moving probe that reads `$06` or `$09`, the cell one row **below** is tested first; the cell above is tested only when the one below is not `$05`/`$0A` (a `$0F` below also falls through to the above test). Results are identical for `$06` and `$09`:
+
+| Cell above | Cell below | Cells consulted | Handler |
+|------------|------------|-----------------|---------|
+| `$00` | `$00` | below, above | `SlopeFlatExit` |
+| `$05` / `$0A` | `$00` | below, above | `SlopeType05Handler` / `SlopeType0AHandler` |
+| any of `$00`, `$05`, `$0A`, `$0F` | `$05` | below only | `SlopeType05Handler` |
+| `$00`, `$05` | `$0A` | below only | `SlopeType0AHandler` |
+| `$05` | `$0F` | below, then above | `SlopeType05Handler` |
+
+This matches how the maps are built: `$05`/`$0A` cells form vertical stacks capped by `$06`/`$09` (of 335 `$05` cells the cell below is `$06` in 220; of 311 `$0A` cells it is `$09` in 238), so a probe on a cap finds the slope cell in the row below or above and not to the left or right. See [`wram-memory-map.md` §4.10](../../wram-memory-map.md).
 
 ### SlopeFlatDecelerate
 
@@ -112,6 +124,8 @@ Companion actor spawned by `PlayerCharacterDef` via `COP [SpawnAfter]` (`slope_r
 
 **[ASM]** EW speed handled first; NS only when EW is zero. Over-max positive speeds clamp to `max−1`; over-max negative speeds clamp to `−(max−1)`.
 
+**[Runtime-verified, B3]** EW 0 / NS +12 → NS 8 (and −12 → −8); EW +5 / NS ±12 → NS unchanged on the traced entries; EW +12 / NS +12 → EW 8, NS stays 12. NS is clamped only when EW is zero. Not traced: why NS drops to 0 in later frames (EW +5 / NS +12: `$09B4` 12 → 0 at frame 3) although `DecelerateNS` does not run.
+
 #### Flat Deceleration
 
 *Evidence: [ASM]*
@@ -122,7 +136,9 @@ Companion actor spawned by `PlayerCharacterDef` via `COP [SpawnAfter]` (`slope_r
 
 ### DecelerateNS
 
-**[ASM]** Same structure on `playerSpeedNs` with joypad `$0400` (south) / `$0800` (north). **Inferred / asm open question:** when NS speed reaches zero, code clears `slopeStepCounter` at `loc_02B76C` instead of `decelStepCounter` (EW path clears `decelStepCounter`).
+**[ASM]** Same structure on `playerSpeedNs` with joypad `$0400` (south) / `$0800` (north). When NS speed reaches zero, the code clears `slopeStepCounter` at `loc_02B76C` instead of `decelStepCounter` (the EW path clears `decelStepCounter`).
+
+**[Runtime-verified, B3]** With the deceleration curve patched to 3 at every step (poked speed ±3, `$09B6` = 5, `$09B8` = 4), the reset fires in 4 of 4 cases: after the EW reset `$09B8` is 0, after the NS reset `$09B8` stays 5 and speed is 0, so the NS path leaves the deceleration curve at its position as the asm note says. The `STZ slopeStepCounter` is a no-op on this path (`SlopeFlatExit` has already cleared `$09B6`). With the shipped curve neither reset fires: both axes stop through the `|speed| < 3` snap (`EWSnap` / `NSSnap`), except that NS +5 and run S reach 0 without that hook. Coverage: flat ground only.
 
 ---
 

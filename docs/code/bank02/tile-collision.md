@@ -32,11 +32,15 @@ $02E396 └─ (inventory_menu continues) ────────────�
 | Type | Role in this file / callers (asm block note) |
 |------|-----------------------------------------------|
 | `$00` | Passable — `TileProbeMain` returns carry clear |
-| `$01`–`$04`, `$06`–`$09`, `$0B`, `$0D` | Nonzero types; meaning for movement redirects is in `player_move_*` / `player_character` (not defined in this file) |
+| `$01`–`$04`, `$07`, `$08`, `$0B`, `$0D` | Nonzero types; meaning for movement redirects is in `player_move_*` / `player_character` (not defined in this file) |
 | `$05` | West-facing slope (used by slope dispatch and ramp movement) |
+| `$06` | Diagonal-edge cell: top-right + bottom-left quadrants ("/" edge). Handled by the wall-slide routines |
+| `$09` | Diagonal-edge cell: top-left + bottom-right quadrants ("\\" edge). Handled by the wall-slide routines |
 | `$0A` | East-facing slope |
 | `$0E`+ | Solid — blocking threshold in movement cascades |
-| `$0F` | Returned for invalid map index (`X ≥ $4000`) and OOB probes |
+| `$0F` | Fully flagged cell (all four quadrants; the most common nonzero value). Also returned for invalid map index (`X ≥ $4000`) and OOB probes |
+
+**[Runtime-verified]** The low nibble of a collision cell is a mask of the four 8 × 8 quadrants of the 16 × 16 cell (bit 9 of the four tilemap words of the metatile, via `BuildMetatileFlagTable`); `$06` and `$09` are the two diagonal pairs of that mask, not south- or north-facing walls. The words "North" / "South" in handler names such as `SouthWallNorthInteract` are type names, not directions (`$09` under the left foot → `SouthWallNorthInteract`, `$06` under the right foot → `SouthWallSouthInteract`). Census of all 223 map scenes and the full table: [`wram-memory-map.md` §4.10](../../wram-memory-map.md).
 
 **Inferred:** Human-readable names for `$02` (ladder redirect), `$07` (shimmy wall), `$08` (vine) come from player movement FSM code, not from `ReadCollisionNibble` itself.
 

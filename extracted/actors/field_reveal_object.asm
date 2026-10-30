@@ -172,7 +172,7 @@ FieldRevealGem5 {
     LDA $collisionLayer, X ; Collision byte of the probed tile (Y = map index left by the probe)
     PLX 
     AND #$00FF
-    CMP #$000E            ; Collision byte $0E ends the scan at this row (its meaning is not traced)
+    CMP #$000E            ; Collision byte $0E (three of the four quadrants flagged, solid for movement) ends the scan at this row
     BEQ FieldRevealLaunch
     LDA $16
     CLC 

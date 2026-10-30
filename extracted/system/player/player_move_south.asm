@@ -7,7 +7,7 @@
 ; - Probe* routines (tile_collision) return A = collision type nibble and carry SET for any nonzero type, with the probed map index left in $00. Solid is A >= $0E, tested by the callers here.
 ; - MapCellRight / MapCellLeft / MapCellUp read the index in $00 and return the neighbouring cell in X; the callers commit it with STX $00 before ReadCollisionNibble.
 ; - CheckSubTileAlignX / Y: carry CLEAR = the probe edge is flush with a tile line (the hitbox covers a single column / row), carry SET = it straddles two cells. A is preserved.
-; - Types seen here: $02 ladder, $08 vine (can only be entered while walking south; the north dispatcher treats $08 as a wall), $03 / $0C slopes, $06 / $09 undecoded wall-like types. The 'North' / 'South' in SouthWallNorth* / SouthWallSouth* names comes from the type ($09 / $06), not from a direction.
+; - Types seen here: $02 ladder, $08 vine (can only be entered while walking south; the north dispatcher treats $08 as a wall), $03 / $0C slopes, $06 / $09 diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right). The 'North' / 'South' in SouthWallNorth* / SouthWallSouth* names comes from the type ($09 / $06), not from a direction.
 ; 
 ; === DispatchSouthMove ORDER ===
 ; 
@@ -59,7 +59,7 @@
 DispatchSouthMove {
     SEP #$20              ; South half of the vertical phase: entered with $24 > 0 after the horizontal phase ran ($20 is zero by now); A is 8-bit for the type compares
     JSR $&tile_collision.ProbeCurrentBL ; Current bottom-left corner: A = collision type nibble, carry set when it is nonzero
-    CMP #$09              ; Type $09 under the left foot (undecoded wall-like type): SouthWallNorthInteract. The North is the type name, not a direction
+    CMP #$09              ; Type $09 under the left foot (diagonal-edge type, top-left + bottom-right quadrants): SouthWallNorthInteract. The North is the type name, not a direction
     BNE loc_02D382
     JMP $&SouthWallNorthInteract
 
@@ -75,7 +75,7 @@ DispatchSouthMove {
 
   loc_02D390:
     JSR $&tile_collision.ProbeCurrentBR ; Current bottom-right corner, only reached when the left foot is on neither a wall-like nor a slope type
-    CMP #$06              ; Type $06 under the right foot (undecoded wall-like type): SouthWallSouthInteract, mirror of the $09 case
+    CMP #$06              ; Type $06 under the right foot (diagonal-edge type, top-right + bottom-left quadrants): SouthWallSouthInteract, mirror of the $09 case
     BNE loc_02D39A
     JMP $&SouthWallSouthInteract
 

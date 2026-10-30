@@ -8,11 +8,11 @@
 ; 
 ; === STACK CONTRACT WITH PlayerMovementTick ===
 ; 
-; These routines are entered with JSR/JMP from PlayerMovementTick's frame still on the stack: the return address, then the parked vertical velocity word. CancelVerticalPhase writes it ($05,S), AutoAlignYToGrid reads it ($06,S, one byte deeper because of its PHP) and WallSlidePushUp/Down read it ($03,S). Zeroing it (also done by player_move_east and player_move_ramps through CancelVerticalPhase) cancels the vertical phase for this tick: the ramp code moves Y itself, and the ladder redirect leaves the movement state. Derived by stack-depth counting, not observed at run time.
+; These routines are entered with JSR/JMP from PlayerMovementTick's frame still on the stack: the return address, then the parked vertical velocity word. CancelVerticalPhase writes it ($05,S), AutoAlignYToGrid reads it ($06,S, one byte deeper because of its PHP) and WallSlidePushUp/Down read it ($03,S). Zeroing it (also done by player_move_east and player_move_ramps through CancelVerticalPhase) cancels the vertical phase for this tick: the ramp code moves Y itself, and the ladder redirect leaves the movement state. Traced with a diagonal input on ramps and walls: at entry the parked $24 is the stack word at S+5 for CancelVerticalPhase, AutoAlignNS_East, AutoAlignYToGrid and ComputeWallSlidePush (S is the stack pointer before the routine pushes anything; AutoAlignYToGrid pushes P first, hence $06,S), and at S+3 for WestRampDescend, EastRampDown and WallSlidePushUp/Down. After CancelVerticalPhase the north and south dispatchers do not run in that tick; on flat ground they do.
 ; 
 ; === TILE TYPES ===
 ; 
-; $05 west-facing slope and $0A east-facing slope (WestRampDescend / WestRampAscend), $07 ladder tile (DiagLadderTile), $0E and above solid. Types $06 and $09 are wall-like types whose meaning is undecoded; this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.
+; $05 west-facing slope and $0A east-facing slope (WestRampDescend / WestRampAscend), $07 ladder tile (DiagLadderTile), $0E and above solid. Types $06 and $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right); this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.
 ; 
 ; === SLOPE RAMPS ===
 ; 

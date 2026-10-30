@@ -214,7 +214,7 @@ Palette shimmer companion for Shadow (`characterForm == 2`). Parent actor points
 
 **[ASM]** Each frame: `LDY $06` (list successor = palette child); write `$0000,Y` → `ShadowShimmerSlowStrips`, `$0008,Y` → 0; `SetEntryHere`; `JSR ShadowShimmerGuard`. `playerSpeedEw | playerSpeedNs` nonzero → `ShadowShimmerActive`. Else `COP [BranchOnFlagByte] ( #00, #01, &ShadowShimmerActive )`.
 
-**Inferred:** Ordinary D-pad walking leaves both speed words at zero (`player_move_controller` joypad path); fast strips track slope/ramp/run speeds and flag byte `#00`, not plain walk animation.
+**[Runtime-verified, B3]** Ordinary D-pad walking leaves both speed words at zero: walking flat W / E / N / S for 14 frames writes `$09B2`–`$09B5` zero times. The speed words are written by `WalkWest` / `WalkEast` / `WalkNorth` / `WalkSouth` (run, double tap: 2 writes each, at `$82:C580` / `C5CA` / `C537` / `C4EF`), by the slope curves (`ApplySlopeCurveNegEW` `B5B6`, `ApplySlopeCurvePosEW` `B5D2`: 30–38 writes in 20–24 frames on a ramp) and by `DecelerateEW` (`B68F`); `SnapYSouthCollision` (`D3FD`) writes them when walking W + down. In scene `$15` as Shadow: walking flat E and idle stays in `ShadowShimmerIdle` + `ShadowShimmerSlowStrips`; running E enters `ShadowShimmerActive` + `FastStrips` at tick 5 (the tick of the first speed write); a slope W walk does the same and returns to `ShadowShimmerIdle` at tick 74, the tick of the last speed write (value 0). With the scene's flag byte `#00` bit set as loaded in `$15`, a flat walk E reaches `FastStrips` (tick 8) without any speed write. Will (form 0) writes the same speeds and has no shimmer hook. Scope: Shadow in scene `$15` only.
 
 ### ShadowShimmerActive
 
@@ -239,6 +239,8 @@ Per-frame movement integrator for the hidden companion actor (`CopyActorState` s
 ### PlayerMoveController
 
 **[ASM]** Stages match the block comment at the top of `player_move_controller.asm` (hit-stun → lock → sync → velocity → collision vs direct add → write-back). **Inferred:** “Dead” is not tested here; game over uses `$0A00` skip instead.
+
+**[Runtime-verified, B3]** Hit-stun gate (`PlayerMoveController`+30, reads the counter at `$82:B2BC`): with player `$10` bit `$0080` set and `iframeCounter` poked to +3, the counter is stepped 3 → 2 → 1 → 0 once per frame by a routine that runs before the gate (read at `CB46`, stored at `CB4F`; unnamed, nearest label `MovingToNorth`+36), `PlayerMovementTick` does not run in those three frames, and movement resumes in frame 4 because the bit is already clear when the controller runs. A counter of 0 or −1 poked with the bit set resumes in frame 1; −5 does not freeze at all and counts up to 0 with the bit clearing at frame 5; +30 freezes 30 frames; with the bit clear the counter is left alone. What sets the counter to a positive value on the next hit is not traced.
 
 **Algorithm:**
 - Once at spawn: local `$14`/`$16` ×4

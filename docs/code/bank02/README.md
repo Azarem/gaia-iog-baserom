@@ -414,11 +414,14 @@ The earlier version of this table gave a meaning to every value (for example "se
 | Type | What the asm establishes |
 |------|---------|
 | `$00` | passable; `TileProbeMain` returns carry clear |
-| `$01`–`$04`, `$06`–`$09`, `$0B`, `$0D` | nonzero types; their movement meaning is defined in `player_move_*` / `player_character`, not in the probe |
+| `$01`–`$04`, `$07`, `$08`, `$0B`, `$0D` | nonzero types; their movement meaning is defined in `player_move_*` / `player_character`, not in the probe |
 | `$05` | west-facing slope (slope dispatch and ramp movement) |
+| `$06`, `$09` | diagonal-edge cells (runtime-verified quadrant masks: `$06` = top-right + bottom-left, `$09` = top-left + bottom-right), handled by the wall-slide routines |
 | `$0A` | east-facing slope |
 | `$0E` and above | solid (the blocking threshold callers compare against) |
-| `$0F` | returned for an invalid map index (`X ≥ $4000`) and out-of-bounds probes |
+| `$0F` | fully flagged cell (all four quadrants, the most common nonzero value); also returned for an invalid map index (`X ≥ $4000`) and out-of-bounds probes |
+
+The low nibble is a mask of the four 8 × 8 quadrants of the 16 × 16 cell, built from bit 9 of the metatile's tilemap words; see [`wram-memory-map.md` §4.10](../../wram-memory-map.md) for the census of all scenes.
 
 `TileProbeMain` sets carry for **any** nonzero type. See [tile-collision.md](tile-collision.md) §Collision Type Reference for the actor-solid mark (`$F0` high nibble → `$0F`).
 

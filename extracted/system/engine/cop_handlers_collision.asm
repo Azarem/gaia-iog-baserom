@@ -1076,7 +1076,7 @@ TileCollisionQuery {
     LSR 
     LSR 
     LSR 
-    DEC                   ; Tile row − 1 (same adjustment as ParseSignedTileOffset; reason inferred: collision rows are offset one row from pixel Y)
+    DEC                   ; Tile row - 1 (as in ParseSignedTileOffset). The layer has no row offset (TileProbeMain and MarkCollisionRect use pixel >> 4); the -1 matches a hitbox with Y offset -16 (the NPC traced): MarkSolidHere paints row (Y - 16) >> 4 = (Y >> 4) - 1, which this query reads for the same Y. With Y offset -8 the paint is row Y >> 4 for Y mod 16 >= 8 and the query misses it. The column is not adjusted (paint (X - 8) >> 4, query X >> 4)
     STA $1C
     JSL $@tile_collision_physics.CalcTileMapOffset ; CalcTileMapOffset: tile coords → collision layer pointer
     CPY #$4000            ; Y ≥ $4000 = out-of-bounds → fallback

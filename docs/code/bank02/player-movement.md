@@ -240,10 +240,10 @@ Subtracts 8 sub-pixels (2 px toward smaller coordinates). On crossing a `$40` li
 | `$02D0D4` | NorthInteractTile | Handles tile type $02 (ladder/interact) when moving north. |
 | `$02D0EE` | NorthSlopeRight | Tile $03 (slope-right) handler for northward movement. |
 | `$02D122` | NorthSlopeLeft | Tile $0C (slope-left) north handler with $09C6 slope accumulator. |
-| `$02D188` | SouthWallHandler | Tile $06 south wall handler. |
+| `$02D188` | SouthWallHandler | Tile $06 (diagonal-edge type) handler; "South" is a type name, not a direction. |
 | `$02D1CE` | SouthWallNudge | Future TL $06 nudge variant. |
 | `$02D1EC` | ClearSpeedNS_1 | Branch-range stub: `STZ playerSpeedNs` → `RTS` (gap abort). |
-| `$02D1F2` | NorthWallHandler | Tile $09 north wall handler. |
+| `$02D1F2` | NorthWallHandler | Tile $09 (diagonal-edge type) handler; "North" is a type name, not a direction. |
 | `$02D238` | NorthProbeRedirect | Joins `NorthWallHandler` gap chain at `loc_02D208` (`MapCellDown`/`ReadCollisionNibble` here are dead code). |
 | `$02D240` | ClearSpeedNS_2 | Branch-range stub: `STZ playerSpeedNs` → `RTS` (gap abort). |
 
@@ -488,7 +488,7 @@ Handles southward movement on a left-descending slope tile (`$0C`), mirroring `S
 
 ### SouthWallNorthInteract
 
-Handles southward movement when the player stands on a north-facing wall tile (`$09`) at the bottom-left corner — the mirror of `NorthWallHandler` but for downward motion instead of upward. If top-right is also `$09` the player is fully walled and all deltas are cleared. When sub-tile Y is aligned with a continuing `$09` wall ahead, the routine probes for a gap below the wall lip; an open gap triggers **westward wall-slide** via `ComputeSouthSnapOffset` → `FineAdjustXWest`, while a closed gap tries diagonal X snap first and may fall back to hard Y snap south.
+Handles southward movement when the bottom-left corner is on a `$09` diagonal-edge cell (top-left + bottom-right quadrants; "North" is the handler's type name, not a direction) — the mirror of `NorthWallHandler` but for downward motion instead of upward. If top-right is also `$09` the player is fully walled and all deltas are cleared. When sub-tile Y is aligned with a continuing `$09` wall ahead, the routine probes for a gap below the wall lip; an open gap triggers **westward wall-slide** via `ComputeSouthSnapOffset` → `FineAdjustXWest`, while a closed gap tries diagonal X snap first and may fall back to hard Y snap south.
 
 **Cross-References:**
 
@@ -499,7 +499,7 @@ Handles southward movement when the player stands on a north-facing wall tile (`
 
 ### SouthWallSouthInteract
 
-Handles southward movement when a south-facing wall tile (`$06`) is at the bottom-right corner. Enclosure between `$06` at both top-left and bottom-right stops all movement; otherwise the handler probes the future bottom-right cell for a continuing south wall with Y sub-tile alignment. When a gap exists above the wall lip (cells up and left are walkable), the player **slides east** along the south wall through `ComputeSouthSnapOffset` → `FineAdjustXEast`. Misaligned paths snap X eastward first (`SnapXEastCollision`); if still blocked, vertical delta is zeroed and Y snaps north to the tile ceiling.
+Handles southward movement when the bottom-right corner is on a `$06` diagonal-edge cell (top-right + bottom-left quadrants; "South" is the handler's type name, not a direction). Enclosure between `$06` at both top-left and bottom-right stops all movement; otherwise the handler probes the future bottom-right cell for a continuing south wall with Y sub-tile alignment. When a gap exists above the wall lip (cells up and left are walkable), the player **slides east** along the south wall through `ComputeSouthSnapOffset` → `FineAdjustXEast`. Misaligned paths snap X eastward first (`SnapXEastCollision`); if still blocked, vertical delta is zeroed and Y snaps north to the tile ceiling.
 
 **Cross-References:**
 
@@ -992,6 +992,58 @@ Mirror of `WallSlidePushUp` for the opposite wall-slide case: stores a **positiv
 | `WallSlidePushUp` | Mirror counterpart |
 | `EastWallPushDown` / `code_02DC4B` (`DiagWallSouthFromDL`) | Callers |
 
+## Runtime-Verified Behaviour (Mesen2 campaigns B2 and B3)
+
+*Evidence: runtime. Method: a collision pattern is painted into the layer (or the player walks natural terrain), a D-pad direction is held, and one row per frame plus exec hooks with registers and stack words are logged; every case runs twice and aborts on any difference; every run has a firing `$36` frame-counter control. Vanilla ROM and the rebuilt ROM agree on all 213 B2 cases (3,636 frames). Reports: `plans/extracted-audit/mesen2-results/B2_20261030.md`, `B2_special_tiles_20261029.md`, `B3_20261030.md`.*
+
+### Parked `$24` on the stack
+
+The word `PlayerMovementTick` parks equals the stack word at these positions on entry of each routine (S = stack pointer before the routine pushes anything; ticks with a nonzero parked word):
+
+| Routine | Position | Ticks |
+|---------|----------|-------|
+| `CancelVerticalPhase` | S+5 (`$05,S`) | 24 of 24 |
+| `AutoAlignNS_East`, `ComputeWallSlidePush` | S+5 | 66 of 66, 10 of 10 |
+| `AutoAlignYToGrid` | S+5 (`$06,S` after its `PHP`) | 21 of 21 |
+| `WestRampDescend`, `EastRampDown` | S+3 | 12 of 12 each |
+| `WallSlidePushDown` / `WallSlidePushUp` | S+3 | 9 of 9 / 1 of 1 |
+
+`SnapYSouthCollision` (S+5 in 1 of 10 ticks) and `AutoAlignEW_North` / `SnapYNorthCollision` (0 of 36 each) have no fixed position and are not part of the contract. On a ramp tick the sequence is `DispatchWest/EastMove` → ramp handler → `CancelVerticalPhase`, and neither `DispatchNorthMove` nor `DispatchSouthMove` runs; on flat ground with a diagonal input `DispatchWestMove` is followed by `DispatchSouthMove` (8 of 8).
+
+### Which ramp handler runs
+
+`DispatchEastMove` calls `FindSlopeForEastMove` and `DispatchWestMove` calls `FindSlopeForWestMove`. Probe pixels relative to the actor (identical in all samples): east (+8, −16) then (0, −16); west (−8, −16) then (0, −16). On return `$05` gives A = 5 and carry set, `$0A` gives A = 10 and carry clear, flat gives A = 0.
+
+| Move | Tile found | Handler | Ticks traced |
+|------|-----------|---------|--------------|
+| east | `$05` | `WestRampUp` | 8 of 8 |
+| east | `$0A` | `EastRampDown` | 14 of 14 |
+| west | `$05` | `WestRampDescend` | 10 of 10 |
+| west | `$0A` | `WestRampAscend` | 5 of 13 (the other 8 are flat ticks before the stair) |
+
+When the speed word reverses on a stair, the other direction's handlers run (`EastRampDown` and `EastRampUp` while walking west up a `$0A` stair; `WestRampDescend` in 12 of 40 ticks walking east up a `$05` stair). `EastRampUp` / `WestRampDown` are the late entries from `ProbeCurrentBL`; "Up" / "Down" in the names is not the Y direction. Releasing the D-pad on a slope runs `SlopeFlatExit` → `ClampSpeeds` → `DecelerateEW`.
+
+### Ramp arithmetic
+
+- A lone `$0A` cell crossed from the west: the Y change in the tick that crosses the 16-px column line is 4n sub-pixels (n = pixels past the line) plus a +4 bias that depends on the Y phase (the sum includes `$26`); afterwards Y moves 1 px per 1 px of X. For `$05` the first change is negative (−8 or −4). A lone `$05` east of the player produces a repeating east/west wobble (`WestRampUp` / `WestRampDescend`), net X 384–386.
+- Both hitbox rows engage a ramp at the same X (cell on row 10 or 11, first response at X = 386); row 9 gives no response.
+- Corner snap (both future corners solid, wall column east of the ramp): X is pinned to the wall and `$26` rises by the distance pulled back, old `$22` + `$20` − new `$22`. `EastRampDown`: +8 / +4 / +4 sub-pixels per tick, the player slides **south 2 px per tick** (Y 188 → 190 → 192). `WestRampUp` (`loc_02DA3F`): +8 / +4 sub-pixels with the same sign, but the pixel Y stays the same in 3 of 4 traced ticks (net 0, against +2 px for the `$0A` handler). The `$05` corner was reached only with a synthetic 1–5 cell stair against a wall two columns east; no single-cell geometry reached it.
+- Tile types `$03` / `$0C` act on the vertical axis only: `$03` pushes south, `$0C` pushes north (X never changed in a column stack). The `slopeFracAccum` trace on `$0C` matches the filter described above tick for tick (`$24` = −8 gives −8 / −1 alternation, about 56 percent of the step; at `$24` ≥ 16 each tick is −1 sub-pixel).
+- `playerFlags` `$1000` from `NorthSlopeRight` is set when `d = 16 − n` ≥ 8 (upper half of the tile) and clear for `d` < 8; `n` = 8 was not sampled.
+
+### `$06` / `$09` diagonal-edge cells
+
+- A single painted `$06` on the player's row, entered walking east, moves the player 16 px **north** at 2 px per frame for 8 frames; `$09` moves it 16 px south. A tile one row above or below has no effect. The push is always 1–16 px and ends on a row line; the first call can move 8 or 16 px at once (`SnapYNorthCollision` with `$24` = 0: 16 px when flush, 15 / 8 / 2 / 1 px at other Y phases).
+- Names are type names: `$09` under the left foot enters `SouthWallNorthInteract`, `$06` under the right foot `SouthWallSouthInteract`; neither means a compass direction. Walking north into a `$06` at TL slides east (X 364 → 373), into a `$09` at TR slides west.
+- Wall slide (`FineAdjustXWest` / `FineAdjustXEast`): `$09` under the left foot pushes east by `$02` − n (n = (X − 8) AND 15); the `$06` mirror pushes west.
+- `FineAdjustXEast` with `$02` = 17 (probe Y low nibble 15, i.e. Y = 191, south step crossing a row line): `16 − $02` = `$FFFF`, the `ORA` produces a wrapped X, and `$22` becomes 28, **X = 7**, a teleport of about 360 px west from X 361–375. At Y = 192 / 193 (`$02` = 2 / 3) the slide is normal; the `$09` mirror at Y = 191 lands on a valid X because `FineAdjustXWest` subtracts 16.
+- `SouthWallSouthInteract` ends in `SnapYNorthCollision` (`((Y + $24) AND $FFC0) + $40`), which lands on the next row line (why the code picks it is intent, not decidable at run time): at Y = 190 it snaps `$26` 760 → 768 (Y 192, the row line the south step would reach) where `SnapYSouthCollision` would give 704 (Y 176, 16 px back north).
+- `SouthWallNudge` (future TL `$06`, north move): `$AB` bit 1 is set only while left is held (the west horizontal phase ran); the zero-`$24` nudge fires only with it and with X flush (up + left from X 378: X 376, Y 176); a pure north walk takes the other branch and slides east and north (x +2, y −2 per tick).
+
+### Ticks that publish position
+
+Between the phases `PlayerMovementTick` writes `$22` / `$26` >> 2 to `$1014` / `$1016` (PC `$82:D00E` / `D015`) and rewrites them after the vertical phase (`B3A9` / `B3B3`). The vertical dispatch does not read the published pair: 0 reads between publish and rewrite in 15 ticks (flat W+down, E+up, S, N; ramp W+down). The consumer of the between-phase publish is not identified.
+
 ## Collision Cascade Pattern
 
 *Evidence: [ASM] + [INFERRED]*
@@ -1001,7 +1053,7 @@ Nearly every movement handler follows the same multi-stage pipeline:
 ```
 1. PROBE     — `ProbeCurrent*` / `ProbeFuture*` (or `FindSlopeFor*Move` / extra `TileProbeMain` samples on ramps)
 
-2. DISPATCH  — Compare type in A; `JMP` to handler ($02 ladder, $03/$0C slope, $06/$09 wall-like types [undecoded],
+2. DISPATCH  — Compare type in A; `JMP` to handler ($02 ladder, $03/$0C slope, $06/$09 diagonal-edge types (quadrant masks),
                 $07 east/west shimmy tile, $08 vine [south entry in `DispatchSouthMove`], $0A/$05 ramps, $0E+ solid)
 
 3. ADJACENT  — For wall/slope types: probe neighboring cells via MapCell*

@@ -391,7 +391,7 @@ RenderRowStrip {
 ---------------------------------------------
 ; Wraps a map data index back within valid tilemap bounds.
 ; 
-; Subtracts the tilemap base address ($069E+X) and the map data size ($069A+X; inferred from the arithmetic — it is the wrap modulus) from the current index. If no borrow occurs (carry set), the index has overflowed past the end of the map data — the base is re-added, leaving index − size, and the check repeats until the index normalizes.
+; Subtracts the tilemap base address ($069E+X) and the map data size ($069A+X; the wrap modulus: the number of map data bytes, measured equal to map width / 16 x map height / 16 in every scene) from the current index. If no borrow occurs (carry set), the index has overflowed past the end of the map data — the base is re-added, leaving index − size, and the check repeats until the index normalizes.
 ; 
 ; Stores the wrapped index to DP $04 and Y register. Called by both RenderRowStrip and RenderColumnStrip whenever map access indices might exceed the allocated tilemap region.
 
@@ -430,7 +430,7 @@ RenderColumnStrip {
     PHX 
     LDA $mapBoundsX, X    ; Load map width bound (mapBoundsX) for wrap calculations
     STA $1A               ; Store map width at DP $1A for boundary comparisons
-    LDA $069A, X          ; Load map data size ($069A+X; wrap modulus, inferred)
+    LDA $069A, X          ; Load map data size ($069A+X; wrap modulus, equals map width / 16 x map height / 16)
     STA $08               ; Store map data size at DP $08 for wrap subtraction
     CLC 
     ADC $mapTilemapBaseA, X ; Compute upper bound = tilemap base address + map data size

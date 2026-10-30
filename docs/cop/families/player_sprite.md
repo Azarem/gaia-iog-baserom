@@ -391,7 +391,7 @@ Used inside **player wall-slide / ice ramp** loops together with **`$94`**. Oper
 
 ##### What it does
 
-Same as **`$96`**, but collision sample at **`Y − $10`** (one metatile north). Used when wall interaction is tied to **north-facing** collision types (`$09` family) on the tile above the player.
+Same as **`$96`**, but collision sample at **`Y − $10`** (one metatile north). Used when wall interaction is tied to the `$09` diagonal-edge type (top-left + bottom-right quadrants; handler names call it "North" as a type name, not a direction) on the tile above the player.
 
 ##### How it is used in source
 

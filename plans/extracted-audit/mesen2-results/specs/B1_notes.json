@@ -1,0 +1,99 @@
+{
+  "_note": "B1 draft (2026-10-30, ROM O). Apply pass only; investigation sessions run --dry-run. Sources: raw/B1_census.md (223 valid scenes), raw/B1_adjacency_O.json, raw/screenshots/B1_*.png.",
+  "system/engine/tile_collision_physics.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Collision types $06 and $09 are not traced to a purpose.",
+          "with": "Collision types $06 and $09 are the diagonal-edge cells: the low nibble of a collision byte is a mask of the four 8x8 quadrants of the 16x16 cell, $06 = top-right + bottom-left (an edge running from lower left to upper right) and $09 = top-left + bottom-right (upper left to lower right). They sit on the diagonal sides of staircases, chamfered cave and wall corners and the ramp gate towers (145 of 223 scenes carry each). Why the test above needs the (+X,+Y) neighbour is not traced."
+        }
+      ]
+    }
+  },
+  "system/player/tile_collision.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$06 and $09 wall-like types (meaning not decoded; see tile_collision_physics)",
+          "with": "$06 and $09 diagonal-edge types (quadrant masks; see tile_collision_physics)"
+        }
+      ]
+    }
+  },
+  "system/player/player_move_west.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Types $06 and $09 are wall-like types whose meaning is undecoded;",
+          "with": "Types $06 and $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right);"
+        }
+      ]
+    }
+  },
+  "system/player/player_move_east.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$06 / $09 are undecoded wall-like types, so",
+          "with": "$06 / $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right), so"
+        }
+      ]
+    }
+  },
+  "system/player/player_move_ns.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$06 / $09 are undecoded wall-like types, so",
+          "with": "$06 / $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right), so"
+        }
+      ]
+    }
+  },
+  "system/player/player_move_south.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$06 / $09 undecoded wall-like types",
+          "with": "$06 / $09 diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right)"
+        }
+      ]
+    },
+    "comments": {
+      "185211": {
+        "text": "Type $09 under the left foot (diagonal-edge type, top-left + bottom-right quadrants): SouthWallNorthInteract. The North is the type name, not a direction",
+        "expect": "CMP #$09"
+      },
+      "185235": {
+        "text": "Type $06 under the right foot (diagonal-edge type, top-right + bottom-left quadrants): SouthWallSouthInteract, mirror of the $09 case",
+        "expect": "CMP #$06"
+      }
+    }
+  },
+  "actors/field_reveal_object.asm": {
+    "comments": {
+      "56118": {
+        "text": "Collision byte $0E (three of the four quadrants flagged, solid for movement) ends the scan at this row",
+        "expect": "CMP #$000E"
+      }
+    }
+  },
+  "system/engine/camera_tilemap.asm": {
+    "partNotes": {
+      "WrapMapIndex": {
+        "edit": [
+          {
+            "find": "($069A+X; inferred from the arithmetic — it is the wrap modulus)",
+            "with": "($069A+X; the wrap modulus: the number of map data bytes, measured equal to map width / 16 x map height / 16 in every scene)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "175530": {
+        "text": "Load map data size ($069A+X; wrap modulus, equals map width / 16 x map height / 16)",
+        "expect": "LDA $069A"
+      }
+    }
+  }
+}

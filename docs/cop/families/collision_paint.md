@@ -26,6 +26,14 @@ Write collision data into WRAM `$7FC000` (`collisionLayer`). The high nibble (`#
 - `$12` (`ClearTypeAbs`) clears only the **type** nibble (`AND #$F0`), preserving solid flags.
 - `$42` (`SetCollisionAbs`) stores a **full byte** — can set type and solid in one write.
 
+### Runtime-verified rectangle behaviour (B3)
+
+Run with a forged actor script (`COP #$0B` then `COP #$13`, entered as a real actor entry from WRAM `$7F:8000`, X = D = slot):
+
+- **Hitbox bank.** `MarkCollisionRect` loads DBR from the hitbox pointer's bank, and the map-index code (including `AdvanceMapY`) reads `mapRowStrideL0` (`$0693`) with an absolute address, so the hitbox header must live in bank `$7E`. With the header in `$7F` the stride read is `$7F:0693` = 0 and the second row lands wrong. The traced NPC's header is in `$7E:4360` (bytes `F8 F0 01 01`: X offset −8, Y offset −16, 1 × 1 tiles).
+- **`AdvanceMapY` page crossing.** The hidden high half of A is the page of the last tile written. A 2 × 2 rectangle (`F8 F0 02 02`) paints its second row correctly in the interior (first tile (4, 4)) and at a vertical page edge only ((8, 15): rows 15 and 16 both right), but **fails whenever the row crosses a page edge horizontally**: first tile (15, 3) paints row 2 at (31, 4) (32, 4) instead of (15, 4) (16, 4); (15, 15) gives (31, 16) (32, 16); (31, 31) gives (47, 32) (48, 32). The failure needs only the horizontal crossing; no vertical page crossing is involved. The note in `cop_handlers_collision.asm` (`AdvanceMapY`) is exact.
+- **Paint versus probe rows.** The paint uses cell (`(X + xOffset) >> 4`, `(Y + yOffset) >> 4`) with no row offset in the layer itself. See [collision_branch](collision_branch.md#runtime-verified-paint-versus-probe-agreement-b3) for how `BranchIfSolidHere` reads it back.
+
 ## Usage statistics
 
 | Op | Name | Uses | Params | Handler | Outcome |

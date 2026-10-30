@@ -24,6 +24,19 @@ Read-only probes of `$7FC000` that **conditionally branch** in COP scripts. Soli
 - **`[62]`** is **not** the same as `[1A]`: no `TileCollisionQuery` (no camera clamp / solid fallback), compares **`(byte & $0F) == Nibble`**, and branches on **match** or OOB. Handler lives in [`cop_handlers_actor_flags.asm`](../../../extracted/system/engine/cop_handlers_actor_flags.asm).
 - Opcode `$19` (`MusicAndText`) sits between `$18` and `$1A` in the dispatch table — it is audio, not collision.
 
+### Runtime-verified paint versus probe agreement (B3)
+
+Method: a forged actor script runs `COP [MarkSolidHere]` then `COP [BranchIfSolidHere]` at the same position (marker byte `$7F:8200` = 1 not taken, 2 taken); the Y phase (0–15) and X phase (0–15) are swept.
+
+| Hitbox header (X offset, Y offset, w × h) | Sweep | Painted cell | `BranchIfSolidHere` |
+|------------------------------------------|-------|--------------|---------------------|
+| the NPC's own (`F8 F0 01 01`: −8, −16) | Y = 304 + k, k = 0–15 | (72, 18) for all 16 | **taken in all 16** |
+| same, no `MarkSolidHere` (control) | — | none | not taken |
+| same | X = 1160 + k | (72, 18) for all 16 | taken for k = 0–7, **not taken for k = 8–15** |
+| synthetic `F8 F8 01 01` (Y offset −8) | Y = 304 + k | (72, 18) for k = 0–7, (72, 19) for k = 8–15 | taken for k = 0–7, **not taken for k = 8–15** |
+
+So the `DEC` in `TileCollisionQuery` (tile row − 1, the same adjustment as `ParseSignedTileOffset`) agrees with the paint exactly when the hitbox Y offset is −16, because (Y − 16) >> 4 = (Y >> 4) − 1. With Y offset −8 the paint is row `Y >> 4` for Y mod 16 ≥ 8 and the query misses it. In X the paint uses (X − 8) >> 4 while the query uses X >> 4: a half-tile mismatch in half of the phases. The collision layer itself has **no** row offset (the player's moving probe at pixel Y 184 − 8 reads cell row 11 = (176 >> 4)); the earlier explanation "collision rows are offset one row from pixel Y" is wrong. Not tested: the layer-aware bit of `BranchIfBehindWall`; the hitbox Y offset of any actor other than the one traced (open question: do all sprite hitbox headers have Y offset −16 and live in bank `$7E`?).
+
 ## Usage statistics
 
 | Op | Name | Uses | Params | Handler | Outcome |

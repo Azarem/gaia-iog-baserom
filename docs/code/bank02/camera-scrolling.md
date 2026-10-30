@@ -79,7 +79,7 @@ The camera state is spread over four **different kinds** of word. Keeping them a
 |---|---|---|
 | `$0692` / `$0694` | `mapBoundsX` (`,X`) | Map width in pixels (layer 1: `$0694` = `effectBoundsX`). Its high byte `$0693` / `$0695` is the map width in 256-px pages (row page stride, `mapRowStrideL0/L1`). |
 | `$0696` / `$0698` | `mapBoundsY` (`,X`) | Map height in pixels (layer 1: `$0698`). |
-| `$069A` (`,X`) | (unnamed here) | Map data size in bytes; used as the wrap modulus by `WrapMapIndex` and `RenderColumnStrip` (the file marks this as inferred from the arithmetic). |
+| `$069A` (`,X`) | (unnamed here) | Map data size in bytes = (map width / 16) × (map height / 16) = stride × rows × 256; used as the wrap modulus by `WrapMapIndex` and `RenderColumnStrip`. Measured equal to that product in all 228 scene rows read; `$069C` (layer 1) likewise equals `$0695` × `$0699` × 256. |
 | `$069E` (`,X`) | `mapTilemapBaseA` | Map data base address; high byte `$069F` is the base page added in index math. |
 | `$06AE` (`,X`) | `metatileDefBase` | Pointer to the metatile definition table (8 bytes per metatile = four 8×8 tile words). |
 | `$06B2` / `$06B4` | `colStripStagingPtr` (`,X`) | Pointer to the column-strip staging buffer for layer 0 / layer 1. |
@@ -264,7 +264,7 @@ Called by `UpdateScrollRow`. Inferred: the strip always starts at the left edge 
 
 *Evidence: [ASM]*
 
-`A = index`, `X = layer`. Computes `A − $069E,X − $069A,X`; if that subtraction does **not** borrow (index ≥ base + size) it re-adds `$069E,X`, stores the result in `$04` and `Y` (so `index − size`) and repeats until it borrows, then returns. If the first test already borrows, it returns immediately **without touching `$04` / `Y`**; callers set `$04` / `Y` to the unwrapped index beforehand. The `$069A,X` role as the wrap modulus is marked "inferred from the arithmetic" in the asm.
+`A = index`, `X = layer`. Computes `A − $069E,X − $069A,X`; if that subtraction does **not** borrow (index ≥ base + size) it re-adds `$069E,X`, stores the result in `$04` and `Y` (so `index − size`) and repeats until it borrows, then returns. If the first test already borrows, it returns immediately **without touching `$04` / `Y`**; callers set `$04` / `Y` to the unwrapped index beforehand. `$069A,X` is the wrap modulus: it equals the number of map data bytes (map width / 16 × map height / 16) in all 228 scene rows measured. Map bounds are not always powers of two (43 scenes have a non-power-of-two X bound of 768, 1280 or 1536 and 58 a Y bound of 768, 1280, 1536, 1792 or 2304; 83 of 223 scenes have at least one, e.g. Itory Village `$15`, 1280 × 1024, stride 5), so a bounds-based `AND bounds−1` is exact only in the other scenes. All bounds are multiples of 256 and every layer has at most 32 pages. Whether the `AND #$0100` column wrap shows on screen in the stride 5 / 7 scenes was not tested.
 
 Callers: `RenderRowStrip`, `RenderColumnStrip` (several sites).
 

@@ -435,7 +435,7 @@ BG metatile mapping load command (discriminator 5). Data Crystal: "Load BG metat
 
 **Usage in scene_meta.asm:** 300 instances
 
-**Notes:** Data Crystal: "Only 8 bits of the VRAM addresses are used; the four high bits in each tile set its collision type." Card `$05` for each layer must precede card `$06` (tilemap) for that layer. Card `$03` (bitmap) with isSprites=0 must precede this command to set up VRAM and the decompression buffer.
+**Notes:** Data Crystal: "Only 8 bits of the VRAM addresses are used; the four high bits in each tile set its collision type." Measured (B1 collision census, all 223 map scenes): the collision flag is bit 9 (`$0200`) of each of the four tilemap words of a 2 × 2 metatile; `BuildMetatileFlagTable` collects the four bits into one nibble of the flag table (first tile in bit 0) and clears bit 9 in the word, so a collision cell is a mask of the four 8 × 8 quadrants, not a 4-bit type per tile (see [wram-memory-map.md §4.10](wram-memory-map.md)). Card `$05` for each layer must precede card `$06` (tilemap) for that layer. Card `$03` (bitmap) with isSprites=0 must precede this command to set up VRAM and the decompression buffer.
 
 ---
 

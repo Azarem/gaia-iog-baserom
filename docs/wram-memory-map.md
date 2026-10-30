@@ -220,7 +220,8 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 | `$0693` | 1 | `mapRowStrideL0` | Map row width in columns (layer 0) — byte stride for index math | `AdvanceMapY`, collision iterators, `map_coords.asm` |
 | `$0695` | 1 | `mapRowStrideL1` | Map row width for layer 1 | Dual-layer tilemap routines |
 | `$0696` | 2 | `mapBoundsY` | Map height in pixels | Camera bounds clamping |
-| `$069A`–`$069D` | 4 | Map origin/extent helpers | Map wrap calculations | Camera tilemap |
+| `$069A` | 2 | `mapDataSizeL0` | Number of map data bytes of layer 0 = (`mapBoundsX` / 16) × (`mapBoundsY` / 16) = `$0693` × `$0697` × 256; the wrap modulus of `WrapMapIndex`. Equal in all 228 scenes read | Camera tilemap |
+| `$069C` | 2 | `mapDataSizeL1` | Same for layer 1 (`$0695` × `$0699` × 256, equal in all 228 scenes; 77 scenes hold the same value as `$069A`) | Camera tilemap |
 | `$069E`–`$06A1` | 4 | `mapTilemapBases` | MapLayer/EffectLayer base RAM addresses in bank `$7E` (hardcoded `$A000`, `$C000`) | Scene loading, tilemap DMA |
 | `$06AE`–`$06BD` | 16 | VRAM layout addresses | Hardcoded RAM addresses of RAM→VRAM mapping and staging tables | Tile strip DMA, camera tilemap |
 | `$06BA`–`$06BC` | 3 | VRAM nametable bases | VRAM nametable base address for queued tile writes | Dirty-strip DMA system |
@@ -476,7 +477,7 @@ Source: Campaign A of the Mesen2 investigation (`plans/extracted-audit/mesen2-re
 | `$10` | `$0700` | OR-ed into a picked-up gem by `InteractionDamage_NPCChat` together with the entry `NpcDespawnStub` (the only caller seen): excluded from every collision mask for the one tick before `Die` removes it and its marked child | runtime (A4 K1g) |
 | `$10` | `$0800` | Cutscene-active: `RunActors_CutsceneOnly` runs the actor. `PrintDialogString` saves, clears and restores it on the caller; forced on during a text, the handler re-ran 7 times in 12 frames instead of once | runtime (A4 OQ-54) |
 | `$10` | `$1000` | Display-filter qualifier: with `displayModeFlags $0080` set (stat reward, `RunActors_DisplayFiltered`) an actor runs if `$10` **or** `$12` has bit 12 | runtime (A4 K2g) |
-| `$10` | `$2000` | Hidden / script-driven. Non-player: the script runs but there is no standard movement and no sprite (`RunActors_Normal+45`, `SortActorsByDepth+82`). Player: the sprite is hidden, movement is kept and `PlayerIdleEntry` returns at once. Writers on the player seen at runtime: `StartForcedWalk+20` and `DarkSpaceMonitorStartWarp+19`; cleared by `SyncPlayerToCamera+24` and by the actor pool rebuild (`InitActorPool+54`, which is how the Dark Space warp clears it). Writers found statically but not run: `PlayerFallFromHeight`, `PlayerSkyGardenJumpLanding` (both set `$2200`, clear `$2000` themselves) and `PlayerAuraDescendToFloor` (sets `$2000`, cleared by `PlayerAuraLandOnSolid`) | runtime (A1, A3 X1/X2, A4), static (`player_transition_handlers`) |
+| `$10` | `$2000` | Hidden / script-driven. Non-player: the script runs but there is no standard movement and no sprite (`RunActors_Normal+45`, `SortActorsByDepth+82`). Player: the sprite is hidden, movement is kept and `PlayerIdleEntry` returns at once. Writers on the player seen at runtime: `StartForcedWalk+20` and `DarkSpaceMonitorStartWarp+19`; cleared by `SyncPlayerToCamera+24` and by the actor pool rebuild (`InitActorPool+54`, which is how the Dark Space warp clears it). `PlayerFallFromHeight` was run (entered the way `awBD_fall_trigger` enters it, B3): the player is lifted 124 px at frame 5, falls 4 px per frame with a one-frame hold every fifth frame, and lands exactly on its original Y at frame 43 (no overshoot, no clamp). Writers found statically but not run: `PlayerSkyGardenJumpLanding` (sets `$2200`, clears `$2000` itself) and `PlayerAuraDescendToFloor` (sets `$2000`, cleared by `PlayerAuraLandOnSolid`) | runtime (A1, A3 X1/X2, A4, B3), static (`player_transition_handlers`) |
 | `$10` | `$4000` | Off-screen (`SortActors_OffScreen` sets it, `SortActorsByDepth` and `SyncPlayerToCamera` clear it) | runtime |
 | `$12` | `$0001` | Set on the player at init (`PlayerCharacterDef+13`); the recovery-iframe route in `ApplyHitDamageToVictim_DamagePath+300` ran only on non-player victims; effect on the player not shown | runtime (partial) |
 | `$12` | `$0002` | Mirror lock read by `ProcessAnimFlag` (+20, +36); set only by scripts, cleared by pool recycle | runtime |
@@ -538,7 +539,7 @@ Extended actor state is addressed with the actor id as the X index (`$7F:00xx,X`
 | `$7F:0022,X` | 2 | `enemyNum` | **EnemyNum** — dungeon-level enemy number for tracking kills | `SetDungeonKillFlag` COP |
 | `$7F:0024,X` | 2 | `deathActionIdx` | **DeathIdx** — index of map rearrangement script triggered on death | `StandardEnemyDefeatHandler` |
 | `$7F:0026,X` | 2 | `currentHp` | **CurrHp** — actor's current hit points | Combat system |
-| `$7F:0028,X` | 2 | `iframeCounter` | **IframeCtr** — invincibility frame counter; positive = stunned, absolute value = iframes remaining | Hit stagger, combat |
+| `$7F:0028,X` | 2 | `iframeCounter` | **IframeCtr** — invincibility frame counter; positive = stunned, absolute value = iframes remaining. Hit-stun gate measured on the player (B3): while player `$10` bit `$0080` is set and the counter is zero or positive, `PlayerMoveController` freezes the player (no `PlayerMovementTick`); the counter is stepped toward 0 once per frame before the gate (3 → 2 → 1 → 0 freezes 3 frames and movement resumes on the 4th; a poked 0 resumes in frame 1; a negative counter counts up to 0 and the bit clears with it; with the bit clear the counter is not stepped) | Hit stagger, combat |
 | `$7F:002A,X` | 2 | `extendedFlags` | **Flags7F2A** — extended state flags — bit 1 = moving; bit `$0020` = hitstun skip; bit `$0004` = execute-after-actors | `SetActorFlags`/`ClearActorFlags` COPs |
 | `$7F:002C,X` | 2 | `moveScratch1` | **MoveScr1** — scratch bytes for movement COPs. Commonly holds computed velocity X for smooth movement | `MoveToward`, `ApplyFollowMovement` |
 | `$7F:002E,X` | 2 | `moveScratch2` | **MoveScr2** — scratch bytes for movement COPs. Commonly holds computed velocity Y | `MoveToward`, `ApplyFollowMovement` |
@@ -615,25 +616,32 @@ Extended callback pointers, indexed by `(actor_id − $1000)`.
 
 | Range | Size | Name | Description |
 |-------|------|------|-------------|
-| `$7F:C000`–`$7F:DFFF` | 8 KB | `collisionLayer` | Runtime collision overlay tilemap. High nibble = dynamic block (ORed by COP `$0B`/`$0C`/`$11` handlers); low nibble = base tile collision type (`$00`–`$0F`). `ReadCollisionNibble` prefers high nibble when non-zero. Base address stored at `$0080` (hardcoded `$7FC000`). |
+| `$7F:C000`–`$7F:DFFF` | 8 KB | `collisionLayer` | Runtime collision overlay tilemap. High nibble = dynamic block (ORed by COP `$0B`/`$0C`/`$11` handlers; only `$F0` was ever seen, in 773 cells of 135 scenes six frames after load); low nibble = base tile collision type (`$00`–`$0F`). `ReadCollisionNibble` prefers high nibble when non-zero. Base address stored at `$0080` (hardcoded `$7FC000`). The layer is stored as 256-byte pages of 16 × 16 cells (index = `(((ty>>4)*stride + (tx>>4)) << 8) \| ((ty&15)<<4) \| (tx&15)`, `stride` = `$0693`); the largest layer is 32 pages (8 KB), so it never passes `$7F:DFFF`. |
 
-**Collision type reference:**
+**What the low nibble is.** A *mask of the four 8 × 8 quadrants* of the 16 × 16 cell. `BuildMetatileFlagTable` (scene command `$05`) takes bit 9 of each of the four tilemap words of a 2 × 2 metatile into one nibble of the flag table (first tile in bit 0) and clears bit 9 in the word; `FillCollisionFromLayer0` then copies `flagTable[mapData[i]]` into cell `i` (`OverlayCollisionFromLayer1` adds layer 1 in dual-layer scenes). Measured on all 223 map scenes (538,112 cells): the low nibble equals the flag-table nibble in every cell of 209 of the 214 single-layer scenes (510,976 cells), and no metatile word in use keeps bit 9 set. The quadrant order (bit 0 top-left, bit 1 top-right, bit 2 bottom-left, bit 3 bottom-right) is the static reading of `BuildMetatileFlagTable`; the runtime data fixes only which bit pairs form the two diagonals (bits 1 + 2 and bits 0 + 3).
 
-| Type | Meaning | Movement Effect |
-|------|---------|-----------------|
-| `$00` | Passable (empty) | Free movement |
-| `$01` | Passable (variant) | Free movement (special diagonal handling) |
-| `$02` | Interactive tile | Redirect to alternate animation |
-| `$03` | Slope (ascending east) | Computed sub-pixel Y correction |
-| `$05` | Semi-solid / ramp entry | Ramp passability checks |
-| `$06` | Wall (south-facing) | Block south, allow east slide |
-| `$07` | Ladder / climbable | Auto-climb state change |
-| `$08` | Stairs | Stair-step movement redirect |
-| `$09` | Wall (north-facing) | Block north, allow slide |
-| `$0A` | Ramp / passable slope | Full ramp movement with Y tracking |
-| `$0C` | Slope (ascending west) | Sub-pixel correction with accumulator |
-| `$0E`+ | Solid wall | Full block, zero speed |
-| `$0F` | Out of bounds | Returned for OOB probes |
+Five single-layer scenes change the layer after the build (writer not traced): `$55` viper_lair (20 cells, table `$0E`, layer `$00`), `$6B` angel_village (4 cells, table `$06`/`$09`, layer `$0F`), `$78` watermia (36) and `$D6` pyramid_vader_a (24) (table `$0F`, layer `$00`), `$D7` pyramid_vader_b (2,208, table `$00`, layer `$0F`). The nine dual-layer scenes (`$06EF` bit 0: `$0B $30 $5F $60 $61 $62 $64 $65 $67`) differ from a layer-0 rebuild by the layer-1 overlay, as intended; `$F7` (credits) skips the rebuild, and `$FB $FD $FF` load no map (the layer still holds the previous scene).
+
+**Collision type reference** (census over 223 scenes; "scenes" = scenes that hold the type):
+
+| Type | Quadrants | Count (scenes) | Meaning | Movement Effect |
+|------|-----------|----------------|---------|-----------------|
+| `$00` | none | 172,620 | Passable (empty) | Free movement |
+| `$01` | one quadrant | 2,094 (88) | Passable (variant) | Nonzero for probes (`TileProbeMain` sets carry) |
+| `$02` | one quadrant | 328 (23) | Interactive tile | Redirect to alternate animation |
+| `$03` | top half | 123 (13) | Slope | Pushes the player south on a vertical stack (Y only; runtime verified) |
+| `$04` | bottom-left only | 169 (10) | One-quadrant cell; only in `$3D` and the pyramid rooms `$CC`–`$D6` | Aura landing test (`player_transition_handlers`) |
+| `$05` | left half | 335 (28) | West-facing slope (rises toward the east) | Ramp movement: `WestRampDescend` / `WestRampUp`; Y changes 1:1 with X |
+| `$06` | top-right + bottom-left | 3,347 (145) | **Diagonal-edge cell** (an edge running from lower left to upper right, "/") | Wall-slide handlers; moves the player 16 px north on its row when entered from the west (runtime) |
+| `$07` | — | 893 (12) | Ladder / climbable | Auto-climb state change |
+| `$08` | — | 1,633 (59) | Stairs | Stair-step movement redirect |
+| `$09` | top-left + bottom-right | 3,238 (145) | **Diagonal-edge cell** (upper left to lower right, "\\") | Wall-slide handlers; moves the player 16 px south on its row when entered from the west (runtime) |
+| `$0A` | right half | 311 (27) | East-facing slope (falls toward the east) | Ramp movement: `EastRampDown` / `WestRampAscend`; Y changes 1:1 with X |
+| `$0C` | bottom half | 34 (7) | Slope | Pushes the player north on a vertical stack, through the `slopeFracAccum` filter (runtime verified) |
+| `$0E` | three quadrants (all but top-left) | 87,605 (106) | Solid | Every caller treats `>= $0E` as solid |
+| `$0F` | all four | 265,381 (197) | Fully flagged cell, the most common nonzero value; also returned for out-of-bounds probes and map indexes `>= $4000` | Solid |
+
+(`$0B` does not occur; `$0D` occurs once in all 223 scenes.) `$06` and `$09` are not south- or north-facing walls: they are the two diagonal-edge cells. On real maps they form diagonal runs one cell per row (South Cape `$01`, the aqueduct `$0D`–`$12`), the two rails of a stair band (Itory Village `$15` rows 20–22: `$06 $05 $05 $05 $06`), the chamfered corners of the Great Wall gate towers (`$85`: `06 0E 09` over `05 0E 0A`) and rounded cave-wall corners (`$3D`); 147 scenes hold at least one, 145 hold each. `$05` / `$0A` cells form vertical stacks capped by them: of 335 `$05` cells the cell below is `$06` in 220 and `$05` in 112; of 311 `$0A` cells it is `$09` in 238 and `$0A` in 71. Census, data-flow check and screenshots: `plans/extracted-audit/mesen2-results/B1_20261030.md`; single-tile walk results: `B2_special_tiles_20261029.md`, `B2_20261030.md`.
 
 ### 4.11 Inventory State Backup ($7F:E000–$7F:FFFF)
 

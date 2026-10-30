@@ -1,0 +1,72 @@
+{
+  "_note": "B3 (2026-10-30). Shipped text shown wrong or stale by the B3 traces, see mesen2-results/B3_20261030.md. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/B3_notes.json --dry-run. blockNote arrays are the full block notes of today's extracted files with ONE sentence replaced (west line 11, ramps line 28).",
+  "system/player/player_move_west.asm": {
+    "blockNote": [
+      "West-movement collision dispatcher with slope-ramp physics (187264–188674, Bank 02).",
+      "",
+      "This file is the WEST half of the horizontal (EW) movement phase and the mirror image of DispatchEastMove in player_move_east. PlayerMovementTick (player_move_main) runs two phases per tick: horizontal first, with the vertical velocity $24 parked on the stack and zeroed, then vertical. In the horizontal phase a negative $20 enters DispatchWestMove and a positive $20 enters DispatchEastMove, both after setting $AA bit $0040 (the horizontal-phase flag; 'diagonal' only means that the vertical phase may follow in the same tick). The leading corners probed here are the left ones (TL/BL); the east file probes TR/BR.",
+      "",
+      "=== VELOCITY AND DP CONVENTIONS ===",
+      "",
+      "$20 = X velocity and $22 = X position; $24 = Y velocity and $26 = Y position (sub-pixels, 4 per pixel; Y grows downward). ApplyMovementDeltas adds $24 to $26. Every store to $24 in this file (WestRampEdgeDescend/Ascend, WallSlidePushUp/Down) is therefore a Y adjustment, not an X snap. $1A/$1E = X/Y probe pixel, $00 = map index of the last probe (used by the MapCell* steps), $02 = push offset, $AA = per-tick movement flags (only $0040 is ever set in the extracted code; the $0800/$0400 guards in PlayerMovementTick have no setter), $AB = direction/wall bits (bit 1 is read by player_move_ns SouthWallNudge; bits 2/3/7 have no reader).",
+      "",
+      "=== STACK CONTRACT WITH PlayerMovementTick ===",
+      "",
+      "These routines are entered with JSR/JMP from PlayerMovementTick's frame still on the stack: the return address, then the parked vertical velocity word. CancelVerticalPhase writes it ($05,S), AutoAlignYToGrid reads it ($06,S, one byte deeper because of its PHP) and WallSlidePushUp/Down read it ($03,S). Zeroing it (also done by player_move_east and player_move_ramps through CancelVerticalPhase) cancels the vertical phase for this tick: the ramp code moves Y itself, and the ladder redirect leaves the movement state. Traced with a diagonal input on ramps and walls: at entry the parked $24 is the stack word at S+5 for CancelVerticalPhase, AutoAlignNS_East, AutoAlignYToGrid and ComputeWallSlidePush (S is the stack pointer before the routine pushes anything; AutoAlignYToGrid pushes P first, hence $06,S), and at S+3 for WestRampDescend, EastRampDown and WallSlidePushUp/Down. After CancelVerticalPhase the north and south dispatchers do not run in that tick; on flat ground they do.",
+      "",
+      "=== TILE TYPES ===",
+      "",
+      "$05 west-facing slope and $0A east-facing slope (WestRampDescend / WestRampAscend), $07 ladder tile (DiagLadderTile), $0E and above solid. Types $06 and $09 are wall-like types whose meaning is undecoded; this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.",
+      "",
+      "=== SLOPE RAMPS ===",
+      "",
+      "Both ramp handlers move Y in proportion to X: while walking west on a $05 slope the code adds the negated X velocity to $26 (Y grows, so the player goes DOWN-left), while on a $0A slope it adds $20, which is negative (Y shrinks, so the player goes UP-left). WestRampDescend handles the $05 tile and WestRampAscend the $0A tile. The slope search probes the hitbox's centre column: after ProbeCurrentTL/ProbeFutureTL the code adds 8 to $1A, the X pixel, not to a Y coordinate. Both set playerFlags $1000 (on a slope) and finish with a post-ramp wall check (future TL and BL, $0E and above solid), with a dual-wall X snap when both are blocked.",
+      "",
+      "=== WALL SLIDE ===",
+      "",
+      "The code_02DC4B / code_02DC77 and code_02DC9F / code_02DCCB handlers decide whether the player may slide along a wall, then ComputeWallSlidePush turns the X sub-tile position into a push distance and WallSlidePushDown / WallSlidePushUp store it in $24 (positive: Y grows, down; negative: up) before ApplyMovementDeltas. player_move_east reuses both push routines. AutoAlignYToGrid first tries to nudge Y onto the 16-pixel grid when no vertical movement is pending.",
+      "",
+      "Wall collision path (loc_02DC03): SetActorCollisionFlag, AutoAlignYToGrid, then SnapXWestCollision (X snap and zero playerSpeedEw) when no nudge was possible, or the same X snap without zeroing the speed when Y was nudged."
+    ]
+  },
+  "system/player/player_move_ramps.asm": {
+    "blockNote": [
+      "Slope physics for eastward player movement (186435-187085, Bank 02). The four handlers are entered ONLY from DispatchEastMove (player_move_east); the west dispatcher (player_move_west) has its own ramp code (WestRampDescend and friends) and does not call here.",
+      "",
+      "They call back into player_move_west (CancelVerticalPhase), player_move_east (EastWallNorthDiag / EastWallSouthDiag), player_move_south (SnapYSouthCollision) and player_move_ns (SnapYNorthCollision).",
+      "",
+      "=== ENTRY MAP ===",
+      "",
+      "  EastRampDown : FindSlopeForEastMove found $0A (carry clear)",
+      "  WestRampUp   : FindSlopeForEastMove found $05 (carry set)",
+      "  EastRampUp   : ProbeCurrentBL read $0A (late path of DispatchEastMove)",
+      "  WestRampDown : ProbeCurrentBL read $05",
+      "",
+      "Tile types: $0A (east-facing) is a surface that falls toward the east, Y grows with X; $05 (west-facing) rises toward the east. Both direct paths agree: $0A adds the X velocity to Y ($26 += $20), $05 subtracts it. 'Up' / 'Down' in the names is not the Y direction: EastRampUp's direct path also descends.",
+      "",
+      "=== COORDINATES ===",
+      "",
+      "$1A is the probe pixel X and $1E the probe pixel Y (tile_collision convention). '$1A -= 8' therefore moves the probe 8 px WEST; it does not move the probe in Y. ProbeCurrentTR leaves $1A = X + 8 and $1E = Y - 16 (hitbox top row); ProbeCurrentBR leaves $1A = X + 8 and $1E = Y (bottom + 1); ProbeCurrentBL leaves $1A = X - 8 and $1E = Y. The -8 / +8 therefore lands on the hitbox centre column X. FutureTR minus 9 is one pixel west of the post-step centre column.",
+      "",
+      "=== COMMON FLOW ===",
+      "",
+      "1. CancelVerticalPhase zeroes the word at $05,S, the vertical velocity PlayerMovementTick parked on its stack, so the NS phase later does nothing and these handlers own the Y movement.",
+      "2. Probe the slope type in several cells (listed in each handler note). No slope: the Redirect handlers (FutureTR $09 -> EastWallNorthDiag, FutureBR $06 -> EastWallSouthDiag) or ApplyMovementDeltas.",
+      "3. Slope found:",
+      "   - direct entries (the first samples hit the slope cell or the cell next to it, no crossing test): $26 -/+= $20, the X velocity copied 1:1 into Y (a 45-degree slope).",
+      "   - after the future probe: CheckTileBoundaryXor (Z clear = this step crosses a 16-px column line). No crossing: plain ApplyMovementDeltas. Crossing: n = ((X + step) in px) AND $0F, the pixels past the line. EastRampDown: $26 += 4n; WestRampUp: $26 -= 4n; then +4 / -4 (one pixel; positions are quarter pixels) when bit 2 of ($26 + $20 + $22) is set (a Y position plus X values, as in the original). EastRampUp / WestRampDown instead set $24 = $20 - 4n / 4n - $20, which ApplyMovementDeltas applies.",
+      "4. playerFlags |= $1000 (on slope / ramp), then the FutureTR and FutureBR wall check ($0E+ = solid): both open -> ApplyMovementDeltas; TR open and BR solid -> SnapYSouthCollision; TR solid and BR open -> SnapYNorthCollision; both solid -> corner snap.",
+      "5. Corner snap: X = (left edge of the post-step position, floored to a 16-px column line) + 8, so it only ever moves west; $26 += old X + $20 - new X (the distance pulled back); $20, $24 and playerSpeedEw are zeroed and SetActorCollisionFlag is called. The Y compensation has the same sign in the $0A and $05 handlers.",
+      "",
+      "Traced on a walking player (tick by tick with registers): which handler runs for a $05 or $0A cell in each direction, the CancelVerticalPhase stack word, the EastRampDown column-crossing step ($26 gains 4n plus a Y-phase-dependent 4) and the corner snap of both EastRampDown ($26 +8 / +4 / +4 sub-pixels; the player moves south 2 px per tick against the wall) and WestRampUp ($26 +8 / +4 / +4 / +4 sub-pixels; the pixel Y stays the same in 3 of 4 traced ticks). In every traced corner snap the added amount equals old X + $20 - new X. Not traced: the crossing arithmetic of WestRampUp, EastRampUp and WestRampDown."
+    ]
+  },
+  "system/engine/cop_handlers_collision.asm": {
+    "comments": {
+      "46185": {
+        "text": "Tile row - 1 (as in ParseSignedTileOffset). The layer has no row offset (TileProbeMain and MarkCollisionRect use pixel >> 4); the -1 matches a hitbox with Y offset -16 (the NPC traced): MarkSolidHere paints row (Y - 16) >> 4 = (Y >> 4) - 1, which this query reads for the same Y. With Y offset -8 the paint is row Y >> 4 for Y mod 16 >= 8 and the query misses it. The column is not adjusted (paint (X - 8) >> 4, query X >> 4)",
+        "expect": "DEC"
+      }
+    }
+  }
+}

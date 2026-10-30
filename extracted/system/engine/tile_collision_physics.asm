@@ -54,7 +54,7 @@
 ; CheckActorOnSpecialTile probes (actorX − 8, actorY − 16) for two tile patterns:
 ; - Type $06 at the probe tile and at the diagonal (+X,+Y) neighbor
 ; - Type $00 at the probe tile with type $09 at both the right (+X) and the below (+Y) neighbor (L-pattern)
-; When a pattern matches, the axis routine returns carry set immediately — the axis movement is dropped without snapping and without setting the solid-contact flag ($10 bit 2). Collision types $06 and $09 are not traced to a purpose.
+; When a pattern matches, the axis routine returns carry set immediately — the axis movement is dropped without snapping and without setting the solid-contact flag ($10 bit 2). Collision types $06 and $09 are the diagonal-edge cells: the low nibble of a collision byte is a mask of the four 8x8 quadrants of the 16x16 cell, $06 = top-right + bottom-left (an edge running from lower left to upper right) and $09 = top-left + bottom-right (upper left to lower right). They sit on the diagonal sides of staircases, chamfered cave and wall corners and the ramp gate towers (145 of 223 scenes carry each). Why the test above needs the (+X,+Y) neighbour is not traced.
 ---------------------------------------------
 
 ?BANK 03
