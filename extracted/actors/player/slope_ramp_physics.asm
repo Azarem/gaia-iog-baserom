@@ -31,7 +31,7 @@
 ; 
 ; === TRANSITION TILES $06 AND $09 ===
 ; 
-; If the tile under the probe has no handler but is type $06 or $09, the code looks at two other cells with MapCellDown (one map row below the probe tile) and then MapCellUp (one row above), both relative to the index TileProbeMain left in $00. A type $05 or $0A in either cell runs that handler; otherwise SlopeFlatExit. The earlier text said "right and left adjacent cells"; MapCellDown/Up step by rows (+/-$10), MapCellRight/Left by columns.
+; If the tile under the probe has no handler but is type $06 or $09, the code looks at two other cells with MapCellDown (one map row below the probe tile) and then MapCellUp (one row above), both relative to the index TileProbeMain left in $00. A type $05 or $0A in either cell runs that handler; otherwise SlopeFlatExit. The earlier text said "right and left adjacent cells"; MapCellDown/Up step by rows (+/-$10), MapCellRight/Left by columns. Measured: both calls start from $00 (MapCellDown returns $00 + $10, MapCellUp returns $00 - $10 whatever X held before), and $00 keeps the probe index across both calls.
 ; 
 ; === STOPPED-ON-SLOPE PROBE ===
 ; 

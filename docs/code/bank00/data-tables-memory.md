@@ -599,8 +599,8 @@ Bank `$00` code follows consistent stack conventions across interrupt handlers, 
 | Actor/System | Scene Count | Areas |
 |--------------|-------------|-------|
 | `ScrollCameraTrack` | ~40+ | Nearly all towns and overworlds |
-| `SliderGlideTriggerNorth` | 12+ | Mu, Angel Village, Angkor Wat, Dracula Mansion |
-| `SliderGlideTriggerSouth` | 10+ | Mu, Angel Village, Angkor Wat temples |
+| `SliderGlideTriggerNorth` | 12 (+1 `NorthEntry`) | Mu, Angel Village, Angkor Wat, Dracula Mansion |
+| `SliderGlideTriggerSouth` | 14 | Mu, Angel Village, Angkor Wat temples |
 | `ScrollCameraVertical` | ~10 | Edward's Castle, Itory, Incan Ruins, Dao |
 | `ScrollCameraInit` | ~10 | Mt. Kress exclusively |
 | `ScrollCameraAccumulate` | ~5 | Pyramid interiors |

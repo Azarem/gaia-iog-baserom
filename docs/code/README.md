@@ -213,6 +213,7 @@ sequenceDiagram
 | 19 | [stair-climb-system.md](bank00/stair-climb-system.md) | Stair Triggers & Climb | `SliderGlideTriggerNorth`, 13 parts |
 | 20 | [camera-scroll-system.md](bank00/camera-scroll-system.md) | Smooth Follow, Pan | `ScrollCameraTrack` (40+ scenes), 42 parts |
 | 21 | [data-tables-memory.md](bank00/data-tables-memory.md) | Tables & Memory Map | Reference tables, DP variables, stack |
+| 22 | [ramp-launchers.md](bank00/ramp-launchers.md) | Ramp Jump Launchers | `ramp_east/west/north/south` (58 placements) |
 
 </details>
 

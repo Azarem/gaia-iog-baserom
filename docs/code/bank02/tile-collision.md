@@ -158,6 +158,8 @@ OOB: `$00 = $4001`, **A = `$0F`**, SEC.
 
 **[ASM]** Row steps use low-byte `± $10` with `mapRowStrideL0` (`$0693`) on page crossing. Column steps use `INC`/`DEC` on low byte with `$F0` fixup on nibble wrap — **not** `± $10`. Return updated index in **X**; do not modify `$1A`/`$1E`.
 
+**[Runtime-verified, B4]** Called from the `$06`/`$09` branch of `SlopePhysicsEntry`: `MapCellDown` returned `$09B0` and `MapCellUp` returned `$0990` for a probe index `$00 = $09A0` (the same `$00` for both calls; X on entry plays no part). 12 of 12 sequences; the page-carry case was not reached.
+
 **Cross-References:** **[XREF]** Parallel helpers in `map_coords` (`MapIndexMove*`).
 
 ### CheckSubTileAlignX / CheckSubTileAlignY

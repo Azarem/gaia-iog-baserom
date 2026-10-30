@@ -93,6 +93,8 @@ Companion actor spawned by `PlayerCharacterDef` via `COP [SpawnAfter]` (`slope_r
 
 This matches how the maps are built: `$05`/`$0A` cells form vertical stacks capped by `$06`/`$09` (of 335 `$05` cells the cell below is `$06` in 220; of 311 `$0A` cells it is `$09` in 238), so a probe on a cap finds the slope cell in the row below or above and not to the left or right. See [`wram-memory-map.md` §4.10](../../wram-memory-map.md).
 
+**[Runtime-verified, B4]** Both calls start from `$00`, the index `TileProbeMain` left, not from the X the first call returned: on a `$06` probe at index `$09A0` (Itory, cell (64, 26)) `MapCellDown` returns `X = $09B0` (`$00 + $10`) and the following `MapCellUp` returns `X = $0990` (`$00 − $10`), although X held `$09B0` when it was called. `$00` stays `$09A0` through both calls (12 of 12 sequences, walk and run), and the `$05` handler runs from the cell above in all 12. Not covered: the page-carry case of `MapCellDown` (row stride added to the high byte) and the stopped-latch probe's `$00` handling.
+
 ### SlopeFlatDecelerate
 
 **[ASM]** EW speed nonzero → `DecelerateEW`, `RTL` (NS untouched that frame). EW zero → clear `$1000` if set; if NS speed nonzero → `DecelerateNS`, `RTL`.

@@ -160,7 +160,7 @@ None directly — operates through the COP flag system (WRAM flag byte `#00`).
 
 ## Movement Speed Zones (Mountain Temple)
 
-Four invisible 16×16 pixel trigger boxes that modify `$player_speed_ew` or `$player_speed_ns` when the player enters the zone. All four are **pure 65C816** — no COP commands, no `?INCLUDE` dependencies. They compare actor position to `$player_actor` WRAM using Manhattan distance checks.
+Four invisible 16×16 pixel trigger boxes that modify `playerSpeedEw` or `playerSpeedNs` when the player enters the zone. All four are **pure 65C816** — no COP commands, no `?INCLUDE` dependencies. They compare actor position to `$player_actor` WRAM using Manhattan distance checks.
 
 ### speed_zone_ew_slow
 
@@ -183,7 +183,7 @@ When the player is within a 16×16 box centered on this actor's tile, sets east-
 | Symbol | Role |
 |--------|------|
 | `$player_actor` | Index of player actor slot |
-| `$player_speed_ew` | East-west velocity (16-bit signed) |
+| `playerSpeedEw` | East-west velocity (16-bit signed) |
 | `$14`, `$16` | Actor anchor position |
 
 #### Scene Usage
@@ -195,7 +195,7 @@ When the player is within a 16×16 box centered on this actor's tile, sets east-
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Block | `movement_speed_zones` | Grouped with other speed zone actors |
-| Distinct from | `ramps.asm` | Directional tile ramp system |
+| Distinct from | `ramps.asm` | Jump-launcher actors ([`ramp-launchers.md`](ramp-launchers.md)), not a tile system |
 
 ---
 
@@ -205,7 +205,7 @@ When the player is within a 16×16 box centered on this actor's tile, sets east-
 
 #### Description
 
-Same proximity test as `speed_zone_ew_slow`, but sets `$player_speed_ew` to `#7` (+7). Used in Kress Maze to accelerate E-W movement on straightaways.
+Same proximity test as `speed_zone_ew_slow`, but sets `playerSpeedEw` to `#7` (+7). Used in Kress Maze to accelerate E-W movement on straightaways.
 
 #### Variables
 
@@ -223,7 +223,7 @@ Same as `speed_zone_ew_slow`; writes `#$0007` instead of `$FFF9`.
 
 #### Description
 
-North-south variant. Uses a tighter Y proximity threshold (`$0004` instead of `$0010`) — the player must be nearly aligned on the N-S axis. Sets `$player_speed_ns` to `$FFF9` (−7).
+North-south variant. Uses a tighter Y proximity threshold (`$0004` instead of `$0010`) — the player must be nearly aligned on the N-S axis. Sets `playerSpeedNs` to `$FFF9` (−7).
 
 #### Algorithm
 
@@ -309,18 +309,20 @@ Gold Ship dream sequence (scene `$2A` / 42): drives a scroll/zoom countdown from
 
 #### Description
 
-Adds ±1 to `$player_speed_ew` **once per approach** when the player is already moving (`$player_speed_ew` or `$player_speed_ns` non-zero) and enters a 32 px box (`BranchIfPlayerNear` `#02`). After the boost, the actor idles (`LargeRampIdleHold`, bare `RTL`) while the player stays within 48 px (`BranchIfPlayerNear` `#03`); only when the player leaves that range does the speed gate run again. **`$player_speed_ns` is never modified.**
+Adds ±1 to `playerSpeedEw` **once per approach** when the player is already moving (`playerSpeedEw` or `playerSpeedNs` non-zero) and enters a 32 px box (`BranchIfPlayerNear` `#02`). After the boost, the actor idles (`LargeRampIdleHold`, bare `RTL`) while the player stays within 48 px (`BranchIfPlayerNear` `#03`); only when the player leaves that range does the speed gate run again. **`playerSpeedNs` is never modified.**
 
 Pure 65C816 for the speed path; minimal COP (`SetEntryHere`, `BranchIfPlayerNear`). **Distinct from** the `ramps.asm` jump-launcher actors (`ramp_east` at `$D310`), which take over the player script for scripted jumps — not tile slope physics (`slope_ramp_physics` in bank `$02`).
 
 **Not movable.**
 
+**Measured (Mesen2, B4; scene `$22`, booster at tile (16, 11), 7 cases run twice):** the boost fires once per approach inside the 32-px box and writes only `playerSpeedEw` (no write to `playerSpeedNs` from the booster's code in any case). A run west at −3 becomes −4 at 32 px from the booster and stays −4 for 16 frames while the player is inside the 48-px box; no second boost happens until the player has been more than 48 px away (measured 49 px), and re-entry boosts again. With only the NS speed nonzero (run north or south through the column) `playerSpeedEw` goes 0 → +1 for one frame and is 0 again in the next. Walking on flat ground never opens the gate (both speed words are 0 when it runs); the one walk case that opened it was on a slope, where the slope code had written the speed word.
+
 #### Algorithm
 
 ```
-1. If `$player_speed_ew` OR `$player_speed_ns` == 0: RTL (wait for movement)
+1. If `playerSpeedEw` OR `playerSpeedNs` == 0: RTL (wait for movement)
 2. SetEntryHere; BranchIfPlayerNear `#02` → boost path, else RTL
-3. Adjust `$player_speed_ew` ±1 from sign (once)
+3. Adjust `playerSpeedEw` ±1 from sign (once)
 4. SetEntryHere; BranchIfPlayerNear `#03` → `LargeRampIdleHold` (idle RTL while near)
 5. Player beyond 48 px → branch to step 1
 ```
@@ -329,8 +331,8 @@ Pure 65C816 for the speed path; minimal COP (`SetEntryHere`, `BranchIfPlayerNear
 
 | Symbol | Role |
 |--------|------|
-| `$player_speed_ew` | Modified ±1 once per approach |
-| `$player_speed_ns` | Gate only — must be non-zero to arm; never written |
+| `playerSpeedEw` | Modified ±1 once per approach |
+| `playerSpeedNs` | Gate only — must be non-zero to arm; never written |
 
 #### Scene Usage
 

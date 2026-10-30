@@ -157,7 +157,7 @@ All five are separate **`actor-def`** blocks in `slider_glide.asm`. Spawn counts
 | `SliderGlideTriggerWest` | `$12` / `$13` | exact X; Y in trigger Y−7…Y+`$18` | `SliderGlideWest` | **1** |
 | `SliderGlideTriggerEast` | `$15` / `$16` | same as west | `SliderGlideEast` | **1** |
 | `SliderGlideTriggerNorthEntry` | (delegates) | Nudge trigger X−8 once | → `SliderGlideTriggerNorthMain` | **1** |
-| `SliderGlideTriggerNorth` | `$0F` / `$10` | exact Y; X in trigger X−7…X+`$18` | `SliderGlideNorth` | **14** |
+| `SliderGlideTriggerNorth` | `$0F` / `$10` | exact Y; X in trigger X−7…X+`$18` | `SliderGlideNorth` | **12** |
 | `SliderGlideTriggerSouth` | `$0C` / `$0D` | exact Y; X in trigger X−7…X+`$18` | `SliderGlideSouth` | **14** |
 
 Geometry note (from block comment): lateral compare is **`trigger − 8 < player ≤ trigger − 8 + $20`** (32 pixels, documented as trigger−7…+`$18` inclusive).
@@ -168,7 +168,7 @@ Geometry note (from block comment): lateral compare is **`trigger − 8 < player
 
 All four **`SliderGlide*`** routines (**live**):
 
-1. Once: **`TSB $10`** with **`$2200`** (`$2000` hidden / script-driven + `$0200` ignore enemy contact), **`TRB $10`** with **`$0008`** (simple `ApplyMovement`, no collision). The glide itself was not run in the Mesen2 sessions; the bit meanings come from other runs.
+1. Once: **`TSB $10`** with **`$2200`** (`$2000` hidden / script-driven + `$0200` ignore enemy contact), **`TRB $10`** with **`$0008`** (simple `ApplyMovement`, no collision). The glide was run in Mesen2 for the south and north triggers (see [Runtime measurements](#runtime-measurements-b4)); the east and west glides were not run.
 2. **`COP [SetEntryHere]`** — multi-frame execution on the **player** slot.
 3. Move **`$14`** or **`$16`** by **±4** per frame (no collision test).
 4. Decrement **`$7F0020,X`** (`statsPtr` countdown); if non-zero → **`RTL`**.
@@ -182,6 +182,24 @@ All four **`SliderGlide*`** routines (**live**):
 | `SliderGlideSouth` | `$16` + 4 | `#0E` |
 
 No sprite animation runs during the glide itself; the slide **loop** frame stays visible until landing.
+
+---
+
+## Runtime measurements (B4)
+
+Original ROM, scene `$B5` (single collision layer; South triggers at tiles (6, 14), (8, 14), (7, 30), North triggers at (6, 21), (8, 21), (7, 39)), Will with the Psycho Slider (`abilityBitmask` bit 2) sliding through the trigger tile. Every case ran twice with identical results.
+
+| Trigger | `$0E` | Glide | Glide frames | Finish animation | Locked frames | Player lands |
+|---------|------:|------:|-------------:|-----------------:|--------------:|--------------|
+| South (6, 14) / (8, 14), Y 224 | 7 | +112 px (Y 224 → 336) | 28 | 16 | 44 | cell row 20 (open) |
+| North (6, 21) / (8, 21), Y 336 | 8 | −128 px (Y 336 → 208) | 32 | 16 | 48 | cell row 12 (open) |
+
+- **Length:** `$0E × 16` px in `$0E × 4` frames, as the code reads; the 16 finish frames come after the countdown.
+- **Collision rows crossed (scene `$B5`, x within the trigger columns):** south glide 224 → 336 passes cell rows 14 (`$0E`), 15–17 (open), 18 (`$08`) and 19 (`$0E`); the north glide passes them in reverse. Both lengths clear exactly the wall band between the room halves and land on an open row.
+- **How the slide meets the trigger Y:** the player's Y reaches the trigger row (Y 218, 223, 224) and the trigger fires on the frame it equals 224; the glide then moves 4 px per frame (228, 232, 236, ...). A slide that has already ended (animation back to idle) at Y 224 fails the sprite-bank check and never fires: in 8 of 32 south cases the player was held at (X, 224) with the slide ended and the Y equality true for 24 frames, never the sprite-bank test. These cases are the outermost offsets (trigger X − 4 on the trigger at X 104, trigger X + 20 on the trigger at X 136), where the player stands against the walls that flank the gap.
+- **Window:** fired at X = trigger + 4, + 12, + 20 (trigger at X 104) and trigger − 4, + 4, + 12 (trigger at X 136); the exact edges `trigger − 7` and `trigger + $18` were not isolated.
+- **Controls:** walking down the same column (no slide) and the slide input without the ability bit never fire.
+- **Not measured:** the East and West triggers (only scene `$62`, whose dual-layer collision was not resolved), `SliderGlideTriggerNorthEntry`, the triggers at (7, 30) and (7, 39), the exact lateral window edges, and the old "stair" name.
 
 ---
 
@@ -250,6 +268,6 @@ All rows use the `actor-spawn` form in `scene_actors.asm` (coordinates + type by
 
 **Files checked:** `extracted/system/engine/slider_glide.asm`, `extracted/actors/ramps.asm`, `extracted/tables/scene_actors.asm`, `extracted/angkor_wat/angkor_outer_east/awB2_stair_climb.asm`, `db-us/blocks.json` (read-only).
 
-**Verified against:** Trigger geometry and animation constants; `IsPlayerSliderSpriteBank` carry semantics; lock/unlock/`RestorePlayerControl` instruction sequence; finish-frame operands; spawn counts per trigger label; ramp `RestorePlayerControl` call sites; `movable` flags as present in JSON vs asm block note.
+**Verified at runtime (Mesen2, B4):** south and north glide length, frame counts and landing rows in scene `$B5`; per-trigger spawn counts re-counted with `rg` (South 14, North 12, NorthEntry 1, East 1, West 1 = 29). **Verified against:** Trigger geometry and animation constants; `IsPlayerSliderSpriteBank` carry semantics; lock/unlock/`RestorePlayerControl` instruction sequence; finish-frame operands; spawn counts per trigger label; ramp `RestorePlayerControl` call sites; `movable` flags as present in JSON vs asm block note.
 
 **Notes:** Scene area names are informal mappings to `scene_*_actors` IDs, not ROM strings. East/west ramp climbs delegate **`RestorePlayerControl`** to **`RampArcDriver`**, not the east/west climb entry labels themselves.

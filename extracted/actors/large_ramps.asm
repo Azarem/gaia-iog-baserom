@@ -5,7 +5,7 @@
 ; 2. LargeRampBoostEastWest: playerSpeedEw is incremented when it is zero or positive and decremented when negative (a zero EW speed becomes +1, east, even if only the NS speed was nonzero). Then SetEntryHere and BranchIfPlayerNear #03: within 48 px -> LargeRampIdleHold, which is just an RTL; outside -> BRA loc_00C966.
 ; 3. So the boost happens ONCE per approach: afterwards the entry is the radius-3 test and the actor idles (RTL each frame) until the player is more than 48 px away; only then do the speed gate and the radius-2 test run again. playerSpeedNs is only read for the gate and never changed, and LargeRampIdleHold contains no boost.
 ; 
-; UNVERIFIED-RUNTIME: whether another path adds speed on these ramps, and whether a +/-1 step per approach is the intended feel, was not checked.
+; Measured: the booster writes only playerSpeedEw (no write to playerSpeedNs from the booster in any case traced). It boosts once per approach: a run west at -3 becomes -4 at 32 px and stays -4 for 16 frames while the player is inside the 48-px box, and the next boost comes only after the player has been more than 48 px away. With only the NS speed nonzero, playerSpeedEw becomes +1 for one frame and is 0 again in the next. Walking on flat ground never opens the gate (both speed words are 0 when it runs); in the one walk case that opened it, the player was walking up a slope and the slope code had written the speed word.
 ---------------------------------------------
 
 ?BANK 00

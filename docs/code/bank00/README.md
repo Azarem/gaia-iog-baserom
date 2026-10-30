@@ -736,7 +736,7 @@ Covers ambient camera drift, debris effects, and sin/cos orbital motion math.
 
 **→ [stair-climb-system.md](stair-climb-system.md)**
 
-Covers `$00D088`–`$00D5BC`: 13 parts implementing **Psycho Slider glide** triggers and continuation routines. Block is `movable: false` due to tight `$&` coupling to `ramps.asm`.
+Covers `$00D088`–`$00D5BC`: 13 parts implementing **Psycho Slider glide** triggers and continuation routines. Block is `movable: false` due to tight `$&` coupling to `ramps.asm` (the ramp jump launchers are documented in [ramp-launchers.md](ramp-launchers.md)).
 
 ### Shared Utilities
 
@@ -754,8 +754,8 @@ Covers `$00D088`–`$00D5BC`: 13 parts implementing **Psycho Slider glide** trig
 | `SliderGlideTriggerWest` | `$D0D1` | 72 B | $12/$13 | `SliderGlideWest` | Mu Passage |
 | `SliderGlideTriggerEast` | `$D119` | 72 B | $15/$16 | `SliderGlideEast` | Mu Passage |
 | `SliderGlideTriggerNorthEntry` | `$D161` | 9 B | — | → `SliderGlideTriggerNorth` | Angel Village |
-| `SliderGlideTriggerNorth` | `$D16A` | 75 B | $0F/$10 | `SliderGlideNorth` | 12+ scenes |
-| `SliderGlideTriggerSouth` | `$D1B5` | 79 B | $0C/$0D | `SliderGlideSouth` | 10+ scenes |
+| `SliderGlideTriggerNorth` | `$D16A` | 75 B | $0F/$10 | `SliderGlideNorth` | 12 placements in 7 scenes |
+| `SliderGlideTriggerSouth` | `$D1B5` | 79 B | $0C/$0D | `SliderGlideSouth` | 14 placements in 9 scenes |
 
 ### Climb Functions
 

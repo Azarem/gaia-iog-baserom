@@ -466,6 +466,8 @@ Per-frame Y delta tables for east/west jump-launcher arc children. Each `ramp-mo
 
 **Usage:** `ramps.asm` — `RampArcDriver` child sums these byte deltas onto the player's Y each frame during east/west launches.
 
+**Measured (Mesen2, B4):** entry 0 is used by the Itory ramp pair only; the lock (`playerFlags` `$0800`) lasts exactly 64 frames, the peak rise is 204 px and the player ends at the launch height; the first frame with the lock released is 519-520 px from the launch X. Entry 1 (every other east/west ramp, 8 Great Wall ramps measured): 32 frames, peak 50 px, ends 8 px lower, first free frame 263-264 px from the launch X. See [`code/bank00/ramp-launchers.md`](code/bank00/ramp-launchers.md).
+
 ---
 
 ### 15. body_table
