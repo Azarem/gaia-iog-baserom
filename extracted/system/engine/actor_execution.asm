@@ -97,7 +97,7 @@
 ; 
 ; Entry point for actor updates during normal gameplay. Saves processor state (PHP/PHD), switches to 16-bit mode, then checks game state flags to determine processing mode:
 ; - playerFlags bit 3 ($0008): Combat lock — clears the attack button ($0080) from joypadCurrent
-; - playerFlags bit 4 ($0010): Terrain shake (Freedan vine-drop landing) — redirects to RunActors_PauseFiltered
+; - playerFlags bit 4 ($0010): Terrain shake (landing of the Freedan ledge-jump drop attack) — redirects to RunActors_PauseFiltered
 ; - displayModeFlags bit 7 ($0080): Display filter — redirects to RunActors_DisplayFiltered
 ; 
 ; If no filter is active, processes the actor linked list starting from $56. For each actor:
@@ -358,7 +358,7 @@ RunActors_DisplayFiltered_CopPostTick {
 ---------------------------------------------
 ; Pause-filtered actor execution — processes only pause-immune actors.
 ; 
-; Active when playerFlags bit 4 ($0010) is set (terrain shake: Freedan vine-drop landing freezes the world). Two paths to qualify:
+; Active when playerFlags bit 4 ($0010) is set (terrain shake: the landing of the Freedan ledge-jump drop attack freezes the world). Two paths to qualify:
 ; 1. Secondary flags ($12) bits 12|2 ($1004) set — secondary pause immunity
 ; 2. Primary flags ($10) bits 12|10 ($1400) set — primary pause immunity
 ; 

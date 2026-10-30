@@ -442,7 +442,7 @@ Stores the third operand directly into `$7FC000` — both nibbles replaced. No O
 
 ##### How it is used
 
-Set explicit terrain + solidity (e.g. special ladder/vine type on one cell):
+Set explicit terrain + solidity (e.g. ladder or ledge-jump type on one cell):
 
 ```asm
 COP [SetCollisionAbs] ( #07, #0C, #08 )

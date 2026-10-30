@@ -7,7 +7,7 @@
 ; - Probe* routines (tile_collision) return A = collision type nibble and carry SET for any nonzero type, with the probed map index left in $00. Solid is A >= $0E, tested by the callers here.
 ; - MapCellRight / MapCellLeft / MapCellUp read the index in $00 and return the neighbouring cell in X; the callers commit it with STX $00 before ReadCollisionNibble.
 ; - CheckSubTileAlignX / Y: carry CLEAR = the probe edge is flush with a tile line (the hitbox covers a single column / row), carry SET = it straddles two cells. A is preserved.
-; - Types seen here: $02 ladder, $08 vine (can only be entered while walking south; the north dispatcher treats $08 as a wall), $03 / $0C slopes, $06 / $09 diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right). The 'North' / 'South' in SouthWallNorth* / SouthWallSouth* names comes from the type ($09 / $06), not from a direction.
+; - Types seen here: $02 ladder, $08 ledge jump (a gap in a ledge edge; can only be entered while walking south; the north dispatcher treats $08 as a wall), $03 / $0C slopes, $06 / $09 diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right). The 'North' / 'South' in SouthWallNorth* / SouthWallSouth* names comes from the type ($09 / $06), not from a direction.
 ; 
 ; === DispatchSouthMove ORDER ===
 ; 
@@ -15,7 +15,7 @@
 ;   CurrentBL $03 -> SouthSlopeRight, $0C -> SouthSlopeLeft
 ;   CurrentBR $06 -> SouthWallSouthInteract
 ;   FutureBL >= $0E -> SouthBlockedWall
-;   FutureBL $02 -> SouthInteractTile (ladder), $08 -> SouthStairsTile (vine), $09 -> SouthWallNorthProbe
+;   FutureBL $02 -> SouthLadderTile (ladder), $08 -> SouthLedgeTile (ledge jump), $09 -> SouthWallNorthProbe
 ;   Left column aligned: FutureBL $06 -> SouthSlideJumpShim, else a plain step
 ;   Left column straddling two columns: FutureBL $06 blocks; then the cell to the right is tested ($0E+ / $02 / $09 block, $06 -> SouthSlideJumpShim)
 ;   Otherwise: $26 += $24 (the step does not touch $22 and does not clear $24).
@@ -32,7 +32,7 @@
 ; 
 ; SouthWallNorthInteract (left foot on $09) and SouthWallSouthInteract (right foot on $06) are mirror images. If the opposite top corner is the same type the player is fully stopped (ClearMovementDeltas). Otherwise the handler probes the destination, tests the cells beside it, and either clears playerSpeedNs (ClearSpeedNS_3 / _4), floors Y, or takes the slide: ComputeSouthSnapOffset measures how far the step penetrates and FineAdjustXWest / FineAdjustXEast move X out of the wall. By the arithmetic the $09 / left-foot case pushes the player EAST (SnapXWestCollision moves X to the next tile centre east, FineAdjustXWest ends east of the old X) and the $06 / right-foot case pushes WEST (SnapXEastCollision floors to the tile centre, FineAdjustXEast ends west of the old X). The 'East' / 'West' in the FineAdjustX* names names the side the wall is on.
 ; 
-; Includes: DispatchSouthMove, SouthBlockedWall, SnapYSouthCollision, SouthInteractTile (ladder), SouthStairsTile (vine), SouthSlopeRight / Left, SouthWallNorthInteract / SouthWallNorthProbe, SouthWallSouthInteract, SouthSlideJumpShim, ClearSpeedNS_3 / _4, AutoAlignEW_South, ComputeSouthSnapOffset, FineAdjustXEast / FineAdjustXWest.
+; Includes: DispatchSouthMove, SouthBlockedWall, SnapYSouthCollision, SouthLadderTile (ladder), SouthLedgeTile (ledge jump), SouthSlopeRight / Left, SouthWallNorthInteract / SouthWallNorthProbe, SouthWallSouthInteract, SouthSlideJumpShim, ClearSpeedNS_3 / _4, AutoAlignEW_South, ComputeSouthSnapOffset, FineAdjustXEast / FineAdjustXWest.
 ---------------------------------------------
 
 ?BANK 02
@@ -86,10 +86,10 @@ DispatchSouthMove {
     JMP $&SouthBlockedWall
 
   loc_02D3A4:
-    CMP #$02              ; Ladder at the destination: SouthInteractTile (needs a single-column hitbox)
-    BEQ SouthInteractTile
-    CMP #$08              ; Vine at the destination: SouthStairsTile (a vine can only be entered while walking south)
-    BEQ SouthStairsTile
+    CMP #$02              ; Ladder at the destination: SouthLadderTile (needs a single-column hitbox)
+    BEQ SouthLadderTile
+    CMP #$08              ; Ledge-jump cell at the destination: SouthLedgeTile (it can only be entered while walking south)
+    BEQ SouthLedgeTile
     CMP #$09              ; Type $09 at the destination: SouthWallNorthProbe
     BNE loc_02D3B3
     JMP $&SouthWallNorthProbe
@@ -163,7 +163,7 @@ SnapYSouthCollision {
 
 ; Ladder reached while walking south. The hitbox must be over a single column (CheckSubTileAlignX carry clear), otherwise the tile counts as a wall. Sets the player actor's entry address ($0000,Y) to LadderClimbNorth and clears its wait counter ($0008,Y), then branches to SouthBlockedWall so the usual Y snap runs. LadderClimbNorth is the climb state entered from above (it checks Down before Up and falls to LadderIdleSouth); the name follows its entry animation, not the walking direction.
 
-  SouthInteractTile:
+  SouthLadderTile:
     JSR $&tile_collision.CheckSubTileAlignX ; Ladder: the hitbox must be over a single column (carry clear) to start the climb, otherwise it counts as blocked
     BCS SouthBlockedWall
     PHY 
@@ -176,12 +176,16 @@ SnapYSouthCollision {
     PLY 
     BRA SouthBlockedWall  ; Then snap like a wall: Y floored to a row line and AutoAlignEW_South gets a try first
 
-; Vine reached while walking south. Column-aligned (carry clear): go straight in. Straddling (carry set): the cell to the RIGHT must also be type $08, otherwise blocked. Sets playerFlags $0800 (script / ability lock) through the high byte playerStateByte, switches the player to ClimbVineEntry (which sets actor flag $0200 and hides the use-item button), clears the wait counter and floors Y through SnapYSouthCollision (which also zeroes playerSpeedNs).
+; Type $08 cell reached while walking south: the start of a ledge jump. The old names (SouthStairsTile, then SouthVineTile) were wrong: nothing here is a stair, a vine or a ladder. In Mesen2 (scene $01, South Cape) the player walks into the gap of a mossy wall edge, steps off and falls onto the roof below. It is south-only because a ledge can only be jumped down from the north; the north handler treats the cell as a wall.
+; 
+; $08 is a real collision type, not a script flag: 59 of the 223 map scenes hold it (Angkor Wat, the Pyramid, Sky Garden, the Great Wall, Freejia, the Gold Ship, Incan Ruins, South Cape, Edward's Castle, Itory and others; B1 census, plans/extracted-audit/mesen2-results). Only South Cape was watched; the other scenes are assumed to be ledges of the same kind. The Mt. Temple scenes $A0-$A9 hold no $02, $07 or $08 cell.
+; 
+; Entry rule: column-aligned (carry clear): go straight in. Straddling (carry set): the cell to the RIGHT must also be type $08, otherwise blocked. Sets playerFlags $0800 (script / ability lock) through the high byte playerStateByte, switches the player to LedgeJumpEntry (which sets actor flag $0200 and hides the use-item button), clears the wait counter and floors Y through SnapYSouthCollision (which also zeroes playerSpeedNs).
 
-  SouthStairsTile:
-    JSR $&tile_collision.CheckSubTileAlignX ; Vine: carry clear (single column) enters directly; carry set requires the cell to the right to be $08 as well
+  SouthLedgeTile:
+    JSR $&tile_collision.CheckSubTileAlignX ; Ledge jump: carry clear (single column) enters directly; carry set requires the cell to the right to be $08 as well
     BCC loc_02D434
-    JSR $&tile_collision.MapCellRight ; Straddling two columns: the cell one column to the RIGHT of FutureBL must also be a vine
+    JSR $&tile_collision.MapCellRight ; Straddling two columns: the cell one column to the RIGHT of FutureBL must also be a ledge-jump cell
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$08              ; Not $08 in the right-hand cell: treat as a blocked wall
     BNE SouthBlockedWall
@@ -192,9 +196,9 @@ SnapYSouthCollision {
     PHY 
     LDY $playerActor
     REP #$20
-    LDA #$&player_character.ClimbVineEntry ; Player entry becomes ClimbVineEntry (sets actor flag $0200, hides the use-item button, climbs down the vine)
+    LDA #$&player_character.LedgeJumpEntry ; Player entry becomes LedgeJumpEntry (sets actor flag $0200, hides the use-item button, steps off the ledge)
     STA $0000, Y
-    LDA #$0000            ; Zero the wait counter ($08) so the vine state starts at its next pass
+    LDA #$0000            ; Zero the wait counter ($08) so the ledge jump starts at its next pass
     STA $0008, Y
     PLY 
     BRA SnapYSouthCollision ; Then the hard snap: Y floored to a row line, playerSpeedNs and $24 zeroed

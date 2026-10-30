@@ -54,7 +54,7 @@ flowchart TB
 
 **[ASM]** `PlayerIdleEntry` clears `$F0FF` from `joypadHeld`, `$2800` from `playerFlags`, actor `$0020`, and `climbStateData`; re-sets actor `$0100` (the **vulnerable stance**: while it is set enemy contact hurts the player; block, attack, Spin Dash and the run attack clear it, and with it cleared the enemy takes the hit instead). Residual `playerSpeedEw` / `playerSpeedNs` → `MovingEastWest` / `MovingNorthSouth`. Dispatch: `GetPlayerFacing` × 14 → row in `PlayerIdleDispatchTable`; scan priority attack (`joypadCurrent` `$0080`) → D-pad cardinals → L/R `$0300` → idle stand.
 
-**[XREF]** Ladder, vine, and shimmy entry points are reached from `player_move_main` tile redirects (collision types `$02`, `$08`, `$07` in movement code — not defined in `player_character.asm` alone).
+**[XREF]** Ladder, ledge-jump, and shimmy entry points are reached from the `player_move_*` tile redirects: ladder = collision type `$02` (`NorthLadderTile` / `SouthLadderTile`), ledge jump = `$08` (`SouthLedgeTile`, south only; `LedgeJumpEntry` is also entered by scene scripts), wall shimmy = `$07` (`WestShimmyTile` / `EastShimmyTile`). The type roles are not defined in `player_character.asm` alone.
 
 ```mermaid
 stateDiagram-v2
@@ -75,11 +75,11 @@ stateDiagram-v2
     InertialMove --> Idle: Speed decays to zero
 
     Walk --> Ladder: Tile $02 interact
-    Walk --> Climb: Tile $08 vine (ClimbVineEntry)
+    Walk --> Climb: Tile $08 ledge jump (LedgeJumpEntry)
     Walk --> Shimmy: Tile $07 wall (ShimmyEntry)
 
     Ladder --> Idle: LadderLandBottom / LadderReachTop
-    Climb --> Idle: ClimbVineLand
+    Climb --> Idle: LedgeJumpLand
     Shimmy --> Idle: ShimmyDetachRight/Left
 
     Attack --> Idle: AttackFinish
@@ -125,7 +125,7 @@ player_character.asm
 | `$0656` | `joypadCurrent` | Held buttons (16-bit); D-pad in high byte |
 | `$0657` | *(high byte of `$0656`)* | Read by `JoypadToVelocity` (8-bit path) |
 | `$0658` | `joypadHeld` | Consumed buttons (OR'd by attacks) |
-| `$065A` | `joypadMaskStd` | Masked from `joypadCurrent` (ladder/shimmy/vine) |
+| `$065A` | `joypadMaskStd` | Masked from `joypadCurrent` (ladder/shimmy/ledge jump) |
 | `$0408` / `$040A` | `extVelocityX` / `extVelocityY` | External push per frame (zeroed after use) |
 | `$040C` | `invincibilityTimer` | Run-start window (`SetAutoWalkTimer` → 13); decremented globally |
 | `$14` / `$16` | move-controller locals | Sub-pixel position (×4) in `PlayerMoveController` actor only |
@@ -142,7 +142,7 @@ Full table (setters, clearers, readers, scene-spawn derivation) lives in [wram-m
 | 1 | `$0002` | Body slam / charge attack (Psycho Dash) — the state that smashes breakable walls and statues |
 | 2 | `$0004` | Player sprite needs re-upload (off-screen / cache refresh) |
 | 3 | `$0008` | **Combat lock** — attack button stripped, attack companion dies at spawn, PAUSE overlay instead of radar. Set at spawn in non-combat scenes (spawn type bit `$02`), toggled by cutscenes. *Not* a death flag |
-| 4 | `$0010` | Terrain shake (Freedan vine-drop landing): world frozen, hit enemies die |
+| 4 | `$0010` | Terrain shake (landing of Freedan's ledge-jump drop attack): world frozen, hit enemies die |
 | 5 | `$0020` | Boss defeated — suppresses death check, arms `BossClearRewardHandler` |
 | 7 | `$0080` | Dark Friar trail drawn behind walls (never set by shipped scenes) |
 | 8 | `$0100` | Forced walk (extended warp pan) — camera target locked, drift paused |
@@ -174,7 +174,7 @@ Bits 6, 10 and 14 (`$0040`, `$0400`, `$4000`) are never used.
 | `$0AD4` | Form | Attack Dispatcher | Primary Abilities |
 |---------|------|-------------------|-------------------|
 | `0` | Will | `WillAttackDispatch` | Basic attack, Psycho Dash, Spin Dash, running attack (Psycho Slider) |
-| `1` | Freedan | `FreedanAttackDispatch` | Basic attack, Dark Friar, Aura Barrier, vine drop-attack |
+| `1` | Freedan | `FreedanAttackDispatch` | Basic attack, Dark Friar, Aura Barrier, ledge-jump drop attack |
 | `2` | Shadow | `FreedanAttackDispatch` + `shadow_shimmer` | Same as Freedan + Shadow palette shimmer |
 
 | `$0AA2` Bit | Hex | Character | Ability |
@@ -184,7 +184,7 @@ Bits 6, 10 and 14 (`$0040`, `$0400`, `$4000`) are never used.
 | 2 | `$0004` | Will | Spin Dash (L/R charge alternate) |
 | 4 | `$0010` | Freedan | Dark Friar |
 | 5 | `$0020` | Freedan | Aura Barrier |
-| 6 | `$0040` | Freedan/Shadow | Earthquaker (vine drop-attack) |
+| 6 | `$0040` | Freedan/Shadow | Earthquaker (ledge-jump drop attack) |
 
 **Charge timing:** Both Will and Freedan/Shadow share a **40-frame initial hold** (`#$28`). After the initial hold, Will has a **120-frame** extended charge window (`#$0078`) and Freedan/Shadow has **100 frames** (`#$0064`). L/R shoulder buttons during charge select alternate abilities (Spin Dash vs Psycho Dash; Aura Barrier vs Dark Friar).
 
@@ -326,12 +326,12 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C614` | WalkAbortToIdle | `PLA` — drops return address. |
 | `$02C615` | WalkRestoreSaved | `COP [RestoreSavedPtr]`. |
 | `$02C617` | SetAutoWalkTimer | Set `$040C = $000D` (13-frame auto-walk timer). |
-| `$02C61E` | ClimbVineEntry | Actor `$0008` clear, `$0200` set (ignore enemy contact); `joypadMaskStd \|= $0008` (use-item hidden). Sprites `#18`/`#19` entry, loop `#1A`/`#1B`/`#19` with `StageMoveY #07`. |
-| `$02C692` | ClimbVineLand | Landing: sound `#2C`, sprite `#1C`. |
-| `$02C6AE` | CheckClimbFrame | Animation frame check. |
-| `$02C6BC` | CheckClimbAttack | Freedan climb check: if `$0AD4==1` and ability `$0040`, check attack button → drop attack. |
-| `$02C6D5` | ClimbDropAttack | Freedan's drop-attack from vine: sprite `#06`, hitbox `#00`, force-move Y+7. |
-| `$02C6FA` | ClimbDropLand | `LoadAbilityDamageB` entry 2; scene `$DD` skips `ImpactTerrainShake`; `WaitByte #$27` (39 frames). |
+| `$02C61E` | LedgeJumpEntry | Actor `$0008` clear, `$0200` set (ignore enemy contact); `joypadMaskStd \|= $0008` (use-item hidden). Sprites `#18`/`#19` entry, loop `#1A`/`#1B`/`#19` with `StageMoveY #07`. |
+| `$02C692` | LedgeJumpLand | Landing: sound `#2C`, sprite `#1C`. |
+| `$02C6AE` | CheckLedgeJumpFrame | Animation frame check. |
+| `$02C6BC` | CheckLedgeJumpAttack | Freedan climb check: if `$0AD4==1` and ability `$0040`, check attack button → drop attack. |
+| `$02C6D5` | LedgeJumpDropAttack | Freedan's drop attack in mid ledge jump: sprite `#06`, hitbox `#00`, force-move Y+7. |
+| `$02C6FA` | LedgeJumpDropLand | `LoadAbilityDamageB` entry 2; scene `$DD` skips `ImpactTerrainShake`; `WaitByte #$27` (39 frames). |
 | `$02C73F` | ImpactTerrainShake | Sets `$player_flags` `$0010`. Waits `$01DF` frames. Clears. Dies. |
 | `$02C751` | CameraShakeActor | Sound `#15`. Decrements counter → dies. |
 | `$02C75E` | CameraShakeFrame | Random camera target offset −1..+2 on X and Y (`(RNG & 3) − 1`, `((RNG >> 2) & 3) − 1`) to `$06BE`/`$06C2` each frame. |
@@ -524,22 +524,9 @@ East-facing walk state — mirror of `WalkWest` for right D-pad (`#$0100`) and s
 | `$player_actor` | R | Player WRAM slot index |
 
 
-### ClimbVineEntry
+### LedgeJumpEntry
 
-**[ASM]** Actor flags: clear `$0008`, set `$0200`; `joypadMaskStd \|= $0008`. Three-sprite loop with `StageMoveY #07`. **`CheckClimbAttack`:** Freedan (`characterForm == 1`) + `abilityBitmask` `$0040` + attack `$0080` → `ClimbDropAttack`.
-
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
-
-
-### ClimbDropAttack
-
-Freedan's Earthquaker vine drop-attack, entered when `CheckClimbAttack` sees `$0AD4 == 1`, ability bitmask bit `$0040` set, and B button during the climb loop. Pops the climb return address, sets body sprite `#06` with hitbox `#00`, and repeatedly applies `StageForceMoveY #07` until the player's Y coordinate aligns to a 16-pixel boundary with solid ground below (`BranchIfSolidType`). On landing, control transfers to `ClimbDropLand`, which spawns terrain and camera shake actors before a 39-frame recovery animation.
+**[ASM]** The ledge jump: the player steps off a ledge and falls until the ground test passes (Mesen2, South Cape `$01`: pose `$18`, then the fall cycle `$1A`/`$19`, about 87 px down onto a roof, landing pose `$1C`). Available to every form (the entry checks no form; Freedan, Will and Shadow all have the animations `$18`–`$1B`). Entered by `SouthLedgeTile` (type `$08` cell, walking south) and by direct writes from `awB3_ledge_jump_trigger` and `pyD0_breakable_wall`. Actor flags: clear `$0008`, set `$0200`; `joypadMaskStd \|= $0008`. Three-sprite loop with `StageMoveY #07`. **`CheckLedgeJumpAttack`:** Freedan (`characterForm == 1`) + `abilityBitmask` `$0040` + attack `$0080` → `LedgeJumpDropAttack`.
 
 
 **Variables:**
@@ -550,7 +537,20 @@ Freedan's Earthquaker vine drop-attack, entered when `CheckClimbAttack` sees `$0
 | `$player_actor` | R | Player WRAM slot index |
 
 
-### ClimbDropLand
+### LedgeJumpDropAttack
+
+Freedan's Earthquaker drop attack during a ledge jump, entered when `CheckLedgeJumpAttack` sees `$0AD4 == 1`, ability bitmask bit `$0040` set, and B button during the fall loop. Pops the fall-loop return address, sets body sprite `#06` with hitbox `#00`, and repeatedly applies `StageForceMoveY #07` until the player's Y coordinate aligns to a 16-pixel boundary with solid ground below (`BranchIfSolidType`). On landing, control transfers to `LedgeJumpDropLand`, which spawns terrain and camera shake actors before a 39-frame recovery animation.
+
+
+**Variables:**
+
+| Location | Direction | Role |
+|----------|-----------|------|
+| `$player_flags` | R/W | Shared player state bitmask |
+| `$player_actor` | R | Player WRAM slot index |
+
+
+### LedgeJumpDropLand
 
 Drop landing: anim table 2, camera shake spawn. Wait 39 frames.
 
@@ -567,7 +567,7 @@ Drop landing: anim table 2, camera shake spawn. Wait 39 frames.
 
 ### CameraShakeFrame
 
-Per-frame camera jitter helper called by `CameraShakeActor` (spawned on Freedan vine drop landing). Uses one `COP [RngByte]` per frame: `(RNG & 3) − 1` added to `$cameraTargetX` (`$06BE`), `((RNG >> 2) & 3) − 1` added to `$cameraTargetY` (`$06C2`) — each axis ranges −1..+2. When `layerPriorityFlag` bit `$0200` is set (camera frozen), saves the pre-shake target in `$7F100C/E` on first call and restores before applying offsets so shake stays centered on the frozen position. Runs until the shake actor's frame counter expires, then the actor dies.
+Per-frame camera jitter helper called by `CameraShakeActor` (spawned on the landing of Freedan's ledge-jump drop attack). Uses one `COP [RngByte]` per frame: `(RNG & 3) − 1` added to `$cameraTargetX` (`$06BE`), `((RNG >> 2) & 3) − 1` added to `$cameraTargetY` (`$06C2`) — each axis ranges −1..+2. When `layerPriorityFlag` bit `$0200` is set (camera frozen), saves the pre-shake target in `$7F100C/E` on first call and restores before applying offsets so shake stays centered on the frozen position. Runs until the shake actor's frame counter expires, then the actor dies.
 
 
 **Variables:**

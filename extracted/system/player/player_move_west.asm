@@ -8,11 +8,11 @@
 ; 
 ; === STACK CONTRACT WITH PlayerMovementTick ===
 ; 
-; These routines are entered with JSR/JMP from PlayerMovementTick's frame still on the stack: the return address, then the parked vertical velocity word. CancelVerticalPhase writes it ($05,S), AutoAlignYToGrid reads it ($06,S, one byte deeper because of its PHP) and WallSlidePushUp/Down read it ($03,S). Zeroing it (also done by player_move_east and player_move_ramps through CancelVerticalPhase) cancels the vertical phase for this tick: the ramp code moves Y itself, and the ladder redirect leaves the movement state. Traced with a diagonal input on ramps and walls: at entry the parked $24 is the stack word at S+5 for CancelVerticalPhase, AutoAlignNS_East, AutoAlignYToGrid and ComputeWallSlidePush (S is the stack pointer before the routine pushes anything; AutoAlignYToGrid pushes P first, hence $06,S), and at S+3 for WestRampDescend, EastRampDown and WallSlidePushUp/Down. After CancelVerticalPhase the north and south dispatchers do not run in that tick; on flat ground they do.
+; These routines are entered with JSR/JMP from PlayerMovementTick's frame still on the stack: the return address, then the parked vertical velocity word. CancelVerticalPhase writes it ($05,S), AutoAlignYToGrid reads it ($06,S, one byte deeper because of its PHP) and WallSlidePushUp/Down read it ($03,S). Zeroing it (also done by player_move_east and player_move_ramps through CancelVerticalPhase) cancels the vertical phase for this tick: the ramp code moves Y itself, and the shimmy redirect leaves the movement state. Traced with a diagonal input on ramps and walls: at entry the parked $24 is the stack word at S+5 for CancelVerticalPhase, AutoAlignNS_East, AutoAlignYToGrid and ComputeWallSlidePush (S is the stack pointer before the routine pushes anything; AutoAlignYToGrid pushes P first, hence $06,S), and at S+3 for WestRampDescend, EastRampDown and WallSlidePushUp/Down. After CancelVerticalPhase the north and south dispatchers do not run in that tick; on flat ground they do.
 ; 
 ; === TILE TYPES ===
 ; 
-; $05 west-facing slope and $0A east-facing slope (WestRampDescend / WestRampAscend), $07 ladder tile (DiagLadderTile), $0E and above solid. Types $06 and $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right); this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.
+; $05 west-facing slope and $0A east-facing slope (WestRampDescend / WestRampAscend), $07 wall-shimmy tile (WestShimmyTile), $0E and above solid. Types $06 and $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right); this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.
 ; 
 ; === SLOPE RAMPS ===
 ; 
@@ -48,7 +48,7 @@
 ; 2. ProbeCurrentTL: type $06 goes to code_02DC4B. ProbeCurrentBL: type $09 goes to code_02DC9F.
 ; 3. ProbeFutureTL: $0E and above is a wall collision, $06 goes to code_02DC77 (the variant entry of the same handler).
 ; 4. CheckSubTileAlignY (carry clear = Y on a 16-pixel boundary): aligned, future-TL type $09 goes to code_02DCCB. Off the boundary: $09 is a wall collision, then the cell below (MapCellDown) is read: $0E and above blocks, $09 goes to code_02DCCB, $06 blocks.
-; 5. Type $07 goes to DiagLadderTile. ProbeCurrentTR: $05 goes to WestRampEdgeDescend, $0A to WestRampEdgeAscend.
+; 5. Type $07 goes to WestShimmyTile. ProbeCurrentTR: $05 goes to WestRampEdgeDescend, $0A to WestRampEdgeAscend.
 ; 6. Otherwise $22 += $20.
 ; 
 ; Wall collision path: SetActorCollisionFlag, AutoAlignYToGrid, SnapXWestCollision.
@@ -114,8 +114,8 @@ DispatchWestMove {
     BEQ loc_02DC03
 
   loc_02DBE2:
-    CMP #$07              ; Tile type $07 ladder → DiagLadderTile climb/shimmy redirect
-    BEQ DiagLadderTile
+    CMP #$07              ; Tile type $07 (wall-shimmy tile) -> WestShimmyTile: redirect to ShimmyLeftEntry
+    BEQ WestShimmyTile
     JSR $&tile_collision.ProbeCurrentTR ; ProbeCurrentTR: west/east slope edge check at top-right corner
     BCC loc_02DBF9
     CMP #$05              ; TR tile $05 west slope edge → WestRampEdgeDescend partial ramp entry
@@ -168,21 +168,25 @@ SnapXWestCollision {
     PLP 
     RTS 
 
-  DiagLadderTile:
-    JSR $&tile_collision.CheckSubTileAlignY ; Ladder $07: require Y sub-tile alignment (CheckSubTileAlignY)
+; Type $07 ahead while moving west (a local label inside DispatchWestMove). The $07 cell is the wall-shimmy tile, not a ladder (ladders are type $02, SouthLadderTile / NorthLadderTile). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyLeftEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of EastShimmyTile (ShimmyRightEntry) in player_move_east. The old name DiagLadderTile called this a ladder, which it never starts.
+
+  WestShimmyTile:
+    JSR $&tile_collision.CheckSubTileAlignY ; Shimmy tile $07: require Y sub-tile alignment (CheckSubTileAlignY)
     BCS loc_02DC03
     JSR $&CancelVerticalPhase ; CancelVerticalPhase: cancel the vertical phase (zero the velocity parked on PlayerMovementTick's stack) before the state switch
     PHY 
     REP #$20
     LDY $playerActor
-    LDA #$&player_character.ShimmyLeftEntry ; Aligned on ladder: redirect actor state to ShimmyLeftEntry
+    LDA #$&player_character.ShimmyLeftEntry ; Aligned on the shimmy tile: redirect actor state to ShimmyLeftEntry
     STA $0000, Y
-    LDA #$0000            ; Zero the actor wait counter (+$0008) before the ladder shimmy
+    LDA #$0000            ; Zero the actor wait counter (+$0008) before the shimmy
     STA $0008, Y
     PLY 
     BRA loc_02DC03
 
-  DiagWallSouthFromDL:
+; Entry shim of the code_02DC4B wall handler: a lone SEP #$20 that falls into it. DiagRedirectToSouth jumps here when the future TL probe reads $06. The old name ended in FromDL, short for the old DiagLadderTile, which this label follows in the file; there is no other link to the shimmy tile.
+
+  DiagWallSouthShim:
     SEP #$20
 }
 
@@ -237,7 +241,10 @@ code_02DC77 {
     RTS 
 }
 
-DiagWallNorthFromDL {
+---------------------------------------------
+; Entry shim of the code_02DC9F wall handler: a lone SEP #$20 that falls into it. DiagRedirectToNorth jumps here when the future BL probe reads $09. The mirror of DiagWallSouthShim; the old name ended in FromDL for the old DiagLadderTile, with which it has no link.
+
+DiagWallNorthShim {
     SEP #$20
 }
 
@@ -501,13 +508,13 @@ WestRampEdgeDescend {
 ---------------------------------------------
 ; Fallback of WestRampDescend when no $05 tile was found.
 ; 
-; ProbeFutureTL: type $06 enters DiagWallSouthFromDL, which falls into the code_02DC4B wall handler. Anything else applies the movement unchanged.
+; ProbeFutureTL: type $06 enters DiagWallSouthShim, which falls into the code_02DC4B wall handler. Anything else applies the movement unchanged.
 
 DiagRedirectToSouth {
     JSR $&tile_collision.ProbeFutureTL ; DiagRedirectToSouth: no west slope — probe FutureTL for north wall $06
     CMP #$0006
     BNE loc_02DE4E
-    JMP $&DiagWallSouthFromDL ; Future TL $06 → DiagWallSouthFromDL north-wall entry shim
+    JMP $&DiagWallSouthShim ; Future TL $06 → DiagWallSouthShim north-wall entry shim
 
   loc_02DE4E:
     JMP $&tile_collision.ApplyMovementDeltas
@@ -715,13 +722,13 @@ WestRampEdgeAscend {
 ---------------------------------------------
 ; Fallback of WestRampAscend when no $0A tile was found.
 ; 
-; ProbeFutureBL: type $09 enters DiagWallNorthFromDL, which falls into the code_02DC9F wall handler. Anything else applies the movement unchanged.
+; ProbeFutureBL: type $09 enters DiagWallNorthShim, which falls into the code_02DC9F wall handler. Anything else applies the movement unchanged.
 
 DiagRedirectToNorth {
     JSR $&tile_collision.ProbeFutureBL ; DiagRedirectToNorth: no east slope — probe FutureBL for south wall $09
     CMP #$0009
     BNE loc_02DFA4
-    JMP $&DiagWallNorthFromDL ; Future BL $09 → DiagWallNorthFromDL south-wall entry shim
+    JMP $&DiagWallNorthShim ; Future BL $09 → DiagWallNorthShim south-wall entry shim
 
   loc_02DFA4:
     JMP $&tile_collision.ApplyMovementDeltas
@@ -970,7 +977,7 @@ WallSlidePushDown {
 ---------------------------------------------
 ; Cancel the vertical phase of the current movement tick.
 ; 
-; Zeroes the 16-bit word at $05,S. With the JSR return address on top, that word is the vertical velocity PlayerMovementTick parked on its stack (PHA of $24), so the NS phase finds zero and does nothing. Called by the ramp handlers (here and in player_move_ramps), the ladder redirect and player_move_east.
+; Zeroes the 16-bit word at $05,S. With the JSR return address on top, that word is the vertical velocity PlayerMovementTick parked on its stack (PHA of $24), so the NS phase finds zero and does nothing. Called by the ramp handlers (here and in player_move_ramps), the shimmy redirects (WestShimmyTile, EastShimmyTile) and player_move_east.
 
 CancelVerticalPhase {
     REP #$20              ; CancelVerticalPhase: zero the word at $05,S, the vertical velocity PlayerMovementTick parked on its stack

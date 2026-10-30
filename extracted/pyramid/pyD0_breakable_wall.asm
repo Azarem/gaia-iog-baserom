@@ -1,9 +1,8 @@
-; Breakable wall segments in the Pyramid — destroyable barriers.
+; Pyramid scenes $D0 and $D1 (one placement each): one-shot trigger that draws two metatiles, applies a BG change and then makes the player jump (LedgeJumpEntry). The old note (hit points, debris, 'used extensively in the maze-like corridors') does not match the code: there is no HP counter, no hit test and no spawn, and only two scenes place it. The block name (breakable wall) is probably wrong as well and was not changed because the purpose of the trigger was not established.
 ; 
-; Multi-instance destructible walls (~136 lines). Each wall
-; section has HP and breaks when hit enough times, spawning
-; debris and applying a BG change to remove the wall tiles.
-; Used extensively in the Pyramid's maze-like corridors.
+; The actor's $0E word (copied to $26) picks the variant: 0 uses flag word $0170 and BG change #70, anything else flag word $0171 and BG change #71. The actor dies at once when its flag word is set. Otherwise each pass first requires the player's $7F0008 byte to be $95 or $8E and the player's animation index ($28) to be $1C; what those values mean was not traced ($1C is the landing pose of a ledge jump, LedgeJumpLand, and other player code stages it too). Then BranchIfPlayerNear #01 leads to the action code. The first pass through it (the actor's $24 is 0) sets $24 = 1, converts the actor's $14 / $16 to tile coordinates (saved in orbitAngle / orbitDiameter, restored afterwards) and draws metatiles #E8 and #E9 side by side with DrawMetatileHere. A later pass ($24 nonzero) plays sound #15, applies the BG change, sets the flag word, clears actor flag $0008 and sets $0200 in the player's $10, writes player_character.LedgeJumpEntry into the player actor (address +$00, bank byte +$02, $08 and $2A zeroed) and dies.
+; 
+; As in awB3_ledge_jump_trigger, the jump starts because this script writes LedgeJumpEntry, with no type $08 cell involved.
 ---------------------------------------------
 
 ?INCLUDE 'player_character'
@@ -123,10 +122,10 @@ code_08B634 {
     ORA #$0200
     STA $0010, Y
     SEP #$20
-    LDA #$^player_character.ClimbVineEntry
+    LDA #$^player_character.LedgeJumpEntry
     STA $0002, Y
     REP #$20
-    LDA #$&player_character.ClimbVineEntry
+    LDA #$&player_character.LedgeJumpEntry
     STA $0000, Y
     LDA #$0000
     STA $0008, Y

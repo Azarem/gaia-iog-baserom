@@ -72,7 +72,7 @@
 ?INCLUDE 'awB1_gorgon'
 ?INCLUDE 'awB1_wall_walker'
 ?INCLUDE 'awB2_stair_climb'
-?INCLUDE 'awB3_vine_reveal'
+?INCLUDE 'awB3_ledge_jump_trigger'
 ?INCLUDE 'awB4_snake_pit_entry'
 ?INCLUDE 'awB4_snake_pit_fx'
 ?INCLUDE 'awB6_bones'
@@ -3776,7 +3776,7 @@ scene_B3_actors [
   actor-spawn < #05, #0A, #00, @player_character.PlayerCharacterDef >   ;00
   actor-spawn < #00, #00, #00, @camera_scroll_controller >   ;01
   actor-spawn < #66, #07, #03, @ramps.ramp_west >   ;02
-  actor-spawn < #00, #01, #00, @awB3_vine_reveal >   ;03
+  actor-spawn < #00, #01, #00, @awB3_ledge_jump_trigger >   ;03
   enemy-spawn < #18, #13, #00, @awB1_goldcap, #42, #40, #00 >   ;04
   enemy-spawn < #71, #05, #06, @awB1_wall_walker.awB1_wall_walker4, #43, #41, #00 >   ;05
   enemy-spawn < #71, #10, #02, @awB1_wall_walker.awB1_wall_walker4, #43, #42, #00 >   ;06

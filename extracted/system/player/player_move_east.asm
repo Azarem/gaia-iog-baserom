@@ -10,7 +10,7 @@
 ; 2. ProbeCurrentTR $09 -> EastWallPushDown; ProbeCurrentBR $06 -> EastWallPushUp.
 ; 3. ProbeFutureTR: $0E and above -> blocked path; $09 -> EastWallNorthFlag.
 ; 4. CheckSubTileAlignY. Y flush: future TR $06 -> EastWallSouthFlag, anything else on to step 5. Y straddling: future TR $06 -> blocked path; otherwise the cell below the future TR cell (MapCellDown) is read: $0E and above -> blocked, $06 -> EastWallSouthFlag, $09 -> blocked, anything else on to step 5 with A = that lower cell's type.
-; 5. A = $07 -> EastLadderTile (A is the future TR type when Y is flush and the lower cell's type when Y straddles). Then ProbeCurrentBL: $05 -> WestRampDown, $0A -> EastRampUp.
+; 5. A = $07 -> EastShimmyTile (A is the future TR type when Y is flush and the lower cell's type when Y straddles). Then ProbeCurrentBL: $05 -> WestRampDown, $0A -> EastRampUp.
 ; 6. Otherwise $22 += $20.
 ; 
 ; Blocked path (loc_02D753): SetActorCollisionFlag, AutoAlignNS_East (Y nudge, carry clear = nudged), then SnapXEastCollision. After a nudge the X snap runs without zeroing playerSpeedEw, so the player keeps pushing east and is walked around the corner.
@@ -86,7 +86,7 @@ DispatchEastMove {
   loc_02D70D:
     JSR $&tile_collision.CheckSubTileAlignY ; Carry clear = Y flush on a row line (TR and BR in one row); carry set = Y straddles two rows. A keeps the future TR type
     BCS loc_02D71B
-    CMP #$06              ; Y flush and future TR $06 -> EastWallSouthFlag; anything else goes on to the ladder test
+    CMP #$06              ; Y flush and future TR $06 -> EastWallSouthFlag; anything else goes on to the $07 (wall-shimmy tile) test
     BNE loc_02D719
     JMP $&EastWallSouthFlag
 
@@ -109,8 +109,8 @@ DispatchEastMove {
     BEQ loc_02D753
 
   loc_02D734:
-    CMP #$07              ; A = future TR type (Y flush) or lower-cell type (Y straddling, nothing blocked): $07 -> EastLadderTile
-    BEQ EastLadderTile
+    CMP #$07              ; A = future TR type (Y flush) or lower-cell type (Y straddling, nothing blocked): $07 -> EastShimmyTile
+    BEQ EastShimmyTile
     JSR $&tile_collision.ProbeCurrentBL ; ProbeCurrentBL at bottom-left for slope ascent checks
     CMP #$05              ; Current BL type $05 -> WestRampDown (the ramp names do not give the Y direction, see player_move_ramps)
     BNE loc_02D742
@@ -160,10 +160,10 @@ SnapXEastCollision {
     PLP 
     RTS 
 
-; Type $07 ahead while moving east (a local label inside DispatchEastMove). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyRightEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of DiagLadderTile (ShimmyLeftEntry) in player_move_west. The old 'West prefix' remark refers to a former name; ShimmyRightEntry is the east case.
+; Type $07 (the wall-shimmy tile; ladders are type $02) ahead while moving east (a local label inside DispatchEastMove). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyRightEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of WestShimmyTile (ShimmyLeftEntry) in player_move_west. The old 'West prefix' remark refers to a former name; ShimmyRightEntry is the east case.
 
-  EastLadderTile:
-    JSR $&tile_collision.CheckSubTileAlignY ; Ladder tile ($07): require Y sub-tile alignment before east shimmy
+  EastShimmyTile:
+    JSR $&tile_collision.CheckSubTileAlignY ; Shimmy tile ($07): require Y sub-tile alignment before east shimmy
     BCS loc_02D753
     JSR $&player_move_west.CancelVerticalPhase ; Clear diag return flags; switch player state to ShimmyRightEntry
     PHY 
@@ -174,7 +174,7 @@ SnapXEastCollision {
     LDA #$0000
     STA $0008, Y
     PLY 
-    BRA loc_02D753        ; Then the blocked path (collision flag, Y nudge, X snap): holds the player at the ladder tile edge
+    BRA loc_02D753        ; Then the blocked path (collision flag, Y nudge, X snap): holds the player at the shimmy tile edge
 
 ; A single SEP #$20 that falls into EastWallPushDown. player_move_ramps jumps here when its post-ramp FutureTR probe reads $09.
 

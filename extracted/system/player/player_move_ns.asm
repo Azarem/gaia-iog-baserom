@@ -2,13 +2,13 @@
 ; 
 ; === CONVENTIONS ===
 ; 
-; Positions are sub-pixels (4 per pixel; a 16-px tile is 64, so AND #$FFC0 floors to a row line). $24 / $26 are the Y velocity / position (negative = north, Y grows downward) and $22 is X. $1A / $1E are the probe pixel X / Y and $00 is the map index of the last probe; MapCellUp / Down / Left / Right read $00 and return the new index in X only (a caller that wants to keep it does STX $00; a result that is not stored is lost). CheckSubTileAlignX / Y: carry CLEAR = the probe sits on a 16-px line (flush), carry SET = it straddles two cells. Probe types: $02 ladder, $08 vine, $0E and above solid, $03 / $0C slopes; $06 / $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right), so 'south wall' / 'north wall' below are handler names, not directions.
+; Positions are sub-pixels (4 per pixel; a 16-px tile is 64, so AND #$FFC0 floors to a row line). $24 / $26 are the Y velocity / position (negative = north, Y grows downward) and $22 is X. $1A / $1E are the probe pixel X / Y and $00 is the map index of the last probe; MapCellUp / Down / Left / Right read $00 and return the new index in X only (a caller that wants to keep it does STX $00; a result that is not stored is lost). CheckSubTileAlignX / Y: carry CLEAR = the probe sits on a 16-px line (flush), carry SET = it straddles two cells. Probe types: $02 ladder, $08 ledge jump, $0E and above solid, $03 / $0C slopes; $06 / $09 are the diagonal-edge types ($06 = top-right + bottom-left quadrants, $09 = top-left + bottom-right), so 'south wall' / 'north wall' below are handler names, not directions.
 ; 
 ; === DISPATCH ORDER (DispatchNorthMove) ===
 ; 
 ; 1. ProbeCurrentTL (carry set only): $06 -> SouthWallHandler, $03 -> NorthSlopeRight, $0C -> NorthSlopeLeft; any other type falls on.
 ; 2. ProbeCurrentTR: $09 -> NorthWallHandler.
-; 3. ProbeFutureTL (top-left after the step): $0E and above or $08 -> blocked path; $02 -> NorthInteractTile; $06 -> SouthWallNudge.
+; 3. ProbeFutureTL (top-left after the step): $0E and above or $08 -> blocked path; $02 -> NorthLadderTile; $06 -> SouthWallNudge.
 ; 4. CheckSubTileAlignX. X flush: future TL $09 -> NorthProbeRedirect, anything else -> the plain step. X straddling: future TL $09 -> blocked path; otherwise MapCellRight (the future TR cell) is read: $0E and above, $08, $02 or $06 -> blocked path, $09 -> NorthProbeRedirect, anything else -> the plain step.
 ; 5. Plain step: $26 += $24 (Y shrinks). $22 and $20 are not touched; PlayerMovementTick commits the position afterwards.
 ; 6. Blocked path (loc_02D0AF): SetActorCollisionFlag, AutoAlignEW_North (nudge X onto the column grid, carry clear = nudged), then SnapYNorthCollision. After a nudge the Y snap runs without zeroing playerSpeedNs (entry loc_02D0C2), so the player keeps pushing and is walked around the corner a couple of pixels per tick.
@@ -82,10 +82,10 @@ DispatchNorthMove {
     JSR $&tile_collision.ProbeFutureTL ; ProbeFutureTL: top-left corner after the north step (type in A)
     CMP #$0E              ; Solid tile: collision nibble ≥ $0E blocks north entry
     BCS loc_02D0AF
-    CMP #$08              ; Type $08 (vine) cannot be entered walking north: blocked path (it is a south-only tile)
+    CMP #$08              ; Type $08 (ledge jump) cannot be entered walking north: blocked path (it is a south-only cell)
     BEQ loc_02D0AF
-    CMP #$02              ; Type $02 ladder ahead -> NorthInteractTile (the climb starts only with X on a column line)
-    BEQ NorthInteractTile
+    CMP #$02              ; Type $02 ladder ahead -> NorthLadderTile (the climb starts only with X on a column line)
+    BEQ NorthLadderTile
     CMP #$06              ; Type $06 south wall at destination → SouthWallNudge
     BNE loc_02D074
     JMP $&SouthWallNudge
@@ -108,7 +108,7 @@ DispatchNorthMove {
     JSR $&tile_collision.ReadCollisionNibble
     CMP #$0E              ; That east cell solid ($0E and above): blocked path
     BCS loc_02D0AF
-    CMP #$08              ; East cell is a vine ($08): blocked path
+    CMP #$08              ; East cell is a ledge-jump cell ($08): blocked path
     BEQ loc_02D0AF
     CMP #$02              ; East cell is a ladder ($02): blocked path until X is flush
     BEQ loc_02D0AF
@@ -157,7 +157,7 @@ DispatchNorthMove {
 
 ; Type $02 ladder ahead while moving north (a local label inside DispatchNorthMove). CheckSubTileAlignX: X straddling (carry set) -> blocked path. X flush: the player actor's entry becomes LadderClimbSouth (the ladder state entered from below: it checks Up before Down, then LadderIdleNorth) and $0008 = 0; then the blocked path runs, which holds the player at the ladder base.
 
-  NorthInteractTile:
+  NorthLadderTile:
     JSR $&tile_collision.CheckSubTileAlignX ; Ladder tile ($02): require X sub-tile alignment before climbing
     BCS loc_02D0AF
     PHY 

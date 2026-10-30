@@ -4,7 +4,7 @@
 ; 
 ; === COLLISION BYTE ===
 ; 
-; The collision layer ($7FC000, one byte per 16x16 tile) holds the terrain type in the low nibble and, in the high nibble, the solid mark that actors OR in with MarkSolidHere / MarkSolidOffset / MarkSolidAbs ($F0) and remove with the Clear ops. ReadCollisionNibble returns the high nibble shifted down when it is nonzero ($F0 becomes $0F, solid) and the terrain type otherwise. Types seen by callers: $05 west-facing slope, $0A east-facing slope, $07 ladder, $06 and $09 diagonal-edge types (quadrant masks; see tile_collision_physics), $0E and above solid.
+; The collision layer ($7FC000, one byte per 16x16 tile) holds the terrain type in the low nibble and, in the high nibble, the solid mark that actors OR in with MarkSolidHere / MarkSolidOffset / MarkSolidAbs ($F0) and remove with the Clear ops. ReadCollisionNibble returns the high nibble shifted down when it is nonzero ($F0 becomes $0F, solid) and the terrain type otherwise. Types seen by callers: $05 west-facing slope, $0A east-facing slope, $02 ladder (LadderClimbSouth / North), $07 wall-shimmy tile (ShimmyLeftEntry / ShimmyRightEntry), $08 ledge jump (LedgeJumpEntry, entered only walking south), $06 and $09 diagonal-edge types (quadrant masks; see tile_collision_physics), $0E and above solid.
 ; 
 ; === CORNER PROBES ===
 ; 

@@ -124,7 +124,7 @@ Read anim byte → **`$28`**, **`SetActorBody`**, save `$0A`/`$0C` to `$00`/`$02
 
 ##### How it is used in source
 
-Dominant opcode in **`actors/player/player_character.asm`** — idle facing dispatch (`#00`–`#03`, Shadow `#10`–`#12`), ladder/shimmy helpers, vine climb setup. Also **credits auto-walk** (`ending/ending_credits/sF7_credits_player.asm`), **space flight / epilogue** (`babel_tower/`, `ending/ending_comet/sE5_epilogue.asm`), and **shared transition library** (`actors/player_transition_handlers.asm`).
+Dominant opcode in **`actors/player/player_character.asm`** — idle facing dispatch (`#00`–`#03`, Shadow `#10`–`#12`), ladder/shimmy helpers, ledge-jump setup. Also **credits auto-walk** (`ending/ending_credits/sF7_credits_player.asm`), **space flight / epilogue** (`babel_tower/`, `ending/ending_comet/sE5_epilogue.asm`), and **shared transition library** (`actors/player_transition_handlers.asm`).
 
 Example — idle row selection by form (`player_character.asm`):
 
@@ -188,13 +188,16 @@ Y-axis counterpart to `$90`.
 
 ##### How it is used in source
 
-**Vertical scripted motion** — vine climb entry, ladder landings, Babel/epilogue climbs (`player_character.asm`, `babel_tower/comet_lair/sE8_dark_gaia.asm`, `btE4_kara.asm`, `na49_neil.asm`):
+**Vertical scripted motion** — ledge-jump take-off and landing (`LedgeJumpEntry` / `LedgeJumpLand`), ladder landings (`LadderLandBottom` / `LadderReachTop`), Babel/epilogue climbs (`player_character.asm`, `babel_tower/comet_lair/sE8_dark_gaia.asm`, `btE4_kara.asm`, `na49_neil.asm`):
 
 ```asm
-COP [StagePlayerMoveY] ( #19, #07 )
+COP [StagePlayerMoveY] ( #19, #07 )   ; ledge-jump take-off (LedgeJumpEntry)
 COP [AnimOnce]
 …
-COP [StagePlayerMoveY] ( #1C, #00 )   ; ladder landing
+COP [StagePlayerMoveY] ( #1C, #00 )   ; ledge-jump landing (LedgeJumpLand)
+COP [AnimOnce]
+…
+COP [StagePlayerMoveY] ( #29, #1A )   ; ladder bottom landing (LadderLandBottom)
 COP [AnimOnce]
 ```
 

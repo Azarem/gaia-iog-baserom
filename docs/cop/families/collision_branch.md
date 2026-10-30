@@ -221,7 +221,7 @@ COP [BranchIfSolidSouth] ( &code_0BC60C )
 
 (`pyramid/pyCC_mystic_ball.asm:112`, `pyramid/pyCE_tuts.asm:96-99`)
 
-- **Relations:** Pair with `[15]` for vertical movement AI. Player vine/ladder code uses **type** south probe `[1C]` with `#00` for landing — different comparison.
+- **Relations:** Pair with `[15]` for vertical movement AI. Player ledge-jump/ladder code uses **type** south probe `[1C]` with `#00` for landing — different comparison.
 
 ---
 
@@ -303,10 +303,10 @@ Compares the **full query byte** (after `TileCollisionQuery` solid/OOB rules) to
 
 ##### How it is used
 
-Player movement: detect “solid ground” type `#00` while climbing vines or landing:
+Player movement: detect “solid ground” type `#00` while falling in a ledge jump or landing:
 
 ```asm
-COP [BranchIfSolidType] ( #00, &ClimbVineLand )
+COP [BranchIfSolidType] ( #00, &LedgeJumpLand )
 ```
 
 (`actors/player/player_character.asm:497,514,531`)

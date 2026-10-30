@@ -1,19 +1,19 @@
 ; Main player character actor definition and movement state machine (181132–184272).
 ; 
-; This is the largest player actor file — the actor-def that instantiates the player and contains the complete movement FSM, traversal systems (climbing, ladders, shimmy), combat (melee, run attack, lunge), and related helpers. The actor-def's init code spawns four companion actors: attack_ability_system (charged attacks), player_move_controller (per-frame physics), slope_ramp_physics (slope tile handling), and shadow_shimmer (Shadow's palette shimmer).
+; This is the largest player actor file — the actor-def that instantiates the player and contains the complete movement FSM, traversal systems (ledge jump, ladders, shimmy), combat (melee, run attack, lunge), and related helpers. The actor-def's init code spawns four companion actors: attack_ability_system (charged attacks), player_move_controller (per-frame physics), slope_ramp_physics (slope tile handling), and shadow_shimmer (Shadow's palette shimmer).
 ; 
 ; === BUTTON AND FLAG CONVENTIONS USED IN THIS FILE ===
 ; Logical button masks (after the remap): attack $0080, use-item $0008, L $0020, R $0010 (L/R together $0030), D-pad $0F00 (R $0100, L $0200, Dn $0400, Up $0800). BranchIfPressed/BranchIfNotPressed take a mask word: bit 0 clear tests joypadCurrent (held buttons minus the ones consumed in joypadHeld or hidden by joypadMaskStd), bit 0 set tests joypadRaw (no consumption, no masking). TSB joypadHeld therefore CONSUMES a button (joypadCurrent stops reporting it); it does not inject one. TSB joypadMaskStd with $CFFC hides everything except Start/Select ($3000) and bits 0-1 from joypadCurrent, D-pad included; the ladder and shimmy code reads Up/Down through joypadRaw masks such as $0801 / $0401.
-; Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared while climbing, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 ignore enemy contact (set while the Psycho Slider, the lunge, the Aura Barrier and the Spin Dash run, and on death), $4000 off-screen (set by sprite_composition), $0100 vulnerable stance (set by PlayerIdleEntry; while it is set the player is skipped as attacker source and enemy contact hurts it; block, attack and run-attack clear it, and in a forced run with it cleared the enemy took the hit and Will none), $2000 hidden (set on the player by StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor; cleared by SyncPlayerToCamera, by the player_transition_handlers routines that set it, and by the actor pool rebuild).
+; Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared during a ledge jump, a ladder climb or a shimmy, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 ignore enemy contact (set while the Psycho Slider, the lunge, the Aura Barrier and the Spin Dash run, and on death), $4000 off-screen (set by sprite_composition), $0100 vulnerable stance (set by PlayerIdleEntry; while it is set the player is skipped as attacker source and enemy contact hurts it; block, attack and run-attack clear it, and in a forced run with it cleared the enemy took the hit and Will none), $2000 hidden (set on the player by StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor; cleared by SyncPlayerToCamera, by the player_transition_handlers routines that set it, and by the actor pool rebuild).
 ; 
 ; 1. CORE IDLE + WALKING (181132–181790)
 ;    PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (8 directional × Shadow variants), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.
 ;    The idle dispatch uses a facing × input matrix: GetPlayerFacing (0–3) × Multiply8x8Unsigned by 14 selects a row of 7 entries in PlayerIdleDispatchTable. Input priority: attack button > D-pad cardinal > L/R block > idle stand.
 ;    Walk pieces stage the walk sprite (#08–#0B) and call SetAutoWalkTimer, which writes 13 to $040C (mnemonic invincibilityTimer; UpdateFrameCounters decrements it every frame, $FFFF = closed). A walk entered while the player already faces that way (PlayerIdleEntry leaves the facing index in $24) with the window still open ($040C >= 0) closes the window, sets the axis speed to ±3 and yields once before re-dispatching: a run start. docs/ram_map.txt describes $040C the same way ("running-allowed timer"); the invincibilityTimer mnemonic name is stale. Holding L/R during a walk enters the block stance unless playerFlags $1000 (on slope) is set.
 ; 
-; 2. VINE CLIMBING (181790–182198)
-;    ClimbVineEntry, ClimbVineLand, CheckClimbFrame, CheckClimbAttack, ClimbDropAttack, ClimbDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.
-;    Freedan-only vine climbing with a 3-frame alternating sprite cycle. CheckClimbAttack gates drop attack to Freedan (form 1) with abilityBitmask bit 6 ($0040). ClimbDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
+; 2. LEDGE JUMP (181790–182198)
+;    LedgeJumpEntry, LedgeJumpLand, CheckLedgeJumpFrame, CheckLedgeJumpAttack, LedgeJumpDropAttack, LedgeJumpDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.
+;    Ledge jump: the player steps off a ledge and falls (3-frame alternating sprite cycle, force Y movement #07) until the solid-type test under the feet passes, then lands with pose $1C. Seen in Mesen2 in scene $01 (South Cape): Will walks south onto a type $08 cell, a gap in a mossy wall edge, and drops about 87 px onto the roof below. Entered through a type $08 cell (SouthLedgeTile in player_move_south) or by the scripts awB3_ledge_jump_trigger and pyD0_breakable_wall. It is not limited to Freedan: SouthLedgeTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the animations $18-$1B. Only the drop attack is Freedan-only: CheckLedgeJumpAttack gates it to Freedan (form 1) with abilityBitmask bit 6 ($0040). LedgeJumpDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
 ; 
 ; 3. LADDER SYSTEM (182198–182461)
 ;    LadderClimbSouth/North, LadderMoveDown/Up, LadderIdleSouth/North (+ Shadow variants), LadderLandBottom, LadderReachTop.
@@ -479,78 +479,85 @@ SetAutoWalkTimer {
 }
 
 ---------------------------------------------
-; Vine climbing state machine — Freedan-only traversal system.
+; Ledge jump: the player steps off a ledge and falls until the ground test under the feet passes. Available to every form; only the drop attack (CheckLedgeJumpAttack) is Freedan-only.
 ; 
-; Entry: clear actor flag $0008 (restored by ClimbVineLand), set actor flag $0200, hide the use-item button ($0008) via joypadMaskStd. Plays initial climb-on animation (sprites #18, #19).
+; Three writers put its address into the player actor's entry word ($0000,Y): SouthLedgeTile (player_move_south) when the player walks south onto a type $08 cell, and the one-shot scene scripts awB3_ledge_jump_trigger (Angkor Wat outer north) and pyD0_breakable_wall (Pyramid scenes $D0 and $D1). The scripts enter it with no $08 cell involved.
 ; 
-; Main loop: 3-sprite alternating cycle (#1A, #1B, #19) with force Y movement (#07 = downward). Each frame checks for solid ground landing. CheckClimbFrame reads the $2A event flag for animation timing. CheckClimbAttack gates drop attack to Freedan (characterForm == 1) with abilityBitmask bit 6 ($0040).
+; Entry: clear actor flag $0008 (restored by LedgeJumpLand), set actor flag $0200, hide the use-item button ($0008) via joypadMaskStd. Plays the take-off poses (sprites #18, #19).
+; 
+; Main loop: 3-sprite alternating cycle (#1A, #1B, #19) with force Y movement (#07 = downward). Each pass checks for solid ground (landing). CheckLedgeJumpFrame reads the $2A event flag for animation timing. CheckLedgeJumpAttack gates the drop attack to Freedan (characterForm == 1) with abilityBitmask bit 6 ($0040).
+; 
+; Mesen2, scene $01: pose $18 for about 24 frames at the edge, then the fall at about 4 px per frame (y 361 to 448), pose $1C for the landing; playerFlags $0808 and actor flags $8700 throughout.
 
-ClimbVineEntry {
-    LDA #$0008            ; Vine entry: clear $0008 in actor flags (ClimbVineLand restores it), set $0200, then hide the use-item button via joypadMaskStd
+LedgeJumpEntry {
+    LDA #$0008            ; Ledge jump start: clear $0008 in actor flags (LedgeJumpLand restores it), set $0200, then hide the use-item button via joypadMaskStd
     TRB $10
     LDA #$0200
     TSB $10
     LDA #$0008
     TSB $joypadMaskStd
-    COP [StagePlayerMoveXY] ( #18, #00, #18 )
+    COP [StagePlayerMoveXY] ( #18, #00, #18 ) ; Take-off: StagePlayerMoveXY sprite #18, then (after AnimOnce) StagePlayerMoveY sprite #19 with force move #07
     COP [AnimOnce]
     COP [StagePlayerMoveY] ( #19, #07 )
     COP [AnimOnce]
 
   loc_02C63B:
-    COP [BranchIfSolidType] ( #00, &ClimbVineLand ) ; Check solid type below for landing; begin 3-sprite alternating climb cycle
+    COP [BranchIfSolidType] ( #00, &LedgeJumpLand ) ; Check solid type below for landing; begin the 3-sprite alternating fall cycle
     COP [StagePlayerSprite] ( #1A )
     COP [StageMoveY] ( #07 )
 
   loc_02C646:
     COP [AnimOneFrame]
-    JSR $&CheckClimbFrame
+    JSR $&CheckLedgeJumpFrame
     BCS loc_02C658
 
   loc_02C64D:
-    JSR $&CheckClimbAttack
+    JSR $&CheckLedgeJumpAttack
     COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02C64D
     BRA loc_02C646
 
   loc_02C658:
-    COP [BranchIfSolidType] ( #00, &ClimbVineLand )
+    COP [BranchIfSolidType] ( #00, &LedgeJumpLand )
     COP [StagePlayerSprite] ( #1B )
     COP [StageMoveY] ( #07 )
 
   loc_02C663:
     COP [AnimOneFrame]
-    JSR $&CheckClimbFrame
+    JSR $&CheckLedgeJumpFrame
     BCS loc_02C675
 
   loc_02C66A:
-    JSR $&CheckClimbAttack
+    JSR $&CheckLedgeJumpAttack
     COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02C66A
     BRA loc_02C663
 
   loc_02C675:
-    COP [BranchIfSolidType] ( #00, &ClimbVineLand )
+    COP [BranchIfSolidType] ( #00, &LedgeJumpLand )
     COP [StagePlayerSprite] ( #19 )
     COP [StageMoveY] ( #07 )
 
   loc_02C680:
     COP [AnimOneFrame]
-    JSR $&CheckClimbFrame
+    JSR $&CheckLedgeJumpFrame
     BCS loc_02C63B
 
   loc_02C687:
-    JSR $&CheckClimbAttack
+    JSR $&CheckLedgeJumpAttack
     COP [SetEntryHereAndYield]
     DEC $24
     BPL loc_02C687
     BRA loc_02C680
 }
 
-ClimbVineLand {
-    COP [PlaySoundCh2] ( #2C ) ; Vine landing: play sound #2C, animate landing sprite #1C, restore flags, return to idle
+---------------------------------------------
+; Landing of a ledge jump: plays sound #2C and the landing pose #1C, restores actor flag $0008, clears $0200 and the use-item hide, and returns to PlayerIdleEntry.
+
+LedgeJumpLand {
+    COP [PlaySoundCh2] ( #2C ) ; Ledge jump landing: play sound #2C, animate landing sprite #1C, restore flags, return to idle
     COP [StagePlayerMoveY] ( #1C, #00 )
     COP [AnimOnce]
     LDA #$0200
@@ -562,7 +569,7 @@ ClimbVineLand {
     JMP $&PlayerIdleEntry
 }
 
-CheckClimbFrame {
+CheckLedgeJumpFrame {
     LDA $2A               ; Frame test: $2A nonzero = a frame was staged; move its hold time $08 to $24, clear $08, CLC. $2A zero: SEC
     BEQ loc_02C6BA
     LDA $08
@@ -576,8 +583,8 @@ CheckClimbFrame {
     RTS 
 }
 
-CheckClimbAttack {
-    LDA $characterForm    ; Check climb attack: Freedan-only (form 1) with abilityBitmask bit 6 ($0040) → ClimbDropAttack
+CheckLedgeJumpAttack {
+    LDA $characterForm    ; Check drop attack: Freedan-only (form 1) with abilityBitmask bit 6 ($0040) → LedgeJumpDropAttack
     CMP #$0001
     BEQ loc_02C6C5
     RTS 
@@ -589,16 +596,16 @@ CheckClimbAttack {
     RTS 
 
   loc_02C6CE:
-    COP [BranchIfPressed] ( #$0080, &ClimbDropAttack )
+    COP [BranchIfPressed] ( #$0080, &LedgeJumpDropAttack )
     RTS 
 }
 
 ---------------------------------------------
-; Freedan drop attack from vine — triggers ground impact effects.
+; Freedan drop attack in the middle of a ledge jump (CheckLedgeJumpAttack: B pressed while falling) — triggers ground impact effects.
 ; 
-; Pops the climb loop return address, sets body sprite #06 with hitbox #00. Falls with force Y movement until hitting solid ground (16-pixel boundary check). On landing, loads anim table B entry 2, spawns ImpactTerrainShake and CameraShakeActor (scene $DD skips terrain shake), then plays 39-frame recovery animation before returning to idle.
+; Pops the ledge-jump loop return address, sets body sprite #06 with hitbox #00. Falls with force Y movement until hitting solid ground (16-pixel boundary check). On landing, loads anim table B entry 2, spawns ImpactTerrainShake and CameraShakeActor (scene $DD skips terrain shake), then plays 39-frame recovery animation before returning to idle.
 
-ClimbDropAttack {
+LedgeJumpDropAttack {
     PLA                   ; Drop attack: pop caller, set body sprite #06, hitbox #00, fall with force move Y #07
     COP [SetPlayerSpriteDirect] ( #06 )
     COP [StageSprAndHitbox] ( #00 )
@@ -608,14 +615,14 @@ ClimbDropAttack {
 
   loc_02C6DF:
     COP [AnimOneFrame]
-    JSR $&CheckClimbFrame
+    JSR $&CheckLedgeJumpFrame
     BCS loc_02C6DC
 
   loc_02C6E6:
     LDA $16
     BIT #$000F
     BNE loc_02C6F2
-    COP [BranchIfSolidType] ( #00, &ClimbDropLand )
+    COP [BranchIfSolidType] ( #00, &LedgeJumpDropLand )
 
   loc_02C6F2:
     COP [SetEntryHereAndYield]
@@ -624,7 +631,7 @@ ClimbDropAttack {
     BRA loc_02C6DF
 }
 
-ClimbDropLand {
+LedgeJumpDropLand {
     LDA #$0002            ; Drop landing: load anim table B entry 2, check scene $DD skip, spawn terrain shake + camera shake
     JSR $&attack_ability_system.LoadAbilityDamageB
     LDA $sceneCurrent

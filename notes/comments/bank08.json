@@ -316,7 +316,7 @@
     "587497": "Override chain Y",
     "587500": "Frame timer",
     "587506": "Clear bit 9 ($0200, ignore enemy contact, in the player's $10; not the game-over flag, which is playerFlags $0200)",
-    "587509": "Set bit 3: collision-checked movement (vine, ladder and shimmy states clear it)",
+    "587509": "Set bit 3: collision-checked movement (ledge-jump, ladder and shimmy states clear it)",
     "587515": "D-pad bits only ($0F00); the face buttons keep their mask state",
     "587521": "Clear ability-active flag",
     "589058": "chatPtr = $0085: item ID for GiveItemToPlayer (+5 gems), not a dialog pointer; same value as DropBodyGem5",

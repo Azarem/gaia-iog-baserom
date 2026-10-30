@@ -6,10 +6,10 @@
 ; 
 ; PER FRAME:
 ; 1. HIT-STUN: if the player's $10 has bit $0080 (the iframe counter is running) and iframeCounter is not negative, skip the frame. A positive counter is hit-stun, so this is the check that freezes the player (actor_execution exempts the player from its own freeze); a negative counter (recovery) lets movement continue.
-; 2. LOCK: if playerFlags has EITHER bit $0200 (game over) or $0800 (script / ability lock) set, clear extVelocityX / Y and skip: the script or the traversal code (stairs, vine, ladder, cutscene) owns the position.
+; 2. LOCK: if playerFlags has EITHER bit $0200 (game over) or $0800 (script / ability lock) set, clear extVelocityX / Y and skip: the script or the traversal code (ledge jump, ladder, shimmy, the slider-glide triggers, cutscene) owns the position.
 ; 3. SYNC: if the player actor's pixel position differs from local >> 2 (a script or COP moved the player), adopt the actor's position x4; the old fraction is lost.
 ; 4. VELOCITY, per axis. Speed word (playerSpeedEw / playerSpeedNs) zero: joypad velocity from JoypadToVelocity plus the external velocity; the joypad part is forced to zero while playerFlags has $1000 (on-slope latch) or $2000 (guard / channel stance). Speed nonzero: speed x 4 plus the external velocity, and the $1000 latch is cleared. One speed unit is one pixel per frame; the joypad gives +/-8 sub-pixels (2 px per frame).
-; 5. MOVE: bit $0008 of the player actor's $10 means 'collision-checked movement' (actor_execution uses the same bit for every actor). Set: player_move_main.PlayerMovementTick runs the tile collision with X = THIS actor's slot, positions in the low-RAM words $22 / $26 and velocities in $20 / $24. Clear (the vine, ladder and shimmy states clear it and restore it on exit): the velocity is added to the position with no collision.
+; 5. MOVE: bit $0008 of the player actor's $10 means 'collision-checked movement' (actor_execution uses the same bit for every actor). Set: player_move_main.PlayerMovementTick runs the tile collision with X = THIS actor's slot, positions in the low-RAM words $22 / $26 and velocities in $20 / $24. Clear (the ledge-jump, ladder and shimmy states clear it and restore it on exit): the velocity is added to the position with no collision.
 ; 6. WRITE-BACK: local position = $22 / $26; the player actor gets position >> 2; bit $0004 (solid contact, set by the tick in this actor's own $10) is copied into the player's $10.
 ; 
 ; External velocities ($0408 / $040A) are consumed (zeroed) every frame, so a source must write them every frame to keep pushing: av71_wind_effect, btEA_conveyor_controller, combat_collision (push hits), gw82_archer, sg55_viper. scene_lifecycle clears them and both speed words at scene setup.
@@ -166,14 +166,14 @@ PlayerMoveController {
     LDA #$1000            ; Clear the on-slope latch (as for X)
     TRB $playerFlags
 
-; Stage 5 (move): consume extVelocityY and drop the packed pad velocity. Player Flags10 bit $0008 (collision-checked movement) set: PlayerMoveCollisionTick. Clear (vine, ladder, shimmy): $22 += $20 and $26 += $24 directly, no collision, then the write-back.
+; Stage 5 (move): consume extVelocityY and drop the packed pad velocity. Player Flags10 bit $0008 (collision-checked movement) set: PlayerMoveCollisionTick. Clear (ledge jump, ladder, shimmy): $22 += $20 and $26 += $24 directly, no collision, then the write-back.
 
   PlayerMoveCollisionStage:
     STZ $extVelocityY     ; External Y velocity consumed
     PLA                   ; Drop the packed pad velocity from the stack
     LDY $playerActor
     LDA $0010, Y
-    BIT #$0008            ; Bit $0008 = collision-checked movement (cleared while climbing a vine, ladder or shimmy)
+    BIT #$0008            ; Bit $0008 = collision-checked movement (cleared during a ledge jump, a ladder climb or a shimmy)
     BNE PlayerMoveCollisionTick
     LDA $0020             ; Clear: add the velocity to the position directly, no collision ($22 += $20, $26 += $24)
     CLC 

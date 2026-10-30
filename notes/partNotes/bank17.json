@@ -9,8 +9,8 @@
     "dark_friar_04_fragment": "Animation $04, fragment: 4 frames, hold 1, pulsing 0, 1, 2, 1.",
     "dark_friar_05_follower_a": "Animation $05, TrailFollowerSprA: 4 frames, hold 1, pulsing 0, 1, 2, 1.",
     "dark_friar_06_follower_b": "Animation $06, TrailFollowerSprB: 4 frames, hold 1, pulsing 0, 1, 2, 1 (the same groups as $01).",
-    "freedan_fx_00_drop_fall": "Animation $00, vine drop attack fall: 4 frames, hold 2. Staged by ClimbDropAttack with a hitbox.",
-    "freedan_fx_01_drop_land": "Animation $01, vine drop landing: 6 frames, hold 4 for the first five and 9 for the last. Staged by ClimbDropLand.",
+    "freedan_fx_00_drop_fall": "Animation $00, ledge-jump drop attack fall: 4 frames, hold 2. Staged by LedgeJumpDropAttack with a hitbox.",
+    "freedan_fx_01_drop_land": "Animation $01, ledge-jump drop landing: 6 frames, hold 4 for the first five and 9 for the last. Staged by LedgeJumpDropLand.",
     "freedan_fx_02_aura_cast": "Animation $02, Aura Barrier cast: 2 frames, hold 4. Staged once at the start of the cast.",
     "freedan_fx_03_aura_sustain": "Animation $03, Aura Barrier sustain: 1 frame, hold 9, looped for the length of the barrier.",
     "projectile_launch_east": "Animation $03, East launch: 3 frames (hold 5, 2, 2). Used by ProjectileEast (#03).",
@@ -33,7 +33,7 @@
     "spriteset_aura": "3 pointers to the frame lists, indexed by the animation number staged by AuraProjectileChild / AuraProjectileShrink: $00 and $01 grow-in, $02 the looping orbit. See the block note.",
     "spriteset_dark_friar": "7 pointers to the animation frame lists: $00 cast flash, $01-$03 trail stages, $04 fragment, $05 and $06 trail followers.",
     "spriteset_darkgaia_projectile": "8 pointers to the animation frame lists: $00-$03 = launch South/North/West/East, $04-$07 = travel loop in the same order.",
-    "spriteset_freedan_fx": "4 pointers to the animation frame lists: $00 vine drop fall, $01 drop landing, $02 Aura Barrier cast, $03 Aura Barrier sustain pose.",
+    "spriteset_freedan_fx": "4 pointers to the animation frame lists: $00 ledge-jump drop fall, $01 drop landing, $02 Aura Barrier cast, $03 Aura Barrier sustain pose.",
     "spriteset_shadow_aura_body": "Animation table of the Aura body (body_table row $08), 3 pointers: $00 = the body turning to water (played once), $01 = the same groups in reverse (the abort path), $02 = 16 one-tick frames played while the player sinks (Y +1 px per frame). The caller of all three is player_transition_handlers.PlayerAuraTransformEntry.",
     "spriteset_shadow_fx": "14 pointers to the animation frame lists ($00-$0D). Nothing stages any of them (see the block note)."
 }

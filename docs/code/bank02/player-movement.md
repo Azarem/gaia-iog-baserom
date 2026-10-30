@@ -78,7 +78,7 @@ $02E102 └─ CombinedProbe_Unused … (tile_collision.asm) ──────�
 | `$AB` | 2 | **Per-tick direction / wall-slide marks** — bit `$02` = west horizontal phase ran (`DispatchWestMove` `TSB`; `SouthWallNudge` reads it). Bits `$04`/`$08`/`$80` set by east/west wall-slide entry shims (no reader found in `extracted/`). |
 | `$09C6` | 2 | `slopeFracAccum` — fractional filter for slope type `$0C` on north/south handlers. |
 | `$09AE` | 2 | `playerFlags` — ramp handlers `TSB #$1000` directly on this word (on slope/ramp). |
-| `$09AF` | 1 | `playerStateByte` (high byte of `playerFlags`) — slope handlers `TSB #$10` here (same `$1000` flag). Vine entry `SouthStairsTile` `TSB #$08` here → `playerFlags` `$0800` (script/ability lock per asm comment, not a dedicated “stair” bit). |
+| `$09AF` | 1 | `playerStateByte` (high byte of `playerFlags`) — slope handlers `TSB #$10` here (same `$1000` flag). Ledge-jump entry `SouthLedgeTile` `TSB #$08` here → `playerFlags` `$0800` (script/ability lock per asm comment, not a dedicated “stair” bit). |
 | `$09B2` | 2 | `playerSpeedEw` — cleared by `ClearSpeedEW_*` and hard X snaps. |
 | `$09B4` | 2 | `playerSpeedNs` — cleared by `ClearSpeedNS_*` and hard Y snaps. |
 | `$7FC000`+ | — | Runtime collision overlay (see [`tile-collision.md`](tile-collision.md)). |
@@ -237,7 +237,7 @@ Subtracts 8 sub-pixels (2 px toward smaller coordinates). On crossing a `$40` li
 |---------|------|-------------|
 | `$02D038` | DispatchNorthMove | Northward movement dispatcher. |
 | `$02D0BC` | SnapYNorthCollision | Blocked north: `$26 = (($24+$26) & $FFC0) + $40`, `$24 = 0` (full entry clears `playerSpeedNs`). |
-| `$02D0D4` | NorthInteractTile | Handles tile type $02 (ladder/interact) when moving north. |
+| `$02D0D4` | NorthLadderTile | Handles tile type $02 (ladder) when moving north: `LadderClimbSouth`. |
 | `$02D0EE` | NorthSlopeRight | Tile $03 (slope-right) handler for northward movement. |
 | `$02D122` | NorthSlopeLeft | Tile $0C (slope-left) north handler with $09C6 slope accumulator. |
 | `$02D188` | SouthWallHandler | Tile $06 (diagonal-edge type) handler; "South" is a type name, not a direction. |
@@ -403,8 +403,8 @@ Entered when current TR type is `$09`. If current BL is also `$09`, `ClearMoveme
 | `$02D376` | DispatchSouthMove | Southward (+Y) movement dispatcher. |
 | `$02D3EA` | SouthBlockedWall | Sets collision flag, tries `AutoAlignEW_South`, branches to Y snap on failure. |
 | `$02D3F7` | SnapYSouthCollision | Y snap for south collision (aligns Y to current tile row). |
-| `$02D40B` | SouthInteractTile | Tile `$02` south: X-aligned redirect to `LadderClimbNorth`, then blocked path. |
-| `$02D425` | SouthStairsTile | Tile `$08` vine: may require right cell `$08` when straddling; sets `playerFlags` `$0800` via `playerStateByte`; `ClimbVineEntry`; `SnapYSouthCollision`. |
+| `$02D40B` | SouthLadderTile | Tile `$02` south: X-aligned redirect to `LadderClimbNorth`, then blocked path. |
+| `$02D425` | SouthLedgeTile | Tile `$08` ledge jump: may require right cell `$08` when straddling; sets `playerFlags` `$0800` via `playerStateByte`; `LedgeJumpEntry`; `SnapYSouthCollision`. |
 | `$02D44E` | SouthSlopeRight | Tile `$03` south slope: BR continuity, Y threshold `$08`, slope flag on block. |
 | `$02D47F` | SouthSlopeLeft | Tile `$0C` south slope with `$09C6` accumulator (positive-direction variant). |
 | `$02D4DA` | SouthWallNorthInteract | Tile `$09` moving south: double-wall, slide-down path, `ComputeSouthSnapOffset` → `FineAdjustXWest`. |
@@ -422,7 +422,7 @@ Entered when current TR type is `$09`. If current BL is also `$09`, `ClearMoveme
 
 ### DispatchSouthMove
 
-Southward movement dispatcher for positive `$24` (downward on screen). Probes BL for north wall/slopes, BR for south wall, future BL for solids/interact/stairs. Sub-tile and down-cell cascades for north-wall slide. Free path adds `$24` to `$26`.
+Southward movement dispatcher for positive `$24` (downward on screen). Probes BL for north wall/slopes, BR for south wall, future BL for solids, ladders (`$02`, `SouthLadderTile`) and ledge jumps (`$08`, `SouthLedgeTile`). Sub-tile and down-cell cascades for north-wall slide. Free path adds `$24` to `$26`.
 
 **Algorithm:**
 
@@ -448,9 +448,9 @@ Southward movement dispatcher for positive `$24` (downward on screen). Probes BL
 | `AutoAlignEW_South` | Blocked alignment |
 | `PlayerMovementTick` | Entry when `$24 > 0` (unless suppressed) |
 
-### SouthStairsTile
+### SouthLedgeTile
 
-Reached when `ProbeFutureBL` returns type `$08` while moving south (vine tiles are south-entry only in this dispatcher). `CheckSubTileAlignX`: single-column (carry clear) enters directly; straddling requires `MapCellRight` + type `$08` in the right-hand cell, else `SouthBlockedWall`. On success: `TSB #$08` on `playerStateByte` (`$09AF`) → `playerFlags` `$0800` (script/ability lock per asm comment), player entry `$0000` → `ClimbVineEntry`, wait counter `$0008` cleared, then `SnapYSouthCollision` (`Y = (Y + $24) & $FFC0`, `$24` = 0, `playerSpeedNs` cleared).
+Reached when `ProbeFutureBL` returns type `$08` while moving south (ledge-jump cells are south-entry only in this dispatcher: a ledge can only be jumped down from the north). `CheckSubTileAlignX`: single-column (carry clear) enters directly; straddling requires `MapCellRight` + type `$08` in the right-hand cell, else `SouthBlockedWall`. On success: `TSB #$08` on `playerStateByte` (`$09AF`) → `playerFlags` `$0800` (script/ability lock per asm comment), player entry `$0000` → `LedgeJumpEntry`, wait counter `$0008` cleared, then `SnapYSouthCollision` (`Y = (Y + $24) & $FFC0`, `$24` = 0, `playerSpeedNs` cleared).
 
 ### SouthSlopeRight
 
@@ -578,7 +578,7 @@ Precision X correction after a north-wall slide during southward movement — th
 |---------|------|-------------|
 | `$02D6DC` | DispatchEastMove | Eastward (+X) movement dispatcher. |
 | `$02D760` | SnapXEastCollision | X-axis snap to 16-pixel tile column after east collision. |
-| `$02D77C` | EastLadderTile | Tile `$07` east: Y-aligned redirect to `ShimmyRightEntry`. |
+| `$02D77C` | EastShimmyTile | Tile `$07` (wall-shimmy tile, not a ladder) east: Y-aligned redirect to `ShimmyRightEntry`. |
 | `$02D799` | EastWallNorthDiag | Diagonal entry; falls through to `EastWallPushDown`. |
 | `$02D79B` | EastWallPushDown | Tile `$09` moving east: slide path → `ComputeEastSnapOffset` + `WallSlidePushDown`. |
 | `$02D7E1` | EastWallNorthFlag | Sets `$AB.$04`, joins north-wall adjacency chain. |
@@ -594,7 +594,7 @@ Precision X correction after a north-wall slide during southward movement — th
 
 ### DispatchEastMove
 
-Eastward movement dispatcher for positive `$20` (`RTS` on free paths). **`FindSlopeForEastMove`** (`map_coords`): Z set → carry set → `WestRampUp` (`$05`), carry clear → `EastRampDown` (`$0A`). Else probes TR `$09` → `EastWallPushDown`, BR `$06` → `EastWallPushUp`, `ProbeFutureTR` solid/`$09` flags, Y-alignment cascades, type `$07` → `EastLadderTile`, BL `$05`/`$0A` → `WestRampDown`/`EastRampUp`. Free path: `$22 += $20`. Blocked: `AutoAlignNS_East` then `SnapXEastCollision` (full entry clears `playerSpeedEw`).
+Eastward movement dispatcher for positive `$20` (`RTS` on free paths). **`FindSlopeForEastMove`** (`map_coords`): Z set → carry set → `WestRampUp` (`$05`), carry clear → `EastRampDown` (`$0A`). Else probes TR `$09` → `EastWallPushDown`, BR `$06` → `EastWallPushUp`, `ProbeFutureTR` solid/`$09` flags, Y-alignment cascades, type `$07` → `EastShimmyTile`, BL `$05`/`$0A` → `WestRampDown`/`EastRampUp`. Free path: `$22 += $20`. Blocked: `AutoAlignNS_East` then `SnapXEastCollision` (full entry clears `playerSpeedEw`).
 
 **Algorithm:**
 
@@ -784,15 +784,15 @@ Descend west-facing slope `$05` while moving east. Probes `$1A+8` for `$05`; bou
 |---------|------|-------------|
 | `$02DB80` | DispatchWestMove | West horizontal-phase dispatcher (negative `$20`). |
 | `$02DC10` | SnapXWestCollision | X snap to 16-pixel tile column after west collision. |
-| `$02DC2C` | DiagLadderTile | Tile `$07` during west phase: Y-aligned redirect to `ShimmyLeftEntry`. |
-| `$02DC49` | DiagWallSouthFromDL | Tile `$06` handler during west phase. |
-| `$02DC9D` | DiagWallNorthFromDL | Tile `$09` handler during west phase. |
+| `$02DC2C` | WestShimmyTile | Tile `$07` (wall-shimmy tile, not a ladder) during west phase: Y-aligned redirect to `ShimmyLeftEntry`. |
+| `$02DC49` | DiagWallSouthShim | Tile `$06` handler during west phase. |
+| `$02DC9D` | DiagWallNorthShim | Tile `$09` handler during west phase. |
 | `$02DCF3` | WestRampDescend | West-facing ramp tile `$05` — adds to `$26` so Y grows (down-left along ramp). |
 | `$02DE02` | WestRampEdgeDescend | Partial-entry edge for tile `$05` during west movement. |
-| `$02DE43` | DiagRedirectToSouth | Ramp fallback: future TL $06 → DiagWallSouthFromDL or free move. |
+| `$02DE43` | DiagRedirectToSouth | Ramp fallback: future TL $06 → DiagWallSouthShim or free move. |
 | `$02DE51` | WestRampAscend | East-facing ramp tile `$0A` — Y shrinks (up-left along ramp). |
 | `$02DF5C` | WestRampEdgeAscend | Partial-entry edge for tile `$0A` during west movement. |
-| `$02DF99` | DiagRedirectToNorth | Ramp fallback: future BL $09 → DiagWallNorthFromDL or free move. |
+| `$02DF99` | DiagRedirectToNorth | Ramp fallback: future BL $09 → DiagWallNorthShim or free move. |
 | `$02DFA7` | AutoAlignYToGrid | Nudges `$26` onto the 16-pixel Y grid when west movement is blocked. |
 | `$02DFF6` | ComputeWallSlidePush | Wall-slide snap offset into `$02` after west-phase wall hits. |
 | `$02E060` | WallSlidePushUp | Stores **negative** `$24` (northward wall-slide push). |
@@ -829,7 +829,7 @@ West horizontal-phase dispatcher (negative `$20`). Sets `$AB.$02`. **`FindSlopeF
 | `FindSlopeForWestMove` | Ramp pre-detection |
 | `PlayerMovementTick` | Entry when `$20 < 0` |
 
-### DiagWallSouthFromDL
+### DiagWallSouthShim
 
 Tile `$06` during west phase. Sets `$AB.$80`; future TL probe; right/down cell cascade. Resolves via `ComputeWallSlidePush` → `WallSlidePushDown`.
 
@@ -840,7 +840,7 @@ Tile `$06` during west phase. Sets `$AB.$80`; future TL probe; right/down cell c
 | `ComputeWallSlidePush` / `WallSlidePushDown` | Resolution |
 | `DiagRedirectToSouth` | Entry redirect |
 
-### DiagWallNorthFromDL
+### DiagWallNorthShim
 
 Tile `$09` during west phase. Sets `$AB.$80`; future BL probe; left/down cell cascade. Resolves via `ComputeWallSlidePush` → `WallSlidePushUp`.
 
@@ -952,7 +952,7 @@ Wall-slide snap helper. Probes current TL; on `$09` or aligned right-cell `$06`,
 | Symbol | Relationship |
 |--------|--------------|
 | `WallSlidePushUp` / `WallSlidePushDown` | Consumers |
-| `DiagWallSouthFromDL` / `DiagWallNorthFromDL` | Callers |
+| `DiagWallSouthShim` / `DiagWallNorthShim` | Callers |
 
 ### WallSlidePushUp
 
@@ -979,7 +979,7 @@ After a west-phase wall hit, stores a **negative `$24`** (northward Y velocity) 
 | Symbol | Relationship |
 |--------|--------------|
 | `WallSlidePushDown` | Mirror push |
-| `EastWallPushUp` / `code_02DC9F` (`DiagWallNorthFromDL`) | Callers |
+| `EastWallPushUp` / `code_02DC9F` (`DiagWallNorthShim`) | Callers |
 
 ### WallSlidePushDown
 
@@ -990,7 +990,7 @@ Mirror of `WallSlidePushUp` for the opposite wall-slide case: stores a **positiv
 | Symbol | Relationship |
 |--------|--------------|
 | `WallSlidePushUp` | Mirror counterpart |
-| `EastWallPushDown` / `code_02DC4B` (`DiagWallSouthFromDL`) | Callers |
+| `EastWallPushDown` / `code_02DC4B` (`DiagWallSouthShim`) | Callers |
 
 ## Runtime-Verified Behaviour (Mesen2 campaigns B2 and B3)
 
@@ -1054,14 +1054,14 @@ Nearly every movement handler follows the same multi-stage pipeline:
 1. PROBE     — `ProbeCurrent*` / `ProbeFuture*` (or `FindSlopeFor*Move` / extra `TileProbeMain` samples on ramps)
 
 2. DISPATCH  — Compare type in A; `JMP` to handler ($02 ladder, $03/$0C slope, $06/$09 diagonal-edge types (quadrant masks),
-                $07 east/west shimmy tile, $08 vine [south entry in `DispatchSouthMove`], $0A/$05 ramps, $0E+ solid)
+                $07 east/west shimmy tile, $08 ledge jump [south entry in `DispatchSouthMove`], $0A/$05 ramps, $0E+ solid)
 
 3. ADJACENT  — For wall/slope types: probe neighboring cells via MapCell*
                and ReadCollisionNibble to detect slide paths or diagonal redirects
 
 4. RESOLVE   — Plain `$22 += $20` or `$26 += $24` (`RTS`); or `ApplyMovementDeltas` (zeros `$20`/`$24` after applying);
                auto-align (`AutoAlignEW_*`, `AutoAlignNS_East`, `AutoAlignYToGrid`); grid snaps (`SnapX*`, `SnapY*`);
-               `$02` push/snap helpers; ramp Y math; actor entry rewrite (ladder / vine / shimmy).
+               `$02` push/snap helpers; ramp Y math; actor entry rewrite (ladder / ledge jump / shimmy).
 
 5. FINALIZE  — `SetActorCollisionFlag` on blocked paths; `ClearSpeed*` / snap entries clear `playerSpeed*`; position may remain for controller commit
 ```
@@ -1147,8 +1147,8 @@ flowchart TD
 
     subgraph west["player_move_west"]
         WR[WestRampDescend / WestRampAscend]
-        DWS[DiagWallSouthFromDL → code_02DC4B]
-        DWN[DiagWallNorthFromDL → code_02DC9F]
+        DWS[DiagWallSouthShim → code_02DC4B]
+        DWN[DiagWallNorthShim → code_02DC9F]
         AYG[AutoAlignYToGrid]
         CWP[ComputeWallSlidePush]
         DWS --> CWP
@@ -1211,7 +1211,7 @@ flowchart TD
 | `DispatchEastMove` | `FindSlopeForEastMove`, ramp handlers, `EastWallPushDown`/`Up`, `AutoAlignNS_East`, `ComputeEastSnapOffset`, `player_move_west.WallSlidePush*` | East phase + shared wall-slide push |
 | `DispatchWestMove` | `FindSlopeForWestMove`, `WestRamp*`, `code_02DC4B`/`code_02DC9F`, `AutoAlignYToGrid`, `ComputeWallSlidePush`, `SnapYNorthCollision`/`SnapYSouthCollision` | West phase |
 | Ramp handlers (east/west) | `CancelVerticalPhase`, partial snaps in `player_move_ns` / `player_move_south` | Cancel stacked `$24`; corner wall fixes |
-| `EastLadderTile` / `DiagLadderTile` | `CancelVerticalPhase`, `ShimmyRightEntry` / `ShimmyLeftEntry` | Shimmy state + blocked snap path |
+| `EastShimmyTile` / `WestShimmyTile` | `CancelVerticalPhase`, `ShimmyRightEntry` / `ShimmyLeftEntry` | Shimmy state + blocked snap path |
 | All dispatchers | `tile_collision.*` | Probes, flags, `ApplyMovementDeltas` |
 
 

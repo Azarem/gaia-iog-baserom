@@ -32,7 +32,10 @@ $02E396 └─ (inventory_menu continues) ────────────�
 | Type | Role in this file / callers (asm block note) |
 |------|-----------------------------------------------|
 | `$00` | Passable — `TileProbeMain` returns carry clear |
-| `$01`–`$04`, `$07`, `$08`, `$0B`, `$0D` | Nonzero types; meaning for movement redirects is in `player_move_*` / `player_character` (not defined in this file) |
+| `$01`, `$03`, `$04`, `$0B`, `$0D` | Nonzero types; meaning for movement redirects is in `player_move_*` / `player_character` (not defined in this file) |
+| `$02` | Ladder tile: `NorthLadderTile` / `SouthLadderTile` set `LadderClimbSouth` / `LadderClimbNorth` |
+| `$07` | Wall-shimmy tile (not a ladder): `WestShimmyTile` / `EastShimmyTile` set `ShimmyLeftEntry` / `ShimmyRightEntry` |
+| `$08` | Ledge-jump cell (a gap in a ledge edge; the player steps off and falls): only `SouthLedgeTile` accepts it, setting `LedgeJumpEntry`; the north handler treats it as a wall |
 | `$05` | West-facing slope (used by slope dispatch and ramp movement) |
 | `$06` | Diagonal-edge cell: top-right + bottom-left quadrants ("/" edge). Handled by the wall-slide routines |
 | `$09` | Diagonal-edge cell: top-left + bottom-right quadrants ("\\" edge). Handled by the wall-slide routines |
@@ -42,7 +45,7 @@ $02E396 └─ (inventory_menu continues) ────────────�
 
 **[Runtime-verified]** The low nibble of a collision cell is a mask of the four 8 × 8 quadrants of the 16 × 16 cell (bit 9 of the four tilemap words of the metatile, via `BuildMetatileFlagTable`); `$06` and `$09` are the two diagonal pairs of that mask, not south- or north-facing walls. The words "North" / "South" in handler names such as `SouthWallNorthInteract` are type names, not directions (`$09` under the left foot → `SouthWallNorthInteract`, `$06` under the right foot → `SouthWallSouthInteract`). Census of all 223 map scenes and the full table: [`wram-memory-map.md` §4.10](../../wram-memory-map.md).
 
-**Inferred:** Human-readable names for `$02` (ladder redirect), `$07` (shimmy wall), `$08` (vine) come from player movement FSM code, not from `ReadCollisionNibble` itself.
+**[ASM]** The roles of `$02` (ladder), `$07` (wall shimmy) and `$08` (ledge jump) are not defined by `ReadCollisionNibble`; they come from the redirects in `player_move_ns`, `player_move_south`, `player_move_east` and `player_move_west`, each of which writes a state address into the player actor's entry word. The three are different mechanics: ladders (`$02`, entered from the north or south), wall shimmy (`$07`, entered moving west or east) and the ledge jump (`$08`, entered only walking south; Mesen2 in South Cape `$01` shows the player stepping off a wall edge and falling onto the roof below). `LedgeJumpEntry` is also entered by script (`awB3_ledge_jump_trigger`, `pyD0_breakable_wall`) with no `$08` cell, so it is a state, not only a tile family. Earlier notes called `$07` a ladder and `$08` "stairs" (later "vine"); all were wrong. Scene census: [`wram-memory-map.md` §4.10](../../wram-memory-map.md).
 
 ## Probe Corner Layout
 

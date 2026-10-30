@@ -191,7 +191,7 @@
     { "key": "█", "value": " "}
   ],
   "player_character": [
-    { "key": "#\\$8000, &(Attack(?:North|South|East|West)|WalkAbortToIdle|ClimbDropAttack|RunAttackSpeedCheck)", "value": "#$$0080, &$1" },
+    { "key": "#\\$8000, &(Attack(?:North|South|East|West)|WalkAbortToIdle|LedgeJumpDropAttack|RunAttackSpeedCheck)", "value": "#$$0080, &$1" },
     { "key": "#\\$8F30, &IdleAnimReturn", "value": "#$$0FB0, &IdleAnimReturn" },
     { "key": "LDA #\\$8000([^\\r\\n]*\\s+TSB \\$joypadHeld)", "value": "LDA #$$0080$1" },
     { "key": "BIT #\\$8000", "value": "BIT #$$0080" },
@@ -224,7 +224,7 @@
   "awB0_intro": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
-  "awB3_vine_reveal": [
+  "awB3_ledge_jump_trigger": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
   "awBF_spirit_guide": [

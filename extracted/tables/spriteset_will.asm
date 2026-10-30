@@ -32,7 +32,7 @@
 ; | $42, $43 | attack against a wall west / east | |
 ; | $44-$47 | lunge south / north / west / east (form 0 only) | |
 ; 
-; The other indices have the same uses as in the Freedan table (vine, ladder, shimmy). $14-$17 are staged in the player scripts only by the Psycho Slider (player_character RunAttackNS / RunAttackEW, slider_glide), against spriteset_will_abilities. $1C-$29 are staged by player_transition_handlers, player_character, ramps, sF7_credits_player and sE5_epilogue; the body row active at each site is not traced. $3E-$41: no player script stages them with an immediate operand.
+; The other indices have the same uses as in the Freedan table (ledge jump, ladder, shimmy). $14-$17 are staged in the player scripts only by the Psycho Slider (player_character RunAttackNS / RunAttackEW, slider_glide), against spriteset_will_abilities. $1C-$29 are staged by player_transition_handlers, player_character, ramps, sF7_credits_player and sE5_epilogue; the body row active at each site is not traced. $3E-$41: no player script stages them with an immediate operand.
 
 spriteset_will [
   &will_anim_00_idle_south   ;00
@@ -59,10 +59,10 @@ spriteset_will [
   &will_anim_15   ;15
   &will_anim_16   ;16
   &will_anim_17   ;17
-  &will_anim_18_vine_enter   ;18
-  &will_anim_19_vine_climb_3   ;19
-  &will_anim_1A_vine_climb_1   ;1A
-  &will_anim_1B_vine_climb_2   ;1B
+  &will_anim_18_ledge_jump_enter   ;18
+  &will_anim_19_ledge_jump_fall_3   ;19
+  &will_anim_1A_ledge_jump_fall_1   ;1A
+  &will_anim_1B_ledge_jump_fall_2   ;1B
   &will_anim_1C   ;1C
   &will_anim_1D   ;1D
   &will_anim_1E   ;1E
@@ -269,7 +269,7 @@ will_anim_17 [
   sprite-set < #$0007, &sprite_group_15946E >   ;05
 ]
 
-will_anim_18_vine_enter [
+will_anim_18_ledge_jump_enter [
   sprite-set < #$0005, &sprite_group_1597E1 >   ;00
   sprite-set < #$0009, &sprite_group_1598E0 >   ;01
   sprite-set < #$0001, &sprite_group_15991E >   ;02
@@ -282,17 +282,17 @@ will_anim_18_vine_enter [
   sprite-set < #$0001, &sprite_group_15994E >   ;09
 ]
 
-will_anim_19_vine_climb_3 [
+will_anim_19_ledge_jump_fall_3 [
   sprite-set < #$0001, &sprite_group_159977 >   ;00
   sprite-set < #$0001, &sprite_group_1599A0 >   ;01
 ]
 
-will_anim_1A_vine_climb_1 [
+will_anim_1A_ledge_jump_fall_1 [
   sprite-set < #$0001, &sprite_group_159977 >   ;00
   sprite-set < #$0001, &sprite_group_1599A0 >   ;01
 ]
 
-will_anim_1B_vine_climb_2 [
+will_anim_1B_ledge_jump_fall_2 [
   sprite-set < #$0001, &sprite_group_159977 >   ;00
   sprite-set < #$0001, &sprite_group_1599A0 >   ;01
 ]

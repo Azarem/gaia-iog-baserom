@@ -6,7 +6,7 @@
 ; 
 ; - Idle $00-$07 and $10-$17 are one frame with hold 9 (10 ticks). StagePlayerSprite stages $10-$13 only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleUseShadowSprite) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table. These indices use groups of their own (for example $00 shows sprite_group_148544, $10 shows sprite_group_14857B).
 ; - Walk $08-$0F is 6 frames of hold 7 (Freedan 4 frames).
-; - Climb poses: the vine cycle $19-$1B, the ladder idles $2A-$2B and $2E-$2F and the detach poses $30-$31 and $34-$35 are one-frame lists (Freedan: 4 frames each); the ladder move $2C-$2D and the shimmy $32-$33 are 6 frames (holds 7, 3, 3, 7, 3, 3; Freedan 20 and 5); $18 is 4 frames (holds 9, 6, 4, 9). Other lists: $1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0), $1D-$25 are one frame each, $26-$29 are 4 frames.
+; - Climb and jump poses: the ledge-jump fall cycle $19-$1B, the ladder idles $2A-$2B and $2E-$2F and the detach poses $30-$31 and $34-$35 are one-frame lists (Freedan: 4 frames each); the ladder move $2C-$2D and the shimmy $32-$33 are 6 frames (holds 7, 3, 3, 7, 3, 3; Freedan 20 and 5); $18 is 4 frames (holds 9, 6, 4, 9). Other lists: $1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0), $1D-$25 are one frame each, $26-$29 are 4 frames.
 ; - Melee attack $36-$39 is 7 frames (holds 3, 2, 1, 0, 0, 1, 2 = 16 ticks), the same frame count as Freedan; guard $3A-$3D is 8 frames of hold 0 (Freedan 4); $42-$43 and $48-$49 are 7 frames, $44-$47 and $4A-$4B one frame of hold 0.
 ; - $3E-$41 (7 frames, holds 3, 1, 8, 4, 3, 3, 8) is not staged by the player scripts.
 ; 
@@ -19,7 +19,7 @@
 
 ---------------------------------------------
 
-; 76 word pointers to frame lists, indexed by the actor animation index ($28); the same index space as spriteset_freedan (see its table part note for the staged indices). The Shadow shapes are listed in the block note: idle 1 frame (hold 9), walk 6 frames (hold 7), melee 7 frames, guard 8 frames of hold 0; the vine cycle and the ladder idles are single frames.
+; 76 word pointers to frame lists, indexed by the actor animation index ($28); the same index space as spriteset_freedan (see its table part note for the staged indices). The Shadow shapes are listed in the block note: idle 1 frame (hold 9), walk 6 frames (hold 7), melee 7 frames, guard 8 frames of hold 0; the ledge-jump fall cycle and the ladder idles are single frames.
 
 spriteset_shadow [
   &shadow_anim_00   ;00
@@ -46,10 +46,10 @@ spriteset_shadow [
   &shadow_anim_15   ;15
   &shadow_anim_16   ;16
   &shadow_anim_17   ;17
-  &shadow_anim_18_vine_enter   ;18
-  &shadow_anim_19_vine_climb_3   ;19
-  &shadow_anim_1A_vine_climb_1   ;1A
-  &shadow_anim_1B_vine_climb_2   ;1B
+  &shadow_anim_18_ledge_jump_enter   ;18
+  &shadow_anim_19_ledge_jump_fall_3   ;19
+  &shadow_anim_1A_ledge_jump_fall_1   ;1A
+  &shadow_anim_1B_ledge_jump_fall_2   ;1B
   &shadow_anim_1C   ;1C
   &shadow_anim_1D   ;1D
   &shadow_anim_1E   ;1E
@@ -236,22 +236,22 @@ shadow_anim_17 [
   sprite-set < #$0009, &sprite_group_14874D >
 ]
 
-shadow_anim_18_vine_enter [
+shadow_anim_18_ledge_jump_enter [
   sprite-set < #$0009, &sprite_group_148D96 >   ;00
   sprite-set < #$0006, &sprite_group_148DCD >   ;01
   sprite-set < #$0004, &sprite_group_148DFD >   ;02
   sprite-set < #$0009, &sprite_group_148E2D >   ;03
 ]
 
-shadow_anim_19_vine_climb_3 [
+shadow_anim_19_ledge_jump_fall_3 [
   sprite-set < #$0003, &sprite_group_148E5D >
 ]
 
-shadow_anim_1A_vine_climb_1 [
+shadow_anim_1A_ledge_jump_fall_1 [
   sprite-set < #$0003, &sprite_group_148E5D >
 ]
 
-shadow_anim_1B_vine_climb_2 [
+shadow_anim_1B_ledge_jump_fall_2 [
   sprite-set < #$0003, &sprite_group_148E5D >
 ]
 

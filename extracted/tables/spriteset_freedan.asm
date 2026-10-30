@@ -32,8 +32,8 @@
 ; | $08-$0B | walk south / north / west / east | 4 frames, hold 7 (8 ticks) |
 ; | $0C-$0F | the 'Moving' cycles of the momentum code: MovingToSouth $0C, MovingNorthSouth $0D (north), MovingToWest $0E, MovingEastWest $0F (east) | |
 ; | $10-$13 | idle south / north / west / east; StagePlayerSprite stages them only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleUseShadowSprite) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table | |
-; | $18 | first pose of the vine entry (StagePlayerMoveXY) | |
-; | $19, $1A, $1B | vine climb cycle $1A, $1B, $19, repeating | |
+; | $18 | first pose of the ledge jump (StagePlayerMoveXY) | |
+; | $19, $1A, $1B | ledge-jump fall cycle $1A, $1B, $19, repeating | |
 ; | $2A, $2B | ladder idle north, south ($2E, $2F: Shadow) | |
 ; | $2C, $2D | ladder move up, down | |
 ; | $30, $31 | detach from the shimmy left, right ($34, $35: Shadow) | |
@@ -71,10 +71,10 @@ spriteset_freedan [
   &freedan_anim_15   ;15
   &freedan_anim_16   ;16
   &freedan_anim_17   ;17
-  &freedan_anim_18_vine_enter   ;18
-  &freedan_anim_19_vine_climb_3   ;19
-  &freedan_anim_1A_vine_climb_1   ;1A
-  &freedan_anim_1B_vine_climb_2   ;1B
+  &freedan_anim_18_ledge_jump_enter   ;18
+  &freedan_anim_19_ledge_jump_fall_3   ;19
+  &freedan_anim_1A_ledge_jump_fall_1   ;1A
+  &freedan_anim_1B_ledge_jump_fall_2   ;1B
   &freedan_anim_1C   ;1C
   &freedan_anim_1D   ;1D
   &freedan_anim_1E   ;1E
@@ -269,27 +269,27 @@ freedan_anim_17 [
   sprite-set < #$0007, &sprite_group_0E8C08 >   ;03
 ]
 
-freedan_anim_18_vine_enter [
+freedan_anim_18_ledge_jump_enter [
   sprite-set < #$000B, &sprite_group_0E97FD >   ;00
   sprite-set < #$0009, &sprite_group_0E985E >   ;01
   sprite-set < #$0009, &sprite_group_0E98BF >   ;02
 ]
 
-freedan_anim_19_vine_climb_3 [
+freedan_anim_19_ledge_jump_fall_3 [
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;00
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;01
   sprite-set < #$0000, &sprite_group_0E9D3C >   ;02
   sprite-set < #$0000, &sprite_group_0E9D3C >   ;03
 ]
 
-freedan_anim_1A_vine_climb_1 [
+freedan_anim_1A_ledge_jump_fall_1 [
   sprite-set < #$0000, &sprite_group_0E9C58 >   ;00
   sprite-set < #$0000, &sprite_group_0E9C58 >   ;01
   sprite-set < #$0000, &sprite_group_0E9CA4 >   ;02
   sprite-set < #$0000, &sprite_group_0E9CA4 >   ;03
 ]
 
-freedan_anim_1B_vine_climb_2 [
+freedan_anim_1B_ledge_jump_fall_2 [
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;00
   sprite-set < #$0000, &sprite_group_0E9CF0 >   ;01
   sprite-set < #$0000, &sprite_group_0E9D3C >   ;02
