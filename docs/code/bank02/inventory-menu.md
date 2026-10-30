@@ -2,999 +2,343 @@
 
 *Part of the [Bank $02 Documentation Suite](README.md)*
 
-> Actor-based 4-tab inventory UI with 16-slot grid navigation
+> The `InventoryMenuDef` actor and its child actors: a four-tab menu (tab index `inventoryTabIndex` 0–3) over a 16-slot item grid, run inside the overlay loop described in [inventory-overlay.md](inventory-overlay.md).
 
-**Source:** [`inventory_menu.asm`](../../../extracted/system/inventory/inventory_menu.asm)
+**Source:** [`inventory_menu.asm`](../../../extracted/system/inventory/inventory_menu.asm) (ROM `$02E396`–`$02ED02`, decimal 189334–191746; the next block, `inventory_overlay`, starts at `$02ED02`)
+
+**Evidence labels.** Each major section is tagged with the kind of claim it makes: **[ASM]** = directly observed in the extracted asm of this block; **[INFERRED]** = interpretation of behavior that is not literally encoded in the file; **[XREF]** = cross-file / engine-wide convention stated elsewhere (not provable from this file alone). Sections that mix kinds split them into separately tagged bullets or paragraphs. The `.asm` files in `extracted/` are authoritative; where prose and asm comments disagree, the asm wins.
+
+> **This baserom's input values.** The extracted asm already contains the values after `db-us/transforms.json` rewrote the `inventory_menu` block (`#$4040`→`#$4000`, `#$6040, &TabCancel`→`#$6000`, `#$C040`→`#$C000`, `#$8000, &ArrangePerformSwap`→`#$8044`, `LDA #$2040`→`LDA #$2060`). Masks written below are the literal values in the asm. The vanilla ROM tests different masks and uses tile `$2040` for the blank cursor cell.
 
 ---
 
 ## Overview
 
-This document covers four ASM compilation units in bank `$02` that implement Illusion of Gaia's **inventory UI pipeline**:
+*Evidence: [ASM]*
 
-1. **`inventory_menu.asm`** — COP-scripted actor scene with four tabs (Use, Arrange, Discard, Status), 16 item slots, equipment cursor, and character status rows.
-
-These routines follow player movement/collision code ([tile-collision.md](tile-collision.md) — `tile_collision.asm` ends at `$02E396`) and depend on the scene script engine ([scene-script.md](scene-script.md)), VBlank/joypad layer ([hardware-and-init.md](hardware-and-init.md)), and world-state glue ([game-systems.md](game-systems.md)).
-
-### Block Layout
-
-```
-$02E396 ┌─ InventoryMenuDef ──────────────────────────┐
-        │  InventoryMenuInit / InventoryMainLoop       │
-        │  TabHoverDispatch / TabActionDispatch        │
-        │  UseItemTab … StatusViewTab                  │  inventory_menu
-        │  TabHover* / Slot & Cursor actors            │
-        │  Grid navigation / Yes-No / Tab selection    │
-$02ED02 ├─ OpenInventoryScreen ───────────────────────┤
-        │  SaveGameState / RestoreGameState            │  inventory_overlay
-        │  ReloadAbilityFX / ResetThinkerWaitCounters           │
-$02F048 ├─ ShowDialogueFrame ─────────────────────────┤  dialogue_display
-$02F06A └─ ClearBg3TilemapBuffer_PreserveHud / Full ─────────────┘  vram_buffer_clear
-```
-
-### Shared WRAM Variables
-
-| Address | Name / Role | Used by |
-|---------|-------------|---------|
-| `$0AB4`–`$0AC3` | `inventory_slots` — 16 byte slots, one item ID per byte | All inventory tabs |
-| `$0AC4` | `inventory_equipped_index` — equipped slot (`$FFFF` = none) | Use tab, equip cursor |
-| `$0AC6` | `inventory_equipped_type` — equipped item ID | Use confirm, equipped display |
-| `$0AD4` | Character form index (0=normal, 1=Dark Friar, 2=Aura) | Status tab, ability flags |
-| `$0AE6` | BG1 scroll/config mode; overlay exit poll flag | Overlay, tab handlers |
-| `$0AE8` | Item/ability index for BG3 description strings | Use, discard, status |
-| `$0AFA` | Tab index (0–3); slot spawn counter during init | Tab selection |
-| `$0644` | `scene_current` — set to `$FF` during overlay | OpenInventoryScreen |
-| `$0656` / `$0658` | Joypad held / newly-pressed bits | All input handlers |
-| `$065A` | `joypad_mask_std` — input suppression mask | Overlay, dialogue |
-| `$065C` | `joypad_mask_inv` — inventory mask (`$0F00`) | Overlay |
-| `$7F:0200`–`$7F:0800` | VRAM tilemap write buffer (2048 bytes) | Cursors, overlay |
-| `$7F:0010,X` / `$12` / `$18` / `$1A` | Cached child actor IDs on menu controller | Slot/equip/status actors |
-| `$7E:3490`–`$7E:38B4` | Overlay save-area scratch | SaveGameState / RestoreGameState |
+- The file holds one actor definition (`InventoryMenuDef`, header `actor-def < #00, #00, #28 >`) with `InventoryMenuInit` and `InventoryMainLoop` inline, jump tables for the per-tab handlers, the tab and cursor routines, the child actors, and helpers.
+- `InventoryMenuInit` spawns **16** `InventorySlotActor`s, one `EquipCursorActor`, one `EquippedItemDisplay` and **3** status-row actors (`StatusAbilityRow0/1/2`). It stores their actor addresses in four long-address scratch fields of the menu actor (see *Child actors and list heads*).
+- The four tabs, indexed by `inventoryTabIndex` (`$0AFA`): **0** `UseItemTab`, **1** `ArrangeItemsTab`, **2** `DiscardItemTab`, **3** `StatusViewTab`. Each has a hover preview (`TabHover*`, run when the cursor lands on the tab) and an action handler (`*Tab`, run when the confirm bit is pressed on the tab).
+- **[ASM]** The Use tab's title string is described by the asm comment as "Gather Items". The asm gives no other tab-title text, so the Arrange / Discard / Status names above are the routine names, not on-screen strings.
+- **[ASM]** The menu closes when `TabCancel` executes `COP [SetFlagByte] ( #00 )`; the loop in `OpenInventoryScreen` polls that flag byte ([inventory-overlay.md](inventory-overlay.md) §Run loop). Nothing in this file jumps out of the menu.
+- **[ASM]** The mystic-statue pedestals are **not** spawned by this file. The block note says six `inventory_statue_slot` actors are spawned by `SpawnSceneActors` from the scene `$FF` actor list; they test event flags `$F8`–`$FD` and hide themselves while `inventoryTabIndex == 3`. **[XREF]** `inventory_statue_slot.asm` confirms the `inventoryTabIndex` read and the `$2000` hide; flag-setting is in the `statue_inventory_reward` block (bank `$00`).
 
 ---
 
-## Memory Map
+## Buttons and frame model
 
-| Address | Name | Description |
-|---------|------|-------------|
-| `$02E396` | InventoryMenuDef | Actor definition header for the inventory menu controller. Type `$00`, priority `$00`, flags `$28`. The `{ … }` block... |
-| `$02E399` | InventoryMenuInit | One-time menu bootstrap. Assigns spritemap, draws BG3 backdrop text, spawns 16 linked `InventorySlotActor` instances ... |
-| `$02E40C` | InventoryMainLoop | Tab-bar main loop running each actor frame. Refreshes BG3 header/footer, polls tab input, dispatches hover previews o... |
-| `$02E43D` | TabHoverDispatch | Four word pointers for tab hover preview handlers, indexed by `$0AFA`. |
-| `$02E445` | TabConfirmDispatch | Called when the player presses A on a tab in the tab bar. Plays the tab-enter sound effect, then hands off to the confirmed tab handler — opening the Use grid for equipping, the Arrange swap flow, the Discard confirmation flow, or the Status ability viewer depending on which of the four tabs was highlighted. |
-| `$02E456` | TabActionDispatch | Four word pointers for confirmed tab action handlers. |
-| `$02E45E` | UseItemTab | Equip-item tab. Configures BG scroll mode, draws USE header, shows equip cursor on the 4×4 grid, displays item descri... |
-| `$02E4B8` | UseItemCursorUp | Equip cursor up: subtract 4 with `$0F` wrap (one grid row). |
-| `$02E4CE` | UseItemCursorDown | Equip cursor down: add 4 with wrap. |
-| `$02E4E4` | UseItemCursorLeft | Equip cursor left: decrement with wrap. |
-| `$02E4F7` | UseItemCursorRight | Equip cursor right: increment with wrap. |
-| `$02E50B` | UseItemConfirm | Writes selected slot to `inventory_equipped_index` and item type to `inventory_equipped_type`. Empty slot clears equi... |
-| `$02E536` | ArrangeItemsTab | Swap setup phase. Hides equip cursor, spawns selection cursor, draws ARRANGE header, positions cursor on grid slot `$... |
-| `$02E583` | ArrangePickTarget | Swap target phase. Saves source slot/cursor, spawns second cursor, draws SWAP prompt, navigates target index `$22` vs... |
-| `$02E5DA` | ArrangePerformSwap | Executes slot swap. No-op if source == target. Swaps low bytes of two `inventory_slots` entries, refreshes both slot ... |
-| `$02E64A` | ArrangeCancelTarget | `COP [KillNext]` — removes only the target selection cursor. |
-| `$02E64C` | ArrangeCancelTab | Kills active cursor, sets input mask, returns to tab bar. |
-| `$02E657` | DiscardItemTab | Discard flow with Yes/No confirmation. Hides equip cursor, spawns selection cursor, validates non-empty discardable i... |
-| `$02E70B` | DiscardCancelTab | Cancel discard tab: restore equip cursor visibility and return to main loop. |
-| `$02E719` | StatusViewTab | Character ability status viewer. Sets BG mode 0, draws status header, spawns cursor, shows ability description for un... |
-| `$02E768` | StatusCursorUp | Decrement ability row; wrap 0 → 2. |
-| `$02E77D` | StatusCursorDown | Increment ability row; wrap 3 → 0. |
-| `$02E795` | StatusConfirmExit | Exit status tab back to tab bar. |
-| `$02E7A3` | StatusPositionCursor | Called when the player moves the cursor between ability rows on the Status tab. Reads the selected row index from `$22`, looks up the Y pixel position in the `StatusCursorPositions` table (fixed X = `$98`, Y = `$48`/`$60`/`$78`), and repositions the blinking selection cursor sprite. This creates the visible cursor movement between the three character-form ability tiers (Will, Freedan, Shadow). |
-| `$02E7BB` | StatusCursorPositions | Three XY coordinate pairs for status ability rows at X=`$98`, Y=`$48`/`$60`/`$78`. |
-| `$02E7C7` | TabHoverUse | Hover preview for the Use tab while the player moves Up/Down through the four tab labels. Keeps the 4×4 item grid visible, shows the equip cursor on the currently equipped slot, hides the status-panel portraits, and redraws BG3 with the Use-tab header plus item-description area. Switches BG1 to the items background so the player sees what the equip screen will look like before pressing A. |
-| `$02E7E6` | TabHoverArrange | Hover preview for the Arrange tab. Keeps the 4×4 item grid and equip cursor visible while redrawing BG3 with the Arrange header and swap instructions. Gives the player a read-only glimpse of the grid-reorder screen before they commit to picking source and target slots. |
-| `$02E7F7` | TabHoverDiscard | Hover preview for the Discard tab. Matches the Use tab layout — 4×4 grid with equip cursor, status portraits hidden — but redraws BG3 with Discard-specific header text and warning copy. Lets the player preview the discard screen's look and BG1 items background before entering the Yes/No confirmation flow. |
-| `$02E816` | TabHoverStatus | Hover preview for the Status tab. Hides the 4×4 grid icons and equip cursor, switches BG1 to the status background, and shows the equipped-item icon plus the three character-form ability portrait rows. For each unlocked ability, unhides the row actor and draws its name on BG3 — giving a static summary of Will/Freedan/Shadow abilities before the player enters the interactive row cursor. |
-| `$02E8C7` | InventorySlotActor | Item slot sprite actor. Increments spawn counter, computes grid position, shows/hides based on item type in `$28`. |
-| `$02E8E7` | EquipCursorActor | Equipped-item highlight cursor. Hidden if no item equipped (`inventory_equipped_index` negative); otherwise falls thr... |
-| `$02E8F1` | SelectionCursorActor | The blinking arrow sprite (metasprite #40) that marks the player's current selection on the Arrange, Discard, and Status tabs. Animates every frame until a parent script sets `$2A` to force a refresh — for example after the cursor moves to a new grid slot or ability row. Visually distinct from the equip cursor, which only highlights the worn item on the Use tab. |
-| `$02E8FF` | EquippedItemDisplay | Static sprite actor pinned at screen position ($28, $78) on the left side of the Status tab layout. Displays the icon for `inventory_equipped_type` — the item currently worn by the player — so the status screen shows both ability tiers and what is equipped. Hidden whenever Use/Arrange/Discard tabs are hovered or active, since those views use the grid equip cursor instead. |
-| `$02E915` | StatusAbilityRow0 | Top ability row (index 0, Y `$48`). Icon sprite = `$0AD4 × 3 + $44`. |
-| `$02E934` | StatusAbilityRow1 | Middle ability row (index 1, Y `$60`). Icon sprite = `$0AD4 × 3 + $45`. |
-| `$02E953` | StatusAbilityRow2 | Bottom ability row (index 2, Y `$78`). Icon sprite = `$0AD4 × 3 + $46`. |
-| `$02E972` | ComputeAbilityIndex | Computes BG3 ability description string index: `$0AE8 = ($0AD4 × 4) + row_arg + 1`. |
-| `$02E981` | GridCursorUp | Shared grid up for Arrange/Discard: `$22 = ($22 − 4) & $0F`. |
-| `$02E996` | GridCursorDown | Shared grid down: add 4 with wrap. |
-| `$02E9AB` | GridCursorLeft | Shared grid left: decrement with wrap. |
-| `$02E9BD` | GridCursorRight | Shared grid right: increment with wrap. |
-| `$02E9CF` | SetSlotSprite | Writes item sprite type to actor `$0028,Y` and clears animation state. |
-| `$02E9DC` | TestAbilityFlag | Tests whether an ability tier is unlocked. Flag index = `$0AD4 × 4 + row`. Calls `TestFlag_0510` in bank `$05`; carry... |
-| `$02E9ED` | UpdateSlotActorSprite | Refreshes a slot actor's sprite after inventory mutation. Walks linked list from `$7F0010,X` to slot index in A, rese... |
-| `$02EA13` | CheckItemDiscardable | Tests item ID in A against `non_discardable_item_bits`. Carry **set** = protected (not discardable). |
-| `$02EA35` | BitMaskTable | Eight single-bit masks `$01`–`$80` for discardable-item lookup. |
-| `$02EA3D` | PositionGridCursor | Computes XY for grid selection cursor. Uses `$22` (or `$2E` for second cursor in arrange) and `GridColumnPositions`. |
-| `$02EA73` | PositionEquipCursor | Positions equip cursor on grid using `$1A`. If index negative, hides cursor instead. |
-| `$02EAB0` | GridColumnPositions | Four column base coordinates for 4×4 grid cursors at Y=`$30`, X=`$5C`/`$74`/`$8C`/`A4`. |
-| `$02EAC0` | HideStatusActors | Removes the status-panel sprites from view when the player hovers or enters Use, Arrange, or Discard tabs. Walks the equipped-item display actor and the three linked ability-row actors, setting the hidden flag on each so only the 4×4 grid and equip cursor remain visible. Called to prevent the status portraits from overlapping the item-management layout. |
-| `$02EAF7` | ShowEquipCursor | Makes the equip cursor visible on the 4×4 grid when an item is currently worn. If `inventory_equipped_index` is `$FFFF` (nothing equipped), delegates to `HideEquipCursor` instead. Called when entering Use tab or hovering tabs that show the grid, so the player always sees which slot holds the equipped item. |
-| `$02EB0B` | HideEquipCursor | Hides equip cursor actor via flag bit `$2000`. |
-| `$02EB1A` | ShowAllItemSlots | Switches to grid mode: shows all 16 slot icons by clearing `$2000` on each slot actor. Guarded — only runs when menu flag `$1000` is clear (slots currently hidden). |
-| `$02EB45` | HideAllItemSlots | Switches to list mode: hides all 16 slot icon sprites by setting `$2000` on each slot actor. Guarded — only runs when `$1000` is set (slots currently shown). |
-| `$02EB70` | ComputeSlotPosition | Places each of the 16 item slot icons on the 4×4 grid during menu init. Uses the spawn counter in `$0AFA` (decremented to 0-based) to index `SlotPositionTable`, which stores precomputed X/Y pairs for columns `$5C`/`$74`/`$8C`/`A4` and rows Y = `$31`/`$41`/`$51`/`$61`. Writes the result to the spawning slot actor so icons appear in the correct grid cell. |
-| `$02EB86` | SlotPositionTable | 16 XY pairs for item slot positions on 4×4 grid. Columns `$5C/$74/$8C/$A4`, rows Y=`$31/$41/$51/$61`. |
-| `$02EBC6` | YesNoPromptLoop | Yes/No dialog input loop with blinking cursor. Returns carry set on confirm. |
-| `$02EBF2` | YesNoSelectUp | Toggle Yes/No selection up (toward Yes). |
-| `$02EC0A` | YesNoSelectDown | Toggle Yes/No selection down (toward No). |
-| `$02EC22` | YesNoConfirm | Confirms Yes/No choice. Returns carry set. |
-| `$02EC2D` | YesNoDrawCursor | Renders the blinking highlight arrow on the Discard tab's Yes/No confirmation prompt. Clears any previous highlight, then writes tile `$202B` to the BG3 tilemap buffer at the offset for the current selection (`$28` = 0 for Yes, 1 for No). The tile is uploaded on the next VRAM flush, so the player sees which answer is highlighted before confirming discard. |
-| `$02EC46` | YesNoClearCursor | Clears Yes/No cursor tiles and sets VRAM flush flag. |
-| `$02EC58` | TabSelectionLoop | Main tab bar input loop with blinking cursor. Confirm enters tab; Cancel closes inventory. |
-| `$02EC8A` | TabSelectUp | Previous tab (wrap 0 → 3). |
-| `$02ECA4` | TabSelectDown | Next tab (wrap 3 → 0). |
-| `$02ECBE` | TabCancel | `COP [SetFlagByte] (#00)` — signals overlay exit loop. Returns carry clear. |
-| `$02ECC3` | TabConfirm | Confirms tab selection. Returns carry set to InventoryMainLoop. |
-| `$02ECCE` | TabDrawCursor | Renders the blinking arrow beneath the currently selected tab label (Use, Arrange, Discard, or Status). Clears all four tab cursor slots first, then writes tile `$202B` to the BG3 buffer at the column offset for `$0AFA`. Called every 16 frames during tab-bar navigation and immediately after Up/Down tab changes, giving the player a visible indicator of which tab will open on A. |
-| `$02ECE8` | TabClearCursor | Erases the tab highlight arrow during the blink-off phase of tab-bar navigation. Writes blank tile `$2040` to all four tab cursor positions in the BG3 tilemap buffer and sets the VRAM flush flag so the highlight disappears for half the blink cycle. Paired with `TabDrawCursor` to produce the 16-frame on/off blink on the tab bar. |
+*Evidence: [ASM] (asm comments) + [XREF] (`transforms.json`, `cop_handlers_input.asm`)*
+
+| Mask in asm | Used for | Where |
+|---|---|---|
+| `$8000` | confirm bit | tab bar (`TabSelectionLoop`), Arrange source pick, Discard attempt, Yes/No prompt |
+| `$4000` | cancel bit | Arrange / Discard grid loops (leave the tab), Arrange target loop |
+| `$C000` | confirm **or** cancel | `UseItemTab` (no separate cancel), `StatusViewTab` (A or B leaves) |
+| `$6000` | cancel **or** Select | `TabSelectionLoop` → `TabCancel` |
+| `$8044` | confirm bit plus the X (`$0004`) and Y (`$0040`) bits of the default remap | `ArrangePickTarget` target loop → `ArrangePerformSwap` (the vanilla ROM tests only `$8000` here) |
+| `$0800` / `$0400` / `$0200` / `$0100` | Up / Down / Left / Right | all navigation |
+
+- **[ASM]** `BranchIfPressed` tests `joypadCurrent` (`$0656`): the logical, remapped bits, with consumed bits hidden. The baserom remap defaults give physical A the value `$8080`, B `$4008`, X `$0004`, Y `$0040`, Select `$2000` (asm comment citing `db-us/transforms.json`). So A confirms, B cancels, and X / Y are software-only bits that the menu ignores except for the `$8044` swap mask. The diary menu can rebind the buttons.
+- **[ASM]** `TSB joypadHeld` (`$0658`) consumes the given bits until the physical button is released. The code consumes exactly the bit it matched, so consuming `$8000` leaves the `$0080` half of A's value visible (never tested here).
+- **[ASM]** D-pad consumption is wider than the direction: Up consumes `$0B00` (Up, Left, Right) and Down consumes `$0700` (Down, Left, Right), so one diagonal press moves one step. Left (`$0200`) and Right (`$0100`) consume only themselves. In the tab bar, Yes/No prompt and Status tab the code consumes only the direction it matched (`$0800` / `$0400`).
+- **[XREF]** Held-direction repeat comes from the engine, not from this file: `OpenInventoryScreen` sets `joypadMaskInv` (`$065C`) to `$0F00`, and `vblank_joypad.asm` documents that consumed D-pad bits in that mask repeat in `joypadCurrent` on the 12th call after consumption and every 12 calls while the code keeps consuming them.
+- **[ASM]** Frame model: every handler is a COP script that yields with `SetEntryHereAndYield` or `SetEntryHere` + `RTL` and resumes at the saved entry point next frame. An `RTL` is therefore the idle path of a frame, not an exit.
+- **[ASM]** `BranchIfPressed` jumps to its target rather than calling it. The `PEA &Loop-1` / `PLA` pattern in the Arrange and Discard loops uses that: the D-pad targets (`GridCursor*`) end in `RTS`, which pops the pushed address and resumes at the loop head; if no button matched, `PLA` discards the pushed address and `RTL` ends the frame.
+- **[XREF]** On open, `GlobalInputHandler` consumes Select (`$2000`) in `joypadHeld` before `OpenInventoryScreen`, and `SaveGameState` does not clear `joypadHeld`. **[INFERRED]** So the Select press that opened the inventory does not immediately reach `TabCancel`'s `$6000` test; Select must be released and pressed again.
 
 ---
 
-#### 20A — Init & Main Loop
-
-### InventoryMenuInit
-
-One-time menu bootstrap. Assigns spritemap, draws BG3 backdrop text, spawns 16 linked `InventorySlotActor` instances with item IDs from WRAM, then spawns equip cursor, equipped-item icon, and three status-row actors before entering the tab main loop.
-
-**Algorithm:**
-1. `COP [SetMetasprite]` inventory spritemap
-2. Zero `$0AFA`, loop counter `$24 = $000F`
-3. Spawn each `InventorySlotActor`; copy `inventory_slots[Y]` low byte → child `$0028`
-4. Cache list head at `$7F0010,X`
-5. Spawn equip cursor → `$7F0012,X`; position via `PositionEquipCursor`
-6. Spawn equipped display + StatusAbilityRow2 → Row1 → Row0 (linked list head = top row)
-7. Set menu flag `$1000`, zero tab index
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AFA` | RW | Tab index / spawn counter |
-| `$24` | RW | Spawn loop counter |
-| `$1A` | W | Equip slot index |
-| `$inventory_slots` | R | 16 byte slots (item IDs) |
-| `$7F0010,X` | W | Slot list head |
-| `$7F0012,X` | W | Equip cursor ID |
-| `$7F0018,X` | W | Equipped display ID |
-| `$7F001A,X` | W | Status row chain head |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `InventorySlotActor` | Spawned ×16 |
-| `PositionEquipCursor` | JSR |
-| `InventoryMainLoop` | Entry point |
-
-### InventoryMainLoop
-
-Tab-bar main loop running each actor frame. Refreshes BG3 header/footer, polls tab input, dispatches hover previews on tab change, and branches to tab confirm on A-button press.
-
-**Algorithm:**
-1. Run BG3 header + footer scripts
-2. Init `$18 = $FFFF`, `$1C = 0`
-3. Set joypad `$8000` on `$0658`
-4. JSR `TabSelectionLoop` — BCS → confirm
-5. Compare `$0AFA` vs `$18`; if equal RTL
-6. Update `$18`, `SwitchCase` → `TabHoverDispatch`, loop
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AFA` | R | Current tab 0–3 |
-| `$18` | RW | Last hovered tab |
-| `$0658` | W | Joypad pressed mask |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TabSelectionLoop` | Input |
-| `TabConfirmDispatch` | On carry |
-| `TabHoverDispatch` | Preview table |
-
-### TabConfirmDispatch
-
-Called when the player presses A on a tab in the tab bar. Plays the tab-enter sound effect, then hands off to the confirmed tab handler — opening the Use grid for equipping, the Arrange swap flow, the Discard confirmation flow, or the Status ability viewer depending on which of the four tabs was highlighted.
-
-**Algorithm:**
-1. Sound `#0D`
-2. Copy `$0AFA` → `$18`, `$0000`
-3. `SwitchCase` → `TabActionDispatch`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AFA` | R | Tab index |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TabActionDispatch` | Action table |
-| `TabSelectionLoop` | Caller on carry |
-
-#### 20B — Use Item Tab
-
-### UseItemTab
-
-Equip-item tab. Configures BG scroll mode, draws USE header, shows equip cursor on the 4×4 grid, displays item description for highlighted slot, and polls directional + confirm input.
-
-**Algorithm:**
-1. `$0AE6 = 4`
-2. BG3 USE header scripts
-3. Show equip cursor; clamp `$1A` ≥ 0
-4. Position cursor, item ID → `$0AE8`, description script
-5. BranchIfButton: directions → cursor handlers, A → confirm
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AE6` | W | BG1 scroll mode |
-| `$1A` | RW | Slot index |
-| `$0AE8` | W | String index |
-| `$inventory_slots` | R | Items |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `UseItemConfirm` | A button |
-| `PositionEquipCursor` | JSR |
-| `ShowEquipCursor` | JSR |
-
-### UseItemConfirm
-
-Writes selected slot to `inventory_equipped_index` and item type to `inventory_equipped_type`. Empty slot clears equip state (`$FFFF` index).
-
-**Algorithm:**
-1. Mask `$C040`, sound `#11`
-2. Store index from `$1A`
-3. Non-zero item → store type; zero → clear index/type
-4. JMP InventoryMainLoop
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$1A` | R | Slot |
-| `$inventory_equipped_index` | W | Equipped slot |
-| `$inventory_equipped_type` | W | Item ID |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `InventoryMainLoop` | Return |
-
-#### 20C — Arrange Items Tab
-
-### ArrangeItemsTab
-
-Swap setup phase. Hides equip cursor, spawns selection cursor, draws ARRANGE header, positions cursor on grid slot `$22`, waits for pick or cancel.
-
-**Algorithm:**
-1. Hide equip cursor
-2. Spawn SelectionCursorActor → `$20`
-3. Zero `$22`
-4. Draw ARRANGE BG3 scripts
-5. PositionGridCursor; poll Cancel/Pick/directions via PEA return stack
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$20` | W | Cursor actor ID |
-| `$22` | RW | Slot index |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `ArrangePickTarget` | On confirm |
-| `GridCursor*` | Navigation |
-| `HideEquipCursor` | JSR |
-
-### ArrangePickTarget
-
-Swap target phase. Saves source slot/cursor, spawns second cursor, draws SWAP prompt, navigates target index `$22` vs saved `$2E`.
-
-**Algorithm:**
-1. Sound `#11`, mask `$8000`
-2. Save `$20→$2C`, `$22→$2E`
-3. Spawn second cursor → `$20`
-4. Draw SWAP scripts
-5. Confirm → PerformSwap; Cancel → CancelTarget
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$20` | RW | Active cursor ID |
-| `$2C` | W | Source cursor ID |
-| `$2E` | W | Source slot |
-| `$22` | RW | Target slot |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `ArrangePerformSwap` | Confirm |
-| `ArrangeCancelTarget` | Cancel |
-
-### ArrangePerformSwap
-
-Executes slot swap. No-op if source == target. Swaps low bytes of two `inventory_slots` entries, refreshes both slot actor sprites, fixes equip index if needed, kills source cursor.
-
-**Algorithm:**
-1. Skip if `$22 == $2E`
-2. SEP #$20; XBA swap low bytes of both slots
-3. UpdateSlotActorSprite for both slots
-4. Fix inventory_equipped_index if swapped slot was equipped
-5. MarkDeath on source cursor `$2C`
-6. JMP arrange setup
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` | R | Target slot |
-| `$2E` | R | Source slot |
-| `$inventory_slots` | RW | Item data |
-| `$inventory_equipped_index` | RW | Equip slot |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `UpdateSlotActorSprite` | JSR ×2 |
-| `ArrangeItemsTab` | Return to setup |
-
-#### 20D — Discard Item Tab
-
-### DiscardItemTab
-
-Discard flow with Yes/No confirmation. Hides equip cursor, spawns selection cursor, validates non-empty discardable items via `CheckItemDiscardable`, clears slot on Yes.
-
-**Algorithm:**
-1. Set `$0AE6=4`, hide equip cursor
-2. Spawn cursor, draw DISCARD header
-3. Grid navigation loop
-4. On confirm (inline `DiscardAttempt`): validate item, YesNo prompt
-5. Yes: zero slot, update sprite, clear equip if needed, sound `#13`
-6. No/invalid: sound `#12`, redraw
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` | RW | Slot index |
-| `$0AE8` | W | Item string index |
-| `$28` | RW | Yes/No selection |
-| `$inventory_slots` | RW | Items |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `CheckItemDiscardable` | JSR |
-| `YesNoPromptLoop` | JSR |
-| `DiscardCancelTab` | Cancel |
-
-#### 20E — Status View Tab
-
-### StatusViewTab
-
-Character ability status viewer. Sets BG mode 0, draws status header, spawns cursor, shows ability description for unlocked rows.
-
-**Algorithm:**
-1. `$0AE6 = 0`
-2. Draw status BG3 scripts
-3. Spawn cursor, zero row `$22`
-4. Position cursor, test ability flag
-5. If unlocked: ComputeAbilityIndex + description script
-6. Up/Down rows; A → exit
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` | RW | Ability row 0–2 |
-| `$0AD4` | R | Character form |
-| `$0AE8` | W | String index |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TestAbilityFlag` | JSR |
-| `StatusConfirmExit` | A button |
-
-### StatusPositionCursor
-
-Called when the player moves the cursor between ability rows on the Status tab. Reads the selected row index from `$22`, looks up the Y pixel position in the `StatusCursorPositions` table (fixed X = `$98`, Y = `$48`/`$60`/`$78`), and repositions the blinking selection cursor sprite. This creates the visible cursor movement between the three character-form ability tiers (Will, Freedan, Shadow).
-
-**Algorithm:**
-1. `$22 × 4` → index into table
-2. Write X/Y to cursor actor `$0014`/`$0016`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` | R | Row index |
-| `$20` | R | Cursor actor ID |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `StatusCursorPositions` | Lookup table |
-
-#### 20F — Tab Hover Display
-
-### TabHoverUse
-
-Hover preview for the Use tab while the player moves Up/Down through the four tab labels. Keeps the 4×4 item grid visible, shows the equip cursor on the currently equipped slot, hides the status-panel portraits, and redraws BG3 with the Use-tab header plus item-description area. Switches BG1 to the items background so the player sees what the equip screen will look like before pressing A.
-
-**Algorithm:**
-1. HideAllItemSlots
-2. ShowEquipCursor
-3. HideStatusActors
-4. BG3 list + description scripts
-5. `$0AE6 = 4`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AE6` | W | BG scroll mode |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `HideAllItemSlots` | JSR |
-| `TabHoverDispatch` | Entry 0 |
-
-### TabHoverArrange
-
-Hover preview for the Arrange tab. Keeps the 4×4 item grid and equip cursor visible while redrawing BG3 with the Arrange header and swap instructions. Gives the player a read-only glimpse of the grid-reorder screen before they commit to picking source and target slots.
-
-**Algorithm:**
-1. HideAllItemSlots
-2. ShowEquipCursor
-3. BG3 ARRANGE preview scripts
-4. RTL
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AE6` | W | BG scroll mode |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `HideAllItemSlots` | JSR |
-| `TabHoverDispatch` | Entry 1 |
-
-### TabHoverDiscard
-
-Hover preview for the Discard tab. Matches the Use tab layout — 4×4 grid with equip cursor, status portraits hidden — but redraws BG3 with Discard-specific header text and warning copy. Lets the player preview the discard screen's look and BG1 items background before entering the Yes/No confirmation flow.
-
-**Algorithm:**
-1. HideAllItemSlots
-2. ShowEquipCursor
-3. HideStatusActors
-4. BG3 scripts
-5. `$0AE6 = 4`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AE6` | W | BG mode |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TabHoverDispatch` | Entry 2 |
-
-### TabHoverStatus
-
-Hover preview for the Status tab. Hides the 4×4 grid icons and equip cursor, switches BG1 to the status background, and shows the equipped-item icon plus the three character-form ability portrait rows. For each unlocked ability, unhides the row actor and draws its name on BG3 — giving a static summary of Will/Freedan/Shadow abilities before the player enters the interactive row cursor.
-
-**Algorithm:**
-1. ShowAllItemSlots
-2. HideEquipCursor
-3. Draw status header scripts
-4. Show equipped item on EquippedItemDisplay
-5. For rows 0–2: TestAbilityFlag → show row + BG3 description
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AD4` | R | Character form |
-| `$7F0018,X` | R | Equipped display ID |
-| `$7F001A,X` | R | Status row chain |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TestAbilityFlag` | JSR ×3 |
-| `ComputeAbilityIndex` | JSR |
-| `TabHoverDispatch` | Entry 3 |
-
-#### 20G — Slot Actors & Cursors
-
-### InventorySlotActor
-
-Item slot sprite actor. Increments spawn counter, computes grid position, shows/hides based on item type in `$28`.
-
-**Algorithm:**
-1. INC `$0AFA`
-2. ComputeSlotPosition
-3. If `$28` non-zero: clear hide flag, animate
-4. If zero: set hide flag `$2000`, RTL
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AFA` | RW | Spawn counter |
-| `$28` | R | Item type/sprite |
-| `$10` | RW | Actor flags |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `ComputeSlotPosition` | JSR |
-| `UpdateSlotActorSprite` | Resets to SlotActorEvaluate |
-
-### EquipCursorActor
-
-Equipped-item highlight cursor. Hidden if no item equipped (`inventory_equipped_index` negative); otherwise falls through to the shared selection-cursor animation loop.
-
-**Algorithm:**
-1. If `inventory_equipped_index` negative → set hide flag `$2000`
-2. Else continue into `SelectionCursorActor`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$inventory_equipped_index` | R | Equipped slot |
-| `$10` | W | Actor flags |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `SelectionCursorActor` | Shared tail |
-| `InventoryMenuInit` | Spawner |
-
-### SelectionCursorActor
-
-The blinking arrow sprite (metasprite #40) that marks the player's current selection on the Arrange, Discard, and Status tabs. Animates every frame until a parent script sets `$2A` to force a refresh — for example after the cursor moves to a new grid slot or ability row. Visually distinct from the equip cursor, which only highlights the worn item on the Use tab.
-
-**Algorithm:**
-1. Stage sprite `#40`, set entry/exit
-2. Animate each frame until `$2A` non-zero
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$2A` | R | Animation trigger |
-| `$10` | RW | Actor flags |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `ArrangeItemsTab` | Spawner |
-| `DiscardItemTab` | Spawner |
-| `StatusViewTab` | Spawner |
-
-### EquippedItemDisplay
-
-Static sprite actor pinned at screen position ($28, $78) on the left side of the Status tab layout. Displays the icon for `inventory_equipped_type` — the item currently worn by the player — so the status screen shows both ability tiers and what is equipped. Hidden whenever Use/Arrange/Discard tabs are hovered or active, since those views use the grid equip cursor instead.
-
-**Algorithm:**
-1. Position ($28, $78)
-2. Load `inventory_equipped_type` → `$28`
-3. Single-frame animation
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$inventory_equipped_type` | R | Item ID |
-| `$28` | W | Sprite type |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `InventoryMenuInit` | Spawner |
-| `TabHoverStatus` | Shows on hover |
-
-### StatusAbilityRow0
-
-Top status-tab row (ability slot **0**, Y `$48`). Displays the ability icon for the current `characterForm` using sprite `$0AD4 × 3 + $44`.
-
-**Algorithm:**
-1. Position ($98, $48)
-2. Compute sprite from character form
-3. Animate
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AD4` | R | Character form |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `StatusAbilityRow1` | Linked via $0006 |
-
-### StatusAbilityRow1
-
-Middle row (ability slot **1**, Y `$60`). Icon sprite `$0AD4 × 3 + $45`.
-
-**Algorithm:**
-1. Position ($98, $60)
-2. Compute sprite
-3. Animate
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AD4` | R | Character form |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `StatusAbilityRow2` | Linked via $0006 |
-
-### StatusAbilityRow2
-
-Bottom row (ability slot **2**, Y `$78`). Icon sprite `$0AD4 × 3 + $46`.
-
-**Algorithm:**
-1. Position ($98, $78)
-2. Compute sprite
-3. Animate
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AD4` | R | Character form |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `InventoryMenuInit` | Spawner |
-
-#### 20H — Grid Navigation Subroutines
-
-### UpdateSlotActorSprite
-
-Refreshes a slot actor's sprite after inventory mutation. Walks linked list from `$7F0010,X` to slot index in A, resets function pointer to `SlotActorEvaluate`.
-
-**Algorithm:**
-1. Save slot index in `$000E`
-2. Walk `$0006` chain
-3. Reset `$0000` → SlotActorEvaluate
-4. Clear `$0028`, `$0008`, `$002A`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$7F0010,X` | R | List head |
-| `A` | In | Slot index |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `ArrangePerformSwap` | Caller |
-| `DiscardItemTab` | Caller |
-
-### CheckItemDiscardable
-
-Tests whether item ID in A may be discarded. Indexes `non_discardable_item_bits` with `BitMaskTable[item & 7]`. Carry **set** = protected (not discardable); carry **clear** = discard allowed.
-
-**Algorithm:**
-1. Item ID → byte index (÷8) + bit index (mod 8)
-2. AND with BitMaskTable entry
-3. SEC if bit set (protected / non-discardable)
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `A` | In | Item ID |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `BitMaskTable` | Lookup |
-| `non_discardable_item_bits` | Protection bit array |
-
-#### 20I — Cursor Positioning
-
-### PositionGridCursor
-
-Computes XY for grid selection cursor. Uses `$22` (or `$2E` for second cursor in arrange) and `GridColumnPositions`.
-
-**Algorithm:**
-1. Select index from `$22` or `$2E` based on cursor ID
-2. Column = index & 3 → GridColumnPositions
-3. Row offset = index & `$0C` added to base Y `$30`
-4. Write to cursor `$0014`/`$0016`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` | R | Active slot |
-| `$2E` | R | Saved source slot |
-| `$20` | R | Active cursor ID |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `GridColumnPositions` | X/Y bases |
-
-### PositionEquipCursor
-
-Positions equip cursor on grid using `$1A`. If index negative, hides cursor instead.
-
-**Algorithm:**
-1. If `$1A` negative → hide equip cursor actor
-2. Else same column/row math as PositionGridCursor
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$1A` | R | Equip slot index |
-| `$7F0012,X` | R | Equip cursor ID |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `GridColumnPositions` | Lookup |
-| `UseItemTab` | Caller |
-
-#### 20J — Item Grid Visibility
-
-### HideStatusActors
-
-Removes the status-panel sprites from view when the player hovers or enters Use, Arrange, or Discard tabs. Walks the equipped-item display actor and the three linked ability-row actors, setting the hidden flag on each so only the 4×4 grid and equip cursor remain visible. Called to prevent the status portraits from overlapping the item-management layout.
-
-**Algorithm:**
-1. Walk chain from `$7F0018,X` and `$7F001A,X`
-2. ORA `$2000` on each actor `$0010`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$7F0018,X` | R | Equipped display ID |
-| `$7F001A,X` | R | Status chain head |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TabHoverUse` | Caller |
-
-### ShowEquipCursor
-
-Makes the equip cursor visible on the 4×4 grid when an item is currently worn. If `inventory_equipped_index` is `$FFFF` (nothing equipped), delegates to `HideEquipCursor` instead. Called when entering Use tab or hovering tabs that show the grid, so the player always sees which slot holds the equipped item.
-
-**Algorithm:**
-1. If inventory_equipped_index negative → HideEquipCursor
-2. Else AND `#$DFFF` on cursor `$0010`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$inventory_equipped_index` | R | Equip slot |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `HideEquipCursor` | BMI branch |
-
-### ShowAllItemSlots
-
-Switches to grid mode: shows all 16 slot icons by clearing `$2000` on each slot actor. Guarded — only runs when menu flag `$1000` is clear (slots currently hidden).
-
-**Algorithm:**
-1. If `$10` bit `$1000` set → RTS (already showing)
-2. Set `$1000` on menu actor
-3. Walk 16 slot actors via `$0006` chain
-4. AND `#$DFFF` on each slot `$0010` (clear `$2000` → visible)
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$10` | RW | Menu actor flags |
-| `$7F0010,X` | R | Slot list head |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `HideAllItemSlots` | Inverse |
-| `TabHoverUse` | Caller |
-
-### HideAllItemSlots
-
-Switches to list mode: hides all 16 slot icon sprites by setting `$2000` on each slot actor. Guarded — only runs when `$1000` is set (slots currently shown).
-
-**Algorithm:**
-1. If `$1000` clear → RTS (already hidden)
-2. Clear `$1000`
-3. Walk slot list, ORA `$2000` on each (hide)
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$10` | RW | Menu actor flags |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `ShowAllItemSlots` | Inverse |
-| `TabHoverStatus` | Caller |
-
-### ComputeSlotPosition
-
-Places each of the 16 item slot icons on the 4×4 grid during menu init. Uses the spawn counter in `$0AFA` (decremented to 0-based) to index `SlotPositionTable`, which stores precomputed X/Y pairs for columns `$5C`/`$74`/`$8C`/`A4` and rows Y = `$31`/`$41`/`$51`/`$61`. Writes the result to the spawning slot actor so icons appear in the correct grid cell.
-
-**Algorithm:**
-1. DEC `$0AFA`, ×4 → table index
-2. Load X/Y → menu actor `$14`/`$16`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AFA` | R | Spawn counter |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `SlotPositionTable` | Lookup |
-| `InventorySlotActor` | Caller |
-
-#### 20K — Yes/No Prompt & Tab Selection
-
-### YesNoPromptLoop
-
-Yes/No dialog input loop with blinking cursor. Returns carry set on confirm.
-
-**Algorithm:**
-1. Poll A / Up / Down
-2. Blink every 16 frames (`$1C` bit 4 toggles draw/clear)
-3. Carry clear while waiting
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$28` | RW | Selection 0=Yes 1=No |
-| `$1C` | RW | Blink counter |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `YesNoConfirm` | A button |
-| `DiscardItemTab` | Caller |
-
-### YesNoDrawCursor
-
-Renders the blinking highlight arrow on the Discard tab's Yes/No confirmation prompt. Clears any previous highlight, then writes tile `$202B` to the BG3 tilemap buffer at the offset for the current selection (`$28` = 0 for Yes, 1 for No). The tile is uploaded on the next VRAM flush, so the player sees which answer is highlighted before confirming discard.
-
-**Algorithm:**
-1. Clear old cursor
-2. Compute buffer offset `$0696 + ($28>>8)`
-3. Write tile `$202B` to `$7F:0200,X`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$28` | R | Selection |
-| `$7F:0200` | W | VRAM buffer |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `YesNoClearCursor` | JSR first |
-
-### TabSelectionLoop
-
-Main tab bar input loop with blinking cursor. Confirm enters tab; Cancel closes inventory.
-
-**Algorithm:**
-1. Poll A / Up / Down / Cancel (`$6040`)
-2. Blink cursor every 16 frames
-3. Carry set on confirm
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AFA` | RW | Tab index |
-| `$1C` | RW | Blink counter |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TabConfirm` | A button |
-| `TabCancel` | Cancel |
-| `InventoryMainLoop` | Caller |
-
-### TabDrawCursor
-
-Renders the blinking arrow beneath the currently selected tab label (Use, Arrange, Discard, or Status). Clears all four tab cursor slots first, then writes tile `$202B` to the BG3 buffer at the column offset for `$0AFA`. Called every 16 frames during tab-bar navigation and immediately after Up/Down tab changes, giving the player a visible indicator of which tab will open on A.
-
-**Algorithm:**
-1. Clear all tab cursors
-2. Write `$202B` at computed offset
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$0AFA` | R | Tab index |
-| `$7F:0200` | W | VRAM buffer |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TabClearCursor` | JSR first |
-
-### TabClearCursor
-
-Erases the tab highlight arrow during the blink-off phase of tab-bar navigation. Writes blank tile `$2040` to all four tab cursor positions in the BG3 tilemap buffer and sets the VRAM flush flag so the highlight disappears for half the blink cycle. Paired with `TabDrawCursor` to produce the 16-frame on/off blink on the tab bar.
-
-**Algorithm:**
-1. Set VRAM flush flag
-2. Write `$2040` at `$0784`, `$0804`, `$0884`, `$0904`
-
-
-**Variables:**
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$09EC` | W | Flush flag |
-
-**Cross-References:**
-| Symbol | Relationship |
-|--------|--------------|
-| `TabDrawCursor` | Caller |
+## Shared state
+
+*Evidence: [ASM] for names and addresses; roles are quoted from the block note and routine comments*
+
+| Address | Name in asm | Role |
+|---|---|---|
+| `$0AB4`–`$0AC3` | `inventorySlots` | 16 bytes, one item ID per slot, `0` = empty, no per-slot flags. Code reads a slot as a 16-bit word and masks it (`AND #$00FF`); the high byte of that word is the **next** slot |
+| `$0AC4` | `inventoryEquippedIndex` | slot index of the equipped item, `$FFFF` = nothing equipped |
+| `$0AC6` | `inventoryEquippedType` | item type ID of the equipped item |
+| `$0AD4` | `characterForm` | `0` = Will, `1` = Freedan, `2` = Shadow (block note) |
+| `$0AE6` | `bg1ConfigMode` | BG1SC value; the overlay loop copies it to `BG1SC` every pass. Set to `4` by Use / Discard / hover Use / hover Discard, `0` by Status / hover Status |
+| `$0AE8` | `itemAbilityIndex` | set before `RunBg3Script` to select an item or ability description string |
+| `$0AFA` | `inventoryTabIndex` | tab index 0–3; also the **spawn counter** of the 16 slot actors during `InventoryMenuInit`'s yield |
+| `$0658` | `joypadHeld` | consumption mask (see above) |
+| `$09EC` | `displayModeFlags` | bit 0 set by `YesNoClearCursor` / `TabClearCursor` to flag the BG3 tilemap dirty |
+| `$7F0200` | `bg3TilemapBuffer` | BG3 tilemap staging; cursor tiles are written at `$7F0200 + offset` |
+
+Menu-actor DP scratch (**[ASM]**, from the routine comments; they are the menu actor's own direct page):
+
+| DP | Use |
+|---|---|
+| `$10` bit `$1000` | "the 16 item slots are visible" (set by `InventoryMenuInit` and `ShowAllItemSlots`, cleared by `HideAllItemSlots`) |
+| `$18` | last tab whose hover preview ran (`$FFFF` at loop start) |
+| `$1A` | Use-tab cursor slot / equipped slot copy (negative = none) |
+| `$1C` | blink counter for the tab bar and the Yes/No prompt |
+| `$20` | actor address of the active `SelectionCursorActor` |
+| `$22` | Arrange / Discard grid slot (also Arrange target slot) and Status row 0–2 |
+| `$24` | slot-actor spawn loop counter (15 → 0) |
+| `$28` | Yes/No selection (`0` = No, `1` = Yes) |
+| `$2C` / `$2E` | Arrange: saved source cursor actor / source slot |
+
+Child actors reuse `$28` as their sprite frame and `$2A` as the animation / refresh trigger (`UpdateSlotActorSprite` and `SetSlotSprite` write them).
 
 ---
 
-## 4×4 Item Grid Navigation
+## Child actors and list heads
 
-The inventory stores 16 items in `inventory_slots` (`$0AB4`–`$0AC3`, one byte per slot). Both the **Use** tab (cursor in `$1A`) and **Arrange/Discard** tabs (cursor in `$22`) treat the index as a linear slot number 0–15 with **wrap-around toroidal navigation** on a 4-column grid.
+*Evidence: [ASM]*
 
-### Index Layout
+`InventoryMenuInit` saves child actor addresses in four long-address scratch fields whose **equate names are borrowed from other actors**, so the names do not describe their role here:
 
-```
-     Col 0    Col 1    Col 2    Col 3
-Row 0: [ 0]     [ 1]     [ 2]     [ 3]
-Row 1: [ 4]     [ 5]     [ 6]     [ 7]
-Row 2: [ 8]     [ 9]     [10]     [11]
-Row 3: [12]     [13]     [14]     [15]
-```
+| Equate | Address | Holds | Spawn flags (`SpawnAfterFlags`) |
+|---|---|---|---|
+| `orbitAngle,X` | `$7F0010` | head of the 16-slot `InventorySlotActor` chain (slot 0) | `#$1800` |
+| `orbitDiameter,X` | `$7F0012` | `EquipCursorActor` | `#$0802` |
+| `moveXAlt,X` | `$7F0018` | `EquippedItemDisplay` | `#$0800` |
+| `moveYAlt,X` | `$7F001A` | head of the three `StatusAbilityRow` actors (`StatusAbilityRow0`, the top row) | `#$0800` |
 
-### Movement Rules
+- **[ASM]** `SpawnAfter` inserts the child directly after the spawner, so the **last** spawned becomes the chain head. The slot loop counts `$24` 15 → 0, so slot 0 is spawned last and heads the chain; the `$0006` links then lead slot 0 → 15. The status rows are spawned Row2, Row1, Row0, so Row0 is the head and its `$0006` links lead to Row1, then Row2.
+- **[ASM]** Each slot actor gets its item ID in `$0028,Y` straight after being spawned (`inventorySlots[$24] & $00FF`).
+- **[ASM]** After the spawns, `$1A = inventoryEquippedIndex` and `PositionEquipCursor` runs, then `SetEntryHereAndYield`. During that yield each slot actor increments `inventoryTabIndex`; on resume the menu actor resets it to `0` and sets DP `$10` bit `$1000`.
+- **[ASM]** The spawn flags all include bit 11 (`$0800`); **[XREF]** `RunActors_CutsceneOnly` (which drives actors while the overlay loop runs `UpdateFrameDialogue`) dispatches only actors with that bit. The meaning of the remaining bits (`$1000`, `$0002`) is not stated in this file.
 
-| Direction | Operation | Example (from slot 5) |
-|-----------|-----------|------------------------|
-| Up | `index − 4`, `AND #$0F` | 5 → 1 |
-| Down | `index + 4`, `AND #$0F` | 5 → 9 |
-| Left | `index − 1`, `AND #$0F` | 5 → 4 |
-| Right | `index + 1`, `AND #$0F` | 5 → 6 |
+---
 
-The `AND #$0F` mask wraps all edges. `PositionGridCursor` / `PositionEquipCursor` decompose the index: column = `index & 3` (X from `GridColumnPositions`), row = `index & $0C` added to base Y `$30`. Slot sprites use `SlotPositionTable` at Y `$31/$41/$51/$61`. Sound `#10` on move; `#11` on confirm.
+## InventoryMenuInit and InventoryMainLoop
+
+*Evidence: [ASM]*
+
+**`InventoryMenuInit`:** `SetMetasprite ( @inventory_spritemap )`, `RunBg3Script ( consolestring_01E869 )`, `inventoryTabIndex = 0`, `$24 = $000F`, the 16-slot spawn loop, `EquipCursorActor`, `$1A` ← `inventoryEquippedIndex`, `PositionEquipCursor`, `EquippedItemDisplay`, the three status rows, `SetEntryHereAndYield`, `inventoryTabIndex = 0`, `$10 |= $1000`. It then falls into `InventoryMainLoop`.
+
+**`InventoryMainLoop`:** `RunBg3Script ( consolestring_01E90B )` and `( consolestring_01E8E9 )`, `$1C = 0`, `$18 = $FFFF` (so the first pass always runs a hover preview), `TSB joypadHeld` with `$8000` (a held A cannot re-confirm a tab on return), `SetEntryHereAndYield`, then each frame:
+
+1. `JSR TabSelectionLoop`.
+2. Carry set (confirm) → branch to `TabConfirmDispatch`.
+3. Otherwise compare `inventoryTabIndex` with `$18`. Equal: `RTL` (end of this frame's turn, not a menu exit). Different: store it in `$18` and `$0000` and `COP [SwitchCase] ( #$0000, &TabHoverDispatch )`.
+
+**`TabConfirmDispatch`:** `PlaySoundCh2 ( #0D )`, tab → `$18` and `$0000`, `SwitchCase` through `TabActionDispatch`. Both dispatch tables hold four word pointers in tab order: `TabHoverDispatch` → `TabHoverUse`, `TabHoverArrange`, `TabHoverDiscard`, `TabHoverStatus`; `TabActionDispatch` → `UseItemTab`, `ArrangeItemsTab`, `DiscardItemTab`, `StatusViewTab`.
+
+Operands such as `#0D`, `#10` are written exactly as the asm prints them (hex bytes).
+
+---
+
+## Tab bar
+
+*Evidence: [ASM]; [INFERRED] where marked*
+
+- **`TabSelectionLoop`** (once per frame; carry set = confirmed). In this order: `$8000` → `TabConfirm`; `$0800` → `TabSelectUp`; `$0400` → `TabSelectDown`; `$6000` → `TabCancel`. Otherwise the blink counter `$1C` is incremented: if its low nibble is nonzero, return with carry clear; if bit 4 is clear call `TabDrawCursor`, else `TabClearCursor`. The cursor therefore toggles every 16 frames.
+- **`TabSelectUp` / `TabSelectDown`:** SFX `#10`, consume `$0800` / `$0400`, `$1C = 0`, `inventoryTabIndex ± 1` with `AND #$0003` (wraps 0 ↔ 3), `TabDrawCursor`, carry clear.
+- **`TabConfirm`:** consume `$8000`, `TabDrawCursor`, carry set.
+- **`TabCancel`:** `SetFlagByte ( #00 )`, carry clear. It does **not** consume the cancel bits, so `InventoryMainLoop` passes through it every frame until the overlay ends.
+- **`TabDrawCursor`:** calls `TabClearCursor`, then writes tile `$202B` to `bg3TilemapBuffer + (inventoryTabIndex × $80) + $0584`.
+- **`TabClearCursor`:** `displayModeFlags |= $0001`; writes the blank tile (`$2060` in this baserom) to `$7F0784`, `$7F0804`, `$7F0884`, `$7F0904`.
+- **[INFERRED]** The offsets are `$80` apart. If BG3 is a 32×32 tilemap with 2-byte entries (`BG3SC = $78` is set in the overlay), that is two tilemap rows per tab, which matches Up / Down moving between tabs. The asm does not state the layout.
+
+---
+
+## Use tab (`UseItemTab`)
+
+*Evidence: [ASM]*
+
+- Entry: `bg1ConfigMode = 4`; BG3 scripts `01E90B`, `01EA02`, `01E975`; `inventoryEquippedIndex = 0` (not `$FFFF`: a non-negative placeholder so `ShowEquipCursor` reveals the cursor; `UseItemConfirm` always overwrites it); `ShowEquipCursor`; a negative `$1A` is clamped to `0`.
+- `UseItemRefreshCursor` (loop head): `PositionEquipCursor`; script `01E912`; item ID at slot `$1A` → `itemAbilityIndex`; script `01E9D0`; yield; then `$C000` → `UseItemConfirm`, `$0800` Up, `$0400` Down, `$0200` Left, `$0100` Right. **There is no cancel in this tab**: A or B (`$C000`) both equip.
+- Cursor moves: SFX `#10`, consume the matching mask (Up `$0B00`, Down `$0700`, Left `$0200`, Right `$0100`), then `$1A − 4`, `+ 4`, `− 1` or `+ 1`, each followed by `AND #$000F`, then back to `UseItemRefreshCursor` (`UseItemCursorRight` uses `JMP`, the others `BRA`).
+- **`UseItemConfirm`:** consume `$C000`, SFX `#11`, `inventoryEquippedIndex = $1A`. If the slot's item byte is `0`: `inventoryEquippedIndex = $1A = $FFFF` and `inventoryEquippedType = 0`. Otherwise `inventoryEquippedType` = the item ID. Both paths `JMP InventoryMainLoop`.
+
+---
+
+## Arrange tab (`ArrangeItemsTab`)
+
+*Evidence: [ASM]*
+
+- **Setup:** `HideEquipCursor`; spawn `SelectionCursorActor` (`#$0802`) → `$20`; `$22 = 0`. `ArrangeSourceReset`: `$1C = 0`; scripts `01E90B`, `01EA14`, `01E98C`.
+- **`ArrangeSourceLoop`:** `PositionGridCursor`; yield; `$4000` → `ArrangeCancelTab`; `$8000` → `ArrangePickTarget`; `PEA ArrangeSourceLoop-1`; D-pad → `GridCursor*`; `PLA`; `RTL`.
+- **`ArrangePickTarget`:** SFX `#11`; consume `$8000`; save `$20` → `$2C` and `$22` → `$2E`; spawn a second `SelectionCursorActor` → `$20`; scripts `01E90B`, `01EA14`, `01E9A6`. **`ArrangeTargetLoop`:** `$4000` → `ArrangeCancelTarget`; `$8044` → `ArrangePerformSwap`; D-pad as above. The target cursor starts at the source slot (`$22` is unchanged).
+- **`ArrangePerformSwap`:**
+  1. Consume `$8000`. If `$22 == $2E`, return to `ArrangeTargetLoop` (a swap with itself is ignored).
+  2. SFX `#11`; 8-bit swap of `inventorySlots[$22]` and `[$2E]` through `XBA`.
+  3. For each of the two slots, `UpdateSlotActorSprite` (which returns **Y = the slot actor**, not the slot index) and `STA $0028,Y` with the new item ID.
+  4. Equipped tracking: the first test (`TYA; CMP inventoryEquippedIndex`) compares a slot **actor** address with a slot index and can never match, so the case "the target slot was equipped" is not handled. The second test (the source slot was equipped) works and moves `inventoryEquippedIndex` to `$22`.
+  5. `MarkDeath` on the saved source cursor (`$2C`), then `JMP ArrangeSourceReset`.
+- **`ArrangeCancelTarget` / `ArrangeCancelTab`:** `ArrangeCancelTarget` is a single `COP [KillNext]` with **no `RTS` / `JMP`**, so it **falls through** into `ArrangeCancelTab`, which executes a second `KillNext`, consumes `$4000` and does `JMP InventoryMainLoop`. **[XREF]** `KillNext` unlinks the immediate next neighbour in the actor list ([`actor_death.md`](../../cop/families/actor_death.md)). Both cursors sit directly after the menu actor (the second one in front), so on the code as written **B in the target phase removes both cursors and returns to the tab bar**. **Discrepancy:** the block note ("B cancels only the target") and the `ArrangeCancelTarget` part note describe a target-only cancel; the code does not do that. Not changed here (asm is the source of truth; a fix would be a patch, not a doc change).
+
+---
+
+## Discard tab (`DiscardItemTab`)
+
+*Evidence: [ASM]*
+
+- **Setup:** `bg1ConfigMode = 4`; `HideEquipCursor`; spawn `SelectionCursorActor` → `$20`; `$22 = 0`. `DiscardGridReset`: `$1C = 0`; scripts `01E90B`, `01EA27`, `01E9B7`.
+- **`DiscardGridLoop`:** `PositionGridCursor`; yield; `$4000` → `DiscardCancelTab`; `$8000` → `DiscardAttempt`; D-pad via the same `PEA` pattern.
+- **`DiscardAttempt`:** consume `$8000`. Item byte at `$22`: `0` → SFX `#12` and back to `DiscardGridReset`. Otherwise `itemAbilityIndex` = item ID, then `CheckItemDiscardable` (carry set = protected → SFX `#12`). Otherwise scripts `01E912`, `01E9E2` draw the name and the prompt, `$28 = 0` (No), yield, then `JSR YesNoPromptLoop` once per frame; while carry is clear the routine `RTL`s.
+  - Answer `$28 = 0` (No): back to `DiscardGridReset`, nothing removed.
+  - Answer `$28 = 1` (Yes): `AND #$FF00` on the 16-bit word at `inventorySlots + $22` (clears this slot's byte; the high byte, the next slot, is written back unchanged), `UpdateSlotActorSprite`, and if `$22 == inventoryEquippedIndex` then `inventoryEquippedType = 0`, `inventoryEquippedIndex = $1A = $FFFF`. SFX `#13`, back to `DiscardGridReset`.
+- **`DiscardCancelTab`:** consume `$4000`, `KillNext`, `ShowEquipCursor`, `JMP InventoryMainLoop`.
+- **`CheckItemDiscardable`:** A = item ID. Byte index = ID >> 3, bit = `BitMaskTable[ID & 7]`, ANDed with `system_strings.non_discardable_item_bits`. Carry set = protected. Preserves X; uses absolute scratch `$0000`. `BitMaskTable` is `$01,$02,$04,$08,$10,$20,$40,$80`.
+
+---
+
+## Status tab (`StatusViewTab`)
+
+*Evidence: [ASM]*
+
+- **Setup:** `bg1ConfigMode = 0`; scripts `01E90B`, `01EA39`; spawn `SelectionCursorActor` → `$20`; `$22 = 0`.
+- **Per row (label `loc_02E734`):** `StatusPositionCursor`; script `01E912`; `$0004 = characterForm`; `TestAbilityFlag(A = $22)`; if carry set, `ComputeAbilityIndex` and script `01EAB4`. Then yield and poll: `$0800` → `StatusCursorUp` (consume `$0800`, SFX `#10`, `$22 − 1`, a negative result becomes `2`), `$0400` → `StatusCursorDown` (consume `$0400`, SFX `#10`, `$22 + 1`, `≥ 3` becomes `0`), `$C000` → `StatusConfirmExit` (SFX `#11`, consume `$C000`, `KillNext`, `JMP InventoryMainLoop`).
+- **What the three rows are:** ability slots 0–2 of the **current** `characterForm`. Row `r` tests flag `$0510 + characterForm × 4 + r` (asm comment; the same flags as `abilityBitmask` `$0AA2`). The form's fourth ability flag is never listed. The rows are **not** "Will / Freedan / Shadow".
+- **`TestAbilityFlag`:** flag index = `$0004 × 4 + A` (the form comes from the absolute word `$0004`, which the caller sets, not from `characterForm` directly); `JSL flag_helpers.TestFlag_0510`; carry set = unlocked.
+- **`ComputeAbilityIndex`:** `itemAbilityIndex = characterForm × 4 + slot + 1`; preserves A. The `+ 1` skips entry 0, which the asm comment says is the empty string in `ability_menu_table` / `ability_name_table` and `'Nothing'` in `ability_description_table` (`system_strings`).
+- **`StatusPositionCursor`:** `$22 × 4` indexes `StatusCursorPositions` (`$0098,$0048`, `$0098,$0060`, `$0098,$0078`); writes `$0014` / `$0016` of the cursor actor `$20`.
+- **Status row actors:** X = `$98`, Y = `$48` / `$60` / `$78`, sprite frame `$28 = characterForm × 3 + $44` (row 0) / `$45` (row 1) / `$46` (row 2), `$2A = 0`, then `SetEntryHere`, `AnimOneFrame`, `RTL`.
+- **`EquippedItemDisplay`:** X `$0028`, Y `$0078`; sprite frame `$28 = inventoryEquippedType`; `$2A = 0`; one `AnimOneFrame`.
+
+---
+
+## Tab hover previews
+
+*Evidence: [ASM]*
+
+Each preview runs once when the cursor lands on a tab (and on the first pass, since `$18 = $FFFF`).
+
+| Routine | Slots | Equip cursor | Status actors | `bg1ConfigMode` | BG3 scripts (in order) |
+|---|---|---|---|---|---|
+| `TabHoverUse` | `ShowAllItemSlots` | `ShowEquipCursor` | `HideStatusActors` | `4` | `01E8E2`, `01E912`, `01E919` |
+| `TabHoverArrange` | `ShowAllItemSlots` | `ShowEquipCursor` | not touched | not touched | `01E912`, `01E954` |
+| `TabHoverDiscard` | `ShowAllItemSlots` | `ShowEquipCursor` | `HideStatusActors` | `4` | `01E912`, `01E8E2`, `01E962` |
+| `TabHoverStatus` | `HideAllItemSlots` | `HideEquipCursor` | see below | `0` | `01E912`, `01E870`, `01EA70`, then per-row scripts |
+
+- **`TabHoverStatus`:** after the scripts and `bg1ConfigMode = 0`, if `inventoryEquippedIndex` is non-negative it sets the `EquippedItemDisplay` sprite (`SetSlotSprite` with `inventoryEquippedType`) and clears `$2000` on that actor. It then walks the three status-row actors from `moveYAlt` through the `$0006` links; for row `r` = 0, 1, 2 it calls `TestAbilityFlag`, and if carry is set clears `$2000` on the row actor, runs `ComputeAbilityIndex` and one script (`01EA49`, `01EA56`, `01EA63` respectively). Locked rows stay hidden.
+- **`TabHoverArrange`** does not hide the status actors: its neighbours (Use and Discard) already did (asm comment).
+- Hover previews never write `inventoryEquippedIndex`/`Type`, `$1A` or `$22`.
+
+---
+
+## Grid cursors, slot positions and visibility
+
+*Evidence: [ASM]; layout labels [INFERRED]*
+
+**Slot index.** Slot index bits 0–1 = column, bits 2–3 = row (block note), so `index & 3` is the column and `index >> 2` the row.
+
+**`GridCursorUp/Down/Left/Right`** (shared by Arrange and Discard, `$22`; return with `RTS`): Up `$22 − 4`, Down `$22 + 4`, Left `$22 − 1`, Right `$22 + 1`, each `AND #$000F`, SFX `#10`, with the consumption masks listed above. The `UseItemCursor*` handlers do the same on `$1A`.
+
+| Move | From slot 5 | Edge behaviour (**[ASM]** from the masks) |
+|---|---|---|
+| Up (`− 4`) | 1 | wraps inside its column (`0 → 12`) |
+| Down (`+ 4`) | 9 | wraps inside its column (`12 → 0`) |
+| Left (`− 1`) | 4 | **does not wrap inside the row**: slot 4 → 3 (previous row, last column); slot 0 → 15 |
+| Right (`+ 1`) | 6 | slot 3 → 4 (next row, first column); slot 15 → 0 |
+
+(The block note states this explicitly: "Left/Right do not wrap inside a row".)
+
+**Positions.**
+
+- `GridColumnPositions` (cursor): X `$005C`, `$0074`, `$008C`, `$00A4`, Y base `$0030`.
+- `PositionGridCursor`: slot × 4; `AND #$000C` selects the column entry (4 bytes per entry), `AND #$0030` is the row offset (row × `$10`) added to Y. It reads `$22` with cursor actor `$20`; the second entry `loc_02EA46` (`$2E` / `$2C`) has no caller. `PositionEquipCursor` does the same with `$1A` and `orbitDiameter,X`; a negative `$1A` hides the cursor (`ORA #$2000`).
+- `SlotPositionTable` (item icons): 16 pairs, X `$005C/$0074/$008C/$00A4`, Y `$0031/$0041/$0051/$0061`. `ComputeSlotPosition`: `(inventoryTabIndex − 1) × 4` indexes it and writes `$14` / `$16`.
+
+**Visibility.** Actor flag bit 13 (`$2000`) in `$10`: set = hidden, clear = visible.
+
+- `HideEquipCursor` / `ShowEquipCursor` set / clear it on the `orbitDiameter` actor (`ShowEquipCursor` branches to `HideEquipCursor` when `inventoryEquippedIndex` is negative).
+- `HideStatusActors` sets it on `moveXAlt`, on `moveYAlt` (chain head) and on the next two `$0006` links (four actors).
+- `ShowAllItemSlots` returns at once if menu `$10` bit `$1000` is **set**; otherwise it sets the bit and clears `$2000` on the 16 chain actors. `HideAllItemSlots` returns if the bit is **clear**; otherwise it clears the bit and sets `$2000` on all 16.
+- `InventorySlotActor`: `INC inventoryTabIndex`, `ComputeSlotPosition`, then `SlotActorEvaluate`: `$28 == 0` → set `$2000` and `RTL`; otherwise clear `$2000` and loop `AnimOneFrame` until `$2A` is nonzero. `UpdateSlotActorSprite(A = slot)` walks the chain from `orbitAngle` with `$000E` as counter, resets the actor's entry (`$0000`) to `SlotActorEvaluate` and zeroes `$0028`, `$0008`, `$002A`; it returns **Y = that slot actor**.
+- `EquipCursorActor`: if `inventoryEquippedIndex` is negative sets `$2000`, then falls into `SelectionCursorActor` (`StageSprAndHitbox ( #40 )`, `SetEntryHereAndYield`, `SetEntryHere` + `AnimOneFrame` until `$2A` is nonzero).
+- **[INFERRED]** "Item grid / list mode" and "status view" are descriptive labels for the two visibility states of `$10` bit `$1000`; the asm names only the bit and the hide / show routines.
+
+---
+
+## Yes/No prompt
+
+*Evidence: [ASM]*
+
+- **`YesNoPromptLoop`** (once per frame; carry set = answered): `$8000` → `YesNoConfirm` (B does not cancel); `$0800` → `YesNoSelectUp`; `$0400` → `YesNoSelectDown`; otherwise the `$1C` blink as in the tab bar (`YesNoDrawCursor` / `YesNoClearCursor`), carry clear.
+- **`YesNoSelectUp` / `Down`:** SFX `#10`, consume `$0800` / `$0400`, `$28 ± 1` with `AND #$0001` (so both directions toggle 0 ↔ 1), `$1C = 0`, `YesNoDrawCursor`, carry clear. **`YesNoConfirm`:** consume `$8000`, `YesNoDrawCursor`, carry set.
+- **`YesNoDrawCursor`:** `YesNoClearCursor`, then writes tile `$202B` to `bg3TilemapBuffer + ($28 × $80) + $0696`.
+- **`YesNoClearCursor`:** `displayModeFlags |= $0001`; blank tile (`$2060` here) to `$7F0896` (No cell) and `$7F0916` (Yes cell).
+
+---
+
+## Memory map
+
+*Evidence: [ASM] (addresses from `db-us/names/bank02.json`)*
+
+| Address | Name | Role |
+|---|---|---|
+| `$02E396` | `InventoryMenuDef` | actor-def header `#00, #00, #28`; contains the init and main loop |
+| `$02E399` | `InventoryMenuInit` | spawns the child actors (above) |
+| `$02E40C` | `InventoryMainLoop` | tab-bar frame loop |
+| `$02E43D` | `TabHoverDispatch` | 4 word pointers |
+| `$02E445` | `TabConfirmDispatch` | SFX `#0D`, dispatch by tab |
+| `$02E456` | `TabActionDispatch` | 4 word pointers |
+| `$02E45E` | `UseItemTab` | Use tab entry |
+| `$02E47F` | `UseItemRefreshCursor` | Use-tab loop head |
+| `$02E4B8` / `$02E4CE` / `$02E4E4` / `$02E4F7` | `UseItemCursorUp` / `Down` / `Left` / `Right` | `$1A` moves |
+| `$02E50B` | `UseItemConfirm` | writes the equipped index and type |
+| `$02E536` | `ArrangeItemsTab` | setup |
+| `$02E544` | `ArrangeSourceReset` | redraw / reset |
+| `$02E555` | `ArrangeSourceLoop` | source-slot poll |
+| `$02E583` | `ArrangePickTarget` | save source, spawn second cursor |
+| `$02E5AC` | `ArrangeTargetLoop` | target-slot poll |
+| `$02E5DA` | `ArrangePerformSwap` | the swap |
+| `$02E64A` | `ArrangeCancelTarget` | `KillNext`, falls through |
+| `$02E64C` | `ArrangeCancelTab` | `KillNext`, consume `$4000`, back to the tab bar |
+| `$02E657` | `DiscardItemTab` | setup |
+| `$02E66B` | `DiscardGridReset` | redraw / reset |
+| `$02E67C` | `DiscardGridLoop` | grid poll |
+| `$02E6AA` | `DiscardAttempt` | validation, prompt, discard |
+| `$02E70B` | `DiscardCancelTab` | leave the tab |
+| `$02E719` | `StatusViewTab` | Status tab |
+| `$02E768` / `$02E77D` | `StatusCursorUp` / `Down` | row `$22` |
+| `$02E795` | `StatusConfirmExit` | leave the tab |
+| `$02E7A3` | `StatusPositionCursor` | cursor placement |
+| `$02E7BB` | `StatusCursorPositions` | 3 X/Y pairs |
+| `$02E7C7` / `$02E7E6` / `$02E7F7` / `$02E816` | `TabHoverUse` / `Arrange` / `Discard` / `Status` | previews |
+| `$02E8C7` | `InventorySlotActor` | item slot sprite actor |
+| `$02E8CD` | `SlotActorEvaluate` | per-frame entry of the slot actor |
+| `$02E8E7` | `EquipCursorActor` | hides itself if nothing equipped |
+| `$02E8F1` | `SelectionCursorActor` | sprite `#40` loop |
+| `$02E8FF` | `EquippedItemDisplay` | X `$28`, Y `$78` |
+| `$02E915` / `$02E934` / `$02E953` | `StatusAbilityRow0` / `1` / `2` | Y `$48` / `$60` / `$78` |
+| `$02E972` | `ComputeAbilityIndex` | `form × 4 + slot + 1` |
+| `$02E981` / `$02E996` / `$02E9AB` / `$02E9BD` | `GridCursorUp` / `Down` / `Left` / `Right` | `$22` moves |
+| `$02E9CF` | `SetSlotSprite` | `A → $28,Y`; zero `$2A,Y` and `$08,Y` |
+| `$02E9DC` | `TestAbilityFlag` | carry = unlocked |
+| `$02E9ED` | `UpdateSlotActorSprite` | reset one slot actor; returns Y = actor |
+| `$02EA13` | `CheckItemDiscardable` | carry = protected |
+| `$02EA35` | `BitMaskTable` | 8 single-bit masks |
+| `$02EA3D` | `PositionGridCursor` | from `$22` |
+| `$02EA73` | `PositionEquipCursor` | from `$1A` |
+| `$02EAB0` | `GridColumnPositions` | 4 X/Y pairs |
+| `$02EAC0` | `HideStatusActors` | 4 actors |
+| `$02EAF7` / `$02EB0B` | `ShowEquipCursor` / `HideEquipCursor` | `$2000` clear / set |
+| `$02EB1A` / `$02EB45` | `ShowAllItemSlots` / `HideAllItemSlots` | guarded by `$10` bit `$1000` |
+| `$02EB70` | `ComputeSlotPosition` | from `inventoryTabIndex − 1` |
+| `$02EB86` | `SlotPositionTable` | 16 X/Y pairs |
+| `$02EBC6` | `YesNoPromptLoop` | prompt poll |
+| `$02EBF2` / `$02EC0A` / `$02EC22` | `YesNoSelectUp` / `Down` / `Confirm` | |
+| `$02EC2D` / `$02EC46` | `YesNoDrawCursor` / `YesNoClearCursor` | |
+| `$02EC58` | `TabSelectionLoop` | tab-bar poll |
+| `$02EC8A` / `$02ECA4` | `TabSelectUp` / `Down` | |
+| `$02ECBE` | `TabCancel` | `SetFlagByte ( #00 )` |
+| `$02ECC3` | `TabConfirm` | |
+| `$02ECCE` / `$02ECE8` | `TabDrawCursor` / `TabClearCursor` | |
+
+---
+
+## Open points
+
+*Evidence: [ASM] (what was and was not found)*
+
+- `ArrangeCancelTarget` falls through into `ArrangeCancelTab` (see the Arrange section) while two asm comments describe a target-only cancel.
+- `ArrangePerformSwap` never handles "the target slot was equipped" (confirmed by the asm comment).
+- `PositionGridCursor`'s second entry (`loc_02EA46`) has no caller.
+- The text of the BG3 strings (`consolestring_01E8xx`–`01EAxx`) is not decoded here; only their order is recorded.
+
+---
+
+## See Also
+
+| Document | Relationship |
+|----------|-------------|
+| [inventory-overlay.md](inventory-overlay.md) | `OpenInventoryScreen`, the loop that runs this menu and polls flag byte `#00` |
+| [hardware-and-init.md](hardware-and-init.md) | VBlank and joypad layer behind `joypadCurrent` / `joypadHeld` |
+| [game-systems.md](game-systems.md) | event-block and flag helpers |
+| [scene-script.md](scene-script.md) | scene `$FF` build that spawns the menu actor |

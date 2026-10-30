@@ -34,6 +34,7 @@ These cross-cutting references span the entire ROM:
 |----------|-------------|
 | [**Actor Organization Analysis**](actor-organization-analysis.md) | Classification of all 855 ASM files and 721 actor definitions — how actors are structured, named, and distributed across banks |
 | [**WRAM Memory Map**](wram-memory-map.md) | Complete WRAM address map (`$7E:0000`–`$7F:FFFF`) with all known variables, cross-validated against DataCrystal |
+| [**Mesen2 Exports**](mesen2-exports.md) | `npm run export -- labels` (`.mlb` files), `npm run export -- scenes` (scene ids and event flags), `npm run rebuild` named output, SHA-1 and build mode |
 | [**Structs Reference**](structs-reference.md) | Documentation of all struct types in `us/structs.json` — `actor-def`, `thinker-def`, `scene-meta`, spawn tables, and more |
 | [**Bank $01 Data Tables**](bank01-data-tables.md) | All 22 engine lookup tables: warps, enemy stats, strings, trig LUTs, movement deltas |
 | [**COP Commands Reference**](cop-commands-reference.md) | ⚠ *Archived* — monolithic COP reference preserved for history. Use [`cop/`](cop/) instead. |

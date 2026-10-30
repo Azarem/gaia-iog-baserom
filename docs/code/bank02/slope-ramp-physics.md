@@ -4,108 +4,131 @@
 
 > Terrain-based movement physics with slope detection, speed curves, and deceleration
 
-**Source:** [`slope_ramp_physics.asm`](../../../extracted/actors/player/slope_ramp_physics.asm)
+> **Evidence labels.** Each major section is tagged with the kind of claim it makes: **[ASM]** = directly observed in the extracted asm of this block; **[INFERRED]** = interpretation of behavior that is not literally encoded in the file; **[XREF]** = cross-file / engine-wide convention stated elsewhere (not provable from this file alone). Sections that mix kinds split them into separately tagged bullets or paragraphs. The `.asm` files in `extracted/` are authoritative; where prose and asm comments disagree, the asm wins.
+
+**Source:** [`slope_ramp_physics.asm`](../../../extracted/actors/player/slope_ramp_physics.asm) (ROM `177195`–`178099`, bank `$02`: `$02B42B`–`$02B7B3`)
 
 ---
 
 ## Overview
 
-Terrain-following slope and ramp physics companion actor. Probes tiles at the player's feet via `TileProbeMain`, dispatches through a 16-entry `SlopeTileDispatch` table by collision nibble, applies speed curves from WRAM table pointers, clamps to max speeds, and runs flat-ground deceleration when off ramps. The resulting `player_speed_ew`/`player_speed_ns` values feed into [`player_move_controller`](player-character.md#player_move_controllerasm), which merges them into the movement engine documented in [`player-movement.md`](player-movement.md).
+*Evidence: [ASM] + [XREF]*
 
-**Related:** [`player-character.md`](player-character.md) · [`player-movement.md`](player-movement.md) · [`tile-collision.md`](tile-collision.md) (tile probing)
+Companion actor spawned by `PlayerCharacterDef` via `COP [SpawnAfter]` (`slope_ramp_physics.SlopePhysicsEntry`). **[ASM]** It does not move the player; it only edits `playerSpeedEw` / `playerSpeedNs` (`$09B2` / `$09B4`) and `playerFlags` bit `$1000`. **[XREF]** `player_move_controller.PlayerMoveController` runs later in the same frame (actor list: `attack_ability_system` → player → `slope_ramp_physics` → `player_move_controller`), scales nonzero speed words by 4, and passes sub-pixel position/velocity to `player_move_main.PlayerMovementTick`.
+
+**[ASM]** Each frame: probe collision at the player's feet with `tile_collision.TileProbeMain`, dispatch through `SlopeTileDispatch` by collision nibble, apply curve samples from WRAM table pointers, clamp with `ClampSpeeds`, and run flat-ground deceleration via `SlopeFlatDecelerate` when not on a handled slope tile.
+
+**Related:** [`player-character.md`](player-character.md) · [`player-movement.md`](player-movement.md) · [`tile-collision.md`](tile-collision.md)
 
 ---
 
 ## Memory Map
 
+*Evidence: [ASM]*
+
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02B42B` | SlopePhysicsEntry | Main entry. Checks freeze + orb flags (`$0010,X` bit `$00C0`); skipped only when iframe counter is negative. If moving: probes tile at player feet, dispatches through `SlopeTileDispatch`. If not moving but `$1000`: probes 4 adjacent tiles for ramp exit. |
-| `$02B538` | SlopeType03Handler | Slope `$03` — south-descending (NS+, positive NS curve via `slopeCurvePtrB`). |
-| `$02B53D` | SlopeType05Handler | Slope `$05` — west (EW−, negative EW curve via `slopeCurvePtrA`). |
-| `$02B542` | SlopeType0AHandler | Slope `$0A` — east (EW+, positive EW curve via `slopeCurvePtrA`). |
-| `$02B547` | SlopeType0CHandler | Slope `$0C` — north-descending (NS−, negative NS curve via `slopeCurvePtrB`). |
-| `$02B550` | SlopeFlatExit | No slope: clamp speed, clear `$09C6`/`$09B6`. |
-| `$02B55B` | SlopeFlatDecelerate | Flat ground: check EW → `DecelerateEW`. If `$1000` → clear. Check NS → `DecelerateNS`. |
-| `$02B57C` | SlopeTileDispatch | 16-entry lookup table by collision type. |
-| `$02B59C` | ApplySlopeCurveNegEW | Read decel curve at `$09BA` indexed by `$09B6 & $0F`. Negate, add to `player_speed_ew`. |
-| `$02B5BC` | ApplySlopeCurvePosEW | Positive addition to EW speed. |
-| `$02B5E2` | ApplySlopeCurvePosNS | Add to `player_speed_ns` from `$09BC`. |
-| `$02B5FE` | ApplySlopeCurveNegNS | Negated addition to NS speed. |
-| `$02B61E` | ClampSpeeds | Clamp `player_speed_ew` to ±`$09C8` and `player_speed_ns` to ±`$09CA`. |
-| `$02B675` | DecelerateEW | Flat-ground EW deceleration. Skips if on-slope (`$1000`). Zeros speed if < 3, otherwise reads curve table step and subtracts from `player_speed_ew`. |
-| `$02B701` | ReadDecelerationStep | Read deceleration delta from `$09C2` indexed by `$09B8 & $0F`. |
-| `$02B714` | DecelerateNS | Mirror of `DecelerateEW` for NS axis. |
-| `$02B7A0` | ReadDecelerationStepNS | Mirror of `ReadDecelerationStep`. |
+| `$02B42B` | `SlopePhysicsEntry` | `COP [SetEntryHere]` entry. Gate on player actor `$0010` bits `$0080` \| `$0040` when `iframeCounter` ≥ 0 → `SlopeFlatDecelerate` only. Moving: probe `(actor $0014, actor $0016 − 8)` → `SlopeTileDispatch`. Types `$06` / `$09`: row below/above probe via `MapCellDown` / `MapCellUp` for `$05` / `$0A`. Stopped with `playerFlags` `$1000`: four-cell probe at `playerXPos` / `playerYPos`. |
+| `$02B538` | `SlopeType03Handler` | Type `$03` → `ApplySlopeCurvePosNS` (add from `slopeCurvePtrB`). |
+| `$02B53D` | `SlopeType05Handler` | Type `$05` → `ApplySlopeCurveNegEW` (negated `slopeCurvePtrA`). |
+| `$02B542` | `SlopeType0AHandler` | Type `$0A` → `ApplySlopeCurvePosEW`. |
+| `$02B547` | `SlopeType0CHandler` | Type `$0C` → `ApplySlopeCurveNegNS` (label inside `SlopeType0AHandler` block). |
+| `$02B550` | `SlopeFlatExit` | `ClampSpeeds`; clear `slopeFracAccum` / `slopeStepCounter`; `PLD`/`PLX`; fall through to `SlopeFlatDecelerate`. |
+| `$02B55B` | `SlopeFlatDecelerate` | EW nonzero → `DecelerateEW` + `RTL`. EW zero → clear `$1000` if set; NS nonzero → `DecelerateNS` + `RTL`. |
+| `$02B57C` | `SlopeTileDispatch` | 16 word entries; only `$03`, `$05`, `$0A`, `$0C` nonzero (`DEC`/`PHA`/`RTS` dispatch). |
+| `$02B59C` | `ApplySlopeCurveNegEW` | Curve from `$09BA` + `(slopeStepCounter & $0F)×2`, negated, add to `playerSpeedEw`. |
+| `$02B5BC` | `ApplySlopeCurvePosEW` | Positive EW curve; shared `SlopeSpeedZeroLatch` sets `$1000` when speed hits 0. |
+| `$02B5E2` | `ApplySlopeCurvePosNS` | Positive NS curve from `$09BC`. |
+| `$02B5FE` | `ApplySlopeCurveNegNS` | Negated NS curve from `$09BC`. |
+| `$02B61E` | `ClampSpeeds` | Clamp `\|playerSpeedEw\|` and (when EW is 0) `\|playerSpeedNs\|` to `maxSpeed* − 1` (`$09C8` / `$09CA`, default max 9 → limit 8). |
+| `$02B675` | `DecelerateEW` | Skip if `$1000`. `\|speed\| < 3` → zero EW. Else direction-aware steps from `decelCurvePtr` (`$09C2`) via `ReadDecelerationStep`; joypad `$0100` / `$0200` on `$0656`. |
+| `$02B701` | `ReadDecelerationStep` | Word at `decelCurvePtr + (decelStepCounter & $0F)×2`; `INC decelStepCounter` always. |
+| `$02B714` | `DecelerateNS` | Mirror of EW; joypad `$0400` / `$0800`; zero-speed path clears `slopeStepCounter` (not `decelStepCounter`). |
+| `$02B7A0` | `ReadDecelerationStepNS` | Byte-identical to `ReadDecelerationStep` (same counter and pointer). |
 
 ### Shared WRAM Variables
 
-Most routines in this file read and write the player actor slot and shared state bitmask:
+*Evidence: [ASM]*
 
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$player_flags` | R/W | Shared player state bitmask |
-| `$player_actor` | R | Player WRAM slot index |
+| Location | Symbol (asm) | Role |
+|----------|--------------|------|
+| `$09AA` | `playerActor` | Player slot index |
+| `$09AE` | `playerFlags` | Bit `$1000` = on-slope / stopped-on-slope latch (this file sets; controller clears when speed nonzero) |
+| `$09B2` / `$09B4` | `playerSpeedEw` / `playerSpeedNs` | Axis speed in pixels/frame (controller ×4 for movement) |
+| `$09B6` | `slopeStepCounter` | Index into slope curve tables (`& $0F`) |
+| `$09B8` | `decelStepCounter` | Index into deceleration curve |
+| `$09BA` / `$09BC` | `slopeCurvePtrA` / `slopeCurvePtrB` | Pointers to 16-word EW / NS slope curves |
+| `$09C2` | `decelCurvePtr` | Flat deceleration curve pointer |
+| `$09C6` | `slopeFracAccum` | Cleared here and by controller when NS speed word is 0; sub-pixel NS slopes live in movement code |
+| `$09C8` / `$09CA` | `maxSpeedEw` / `maxSpeedNs` | Clamp ceiling (default 9 → effective max speed 8) |
+| `$09A2` / `$09A4` | `playerXPos` / `playerYPos` | Stopped-on-slope probe coordinates |
+| `$0656` | `joypadCurrent` | Deceleration direction tests (16-bit) |
+| `$7F0028,X` | `iframeCounter` | Negative → slope detection runs despite `$0080`/`$0040` on player `$0010` |
 
 #### Slope Detection & Entry
 
+*Evidence: [ASM]*
+
 ### SlopePhysicsEntry
 
-Main entry. Checks freeze + orb flags on the player actor (`$0010,X` bit `$00C0`: freeze `$0080` + orb `$0040`); only bypassed when iframe counter is negative. If moving: probes tile at player feet, dispatches through `SlopeTileDispatch`. If not moving but `$1000`: probes 4 adjacent tiles for ramp exit.
+**[ASM]** Per-frame flow:
 
-**Algorithm:**
-- Check freeze/orb flags → `SlopeFlatDecelerate` unless iframe counter is negative
-- If moving: probe tile at feet via `TileProbeMain`
-- Dispatch through `SlopeTileDispatch` by collision nibble
-- If stopped but on-slope (`$1000`): probe adjacent cells for ramp exit
-- Otherwise run `SlopeFlatDecelerate`
+1. If player `$0010` has bit `$0080` or `$0040` and `iframeCounter,X` is not negative → `JMP SlopeFlatDecelerate` (no tile probe).
+2. If `playerSpeedEw \| playerSpeedNs` nonzero: `D=0`, probe pixel X = actor `$0014`, Y = actor `$0016 − $0008`, `JSR tile_collision.TileProbeMain`, index `SlopeTileDispatch` by `A×2`.
+3. Handler address 0: if type is `$06` or `$09`, read cell one row **down** then one row **up** (map index in `$00`) for types `$05` / `$0A`; else `SlopeFlatExit`.
+4. If both speed words zero and `playerFlags` `$1000`: reset `slopeStepCounter` and `decelStepCounter`; probe at `playerXPos`/`playerYPos` — current cell, `MapCellRight`, `MapCellDown`, `MapCellRight` from below cell; first matching handler wins; else `SlopeFlatExit`.
+5. If both speed words zero and `$1000` clear → `SlopeFlatDecelerate`.
+
+**Inferred:** The moving probe Y offset (−8 from actor Y) and stopped probe (`playerXPos`/`playerYPos`) sample different world points; the asm block note marks the gameplay consequence as an open question.
 
 ### SlopeFlatDecelerate
 
-Flat ground: check EW → `DecelerateEW`. If `$1000` → clear. Check NS → `DecelerateNS`.
+**[ASM]** EW speed nonzero → `DecelerateEW`, `RTL` (NS untouched that frame). EW zero → clear `$1000` if set; if NS speed nonzero → `DecelerateNS`, `RTL`.
 
 ### SlopeTileDispatch
 
-16-entry word table indexed by collision nibble × 2, used as a jump dispatch after `TileProbeMain` reads the tile under the player's feet. Only four entries are populated: `$03` → south-descending slope handler, `$05` → west-descending ramp, `$0A` → east-descending ramp, and `$0C` → north-descending slope handler; all other types (floor, ladder, walls, solids) are zero and fall through to flat-ground exit. Non-zero entries use the RTS dispatch trick (address − 1 stored, `DEC`/`PHA`/`RTS`) to branch directly into the matching curve-application handler.
+**[ASM]** 16-entry `.word` table. Populated indices: `$03` → `SlopeType03Handler`, `$05` → `SlopeType05Handler`, `$0A` → `SlopeType0AHandler`, `$0C` → `SlopeType0CHandler`. Dispatch: `DEC` / `PHA` / `RTS` (address in table is the handler entry, not `−1`).
+
+| Type | Handler | Speed axis | Curve |
+|------|---------|------------|-------|
+| `$03` | `SlopeType03Handler` | `playerSpeedNs` + | `slopeCurvePtrB` |
+| `$05` | `SlopeType05Handler` | `playerSpeedEw` − | `slopeCurvePtrA` (negated) |
+| `$0A` | `SlopeType0AHandler` | `playerSpeedEw` + | `slopeCurvePtrA` |
+| `$0C` | `SlopeType0CHandler` | `playerSpeedNs` − | `slopeCurvePtrB` (negated) |
 
 #### Curve Application
 
-### ApplySlopeCurveNegEW
+*Evidence: [ASM]*
 
-Read decel curve at `$09BA` indexed by `$09B6 & $0F`. Negate, add to `player_speed_ew`.
+### ApplySlopeCurveNegEW / ApplySlopeCurvePosEW / ApplySlopeCurvePosNS / ApplySlopeCurveNegNS
 
-### ApplySlopeCurvePosEW
-
-Applies the current slope curve's acceleration to the player's east-west speed while standing on an **east-descending ramp tile** (`$0A`). Each frame, `slopeStepCounter & $0F` indexes a 16-bit delta from the WRAM table at `slopeCurvePtrA` (`$09BA`), which is added directly to `player_speed_ew` to produce gradual acceleration downhill (eastward). When speed reaches zero the `$1000` stopped-on-slope flag is set and the step counter resets; otherwise the counter increments for the next frame's curve sample.
-
-### ApplySlopeCurvePosNS
-
-Applies the NS-axis slope curve to `player_speed_ns` while the player stands on a **south-descending slope tile** (`$03`). The curve value is read from the WRAM table at `slopeCurvePtrB` (`$09BC`), indexed by `slopeStepCounter & $0F`, and added directly to produce gradual southward acceleration. Speed-zero sets the `$1000` stopped-on-slope flag; nonzero speed advances the step counter for the next frame.
-
-### ApplySlopeCurveNegNS
-
-Applies the NS-axis slope curve in the **negative direction** while the player stands on a **north-descending slope tile** (`$0C`). The table value from `slopeCurvePtrB` is two's-complement negated before addition to `player_speed_ns`, producing gradual northward acceleration (deceleration of southward speed). The sign flip distinguishes uphill-north terrain from the positive `$03` handler — both share the same curve table but apply opposite signs.
+**[ASM]** Each reads one word from the appropriate pointer at `(slopeStepCounter & $0F) × 2`, updates one speed word, and on exact zero branches to `SlopeSpeedZeroLatch` (`STZ slopeStepCounter`, `TSB playerFlags #$1000`). Otherwise `INC slopeStepCounter`. Default curve (block note): `$0001` at steps 0, 4, 8, 12.
 
 #### Speed Clamping
 
+*Evidence: [ASM]*
+
 ### ClampSpeeds
 
-Limits both axis speeds after every slope curve application and on flat exit, preventing runaway acceleration down long ramps. Each axis compares `|speed|` against its configured maximum (`maxSpeedEw` at `$09C8`, `maxSpeedNs` at `$09CA`); speeds at or above the max are clamped to ±(`max` − 1), where the −1 prevents oscillation at the boundary. Called from all four slope type handlers and `SlopeFlatExit` before restoring registers.
+**[ASM]** EW speed handled first; NS only when EW is zero. Over-max positive speeds clamp to `max−1`; over-max negative speeds clamp to `−(max−1)`.
 
 #### Flat Deceleration
 
+*Evidence: [ASM]*
+
 ### DecelerateEW
 
-Flat-ground EW deceleration. Skips if on-slope flag (`$1000`) is set. If absolute speed < 3, zeros `player_speed_ew`. Otherwise, reads deceleration delta from curve table at `$09C2` (indexed by `$09B8 & $0F`), negates it, and subtracts from speed. Handles both positive (eastward) and negative (westward) speed separately.
+**[ASM]** Returns immediately if `playerFlags` `$1000`. `\|playerSpeedEw\| < 3` → `STZ playerSpeedEw` (does not reset `decelStepCounter`). For `\|speed\| ≥ 3`: same-direction joypad suppresses decel; opposite direction can apply a second `ReadDecelerationStep` in the same frame. Zero after a step → `DecelResetCounterEW` (`STZ decelStepCounter`).
 
 ### DecelerateNS
 
-Flat-ground north-south deceleration, structurally identical to `DecelerateEW` but operating on `player_speed_ns` with the south (`$0400`) and north (`$0800`) D-pad bits. Skips entirely when the `$1000` stopped-on-slope flag is set (player resting on a ramp without pushing off). Speeds below 3 are zeroed instantly; otherwise a deceleration step is read from `decelCurvePtr` via `ReadDecelerationStepNS` and subtracted, with extra braking when the player holds the opposite direction and suppression when holding the same direction as current motion.
+**[ASM]** Same structure on `playerSpeedNs` with joypad `$0400` (south) / `$0800` (north). **Inferred / asm open question:** when NS speed reaches zero, code clears `slopeStepCounter` at `loc_02B76C` instead of `decelStepCounter` (EW path clears `decelStepCounter`).
 
+---
 
 ## See Also
 
-- [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
-- [`tile-collision.md`](tile-collision.md) — tile probing for slopes and shimmy
+- [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), movement dispatch
+- [`tile-collision.md`](tile-collision.md) — `TileProbeMain`, `MapCell*`, `ReadCollisionNibble`
 - [`../../cop/README.md`](../../cop/README.md) — COP command semantics
 - [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) — global actor linked list

@@ -4,13 +4,15 @@
 
 > Modular five-actor architecture for the player character
 
+> **Evidence labels.** Each major section is tagged with the kind of claim it makes: **[ASM]** = directly observed in the extracted asm of this block; **[INFERRED]** = interpretation of behavior that is not literally encoded in the file; **[XREF]** = cross-file / engine-wide convention stated elsewhere (not provable from this file alone). Sections that mix kinds split them into separately tagged bullets or paragraphs. The `.asm` files in `extracted/` are authoritative; where prose and asm comments disagree, the asm wins.
+
 ---
 
 **Document scope:** The five-actor player character architecture in ROM bank `$02`, spanning `$02B20E`–`$02CFD0`.
 
 **Source:** [`player_character.asm`](../../../extracted/actors/player/player_character.asm) · [`shadow_shimmer.asm`](../../../extracted/actors/player/shadow_shimmer.asm) · [`player_move_controller.asm`](../../../extracted/actors/player/player_move_controller.asm)
 
-Illusion of Gaia's playable character is not a single monolithic actor. Instead, **`player_character.asm`** defines the master state machine while four companion actors run in parallel each frame — handling movement physics, terrain slopes, special abilities, and Shadow-form palette effects. All five communicate through shared WRAM variables rather than direct cross-calls.
+**[ASM]** The playable character is split across five companion actors plus the main `player_character` state machine. **`player_character.asm`** holds the movement FSM (idle, walk, block, climb, ladder, shimmy, melee, Psycho Slider, lunge helpers); **`attack_ability_system.asm`** (documented separately) handles charged abilities. Companions share WRAM (`playerFlags`, speed words, joypad state) rather than calling each other directly.
 
 | # | File | Block | Range | Size |
 |---|------|-------|-------|------|
@@ -18,14 +20,15 @@ Illusion of Gaia's playable character is not a single monolithic actor. Instead,
 | 2 | [`shadow_shimmer.asm`](../../../extracted/actors/player/shadow_shimmer.asm) | `shadow_shimmer` | `$02B20E`–`$02B29E` | 144 B |
 | 3 | [`player_move_controller.asm`](../../../extracted/actors/player/player_move_controller.asm) | `player_move_controller` | `$02B29E`–`$02B42B` | 397 B |
 | 4 | [`slope_ramp_physics.asm`](../../../extracted/actors/player/slope_ramp_physics.asm) | `slope_ramp_physics` | `$02B42B`–`$02B7B3` | 904 B |
-| 5 | [`attack_ability_system.asm`](../../../extracted/actors/player/attack_ability_system.asm) | `attack_ability_system` | `$02B7B3`–`$02BDF6` + `$02BE72`–`$02C38C` | 2,909 B |
-| 6 | [`attack_trail_followers.asm`](../../../extracted/actors/player/attack_trail_followers.asm) | `attack_trail_followers` | `$02BDF6`–`$02BE72` | 124 B |
+| 5 | [`attack_ability_system.asm`](../../../extracted/actors/player/attack_ability_system.asm) | `attack_ability_system` | `$02B7B3`–`$02C38C` | 3,033 B (one block in `db-us/blocks.json`; the trail followers are inside it) |
 
 **Related:** [`tile-collision.md`](tile-collision.md) · [`hardware-and-init.md`](hardware-and-init.md) · [`player-movement.md`](player-movement.md) (player movement physics `$02CFD0`–`$02E395`) · [`README.md`](README.md) · [`../../cop/README.md`](../../cop/README.md) · [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) · [`attack-ability-system.md`](attack-ability-system.md) · [`slope-ramp-physics.md`](slope-ramp-physics.md)
 
 ## Architecture Overview
 
-The player uses a **five-actor modular design**. At initialization, `PlayerCharacterDef` spawns four companion actors via COP commands; each companion runs its own per-frame loop while reading and writing shared WRAM state. The resulting **linked-list order** is `attack_ability_system` → `player_character` → `slope_ramp_physics` → `player_move_controller`, with `shadow_shimmer` appended last via `COP SpawnListAppend` (flags `$2800`) — not the same as per-frame execution order.
+*Evidence: [ASM] + [XREF]*
+
+**[ASM]** `PlayerCharacterDef` spawns four companions: `COP [SpawnBefore]` → `attack_ability_system.AttackSystemEntry`; `COP [SpawnAfter]` → `player_move_controller.PlayerMoveController` then `slope_ramp_physics.SlopePhysicsEntry`; `COP [SpawnListAppend]` → `shadow_shimmer.ShadowShimmerInit` with flags `$2800`. Each `SpawnAfter` inserts directly behind the spawner, so **actor-list order** is: `attack_ability_system` → player → `slope_ramp_physics` → `player_move_controller`, with `shadow_shimmer` appended at the list tail. **Per-frame order** matches that list (slope physics runs before the move controller in the same frame).
 
 ```mermaid
 flowchart TB
@@ -37,17 +40,21 @@ flowchart TB
     PC -->|"SpawnBefore"| ATK
     PC -->|"SpawnAfter"| MOV
     PC -->|"SpawnAfter"| SLP
-    PC -->|"SpawnLastRel"| DSP
+    PC -->|"SpawnListAppend"| DSP
     ATK <-->|"$player_flags<br/>$0AD4 / $0AA2"| PC
     MOV <-->|"$player_speed_ew/ns<br/>$player_flags"| SLP
-    MOV -->|"JSL PlayerMovementTick"| COL["tile_collision<br/>$02E102"]
+    MOV -->|"JSL PlayerMovementTick"| COL["player_move_main<br/>$02CFD0"]
     ATK -->|"SetPlayerActorFunc"| PC
     DSP -->|"player speed"| MOV
 ```
 
 ### Player State Machine
 
-`PlayerIdleEntry` is the hub state. Input priority from `PlayerIdleDispatchTable` is: attack button → D-pad cardinal → L/R block → idle stand. Residual `player_speed_ew/ns` routes to `MovingEastWest` / `MovingNorthSouth` for inertial deceleration. Ladder, vine climb, and wall shimmy are entered from tile-collision redirects during movement (tiles `$02`, `$08`, `$07`).
+*Evidence: [ASM] + [XREF]*
+
+**[ASM]** `PlayerIdleEntry` clears `$F0FF` from `joypadHeld`, `$2800` from `playerFlags`, actor `$0020`, and `climbStateData`; re-sets actor `$0100`. Residual `playerSpeedEw` / `playerSpeedNs` → `MovingEastWest` / `MovingNorthSouth`. Dispatch: `GetPlayerFacing` × 14 → row in `PlayerIdleDispatchTable`; scan priority attack (`joypadCurrent` `$0080`) → D-pad cardinals → L/R `$0300` → idle stand.
+
+**[XREF]** Ladder, vine, and shimmy entry points are reached from `player_move_main` tile redirects (collision types `$02`, `$08`, `$07` in movement code — not defined in `player_character.asm` alone).
 
 ```mermaid
 stateDiagram-v2
@@ -55,7 +62,7 @@ stateDiagram-v2
 
     Idle --> Walk: D-pad cardinal
     Idle --> Block: L/R shoulder ($0030)
-    Idle --> Attack: B button ($8000)
+    Idle --> Attack: Attack ($0080)
     Idle --> InertialMove: Residual player_speed
 
     Walk --> Block: L/R during walk
@@ -80,17 +87,18 @@ stateDiagram-v2
 
 ### Compilation Unit Root
 
+*Evidence: [ASM]*
+
 ```
 player_character.asm
   ?INCLUDE 'attack_ability_system'
-    ?INCLUDE 'attack_trail_followers'
-    ?INCLUDE 'ApplyOrbitalOffsetFromRef'
+    ?INCLUDE 'ability_damage_tables'
     ?INCLUDE 'actor_pool'
-    ?INCLUDE 'table_01D9A7'    — ability animation data A
-    ?INCLUDE 'table_01D9BF'    — ability animation data B
-    ?INCLUDE 'table_0EE000'    — guided projectile spritemap
-    ?INCLUDE 'table_178000'    — Dark Friar FX spritemap
+    ?INCLUDE 'ApplyOrbitalOffsetFromRef'
+    ?INCLUDE 'player_character'    — circular include back to this root
     ?INCLUDE 'spriteset_aura'    — Aura projectile spritemap
+    ?INCLUDE 'spriteset_dark_friar'    — Dark Friar FX spritemap
+    ?INCLUDE 'spriteset_pickups_effects'
   ?INCLUDE 'shadow_shimmer'
   ?INCLUDE 'game_over_sequence'
   ?INCLUDE 'hardware_math'
@@ -101,29 +109,32 @@ player_character.asm
 
 ### Shared WRAM Variables
 
-| Address | Symbol | Role |
-|---------|--------|------|
-| `$09AA` | `$player_actor` | Actor slot index for the player character |
-| `$09AE` | `$player_flags` | Shared state bitmask |
-| `$09B2` | `$player_speed_ew` | East-west velocity (slope physics writes; move controller reads) |
-| `$09B4` | `$player_speed_ns` | North-south velocity |
-| `$09B6` | — | Slope step counter (indexed into curve tables) |
-| `$09B8` | — | Deceleration step counter |
-| `$09BA` / `$09BC` | — | Pointers to slope speed delta tables |
-| `$09C2` | — | Pointer to flat-ground deceleration table |
-| `$09C6` | — | Slope fractional accumulator |
-| `$09C8` / `$09CA` | — | Max speed clamps for EW / NS |
-| `$0AA2` | — | Ability availability bitmask |
-| `$0AD4` | — | Current character form (0=Will, 1=Freedan, 2=Shadow) |
-| `$0657` | — | Raw joypad state |
-| `$0658` | — | Joypad mask (directional bits stripped during attacks) |
-| `$0408` / `$040A` | — | External velocity accumulators (knockback, conveyors) |
-| `$040C` | — | Auto-walk / run momentum timer |
-| `$14` / `$16` | — | Sub-pixel position scratch (×4 scale) |
+*Evidence: [ASM] + [XREF]*
 
-### Player Flags Reference (`$player_flags` at `$09AE`)
+| Address | Symbol (asm) | Role |
+|---------|--------------|------|
+| `$09AA` | `playerActor` | Player actor slot index |
+| `$09AE` | `playerFlags` | Shared state bitmask |
+| `$09B2` / `$09B4` | `playerSpeedEw` / `playerSpeedNs` | Pixel/frame speed (`slope_ramp_physics` writes; controller ×4) |
+| `$09B6` / `$09B8` | `slopeStepCounter` / `decelStepCounter` | Curve table indices |
+| `$09BA` / `$09BC` / `$09C2` | slope / decel curve pointers | Set at boot (`system_core`) |
+| `$09C6` | `slopeFracAccum` | NS sub-pixel slope accumulator (movement code) |
+| `$09C8` / `$09CA` | `maxSpeedEw` / `maxSpeedNs` | Slope clamp (default 9) |
+| `$0AA2` | `abilityBitmask` | Learned abilities |
+| `$0AD4` | `characterForm` | 0 Will, 1 Freedan, 2 Shadow |
+| `$0656` | `joypadCurrent` | Held buttons (16-bit); D-pad in high byte |
+| `$0657` | *(high byte of `$0656`)* | Read by `JoypadToVelocity` (8-bit path) |
+| `$0658` | `joypadHeld` | Consumed buttons (OR'd by attacks) |
+| `$065A` | `joypadMaskStd` | Masked from `joypadCurrent` (ladder/shimmy/vine) |
+| `$0408` / `$040A` | `extVelocityX` / `extVelocityY` | External push per frame (zeroed after use) |
+| `$040C` | `invincibilityTimer` | Run-start window (`SetAutoWalkTimer` → 13); decremented globally |
+| `$14` / `$16` | move-controller locals | Sub-pixel position (×4) in `PlayerMoveController` actor only |
 
-Full table (setters, clearers, readers, scene-spawn derivation) lives in [wram-memory-map.md](../../wram-memory-map.md) §"Player Flags Reference". Summary:
+### Player Flags Reference (`playerFlags` at `$09AE`)
+
+*Evidence: [ASM] + [XREF]*
+
+Full table (setters, clearers, readers, scene-spawn derivation) lives in [wram-memory-map.md](../../wram-memory-map.md) §"Player Flags Reference". Summary (bits referenced in these asm files):
 
 | Bit | Hex | Meaning |
 |-----|-----|---------|
@@ -137,7 +148,7 @@ Full table (setters, clearers, readers, scene-spawn derivation) lives in [wram-m
 | 8 | `$0100` | Forced walk (extended warp pan) — camera target locked, drift paused |
 | 9 | `$0200` | Game over — HP reached zero (`CheckPlayerDeath`) |
 | 11 | `$0800` | Script/ability lock — cutscene, climb, chest, Psycho Slider, Aura Barrier |
-| 12 | `$1000` | On a slope/ramp (set by slope physics) |
+| 12 | `$1000` | On-slope latch (set by `slope_ramp_physics` when slope speed hits 0; cleared by move controller when speed nonzero) |
 | 13 | `$2000` | Guard/channel stance — block, Dark Friar cast, Spin Dash charge |
 | 15 | `$8000` | Body sprite overridden via `SetPlayerSpriteDirect` (COP `$8E`) |
 
@@ -147,7 +158,7 @@ Bits 6, 10 and 14 (`$0040`, `$0400`, `$4000`) are never used.
 
 | Mask | Bits | Meaning |
 |------|------|---------|
-| `$0A00` | 11, 9 | Script lock or game over — `PlayerMoveController` skips the frame |
+| `$0A00` | 11, 9 | `$0800` script/ability lock or `$0200` game over — `PlayerMoveController` skips movement |
 | `$1800` | 12, 11 | Slope or script lock — no new hit stagger |
 | `$2800` | 13, 11 | Cleared by `PlayerIdleEntry`; blocks Select/Y in `GlobalInputHandler` |
 | `$2A00` | 13, 11, 9 | `AttackSystemEntry`: no attack polling |
@@ -156,7 +167,9 @@ Bits 6, 10 and 14 (`$0040`, `$0400`, `$4000`) are never used.
 | `$3800` | 13, 12, 11 | `run_button_main`: no sprinting |
 | `$3A00` | 13, 12, 11, 9 | `ValidateAttackReady`: no attack launch |
 
-### Ability System (`$0AD4` + `$0AA2`)
+### Ability System (`characterForm` + `abilityBitmask`)
+
+*Evidence: [XREF]* — charge timing and dispatch live in `attack_ability_system.asm`; form constants **[ASM]** in `player_character.asm`.
 
 | `$0AD4` | Form | Attack Dispatcher | Primary Abilities |
 |---------|------|-------------------|-------------------|
@@ -179,61 +192,64 @@ Bits 6, 10 and 14 (`$0040`, `$0400`, `$4000`) are never used.
 
 ## shadow_shimmer.asm
 
-Manages Shadow's palette shimmer effect. Only active when `$0AD4 == 2`.
+*Evidence: [ASM]*
+
+Palette shimmer companion for Shadow (`characterForm == 2`). Parent actor points a **marked child** (`SpawnAfterMarked`) at palette COP loops; it does not write CGRAM itself.
 
 | Address | Name | Description |
 |---------|------|-------------|
 | `$02B20E` | ShadowShimmerInit | Check `$0AD4==2` (Shadow), else die. Spawn palette marker. |
 | `$02B21F` | ShadowShimmerIdle | Wait: monitor player speed. If moves → active. |
 | `$02B241` | ShadowShimmerActive | Active: palette `#24` cycling while moving. |
-| `$02B264` | ShadowShimmerGuard | Validate `$0AD4==2`, check `$0040` flag. If invalid, `PLA`; `COP [Die]`. |
+| `$02B264` | ShadowShimmerGuard | `JSR` from idle/active. Form ≠ 2 → `PLA`; `COP [Die]`. Player actor `$0010` bit `$0040` (dead) → child → `ShadowShimmerNop`, `SetEntryHere`, `RTL`. |
 | `$02B28D` | ShadowShimmerSlowStrips | Infinite palette `#23` cycle (idle glow). |
 | `$02B294` | ShadowShimmerFastStrips | Infinite palette `#24` cycle (active glow). |
 | `$02B29B` | ShadowShimmerNop | No-op: `COP [SetEntryHere]`; `RTL`. |
 
 ### ShadowShimmerInit
 
-SpawnLastRel companion spawned by `PlayerCharacterDef`. Verifies `$0AD4 == 2` (Shadow form) and immediately `COP [Die]`s if the player is Will or Freedan. On success, spawns a child palette actor via `SpawnAfterMarked` pointed at `ShadowShimmerSlowStrips` (palette bundle `#23`) and falls through into `ShadowShimmerIdle`. This actor exists solely to drive Shadow's distinctive shimmer FX and never runs for other character forms.
-
+**[ASM]** `SpawnListAppend` from `PlayerCharacterDef` (also Dark Space transform scenes). `characterForm != 2` → `COP [Die]`. Else `COP [SpawnAfterMarked] ( @ShadowShimmerSlowStrips, #$2800 )` then falls into `ShadowShimmerIdle`.
 
 ### ShadowShimmerIdle
 
-Standing shimmer state, re-entered each frame with `COP [SetEntryHere]`. Overwrites the child actor's function pointer to `ShadowShimmerSlowStrips` and resets its frame counter so palette `#23` cycles softly while Shadow is still. Each tick calls `ShadowShimmerGuard`, then ORs `$player_speed_ew | $player_speed_ns` — any nonzero speed (or flag byte `#00 == $01`) transitions to `ShadowShimmerActive`. When the player stops moving, Shadow keeps the idle glow rather than the brighter movement palette.
+**[ASM]** Each frame: `LDY $06` (list successor = palette child); write `$0000,Y` → `ShadowShimmerSlowStrips`, `$0008,Y` → 0; `SetEntryHere`; `JSR ShadowShimmerGuard`. `playerSpeedEw | playerSpeedNs` nonzero → `ShadowShimmerActive`. Else `COP [BranchOnFlagByte] ( #00, #01, &ShadowShimmerActive )`.
 
+**Inferred:** Ordinary D-pad walking leaves both speed words at zero (`player_move_controller` joypad path); fast strips track slope/ramp/run speeds and flag byte `#00`, not plain walk animation.
 
 ### ShadowShimmerActive
 
-Movement shimmer state entered when Shadow starts walking or running. Redirects the child palette actor to `ShadowShimmerFastStrips` (palette bundle `#24`) for a brighter, faster cycling effect synchronized with motion. Each frame runs `ShadowShimmerGuard`, then checks whether both speed axes are zero; if so and flag byte `#00 == $00`, returns to `ShadowShimmerIdle`. The idle/active split is the core visual feedback distinguishing Shadow's stationary vs. moving appearance.
-
+**[ASM]** Points child at `ShadowShimmerFastStrips` (#24). After guard, nonzero speed → `RTL`. Both zero → `BranchOnFlagByte ( #00, #00, &ShadowShimmerIdle )`.
 
 ### ShadowShimmerGuard
 
-Per-frame guard subroutine invoked from both idle and active shimmer states. If `$0AD4 != 2` (player transformed away from Shadow), pops the caller's return address and `COP [Die]`s — the shimmer actor self-destructs. If the player actor flag `$0040` is set (cutscene lock, menu, or similar palette freeze), pops return, points the child at `ShadowShimmerNop` (a no-op yield loop), and exits — cycling pauses without killing the actor. Otherwise returns normally so the caller continues its idle/active palette logic.
+**[ASM]** Form check; on dead bit `$0040` on **player** `$0010,Y` (`Y = playerActor`): drop JSR return, repoint child to `ShadowShimmerNop`, `SetEntryHere` + `RTL` (parent never re-enters idle/active). Form change → `PLA`, `COP [Die]` (marked child dies with parent).
 
 
 ## player_move_controller.asm
 
-Central per-frame movement pipeline. Scales positions to ×4 sub-pixel resolution. After velocity is computed, dispatches into `PlayerMovementTick` for collision resolution; movement physics are documented in [`player-movement.md`](player-movement.md).
+*Evidence: [ASM] + [XREF]*
+
+Per-frame movement integrator for the hidden companion actor (`CopyActorState` sets `$2000` on spawn — **[XREF]**). Scales local `$14`/`$16` to ×4 once at spawn; each frame merges joypad or speed words with `extVelocityX/Y`, then either `JSL player_move_main.PlayerMovementTick` or direct `$22`/`$26` += velocity. See [`player-movement.md`](player-movement.md) for tick internals.
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02B29E` | PlayerMoveController | Each frame: reads player actor slot, checks the actor freeze flag (`$0080` in `$10`). If `$player_flags` `$0A00` (script lock or game over), zeroes external velocity and skips the frame. Otherwise reads joypad, combines with speed accumulators, applies velocity. Calls `PlayerMovementTick` for collision. Writes back positions. |
-| `$02B3C6` | JoypadToVelocity | Converts joypad state (`$0657`) to 2D velocity. 8 directions: pure cardinal = ±8, diagonals = (±6, ±6) or (6, ±10). |
+| `$02B29E` | `PlayerMoveController` | Hit-stun gate: player `$0010` `$0080` and `iframeCounter` ≥ 0 → skip frame. `$playerFlags & $0A00` → clear ext velocities, `RTL`. Sync actor `$0014`/`$0016` into local sub-pixels. Joypad gated by `$3000`. Speed word path ×4 and clears `$1000`. Player `$0010` `$0008` set → `JSL PlayerMovementTick` with `$000A` = **this** actor slot; else add velocity without collision. Write-back >>2 to player pixels; copy this actor `$0004` solid bit to player `$0010`. |
+| `$02B3C6` | `JoypadToVelocity` | Pack velocity: high byte Y, low byte X, sub-pixels/frame from `$0657` (pad high byte). Cardinal ±8; diagonal ±6. Left beats right; up beats down. |
 
 ### PlayerMoveController
 
-Each frame: reads player actor slot, checks the actor freeze flag (`$0080` in `$10`). If `$player_flags` `$0A00` (script lock or game over), zeroes external velocity and skips the frame. Otherwise reads joypad, combines with speed accumulators, applies velocity. Calls `PlayerMovementTick` for collision. Writes back positions.
+**[ASM]** Stages match the block comment at the top of `player_move_controller.asm` (hit-stun → lock → sync → velocity → collision vs direct add → write-back). **Inferred:** “Dead” is not tested here; game over uses `$0A00` skip instead.
 
 **Algorithm:**
-- Scale `$14`/`$16` to ×4 sub-pixel resolution
-- Skip frame if player paralyzed (`$0080`) or dead
-- If `$player_flags & $0A00`: zero external velocity, return
-- Sync scratch position with actor pixel coords
-- If not `$3000` locked: `JSR JoypadToVelocity`
-- Merge EW velocity from `player_speed_ew×4` or joypad + `$0408`
-- Merge NS velocity similarly; clear slope flag `$1000` when slope speed used
-- If collision flag `$0008`: `JSL PlayerMovementTick`
-- Write positions back to player actor slot (`$0014`/`$0016`)
+- Once at spawn: local `$14`/`$16` ×4
+- Skip if player `$0010` `$0080` and `iframeCounter,X` not negative
+- If `playerFlags & $0A00`: `STZ extVelocityX/Y`; `RTL`
+- Sync local position from player actor pixels when they differ
+- If `playerFlags & $3000`: zero packed joypad velocity; else `JSR JoypadToVelocity`
+- EW: `$22` = local X; `$20` = (`playerSpeedEw×4` or sign-extended joypad X) + `extVelocityX`; nonzero speed clears `$1000`
+- NS: `$26` = local Y; `$24` similarly; zero NS speed word → `STZ slopeFracAccum`
+- Player `$0010` `$0008`: `STX $000A`; `JSL PlayerMovementTick`; else `$22`/`$26` += deltas
+- Write-back; propagate solid `$0004` from controller actor `$10` to player `$10`
 
 
 **Variables:**
@@ -244,7 +260,7 @@ Each frame: reads player actor slot, checks the actor freeze flag (`$0080` in `$
 | `$player_flags` | R/W | Movement/attack/slope flags |
 | `$player_speed_ew/ns` | R | Slope physics override |
 | `$0408`/`$040A` | R/W | External velocity accumulators |
-| `$0657` | R | Raw joypad |
+| `$0656` / `$0657` | R | `joypadCurrent` / high byte (D-pad bits 0–3 in `$0657`) |
 
 
 **Cross-References:**
@@ -252,12 +268,12 @@ Each frame: reads player actor slot, checks the actor freeze flag (`$0080` in `$
 | Symbol | Relationship |
 |--------|-------------|
 | `JoypadToVelocity` | JSR each frame when unlocked |
-| `PlayerMovementTick` | JSL for tile collision ($02CFD0); see [`player-movement.md`](player-movement.md) |
+| `PlayerMovementTick` | `JSL $@player_move_main.PlayerMovementTick` (`$02CFD0`); see [`player-movement.md`](player-movement.md) |
 | `SlopePhysicsEntry` | Writes `$player_speed_*` |
 
 ### JoypadToVelocity
 
-Converts joypad state (`$0657`) to 2D velocity. 8 directions: pure cardinal = ±8, diagonals = (±6, ±6) or (6, ±10).
+**[ASM]** Reads `$0657` in 8-bit mode (bits: 0 Right, 1 Left, 2 Down, 3 Up). Returns packed 16-bit word (Y in high byte, X in low). Diagonals use ±6 on both axes (not ±10).
 
 **Algorithm:**
 | Direction | X vel | Y vel |
@@ -283,11 +299,13 @@ Converts joypad state (`$0657`) to 2D velocity. 8 directions: pure cardinal = ±
 
 ## player_character.asm
 
-Master actor definition and state machine for idle, walk, block, climb, ladder, shimmy, and attack.
+*Evidence: [ASM]*
+
+Master actor definition and movement state machine (idle, walk, block, climb, ladder, shimmy, melee, Psycho Slider, Will lunge helpers). ROM `181132`–`184272` (`$02C38C`–`$02CFD0`).
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02C38C` | PlayerCharacterDef | Actor definition header (type `$00`, priority `$08`, flags `$85`). Init: sets `$0100` + `$0001`. Stores X to `$player_actor`. Sets `$7F101C,X = 1`. If `$0AF8` (death), spawns `DeathWakeupMessage`. Spawns 4 companion actors via `SpawnBefore`/`SpawnAfter`/`SpawnLastRel`. |
+| `$02C38C` | PlayerCharacterDef | Actor-def `#00`, `#08`, `#85`. Init: `TSB $10 #$0100`, `TSB $12 #$0001`, `STA playerActor`, `STA free101C,X`. If `gameOverWakeupFlag` → `DeathWakeupMessage`. Spawns attack (before), move + slope (after), shadow (`SpawnListAppend`, `$2800`). |
 | `$02C3C8` | PlayerIdleEntry | Main idle state. Clears joypad mask/flags. Clears `$2800` from `$player_flags`. If EW/NS speed non-zero → walking (`MovingEastWest` / `MovingNorthSouth`), else → directional idle dispatch via facing + joypad. |
 | `$02C447` | PlayerIdleDispatchTable | 28-entry table (7 per facing × 4 directions). Selected by combining facing (`$24`) with joypad/action button state. |
 | `$02C47F` | IdleStandSouth | South-facing idle. Shadow variant check → sprite `#00` or `#10`. |
@@ -302,16 +320,16 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 | `$02C524` | WalkNorth | North, sprite `#09`. |
 | `$02C56C` | WalkWest | West, sprite `#0A`. |
 | `$02C5B5` | WalkEast | East, sprite `#0B`. |
-| `$02C5FF` | CheckAttackWhileWalking | Check attack button (`$8000`) or movement stop. Check slope (`$1000`). |
+| `$02C5FF` | CheckAttackWhileWalking | Attack `$0080` → `WalkAbortToIdle`; zero `playerSpeedEw|Ns` → abort; `BIT #$1000` on `playerFlags` for slope (skip L/R block in callers). |
 | `$02C614` | WalkAbortToIdle | `PLA` — drops return address. |
 | `$02C615` | WalkRestoreSaved | `COP [RestoreSavedPtr]`. |
 | `$02C617` | SetAutoWalkTimer | Set `$040C = $000D` (13-frame auto-walk timer). |
-| `$02C61E` | ClimbVineEntry | Vine climbing: clear `$0008`, set `$0200`. Block joypad `$4000`. Sprites `#18`→`#19`→`#1A`→`#1B` cycle with force-move Y+7. |
+| `$02C61E` | ClimbVineEntry | Actor `$0008` clear, `$0200` set; `joypadMaskStd \|= $0008` (use-item hidden). Sprites `#18`/`#19` entry, loop `#1A`/`#1B`/`#19` with `StageMoveY #07`. |
 | `$02C692` | ClimbVineLand | Landing: sound `#2C`, sprite `#1C`. |
 | `$02C6AE` | CheckClimbFrame | Animation frame check. |
 | `$02C6BC` | CheckClimbAttack | Freedan climb check: if `$0AD4==1` and ability `$0040`, check attack button → drop attack. |
 | `$02C6D5` | ClimbDropAttack | Freedan's drop-attack from vine: sprite `#06`, hitbox `#00`, force-move Y+7. |
-| `$02C6FA` | ClimbDropLand | Drop landing: anim table 2, camera shake spawn. Wait 39 frames. |
+| `$02C6FA` | ClimbDropLand | `LoadAbilityDamageB` entry 2; scene `$DD` skips `ImpactTerrainShake`; `WaitByte #$27` (39 frames). |
 | `$02C73F` | ImpactTerrainShake | Sets `$player_flags` `$0010`. Waits `$01DF` frames. Clears. Dies. |
 | `$02C751` | CameraShakeActor | Sound `#15`. Decrements counter → dies. |
 | `$02C75E` | CameraShakeFrame | Random camera target offset −1..+2 on X and Y (`(RNG & 3) − 1`, `((RNG >> 2) & 3) − 1`) to `$06BE`/`$06C2` each frame. |
@@ -354,13 +372,13 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 | `$02CB92` | CheckRunAttack | Psycho Slider gate: not hitstun, Will only, has ability `$0002` (Psycho Slider), not slope. |
 | `$02CBB5` | RunAttackSpeedCheck | Psycho Slider speed gate: absolute EW ≥ 3 → `RunAttackEW`, else absolute NS ≥ 3 → `RunAttackNS`. |
 | `$02CBD9` | SpeedThresholdEW | Takes absolute value of `player_speed_ew` and falls through to shared speed ≥ 4 threshold check. |
-| `$02CBE4` | SpeedThresholdNS | NS check. |
+| `$02CBE4` | SpeedThresholdNS | Shared tail: `\|speed\| >= 4` → too fast for normal attack; else CLC unless `$1000` set (SEC). |
 | `$02CBFF` | RunAttackNS | NS Psycho Slider with anim table A entry 1. |
 | `$02CC52` | RunAttackEW | EW Psycho Slider. |
 | `$02CCA5` | FreezeCameraForAttack | Clears `$0100`, sets `$0200` in `layerPriorityFlag` (`$06EE`) — freezes camera scroll. |
-| `$02CCB0` | RunAttackFlagSetup | Sets `$0200` in `$10`, `$0080` in `$0658` (joypadHeld: attack consumed), `$0802` in `$player_flags` (Psycho Slider). |
+| `$02CCB0` | RunAttackFlagSetup | Actor `$0200`; `joypadHeld \|= $0080`; `playerFlags \|= $0802` (bits 1 and 11). |
 | `$02CCC2` | UnfreezeCameraAfterAttack | Clears camera-freeze bit `$0200` from `layerPriorityFlag`. |
-| `$02CCC8` | RunAttackCleanup | Clears flags. |
+| `$02CCC8` | RunAttackCleanup | Clear actor `$0200`; consume attack in `joypadHeld`; `TRB playerFlags #$0002`. |
 | `$02CCDA` | AttackSouth | South attack. Freedan wall-slash variant. |
 | `$02CD5B` | AttackNorth | North. |
 | `$02CDDC` | AttackWest | West. |
@@ -383,7 +401,7 @@ Master actor definition and state machine for idle, walk, block, climb, ladder, 
 
 ### PlayerCharacterDef
 
-Actor definition header (type `$00`, priority `$08`, flags `$85`). Init: sets `$0100` + `$0001`. Stores X to `$player_actor`. Sets `$7F101C,X = 1`. If `$0AF8` (death), spawns `DeathWakeupMessage`. Spawns 4 companion actors via `SpawnBefore`/`SpawnAfter`/`SpawnLastRel`.
+**[ASM]** See table row above; shadow companion uses `SpawnListAppend`, not `SpawnAfter`.
 
 
 **Variables:**
@@ -401,7 +419,7 @@ Actor definition header (type `$00`, priority `$08`, flags `$85`). Init: sets `$
 | `AttackSystemEntry` | `SpawnBefore` companion |
 | `PlayerMoveController` | `SpawnAfter` companion |
 | `SlopePhysicsEntry` | `SpawnAfter` companion |
-| `ShadowShimmerInit` | `SpawnLastRel` companion |
+| `ShadowShimmerInit` | `SpawnListAppend` companion (flags `$2800`) |
 
 #### Idle & Standing States
 
@@ -467,7 +485,7 @@ Walking south, sprite `#08`. Auto-walk timer, L/R attack check.
 
 ### WalkNorth
 
-Entered when `PlayerIdleDispatchTable` detects D-pad up (or a northward direction change during walk). On first entry from a different facing (`$24 == 1`), initializes `$player_speed_ns = -3`, clears slope/decel counters, clears the run-window timer (`$040C`), and seeds a 13-frame auto-walk guarantee via `SetAutoWalkTimer`. Stages walk animation sprite set `#09` (north-facing) and loops `AnimOneFrame` each COP tick. Each frame checks whether up was released (`BranchIfNoButton #$0800` → `WalkRestoreSaved` / idle), calls `CheckAttackWhileWalking` for B-button or zero-speed aborts, and offers L/R shoulder (`#$0030`) transition to `BlockNorth`. Actual displacement comes from the `PlayerMoveController` companion, which merges joypad velocity or `$player_speed_* × 4` with external knockback and delegates collision to `PlayerMovementTick`.
+**[ASM]** D-pad up dispatch; run-start when `$24 == 1` and `invincibilityTimer >= 0` sets `playerSpeedNs = -3`, clears slope/decel counters, `SetAutoWalkTimer` (`$040C = 13`). Sprite `#09`, `AnimOneFrame` loop. `BranchIfNotPressed #$0800` → idle; `CheckAttackWhileWalking`; L/R `#$0030` → `BlockNorth` unless `$1000`. **Convention (other file):** displacement from `PlayerMoveController` / `PlayerMovementTick`.
 
 
 **Variables:**
@@ -506,7 +524,7 @@ East-facing walk state — mirror of `WalkWest` for right D-pad (`#$0100`) and s
 
 ### ClimbVineEntry
 
-Vine climbing: clear `$0008`, set `$0200`. Block joypad `$4000`. Sprites `#18`→`#19`→`#1A`→`#1B` cycle with force-move Y+7.
+**[ASM]** Actor flags: clear `$0008`, set `$0200`; `joypadMaskStd \|= $0008`. Three-sprite loop with `StageMoveY #07`. **`CheckClimbAttack`:** Freedan (`characterForm == 1`) + `abilityBitmask` `$0040` + attack `$0080` → `ClimbDropAttack`.
 
 
 **Variables:**
@@ -562,12 +580,12 @@ Per-frame camera jitter helper called by `CameraShakeActor` (spawned on Freedan 
 
 ### LadderClimbSouth
 
-South-facing ladder entry reached via tile-collision redirect on ladder tile `$02` during movement. Clears actor flags, sets climb mode (`$0100` on actor, `$0800` on `$player_flags`), and masks joypad to up/down only (`$CFF0` on `$0658`). Plays the south mount animation (`StagePlayerMoveXY` sprite `#26`), then immediately branches to `LadderMoveUp`, `LadderMoveDown`, or `LadderIdleNorth` depending on held direction. While climb flags are set, `PlayerMoveController` zeros external velocity and skips its normal pipeline — ladder states drive position directly via force-move COP commands.
+**[ASM]** Entry: clear actor `$0028`, set `$0100`, `playerFlags \|= $0800`, `joypadMaskStd \|= $CFFC`; mount `#26`; raw up/down `$0801` / `$0401`. **Convention (other file):** `$0800` in `playerFlags` makes `PlayerMoveController` skip (`BIT #$0A00` includes `$0800`). Position from `StageMoveY` / ladder COPs while player `$10` bit `$0008` clear (no collision tick).
 
 
 ### LadderClimbNorth
 
-North-facing ladder entry with the same flag and joypad masking as `LadderClimbSouth`, but uses mount sprite `#28` and inverted direction priority (down checked before up). After the entry animation completes, branches to `LadderMoveDown`, `LadderMoveUp`, or falls through to `LadderIdleSouth` if no direction is held. Sets `$0A00` on `$player_flags` so the movement companion defers to ladder force-move logic.
+**[ASM]** Same setup as south: actor `$0028` clear, `$0100` set, `playerFlags \|= $0800`, `joypadMaskStd \|= $CFFC`; mount sprite `#28`; down (`#$0401`) before up (`#$0801`). **Convention (other file):** `PlayerMoveController` skips when `playerFlags` has `$0800` (script/ability lock) — ladder sets that bit, not `$0A00`.
 
 
 ### LadderMoveDown
@@ -640,7 +658,9 @@ NS walking. Sprite `#0D` (north) / `#0C` (south).
 
 ### CheckRunAttack
 
-Will-only Psycho Slider eligibility gate, called from `MovingEastWest` / `MovingNorthSouth` during inertial movement. The Psycho Slider is Will's running slide attack — acquired in Mu West (scene `$62`). Requires all of: actor flag `$0080` clear (not frozen), `$0AD4 == 0` (Will form), ability bitmask bit 1 (`$0002`) set (Psycho Slider learned), `$player_flags` bit `$1000` clear (not already in walk-attack), and attack button (`#$8000`) held. If every condition passes, branches to `RunAttackSpeedCheck` to verify sufficient axis speed before launching the slide attack. Returns immediately on any failed check, allowing normal attack or block transitions to proceed.
+**[ASM]** Called from `MovingEastWest` / `MovingNorthSouth`. Requires: actor `$10` bit `$0080` clear (no hit-reaction counter), `characterForm == 0`, `abilityBitmask` `$0002`, `playerFlags` `$1000` clear, attack held (`BranchIfPressed #$0080`). Pass → `RunAttackSpeedCheck` (`|playerSpeedEw| ≥ 3` prefers EW, else `|playerSpeedNs| ≥ 3`).
+
+**Inferred:** Psycho Slider is learned in Mu West (scene `$62`) — stated in asm block comment, not encoded as a scene check here.
 
 
 **Variables:**
@@ -746,44 +766,42 @@ East-facing melee attack — mirror of `AttackWest` with right D-pad consumed (`
 
 ### AttackInit
 
-Shared initialization called via JSR at the start of every directional melee attack. Copies D-pad bits from `$0657` into `$0658`, ORs in the attack button (`#$8000`) so both attack and held directions are consumed, and clears actor visibility flag `$0100`. Plays form-specific attack SFX on channel 2: Will (`$0AD4 == 0`) uses sound `#01` (lighter swing), Freedan and Shadow use `#02` (heavier). Each `Attack*` handler then consumes its facing direction bit in `$0658` and stages direction-specific sprites before entering the animation loop.
+**[ASM]** `joypadHeld = (joypadCurrent & $0F00) | $0080`; clears actor `$0100`. SFX: Will → `#01`, Freedan/Shadow → `#02` on channel 2. Each `Attack*` then `TSB joypadHeld` with its facing mask (`$0400` south, `$0800` north, etc.).
 
 
 ## Cross-File Call Graph
 
+*Evidence: [ASM] + [XREF]*
+
 ```
 player_character.asm (PlayerCharacterDef @ $02C38C)
-  ├─ COP SpawnBefore  → attack_ability_system.AttackSystemEntry
-  ├─ COP SpawnAfter   → player_move_controller.PlayerMoveController
-  ├─ COP SpawnAfter   → slope_ramp_physics.SlopePhysicsEntry
-  ├─ COP SpawnLastRel → shadow_shimmer.ShadowShimmerInit
+  ├─ COP SpawnBefore       → attack_ability_system.AttackSystemEntry
+  ├─ COP SpawnAfter        → player_move_controller.PlayerMoveController
+  ├─ COP SpawnAfter        → slope_ramp_physics.SlopePhysicsEntry
+  ├─ COP SpawnListAppend   → shadow_shimmer.ShadowShimmerInit (#$2800)
   ├─ JMP MovingEastWest / MovingNorthSouth
-  ├─ JSR LoadAbilityDamageA/B
-  └─ JSL PlayerMovementTick ($02CFD0)
-
-attack_ability_system.asm
-  ├─ JSR SetPlayerActorFunc / SavePlayerPosition
-  ├─ JSR TrailPositionInit / TrailPositionCascade
-  ├─ JSR ComputeParentOffset / ApplyParentOffset
-  └─ COP SpawnAfter/SpawnLastRel (FX actors, projectiles)
+  └─ JSR attack_ability_system.LoadAbilityDamageA/B (melee / drop / slider)
 
 player_move_controller.asm
   ├─ JSR JoypadToVelocity
-  └─ JSL PlayerMovementTick → tile_collision ($02E102)
+  └─ JSL player_move_main.PlayerMovementTick ($02CFD0)
+        └─ JSR tile_collision.* (probes from $02E102 block)
 
 slope_ramp_physics.asm
-  ├─ JSR TileProbeMain / ReadCollisionNibble
-  └─ JSR ClampSpeeds / DecelerateEW / DecelerateNS / ApplySlopeCurve*
+  ├─ JSR tile_collision.TileProbeMain / MapCell* / ReadCollisionNibble
+  └─ JSR ApplySlopeCurve* / ClampSpeeds / DecelerateEW / DecelerateNS
 
 shadow_shimmer.asm
-  └─ reads player_speed_ew | player_speed_ns
+  └─ LDA playerSpeedEw | playerSpeedNs; COP BranchOnFlagByte #00
 ```
 
 ---
 
 ## Shadow Form Sprite Variant Summary
 
-Shadow form (`$0AD4 == 2`) uses alternate sprites via `COP [BranchIfFlagByte]`. Only standing idle, ladder idle, and wall shimmy detach have explicit Shadow variants.
+*Evidence: [ASM]*
+
+**[ASM]** `characterForm == 2` paths use `COP [BranchIfFlagByte]` on flag byte `#00` for idle/ladder/shimmy detach variants (byte meaning not traced in asm).
 
 | Context | Will / Freedan | Shadow |
 |---------|----------------|--------|
@@ -795,7 +813,9 @@ Shadow form (`$0AD4 == 2`) uses alternate sprites via `COP [BranchIfFlagByte]`. 
 
 ## See Also
 
-- [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), tile collision (`$02E102`)
+*Evidence: [XREF]*
+
+- [`player-movement.md`](player-movement.md) — `PlayerMovementTick` (`$02CFD0`), probe helpers in [`tile-collision.md`](tile-collision.md) (`$02E102`)
 - [`tile-collision.md`](tile-collision.md) — tile probing for slopes and shimmy
 - [`../../cop/README.md`](../../cop/README.md) — COP command semantics
 - [`../../actor-organization-analysis.md`](../../actor-organization-analysis.md) — global actor linked list

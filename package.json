@@ -29,7 +29,8 @@
         "rebuild": "node src/index.ts rebuild --artifacts",
         "rebuild-jp": "node src/index.ts rebuild-jp",
         "merge": "node src/index.ts merge",
-        "names": "node src/index.ts names"
+        "names": "node src/index.ts names",
+        "export": "node src/index.ts export"
     },
     "dependencies": {
         "@gaialabs/core": "1.0.5"

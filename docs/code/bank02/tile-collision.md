@@ -2,618 +2,170 @@
 
 *Part of the [Bank $02 Documentation Suite](README.md)*
 
-**Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)  
-**Document scope:** Position→tile conversion, collision nibble lookup at `$7FC000`, corner probes, and movement delta finalization.  
-**ASM source:** [`tile_collision.asm`](../../../extracted/system/player/tile_collision.asm) (block: `tile_collision`, scene: `player`)  
-**Last updated:** 2026-09-07
+> **Evidence labels.** Each major section is tagged with the kind of claim it makes: **[ASM]** = directly observed in the extracted asm of this block; **[INFERRED]** = interpretation of behavior that is not literally encoded in the file; **[XREF]** = cross-file / engine-wide convention stated elsewhere (not provable from this file alone). Sections that mix kinds split them into separately tagged bullets or paragraphs. The `.asm` files in `extracted/` are authoritative; where prose and asm comments disagree, the asm wins.
 
-The most-called subroutines in the player movement system. The movement engine in [`player-movement.md`](player-movement.md) is this block's primary consumer — every directional handler in `player_move_ns.asm`, `player_move_east.asm`, and `player_move_west.asm` depends on `TileProbeMain` and the corner probe helpers documented here. Map index navigation parallels [`map-coordinates.md`](map-coordinates.md); camera window bounds come from [`camera-scrolling.md`](camera-scrolling.md).
+**Bank:** `$02` (FastROM; `$@` long calls from other banks)  
+**Document scope:** Position→tile conversion, collision nibble lookup at `$7FC000`, corner probes, map-cell stepping, movement delta helpers.  
+**ASM source:** [`tile_collision.asm`](../../../extracted/system/player/tile_collision.asm) (block `tile_collision`, scene `player`; ROM `188674`–`189334`, `$02E102`–`$02E396`)
+
+**[XREF]** Primary callers: `player_move_*` in `player_move_main`, `slope_ramp_physics.SlopePhysicsEntry`, and `map_coords` ramp helpers (`FindSlopeForWestMove` / `FindSlopeForEastMove`).
 
 **Related:** [`player-movement.md`](player-movement.md) · [`map-coordinates.md`](map-coordinates.md) · [`../bank00/direction-collision.md`](../bank00/direction-collision.md) · [`../../cop/README.md`](../../cop/README.md)
 
 ## Block Layout (tile_collision)
+
+*Evidence: [ASM]*
 
 ```
 $02E102 ├─ CombinedProbe_Unused … CheckSubTileAlignY  │  tile_collision
 $02E396 └─ (inventory_menu continues) ────────────────┘
 ```
 
-> **Note:** `tile_collision` outputs to `system/player/` (scene: `player`) rather than `system/engine/`, as its routines are exclusively called by the player movement dispatchers.
+**[ASM]** Output path: `extracted/system/player/` (scene `player`), not `system/engine/`.
 
 ## Collision Type Reference
 
-| Type | Meaning | Direction Handling |
-|------|---------|-------------------|
-| `$00` | Passable (empty) | Free movement |
-| `$01` | Passable (variant) | Free movement (down-left special) |
-| `$02` | Interactive tile | Redirect to alternate animation |
-| `$03` | Slope (right / ascending east) | Computed sub-pixel Y correction |
-| `$05` | Semi-solid / ramp entry | Ramp passability checks |
-| `$06` | Wall (south-facing) | Block southward, allow eastward slide |
-| `$07` | Ladder / climbable | Auto-climb state change |
-| `$08` | Stairs | Stair-step movement redirect |
-| `$09` | Wall (north-facing) | Block northward, allow slide |
-| `$0A` | Ramp / passable slope | Full ramp movement with Y tracking |
-| `$0C` | Slope (left / ascending west) | Computed sub-pixel Y correction with accumulator |
-| `$0E`+ | Solid wall | Full block, zero speed |
-| `$0F` | Out of bounds / solid | Returned for OOB probes |
+*Evidence: [ASM] + [XREF]*
+
+**[ASM]** `ReadCollisionNibble` returns the low nibble (terrain type) when the high nibble of `$7FC000,X` is zero; if the high nibble is nonzero (actor solid mark `$F0`), it returns the high nibble shifted down (e.g. `$F0` → `$0F`). **Callers** compare `A` to `$0E` for fully blocking solids; `TileProbeMain` sets carry for **any** nonzero type (slopes, ladders, walls included).
+
+| Type | Role in this file / callers (asm block note) |
+|------|-----------------------------------------------|
+| `$00` | Passable — `TileProbeMain` returns carry clear |
+| `$01`–`$04`, `$06`–`$09`, `$0B`, `$0D` | Nonzero types; meaning for movement redirects is in `player_move_*` / `player_character` (not defined in this file) |
+| `$05` | West-facing slope (used by slope dispatch and ramp movement) |
+| `$0A` | East-facing slope |
+| `$0E`+ | Solid — blocking threshold in movement cascades |
+| `$0F` | Returned for invalid map index (`X ≥ $4000`) and OOB probes |
+
+**Inferred:** Human-readable names for `$02` (ladder redirect), `$07` (shimmy wall), `$08` (vine) come from player movement FSM code, not from `ReadCollisionNibble` itself.
 
 ## Probe Corner Layout
 
-Player collision uses four corner probes offset from the 16×16 pixel footbox:
+*Evidence: [ASM]*
+
+**[ASM]** Hitbox reference: center of the bottom edge of the 16×16 box. Sub-pixel position `$22`/`$26` is shifted right by 2 before offsets:
 
 ```
         TL (−8, −16)    TR (+7, −16)
               ┌──────────────┐
               │   16×16 px   │
-              │   footbox    │
               └──────────────┘
         BL (−8, −1)     BR (+7, −1)
 ```
 
-Coordinates are in **tile-pixel space** (`$22`/`$26` divided by 4).
+Pixel coords stored in `$1A` (X) and `$1E` (Y). `ProbeFuture*` uses `$22+$20` and `$26+$24`.
 
 ## tile_collision.asm
 
-The most-called subroutines in the player movement system. Every directional handler in `player_move_ns.asm`, `player_move_east.asm`, and `player_move_west.asm` depends on `TileProbeMain` and the corner probe helpers.
+*Evidence: [ASM]*
 
 | Address | Name | Description |
 |---------|------|-------------|
-| `$02E102` | CombinedProbe_Unused | CombinedProbe_Unused is a dead-code combined probe routine with no callers in the extracted ROM. |
-| `$02E13F` | CheckTileBoundaryXor | CheckTileBoundaryXor tests whether the player crossed a 64-pixel (16-tile sub-unit) boundary during movement. |
-| `$02E154` | ClearMovementDeltas | ClearMovementDeltas zeroes both movement delta registers $20 (horizontal) and $24 (vertical). |
-| `$02E15B` | SetActorCollisionFlag | SetActorCollisionFlag marks the current actor (ID at $000A) as collision-blocked for this frame by ORing $0004 into t... |
-| `$02E16E` | ApplyMovementDeltas | ApplyMovementDeltas commits a accepted movement frame by adding deltas to player position and clearing the deltas. |
-| `$02E183` | ProbeCurrentBR | ProbeCurrentBR probes the bottom-right corner of the player's 16×16 footbox at the current position. |
-| `$02E1A9` | ProbeCurrentTR | ProbeCurrentTR probes the top-right corner at the current position. |
-| `$02E1CD` | ProbeCurrentBL | ProbeCurrentBL probes the bottom-left corner. |
-| `$02E1F1` | ProbeCurrentTL | ProbeCurrentTL probes the top-left corner — the simplest corner probe with no post-increment boundary check. |
-| `$02E20D` | ProbeFutureTR | ProbeFutureTR probes the top-right corner at the future position after applying movement deltas. |
-| `$02E237` | ProbeFutureBR | ProbeFutureBR probes the bottom-right corner at the future position. |
-| `$02E263` | ProbeFutureTL | ProbeFutureTL probes the top-left corner at the future position. |
-| `$02E285` | ProbeFutureBL | ProbeFutureBL probes the bottom-left corner at the future position. |
-| `$02E2AF` | TileProbeMain | TileProbeMain is the master tile collision probe — the central lookup invoked by every corner probe and cascade routine. |
-| `$02E2FC` | ReadCollisionNibble | ReadCollisionNibble reads the collision type for map cell index X from the runtime overlay at $7FC000. |
-| `$02E313` | MapCellDown | MapCellDown moves the cell index at $00 one row down. |
-| `$02E32B` | MapCellUp | MapCellUp moves the cell index at $00 one row up. |
-| `$02E343` | MapCellRight | MapCellRight advances the map cell index in $00 one cell to the right. |
-| `$02E35D` | MapCellLeft | MapCellLeft moves the cell index at $00 one cell left. |
-| `$02E37C` | CheckSubTileAlignX | CheckSubTileAlignX tests whether probe X coordinate $1A is aligned to a 16-pixel tile boundary. |
-| `$02E389` | CheckSubTileAlignY | CheckSubTileAlignY tests whether probe Y coordinate $1E is aligned to a 16-pixel tile boundary. |
+| `$02E102` | `CombinedProbe_Unused` | No callers in extracted ROM. Future corner probe; if type `< $0E` and probe Y not 16px-aligned, also probes `MapCellUp`. Returns SEC if type `≥ $0E`. |
+| `$02E13F` | `CheckTileBoundaryXor` | `(($22>>2)+($20>>2)) EOR ($22>>2)`; `BIT #$0010` → **Z clear** = crossed 16px column (not carry). |
+| `$02E154` | `ClearMovementDeltas` | `STZ $24`; `STZ $20`. |
+| `$02E15B` | `SetActorCollisionFlag` | `Y = $000A` (actor **slot address**); `$0010,Y \|= $0004`. |
+| `$02E16E` | `ApplyMovementDeltas` | `$22 += $20`; `$26 += $24`; zero `$20`/`$24`. |
+| `$02E183` | `ProbeCurrentBR` | BR at current position; `INC $1A`; `INC $1E`; carry from second INC gates SEC return. |
+| `$02E1A9` | `ProbeCurrentTR` | TR current; `INC $1A`. |
+| `$02E1CD` | `ProbeCurrentBL` | BL current; `INC $1E`. |
+| `$02E1F1` | `ProbeCurrentTL` | TL current; returns carry from `TileProbeMain` directly (no INC). |
+| `$02E20D` | `ProbeFutureTR` | Future TR; `INC $1A`. |
+| `$02E237` | `ProbeFutureBR` | Future BR; `INC $1A`; `INC $1E`. |
+| `$02E263` | `ProbeFutureTL` | Future TL; direct carry from `TileProbeMain`. |
+| `$02E285` | `ProbeFutureBL` | Future BL; `INC $1E`. |
+| `$02E2AF` | `TileProbeMain` | Camera bounds; `CalcTileMapOffset`; `ReadCollisionNibble`. |
+| `$02E2FC` | `ReadCollisionNibble` | Index in X; table `$7FC000`. |
+| `$02E313` | `MapCellDown` | Low byte `+ $10`; page carry → high byte `+ mapRowStrideL0` (`$0693`). |
+| `$02E32B` | `MapCellUp` | Low byte `− $10`; borrow → high byte `− mapRowStrideL0`. |
+| `$02E343` | `MapCellRight` | `INC` low byte; column wrap → adjust high byte and low `+ $F0`. |
+| `$02E35D` | `MapCellLeft` | `DEC` low byte; wrap from column 0 → high `DEC`, low `− $F0`. |
+| `$02E37C` | `CheckSubTileAlignX` | `$1A & $0F`: zero → CLC (aligned). |
+| `$02E389` | `CheckSubTileAlignY` | `$1E & $0F`: zero → CLC (aligned). |
 
 ### CombinedProbe_Unused
 
-`CombinedProbe_Unused` is a dead-code combined probe routine with no callers in the extracted ROM. It computes tile coordinates from the future player position (`$22+$20`, `$26+$24`), calls `TileProbeMain`, and rejects collision types ≥ `$0E`.
+*Evidence: [ASM]*
 
-If the initial probe finds a non-zero type below `$0E`, it falls through to re-probe the cell to the left via `MapCellLeft` and `ReadCollisionNibble`. Returns carry set on solid block, carry clear on passable. Likely a superseded movement helper retained in ROM.
+**[ASM]** Entry uses caller A plus `$26` for Y pixel, `($22+$20)>>2 + $1A` for X. `JSR TileProbeMain`; if `A ≥ $0E` → SEC. If `A = 0` → CLC. Else if probe Y sub-tile nibble was nonzero (`PHP`/`PLP`/`BEQ`), `MapCellUp` + `ReadCollisionNibble`; if that `≥ $0E` → SEC; else CLC.
 
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Compute Y probe coord from `$26+$24`; compute X from `$22+$20` + `$1A` |
-| 2 | `TileProbeMain`; if type ≥ `$0E`: SEC return |
-| 3 | If type = 0: CLC return |
-| 4 | `MapCellLeft` → `ReadCollisionNibble`; if ≥ `$0E`: SEC return |
-| 5 | CLC return |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` / `$20` | In | Player X + delta |
-| `$26` / `$24` | In | Player Y + delta |
-| `$1A` / `$1E` | Out | Probe coordinates |
-| A | Out | Collision type |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `TileProbeMain` | Primary lookup |
-| `MapCellLeft` | Fallback adjacent probe |
-| *(none)* | No callers — unused |
+**Cross-References:** `TileProbeMain`, `MapCellUp` — no callers.
 
 ### CheckTileBoundaryXor
 
-`CheckTileBoundaryXor` tests whether the player crossed a 64-pixel (16-tile sub-unit) boundary during movement. It compares the current tile coordinate (`$22 >> 2`) XOR'd with the future tile coordinate (`($22+$20) >> 2`). If bit `$0010` differs between the two, carry is set indicating a boundary crossing.
+*Evidence: [ASM]*
 
-Movement handlers use this to trigger sub-tile alignment checks or alternate collision paths when the player moves between major tile grid sections.
+**[ASM]** Compares pre-step pixel X (`$22>>2`) with post-step (`($22+$20)>>2`) via XOR and tests bit 4. Result in **Z flag** (`BNE` = boundary crossed).
 
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Push current tile coord: `$22 >> 2` |
-| 2 | Compute future: `($22+$20) >> 2` |
-| 3 | EOR with stacked current; test bit `$0010` |
-| 4 | Carry = boundary crossed |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` | In | Player X position |
-| `$20` | In | Horizontal movement delta |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `player_move_*.asm` | Called before corner probes |
+**Cross-References:** **[XREF]** `player_move_*.asm` before corner probes.
 
 ### ClearMovementDeltas
 
-`ClearMovementDeltas` zeroes both movement delta registers `$20` (horizontal) and `$24` (vertical) when a movement frame is rejected after collision probing. Called from the player movement handlers in `player_move_*.asm` on the rejection path — the counterpart to `ApplyMovementDeltas`, which commits accepted movement.
+*Evidence: [ASM]*
 
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | `$24` ← 0 (vertical delta) |
-| 2 | `$20` ← 0 (horizontal delta) |
-| 3 | Return |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$20` / `$24` | Out | Cleared movement deltas |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `ApplyMovementDeltas` | Opposite path on acceptance |
-| `player_move_*.asm` | Caller on collision rejection |
+**[ASM]** `REP #$20`; `STZ $24`; `STZ $20`; `RTS`.
 
 ### SetActorCollisionFlag
 
-`SetActorCollisionFlag` marks the current actor (ID at `$000A`) as collision-blocked for this frame by ORing `$0004` into its actor flags word at `$0010,Y`. Movement handlers call this when a probe fails so downstream systems know the actor did not move this frame.
+*Evidence: [ASM]*
 
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Save P; load actor ID from `$000A` into Y |
-| 2 | `$0010,Y` ← `$0010,Y \| $0004` |
-| 3 | Restore and return |
-
-**Source:**
-
-```81:92:../../../extracted/system/player/tile_collision.asm
-SetActorCollisionFlag {
-    PHP 
-    REP #$20
-    PHY 
-    LDY $000A
-    LDA $0010, Y
-    ORA #$0004
-    STA $0010, Y
-    PLY 
-    PLP 
-    RTS 
-}
-```
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$000A` | In | Current actor ID |
-| `$0010,Y` | Out | Actor flags (bit `$0004` set) |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `player_move_*.asm` | Caller when movement blocked |
-| `TileProbeMain` | Probe failure triggers this flag |
+**[ASM]** `LDY $000A` (slot address written by `PlayerMovementTick`); OR `$0004` into `$0010,Y`.
 
 ### ApplyMovementDeltas
 
-`ApplyMovementDeltas` commits a accepted movement frame by adding deltas to player position and clearing the deltas. `$22 += $20` and `$26 += $24`, then both delta registers are zeroed. This is the final step after all corner probes pass.
+*Evidence: [ASM]*
 
-**Algorithm:**
+**[ASM]** Adds `$20`/`$24` to `$22`/`$26`, then clears velocity words.
 
-| Step | Action |
-|------|--------|
-| 1 | `$22` ← `$22 + $20` |
-| 2 | `$26` ← `$26 + $24` |
-| 3 | `$20` ← 0; `$24` ← 0 |
+### ProbeCurrentBR / ProbeCurrentTR / ProbeCurrentBL / ProbeCurrentTL
 
-**Variables:**
+*Evidence: [ASM]*
 
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` / `$26` | Out | Updated player position |
-| `$20` / `$24` | In/Out | Deltas (consumed) |
+**[ASM]** Formulas match table above. After `TileProbeMain`, TR/BL/BR increment `$1A` and/or `$1E` so `CheckSubTileAlignX/Y` test whether the stored edge sits on a 16px grid line. TL has no post-INC.
 
-**Cross-References:**
+**Cross-References:** **[XREF]** `FindSlopeForEastMove` uses `ProbeCurrentTR`; `FindSlopeForWestMove` uses `ProbeCurrentTL`.
 
-| Symbol | Relationship |
-|--------|--------------|
-| `player_move_*.asm` | Called when movement accepted |
-| `ClearMovementDeltas` | Opposite path on rejection |
+### ProbeFutureTR / ProbeFutureBR / ProbeFutureTL / ProbeFutureBL
 
-### ProbeCurrentBR
+*Evidence: [ASM]*
 
-`ProbeCurrentBR` probes the bottom-right corner of the player's 16×16 footbox at the **current** position. Probe coordinates are `$22/4 + 7` (X) and `$26/4 − 1` (Y) in tile-pixel space. After `TileProbeMain`, both coordinates are incremented by 1 to check the inner-tile boundary; if the increment wraps (BCC fails), carry is set indicating blockage.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | `$1A` ← `$22>>2 + 7`; `$1E` ← `$26>>2 − 1` |
-| 2 | `TileProbeMain` (carry = blocked if type ≠ 0) |
-| 3 | `$1A++`; `$1E++`; if overflow: SEC return |
-| 4 | CLC return |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` / `$26` | In | Current player position |
-| `$1A` / `$1E` | Out | Probe coordinates |
-| Carry | Out | Set = blocked |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `TileProbeMain` | Collision lookup |
-| `ProbeFutureBR` | Future-position counterpart |
-
-### ProbeCurrentTR
-
-`ProbeCurrentTR` probes the top-right corner at the current position. Coordinates: X = `$22/4 + 7`, Y = `$26/4 − 16`. After probing, X is incremented by 1 for inner-tile boundary check. Entry probe for **`FindSlopeForEastMove`** (eastward dispatch only).
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | `$1A` ← `$22>>2 + 7`; `$1E` ← `$26>>2 − 16` |
-| 2 | `TileProbeMain` |
-| 3 | `$1A++`; if overflow: SEC; else CLC |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` / `$26` | In | Current player position |
-| `$1A` / `$1E` | Out | Probe coordinates |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `FindSlopeForEastMove` | Entry probe |
-| `ProbeFutureTR` | Future counterpart |
-
-### ProbeCurrentBL
-
-`ProbeCurrentBL` probes the bottom-left corner. Coordinates: X = `$22/4 − 8`, Y = `$26/4 − 1`. After probing, Y is incremented for inner-tile boundary validation.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | `$1A` ← `$22>>2 − 8`; `$1E` ← `$26>>2 − 1` |
-| 2 | `TileProbeMain` |
-| 3 | `$1E++`; if overflow: SEC; else CLC |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` / `$26` | In | Current position |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `ProbeFutureBL` | Future counterpart |
-
-### ProbeCurrentTL
-
-`ProbeCurrentTL` probes the top-left corner — the simplest corner probe with no post-increment boundary check. Coordinates: X = `$22/4 − 8`, Y = `$26/4 − 16`. Returns carry directly from `TileProbeMain` (set if collision type non-zero).
-
-Entry point for `FindSlopeForWestMove` west-movement ramp cascade.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | `$1A` ← `$22>>2 − 8`; `$1E` ← `$26>>2 − 16` |
-| 2 | `TileProbeMain`; return carry |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22` / `$26` | In | Current position |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `FindSlopeForWestMove` | Entry probe |
-| `ProbeFutureTL` | Future counterpart |
-
-### ProbeFutureTR
-
-`ProbeFutureTR` probes the top-right corner at the **future** position after applying movement deltas. Base coordinates use `($22+$20)/4 + 7` for X and `($26+$24)/4 − 16` for Y. Post-probe X increment validates inner-tile boundary crossing.
-
-Used in west-movement wall cascades to predict whether the destination position will be blocked.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | `$1A` ← `($22+$20)>>2 + 7`; `$1E` ← `($26+$24)>>2 − 16` |
-| 2 | `TileProbeMain` |
-| 3 | `$1A++`; overflow → SEC |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22+$20` / `$26+$24` | In | Future player position |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `ProbeCurrentTR` | Current-position counterpart |
-| `FindSlopeForEastMove` | Cascade caller |
-
-### ProbeFutureBR
-
-`ProbeFutureBR` probes the bottom-right corner at the future position. Coordinates: X = `($22+$20)/4 + 7`, Y = `($26+$24)/4 − 1`. Both X and Y are incremented post-probe for inner-tile boundary validation.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Compute future BR coords |
-| 2 | `TileProbeMain` |
-| 3 | `$1A++`; `$1E++`; overflow → SEC |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$20` / `$24` | In | Movement deltas added to position |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `ProbeCurrentBR` | Current-position counterpart |
-| `FindSlopeForEastMove` | Cascade caller |
-
-### ProbeFutureTL
-
-`ProbeFutureTL` probes the top-left corner at the future position. Coordinates: X = `($22+$20)/4 − 8`, Y = `($26+$24)/4 − 16`. No post-increment check — returns carry directly from `TileProbeMain`.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Compute future TL coords in `$1A`/`$1E` |
-| 2 | `TileProbeMain`; return |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$22+$20` / `$26+$24` | In | Future position |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `ProbeCurrentTL` | Current counterpart |
-| `FindSlopeForWestMove` | Cascade caller |
-
-### ProbeFutureBL
-
-`ProbeFutureBL` probes the bottom-left corner at the future position. Coordinates: X = `($22+$20)/4 − 8`, Y = `($26+$24)/4 − 1`. Post-probe Y increment checks inner-tile boundary.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Compute future BL coords |
-| 2 | `TileProbeMain` |
-| 3 | `$1E++`; overflow → SEC |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$20` / `$24` | In | Movement deltas |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `ProbeCurrentBL` | Current counterpart |
-| `FindSlopeForWestMove` | Cascade caller |
+**[ASM]** Same offsets applied to `$22+$20` / `$26+$24`. Post-INC pattern matches current probes.
 
 ### TileProbeMain
 
-`TileProbeMain` is the master tile collision probe — the central lookup invoked by every corner probe and cascade routine. It bounds-checks probe coordinates `$1A`/`$1E` against the active camera window (`$camera_offset_x`/`$camera_bounds_x` for X, `$camera_offset_y`/`$06DE` for Y).
+*Evidence: [ASM] + [XREF]*
 
-In bounds: converts pixel coords to tile col/row (`$18`/`$1C` via >> 4), JSLs to `CalcTileMapOffset` in bank `$03` for map cell index resolution, stores result in `$00`, and reads collision via `ReadCollisionNibble`. Carry clear = type `$00` (passable); carry set = blocked.
+**[ASM]** Bounds: `$cameraOffsetX` (`$06D6`) ≤ `$1A` < `$cameraBoundsX` (`$06DA`); `$cameraOffsetY` (`$06D8`) ≤ `$1E` < `$cameraLowerYBound` (`$06DE`); negative coords OOB.
 
-Out of bounds: stores `$4001` in `$00`, returns type `$0F` (solid) with carry set.
+In bounds: `$18 = $1A >> 4`, `$1C = $1E >> 4`, `JSL tile_collision_physics.CalcTileMapOffset` → `$00`, `ReadCollisionNibble` with index in X. **A = 0** → CLC; **A ≠ 0** → SEC (not equivalent to “solid only”).
 
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | If `$1A` < 0 or < `$06D6` or ≥ `$06DA`: goto OOB |
-| 2 | If `$1E` < 0 or < `$06D8` or ≥ `$06DE`: goto OOB |
-| 3 | `$18` ← `$1A >> 4`; `$1C` ← `$1E >> 4` |
-| 4 | JSL `CalcTileMapOffset`; `$00` ← cell index; `ReadCollisionNibble` |
-| 5 | If A = 0: CLC return; else SEC return |
-| 6 | OOB: `$00` ← `$4001`; A ← `$0F`; SEC return |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$1A` / `$1E` | In | Probe pixel coordinates |
-| `$18` / `$1C` | Out | Tile column / row |
-| `$00` | Out | Map cell index |
-| A | Out | Collision type nibble |
-| Carry | Out | Clear = passable |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `CalcTileMapOffset` | JSL map cell resolver (bank `$03`) |
-| `ReadCollisionNibble` | Collision byte lookup |
-| All `ProbeCurrent*` / `ProbeFuture*` | Callers |
+OOB: `$00 = $4001`, **A = `$0F`**, SEC.
 
 ### ReadCollisionNibble
 
-`ReadCollisionNibble` reads the collision type for map cell index X from the runtime overlay at `$7FC000`. If X ≥ `$4000`, returns `$0F` (out of bounds / solid).
+*Evidence: [ASM]*
 
-For valid indices, reads `$7FC000,X`. If the high nibble (bits `$F0`) is non-zero (dynamic overlay from COP handlers), returns the high nibble (shifted right by 4). Otherwise returns the low nibble (base map type). Sets Z/N flags on the result in A.
+**[ASM]** `CPX #$4000` → `A = $0F`. Else load `$7FC000,X`; high nibble set → return high nibble >> 4; else return full byte (low nibble terrain). `BIT #$FF` sets Z/N on result.
 
-**Algorithm:**
+### MapCellDown / MapCellUp / MapCellRight / MapCellLeft
 
-| Step | Action |
-|------|--------|
-| 1 | If X ≥ `$4000`: A ← `$0F`; return |
-| 2 | A ← `$7FC000,X` |
-| 3 | If high nibble ≠ 0: A ← high nibble (>> 4) |
-| 4 | Return A with Z/N flags set |
+*Evidence: [ASM]*
 
-**Variables:**
+**[ASM]** Row steps use low-byte `± $10` with `mapRowStrideL0` (`$0693`) on page crossing. Column steps use `INC`/`DEC` on low byte with `$F0` fixup on nibble wrap — **not** `± $10`. Return updated index in **X**; do not modify `$1A`/`$1E`.
 
-| Location | Direction | Role |
-|----------|-----------|------|
-| X | In | Map cell index |
-| A | Out | Collision type (`$00`–`$0F`) |
-| `$7FC000,X` | In | Collision overlay byte |
+**Cross-References:** **[XREF]** Parallel helpers in `map_coords` (`MapIndexMove*`).
 
-**Cross-References:**
+### CheckSubTileAlignX / CheckSubTileAlignY
 
-| Symbol | Relationship |
-|--------|--------------|
-| `TileProbeMain` | Primary caller |
-| `MapCellRight/Left/Down/Up` | Cascade callers |
-| COP collision handlers | Writers of high nibble overlay |
+*Evidence: [ASM]*
 
-### MapCellDown
-
-`MapCellDown` moves the cell index at `$00` one row down. Adds `$10` to the low byte (one row within the 16-row page). On carry (row crosses a page boundary), adds `mapRowStrideL0` (`$0693`) to the high byte. Returns the updated index in X.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Low byte of `$00` += `$10` |
-| 2 | If no carry: return index in X |
-| 3 | High byte += `mapRowStrideL0` |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$00` | In/Out | Map cell index |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `MapIndexMoveDown` | Parallel in map_coords |
-
-### MapCellUp
-
-`MapCellUp` moves the cell index at `$00` one row up. Subtracts `$10` from the low byte. On borrow (page boundary), subtracts `mapRowStrideL0` from the high byte. Returns the updated index in X.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Low byte of `$00` −= `$10` |
-| 2 | If no borrow: return index in X |
-| 3 | High byte −= `mapRowStrideL0` |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$00` | In/Out | Map cell index |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `MapIndexMoveUp` | Parallel in map_coords |
-
-### MapCellRight
-
-`MapCellRight` advances the map cell index in `$00` one cell to the right. Adds `$10` to the low byte; on carry (page boundary), adds map width `$0693` to the high byte. Returns updated index in X.
-
-Operates on the cell index format established by `TileProbeMain` / `CalcTileMapOffset`, parallel to `MapIndexMoveRight` in map_coords.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Low byte of `$00` += `$10` |
-| 2 | If no carry: return X |
-| 3 | High byte += `$0693` |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$00` | In/Out | Map cell index |
-| `$0693` | In | Map row width |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `MapIndexMoveRight` | Parallel in map_coords |
-| `FindSlopeForWestMove` / `FindSlopeForEastMove` | Cascade callers |
-
-### MapCellLeft
-
-`MapCellLeft` moves the cell index at `$00` one cell left. Subtracts `$10` from the low byte; on borrow, subtracts `$0693` from the high byte.
-
-**Algorithm:**
-
-| Step | Action |
-|------|--------|
-| 1 | Low byte −= `$10` |
-| 2 | If no borrow: return |
-| 3 | High byte −= `$0693` |
-
-**Variables:**
-
-| Location | Direction | Role |
-|----------|-----------|------|
-| `$00` | In/Out | Map cell index |
-
-**Cross-References:**
-
-| Symbol | Relationship |
-|--------|--------------|
-| `MapIndexMoveLeft` | Parallel in map_coords |
-| `CombinedProbe_Unused` | Fallback probe path |
+**[ASM]** `$1A & $0F` or `$1E & $0F`: zero → CLC (aligned); nonzero → SEC.
 
 ## See Also
 
-- [`camera-scrolling.md`](camera-scrolling.md) — camera window bounds used by `TileProbeMain` (`$06D6`–`$06DE`)
-- [`map-coordinates.md`](map-coordinates.md) — west/east ramp cascade probes (`FindSlopeForWestMove` / `FindSlopeForEastMove`) and parallel `MapIndexMove*` helpers
-- [`player-movement.md`](player-movement.md) — movement physics engine that JSRs into these probe routines
-- [`slope-ramp-physics.md`](slope-ramp-physics.md) — slope/ramp handling after collision type lookup
-- [`../bank00/direction-collision.md`](../bank00/direction-collision.md) — dynamic collision overlay (COP handlers)
+- [`camera-scrolling.md`](camera-scrolling.md) — `$06D6`–`$06DE` camera window
+- [`map-coordinates.md`](map-coordinates.md) — ramp cascades and `MapIndexMove*`
+- [`player-movement.md`](player-movement.md) — `PlayerMovementTick` consumer
+- [`slope-ramp-physics.md`](slope-ramp-physics.md) — slope dispatch after probe
+- [`../bank00/direction-collision.md`](../bank00/direction-collision.md) — COP writers of high nibble overlay

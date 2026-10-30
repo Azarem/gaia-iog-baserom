@@ -40,6 +40,8 @@ SetEntryHere {
     TYX 
     LDA $0C               ; Load current script bank to actor $02 (entry bank byte)
     STA $02               ; Entry bank → $02 (16-bit store: $03 also receives stack junk from $0D)
+    LDA $0C
+    STA $02
     LDA $0A               ; Load script PC to actor $00 (entry resume address)
     STA $00
     STA $02, S

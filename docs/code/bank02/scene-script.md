@@ -4,15 +4,19 @@
 
 **Bank:** `$02` (FastROM; accessed via `$@` long calls from other banks)
 **Document scope:** Scene script interpreter, graphics loading commands, VRAM DMA helpers, and source-pointer caching in the `engine` scene.
-**ASM sources:** [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm) (block: `scene_script`), [`spc_transfer.asm`](../../../extracted/system/engine/spc_transfer.asm) (block: `spc_transfer` — see [spc-transfer.md](spc-transfer.md))
+**ASM sources:** [`scene_script.asm`](../../../extracted/system/engine/scene_script.asm) (block: `scene_script`), [`DmaWordToVram.asm`](../../../extracted/system/engine/DmaWordToVram.asm), [`spc_transfer.asm`](../../../extracted/system/engine/spc_transfer.asm) (block: `spc_transfer` — see [spc-transfer.md](spc-transfer.md))
 
-Illusion of Gaia's **scene transition pipeline** centers on a bytecode interpreter that walks per-scene script streams, dispatching commands to load BG tiles, tilemaps, sprite/character graphics, and display configuration. Command `$11` (`SpcMusicLoadCmd`) delegates to the SPC700 upload path documented in [spc-transfer.md](spc-transfer.md). The interpreter is invoked during room loads from bank `$03` ([`chunk_03BAE1.asm`](../../../extracted/system/chunk_03BAE1.asm)); the built-in SPC engine is uploaded once at cold start from [`system_core.asm`](../../../extracted/system/engine/system_core.asm).
+> **Evidence labels.** Each major section is tagged with the kind of claim it makes: **[ASM]** = directly observed in the extracted asm of this block; **[INFERRED]** = interpretation of behavior that is not literally encoded in the file; **[XREF]** = cross-file / engine-wide convention stated elsewhere (not provable from this file alone). Sections that mix kinds split them into separately tagged bullets or paragraphs. The `.asm` files in `extracted/` are authoritative; where prose and asm comments disagree, the asm wins.
 
-These routines sit above the hardware math, decompression, and VBlank layers documented in [hardware-and-init.md](hardware-and-init.md). Quintet-LZ decompression ([`decompress.asm`](../../../extracted/system/engine/decompress.asm)) is the shared backend for all compressed tile/tilemap payloads.
+The scene script interpreter reads byte opcodes from WRAM scene data (`[$3A],Y`), dispatches through `scene_script_jump_table`, and runs until opcode `$00`. Command `$11` (`SpcMusicLoadCmd`, assembled in this file) calls into [spc-transfer.md](spc-transfer.md). **`ClearSceneState`** in [`scene_lifecycle.asm`](../../../extracted/system/engine/scene_lifecycle.asm) JSLs `SceneScriptMain` during room loads. The built-in SPC engine is uploaded once at cold start via `SpcLoadBuiltinEngine` from [`system_core.asm`](../../../extracted/system/engine/system_core.asm).
+
+Quintet-LZ decompression is [`QuintetLzDecompress.asm`](../../../extracted/system/engine/QuintetLzDecompress.asm). Hardware math, VBlank, and init are in [hardware-and-init.md](hardware-and-init.md).
 
 ### Scene Load Pipeline
 
-Room transitions call `ClearSceneState` in [`scene_lifecycle.asm`](../../../extracted/system/engine/scene_lifecycle.asm) (also referenced as `chunk_03BAE1`). After VRAM is flushed, `SceneScriptMain` walks the per-scene bytecode stream, dispatching graphics commands until the `$00` end marker. Post-script map refresh and tilemap DMA happen in the caller.
+*Evidence: [ASM] + [XREF]*
+
+Room transitions call `ClearSceneState` in [`scene_lifecycle.asm`](../../../extracted/system/engine/scene_lifecycle.asm). After `ClearBg3TilemapBuffer_Full`, `SceneScriptMain` runs until opcode `$00`; post-script collision rebuild and tilemap work continue in the caller.
 
 ```mermaid
 flowchart TD
@@ -23,7 +27,7 @@ flowchart TD
     Loop -->|"opcode ≠ $00"| Dispatch["scene_script_jump_table"]
     Dispatch --> ConfigDisplay["SceneCmd_ConfigDisplay ($02)"]
     Dispatch --> LoadBg["SceneCmd_LoadBgTiles ($03)"]
-    Dispatch --> LoadTilemap["SceneCmd_LoadPalette ($04)"]
+    Dispatch --> LoadPalette["SceneCmd_LoadPalette ($04)"]
     Dispatch --> LoadDual["SceneCmd_LoadMetatileSets ($05)"]
     Dispatch --> FullGfx["SceneCmd_LoadLayerMaps ($06)"]
     Dispatch --> LoadSprite["SceneCmd_LoadSpriteTiles ($10)"]
@@ -31,7 +35,7 @@ flowchart TD
     Dispatch --> LoadChar["SceneCmd_LoadCharTiles ($17)"]
     ConfigDisplay --> Loop
     LoadBg --> Loop
-    LoadTilemap --> Loop
+    LoadPalette --> Loop
     LoadDual --> Loop
     FullGfx --> Loop
     LoadSprite --> Loop
@@ -51,45 +55,50 @@ flowchart TD
 
 ## Address Layout
 
+*Evidence: [ASM] + [XREF] (`db-us/blocks.json`)*
+
 ```
-$0283A2 ┌─ DmaWordToVram ─────────────────────────────┐
+$0283A2 ┌─ DmaWordToVram (block: DmaWordToVram) ────────┐
+$0283BB ├─ scene_script block ─────────────────────────┤
         │  SceneScriptMain / SceneScriptNoMusic       │
         │  scene_script_jump_table + command handlers │
-        │  BG tile / tilemap / display loaders        │
-        │  DMA, cache, script parsing helpers         │
-$028B6D ├─ SpcMusicLoadCmd ────────────────────────────┤  spc_transfer (part 1)
-$028BE4 ├─ SceneCmd_LoadSpriteTiles … OverlayCollisionFromLayer1│  scene_script (part 2)
-$02908E ├─ SpcLoadBuiltinEngine                       │
-        │  SpcBlockTransfer / SpcIplHandshake           │  spc_transfer (part 2)
-$029210 ├─ spc_sound_engine (embedded SPC700 binary)   │
-$029DE2 └─ (system_init continues) ──────────────────┘
+        │  … SpcMusicLoadCmd ($11) at $028B6D         │
+        │  … OverlayCollisionFromLayer1               │
+$02908E ├─ spc_transfer block ─────────────────────────┤
+        │  SpcLoadBuiltinEngine / SpcBlockTransfer    │
+        │  SpcIplHandshake / spc_sound_engine         │
+$029DE2 └─ system_init block begins ───────────────────┘
 ```
 
-The `scene_script` and `spc_transfer` blocks are **physically interleaved** in ROM: command `$11` (`SpcMusicLoadCmd`) lives in the middle of the scene-script address range because both files cross-include each other and the linker places their parts in call-order.
+`scene_script.asm` and `spc_transfer.asm` cross-include at assemble time; in ROM, **`SpcMusicLoadCmd` is still inside the `scene_script` block** (ends `$02908E`). The **`spc_transfer` block** starts at `$02908E` with `SpcLoadBuiltinEngine`.
 
-| Metric | `scene_script` | `spc_transfer` | Combined |
-|--------|---------------|----------------|----------|
-| **Parts** | 42 | 5 | **47** |
-| **Code parts** | 41 | 4 | 45 |
-| **Data parts** | 1 (`scene_script_jump_table`) | 1 (`spc_sound_engine`) | 2 |
-| **Total size (bytes)** | 3,189 | 3,531 | **6,720** |
-| **Address range** | `$0283A2`–`$02908E` (2 segments) | `$028B6D`–`$029DE2` (2 segments) | `$0283A2`–`$029DE2` |
+| Block | ROM range | Size (bytes) |
+|--------|-----------|--------------|
+| `DmaWordToVram` | `$0283A2`–`$0283BB` | 25 |
+| `scene_script` | `$0283BB`–`$02908E` | 3,283 |
+| `spc_transfer` | `$02908E`–`$029DE2` | 3,412 |
 
-**Largest routines:** `spc_sound_engine` (3,026 B binary), `SpcBlockTransfer` (256 B), `SceneCmd_ConfigDisplay` (252 B), `SceneCmd_LoadBgTiles` (245 B), `RenderPaletteTiles` (240 B).
+Embedded `spc_sound_engine` IPL payload: **3,018 bytes** (`$0BCA`) per `spc_transfer.asm` header (ROM part 168464–171490).
 
 ---
 
 ## Scene Load Flow
 
-Scene loading is orchestrated by `ClearSceneState` in [`scene_lifecycle.asm`](../../../extracted/system/engine/scene_lifecycle.asm) (bank `$03`). After flushing the VRAM write buffer, it long-calls `SceneScriptMain` with `scene_current` (`$0644`) already set to the destination scene ID. The script stream pointer in WRAM (`$3A`/`$3B`/`$3C`) points at a packed multi-scene blob: `FindCurrentScene` linear-scans from `Y = 0`, reading a 2-byte scene ID per entry and skipping past each scene's command operands until the ID matches `$0644`. Execution then begins at that scene's first command byte.
+*Evidence: [ASM] + [XREF] (`scene_lifecycle.asm`)*
 
-Each scene entry is a byte stream of command opcodes (`$02`–`$17`) with command-specific operands (see operand-size table below), terminated by `$00`. The interpreter loop reads one byte, indexes the 24-entry jump table, and dispatches the handler via the **fake-return jump**: `PEA loop−1` / `RTS` pushes a return address one byte before the loop label, so the handler's `RTS` resumes interpretation automatically. Handlers load display presets, decompress Quintet-LZ tile/tilemap payloads to VRAM, configure BG layers, and upload sprite/character tiles; command `$11` delegates music to [spc-transfer.md](spc-transfer.md).
+`ClearSceneState` JSLs `ClearBg3TilemapBuffer_Full`, then `SceneScriptMain`, with `sceneCurrent` (`$0644`) already set. The script pointer at `$3A`/`$3C` (bank byte) addresses WRAM scene data; **`FindCurrentScene`** scans from `Y = 0`, reads a 16-bit scene id, and skips operand bytes until the id matches `$0644` (extracted scanning implementation; a patched indexed loader may replace this in some builds — see `scene_script.asm` header).
 
-When the end marker (`$00`) is reached, `SceneScriptMain` calls `RebuildCollisionLayer` (unless `scene_current = $F7`) to refresh both map layers from cached source pointers — essential when revisiting a room without re-running every graphics command. Control returns to `ClearSceneState`, which immediately calls `InitCameraBounds` and continues actor spawning, palette load, and tilemap rendering (`CameraFullRefresh` or `RenderPaletteTiles` for Mode 7 palette scenes). Throughout execution, loaders use a **two-tier cache** ([Cache-and-Diff Pattern](#cache-and-diff-pattern)): Tier 1 compares ROM `(addr, bank)` pairs and skips unchanged sources; Tier 2 snapshots VRAM tile strips to a ring buffer so identical decompressed data can be restored without re-decompression.
+Opcodes `$02`–`$17` dispatch through **`scene_script_jump_table`** via `PEA loop−1` / `DEC` / `PHA` / `RTS`. Opcode `$00` ends the scene; **`RebuildCollisionLayer`** runs unless `sceneCurrent = $F7`. **`SceneScriptNoMusic`** skips `$11` by comparing the jump-table handler word to `SpcMusicLoadCmd` and advancing `Y` by 5; it does not call `RebuildCollisionLayer`.
+
+After `SceneScriptMain` returns, `ClearSceneState` JSLs **`InitCameraBounds`**, spawns actors/thinkers, loads palettes, then either **`RenderPaletteTiles`** when `scrollModeFlags` (`$06EF`) bit `$08` is set, or **`CameraFullRefresh`** for layers flagged in `$069B` / `$069D` ([XREF] `scene_lifecycle.asm`).
+
+Loaders use **Tier-1** source-pointer slots at `$066C`–`$0687` (`CheckSourceCacheHit`) and **Tier-2** VRAM ring cache at `$0084`–`$009F` / `$7F:4000+` on selected `SceneCmd_LoadBgTiles` paths ([Cache-and-Diff Pattern](#cache-and-diff-pattern)).
 
 ---
 
 ## Command Dispatch Table
+
+*Evidence: [ASM]*
 
 The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handler addresses. Unimplemented indices fall through to `SceneCmd_Default` (immediate `RTS` — no-op).
 
@@ -105,7 +114,7 @@ The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handl
 | `$0E` | `$0E` | `SceneCmd_Skip3` | Skip 3 script bytes (placeholder NOP) |
 | `$0F` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$10` | `$10` | `SceneCmd_LoadSpriteTiles` | Sprite tile graphics → VRAM `$4000` |
-| `$11` | `$11` | `SpcMusicLoadCmd` | SPC music load; the transfer runs only when the script's group byte equals `musicRoomGroup` (`$06F6`), otherwise the command returns |
+| `$11` | `$11` | `SpcMusicLoadCmd` | Reads `musicParentActor`, group byte → `$06F4`; continues only if `$06F4` = `musicRoomGroup` (`$06F6`); else `RTS`. Source cache at `$0687` |
 | `$12` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$13` | `$13` | `SceneCmd_Branch` | Test event flag → skip or execute command `$15` |
 | `$14` | `$14` | `SceneCmd_Label` | Skip 1 script byte |
@@ -128,7 +137,7 @@ Used by `FindCurrentScene` and `SkipScriptCommands` when advancing past unknown 
 | `$06` | 4+ | Layer flags + 3-byte pointer (+ inline geometry) |
 | `$0E` | 3 | Skipped inline |
 | `$10` | 5 | 2-byte size + 3-byte pointer |
-| `$11` | 5 | Track id (stored in `musicParentActor`, `$06F2`), group (stored at `$06F4`) + 3-byte pointer |
+| `$11` | 5 | Byte → `musicParentActor` (`$06F2`); byte → `$06F4`; 3-byte pointer (`LoadScriptPointer`) |
 | `$13` | 2 | Flag index + `$15` count |
 | `$14` | 1 | NOP skip |
 | `$15` | 1+ | Count byte, then N commands |
@@ -137,6 +146,8 @@ Used by `FindCurrentScene` and `SkipScriptCommands` when advancing past unknown 
 ---
 
 ## Cache-and-Diff Pattern
+
+*Evidence: [ASM]*
 
 Graphics loaders avoid redundant VRAM uploads through a two-tier **compare-and-skip** system.
 
@@ -151,7 +162,7 @@ Most commands store the last-used `(addr, bank)` pair at a dedicated WRAM slot. 
 
 ### Tier 2 — VRAM Content Cache (tile strips)
 
-For `SceneCmd_LoadBgTiles` mode 0 (horizontal strip), an additional content cache prevents re-decompressing identical tile data:
+After a Tier-1 **miss** on `SceneCmd_LoadBgTiles` modes **0 or 1** (not mode **2**, which skips Tier-1, or mode **3** → `Load4bppPage`), an additional content cache may run:
 
 1. `GraphicsCacheLookup` scans 4 slots at `$0084`–`$008F` for a matching `(addr, bank)`.
 2. **Hit:** `RestoreCachedVram` DMAs the saved VRAM snapshot from the ring buffer at `$7F:4000+` back to the target VRAM address.
@@ -183,11 +194,13 @@ flowchart TD
     SkipAll --> HandlerReturn
 ```
 
-Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSpriteTiles`, etc.). Tier 2 is an additional VRAM content cache used only for `LoadBgTiles` mode 0 strips after Tier 1 confirms the source pointer changed.
+Tier 1 applies to cached loaders (`SceneCmd_LoadBgTiles` modes 0–1, metatile/layer/sprite/music commands). Tier 2 (`GraphicsCacheLookup` / `RestoreCachedVram`) runs on the post–Tier-1-miss path at `loc_028520` in `SceneCmd_LoadBgTiles` (including `$066F`/`$0672`/`$0675` slots), unless `layerPriorityFlag` (`$06EE`) bit `$0800` with slot `$066C` diverts to `DeinterleavePlanarTiles` first.
 
 ---
 
 ## scene_script.asm
+
+*Evidence: [ASM]*
 
 | Address | Name | Description |
 |---------|------|-------------|
@@ -199,7 +212,7 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$02845B` | SceneCmd_Label | Command `$14` is a minimal no-operation handler. |
 | `$02845D` | SceneCmd_LoadBgTiles | Command `$03` is the multi-mode BG tile loader — the most complex graphics command in the scene script. |
 | `$028552` | SceneDmaTileShim | A 3-byte entry shim consisting of `PHP` followed by `BRA DmaTileStripToVram`. |
-| `$028555` | CheckInterleavedFlag | Checks the interleaved graphics flag at `$06EE` bit `$0800`, set by `SceneCmd_ConfigDisplay` when the scene uses planar 2bpp+2bpp tile encoding instead of standard SNES 4bpp. |
+| `$028555` | CheckInterleavedFlag | Tests `layerPriorityFlag` (`$06EE`) bit `$0800`; if set, branches to `InterleaveTilesPriority` instead of `DmaTileStripToVram`. |
 | `$028560` | DmaTileStripToVram | DMAs a tile strip from the current source pointer (`$3E`/`$40`) to VRAM. |
 | `$028592` | Load4bppPage | Loads a full 4bpp tile page (4096 bytes) to VRAM address `$2000`. |
 | `$0285DB` | DeinterleavePlanarTiles | Converts interleaved 2bpp+2bpp planar tile data to SNES 4bpp format. |
@@ -230,7 +243,7 @@ Tier 1 applies to all cached commands (`LoadBgTiles`, `LoadTilemap`, `LoadSprite
 | `$028F53` | RestoreCachedVram | Restores previously saved VRAM tile data from the ring buffer back to VRAM. |
 | `$028FA7` | DmaWramToVram | DMAs data from WRAM bank `$7F` to VRAM. |
 | `$028FCD` | BuildMetatileFlagTable | Rebuilds tilemap attribute bytes for a 4×N tile region. |
-| `$029020` | RebuildCollisionLayer | Rebuilds the collision layer after scene script execution completes: `FillCollisionFromLayer0`, then `OverlayCollisionFromLayer1` when `scrollModeFlags` (`$06EF`) bit 0 is set. |
+| `$029020` | RebuildCollisionLayer | `FillCollisionFromLayer0` (X=0), then `OverlayCollisionFromLayer1` (X=2) if `scrollModeFlags` (`$06EF`) **bit 0** is set (`BIT #$01`). |
 | `$029034` | FillCollisionFromLayer0 | Fills the collision layer (`$7F:C000`) from the layer 0 map (`$7E:A000`): each cell's metatile number indexes the flag table whose page address is in `$06AA` (`collisionFlagTableL0`, bank `$7F`). |
 | `$029060` | OverlayCollisionFromLayer1 | Overlays layer 1's flags onto the collision layer (`$7F:C000`) from the flag table whose page address is in `$06AC` (`collisionFlagTableL1`, bank `$7F`); zero flag bytes are skipped. |
 
@@ -295,13 +308,13 @@ SceneScriptMain {
 | `$3A`/`$3B`/`$3C` | In | Script stream pointer (bank `$7F` WRAM) |
 | `$0644` | In | `scene_current` — scene ID to match |
 | `Y` | In/Out | Script stream index; advanced by handlers |
-| `$06EF` | In | Bit `$01` gates layer 1 reload in `RebuildCollisionLayer` |
+| `$06EF` | In | `scrollModeFlags` — bit 0 gates `OverlayCollisionFromLayer1` |
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `chunk_03BAE1.asm` | Primary caller during scene load |
+| `scene_lifecycle.asm` `ClearSceneState` | JSL caller during scene load |
 | `FindCurrentScene` | Positions `Y` at matching scene entry |
 | `scene_script_jump_table` | Command dispatch table |
 | `RebuildCollisionLayer` | Post-scene map refresh |
@@ -383,16 +396,16 @@ The 24-entry dispatch table maps scene script command indices `$00`–`$17` to h
 
 ### SceneCmd_LoadBgTiles
 
-Command `$03` is the multi-mode BG tile loader — the most complex graphics command in the scene script. It reads a VRAM destination offset (`×2` stored to `$0664`), a source range end (`×2` → `$0666`), a VRAM base offset (`×2` → `$0668`), a 3-byte source pointer, and a mode byte selecting one of four loading strategies. **Mode 0** (horizontal strip): Applies cache check at slot `$066C`/`$066F`/`$0670` depending on VRAM offset bit `$0010`. Uses Tier 2 VRAM content cache (`GraphicsCacheLookup`/`RestoreCachedVram`) for decompressed data. **Mode 1** (two-row block): Cache slots `$0672`–`$0676`. **Mode 2** (full page): Jumps directly to `Load4bppPage`. **Mode 3** (raw copy): Uncompressed path through `CheckInterleavedFlag`. When compressed (`size word ≠ 0`), data is decompressed to `$7E:7000` via `QuintetLzDecompress`, then DMA'd to VRAM and saved to the ring buffer.
+Command `$03` reads start/end script bytes (each × `$200` into `$0664`/`$0666`), VRAM page byte → `$0668`, 3-byte pointer, mode byte. **Mode 0:** page += `$20`; cache slot `$066C` or `$066F` from page bit `$0010`. **Mode 1:** page += `$40`; slots `$0672`/`$0675`. **Mode 2:** page += `$60`; **no** `CheckSourceCacheHit`. **Mode 3:** `JMP Load4bppPage`. On Tier-1 miss (modes 0–1): optional `DeinterleavePlanarTiles` when slot `$066C` and `layerPriorityFlag` `$0800`; else `GraphicsCacheLookup` / decompress to `$7E:7000` / `SceneDmaTileShim` / `SaveVramToRingBuffer`.
 
 **Algorithm:**
 
 | Mode | Value | Behavior |
 |------|-------|----------|
-| 0 | `$00` | Strip load + source cache + VRAM ring cache |
-| 1 | `$01` | Two-row block load |
-| 2 | `$02` | Full 4bpp page via `Load4bppPage` |
-| 3 | `$03` | Raw uncompressed copy |
+| 0 | `$00` | VRAM base + `$20`; Tier-1 slot `$066C`/`$066F` |
+| 1 | `$01` | VRAM base + `$40`; Tier-1 slot `$0672`/`$0675` |
+| 2 | `$02` | VRAM base + `$60`; no Tier-1 check |
+| 3 | `$03` | `Load4bppPage` (4096-byte 4bpp page) |
 
 | Step | Action |
 |------|--------|
@@ -409,9 +422,9 @@ Command `$03` is the multi-mode BG tile loader — the most complex graphics com
 | `$0664` | Out | Source range start (×2) |
 | `$0666` | Out | Source range end (×2) |
 | `$0668` | Out | VRAM destination base |
-| `$0670`–`$0676` | Out | Per-mode cache slot indices |
+| `$066C`–`$0675` | Out | Tier-1 source cache slots (mode 0/1) |
 | `$78` | Out | Compressed size word |
-| `$06EE` | In | Bit `$0800` = interleaved planar tiles |
+| `$06EE` | In | `layerPriorityFlag` bit `$0800` → deinterleave path |
 
 **Cross-References:**
 
@@ -542,23 +555,24 @@ Builds a 256-byte palette-to-attribute lookup table at `$7E:2800` from tilemap m
 
 ### SceneCmd_LoadPalette
 
-Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`. Reads three offset bytes (each ×2 for word alignment) into `$0664` (start), `$0666` (end), and `$0668` (VRAM offset). Loads the 3-byte source pointer and DMAs the tilemap slice via `DmaRomToWram`. Special case: when VRAM offset equals `$0020`, after the DMA the routine copies one row from `$7F:0A20` to `$7F:0A00` — a single-row refresh used when only the top map row changed.
+Command `$04` loads palette colour data into **`cgramPalette`** staging at `$7F:0A00`. Three script bytes (start, end, destination colour index) are each **`ASL`** (×2 byte offset) into `$0664`/`$0666`/`0668`. `LoadScriptPointer` + `DmaRomToWram` copy `[start,end)` from the source to `$7F:0A00 + dest`. **Special case:** when destination word = `$0020` (colour index `$10`), after DMA copies **`$7F0A20` → `cgramPalette`** (colour 0 / backdrop slot per asm comment).
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | Read start/end/VRAM offsets (×2 each) |
-| 2 | If VRAM offset ≠ `$0020`: load pointer → DMA to `$7F:0A00` |
-| 3 | If VRAM offset = `$0020`: DMA then copy row `$0A20` → `$0A00` |
-| 4 | Return |
+| 1 | Read start/end/dest bytes; each `ASL` → `$0664`/`$0666`/`$0668` |
+| 2 | `LoadScriptPointer`; dest `$42`=`$0A00`, bank `$7F` |
+| 3 | `DmaRomToWram` |
+| 4 | If dest was `$0020`: `LDA $7F0A20` / `STA cgramPalette` |
+| 5 | `RTS` |
 
 **Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
 | `$0664`/`$0666`/`$0668` | Out | Source range and VRAM offset |
-| `$7F:0A00` | Out | Tilemap WRAM buffer |
+| `$7F:0A00` | Out | `cgramPalette` buffer |
 | `$42`/`$44` | Out | DMA destination addr/bank |
 
 **Cross-References:**
@@ -571,7 +585,7 @@ Command `$04` loads a single-layer tilemap from ROM into WRAM buffer `$7F:0A00`.
 
 ### SceneCmd_LoadMetatileSets
 
-Command `$05` loads tilemap data for both BG layers from a single compressed blob. Reads BG1 and BG2 offset parameters (each ÷4 from script bytes), a layer flag byte to `$066A`, and a 3-byte source pointer. Performs independent cache checks for layer 0 (slot `$0678`) and layer 1 (slot `$067B`), clearing bits in `$066A` for layers that hit cache. On cache miss, decompresses the combined blob to `$7E:7000`, then copies layer 0 to `$7E:2000` and layer 1 to `$7E:2800` via `DmaRomToWram`, calling `BuildMetatileFlagTable` for each loaded layer to apply priority bits from `$06A2`/`06A4`.
+Command `$05` loads metatile definition data for layer 0 and/or 1 from one compressed blob. Three script bytes use **`XBA` + `LSR` + `LSR`** (× `$40` scaling) into `$0664`/`$0666`/`0668`, then layer flags → `$066A`, then the source pointer. Performs independent cache checks for layer 0 (slot `$0678`) and layer 1 (slot `$067B`), clearing bits in `$066A` for layers that hit cache. On cache miss, decompresses the combined blob to `$7E:7000`, then copies layer 0 to `$7E:2000` and layer 1 to `$7E:2800` via `DmaRomToWram`, calling `BuildMetatileFlagTable` for each loaded layer to apply priority bits from `$06A2`/`06A4`.
 
 **Algorithm:**
 
@@ -699,7 +713,7 @@ Uploads a tileset to low VRAM at address `$2000` using byte-write mode, required
 
 ### RenderPaletteTiles
 
-Converts palette-indexed map data at `$7E:A000` into SNES 4bpp tile format at `$7E:B000`, then DMAs 4096 bytes to VRAM address `$0000`. Used for Mode 7 palette tile rendering when `$06EF` bit `$08` is set. The routine zeroes the output buffer, then iterates map rows and columns, looking up tile definitions from the attribute table at `$7E:2000` and assembling 4 bitplanes into the SNES tile layout. Map width is capped at 4 tiles per row (`$1C` clamped to `$04`). After processing all rows, byte-mode DMA uploads the result. Called from `chunk_03BAE1.asm` after scene load completes.
+Converts palette-indexed map data at `$7E:A000` into SNES 4bpp tile format at `$7E:B000`, then DMAs 4096 bytes to VRAM address `$0000`. Used when `scrollModeFlags` (`$06EF`) bit `$08` is set. Zeroes `$7E:B000`, iterates map at `$7E:A000` using metatile words at `$7E:2000`, assembles 4bpp rows to `$7E:B000`, byte-mode DMA 4096 bytes to VRAM `$0000`. Called from `ClearSceneState` in `scene_lifecycle.asm` (not a separate bank `$03` chunk file).
 
 **Algorithm:**
 
@@ -724,13 +738,13 @@ Converts palette-indexed map data at `$7E:A000` into SNES 4bpp tile format at `$
 
 | Symbol | Relationship |
 |--------|--------------|
-| `chunk_03BAE1.asm` | Post-scene-load caller |
+| `scene_lifecycle.asm` | Post-`SceneScriptMain` caller |
 | `BuildAttributeTable` | Related attribute mapping |
 | `SceneCmd_ConfigDisplay` | Sets Mode 7 flag `$06EF` bit `$08` |
 
 ### SceneCmd_ConfigDisplay
 
-Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into `display_preset_table` — a preset table of display register values. Writes to `$212C`–`$212F` (TM/TS/TMW/TSW), `$2130`–`$2131` (CGWSEL/CGADSUB), `$2105`–`$2108` (BG mode and screen sizes), and stores derived flags to `$06EE` (display flags) and `$06EF` (system flags). Extracts BG priority bits into `$06A2`/`$06A4` and `$06EC` (BG scroll base). Detects BG2 enable (bit in `$06EF`), Mode 7 palette path (bit `$08`), and interleaved tile flag (bit `$0800` in `$06EE`). Clears tile cache invalidation flags `$0679`/`$067C` when scroll bases change.
+Command `$02` reads a preset index, indexes `display_preset_table` (10-byte records), writes TM/TS/TMW/TSW, CGWSEL/CGADSUB, BGMODE, BG1SC/BG2SC, stores **`layerPriorityFlag`** (`$06EE`) from record byte +5 and **`scrollModeFlags`** (`$06EF`, low 5 bits of record byte +7). Derives `$06A2`/`$06A4` priority OR masks, `$06EC` visible height, `$06F1`, and invalidates source-cache slots `$0678`/`$067B` when OR masks change. Record byte +7 bit 3 also clears `$066C` cache when set.
 
 **Algorithm:**
 
@@ -746,8 +760,8 @@ Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$06EE` | Out | Display flags (interleave = bit `$0800`) |
-| `$06EF` | Out | System flags (BG2 = bit `$01`, M7 = bit `$08`) |
+| `$06EE` | Out | `layerPriorityFlag` (bit `$0800` → planar deinterleave path) |
+| `$06EF` | Out | `scrollModeFlags` (bit `$08` → palette-tile path in lifecycle) |
 | `$06A2`/`$06A4` | Out | BG priority OR masks |
 | `$212C`–`$2131` | Out | PPU layer registers |
 
@@ -883,7 +897,7 @@ Advances `Y` past N commands in the script stream, where N is read from the firs
 
 ### LoadScriptPointer
 
-Reads a 3-byte pointer (2-byte address + 1-byte bank) from the script stream at `[$3A],Y` and stores it at `(X)` (address at offset 0, bank at offset 2). Also copies the pointer to the global `$3E`/`$40` workspace used by all subsequent load operations. Applies bank fixup for the `$70`–`$9F` mirror range: if bank byte < `$A0` after adding `$80`, strips the high bit of the address high byte. This normalizes pointers in the expanded ROM mirror map.
+Reads a 3-byte pointer from `[$3A],Y` into `(X)` (word at `$0000,X`, bank at `$0002,X`) and mirrors it to `$3E`/`$40`. If bank `< $70`, adds `$80` to the bank byte; if result `≥ $A0`, adds another `$20` and clears bit 15 of the address word (`AND #$7F` on high byte).
 
 ### CheckSourceCacheHit
 
@@ -914,7 +928,7 @@ Transfers data from ROM (or any source at `$3E`/`$40`) to a WRAM destination at 
 
 | Symbol | Relationship |
 |--------|--------------|
-| `SceneCmd_LoadPalette` | Tilemap to `$7F:0A00` |
+| `SceneCmd_LoadPalette` | Palette window to `$7F:0A00` |
 | `SceneCmd_LoadMetatileSets` | Layer copy |
 | `WriteMapBounds` | First map row |
 
@@ -1023,14 +1037,14 @@ Rebuilds tilemap attribute bytes for a 4×N tile region. For each group of 4 til
 
 ### RebuildCollisionLayer
 
-Refreshes both map layers from their cached source pointers after scene script execution completes. Calls `FillCollisionFromLayer0` with index 0, then conditionally calls `OverlayCollisionFromLayer1` with index 2 if `$06EF` bit `$01` indicates BG2 is active. Invoked by `SceneScriptMain` when the scene ends (byte `$00`) and `scene_current ≠ $F7`. Used when returning to a previously loaded room where the tilemap data must be refreshed from WRAM-cached pointers.
+Always `FillCollisionFromLayer0` (X=0). **`OverlayCollisionFromLayer1`** (X=2) when `scrollModeFlags` bit 0 is set. Called from `SceneScriptMain` on opcode `$00` unless `sceneCurrent = $F7`.
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
 | 1 | `FillCollisionFromLayer0` (index 0) |
-| 2 | If `$06EF` bit `$01`: `OverlayCollisionFromLayer1` (index 2) |
+| 2 | If `scrollModeFlags` bit 0: `OverlayCollisionFromLayer1` (X=2) |
 | 3 | Return |
 
 **Source:**
@@ -1054,7 +1068,7 @@ RebuildCollisionLayer {
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$06EF` | In | Bit `$01` = BG2 active |
+| `$06EF` | In | `scrollModeFlags` bit 0 = dual-layer collision overlay |
 | `$06AA`/`$06AC` | In | Flag-table page addresses for layer 0 / layer 1 (bank `$7F`) |
 
 **Cross-References:**
@@ -1075,20 +1089,22 @@ Overlays layer 1's flags onto the collision layer (`$7F:C000`). Same structure a
 
 ## See Also
 
+*Evidence: [XREF]*
+
 ### Callers
 
 | Function | Caller | Context |
 |----------|--------|---------|
-| `SceneScriptMain` | `chunk_03BAE1.asm` | Primary scene load after VRAM clear |
-| `SceneScriptNoMusic` | `inventory_overlay.asm` | Inventory overlay (preserves BGM) |
-| `RenderPaletteTiles` | `chunk_03BAE1.asm` | Mode 7 palette upload after scene load |
-| `DmaWordToVram` | Internal scene_script callers | Shared VRAM DMA primitive |
+| `SceneScriptMain` | `scene_lifecycle.asm` `ClearSceneState` | After `ClearBg3TilemapBuffer_Full` |
+| `SceneScriptNoMusic` | `inventory_overlay.asm` | Scene `$FF` / restore prior scene graphics |
+| `RenderPaletteTiles` | `scene_lifecycle.asm` `ClearSceneState` | When `scrollModeFlags` bit `$08` set |
+| `DmaWordToVram` | `scene_lifecycle.asm`, inventory overlay | Word DMA to VRAM (`DmaWordToVram.asm`) |
 
 ### Dependencies
 
 | Dependency | Role |
 |------------|------|
-| [`decompress.asm`](../../../extracted/system/engine/decompress.asm) | `QuintetLzDecompress` — compressed payloads |
+| [`QuintetLzDecompress.asm`](../../../extracted/system/engine/QuintetLzDecompress.asm) | Compressed payloads |
 | [`hardware_math.asm`](../../../extracted/system/engine/hardware_math.asm) | `Multiply8x8Unsigned` — map dimension math |
 | [`vblank_joypad.asm`](../../../extracted/system/engine/vblank_joypad.asm) | `WaitFrames`, `DisableNmiKeepJoypad`, `EnableNmiAndJoypad` |
 | [`flag_helpers.asm`](../../../extracted/system/engine/flag_helpers.asm) | `TestFlagRaw` — conditional load `$13` |

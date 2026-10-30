@@ -1,12 +1,14 @@
 import { fileURLToPath } from 'url';
 import { dirname, join, resolve } from 'path';
 import { existsSync, readdirSync, readFileSync } from 'fs';
+import { createHash } from 'crypto';
 import { DbBlock, DbFile, DbGroup, DbStringType, DbStruct, CopDef, DbFileType, AsmBlock, saveFileAsText, RomProcessingConstants, crc32_buffer } from '@gaialabs/core';
 import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
 import { snes } from '@gaialabs/core';
 import { merge } from './merge.ts';
 import { applyNames, checkNames } from './names-merge.ts';
+import { exportLabels, exportScenes } from './export.ts';
 
 const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -130,7 +132,25 @@ export async function extractJP(romPath: string, outPath: string) {
     await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
 }
 
-export async function rebuild(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[], options?: string[]) {
+export interface RebuildSettings {
+    /** Folder for file-layout.json / master-lookup.json / crc.json (default `./artifacts`). */
+    artifactsDir?: string;
+    /** Build mode written to crc.json: `tagged` (extract:lt) or `plain` (extract). Detected from the extracted asm when omitted. */
+    mode?: string;
+}
+
+/** `tagged` when the extracted asm carries `; {n}` line-tracking numbers (`npm run extract:lt`), `plain` when it does not, `unknown` if nothing could be read. */
+export function detectBuildMode(extractedPath: string): string {
+    const probeDir = join(extractedPath, 'system', 'engine');
+    if (!existsSync(probeDir)) return 'unknown';
+    for (const file of readdirSync(probeDir).filter(f => f.endsWith('.asm')).slice(0, 20)) {
+        const text = readFileSync(join(probeDir, file), 'utf-8');
+        if (/;\s*\{\d+\}/.test(text)) return 'tagged';
+    }
+    return 'plain';
+}
+
+export async function rebuild(inPath: string, outPath: string, baseRomPath: string, modulePaths?: string[], options?: string[], settings?: RebuildSettings) {
     if(!inPath) inPath = './extracted';
     if(!outPath) outPath = `./rebuilt/${process.env.ROM_NAME ?? 'Illusion of Gaia - Rebuilt'}.smc`;
     if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom');
@@ -138,10 +158,16 @@ export async function rebuild(inPath: string, outPath: string, baseRomPath: stri
     var dbRoot = DbRootUtils.fromGameModule(db);
 
     const outData = await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
+
+    const romSha1 = createHash('sha1').update(outData.romData).digest('hex');
+    const mode = settings?.mode ?? detectBuildMode(inPath);
+    console.log(`ROM: ${resolve(outPath)}`);
+    console.log(`SHA-1: ${romSha1}`);
+    console.log(`Size: ${outData.romData.length} bytes, mode: ${mode}, checksum: ${outData.header.checksum}`);
     
     if(options?.includes('artifacts')) {
         console.log('Generating artifacts...');
-        const artifactPath = './artifacts';
+        const artifactPath = settings?.artifactsDir ?? './artifacts';
         let totalSize = 0;
 
         const fileLayoutArtifact = outData.files.filter((file) => file.size > 0).sort((a, b) => a.location - b.location).map((file) => {
@@ -163,7 +189,7 @@ export async function rebuild(inPath: string, outPath: string, baseRomPath: stri
         await saveFileAsText(join(artifactPath, 'master-lookup.json'), masterArtifactText);
 
         const crc = crc32_buffer(outData.romData);
-        const crcText = JSON.stringify({ checksum: outData.header.checksum, crc, totalSize }, null, 2);
+        const crcText = JSON.stringify({ checksum: outData.header.checksum, crc, totalSize, mode, sha1: romSha1 }, null, 2);
         await saveFileAsText(join(artifactPath, 'crc.json'), crcText);
     }
 }
@@ -187,8 +213,17 @@ if (isMainModule) {
     const args = process.argv.slice(3);
 
     const flags = [];
+    //--key=value options keep the case of the value (paths); they are not flags.
+    const values: Record<string, string> = {};
     for(let index = 0; index < args.length; index++) {
         const arg = args[index];
+        const valueMatch = /^--([A-Za-z][A-Za-z0-9-]*)=(.*)$/.exec(arg);
+        if(valueMatch) {
+            values[valueMatch[1].toLowerCase()] = valueMatch[2];
+            args.splice(index, 1);
+            index--;
+            continue;
+        }
         if(arg.startsWith('--')) {
             flags.push(arg.slice(2).toLowerCase());
             args.splice(index, 1);
@@ -220,7 +255,10 @@ if (isMainModule) {
                     break;
                 case 'rebuild':
                     console.log('Starting ROM rebuild...');
-                    await rebuild(args[0], args[1], args[2], undefined, flags);
+                    await rebuild(args[0], values['out'] ?? args[1], args[2], undefined, flags, {
+                        artifactsDir: values['artifacts-dir'],
+                        mode: values['mode'],
+                    });
                     console.log('ROM rebuild completed successfully!');
                     break;
                 case 'rebuild-jp':
@@ -255,9 +293,34 @@ if (isMainModule) {
                     if (!namesResult.ok) process.exit(1);
                     break;
                 }
+                case 'export': {
+                    const what = args[0];
+                    if (what === 'labels') {
+                        const result = exportLabels(__pkgRoot, { outDir: values['out-dir'] });
+                        console.log(`Names: ${result.names}`);
+                        console.log(`Original: ${result.original} labels -> ${result.originalPath}`);
+                        console.log(`Rebuilt:  ${result.rebuilt} labels -> ${result.rebuiltPath}`);
+                        if (result.unresolvedInRebuilt.length > 0) {
+                            console.log(`Not in master-lookup (left out of the rebuilt file): ${result.unresolvedInRebuilt.length}`);
+                            console.log('  e.g. ' + result.unresolvedInRebuilt.slice(0, 10).join(', '));
+                        }
+                        if (result.renamedForMesen > 0) console.log(`Names with characters Mesen2 does not accept (replaced by _): ${result.renamedForMesen}`);
+                    } else if (what === 'scenes') {
+                        const result = exportScenes(__pkgRoot, { out: values['out'] });
+                        console.log(`Scenes: ${result.sceneCount} (${result.withFlags} with required event flags) -> ${result.path}`);
+                        if (result.duplicateIds.length > 0) {
+                            console.error('Duplicate scene ids: ' + result.duplicateIds.map(id => '$' + id.toString(16)).join(', '));
+                            process.exit(1);
+                        }
+                    } else {
+                        console.error('Usage: export labels [--out-dir=<dir>] | export scenes [--out=<file>]');
+                        process.exit(1);
+                    }
+                    break;
+                }
                 default:
                     console.error('Unknown command:', command);
-                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, merge, names');
+                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, merge, names, export');
                     process.exit(1);
             }
         } catch (error) {
