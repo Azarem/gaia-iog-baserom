@@ -339,8 +339,8 @@ These low DP addresses are **persistent engine state** — they must not be over
 
 | Address | Size | Name | Used By |
 |---------|------|------|---------|
-| `$06F8` | 2 | SFX channel 1 queue | `PlaySoundCh1`, NMI → `$APUIO2` |
-| `$06F9` | 1 | SFX channel 2 queue | `PlaySoundCh2` |
+| `$06F8` | 2 | SFX channel 1 queue (low byte of the word NMI writes to `$2142`/`$2143` on even frames) | `PlaySoundCh1`, NMI → `APUIO2` |
+| `$06F9` | 1 | SFX channel 2 queue (high byte; sent on `$2143`) | `PlaySoundCh2` |
 | `$06FA` | 2 | Music transition state (`musicTransitionState`) | NMI → runs `UpdateFrameFull` while positive (SPC upload in progress; `$FFFF` = finished) |
 
 #### Camera & Scroll

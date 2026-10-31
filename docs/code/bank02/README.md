@@ -318,7 +318,7 @@ All COP-based actor code runs with: `m=0, x=0, d=0, i=1`, `X=D=ActorID`, `DBR=$8
 | `$06C0` / `$06C4` | `cameraDeltaX` / `cameraDeltaY` | layer-1 scroll targets (named "delta", not deltas) |
 | `$06C6` / `$06C8` / `$06CA` | `scrollOverrideH` / `forcedScrollOverride` / `scrollOverrideV` | scroll override words (all three zeroed by the overlay; only the first two are saved) |
 | `$06EE` / `$06EF` | `layerPriorityFlag` (word) / `scrollModeFlags` (its high byte) | camera and layer mode flags; see [camera-scrolling.md](camera-scrolling.md) |
-| `$06F2`–`$06F6` | — | music track IDs (unverified) |
+| `$06F2` / `$06F4` / `$06F6` | `musicParentActor` / (script group byte) / `musicRoomGroup` | `$06F2` = BGM id stored by the scene's `music` record (`SpcMusicLoadCmd`; also written by `pyCD_jackal` and the Memory Melody item); `$06F4` = group byte of the last `music` record; `$06F6` = room group set by the Gold Ship actors |
 
 ### Player Variables
 

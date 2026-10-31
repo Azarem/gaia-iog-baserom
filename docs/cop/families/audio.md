@@ -6,12 +6,13 @@ _Deep-audited ops: `[04]`, `[05]`, `[06]`, `[07]`, `[08]`, `[09]`, `[0A]`, `[19]
 
 ## Overview
 
-Background music and sound effects reach the SPC700 through two layers: **thinker-backed music loaders** (`$04`, `$05`, `$19`) that run `SpcTransferMusicData` / `SpcFadeOutHandshake` asynchronously, and **SFX latch bytes** (`$06`–`$08`) written synchronously and drained toward `$2140`/`$2141` during NMI. Low-level **`WriteApuIo0` / `WriteApuIo1`** (`$0A` / `$09`) poke `$2140`/`$2141` directly for special cases (tempo tweaks, cutscene SPC commands).
+Background music and sound effects reach the SPC700 through two layers: **thinker-backed music loaders** (`$04`, `$05`, `$19`) that run `SpcTransferMusicData` / `SpcFadeOutHandshake` asynchronously, and **SFX latch bytes** (`$06`–`$08`) written synchronously and sent to the SPC during NMI as one 16-bit word on `$2142`/`$2143` (`APUIO2` = channel 1, `APUIO3` = channel 2). Low-level **`WriteApuIo0` / `WriteApuIo1`** (`$0A` / `$09`) poke `$2140`/`$2141` directly for special cases (tempo tweaks, cutscene SPC commands).
 
 ## Shared state
 
-- `$06F8` / `$06F9` — SFX queue bytes (channel 1 / channel 2); NMI and music-transfer completion paths drain or clear them
+- `$06F8` / `$06F9` — SFX queue bytes (channel 1 / channel 2); `NmiHandler` moves the 16-bit word to `$2142`/`$2143` and clears both bytes on **even** `$36` frames (odd frames write 0 to both ports; `musicTransitionState` = `$FFFF` skips the write); music-transfer completion paths also clear them
 - `$06FA` — Music track ID (written during SPC handshake by thinker code in `hdma_dma_spc.asm`)
+- `$06F2` — BGM id stored by the scene's `music` record (`SpcMusicLoadCmd`), also by `pyCD_jackal` (`$0F`) and the Memory Melody item (`$0E`). `StartMusic` / `FadeThenStartMusic` never write it (71 call sites), so after a scripted music change it still holds the scene's id
 - `$2140`–`$2143` — SNES APU I/O ports (`APUIO0`–`APUIO3`)
 - `$7F000A` (`chatPtr`) — Music bundle ID stored on the thinker spawned by `$04`/`$05`
 - `AllocateActorAfter` — inserts a thinker after the calling actor ([`actor_pool.asm`](../../../extracted/system/engine/actor_pool.asm))
@@ -21,10 +22,13 @@ Background music and sound effects reach the SPC700 through two layers: **thinke
 ## Family notes
 
 - Music ops **return immediately** (`RTI`); the spawned thinker owns the multi-frame `$F0` / `$F1` APU handshake and block upload.
-- `$05` differs from `$04` only in the thinker entry: **`SpcFadeOutHandshake`** first sends **`$F1`** on `APUIO0` (the SPC engine's own fade-out command; the fade runs inside the SPC, not in 65816 code), waits for the echo, sends **`$01`**, and enters the same transfer path as `$04` once `APUIO0` reads zero. Not traced: whether the fade is audible before the following `$01` / `$F0` commands.
+- `$05` differs from `$04` only in the thinker entry: **`SpcFadeOutHandshake`** first sends **`$F1`** on `APUIO0` (the SPC engine's own fade-out command; the fade runs inside the SPC, not in 65816 code), waits for the echo, sends **`$01`**, and enters the same transfer path as `$04` once `APUIO0` reads zero. The fade is audible: the SPC's master volume falls from `$53` to 0 over about 335 frames, then its fade-end code runs `CmdStop`, which writes 0 to `APUIO0`; only then does the thinker send `$F0`. The fade-out leg lasts about 340 frames (341 measured); the thinker reads the zero when it next runs, so a dialogue wait that blocks the main loop delays the `$F0` further (541 frames after the `$F1` in the scene `$58` run). The `$01` has no effect, because the SPC's last-command byte already holds `$01`.
 - SFX ops are **single-store** handlers; they do not wait for the SPC to acknowledge.
 - `$08` writes a **16-bit word** to `$06F8`, filling both latch bytes in one instruction (typical pattern `#$0505` = ch1 `#$05`, ch2 `#$05`).
 - `$19` combines music start with dialogue; prefer the pool + `MusicJingleActor` path, with an **inline `DialogStringRenderer` fallback** when the pool is full.
+- **Music ids.** `StartMusic` / `FadeThenStartMusic` store the operand in `chatPtr` → `$06FA`; `LoadMusicFromTransitionState` reads `music_pointer_array` entry **id − 1** (`music_pointer_array-3 + 3*id`). Id 0 never indexes the table: it appears only in the scene `$FA` `music` record (`bgm_restart` loaded from the script pointer, port 0 = `$00`), and no COP call uses `#00` (71 `StartMusic` / `FadeThenStartMusic` call sites, all immediate). Ids `$0D` and `$17` (both `bgm_lively_city` in the table) have no `StartMusic` call site. `MusicAndText` and `ChestOpeningActor` pass `$26 + 1`, so `#17` plays id `$18`, the chest fanfare `bgm_important_item` (measured: the second upload in a chest scene is that file).
+- **Hit sound.** `ApplyPlayerHitstun` plays `COP [PlaySoundCh2] ( #07 )` on both exits, with no read of `characterForm` (static; run only with Will, no hit landed as Freedan or Shadow).
+- **Camera shake.** `CameraShakeActor` plays `PlaySoundCh2 #15` on **every** tick of its 61-tick life (`$26` = `$3C`, no `SetEntryHere`), not once; measured 61 plays.
 - `$09`/`$0A` bypass queues — use sparingly; many engine sites use `$7F` / `$01` on `$2140` as SPC command bytes during cutscenes.
 
 ## Usage statistics
@@ -116,6 +120,8 @@ COP [StartMusic] ( #1B )          ; incan_ruins/incan_ruins_entrance/ir1C_kara.a
 
 Same allocation and flag setup as `[04]`, but the thinker entry is **`SpcFadeOutHandshake`** instead of `SpcTransferMusicData`. That path sends **`$F1`** on `APUIO0` (the SPC engine's `CmdFadeOut`), waits for the echo, sends **`$01`**, and falls into `SpcTransferMusicData` (the standard `$F0` transfer used by `[04]`) when `APUIO0` then reads zero; otherwise it yields and retries.
 
+Measured on the US ROM (scene change with `FadeThenStartMusic #02`, SPC-side trace): `$F1` is dispatched, the master volume steps `$53` → 0 about every 4 frames (about 335 frames), the SPC's fade-end code calls `CmdStop` (master and echo volume 0, `FLG` `$20`, `EON` 0), which writes 0 to `APUIO0` 341 frames after the `$F1`; the thinker then sends `$F0` and the rest of the standard transfer when it reads that zero (frame 1018 in this run, because the main loop sat in a dialogue wait from frame 776 to 1017 and the thinker did not run; 959 versus the zero at 767 in the shipped build). `$F0` is the SPC's stop command, not a ready signal. In the one `GaiaThenRest` run (track `#0E`) the `$F1` echo never arrived (`APUIO0` kept reading `$01`), so the handshake looped for 1,744 frames and track `$0E` was never uploaded; the cause is open.
+
 ```asm
 FadeThenStartMusic {
     ; … AllocateActorAfter + flags identical to StartMusic …
@@ -129,7 +135,7 @@ FadeThenStartMusic {
 
 ##### How it is used
 
-Called from the ending and epilogue scripts and from the Castoth transformation scene (call sites below). The fade itself is the SPC engine's; whether it is audible before the next music loads is not traced.
+Called from the ending and epilogue scripts and from the Castoth transformation scene (call sites below). The fade itself is the SPC engine's and is audible (about 335 frames) before the next music loads.
 
 ```asm
 COP [FadeThenStartMusic] ( #14 )  ; ending/ending_new_babel/s89_new_babel.asm:39
@@ -172,7 +178,7 @@ PlaySoundCh2 {
 }
 ```
 
-Engine code drains queued SFX toward **`$2141`** (`APUIO1`) during NMI when music DMA is not owning the ports.
+`NmiHandler` sends the queued byte on **`$2143`** (`APUIO3`, the high byte of the 16-bit word written to `$2142`) on even frames, and clears it; odd frames write 0 to the port. The drain is skipped while `musicTransitionState` = `$FFFF`.
 
 ##### How it is used
 
@@ -188,9 +194,9 @@ COP [PlaySoundCh2] ( #2C )        ; babel_tower/comet_lair/sE8_dark_gaia.asm:881
 
 | Item | Value |
 |------|-------|
-| Operand | `Byte SoundId` — SPC command / effect id for port 1 side of latch |
+| Operand | `Byte SoundId` — SPC effect id sent on `$2143` (`APUIO3`) |
 | WRAM | `$06F9` |
-| Latency | Up to a few frames until NMI drain (may stall if music transfer holds APU I/O) |
+| Latency | Up to 2 frames until the next even-frame NMI drain (skipped while `musicTransitionState` = `$FFFF`) |
 | Outcome | Continue |
 
 ---
@@ -203,7 +209,7 @@ COP [PlaySoundCh2] ( #2C )        ; babel_tower/comet_lair/sE8_dark_gaia.asm:881
 
 ##### What it does
 
-Same shape as `[06]`, but stores to **`$06F8`** (`sfxQueueCh1`) for drain toward **`$2140`** (`APUIO0`).
+Same shape as `[06]`, but stores to **`$06F8`** (`sfxQueueCh1`), the low byte of the word that `NmiHandler` writes to **`$2142`** (`APUIO2`).
 
 ```asm
 PlaySoundCh1 {
@@ -437,6 +443,6 @@ COP [MusicAndText] ( #17, @dialogstring_0AA85C )  ; diamond_mine/mine_main/dm3F_
 | Op | Layer | Async | Target |
 |----|-------|-------|--------|
 | `[04]`/`[05]` | Music queue | Yes | Thinker → SPC bundles |
-| `[06]`–`[08]` | SFX latch | No (store only) | `$06F8`/`$06F9` → NMI → `$2140`/`$2141` |
+| `[06]`–`[08]` | SFX latch | No (store only) | `$06F8`/`$06F9` → NMI (even frames) → `$2142`/`$2143` |
 | `[09]`/`[0A]` | Raw ports | No | `$2141` / `$2140` |
 | `[19]` | Music + text | Yes (preferred) | `MusicJingleActor` + `@DialogString` |

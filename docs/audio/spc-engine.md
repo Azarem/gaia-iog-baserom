@@ -77,7 +77,7 @@ Each `.bgm` file is a self-contained music bundle containing everything the SPC 
 │  Block 1: [u16 size] [u16 target] [payload] │  ← e.g. velocity table → ARAM $1300
 │  Block 2: [u16 size] [u16 target] [payload] │  ← e.g. sequence data → ARAM $5532
 │  ...                                        │
-│  Terminator: [u16 size=0] [u16 target]      │  ← target = sample end address
+│  Terminator: [u16 size=0] [u16 target]      │  ← target = ARAM address of the first sample chunk
 ├─────────────────────────────────────────────┤
 │  [u8 instrumentCount]                       │
 │  [u8 instrumentId] × instrumentCount        │  ← global sample IDs for this song
@@ -105,6 +105,24 @@ After the terminator block, the file contains:
 - `u8[instrumentCount]` — global sample IDs (indices into `SAMPLE_TABLE`)
 
 These IDs map per-song slot numbers (from `$E0` setInstrument commands) to the global instrument pool.
+
+### Song stream layout (how the sample chunks are placed)
+
+The 65816 routine `SpcBlockTransfer` (`spc_transfer.asm`) sends a song in two sessions. Everything below was read from the ROM bytes of all 30 shipped streams (static parse) and from the routine's code:
+
+1. **Session 1** sends the records `[size][ARAM dest][data]` up to the size-0 terminator. The terminator's destination word is kept as the running ARAM address `$2E` (the routine backs `Y` up by 2 to re-read it).
+2. **Tail.** Behind the terminator the stream holds `[count]` and then `count` chunk-index bytes. An index is the position of a chunk in the sample library at `$C5:0000` (ROM `0x50000`); bit 7 set marks an empty slot, and no chunk is sent for it.
+3. **Session 2** (after port `$FF` re-enters the resident loader) sends the chunks. Chunk k goes to the terminator word plus the sizes of the chunks sent before it: the running size starts at 0 and `$2E += size of the previous chunk` before each chunk. An empty slot keeps the previous chunk's size, so the next chunk follows without a gap.
+4. **Sample library.** 61 chunks `[u16 size][data]` stored back to back in 32 KB pages (the read pointer wraps at `$8000` into the next bank), 162,524 bytes in total. The 30 streams name 60 distinct chunks (`$00`-`$3B`); chunk `$3C` (1,028 bytes) is named by none.
+
+| Stream word | Value in every shipped stream |
+|-------------|-------------------------------|
+| Terminator destination | The end of the song's highest record (the sequence block at `$5532` or `$1400`): the first free ARAM address after the song data. First stream (`bgm_lively_city`): `$5532 + $0B34 = $6066` |
+| Sample directory start words | The computed chunk destinations, in order (`$6066`, `$7350`, `$8D0C`, `$92B5`, `$9573`, `$9951` for the first stream) |
+| `$0FFC` record | The sequence block's ARAM address |
+| `$0FFE` record | The address just past the last chunk (first stream: `$9951 + 5067 = $AD1C`); `ClearAramTail` zeroes ARAM from here to `$FFFF` |
+
+The routine does not check these relations; they hold because the stream builder wrote the terminator word that way. The last chunk of every song ends below `$10000` (largest end `$BE54`, `bgm_great_pyramid`). `bgm_waterfall` has a count of 1 with a single empty slot (no chunk sent), and `bgm_restart` has no `$0FFC`/`$0FFE` record. Standard streams write the directory at `$1038` with count × 4 bytes (4 to 28 bytes); the extended streams `bgm_bittersweet_victory`, `bgm_rebirth` and `bgm_illusion_of_gaia` write it at `$1000` with count × 4 bytes (28 or 40 bytes); only `bgm_restart` writes the full 56-byte, 14-entry form.
 
 ---
 
@@ -776,6 +794,18 @@ Attack is LINEAR (constant step size of +32 per interval), while decay and susta
 ### 7. Two velocity table variants
 
 IoG songs use one of two velocity table variants (A or B). Each song uploads its own 24-byte table. The tables have identical duration fractions (bytes 0–7) but different velocity curves — Table B has a more compressed dynamic range.
+
+### 8. Port 0 commands `$F0`, `$F1`, `$F2` (measured on the US ROM)
+
+Observed with an SPC-side trace during a scene change (see [mesen2-d-series-summary.md](../mesen2-d-series-summary.md)):
+
+| Command | Routine | Behaviour |
+|---------|---------|-----------|
+| `$F1` | `CmdFadeOut` | Starts an **audible** fade: master volume `$53` to 0 in steps of 1 about every 4 frames (about 335 frames), then the fade-end code calls `CmdStop`, which writes 0 to port 0. The 65816 thinker (`SpcFadeOutHandshake`) sends `$F0` only after it reads that 0: the zero comes about 340 frames after the `$F1`, and the `$F0` follows when the thinker next runs (later if a dialogue wait blocks the main loop). The `$01` the thinker sends after the `$F1` echo changes nothing: the engine's last-command byte `$08` already holds `$01`. |
+| `$F0` | `CmdStop` | Master and echo volume 0, `FLG` `$20` (echo writes off), `EON` 0, all music channels cleared. It is a stop command, not a "ready" signal. |
+| `$F2` | `CmdF2` | Keys off all voices (the `$0E` KOFF source) and leaves master volume, echo and `FLG` unchanged. Commands `$F0` and above skip the edge compare against `$08`, so `$F2` is dispatched on every tick while the port holds it. |
+
+The resident loader (the routine the `$FF` command re-enters, `sub_0f89`) writes no DSP register: 0 DSP writes were seen across four transfers.
 
 ---
 

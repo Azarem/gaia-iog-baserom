@@ -540,7 +540,7 @@ UpdateFrameCounters {
 ; 10. Re-enable the HDMA channels from the mask in $66
 ; 11. Spin until the joypad auto-read finishes, store JOY1L in joypadRaw
 ; 12. If musicTransitionState is positive (SPC music upload in progress in the main loop): run UpdateFrameFull
-; 13. Otherwise write APUIO2: 0 on odd frames, the dequeued sfxQueueCh1 byte on even frames
+; 13. Otherwise write the sound word (16-bit store to APUIO2, so the high byte lands in APUIO3): 0 on odd frames; on even frames the dequeued word sfxQueueCh1 (low byte, APUIO2) / sfxQueueCh2 (high byte, APUIO3), and both queue bytes are cleared. A musicTransitionState of $FFFF skips the write
 ; 14. Increment the frame parity counter ($36) and restore registers
 
 NmiHandler {
@@ -603,14 +603,14 @@ NmiHandler {
 
   loc_00836E:
     LDA $36
-    LSR                   ; Frame parity bit: odd frames write 0 to APUIO2, even frames send the dequeued SFX ID
+    LSR                   ; Frame parity bit: odd frames write 0 to APUIO2/3, even frames send the dequeued sound word
     LDA #$0000
     BCS loc_00837C
-    LDA $sfxQueueCh1      ; Dequeue pending sound effect for SPC transfer
+    LDA $sfxQueueCh1      ; Dequeue the pending sound word: sfxQueueCh1 (low byte) and sfxQueueCh2 (high byte); the STZ below clears both
     STZ $sfxQueueCh1
 
   loc_00837C:
-    STA $APUIO2           ; Write audio command to SPC I/O port 2 ($2142)
+    STA $APUIO2           ; Write the sound word: low byte (Ch1) to APUIO2 ($2142), high byte (Ch2) to APUIO3 ($2143); 0 on odd frames
 
   loc_00837F:
     INC $36               ; Increment frame parity counter

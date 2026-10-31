@@ -14,7 +14,7 @@ Comparison of the Quintet N-SPC sound-engine program embedded in the US and JP b
 
 Companion: [spc-engine-us-vs-jp-alignment.md](spc-engine-us-vs-jp-alignment.md) — every instruction of both engines in aligned order (generated).
 
-> **Status of claims.** Everything in the tables below that quotes an address, byte, or instruction is read directly from the two disassemblies. Statements labelled *(inferred)* are interpretations of what the code does; nothing here was verified by running either ROM in an emulator. §10 lists what remains unverified.
+> **Status of claims.** Everything in the tables below that quotes an address, byte, or instruction is read directly from the two disassemblies. Statements labelled *(inferred)* are interpretations of what the code does; statements labelled *measured* were observed by running the US ROM in Mesen2 (SPC-side trace); the JP ROM was never run. §10 lists what remains unverified.
 
 ---
 
@@ -190,13 +190,13 @@ Differences:
 | Volume command range | `$40–$7F`; `A = ((cmd−$40) << 2) ^ $FF`; `$3E = (A × $E0) >> 8` → `$DF` (cmd `$40`) down to `$02` (cmd `$7F`) | `$10–$7F`; `$3E = (cmd−$10) << 1` → `0` (cmd `$10`) up to `$DE` (cmd `$7F`); also `$5E = $FF` |
 | Meaning of `$3E` | **multiplicative** master scale (large = loud; song-start default `$E0`) | **subtractive** voice attenuation (`SBC A,$3E` at `$0D1D`); `0` = none (song-start default) |
 | `$F1` fade-out (`CmdFadeOut`) | `$30 = $FF`, `$31 = $FF` | `$30 = $FF`, **`$31 = $7F`** |
-| `$F2` (`CmdF2` / `CmdMute`) | `MOV $0E,#$FF` — see below | `SET1 $48.6` — sets FLG mute |
+| `$F2` (`CmdF2` / `CmdMute`) | `MOV $0E,#$FF` — the KOFF source: keys off all voices (measured, see below) | `SET1 $48.6` — sets FLG mute |
 
 Consequences:
 
 - **Fade length.** US fades from level `$FF` (255 ticks); JP counts down from `$7F` (127 ticks). In tick counts, the US fade-out runs twice as long. Wall time is tick-rate dependent (`ticks/s ≈ tempo × 500 / 256`).
 - **Fade effect.** In JP the countdown value is *also* the fade scale for every voice (`$31 << 1`, `$0D2A–$0D31`). In US the same variable is multiplied into `MVOL`/`EVOL` instead (§5.2).
-- **`$F2` appears to be a no-op in the US engine.** It writes `$0E`, and no instruction in the US engine reads `$0E` (the other `$0E` writes are in CmdStop, song start and the tick head; `MOV X,#$0E` is an immediate). In JP, `$F2` mutes the DSP via FLG bit 6. According to its comment, `scene_script.asm` issues `$F2` before a music change ("optional stop ($F2 + 32 frames…)"), so in the US build that mute step would have no effect *(inferred; CPU-side code not traced)*.
+- **`$F2` keys off every voice in the US engine; it does not mute.** It writes `$FF` to `$0E`, and `$0E` is the KOFF source of the main-loop DSP refresh (`DspRegSourceTable` entry 7, `$0E`, paired with `DspRegAddrTable` entry 7, DSP `$5C`; an earlier scan of the code for direct reads missed the table). In JP, `$F2` mutes the DSP via FLG bit 6. Measured on the US ROM (Mesen2, SPC-side trace of a scene change): `$F2` is dispatched to `CmdF2` (`$067F`), the main loop writes KOFF = `$FF` within a tick, and the summed voice envelope falls from about 460 to 0 within 4 frames; master volume, echo volume and FLG stay unchanged (`$53`, `$19`, `$00`) until the `$F0` that follows. The engine dispatches `$F2` again on every tick while the port still holds it (a command byte of `$F0` or above jumps to the dispatch without the edge compare against `$08`). `SpcMusicLoadCmd` sends `$F2` before a music change when `$0D72` is set and holds it for 32 frames, so the old track is silent about 30 frames before `$F0` arrives.
 
 ### 5.4 DSP echo-volume source
 
@@ -263,7 +263,7 @@ It reads **three** sequence bytes (operand 1 from the dispatcher, then two via `
 |------|----|----|
 | Guard | `MOV A,$D5; BEQ → RET` — nothing to stop if music channel 0 is inactive | no guard |
 | Master | `$6B = $6C = 0`; `MVOL` and `EVOL` L/R written `0` directly (`$0649–$065C`); `$5C = $FF` | `$46 = $FF` (KOF all voices) |
-| `$0E` | `= $FF` (dead write) | — |
+| `$0E` | `= $FF` (the KOFF source: all voices keyed off by the next refresh) | — |
 | FLG | `SET1 $48.5` (echo write disable) | `SET1 $48.5` **and `SET1 $48.6` (mute)** |
 | Channel state | all eight music channel pointers `$D5…$E3` zeroed; `$31 = 0` | only `$E5`, `$E7` zeroed |
 | Common | `$04 = 0`, echo-delay reset via `SetEchoDelay(1)` | same |
@@ -275,12 +275,12 @@ Start song (cmd `$02`; US `$06C2…`, JP `$0641…`):
 | `$31` | `= 0` (`$06E1`) | not touched |
 | `$35` (SFX sweep state) | — | `= 0` |
 | `$3E` | `= $E0` (`$06F2`) | `= 0` |
-| `$0E` | `= 0` (dead) | — |
+| `$0E` | `= 0` (the KOFF source cleared) | — |
 | FLG mute | `CLR1 $48.6` | `CLR1 $48.6` |
 | Per-voice init volume `$0305+X` | `$00` (`$0707`) | `$FF` (`$0681`) |
 | Song master volume `$59` | `$00` (`$0731`) | `$C0` (`$06AB`) |
 
-The tick routine's head differs the same way: JP clears FLG mute on every tick while music runs (`CLR1 $48.6`, `$06CA`), the US build writes the dead variable `$0E = 0` (`$0750`). JP's tick also forces all-voice volume recomputation while a fade is active (`$07AD–$07B1`: `$30 != 0 → $5E = $FF`), which the US engine does not need because voices are no longer scaled by the fade.
+The tick routine's head differs the same way: JP clears FLG mute on every tick while music runs (`CLR1 $48.6`, `$06CA`), the US build clears the KOFF source `$0E = 0` (`$0750`). JP's tick also forces all-voice volume recomputation while a fade is active (`$07AD–$07B1`: `$30 != 0 → $5E = $FF`), which the US engine does not need because voices are no longer scaled by the fade.
 
 Net effect: in the JP engine volume state is *initialised to audible defaults* (`$59 = $C0`, channel volume `$FF`, `MVOL = $60`); in the US engine everything starts at zero and each song must set `$E5` and `$ED` itself. Shipped songs do (§9).
 
@@ -373,7 +373,7 @@ The full 200+ routine mapping is in the `compare-spc-engines.mjs` output ("Routi
 
 | DP | US | JP |
 |----|----|----|
-| `$0E` | write-only flag, never read | scratch zero word for the slide-negate helper (with `$0F`) |
+| `$0E` | KOFF source (`DspRegSourceTable` entry 7 → DSP `$5C`); set to `$FF` by `$F2` and CmdStop, cleared at song start and at the tick head | scratch zero word for the slide-negate helper (with `$0F`) |
 | `$1C` | scratch zero word for the slide-negate helper (with `$1D`) | unused |
 | `$31` | fade **level** `$FF…0`, also gates MVOL and SFX tick | fade **countdown** `$7F…0`, scales each voice |
 | `$35` | unused | SFX stereo-sweep active |
@@ -411,7 +411,7 @@ Conclusions:
 
 ## 10. Unverified / open items
 
-1. **Runtime behaviour.** No emulator verification. The volume estimate (§6), fade length, the no-op `$F2`, and the SFX-gating on `$31 == 0` are static-analysis conclusions.
+1. **Runtime behaviour.** Only the US ROM was run (SPC-side trace, see [mesen2-d-series-summary.md](../mesen2-d-series-summary.md)): the fade-out is audible (master volume `$53` to 0 in about 335 frames, one step about every 4 frames), `$F2` keys off the voices, CmdStop clears master and echo volume, and the resident loader writes no DSP register. The volume estimate (§6) and the SFX-gating on `$31 == 0` are still static-analysis conclusions; the JP ROM was not run.
 2. **PORT3 output.** The US engine's master-volume value written to `$F7` appears unused; only the extracted 65816 code was searched (`$2143` / `APUIO3`).
 3. **Command source `$04` vs `$F4`.** JP re-reads the port in the volume branch; whether any observable timing difference follows was not analysed.
 4. **`$5C = $FF` in US CmdStop.** Purpose unclear; JP has no equivalent.

@@ -14,7 +14,7 @@ mtA5_mushroom_drop_gate_b [
   code_07E899:
     COP [BranchOnFlagWord] ( #$0167, #01, &f_mtA5_actor_07E896_destroy )
     COP [WaitOnFlagByte] ( #02, #01 )
-    LDA #$EFF0
+    LDA #$EFFC
     TSB $joypadMaskStd
     COP [RemoveItem] ( #1A )
     COP [PlaySoundCh1] ( #0F )
@@ -45,7 +45,7 @@ mtA5_mushroom_drop_gate_b [
     COP [StageBgChange] ( #67 )
     COP [ApplyBgChange]
     COP [SetFlagWord] ( #$0167 )
-    LDA #$EFF0
+    LDA #$EFFC
     TRB $joypadMaskStd
     COP [Die]
 } >

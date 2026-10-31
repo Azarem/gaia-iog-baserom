@@ -38,6 +38,8 @@ PaletteStart {
     STZ $0E               ; Sub-entry index <- 0 (first strip of the bundle)
     JSL $@hdma_dma_spc.LoadPaletteBundle ; Fill the actor fields from sub-entry 0 (hold count, data pointer, ...)
     JSL $@hdma_dma_spc.CopyPaletteBundleFrame ; Apply it using those fields
+    LDA $0C
+    STA $02
     LDA $0A
     STA $00               ; Resume address = the op after this one (the Step op)
     PLA                   ; Drop the COP frame and yield (RTL to the actor runner)
@@ -61,6 +63,8 @@ PaletteStartLoop {
     STA $retPtr1, X       ; Store the pass count in retPtr1 ($7F0004)
     JSL $@hdma_dma_spc.LoadPaletteBundle ; Load sub-entry 0
     JSL $@hdma_dma_spc.CopyPaletteBundleFrame ; Apply it
+    LDA $0C
+    STA $02
     LDA $0A
     STA $00               ; Resume address = the op after this one (PaletteStepLoop)
     PLA 

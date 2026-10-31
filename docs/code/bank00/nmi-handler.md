@@ -37,7 +37,7 @@ Actors, collision, camera prep   |     STZ HDMAEN; scroll + DMA uploads
 Build OAM / HDMA table ($66)     |     HDMAEN <- $66
 EnableNmiAndJoypad at loop end   |     Latch JOY1L -> joypadRaw (hardware)
 VBlankWaitAndJoypad at loop start|     Optional UpdateFrameFull (music upload)
-                                   |     APUIO2 handshake (music idle only)
+                                   |     SFX word -> APUIO2/3 (even frames, music idle only)
                                    |     INC $36; RTI
 ```
 
@@ -72,7 +72,7 @@ Steps marked **HW** touch PPU/APU/DMA registers; **GL** touch game WRAM only.
 | 11 | HW | Poll **`HVBJOY`** until auto-joypad read finished |
 | 12 | HW | **`JOY1L` → `joypadRaw`** |
 | 13 | branch | **`musicTransitionState`**: if **> 0** and **< `$8000`**, **`JSL UpdateFrameFull`** **GL** (full mini-frame during SPC upload) |
-| 14 | branch | If **`musicTransitionState == 0`**: even/odd via **`$36` LSR** → dequeue **`sfxQueueCh1`** to **`APUIO2`** on even frames, **`0`** on odd **HW** |
+| 14 | branch | If **`musicTransitionState == 0`**: even/odd via **`$36` LSR** → on even frames load the 16-bit word **`$06F8`/`$06F9`** (`sfxQueueCh1` low, `sfxQueueCh2` high), **`STZ`** it (both bytes), and store it 16-bit to **`APUIO2`**: low byte → `$2142`, high byte → `$2143`; on odd frames write **`0`** to both **HW** |
 | 15 | GL | **`INC $36`** (16-bit frame parity at DP **`$36`**) |
 | 16 | — | Restore **`Y`/`X`/`A`/`B`/`P`**, **`RTI`** |
 
@@ -103,7 +103,7 @@ displayModeFlags bit 3 ($08) set?
 | `$0066` | HDMA enable cache | 10 | Channel mask → **`HDMAEN`** |
 | `$0660` | `joypadRaw` | 12 | Raw **`JOY1L`** latch |
 | `$0800` | `dmaSkipFlag` | 9 | Nonzero → skip adhoc + **`ExecuteVramDma`** |
-| `$06F8` | `sfxQueueCh1` | 14 | Pending SFX ID for APU (even frames) |
+| `$06F8` | `sfxQueueCh1` | 14 | Pending SFX ID for `$2142` (even frames); with `$06F9` (`sfxQueueCh2`, `$2143`) it forms one 16-bit word that is cleared when sent |
 | `$06FA` | `musicTransitionState` | 13–14 | **`0`** idle; **`>0`** SPC upload → **`UpdateFrameFull`**; **`$FFFF`** finished |
 | `$09EC` | `displayModeFlags` | 7, 9 | Step 7 (`Bg3TilemapVramDma`): bits **`$01`** (full BG3 upload, `$0800` bytes `$7F:0200` → VRAM `$7800`), **`$10`/`$20`** (partial, `$0140` bytes → VRAM `$7840`), gated by `$09ED` bit 7. Step 9: bit **`$08`** → **`DmaPlayerTilesToVram`** instead of normal path |
 | `$00AC`–`$00B2` | (DP staging) | 9 | **`ExecuteVramDma`** source/dest/size |

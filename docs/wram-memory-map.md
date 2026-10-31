@@ -249,10 +249,10 @@ When a COP handler or game code sets `TCD #$0000`, offsets `$00`–`$FF` access 
 
 | Address | Size | Name | Description | Primary Users |
 |---------|------|------|-------------|---------------|
-| `$06F2` | 2 | `musicParentActor` | The scene's current music index (the BGM id of the last scene-script `$11` command; the name is a misnomer, it is not an actor ID); saved by `MusicJingleActor` and `ChestOpeningActor` to restore the scene track | `SpcMusicLoadCmd`, `MusicJingleActor` |
+| `$06F2` | 2 | `musicParentActor` | The BGM id stored by the last scene-script `$11` (`music`) command; the name is a misnomer, it is not an actor ID. `StartMusic` / `FadeThenStartMusic` never update it, so it is not the track in use after a scripted music change. Also overwritten by `pyCD_jackal` (`$0F`) and the Memory Melody item (`$0E`). `MusicJingleActor` and `ChestOpeningActor` save it and reload it afterwards, so the restore plays the scene's id | `SpcMusicLoadCmd`, `pyCD_jackal`, `item_use_system` (writers); `MusicJingleActor`, `ChestOpeningActor` (readers) |
 | `$06F6` | 2 | `musicRoomGroup` | Room group ID for music continuity; non-zero prevents re-triggering | Scene script `$11` command |
-| `$06F8` | 2 | `sfxQueueCh1` | SFX channel 1 queue; sent to `$APUIO2` on even frames during NMI | `PlaySoundCh1` COP, `NmiHandler` |
-| `$06F9` | 1 | `sfxQueueCh2` | SFX channel 2 queue | `PlaySoundCh2` COP |
+| `$06F8` | 2 | `sfxQueueCh1` | SFX channel 1 queue; low byte of the 16-bit word `NmiHandler` writes to `APUIO2`/`APUIO3` (`$2142`/`$2143`) on even frames (both bytes are then cleared; odd frames write 0 to both ports; `musicTransitionState` = `$FFFF` skips the write) | `PlaySoundCh1` COP, `NmiHandler` |
+| `$06F9` | 1 | `sfxQueueCh2` | SFX channel 2 queue; high byte of the same word, sent on `APUIO3` (`$2143`) | `PlaySoundCh2` COP |
 | `$06FA` | 2 | `musicTransitionState` | Active music track transition ID; `$FFFF` = idle. Non-zero triggers `UpdateFrame_Full` from NMI | `NmiHandler`, `MusicJingleActor` |
 
 ### 2.4 DMA / Tilemap Scratch ($0800–$0901)

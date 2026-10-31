@@ -13,15 +13,9 @@
     },
     { "key": "LDA #\\$([CDEF])FF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$$1FFC$2" }
   ],
-  "cop_handlers_audio": [
-    {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
-      "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
-    }
-  ],
   "cop_handlers_palette": [
     {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
+      "key": "LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00",
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
     }
   ],
@@ -37,25 +31,7 @@
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
     }
   ],
-  "cop_handlers_spawn": [
-    {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
-      "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
-    }
-  ],
-  "cop_handlers_lifecycle": [
-    {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
-      "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
-    }
-  ],
   "cop_handlers_script_control": [
-    {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
-      "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
-    }
-  ],
-  "cop_handlers_solid": [
     {
       "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
@@ -63,19 +39,7 @@
   ],
   "cop_handlers_movement": [
     {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
-      "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
-    }
-  ],
-  "cop_handlers_spatial": [
-    {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
-      "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
-    }
-  ],
-  "cop_handlers_map": [
-    {
-      "key": "(?<!STA \\$02\\s+)LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00\\s+(;[^\\r\\n]+)?\\s+STA \\$02, S",
+      "key": "LDA \\$0A\\s+(;[^\\r\\n]+)?\\s+STA \\$00",
       "value": "LDA $$0C\r\n    STA $$02\r\n    $&"
     }
   ],
@@ -353,9 +317,6 @@
   "fr33_erik": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
-  "fr33_kara": [
-    { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
-  ],
   "fr32_locked_door": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
@@ -627,16 +588,16 @@
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
 
-  "mtA5_crystal_ball_gate_a": [
+  "mtA5_mushroom_drop_gate_a": [
     { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
   ],
-  "mtA5_crystal_ball_gate_b": [
+  "mtA5_mushroom_drop_gate_b": [
     { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
   ],
   "mtA0_intro": [
     { "key": "LDA #\\$CFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$CFFC$1" }
   ],
-  "mtA2_crystal_ball_gate": [
+  "mtA2_mushroom_drop_gate": [
     { "key": "LDA #\\$EFF0([^\\r\\n]*\\s+T[SR]B \\$joypadMaskStd)", "value": "LDA #$$EFFC$1" }
   ],
 

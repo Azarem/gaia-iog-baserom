@@ -633,6 +633,8 @@ TickMoveComplete {
     JMP $&TickMoveStep    ; Jump back to TickMoveStep for another interpolation pass
 
   loc_008FD5:
+    LDA $0C
+    STA $02
     LDA $0A               ; All passes complete: save resume PC
     STA $00
     PLA                   ; Yield RTL to return to calling script

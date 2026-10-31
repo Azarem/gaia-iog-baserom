@@ -239,19 +239,19 @@ code_list_0AE4D7 [
 - **Handler:** `cop_handler_05_008749`
 - **Params:** `Byte MusicId`
 - **Does:** Fade out, then start music.
-- **How:** Same as `$04` but thinker entry is `SpcFadeOutHandshake` (`$F1` handshake), which falls into `SpcTransferMusicData`.
+- **How:** Same as `$04` but thinker entry is `SpcFadeOutHandshake` (`$F1` handshake), which falls into `SpcTransferMusicData`. The fade is audible (about 335 frames until the SPC's `CmdStop` answers with 0 on `APUIO0`); see [families/audio.md](cop/families/audio.md).
 
 #### `$06` — `PlaySoundCh2`
 - **Handler:** `cop_handler_06_00877E`
 - **Params:** `Byte SoundId`
 - **Does:** Queue SFX on the second sound channel.
-- **How:** `STA $06F9` (8-bit). Engine drains this into the APU.
+- **How:** `STA $06F9` (8-bit). `NmiHandler` sends it on `APUIO3` (`$2143`) on even frames.
 
 #### `$07` — `PlaySoundCh1`
 - **Handler:** `cop_handler_07_008792`
 - **Params:** `Byte SoundId`
 - **Does:** Queue SFX on the first sound channel.
-- **How:** `STA $06F8` (8-bit).
+- **How:** `STA $06F8` (8-bit). `NmiHandler` sends it on `APUIO2` (`$2142`) on even frames.
 
 #### `$08` — `PlaySoundBoth`
 - **Handler:** `cop_handler_08_0087A6`

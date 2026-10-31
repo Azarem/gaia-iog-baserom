@@ -79,10 +79,10 @@ Bank $7e
   
 06EF-06EF Bitwise flags? $08 = "Push Mode-7 data to PPU at top of frame"
 06F0-06F1 Default actor parameter/properties
-06F2-06F3 Current map's music track ID
+06F2-06F3 BGM id stored by the last scene music record (not updated by StartMusic/FadeThenStartMusic; also written by pyCD_jackal and the Memory Melody item)
 06F4-06F5 During map transition, new map's music group
 06F6-06F7 Current map's music group
-06F8-06F9 Small buffer for writing bytes to APU channel 2 (plays sounds)
+06F8-06F9 SFX word: 06F8 -> APUIO2 ($2142), 06F9 -> APUIO3 ($2143); sent by NMI on even frames and cleared
 06FA-06FB ?
 06FC-06FE OAM1 player data ROM source address, base
 06FF-0714 OAM1 ROM source addresses; copies #$40 bytes from each

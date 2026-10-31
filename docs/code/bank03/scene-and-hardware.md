@@ -233,7 +233,7 @@ writes outside the normal V-Blank pipeline.
 | `$03E146` | `ResetHdmaState` | init HDMA allocation (`$66` enable, `$68` channel, `$6A` offset) |
 | `$03E157` | `SetupHdmaChannel_Indirect` | configure HDMA channel (indirect mode, +`$40` flag) |
 | `$03E173` | `SetupHdmaChannel_Direct` | configure HDMA channel (direct mode) |
-| `$03E1AA` | `SpcFadeOutHandshake` | handshake via `APUIO0` (`$2140`) for transfer readiness |
+| `$03E1AA` | `SpcFadeOutHandshake` | `$F1` fade-out handshake via `APUIO0` (`$2140`); the transfer starts once the SPC's fade has ended |
 | `$03E1D6` | `SpcTransferMusicData` | send data with confirmation protocol |
 | `$03E21E` | `LoadMusicFromTransitionState` | resolve `musicTransitionState` → `music_array` → transfer |
 | `$03F1D0` | `DmaAdhocVramBlock` | one-shot VRAM transfer from `$7F0C03` queue |
@@ -259,8 +259,10 @@ per allocation), and `$6A` (register offset, advances through the table).
 ### SPC handshake protocol
 
 `SpcFadeOutHandshake` is the thinker entry used by COP `$05`: it sends SPC port command
-`$F1` (fade out the current track), then `$01`, before falling into the same upload
-path as `$04`. `SpcTransferMusicData` sends the
+`$F1` (fade out the current track; the fade is audible and lasts about 335 frames), then
+`$01` (no effect: the SPC already holds `$01` as its last command), and waits until the SPC
+has finished the fade and answers 0 on `APUIO0`, before falling into the same upload
+path as `$04` (`$F0` = `CmdStop`, then `$FF`, then the transfer). `SpcTransferMusicData` sends the
 music data with a byte-level confirmation protocol (each byte echoed by the SPC
 before the next is sent). `LoadMusicFromTransitionState` resolves the music ID
 from `musicTransitionState` (`$06FA`) by indexing into `music_array_01CBA6` to

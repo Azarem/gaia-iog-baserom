@@ -333,7 +333,7 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C6D5` | LedgeJumpDropAttack | Freedan's drop attack in mid ledge jump: sprite `#06`, hitbox `#00`, force-move Y+7. |
 | `$02C6FA` | LedgeJumpDropLand | `LoadAbilityDamageB` entry 2; scene `$DD` skips `ImpactTerrainShake`; `WaitByte #$27` (39 frames). |
 | `$02C73F` | ImpactTerrainShake | Sets `$player_flags` `$0010`. Waits `$01DF` frames. Clears. Dies. |
-| `$02C751` | CameraShakeActor | Sound `#15`. Decrements counter → dies. |
+| `$02C751` | CameraShakeActor | Sound `#15` on every tick (61 ticks: counter `$26` starts at `$3C`, no `SetEntryHere`). Decrements counter → dies. |
 | `$02C75E` | CameraShakeFrame | Random camera target offset −1..+2 on X and Y (`(RNG & 3) − 1`, `((RNG >> 2) & 3) − 1`) to `$06BE`/`$06C2` each frame. |
 | `$02C7B6` | LadderClimbSouth | South-facing ladder. |
 | `$02C7E2` | LadderClimbNorth | North-facing. |
@@ -567,7 +567,7 @@ Drop landing: anim table 2, camera shake spawn. Wait 39 frames.
 
 ### CameraShakeFrame
 
-Per-frame camera jitter helper called by `CameraShakeActor` (spawned on the landing of Freedan's ledge-jump drop attack). Uses one `COP [RngByte]` per frame: `(RNG & 3) − 1` added to `$cameraTargetX` (`$06BE`), `((RNG >> 2) & 3) − 1` added to `$cameraTargetY` (`$06C2`) — each axis ranges −1..+2. When `layerPriorityFlag` bit `$0200` is set (camera frozen), saves the pre-shake target in `$7F100C/E` on first call and restores before applying offsets so shake stays centered on the frozen position. Runs until the shake actor's frame counter expires, then the actor dies.
+Per-frame camera jitter helper called by `CameraShakeActor` (spawned on the landing of Freedan's ledge-jump drop attack). Uses one `COP [RngByte]` per frame: `(RNG & 3) − 1` added to `$cameraTargetX` (`$06BE`), `((RNG >> 2) & 3) − 1` added to `$cameraTargetY` (`$06C2`) — each axis ranges −1..+2. When `layerPriorityFlag` bit `$0200` is set (camera frozen), saves the pre-shake target in `$7F100C/E` on first call and restores before applying offsets so shake stays centered on the frozen position. Runs until the shake actor's frame counter expires, then the actor dies. `CameraShakeActor` queues `PlaySoundCh2 #15` on **every** tick of those 61 ticks (measured: 61 plays), not once.
 
 
 **Variables:**

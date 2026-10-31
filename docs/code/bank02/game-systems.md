@@ -90,7 +90,7 @@ Then spawns `MusicRenderSync`, copies `$20`/`$22` to child, sets child `$12` \|=
 | 3 | Child `chatPtr` = `$26 + 1`; child `$12` \|= `$1000`; `joypadMaskStd` \|= `$FFFC` |
 | 4 | Yield until `musicTransitionState` = `$FFFF` |
 | 5 | Spawn `MusicRenderSync`; pass `$20`/`$22`; yield until `APUIO1` = `$FF` |
-| 6 | `joypadMaskStd` &= ~`$FFFC`; spawn second `SpcTransferMusicData` with scene music index in `chatPtr` |
+| 6 | `joypadMaskStd` &= ~`$FFFC`; spawn second `SpcTransferMusicData` with the saved `$06F2` value (the BGM id of the scene's `music` record) in `chatPtr` |
 | 7 | Yield until `musicTransitionState` = `$FFFF`; `WaitByte #01` |
 | 8 | `MusicLoadCleanup`: clear `displayModeFlags` bit `$0080`; `Die` |
 
@@ -98,7 +98,7 @@ Then spawns `MusicRenderSync`, copies `$20`/`$22` to child, sets child `$12` \|=
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$06F2` | In | `musicParentActor` — scene music index (saved to `orbitAngle`) |
+| `$06F2` | In | `musicParentActor` — BGM id stored by the scene's `music` record (saved to `orbitAngle` and reloaded afterwards; `StartMusic` does not update it, so after a scripted music change the restore reloads the scene's id; `pyCD_jackal` and the Memory Melody item overwrite it with `$0F` / `$0E`) |
 | `$06FA` | In | `musicTransitionState` — `$FFFF` = SPC block transfer finished |
 | `$065A` | Out | `joypadMaskStd` — OR mask `$FFFC` while waiting |
 | `$09EC` | Out | `displayModeFlags` — bit `$0080` cleared on cleanup |
@@ -387,7 +387,7 @@ Inferred: “push against chest from below” matches north-facing + up input (g
 
 *Evidence: [ASM]*
 
-Saves `$06F2` → `orbitAngle`. First `SpcTransferMusicData`: `chatPtr` = `$26 + 1`. Joypad mask `$CFFC` on `joypadMaskStd`. Player `$12` \|= `$1000`; `SetAnimStatePointer` → `PlayerIdleAnimLoop`; `playerFlags` \|= `$0800`. Wait `$06FA` = `$FFFF`. Spawn `ChestDialogueActor` with `$24`/`$20`. Wait `APUIO1` = `$FF`. Clear player `$1000`; `RestorePlayerControlDirect`; unmask `$CFFC`. Second `SpcTransferMusicData` restores `orbitAngle` to `chatPtr`; wait `$FFFF`; `WaitByte #0B` (12 ticks); clear `displayModeFlags` bit `$0080`; `Die`.
+Saves `$06F2` → `orbitAngle`. First `SpcTransferMusicData`: `chatPtr` = `$26 + 1` (chest operand `$17` → id `$18`, the fanfare `bgm_important_item`; measured in a chest scene: the id `$18` upload, then the restore of the scene's id `$07` after the SPC's `$FF` reply, 575 frames after the play command). Joypad mask `$CFFC` on `joypadMaskStd`. Player `$12` \|= `$1000`; `SetAnimStatePointer` → `PlayerIdleAnimLoop`; `playerFlags` \|= `$0800`. Wait `$06FA` = `$FFFF`. Spawn `ChestDialogueActor` with `$24`/`$20`. Wait `APUIO1` = `$FF`. Clear player `$1000`; `RestorePlayerControlDirect`; unmask `$CFFC`. Second `SpcTransferMusicData` restores `orbitAngle` to `chatPtr`; wait `$FFFF`; `WaitByte #0B` (12 ticks); clear `displayModeFlags` bit `$0080`; `Die`.
 
 ### ChestDialogueActor
 

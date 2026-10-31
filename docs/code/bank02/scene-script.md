@@ -114,7 +114,7 @@ The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handl
 | `$0E` | `$0E` | `SceneCmd_Skip3` | Skip 3 script bytes (placeholder NOP) |
 | `$0F` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$10` | `$10` | `SceneCmd_LoadSpriteTiles` | Sprite tile graphics → VRAM `$4000` |
-| `$11` | `$11` | `SpcMusicLoadCmd` | Reads `musicParentActor`, group byte → `$06F4`; continues only if `$06F4` = `musicRoomGroup` (`$06F6`); else `RTS`. Source cache at `$0687` |
+| `$11` | `$11` | `SpcMusicLoadCmd` | Reads `musicParentActor` (the BGM id, stored at `$06F2` before any check), group byte → `$06F4`; continues only if `$06F4` = `musicRoomGroup` (`$06F6`); else `RTS`. Source cache at `$0687` |
 | `$12` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
 | `$13` | `$13` | `SceneCmd_Branch` | Test event flag → skip or execute command `$15` |
 | `$14` | `$14` | `SceneCmd_Label` | Skip 1 script byte |
@@ -137,7 +137,7 @@ Used by `FindCurrentScene` and `SkipScriptCommands` when advancing past unknown 
 | `$06` | 4+ | Layer flags + 3-byte pointer (+ inline geometry) |
 | `$0E` | 3 | Skipped inline |
 | `$10` | 5 | 2-byte size + 3-byte pointer |
-| `$11` | 5 | Byte → `musicParentActor` (`$06F2`); byte → `$06F4`; 3-byte pointer (`LoadScriptPointer`) |
+| `$11` | 5 | Byte → `musicParentActor` (`$06F2`, the BGM id; 0 = no `$01` play command after the upload); byte → `$06F4`; 3-byte pointer (`LoadScriptPointer`) |
 | `$13` | 2 | Flag index + `$15` count |
 | `$14` | 1 | NOP skip |
 | `$15` | 1+ | Count byte, then N commands |

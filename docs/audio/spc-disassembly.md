@@ -347,12 +347,14 @@ ReadWord:
 0617:  ae        POP A
 0618:  6f        RET
 
+; CmdFadeOut (port command $F1): starts the fade (counters $30/$31 = $FF). Measured (US ROM): the master volume (MVOL) goes $53 -> 0 in steps of 1 about every 4 frames, about 335 frames in all (audible), then the fade-end code ($04E0) calls CmdStop. A following port command $01 is not dispatched while $08 already holds $01, so it does not reset $30/$31.
 CmdFadeOut:
 0619:  8f ff 30  MOV $30, #$ff
 061c:  8f ff 31  MOV $31, #$ff
 061f:  c4 04     MOV $04, A
 0621:  6f        RET
 
+; ClearAramTail: zeroes ARAM from the word at $0FFE (the address just past the last sample chunk of the loaded song, see spc-engine.md "Song stream layout") to $FFFF.
 ClearAramTail:
 0622:  2d        PUSH A
 0623:  e5 fe 0f  MOV A, $0ffe
@@ -368,6 +370,7 @@ loc_062e:
 0634:  ae        POP A
 0635:  6f        RET
 
+; CmdStop (port command $F0, also called from the fade end at $04E0): master and echo volume to 0, FLG echo-write disable, all music channels off. Measured (US ROM): the CPU-side thinker sends $F0 only after the SPC has already written 0 to port 0 from this routine at the fade end. The $0E = $FF write is the KOFF source (DspRegSourceTable entry 7).
 CmdStop:
 0636:  e4 d5     MOV A, $d5
 0638:  f0 44     BEQ loc_067e
@@ -405,6 +408,7 @@ CmdStop:
 loc_067e:
 067e:  6f        RET
 
+; CmdF2 (port command $F2): $0E is the KOFF source, so the next DSP refresh keys off all eight voices. Master/echo volume and FLG are unchanged. Measured (US ROM): the summed voice envelope reaches 0 within 4 frames; the command is dispatched again on every tick while the port holds $F2 (about 32 frames in the vanilla loader).
 CmdF2:
 067f:  8f ff 0e  MOV $0e, #$ff
 0682:  6f        RET

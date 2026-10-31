@@ -13,7 +13,7 @@
 ; 
 ; 2. LEDGE JUMP (181790–182198)
 ;    LedgeJumpEntry, LedgeJumpLand, CheckLedgeJumpFrame, CheckLedgeJumpAttack, LedgeJumpDropAttack, LedgeJumpDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.
-;    Ledge jump: the player steps off a ledge and falls (3-frame alternating sprite cycle, force Y movement #07) until the solid-type test under the feet passes, then lands with pose $1C. Seen in Mesen2 in scene $01 (South Cape): Will walks south onto a type $08 cell, a gap in a mossy wall edge, and drops about 87 px onto the roof below. Entered through a type $08 cell (SouthLedgeTile in player_move_south) or by the scripts awB3_ledge_jump_trigger and pyD0_ledge_jump_trigger. It is not limited to Freedan: SouthLedgeTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the animations $18-$1B. Only the drop attack is Freedan-only: CheckLedgeJumpAttack gates it to Freedan (form 1) with abilityBitmask bit 6 ($0040). LedgeJumpDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
+;    Ledge jump: the player steps off a ledge and falls (3-frame alternating sprite cycle, force Y movement #07) until the solid-type test under the feet passes, then lands with pose $1C. Seen in Mesen2 in scene $01 (South Cape): Will walks south onto a type $08 cell, a gap in a mossy wall edge, and drops about 87 px onto the roof below. Entered through a type $08 cell (SouthLedgeTile in player_move_south) or by the scripts awB3_ledge_jump_trigger and pyD0_ledge_jump_trigger. It is not limited to Freedan: SouthLedgeTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the animations $18-$1B. Only the drop attack is Freedan-only: CheckLedgeJumpAttack gates it to Freedan (form 1) with abilityBitmask bit 6 ($0040). LedgeJumpDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (61 ticks of random camera-target offsets, with sound #15 queued on every tick: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
 ; 
 ; 3. LADDER SYSTEM (182198–182461)
 ;    LadderClimbSouth/North, LadderMoveDown/Up, LadderIdleSouth/North (+ Shadow variants), LadderLandBottom, LadderReachTop.
@@ -666,7 +666,7 @@ ImpactTerrainShake {
 }
 
 CameraShakeActor {
-    COP [PlaySoundCh2] ( #15 ) ; Camera shake actor: play sound #15, shake for $26 frames, then die
+    COP [PlaySoundCh2] ( #15 ) ; Restarts here every tick (no SetEntryHere): queues sound #15 on each of the 61 ticks ($26 = $3C), shakes the camera, then dies
     JSR $&CameraShakeFrame
     DEC $26
     BMI loc_02C75C

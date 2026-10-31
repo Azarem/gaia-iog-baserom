@@ -18,7 +18,7 @@
 ; 
 ; === SPC MUSIC CHANGE (254378–254549) ===
 ; 
-; StartMusic and FadeThenStartMusic (cop_handlers_audio) spawn a thinker that enters at SpcTransferMusicData or SpcFadeOutHandshake with the music ID in chatPtr. The thinker talks to the SPC sound engine through port commands on APUIO0 (docs/audio/spc-disassembly.md, ProcessPortCommand): $F1 = CmdFadeOut (sets the engine's fade counters $30/$31 to $FF), $F0 = CmdStop, $FF = jump into the engine's resident clone of the IPL loader (sub_0f89), which posts $BBAA and speaks the boot-ROM upload protocol; $01 enters the engine's ASL-to-$02 path (ClearAramTail, stream pointer from ARAM $0FFC). SpcFadeOutHandshake's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (not traced: whether the fade is audible before the following $01/$F0 commands).
+; StartMusic and FadeThenStartMusic (cop_handlers_audio) spawn a thinker that enters at SpcTransferMusicData or SpcFadeOutHandshake with the music ID in chatPtr. The thinker talks to the SPC sound engine through port commands on APUIO0 (docs/audio/spc-disassembly.md, ProcessPortCommand): $F1 = CmdFadeOut (sets the engine's fade counters $30/$31 to $FF), $F0 = CmdStop, $FF = jump into the engine's resident clone of the IPL loader (sub_0f89), which posts $BBAA and speaks the boot-ROM upload protocol; $01 enters the engine's ASL-to-$02 path (ClearAramTail, stream pointer from ARAM $0FFC). SpcFadeOutHandshake's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (measured: the fade is audible, the engine's master volume steps from $53 to 0 over about 335 frames; the $01 sent after the $F1 echo does not interrupt it, because the engine's last-command byte $08 already holds $01; the engine's fade-end code then runs CmdStop, which writes 0 to APUIO0, and only then does the thinker send $F0).
 ; 
 ; Sequence: the thinker stages the ID in musicTransitionState; the main loop's LoadMusicFromTransitionState (once per pass, after UpdateHUD) turns it into a music_pointer_array entry, enables NMI and joypad and runs spc_transfer.SpcBlockTransfer (blocking; the NMI calls UpdateFrameFull each frame meanwhile), then stores $FFFF, which releases the thinker: it waits two actor ticks (COP WaitByte #01 = N + 1 ticks: a plain delay, not an SPC acknowledgment), sends $01, clears sfxQueueCh1 and musicTransitionState and dies.
 ; 
@@ -363,7 +363,7 @@ SetupHdmaChannel_Direct {
 ; 1. Sends $F1 to APUIO0 (the engine's CmdFadeOut: fade counters $30/$31 = $FF) and yields one frame. If APUIO0 does not echo $F1 the routine returns and runs again next frame.
 ; 2. With the echo seen, sends $01 and yields again. If APUIO0 now reads zero, execution falls into SpcTransferMusicData; otherwise it returns and retries.
 ; 
-; Runs as a thinker script: each COP SetEntryHereAndYield suspends it until the next frame, so the handshake costs a few frames but never blocks the main loop. Not traced: whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later.
+; Runs as a thinker script: each COP SetEntryHereAndYield suspends it until the next frame, so the handshake never blocks the main loop, but the fade-out leg lasts about 340 frames. Measured: the $01 in step 2 has no effect while the engine's last-command byte ($08) already holds $01, so the fade started by $F1 runs to its end and is audible (master volume $53 to 0 in about 335 frames). The engine's fade-end code then calls CmdStop, which writes 0 to APUIO0; that zero is what step 2 waits for, so SpcTransferMusicData's $F0 follows the end of the fade, not one or two frames after the $01. While the main loop is blocked inside a dialogue wait the thinker does not run and the zero is read later.
 
 SpcFadeOutHandshake {
     SEP #$20
@@ -379,8 +379,8 @@ SpcFadeOutHandshake {
 
   loc_03E1C1:
     SEP #$20
-    LDA #$01              ; Port command $01: engine path ASL to $02 (ClearAramTail, stream pointer from ARAM $0FFC); not traced further
-    STA $APUIO0           ; SPC ready — send $01 transfer request
+    LDA #$01              ; $01 after the $F1 echo: ignored while the engine's last-command byte $08 already holds $01, so the fade continues (after the upload it starts the song)
+    STA $APUIO0           ; Echo seen: send $01 (no effect while the engine's $08 already holds $01)
     REP #$20
     COP [SetEntryHereAndYield]
     SEP #$20

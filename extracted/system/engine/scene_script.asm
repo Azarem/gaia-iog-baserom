@@ -72,7 +72,7 @@
 ; 
 ; === SPC MUSIC LOADING ===
 ; 
-; SpcMusicLoadCmd implements the full SPC700 IPL transfer protocol: Wait frames → optional stop command ($F2) → ready signal ($F0) → handshake poll → start command ($FF) → wait → SpcBlockTransfer for bulk data → play command. The transfer runs only when the script's group byte ($06F4, stored at the top of the routine) equals musicRoomGroup; otherwise the routine returns. The redundancy check is CheckSourceCacheHit on $0687, which skips a load of the same source.
+; SpcMusicLoadCmd implements the full SPC700 IPL transfer protocol: Wait frames → $F2 when $0D72 is set (the engine's CmdF2: key off all voices, volumes unchanged) → $F0 (the engine's CmdStop: master and echo volume 0, echo writes off; the SPC answers 0) → handshake poll → start command ($FF) → wait → SpcBlockTransfer for bulk data → play command. The transfer runs only when the script's group byte ($06F4, stored at the top of the routine) equals musicRoomGroup; otherwise the routine returns. The redundancy check is CheckSourceCacheHit on $0687, which skips a load of the same source.
 ; 
 ; === SCRIPT POINTER ADDRESS MAPPING ===
 ; 
@@ -1291,7 +1291,7 @@ SceneCmd_Skip3 {
 }
 
 ---------------------------------------------
-; Load SPC music data when the script's group equals musicRoomGroup. Reads musicParentActor and the group byte from the script (the group byte is stored at $06F4 at the top of the routine), loads the ROM pointer, then compares musicRoomGroup to $06F4: equal continues to the load path, a mismatch returns. CheckSourceCacheHit on $0687 skips a repeated load of the same source. On load: WaitFrames(26), optional stop ($F2 + 32 frames if $0D72 set), handshake ($F0 poll, $FF), SpcBlockTransfer from $46/$48, sets $0D72=1, then writes play ($01) or stop ($00) to APUIO0 based on musicParentActor.
+; Load SPC music data when the script's group equals musicRoomGroup. Reads musicParentActor and the group byte from the script (the group byte is stored at $06F4 at the top of the routine), loads the ROM pointer, then compares musicRoomGroup to $06F4: equal continues to the load path, a mismatch returns. CheckSourceCacheHit on $0687 skips a repeated load of the same source. On load: WaitFrames(26), $F2 held for 32 frames if $0D72 is set (CmdF2: voices keyed off, the voices fall silent within 4 frames, master volume unchanged), $F0 (CmdStop) and a poll for the SPC's zero answer, $FF (jump into the resident loader, which writes no DSP register), SpcBlockTransfer from $46/$48, sets $0D72=1, then writes play ($01) or stop ($00) to APUIO0 based on musicParentActor.
 
 SpcMusicLoadCmd {
     JSR $&ReadScriptByte  ; Read music parent actor ID from script
@@ -1316,13 +1316,13 @@ SpcMusicLoadCmd {
     JSL $@vblank_joypad.WaitFrames
     LDA $0D72             ; Check if music engine was previously loaded ($0D72)
     BEQ loc_028BA7
-    LDA #$F2              ; Send stop command $F2 to APU I/O port 0
+    LDA #$F2              ; Send $F2 to APU I/O port 0: the engine's CmdF2 keys off all voices (KOFF = $FF); master volume and echo stay unchanged
     STA $APUIO0
-    LDA #$20              ; Wait 32 frames ($20) for SPC to process stop
+    LDA #$20              ; Wait 32 frames ($20) with $F2 on the port (the engine re-dispatches it every tick)
     JSL $@vblank_joypad.WaitFrames
 
   loc_028BA7:
-    LDA #$F0              ; Send ready signal $F0 to initiate IPL handshake
+    LDA #$F0              ; Send $F0: the engine's CmdStop (master and echo volume 0, echo writes off, EON = 0); the SPC answers 0 on port 0
     STA $APUIO0
 
   loc_028BAC:

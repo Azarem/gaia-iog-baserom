@@ -4,7 +4,7 @@
 ; 
 ; === PLAYBACK LIFECYCLE ===
 ; 
-; 1. MusicJingleActor saves musicParentActor ($06F2, the scene's current music index) in orbitAngle
+; 1. MusicJingleActor saves musicParentActor ($06F2: the BGM id stored by the scene's music record; StartMusic does not update it, and pyCD_jackal and the Memory Melody item overwrite it with $0F and $0E) in orbitAngle
 ; 2. Spawns SpcTransferMusicData with chatPtr = $26 + 1 (music data index of the jingle) and flags it $1000
 ; 3. Masks the joypad (TSB $FFFC into joypadMaskStd, every button and the D-pad) and yields until musicTransitionState reaches $FFFF (the NMI finished the SPC block transfer)
 ; 4. Spawns MusicRenderSync, handing it the string pointer ($20/$22), then polls APUIO1 for $FF (the SPC700 replied)
@@ -40,14 +40,14 @@
 
 ---------------------------------------------
 
-; Jingle sequence actor started by COP MusicAndText. Saves musicParentActor (the scene's current music index) in orbitAngle, spawns SpcTransferMusicData to upload the jingle (chatPtr = $26 + 1), masks the joypad ($FFFC into joypadMaskStd) and yields each frame until musicTransitionState == $FFFF.
+; Jingle sequence actor started by COP MusicAndText. Saves musicParentActor (the BGM id stored by the scene's music record; StartMusic does not update it) in orbitAngle, spawns SpcTransferMusicData to upload the jingle (chatPtr = $26 + 1), masks the joypad ($FFFC into joypadMaskStd) and yields each frame until musicTransitionState == $FFFF.
 ; 
 ; Then spawns MusicRenderSync (receives the string pointer $20/$22) and polls APUIO1 for $FF (the SPC700 replied). On reply it unmasks the joypad, spawns a second SpcTransferMusicData whose chatPtr is the saved scene music (so the scene track resumes), waits again for $FFFF and WaitByte #01 (2 ticks), then falls through into MusicLoadCleanup.
 ; 
 ; Actor pool exhaustion ($1FC0 from SpawnAfterFlags) branches to MusicLoadCleanup.
 
 MusicJingleActor {
-    LDA $musicParentActor ; Save musicParentActor ($06F2: the scene's current music index) in orbitAngle for the restore at step 5
+    LDA $musicParentActor ; Save musicParentActor ($06F2: the BGM id the scene's music record stored) in orbitAngle for the restore at step 5
     STA $orbitAngle, X
     COP [SpawnAfterFlags] ( @hdma_dma_spc.SpcTransferMusicData, #$2000 ) ; Spawn SpcTransferMusicData child actor for SPC data upload
     CPY #$1FC0            ; $1FC0 = actor pool exhausted — check spawn success
