@@ -1,9 +1,6 @@
-; Hotel guide man — leads Will and Kara to the hotel.
+; Hotel guide man in Freejia (scene $32) — leads Will and Kara to the hotel.
 ; 
-; Multi-phase NPC: approaches when player is nearby, comments
-; "What a cute couple," then offers to show them to a hotel.
-; Walks the player through town with escort movement. Sets
-; accommodation flags for the hotel scene.
+; Flag $57 clear: spawns the door actor code_05B315 (it opens on scratch flag $05). With $64 clear the guide waits for scratch $02 (set by fr32_kara), walks (StageSpriteLoopMove), prints 'What a cute couple... Have you decided where you're staying tonight?', clears $02, waits for scratch $03, walks to the hotel door and falls into code_05B1F1, where it stands at tile (28,25) with the talk line 'Well, come in.'; with $64 set it starts at code_05B1F1. Flag $57 set: stands at tile (29,24) with the 'Business is terrible' line and spawns town_door.TownDoorInit. The guide sets no flag.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_npc_props'

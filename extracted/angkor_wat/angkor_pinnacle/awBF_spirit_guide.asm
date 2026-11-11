@@ -1,10 +1,4 @@
-; Ancient spirit guide on the Angkor Wat pinnacle (~130 lines).
-; 
-; Major story NPC. "Will... I've been waiting for you to come
-; for thousands of years..." Will: "What?! Who are you?"
-; The spirit shows Will a vision of the new world and
-; explains the coming transformation. Key story revelation
-; about the comet's true purpose.
+; Spirit guide on the pinnacle of Angkor Wat (scene $BF, tile (0F,0B)). $BE set: dies. Otherwise a solid prop with the interact handler. $BD clear: the handler prints 'Will.. I've been waiting for you to come for thousands of years...' (the vision dialog), sets $BD and queues scene $C0 (future_vision_cutscene, which returns to scene $BF at (00F8,00C0)). $BD set (after the return): locks the player ($FFFC), prints 'Huh? What was that? That is the new world...', writes CGADSUB = $15, spawns oneshot_palette_flash_18, clears the solid tiles (0F,0A) and (10,0A), spawns oneshot_palette_flash_19, prints 'When the blinding light stopped, I stood quietly, as if nothing had happened. Then I found the Gorgon flower held tightly within my hand...' and gives item $1D. On a full inventory it removes a Red Jewel (jewelsCollected +1 in BCD) or a herb first ('Let me take care of one of your Red Jewels...'); with neither item the branch code_089B27 falls into the Red Jewel exchange without a check. After the gift it shows 'You have the Gorgon Flower!', sets $BE, unlocks and dies.
 ---------------------------------------------
 
 ?INCLUDE 'oneshot_palette_flash_18'

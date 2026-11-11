@@ -1,9 +1,8 @@
-; Hamlet the pig in the Native Village — emotional subplot.
+; Hamlet the pig in the Native Village (scene $AC) and the effect actors of the Hamlet scene. State by persistent flags: $B3 or $CF set: dies. $B2 set: the roasted-Hamlet frame at tile (08,13) with 'Sniff sniff. I'll never hear that snort again... The air is filled with the aroma of roasting Hamlet.'. $AF set: the Hamlet scene. $AD set: dies. $AC set: stands at tile (0B,0F) until $AD is set, then walks away. All clear: waits for $AC and walks to the standing state.
 ; 
-; Major subplot NPC (~162 lines). Erik: "Poor Hamlet... To eat
-; or not to eat...?" Kara: "Hamlet...! (Sob)" The party faces
-; the moral dilemma of whether to eat their pet pig to
-; survive. One of the game's most memorable emotional scenes.
+; Hamlet scene ($AF set, $B2 clear): Hamlet writes APU port 0, sets bit $0800 of its flags, stands at tile (0B,12) and waits for scratch $01 (set by Kara). He walks to Kara, sets scratch $02 and waits for it to clear (Kara's 'Hamlet... Why such a sad look?'), plays sound $2121 with sprite loops of frames $AB and $AC and sets scratch $03 (Kara's cry; seven of the native NPCs start moving), waits for it to clear, starts music #11, prints 'Poor Hamlet... To eat or not to eat...?', spawns the effect actor code_088755 and installs the 'Sniff sniff' text.
+; 
+; Effect actor code_088755: plays sound $0F0F, shows its metasprite frames from spriteset_pickups_effects, sets scratch $04 (the natives settle) and spawns the narration child code_0887BA, which waits 89 frames, prints the voice of Will's mother ('It was Hamlet's wish to be food for these people... find the Mystic Statues and go to the Tower of Babel...') and sets scratch $05. The effect actor then moves, sets $B2, clears $CFFC from the joypad mask and dies.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

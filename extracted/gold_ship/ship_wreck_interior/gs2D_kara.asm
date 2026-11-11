@@ -1,8 +1,6 @@
-; Kara on the Gold Ship interior — story dialog about the ship.
+; Kara in the wrecked Gold Ship interior (scene $2D).
 ; 
-; Solid NPC with two dialog states: before and after flag $02.
-; Initial dialog varies; after flag $02, dialog changes to
-; story progression content.
+; Solid NPC with two talk handlers, switched by scratch flag $02 (set by gs2D_mummy's dialog): before it she says 'They perished waiting for the King's return...'; after it she says only 'What . . . ?'.
 ---------------------------------------------
 
 ---------------------------------------------

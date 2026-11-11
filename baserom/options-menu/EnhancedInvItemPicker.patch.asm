@@ -1,13 +1,27 @@
 
-; =============================================================================
-; PHASE 2: Item Reorder — Run-button entry in Items tab
-; =============================================================================
+; ==============================================================================
+; Enhanced inventory item picker - Run-mask reorder in Items tab
+; ==============================================================================
+; What it does: In the Items tab, holding Run ($0044) while confirming starts a
+;   two-cursor swap (same flow as vanilla Arrange, remapped button masks).
+; Vanilla behavior: UseItemRefreshCursor only handled equip confirm and D-pad;
+;   ArrangePickTarget used Run on a different mask ($C040 in ROM, remapped elsewhere).
+; Hooks (overrides): inventory_menu.UseItemRefreshCursor (add Run -> reorder);
+;   inventory_menu.ArrangePickTarget / ArrangeTargetLoop / ArrangePerformSwap
+;   (Run confirm mask $8044, equipped-index fixups); loc_02E631 branch label.
+; Adds: None (reuses SelectionCursorActor, PositionGridCursor, InventoryMainLoop).
+; Depends on: inventory_menu labels, system_strings console scripts.
+; State: $1A equip slot, $22 grid cursor, $2E saved source slot, $2C saved Y.
+; Hazards: 8-bit slot swap like vanilla; COP loop uses PEA return address; X must
+;   stay actor id across COP calls; PerformSwap falls through without RTL (verify
+;   against OptionsMenu.patch reorder if both layers enabled).
+; ==============================================================================
 
 ; Override UseItemRefreshCursor to add the reorder COP line.
 ; This sub-label contains the cursor positioning + button dispatch loop.
 ; The transform already changed #$C040 → #$0080 in the extracted code,
 ; but the override replaces the block entirely, so we use the new masks here.
-UseItemRefreshCursor! {
+inventory_menu.UseItemRefreshCursor! {
     JSR $&PositionEquipCursor
     COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
     LDY $1A
@@ -26,7 +40,7 @@ UseItemRefreshCursor! {
 }
 
 
-ArrangePickTarget! {
+inventory_menu.ArrangePickTarget! {
     COP [PlaySoundCh2] ( #11 ) ; Source slot picked — play confirm sound
     LDA #$8000
     TSB $joypadHeld
@@ -40,7 +54,7 @@ ArrangePickTarget! {
     COP [RunBg3Script] ( @system_strings.consolestring_01EA14 )
     COP [RunBg3Script] ( @system_strings.consolestring_01E9A6 )
 
-  ArrangeTargetLoop!:
+  inventory_menu.ArrangeTargetLoop!:
     JSR $&PositionGridCursor ; Position target cursor during swap pick
     COP [SetEntryHereAndYield]
     COP [BranchIfPressed] ( #$4000, &ArrangeCancelTarget ) ; Cancel target pick (Y/X)
@@ -54,7 +68,7 @@ ArrangePickTarget! {
     RTL 
 }
 
-ArrangePerformSwap! {
+inventory_menu.ArrangePerformSwap! {
     LDA #$8000            ; Swap: consume B; skip if source equals target
     TSB $joypadHeld
     LDA $22
@@ -96,7 +110,7 @@ ArrangePerformSwap! {
     STA $inventoryEquippedIndex
     BRA loc_02E63D
 
-  loc_02E631!:
+  inventory_menu.loc_02E631!:
     LDA $2E               ; Equipped index was source slot — follow to target
     CMP $inventoryEquippedIndex
     BNE loc_02E63D

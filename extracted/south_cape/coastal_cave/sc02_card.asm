@@ -1,7 +1,6 @@
-; Coastal cave collectible card pickup.
+; Coastal cave card pickup (the Ace of Diamonds trick).
 ; 
-; Displays a dialog when Will picks up the Ace of Diamonds.
-; One of the Red Jewel/card collectibles.
+; The scene places one card at tile (07,0A); it runs the entry code_04AFB5 (sprite priority $30, a nudge of (8,0), then idles). Lance spawns four more cards at code_04AFBF (SpawnAfterOffsetFlags in sc02_lance). Each of those stages sprite and hitbox $38 and tests every frame whether the player's position (plus 8 in X and $0A in Y) is within 8 pixels of the card in both axes and the button mask $8001 is pressed. Pressing it prints 'Will picks up a card. It is the Ace of Diamonds, of course!', sets scratch flag $08, locks the joypad ($CFFC) and kills the card; sc02_lance releases the lock. A card out of reach switches to an idle entry once $08 is set. No item is given.
 ---------------------------------------------
 
 ?BANK 04

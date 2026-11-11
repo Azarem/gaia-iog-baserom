@@ -1,7 +1,4 @@
-; Stone girl statue 3 in the Gorgon Hut — can be restored.
-; 
-; Same dual-state as stone_girl2. Silent statue that becomes
-; a crying human girl when the Gorgon's curse is broken.
+; Statue of the girl on the right of the Gorgon Hut (scene $AE, tile (0A,07)). Same script as nvAE_stone_girl1 with flag $C1 (tiles (0A,06)-(0B,08) of UseItem_GorgonFlower); the restored girl says 'You don't understand...'. The text 'Somehow the statue has become a human girl! A tear comes to the girl's eyes...' is defined in the file but no code references it.
 ---------------------------------------------
 
 ---------------------------------------------

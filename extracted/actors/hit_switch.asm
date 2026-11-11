@@ -20,9 +20,9 @@
 ; | 85 | great_wall/wall_rampway | 3B,29 and 29,2B | 05 | $02 | gw85_short_switch_spear |
 ; | 85 | great_wall/wall_rampway | 37,2C | 07 | $03 | gw85_long_switch_spear |
 ; | 85 | great_wall/wall_rampway | 64,1D | 09 | $04 | gw85_multi_switch_spear |
-; | 87 | scene 87 (no area folder in extracted/) | 2F,28 | 1F | $0F | none in the scene's spawn list |
+; | 87 | great_wall/wall_switchback | 2F,28 | 1F | $0F | the six gw87_statue_archer enemies (gw82_archer) |
 ; 
-; The gw85 actors run WaitOnFlagByte ( #n, #01 ) followed by ClearFlagByte ( #n ), so in the rampway the flag is a one-shot trigger consumed by the gate or spear. gw83_switch waits on flag $01 and does not clear it. In scene 87 the flag $0F has no waiter among the scene's actors (the gw82_wall_spear actors it spawns use timers only); $0F is also used as an unrelated flag in Babel Tower and Freejia scripts.
+; The gw85 actors run WaitOnFlagByte ( #n, #01 ) followed by ClearFlagByte ( #n ), so in the rampway the flag is a one-shot trigger consumed by the gate or spear. gw83_switch waits on flag $01 and does not clear it. In scene 87 each of the six gw87_statue_archer enemies tests flag $0F every frame (gw82_archer) and switches to its live archer script once it is set; the gw82_wall_spear actors of the scene use timers only. The same index has other meanings in other scenes (scratch flags are scoped per scene).
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'
@@ -65,7 +65,7 @@ hit_switch [
 ]
 
 ---------------------------------------------
-; Runs after a hit: set event flag $24, show frame $10 (assumed pressed look), wait 16 ticks (WaitByte #0F), show frame $0F again, then re-arm.
+; Runs after a hit: set the event flag whose number is in actor field $24 (the spawn type byte shifted right by one; SetFlagRaw takes it as is), show frame $10 (assumed pressed look), wait 16 ticks (WaitByte #0F), show frame $0F again, then re-arm.
 
 HitSwitchTriggered {
     LDA $24               ; Flag number from init; SetFlagRaw sets event flag A (no base offset)

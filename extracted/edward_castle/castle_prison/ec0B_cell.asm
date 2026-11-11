@@ -1,9 +1,8 @@
-; Castle prison cell -- Will's imprisonment sequence.
+; Prison cell master script (scene $0B, scene_actors row 03 at tile (0B,20)).
 ; 
-; Major story scene: Will is imprisoned, examines his cell, eats
-; stale bread, and must find a way to escape. Multi-phase dialog
-; covering Will's despair and eventual discovery of the escape route.
-; The longest scene script in the prison area.
+; Flag $24 (cell door opened with the Prison Key) set: the actor dies at spawn. Otherwise it spawns a VRAM helper (code_04DB00: one AdhocVramDma per frame while scratch $00 is clear), marks the door tiles (0E,11) and (0F,11) solid, locks the joypad, plays Will's opening monologue, unlocks and waits for three scratch handshakes in order: $02 (the door tried), $03 (the moss) and $04 (the ball and chain examined).
+; 
+; After #$04B0 ticks a soldier's whisper announces the bread and the bread child (code_04D346) drops in; its talk (Will tastes the bread) sets scratch $01, and after #$0258 ticks the evening scene runs (joypad lock, the flute and Will's father's voice, the hint to look at the left-hand wall). The script then waits for gemCount to become nonzero (the wall gem, collect_handler_gem), prints the flute dialog and spawns the pig child (code_04D310, 'Oink oink'); talking to the pig gives the Prison Key (item #02) and sets flag $23, which ends the pig and the cell script. The key is used on the door by UseItem_PrisonKey, which sets $24.
 ---------------------------------------------
 
 ?INCLUDE 'f_inventory_full'

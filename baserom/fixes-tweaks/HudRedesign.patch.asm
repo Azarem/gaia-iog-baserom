@@ -1,6 +1,17 @@
+; ==============================================================================
+; HUD tilemap and status line layout
+; ==============================================================================
+; What it does: Replaces LoadHudTilemap stream and BG3 DMA size/dest for a
+;   three-row HUD; updates HP/gem console strings; PreserveHud clear size $C0.
+; Vanilla behavior: 159-word HudTilemapData, $0140 preserved clear, old positions.
+; Hooks (overrides): scene_lifecycle HudTilemapData; camera_tilemap loc_02B06D/078;
+;   vram_buffer_clear ClearBg3TilemapBuffer_PreserveHud; system_strings HUD lines.
+; Depends on: scene_lifecycle LoadHudTilemap caller, system_core RunBg3Script.
+; State: $09EC display flags, VRAM $7820 tilemap, $00DA staging index.
+; Hazards/notes: PreserveHud loop still starts at $0140; DMA count $00C0 words.
+; ==============================================================================
 
-
-HudTilemapData! [
+scene_lifecycle.HudTilemapData! [
   #$2CCE   ;06
   #$2CCF   ;07
   #$0000   ;08
@@ -63,7 +74,7 @@ HudTilemapData! [
 ------------------------------------------------
 
 ;DMA size
-loc_02B06D! {
+camera_tilemap.loc_02B06D! {
     AND #$DF
     STA $09EC
     LDX #$00C0  ;Three lines of tiles
@@ -73,7 +84,7 @@ loc_02B06D! {
 ----------------------------------------------
 
 ;VRAM DMA arguments (when copying BG3 layer)
-loc_02B078! {
+camera_tilemap.loc_02B078! {
     LDX #$7820
     STX $VMADDL
     LDX #$0240
@@ -82,7 +93,7 @@ loc_02B078! {
 
 ---------------------------------------------
 
-ClearBg3TilemapBuffer_PreserveHud! {
+vram_buffer_clear.ClearBg3TilemapBuffer_PreserveHud! {
     PHX 
     PHP 
     REP #$20
@@ -91,7 +102,7 @@ ClearBg3TilemapBuffer_PreserveHud! {
     BRA loc_02F07E
 }
 
-consolestring_01E7F6! |[POS:42,0][PAL:8][HP][POS:5A,0][PAL:14][BCD:1,AD8][POS:64,0][NUM:AD6]|
+system_strings.consolestring_01E7F6! |[POS:42,0][PAL:8][HP][POS:5A,0][PAL:14][BCD:1,AD8][POS:64,0][NUM:AD6]|
 
-consolestring_01E818! |[PAL:4][POS:6A,0][HE]|
+system_strings.consolestring_01E818! |[PAL:4][POS:6A,0][HE]|
 

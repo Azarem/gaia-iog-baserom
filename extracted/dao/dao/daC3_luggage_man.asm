@@ -1,8 +1,4 @@
-; Hotel clerk in Dao — manages merchant accommodation.
-; 
-; Multi-state NPC (~94 lines). "This is a hotel for travelling
-; merchants." Later: "Would you happen to be Will? Yes/No"
-; Recognizes Will and provides a room or information.
+; Hotel clerk in Dao (scene $C3, tile (05,0C)). With $B8 set the handler prints 'This is a hotel for travelling merchants.'. With $B8 clear it asks 'Would you happen to be Will?': No prints 'Hmmm. I hope he arrives soon. Very distressing...'; Yes prints 'Good! A letter and some luggage have arrived from someone named Bill and Lola.', counts the empty slots of inventorySlots ($0AB4, 16 bytes) and, with at least two, gives items $25 and $26, sets $B8 and shows 'You get a letter and your father's journal!'; with fewer it prints 'Somehow, your inventory is full. Reduce your possessions somewhere.'.
 ---------------------------------------------
 
 !displayModeFlags               09EC

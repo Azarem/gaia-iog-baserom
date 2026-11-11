@@ -1,9 +1,6 @@
-; Wave motion parallax controller for the wrecked ship scenes.
+; Wave motion parallax controller for the Gold Ship scenes.
 ; 
-; Active in scenes $2D-$2F (wrecked ship deck rooms). Adjusts
-; cameraDeltaY by subtracting $20 to create the visual effect
-; of the ship bobbing on waves. Uses chatPtr, orbitAngle, and
-; orbitDiameter for sinusoidal wave timing.
+; Placed in scenes $2B-$2F (the wreck, the ship deck, the wreck interior, the gold interior and the adrift scene). At spawn it subtracts $20 from cameraDeltaY in scenes $2D and $2E only (the test is scene >= $2D and < $2F). Each frame it adds orbitAngle to cameraDeltaY while orbitDiameter counts down, to create the visual effect of the ship bobbing on waves; in scene $2F it then copies cameraDeltaY to cameraTargetY. Uses chatPtr, orbitAngle and orbitDiameter for sinusoidal wave timing.
 ---------------------------------------------
 
 !sceneCurrent                   0644

@@ -1,3 +1,19 @@
+; ==============================================================================
+; Inventory stack counters - OAM digits on item slots
+; ==============================================================================
+; What it does: Maps item IDs to herb/jewel/crystal byte counters and pushes
+;   digit sprites into the direct-sprite ring when a slot holds a stackable type.
+; Vanilla behavior: No per-slot quantity display on the inventory grid.
+; Hooks (overrides): inventory_menu loc_02E63D (MarkDeath path), GridColumnPositions,
+;   inventory_spritemap sprite_group_108BAA; sprite_composition direct-sprite
+;   upload for scene $FF / inventory-sized buffers.
+; Adds: InventoryCountersGetCount, CheckAndStore, GenerateSprite, push_number_sprite.
+; Depends on: inventory_menu, inventory_mgmt.InventoryCheckAndStore, chunk_03BAE1.
+; State: $0B55-$0B57 counts, $0AB4 slots, $00DA OAM write index, $7F1FC0 ring.
+; Hazards/notes: GenerateSprite uses actor Y as TCD for $0014/$0016; scene $FF
+;   uses smaller direct-sprite buffer ($1FC0 vs $0600).
+; ==============================================================================
+
 ?BANK 02
 
 !num_xoffset                      00
@@ -230,7 +246,7 @@ InventoryCountersCheckAndStore {
 ;    STA $24
 ;}
 
-loc_02E63D! {
+inventory_menu.loc_02E63D! {
     ;JSR InventoryCountersGenerateSprites
     PHX 
     PHD 
@@ -279,7 +295,7 @@ loc_02E63D! {
 ---------------------------------------------
 ;Cursor positions
 
-GridColumnPositions! [
+inventory_menu.GridColumnPositions! [
   screen-pos < #$004E, #$0030 >   ;00
   screen-pos < #$0066, #$0030 >   ;01
   screen-pos < #$007E, #$0030 >   ;02
@@ -291,7 +307,7 @@ GridColumnPositions! [
 ------------------------------------------------
 ;H-Mirror on the cursor
 
-sprite_group_108BAA! [
+inventory_spritemap.sprite_group_108BAA! [
   sprite_group < #01, #0F, #18, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
     sprite_part < #01, #00, #00, #00, #08, #$46E5 >
   ] >
@@ -302,7 +318,7 @@ sprite_group_108BAA! [
 ------------------------------------------------
 ;Enable static sprites for scene FF with a different address and size
 
-loc_03C7F6! {
+sprite_composition.loc_03C7F6! {
     LDA $scene_current
     CMP #$00FF
     BNE direct_sprite_large
@@ -338,7 +354,7 @@ loc_03C7F6! {
 }
 
 
-loc_03C807! {
+sprite_composition.loc_03C807! {
     DEC 
     PHB 
     MVN #$00, #$7F
@@ -359,7 +375,7 @@ loc_03C807! {
 
     SEP #$20
 
-  loc_03C821!:
+  sprite_composition.loc_03C821!:
     DEC $0E
     BMI loc_03C82D
     LDA $01, S
@@ -369,7 +385,7 @@ loc_03C807! {
 }
 
 
-loc_03C82D! {
+sprite_composition.loc_03C82D! {
     LDA $01, S
     BEQ small_sprite_process
     LDA $@OamHiTableMasks, X

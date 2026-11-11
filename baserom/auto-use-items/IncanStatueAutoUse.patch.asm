@@ -1,9 +1,23 @@
+; ==============================================================================
+; IncanStatueAutoUse - auto-place Inca statues on Larai cliff mantels
+; ==============================================================================
+; What it does: Mantel actors A/B gain interact handlers; with statues #03/#04 or
+;   key_item_flags bits $0004/$0008, calls ItemUseStub to the matching UseItem_Inca
+;   handler entry (loc_0386B3 / loc_0387C9) instead of opening the item menu.
+; Vanilla behavior: ir1E_cliff_mantel_a/b wait on flags $30/$31, no interact;
+;   placement only via inventory tile checks in item_use_system.
+; Hooks (overrides): ir1E_cliff_mantel_a.code_09C550!; ir1E_cliff_mantel_b.code_09C566!.
+; Adds: isau_interact_a/b, isau_use_a/b, isau_interact_str_a; B reuses A stub dialog.
+; Depends on: !key_item_flags $0B58; $@ItemUseStub; items #03, #04.
+; State: Flags $30, $31; actor $10 bit $2000 cleared after placement wait.
+; Hazards/notes: X = actor slot for COP; SetSpritePriority #30 on mantels.
+; ==============================================================================
 
 !key_item_flags      0B58
 
 ------------------------------------------------
 
-code_09C550! {
+ir1E_cliff_mantel_a.code_09C550! {
     COP [NudgePosition] ( #08, #FE )
     COP [SetSpritePriority] ( #30 )
     COP [SetInteractHandler] ( &isau_interact_a )
@@ -35,7 +49,7 @@ isau_interact_str_a `[DEF]There is a strange[N]mantel here. It's as if[N]somethi
 
 ------------------------------------------------
 
-code_09C566! {
+ir1E_cliff_mantel_b.code_09C566! {
     COP [NudgePosition] ( #08, #FE )
     COP [SetSpritePriority] ( #30 )
     COP [SetInteractHandler] ( &isau_interact_b )

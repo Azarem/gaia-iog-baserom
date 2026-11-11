@@ -1,8 +1,6 @@
-; Erik at Luke's house in Watermia — found something behind the house.
+; Erik in Luke's house (scene $79): three states by persistent flags.
 ; 
-; NPC. Says: "Heh heh. I've found something good. Go outside
-; and look behind the house." Hints at a hidden item or
-; secret area accessible from behind the building.
+; $94 set: Erik dies at spawn. $97 set: 'I wish Lance and Lilly were coming, too...'. $96 set: 'There is a full moon tonight. The village seems different.'. Otherwise: 'Heh heh. I've found something good. Go outside and look behind the house. I feel a little guilty, but ...'.
 ---------------------------------------------
 
 ---------------------------------------------

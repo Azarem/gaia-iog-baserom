@@ -1,6 +1,6 @@
 ; COP handlers for the persistent event-flag bitfield — set, clear, branch and wait (43841–44037, Bank 00).
 ; 
-; Eight COP opcodes ($CC–$D3, copdef ids 204–211) operate on the 2048-bit eventFlags field at $0A00 through flag_helpers (SetEventFlag, ClearEventFlag, TestEventFlag). Every opcode comes in a Byte form (flag index 0–$FF, one operand byte) and a Word form (index 0–$7FF, two operand bytes). Script usage in the extracted code (COP [..] sites): SetFlagByte 475, SetFlagWord 62, ClearFlagByte 71, ClearFlagWord 22, BranchOnFlagByte 630, BranchOnFlagWord 40, WaitOnFlagByte 384, WaitOnFlagWord 9.
+; Eight COP opcodes ($CC–$D3, copdef ids 204–211) operate on the eventFlags bit array at $0A00 (flag N = bit N AND 7 of byte $0A00 + N÷8) through flag_helpers (SetEventFlag, ClearEventFlag, TestEventFlag). Every opcode comes in a Byte form (flag index 0–$FF, one operand byte) and a Word form (index 0–$7FF, two operand bytes). The largest index any script uses is $0185; the bytes from $0AA4 on hold state variables, not flags (see flag_helpers). Script usage in the extracted code (COP [..] sites): SetFlagByte 475, SetFlagWord 62, ClearFlagByte 71, ClearFlagWord 22, BranchOnFlagByte 630, BranchOnFlagWord 40, WaitOnFlagByte 384, WaitOnFlagWord 9.
 ; 
 ; === SENSE BYTE ===
 ; 

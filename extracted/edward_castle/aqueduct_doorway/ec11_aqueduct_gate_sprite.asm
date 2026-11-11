@@ -1,6 +1,6 @@
-; Aqueduct doorway gate sprite actor.
+; One-shot orb sprite of the aqueduct doorway (scene $11, tile (0B,0B)).
 ; 
-; Visual gate sprite that animates open/closed states.
+; Flag $DF set: dies at spawn. Otherwise it sets $DF, plays frame #33 of spriteset_pickups_effects for #02 steps and moves with StageMove / TickMove toward moveXAlt $0048, moveYAlt $0050. It has no open or closed gate state; the doorway door is the BG change #13 applied by ec11_button_voice.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

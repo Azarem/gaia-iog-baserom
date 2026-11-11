@@ -1,7 +1,6 @@
-; Mysterious voice at the aqueduct doorway buttons.
+; The doorway switch of the aqueduct (scene $11, tile (1C,07), the same tile as ec11_countdown): a solid, unkillable hit target (HP $FF) with a hit callback.
 ; 
-; Multi-phase dialog: instructs Will to push switches simultaneously,
-; counts down, and announces when the door opens.
+; Hit with word flag $0113 set or scratch $02 clear: plays frames #11 and #12 only. Hit with $02 set and scratch $01 set (the countdown's '3' window): clears $02, applies BG change #13 (the door), sets $0113, plays sounds and prints 'Stop! The door is open!! Go in!!'. Hit with $02 set and $01 clear: prints 'Wait! I told you, you have to push them at the same time!', then the voice's instructions again, and sets scratch $03, which restarts the count. The strange voice that counts is ec11_countdown; $02 is set by UseItem_LolaMelody_Effect.
 ---------------------------------------------
 
 ?BANK 09

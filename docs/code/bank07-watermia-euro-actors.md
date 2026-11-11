@@ -40,7 +40,7 @@ diary sidequest. This is the largest contiguous region in the bank.
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$078000` | `$0781BE` | 446 | `wa78_intro` | actor-def | **Watermia intro cutscene** — gated on flag `#8D`. Locks joypad (`$CFF0`), hides player, spawns camera helper and narration child actor. Stages the party walking into town with sprite movement, then prints Luke's house welcome dialogue. Sets `gfxCacheIdxB=$0404` and queues map change to scene `$79` (Luke's house) |
+| `$078000` | `$0781BE` | 446 | `wa78_intro` | actor-def | **Watermia intro cutscene** — gated on flag `#8D`. Locks joypad (`$CFFC`), hides player, spawns camera helper and narration child actor. Stages the party walking into town with sprite movement, then prints Luke's house welcome dialogue. Sets `gfxCacheIdxB=$0404` and queues map change to scene `$79` (Luke's house) |
 | `$0781BE` | `$078282` | 196 | `wa78_actor_0781BE` | actor-def | **Camera bobbing controller** — invisible actor that sets `cameraBoundsY=$0400` and reads a 37-entry `camera-keyframe` table to produce a slow sinusoidal camera Y-scroll effect, simulating the floating raft-houses of Watermia. Exits if flag `#8D` is set (intro done). Keyframe data at `$078238` (ramp up → hold → ramp down → pause → loop) |
 | `$078282` | `$0783ED` | 363 | `wa78_centipede_man` | actor-def | **Centipede Man NPC** — wandering townsman (body `#02`). Uses `NpcRandomWanderAI` loop. Two dialogue paths via `SwitchCase($24)`: talks about the Sand Fanger's curative fluid and warns about Russian Glass |
 | `$0783ED` | `$07849B` | 174 | `wa78_moving_woman` | actor-def | **Walking woman NPC** — wandering townswoman (body `#02`). Wander AI, single interact branch. Before flag `#96`: describes Watermia. After: reports a woman chanting over a lotus leaf |
@@ -71,7 +71,7 @@ Small actors for environmental objects and interactive items.
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
 | `$079AD3` | `$079B06` | 51 | `wa78_kruk` | actor-def | **Kruk (animal)** — body `#1A`, static. Solid collision, waits while offscreen, displays sprite `#1C`. Interact: "Kyaah!!...kyaah!!..." |
-| `$079B06` | `$079B67` | 97 | `wa78_prize_kruk` | actor-def | **Prize Kruk** — body `#1A`. Gated: dies if flag `#94` set (game over) or `#97` not set (opponent hasn't died yet). Otherwise identical to normal Kruk. Interact: Will reflects on receiving the Kruks |
+| `$079B06` | `$079B67` | 97 | `wa78_prize_kruk` | actor-def | **Prize Kruk** — body `#1A`. Gated: dies if flag `#94` is set (the party has left for Euro) or `#97` not set (opponent hasn't died yet). Otherwise identical to normal Kruk. Interact: Will reflects on receiving the Kruks |
 | `$079B67` | `$079B7C` | 21 | `wa78_flower` | actor-def | **Animated flower** — body `#1E`. Randomizes delay (`RngByte & $0F`) before playing sprite `#1E` animation. Purely decorative |
 | `$079B7C` | `$079B88` | 12 | `wa78_lily_pad` | actor-def | **Lily pad (small)** — body `#1F`. Clears its own collision tile; used as a static decorative marker |
 | `$079B88` | `$079BF5` | 109 | `wa78_full_pad` | actor-def | **Occupied lily pad** — body `#1F`. Spawns a `wa78_men` child actor (a man sitting on the pad with body `#48`, instance 4). Loops a rectangular movement cycle: east → south → west → north, updating the child's position each step. Represents the occupied pad that blocks the player |
@@ -105,7 +105,7 @@ flag-branching for progression: pre-Glass game, Glass night, post-Glass
 |---------|-----|------|------------|------|-------------|
 | `$07A19C` | `$07A428` | 652 | `wa79_neil` | actor-def | **Neil** — body `#14`. Dies on `#94`. Pre-Glass `#96`: "The house on this raft gives me an idea." Post-Glass/pre-Kruk: "If you go west, there's a desert. You need Kruks." Post-flag `#97` + `#01`: triggers departure to Euro — sets `$0D60`–`$0D66` companion slots, `StageWorldMapMove` to Euro, `QueueMapChange($91)` |
 | `$07A428` | `$07A537` | 271 | `wa79_erik` | actor-def | **Erik** — body `#0A`. Dies on `#94`. Pre-Glass: positioned at spawn point, dialogue about finding something behind the house. Post-Glass `#96`: repositioned to tile `05,09`, talks about the full moon. Post-`#97`: wishes Lance and Lily were coming |
-| `$07A537` | `$07A86D` | 822 | `wa79_kara` | actor-def | **Kara** — body `#1D`. The largest party script. Pre-Glass: multi-phase animation (walking, looking), spawns a flower-carrying sprite child. If flag `#91` not set and `#92` not set: gives Lola's Letter item (`#16`); handles inventory-full by exchanging Red Jewel. Post-`#91` flag: prints Lily's birthday party cutscene dialogue (cake scene with Neil, sets flag `#03`). Post-Glass: worries about Lance/Lily. Post-`#97`: talks about Neil's family in Euro |
+| `$07A537` | `$07A86D` | 822 | `wa79_kara` | actor-def | **Kara** — body `#1D`. The largest party script. Pre-Glass: multi-phase animation (walking, looking), spawns a flower-carrying sprite child. If flag `#91` not set and `#92` not set: gives Lance's Letter item (`#16`); handles inventory-full by exchanging Red Jewel. Post-`#91` flag: prints Lily's birthday party cutscene dialogue (cake scene with Neil, sets flag `#03`). Post-Glass: worries about Lance/Lily. Post-`#97`: talks about Neil's family in Euro |
 | `$07A86D` | `$07AAF5` | 648 | `wa79_lily` | actor-def | **Lily** — body `#22`. Post-`#97` / post-`#96`: repositioned to `08,09`. Pre-Glass, pre-`#91`: animated idle cycle, then birthday surprise dialogue with Erik and Neil. Sets flag `#02`. Post surprise (pre-flag `#04`): Lily runs off to another room, `QueueMapChange` to scene `$7F` (Lance/Lily exchange). Post-`#96`: talks about Lance's father. Post-`#97`: staying in town, ask Lance why |
 | `$07AC7C` | `$07AFCA` | 846 | `wa79_lance` | actor-def | **Lance** — body `#03`. Includes `hidden_red_jewel`. Dies on various flags. Pre-birthday (flag `#90` set, `#91` not): locks joypad, nudges player Y, prints "Let's have Lily's birthday party", sets `#01`. Triggers Lance walking to door after flag `#03`. Post-Glass `#96`: at tile `07,09`, talks about making father happy. Post-`#97`, pre-`#A5`: dialogue about staying behind with Lily, sets flag `#01`. Post-`#A5` + pre-`#E2`: gives Red Jewel |
 
@@ -238,7 +238,7 @@ The hall where Rofsky and Erasquez — the two old scholars — argue.
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
 | `$07D5E7` | `$07D79E` | 439 | `eu92_rofsky` | actor-def | **Rofsky** — body `#24`. First visit (flag `#9E` not set): auto-cutscene, locks joypad, plays the two geezers arguing: "True genius is a violent thing! / You just dash off packs of lies!" Sets flag `#9E`. Post-intro: solid, interactable. If player has Teapot (item `#19`): discusses Mt. Kress temple dispute. Otherwise: general dialogue |
-| `$07D79E` | `$07D985` | 487 | `eu92_erasquez` | actor-def | **Erasquez** — body `#2D`. Solid, interactable. If player has Teapot (item `#19`): pre-flag `#9F` — senses strange power, tells Will to visit Mt. Kress and marks the map, sets flag `#9F`. Post-`#9F`: "The spirits' tears reflect your true form." Without Teapot: warns about presence of evil in town, suspects demons among townspeople, suggests using Teapot on suspects |
+| `$07D79E` | `$07D985` | 487 | `eu92_erasquez` | actor-def | **Erasquez** — body `#2D`. Solid, interactable. If player has the Teapot (item `#19`): warns about the presence of evil in town and changes nothing (the item stays, `#9F` is untouched). Without the Teapot and `#9F` clear: senses a strange power, tells Will to visit Mt. Kress and marks the map, sets flag `#9F`. Without the Teapot and `#9F` set: "The spirits' tears reflect your true form." |
 
 **Subtotal:** 2 pieces, 926 bytes
 
@@ -248,7 +248,7 @@ The party's guest quarters in the Rolek mansion.
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$07D985` | `$07DA9D` | 280 | `eu96_kara` | actor-def | **Kara** — body `#1A`. Dies on `#AC`. Pre-`#AB`: solid, interact dialogue. Pre-`#AA`: animated walking loop with exit-gated phases. Post-`#AB`: solid, interact triggers departure to Angkor Wat — sets companion slots `$0D60`–`$0D66`, `StageWorldMapMove`, `QueueMapChange($AC)` |
+| `$07D985` | `$07DA9D` | 280 | `eu96_kara` | actor-def | **Kara** — body `#1A`. Dies on `#AC`. Pre-`#AB`: solid, interact dialogue. Pre-`#AA`: animated walking loop with exit-gated phases. Post-`#AB`: solid, interact triggers departure to the Native Village (scene `$AC`) — sets companion slots `$0D60`–`$0D66`, `StageWorldMapMove`, `QueueMapChange($AC)` |
 | `$07DA9D` | `$07DB25` | 136 | `eu96_erik` | actor-def | **Erik** — body `#0A`. Dies on `#AC`. Pre-`#AA`: "I'm scared! What if I can't find the bathroom?" Post-`#AA`: "I just don't understand women." |
 | `$07DB25` | `$07DF04` | 991 | `eu96_neil` | actor-def | **Neil** — body `#13`. Dies on `#AC`. Four-flag cascade: `#AC`→die, `#AB`→repositioned. `#AA`→morning cutscene: Neil announces he'll inherit Rolek Company to stop the labor trade. Kara: "You're going to become president? Amazing!" Then music change `#1B`, Neil tells Kara someone's asking about her. Spawns **Hamlet** (the pig, `code_07DECB`) who walks in with oink sfx. Hamlet was sent from Watermia by Lily via Rolek delivery. Sets flag `#AB`. Pre-`#A4`: first-time greeting, sets `#A4`. Post-all: "Take care, everyone." |
 
@@ -260,7 +260,7 @@ Neil's family home. Features the Moon Tribe reveal and the Ann apple sidequest.
 
 | Address | End | Size | Block Name | Type | Description |
 |---------|-----|------|------------|------|-------------|
-| `$07DF04` | `$07E1BA` | 694 | `eu95_ann` | actor-def | **Ann (maid)** — body `#14`. Solid. Includes `hidden_red_jewel`. First interact (pre-`#D6`): Ann tells about a cloaked man asking about Kara. Yes/No: "Should I tell Kara?" "If you must" → sets `#D6`, gives weakness hint. "No" → Ann complains about Kara acting like a princess. Post-`#D6`: **apple side-quest** — if player has apple (`#28`): "I can't eat any more." If visited twice without apple (flags `#E3`, `#E4`): removes apple, gives Red Jewel, sets `#E5` |
+| `$07DF04` | `$07E1BA` | 694 | `eu95_ann` | actor-def | **Ann (maid)** — body `#14`. Solid. Includes `hidden_red_jewel`. First interact (pre-`#D6`): Ann tells about a cloaked man asking about Kara. Yes/No: "Should I tell Kara?" "If you must!" → Ann complains about Kara acting like a princess (sets nothing). "No, please don't!" or cancel → sets `#D6`, gives weakness hint. Post-`#D6`: **apple side-quest** — if player has apple (`#28`): "I can't eat any more." If visited twice without apple (flags `#E3`, `#E4`): removes apple, gives Red Jewel, sets `#E5` |
 | `$07E1BA` | `$07E2D7` | 285 | `eu95_neils_father` | actor-def | **Neil's father** — body `#02`. Dies on flag `#A8`. On first load (pre-`#A8`): animated cutscene — walks south, pauses, **Moon Tribe reveal dialogue**: "The previous owner of this body is now a skeleton sleeping under the shrine." Then walks toward `$0268,$0060` via `MoveToward`, music changes to `#04`. Post-`#A8`: interact: "You can't go wrong by taking over the Rolek Company." |
 | `$07E2D7` | `$07E37A` | 163 | `eu95_neils_mother` | actor-def | **Neil's mother** — body `#0D`. Dies on flag `#A8`. Similar movement cutscene to father (walks south then toward `$0268,$0060`). Post-`#A8`: "We've made money and wish to spend our remaining years enjoying life. Why don't you succeed us…" |
 | `$07E37A` | `$07E4BC` | 322 | `eu95_neil` | actor-def | **Neil at mansion** — body `#1A`. Dies on `#AA`. Pre-`#A8`: "To live for yourself or for others, that's the question…" Post-`#A8`: extended emotional dialogue — Neil realizes how important his parents are, asks to be left alone. Sets flag `#AA`, `QueueMapChange` back to guest room (`$96`) |
@@ -383,7 +383,7 @@ the final poisoned glass.
 | `#8F` | Fireplace journal collected |
 | `#90` | Lance met his father |
 | `#91` | Lance/Lily cutscene complete |
-| `#92` | Kara gave Lola's Letter |
+| `#92` | Kara gave Lance's Letter |
 | `#94` | Party departs for Euro |
 | `#95` | Glass opponent's will delivered |
 | `#96` | Russian Glass game active / Lance/Lily staying behind |
@@ -398,7 +398,7 @@ the final poisoned glass.
 | `#A8` | Moon Tribe reveal complete (parents gone) |
 | `#AA` | Neil learns truth about parents |
 | `#AB` | Hamlet arrives / Neil announces company succession |
-| `#AC` | Party departs for Angkor Wat |
+| `#AC` | Set by `nvAC_kara` in the Native Village (scene `$AC`); read by the Euro world-map exit (menu `$1A`) |
 | `#C8` | Great Wall inner Lance/Lily reunion complete |
 | `#D6` | Ann told about cloaked man |
 | `#E2` | Lance gives Red Jewel |

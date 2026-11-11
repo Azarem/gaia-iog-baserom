@@ -1,10 +1,8 @@
-; The Queen of the Gold Ship — key NPC with reunion scene.
+; The Queen of the Gold Ship — key NPC of scene $2E.
 ; 
-; Before flag $4F: spawns a child actor for the reunion cutscene
-; setup. After flag $4F: solid NPC at (+8,0) with interaction
-; dialog. Uses TM register writes for display layer control
-; during the cutscene. Central character in the Gold Ship's
-; backstory about the Incan royal family.
+; Flag $4F clear: spawns a helper actor (code_058B07) that writes TM = $15 every frame and dies when $4F is set. Both paths then continue into code_058A0F: the Queen is nudged +8 in X and gets a talk handler. First talk (flag $4E clear): the long welcome dialog (the Mystic Statue of the Wind, the Incan royal family backstory) and sets $4E; later talks print dialogstring_058A30+M.
+; 
+; Central character in the Gold Ship's backstory about the Incan royal family.
 ---------------------------------------------
 
 !TM                             212C

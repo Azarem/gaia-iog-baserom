@@ -1,8 +1,10 @@
-; South Cape fisherman NPC with the Lola Melody sidequest.
+; South Cape fisherman NPC on the south shore, with the strange pot.
 ; 
-; Multi-state actor: initially fishing (flag $15), then gives the
-; teapot item after catching it. After the castle summons, dialog
-; changes. Returns in the endgame with Lola Melody when flag $15 is set.
+; At spawn one RNG byte picks the layout: below $C8 he stands at tile (06,2F) and says 'Gosh. I can't pull it up...'; $C8-$EF puts him at tile (0B,33), mirrored, with 'Even if I move to another place I can't pull it up...'; $F0 and above puts him at tile (29,30) beside the pot actor e_sc01_pot ('He lifted the strange teapot.'), unless flag $D7 is set, in which case the second layout is used.
+; 
+; The pot's interact handler gives item $01 (Red Jewel) once, prints 'You've found a Red Jewel!' and sets flag $D7. A full inventory jumps to hidden_red_jewel.HiddenRedJewelInventoryFull before the flag is set.
+; 
+; Every pass the fisherman writes scratch flag $00: set while the player's Y position is $0250 or more, clear otherwise. The player idle-sprite code in player_character reads the same flag. Scratch flags $00-$0F are cleared at every scene load.
 ---------------------------------------------
 
 ?INCLUDE 'hidden_red_jewel'

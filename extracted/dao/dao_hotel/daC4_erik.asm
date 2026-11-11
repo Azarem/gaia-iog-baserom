@@ -1,7 +1,4 @@
-; Erik at the Dao hotel — can't go outside in sandstorm.
-; 
-; NPC: "I can't go outside in a sandstorm like this."
-; Erik is stuck indoors during the desert weather.
+; Erik at the Dao hotel (scene $C4): dies at spawn when $D2 is set; otherwise he stands solid with 'I can't go outside in a sandstorm like this.'.
 ---------------------------------------------
 
 ---------------------------------------------

@@ -1,9 +1,4 @@
-; Fall trigger in Angkor Wat — floor collapse event.
-; 
-; Invisible trigger (~65 lines) that detects player position
-; over weak floor sections. When triggered, the floor
-; collapses and the player falls to a lower area. One-way
-; progression mechanic.
+; Fall trigger of Angkor Wat (scenes $BB and $BD). The actor compares the player's X and Y pixel position with the five entries of spawn_trigger_0898A8 (scene, X, Y; scene $BB: (00A0,0120), (0110,0120), (0280,01A0), (00F0,0210); scene $BD: (0248,01F0)). On an exact match it writes player_transition_handlers.PlayerFallFromHeight into the player's entry word and zeroes the player's $08 and $2A, then dies. No flag and no floor change is involved.
 ---------------------------------------------
 
 ?INCLUDE 'player_transition_handlers'

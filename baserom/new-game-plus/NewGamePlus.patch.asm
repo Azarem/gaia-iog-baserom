@@ -1,3 +1,22 @@
+; ==============================================================================
+; New Game Plus - fifth diary menu option and carry-over load
+; ==============================================================================
+; What it does: When DiaryScanSramSlots sees epilogue flag ($0DC6), enables a
+;   fifth tab "New Game +"; confirm loads slot then clears most WRAM progress
+;   while keeping selected carry-over state; extends window DMA for 5th highlight.
+; Vanilla behavior: Four diary tabs only; DiaryMenuInit always printed 4-option
+;   dialog; tab dispatch had four handlers; SRAM scan did not set menu flag $20.
+; Hooks (overrides): sFA_diary_menu.DiaryMenuInit, DiaryMainMenuEntry,
+;   DiaryTabCursorUp/Down, DiaryTabConfirm, diary_tab_dispatch_table,
+;   DiaryScanSramSlots (+ loc_0BEDA3, DiaryScanSramLoop, loc_0BEE11);
+;   diary_menu_window_dma.loc_00BC45 (fifth tab window band).
+; Adds: diary_ngp_option, diary_ngp_confirm, diary_ngp_str; dma_data_extra table.
+; Depends on: sFA_diary_menu, chunk_03BAE1, thinker_00BBAF include, LoadGameState_Scene.
+; State: $0D92/$0D96/$0D98 cursors; $0D98 tab index (5 entries when $20 set);
+;   $0DC6 per-slot NGP flag; clears $0A00-$0B28 ranges on NGP confirm.
+; Hazards: DiaryScanSramSlots override is large; COP/C2 camera path; sets
+;   playerFlags $2800 on init; NGP confirm calls ApplySoundAndRemap after load.
+; ==============================================================================
 ?BANK 0B
 
 ?INCLUDE 'system_strings'
@@ -107,7 +126,7 @@ diary_ngp_str     `[DLG:6,A][SIZ:A,5]Start Journey[N]Erase Trip Diary[N]Copy Tri
 ?INCLUDE 'sFA_diary_menu'
 --------------------------------------------------
 
-DiaryMenuInit! {
+sFA_diary_menu.DiaryMenuInit! {
     LDA #$0000
     STA $7F0A00
     SEP #$20
@@ -172,7 +191,7 @@ DiaryMenuInit! {
 
 -----------------------------------------------
 
-DiaryTabCursorUp! {
+sFA_diary_menu.DiaryTabCursorUp! {
     COP [06] ( #10 )
     LDA $20
     BEQ diary_main_dec_normal
@@ -192,7 +211,7 @@ diary_main_dec_normal {
 
 ------------------------------------------------
 
-DiaryMainMenuEntry! {
+sFA_diary_menu.DiaryMainMenuEntry! {
     LDA $20
     BEQ diary_print_normal
     COP [6B] ( &diary_ngp_str )
@@ -204,7 +223,7 @@ DiaryMainMenuEntry! {
 
 ------------------------------------------------
 
-DiaryTabCursorDown! {
+sFA_diary_menu.DiaryTabCursorDown! {
     COP [06] ( #10 )
     LDA $20
     BEQ diary_main_inc_normal
@@ -226,7 +245,7 @@ diary_main_inc_normal {
 
 -----------------------------------------------
 
-DiaryTabConfirm! {
+sFA_diary_menu.DiaryTabConfirm! {
     COP [06] ( #11 )
     LDA $0656
     ORA $0658
@@ -239,7 +258,7 @@ DiaryTabConfirm! {
     COP [D9] ( #$0000, &diary_tab_dispatch_table )
 }
 
-diary_tab_dispatch_table! [
+sFA_diary_menu.diary_tab_dispatch_table! [
   &DiaryStartJourney   ;00
   &DiaryEraseTab   ;01
   &DiaryCopyTab   ;02
@@ -250,7 +269,7 @@ diary_tab_dispatch_table! [
 -----------------------------------------------
 ;Code for loading diary data into temp variables
 
-DiaryScanSramSlots! {
+sFA_diary_menu.DiaryScanSramSlots! {
     PHX 
     LDA #$0000
     STA $0D74
@@ -281,10 +300,10 @@ DiaryScanSramSlots! {
     LDA #$0000
     STA $306000
 
-  loc_0BEDA3!:
+  sFA_diary_menu.loc_0BEDA3!:
     STA $0D8C
 
-  DiaryScanSramLoop!:
+  sFA_diary_menu.DiaryScanSramLoop!:
     LDA $24
     XBA 
     ASL 
@@ -360,7 +379,7 @@ DiaryScanSramSlots! {
     SEC 
 }
 
-loc_0BEE11! {
+sFA_diary_menu.loc_0BEE11! {
 }
 
 
@@ -369,7 +388,7 @@ loc_0BEE11! {
 ------------------------------------------------
 ;Enable 5th menu option highlight
 
-loc_00BC45! {
+diary_menu_window_dma.loc_00BC45! {
     DEC 
     BNE code_extra
     COP [02] ( @diary_band_tab3, #26 )

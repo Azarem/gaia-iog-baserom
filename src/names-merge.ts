@@ -95,7 +95,10 @@ export function checkNames(projectRoot: string): boolean {
         const bank = parseInt(m[1], 16);
         const data = loadJsonFile(join(namesDir, f));
         const keys = Object.keys(data);
-        if (readFileSync(join(namesDir, f), 'utf-8') !== serializeJson(data)) bad(`${f}: not sorted / formatted like the tool writes it`);
+        // Both pure-LF and pure-CRLF files are accepted (Windows checkouts with core.autocrlf produce CRLF); mixed endings are not.
+        const onDisk = readFileSync(join(namesDir, f), 'utf-8');
+        const canonical = serializeJson(data);
+        if (onDisk !== canonical && onDisk !== canonical.replace(/\n/g, '\r\n')) bad(`${f}: not sorted / formatted like the tool writes it`);
         for (const k of keys) {
             const addr = parseInt(k, 10);
             if (!/^\d+$/.test(k)) { bad(`${f}: key '${k}' is not a decimal address`); continue; }
@@ -239,7 +242,10 @@ export function applyNames(projectRoot: string, specPath: string, options: Names
         }
     }
     for (const bank of changedNames) {
-        writes.set(join(namesDir, bankFileName(bank)), serializeJson(nameBanks.get(bank)!));
+        // keep the line ending the bank file already has (CRLF stays CRLF); a new file gets LF
+        const bankPath = join(namesDir, bankFileName(bank));
+        const bankText = serializeJson(nameBanks.get(bank)!);
+        writes.set(bankPath, existsSync(bankPath) && readFileSync(bankPath, 'utf-8').includes('\r\n') ? bankText.replace(/\n/g, '\r\n') : bankText);
     }
     if (newBanks.length > 0) {
         const namesTs = join(projectRoot, 'src', 'names.ts');

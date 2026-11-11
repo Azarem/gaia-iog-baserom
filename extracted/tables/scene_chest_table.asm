@@ -44,7 +44,7 @@
 ; | $83 | 1A,59 -> Red Jewel, $1D |
 ; | $85 | 05,1A -> Herb, $1E |
 ; | $A2 | 18,36 -> Red Jewel, $1F |
-; | $A4, $A6, $A7 | 12,0B / 05,08 / 22,10 -> Mushroom Drop, $20 / $21 / $22 F |
+; | $A4, $A6, $A7 | 12,0B / 05,08 / 22,10 -> Mushroom Drop, $20 F / $21 F / $22 F |
 ; | $A9 | 0E,05 -> Teapot, $23 F |
 ; | $B1 | 67,05 -> Red Jewel, $24 |
 ; | $B5 | 07,4E -> Herb, $25 |

@@ -1,3 +1,14 @@
+; ==============================================================================
+; Gold ship crew - replacement sprite map (bank default from build)
+; ==============================================================================
+; What it does: Defines sprite_set_list and animation groups for gold-ship
+;   NPC/enemy visuals (multi-part groups with CHR references in $07xx/$09xx).
+; Vanilla behavior: Original ROM used different crew sprite data (this file replaces
+;   the spm gold ship sprite asset block in the baserom set).
+; Hooks (overrides): none (standalone sprite asset file).
+; Depends on: Referenced by gold ship scene actors via metasprite pointer.
+; Hazards/notes: Pure data; sprite_group headers set flip and frame timing fields.
+; ==============================================================================
 
 ---------------------------------------------
 

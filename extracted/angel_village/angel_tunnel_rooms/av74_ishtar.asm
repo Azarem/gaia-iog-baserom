@@ -1,9 +1,10 @@
-; Ishtar (angel leader) in the tunnel rooms — guards Kara.
+; Ishtar and her self-portrait in the tunnel rooms (scene $74).
 ; 
-; Boss-gating NPC. Says: "I wonder if you're here to get Kara.
-; Go into this room..." Ishtar controls access to the puzzle
-; test rooms and later becomes the area boss. Sets up the
-; Ishtar's test sequence.
+; Flag $89 is set by the test scene ($75) after the fourth correct answer. With $89 clear the actor stands at its post in frame #12 and its interact handler prints 'I wonder if you're here to get Kara. Go into this room. If you solve all the riddles, I'll give back the girl.'; with $89 set the actor dies at spawn.
+; 
+; At spawn the actor also starts a child actor (code_06CEB8, offset (0,-16)) for the self-portrait. With $89 clear the child shows frame #13 and has no interact handler. With $89 set it shows frame #15 and installs the handler code_06CEDF, which sets flag $8B and prints the long speech ('I have been waiting for you. Sprinkle magic powder on the painting, and give it a kiss...') the first time and '.............' on every later talk.
+; 
+; No actor of scene $74 starts a fight (the scene lists the player, the camera, av74_kara, av74_ishtar and a hidden Red Jewel).
 ---------------------------------------------
 
 ---------------------------------------------

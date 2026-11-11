@@ -1,4 +1,17 @@
 ﻿
+; ==============================================================================
+; Inventory item swapping - L/R shoulder cycle equipped slot
+; ==============================================================================
+; What it does: While inventory overlay is active ($09EC bit $4000 clear), X
+;   or L/R scans $0AB4 slots and updates $0AC4/$0AC6 then refreshes icon via JSL.
+; Vanilla behavior: No shoulder-button equip cycling in the input hook chain.
+; Hooks (overrides): PlayerInputHooks+ append (registry in player_input_core).
+; Adds: item_swapping_main (JSL target from hook chain).
+; Depends on: EquippedIcon JSL, player actor $09AA, joypad $0656.
+; State: $0AC4 index ($FFFF empty), $0AC6 type, $09EC bit $0002 debounce.
+; Hazards/notes: PHX/PLX around EquippedIcon (icon code clobbers X); hook must
+;   stay at file end; X must remain actor slot for COP [07] after swap.
+; ==============================================================================
 
 item_swapping_main:
   LDA $09EC

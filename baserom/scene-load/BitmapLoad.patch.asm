@@ -1,8 +1,23 @@
-﻿?BANK 02
+﻿; ==============================================================================
+; Scene BG tile load (opcode $03) - uncompressed strips and priority interleave
+; ==============================================================================
+; What it does: Treats compressed-size word $0001 as raw tile data (no Quintet LZ
+;   before DMA/interleave); extends CheckInterleavedFlag and the interleave loop
+;   for that path; Load4bppPage skips decompress when size is $0001.
+; Vanilla behavior: Only $0000 skipped decompression; non-zero sizes always ran
+;   QuintetLzDecompress; interleave path assumed LZ-expanded data at $7E:7000.
+; Hooks (overrides): scene_script.loc_028503, CheckInterleavedFlag,
+;   InterleaveTilesPriority (+ inner loc_028608/616/62D/645), Load4bppPage.
+; Depends on: ?INCLUDE scene_script; DeinterleavePlanarTiles, BuildAttributeTable,
+;   GraphicsCacheLookup, SceneDmaTileShim, QuintetLzDecompress.
+; State: layerPriorityFlag $06EE bit $0800; cache slots $066C/$0671/$067D/$0680/$0683;
+;   staging $7E:7000 and $7E:A000; VRAM $0000 after interleave DMA.
+; Hazards/notes: Bank $02; InterleaveTilesPriority clobbers B and uses DP $5E; inner
+;   loops use X/Y — not actor COP context here.
+; ==============================================================================
+?BANK 02
 
 ?INCLUDE 'scene_script'
-
--- Patch for bitmap loading which adds support for no compression
 
 !LSAMPLE	       $10
 !LOOPNUM	       $12
@@ -16,7 +31,7 @@
 --------------------------------------------
 ;Main bitmap handler
 
-loc_028503! {
+scene_script.loc_028503! {
     LDA [$3E]
     INC $3E
     INC $3E
@@ -31,7 +46,7 @@ loc_028503! {
     JMP $&DeinterleavePlanarTiles
 }
     
-CheckInterleavedFlag! {
+scene_script.CheckInterleavedFlag! {
     CPX #$066C
     BNE DmaTileStripToVram
     LDA $06EE
@@ -44,7 +59,7 @@ CheckInterleavedFlag! {
 ;First pass, copy palette information into VRAM from tileset
 
 
-InterleaveTilesPriority! {
+scene_script.InterleaveTilesPriority! {
     PHY				-- Y will be our read offset
     PHB				-- data bank will be changed
 
@@ -70,7 +85,7 @@ InterleaveTilesPriority! {
     LDY #$0000		-- init read offset to 0. using Y because of long addressing. setting here because previous call clobbers it
 
   --No change here
-  loc_028608!:
+  scene_script.loc_028608!:
     LDA #$07			-- init sample counter
     STA LOOPNUM
 
@@ -80,7 +95,7 @@ InterleaveTilesPriority! {
     BNE loc_028616
     INC SPTR+1
     
-  loc_028616!:
+  scene_script.loc_028616!:
     LDA [TPTR1], Y
     STA $00
     LDA [TPTR2], Y
@@ -95,7 +110,7 @@ InterleaveTilesPriority! {
     LDX #$0007		-- init rotate counter
 
   --No change
-  loc_02862D!:
+  scene_script.loc_02862D!:
     LDA #$00
     ROL $06
     ROL
@@ -112,7 +127,7 @@ InterleaveTilesPriority! {
     BNE loc_028645
     INC DPTR+1
 
-  loc_028645!:
+  scene_script.loc_028645!:
     DEX
     BPL loc_02862D	-- continue rotate (8 times)
 
@@ -160,7 +175,7 @@ InterleaveTilesPriority! {
 
 --------------------------------------------------
 
-Load4bppPage! {
+scene_script.Load4bppPage! {
     LDA [$3E]
     STA $78
     INC $3E

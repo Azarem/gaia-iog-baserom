@@ -1,8 +1,6 @@
-; Walking woman in Watermia — town exposition NPC.
+; Wandering woman of Watermia (scene $78, spawn parameter #01).
 ; 
-; Animated walking NPC. Says: "This is Watermia. The houses
-; are built on rafts. We like to move around." Provides the
-; same raft-house info as wa78_men but while walking a patrol.
+; The actor walks with NpcRandomWanderAI. Her interact handler has two texts chosen by flag $96 (the festival night, set by the Great Wall reunion and cleared when the Russian Glass game ends): with $96 clear she says 'This is Watermia. The houses are built on rafts. We like to move around.'; with $96 set she says 'A woman in pink chanted over that lotus leaf.'.
 ---------------------------------------------
 
 ?INCLUDE 'ActorDisplayModeSwap'

@@ -1,10 +1,6 @@
-; Cliff slide event — triggers the falling/sliding sequence on Larai Cliff.
+; Cliff slide event of the Larai Cliff back scene ($1E).
 ; 
-; Monitors player Y position: if Y < $110, sets proximity flag;
-; if Y >= $110, clears it. Waits until flags $30 and $31 are both
-; set. Then locks joypad, forces the player into a downward
-; slide movement using playerSpeedEw and staged forced movement,
-; making Will slide down the cliff face in a scripted sequence.
+; Until flags $30 and $31 (both Incan statues on their mantels) are set, it runs every frame: SetFlagByte #00 while playerYPos is below $0110 and ClearFlagByte #00 otherwise (scratch flag $00, read by the player's idle sprite code). When both flags are set it sets scratch $00 for good, plays sound $1616 and polls BranchIfPlayerAt for the exact pixels (01E8,0120) and (01E7,0120). On a match it locks the joypad ($EFFC), plays sound $1616, spawns 40 debris helpers (LoopStart #28 passes, one every 8 ticks; code_09C51B starts each at X $02A0, Y $0090 plus a random byte and moves it along X, then dies), writes $FFF8 to playerSpeedEw, unlocks the joypad, waits #3B and polls again.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

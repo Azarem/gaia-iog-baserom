@@ -1,0 +1,3599 @@
+{
+  "game": "Illusion of Gaia (US)",
+  "source": "db-us/groups.json, db-us/scene-flags.json",
+  "sceneIdAddress": "0x0642 (sceneNext, word); sceneCurrent is 0x0644",
+  "eventFlagConvention": "flag #n = WRAM byte 0x0A00 + (n >> 3), bit (n & 7)",
+  "count": 228,
+  "ids": [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 73, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 120, 121, 122, 123, 124, 125, 126, 127, 130, 131, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 172, 173, 174, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 195, 196, 197, 198, 199, 200, 201, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 240, 242, 243, 244, 245, 246, 247, 250, 251, 252, 253, 254, 255],
+  "idsWithoutScene": [0, 9, 20, 72, 74, 87, 118, 119, 128, 129, 132, 158, 159, 170, 171, 175, 193, 194, 202, 203, 235, 236, 237, 238, 239, 241, 248, 249],
+  "scenes": [
+    {
+      "id": 1,
+      "idHex": "$01",
+      "key": "south_cape",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "South Cape",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 2,
+      "idHex": "$02",
+      "key": "coastal_cave",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "Coastal Cave",
+      "requiredFlags": [21],
+      "requiredFlagBytes": [
+        {
+          "flag": 21,
+          "address": 2562,
+          "mask": 32
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $15 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "sc_cave_intro_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 3,
+      "idHex": "$03",
+      "key": "lances_house",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "Lance's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 4,
+      "idHex": "$04",
+      "key": "erics_house",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "Eric's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 5,
+      "idHex": "$05",
+      "key": "seths_house",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "Seth's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 6,
+      "idHex": "$06",
+      "key": "wills_house",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "Will's House",
+      "requiredFlags": [29, 37, 61],
+      "requiredFlagBytes": [
+        {
+          "flag": 29,
+          "address": 2563,
+          "mask": 32
+        },
+        {
+          "flag": 37,
+          "address": 2564,
+          "mask": 32
+        },
+        {
+          "flag": 61,
+          "address": 2567,
+          "mask": 32
+        }
+      ],
+      "flagNote": "Three arrival scripts depend on the story state: Hamlet locks the joypad when the cave news is done and neither the Kara intro nor the soldier scene is done; the morning monologue locks when the dinner night has passed and the morning flag is clear; Kara's return locks when the throne room is done and Lily is not yet met. Setting one flag of each exclusion group frees the arrival; in any other story state the scene is free. FR40: from the story state S01r the arrival is free; with flag 22 set the Hamlet script locks the joypad (joypadMaskStd $CFF0) and flag 61 frees it, while flags 29 and 37 alone leave the lock in place; the other two arrival scripts need story states FR40 did not reach, so the claim is not decided.",
+      "flagSource": "extracted/south_cape/wills_house/sc06_hamlet.asm:21 {303603}, sc06_monologue.asm:51 {304311}, sc06_kara_return.asm:23 {304583}",
+      "requiredFlagNames": [
+        "sc_morning_narration_seen",
+        "sc_lily_met_in_house",
+        "sc_kara_intro_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 7,
+      "idHex": "$07",
+      "key": "chefs_house",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "Chef's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 8,
+      "idHex": "$08",
+      "key": "church",
+      "group": "south_cape",
+      "prefix": "sc",
+      "description": "Church",
+      "requiredFlags": [16],
+      "requiredFlagBytes": [
+        {
+          "flag": 16,
+          "address": 2562,
+          "mask": 1
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1330. With flag $10 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 10,
+      "idHex": "$0A",
+      "key": "edward_castle",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Edward's Castle",
+      "requiredFlags": [63],
+      "requiredFlagBytes": [
+        {
+          "flag": 63,
+          "address": 2567,
+          "mask": 128
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 239 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 278. With flag $3F set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "ec_entrance_letter_shown"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 11,
+      "idHex": "$0B",
+      "key": "castle_prison",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Castle Prison",
+      "requiredFlags": [36],
+      "requiredFlagBytes": [
+        {
+          "flag": 36,
+          "address": 2564,
+          "mask": 16
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $24 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "ec_prison_cell_door_unlocked"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 12,
+      "idHex": "$0C",
+      "key": "aqueduct_entrance",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Entrance",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 13,
+      "idHex": "$0D",
+      "key": "aqueduct_main",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Main",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 14,
+      "idHex": "$0E",
+      "key": "aqueduct_lockway",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Lockway",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "Entered from the scene-warp destination x=88 y=64 facing=3 the player is free for 56 frames, then locks of joypadMaskStd $0F00 (17 frames each) repeat, the player's HP reaches 0 (playerFlags $0200) at frame 197 and the scene loads scene $20 at frame 437; the other scene-warp destination gives a free arrival.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 15,
+      "idHex": "$0F",
+      "key": "aqueduct_hall",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Hall",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 16,
+      "idHex": "$10",
+      "key": "aqueduct_treasure",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Treasure Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 17,
+      "idHex": "$11",
+      "key": "aqueduct_doorway",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Doorway",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 18,
+      "idHex": "$12",
+      "key": "aqueduct_back",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Back",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=632 y=1488 facing=0 scroll=$6300 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 19,
+      "idHex": "$13",
+      "key": "aqueduct_exit",
+      "group": "edward_castle",
+      "prefix": "ec",
+      "description": "Aqueduct - Exit",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "Entered from the scene-warp destination x=120 y=80 facing=3 the player is free for 59 frames, then a script locks the joypad (joypadMaskStd $CFF0) and opens a message box (displayModeFlags $2001) that stays open without input for 600 frames; with A pulses a further lock starts at frame 146 and the joypad is locked again at frame 600.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 21,
+      "idHex": "$15",
+      "key": "itory_village",
+      "group": "itory",
+      "prefix": "it",
+      "description": "Itory Village",
+      "requiredFlags": [43],
+      "requiredFlagBytes": [
+        {
+          "flag": 43,
+          "address": 2565,
+          "mask": 8
+        }
+      ],
+      "flagNote": "Lily's village introduction locks the joypad at spawn when the trip has started and the introduction flag is clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 43 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/itory/itory_village/it15_lily.asm:35 {320194}",
+      "requiredFlagNames": [
+        "it_village_lily_intro_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 22,
+      "idHex": "$16",
+      "key": "itory_legend_house",
+      "group": "itory",
+      "prefix": "it",
+      "description": "Itory - Legend House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 23,
+      "idHex": "$17",
+      "key": "lilys_house",
+      "group": "itory",
+      "prefix": "it",
+      "description": "Itory - Lily's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 24,
+      "idHex": "$18",
+      "key": "itory_couple_house",
+      "group": "itory",
+      "prefix": "it",
+      "description": "Itory - Couple's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 25,
+      "idHex": "$19",
+      "key": "itory_cave",
+      "group": "itory",
+      "prefix": "it",
+      "description": "Itory - Cave",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 26,
+      "idHex": "$1A",
+      "key": "moon_tribe_camp",
+      "group": "itory",
+      "prefix": "it",
+      "description": "Moon Tribe - Camp",
+      "requiredFlags": [73],
+      "requiredFlagBytes": [
+        {
+          "flag": 73,
+          "address": 2569,
+          "mask": 2
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 30 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $49 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "it_moon_camp_gate_opened"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 27,
+      "idHex": "$1B",
+      "key": "moon_tribe_cave",
+      "group": "itory",
+      "prefix": "it",
+      "description": "Moon Tribe - Cave",
+      "requiredFlags": [284],
+      "requiredFlagBytes": [
+        {
+          "flag": 284,
+          "address": 2595,
+          "mask": 16
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $11C set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "it_moon_tribe_trial_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 28,
+      "idHex": "$1C",
+      "key": "incan_ruins_entrance",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Entrance",
+      "requiredFlags": [75],
+      "requiredFlagBytes": [
+        {
+          "flag": 75,
+          "address": 2569,
+          "mask": 8
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 134. With flag $4B set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "ir_entrance_kara_catchup_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 29,
+      "idHex": "$1D",
+      "key": "larai_cliff",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Larai Cliff",
+      "requiredFlags": [108],
+      "requiredFlagBytes": [
+        {
+          "flag": 108,
+          "address": 2573,
+          "mask": 16
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $6C set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "ir_larai_monologue_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 30,
+      "idHex": "$1E",
+      "key": "larai_cliff_back",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Larai Cliff - Back",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=936 y=64 facing=131 scroll=$2400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 31,
+      "idHex": "$1F",
+      "key": "stone_lord_plates",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Runis - Stone Lord Pressure Plates",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 32,
+      "idHex": "$20",
+      "key": "inca_secret_hallway",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Secret Hallway",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 33,
+      "idHex": "$21",
+      "key": "inca_river_crossing",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - River Crossing",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=312 y=976 facing=0 scroll=$4400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 34,
+      "idHex": "$22",
+      "key": "inca_river_detour",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - River Detour",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 35,
+      "idHex": "$23",
+      "key": "inca_guarded_gap",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Guarded Gap",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 36,
+      "idHex": "$24",
+      "key": "inca_plate_room",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Plate Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=248 y=464 facing=0 scroll=$2200 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 37,
+      "idHex": "$25",
+      "key": "inca_entryway",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Entryway",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 38,
+      "idHex": "$26",
+      "key": "inca_treasure_room",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Treasure Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 39,
+      "idHex": "$27",
+      "key": "inca_side_passage",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Side Passage",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=376 y=448 facing=0 scroll=$2400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 40,
+      "idHex": "$28",
+      "key": "ceiling_trap_room",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Ceiling Trap Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 41,
+      "idHex": "$29",
+      "key": "castoth_lair",
+      "group": "incan_ruins",
+      "prefix": "ir",
+      "description": "Incan Ruins - Castoth's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 171 frames; the player is free from frame 171 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 42,
+      "idHex": "$2A",
+      "key": "dream",
+      "group": "gold_ship",
+      "prefix": "gs",
+      "description": "Will's Dream",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 43,
+      "idHex": "$2B",
+      "key": "ship_wreck",
+      "group": "gold_ship",
+      "prefix": "gs",
+      "description": "Wrecked Ship - Exterior",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=480 y=592 facing=6 scroll=$3300 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 44,
+      "idHex": "$2C",
+      "key": "ship_gold",
+      "group": "gold_ship",
+      "prefix": "gs",
+      "description": "Gold Ship - Exterior",
+      "requiredFlags": [76],
+      "requiredFlagBytes": [
+        {
+          "flag": 76,
+          "address": 2569,
+          "mask": 16
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 378 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 398. With flag $4C set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "gs_ship_descent_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 45,
+      "idHex": "$2D",
+      "key": "ship_wreck_interior",
+      "group": "gold_ship",
+      "prefix": "gs",
+      "description": "Wrecked Ship - Interior",
+      "requiredFlags": [80],
+      "requiredFlagBytes": [
+        {
+          "flag": 80,
+          "address": 2570,
+          "mask": 1
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 98. With flag $50 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "gs_wreck_interior_wakeup_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 46,
+      "idHex": "$2E",
+      "key": "ship_gold_interior",
+      "group": "gold_ship",
+      "prefix": "gs",
+      "description": "Gold Ship - Interior",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 47,
+      "idHex": "$2F",
+      "key": "adrift",
+      "group": "gold_ship",
+      "prefix": "gs",
+      "description": "Adrift",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 48,
+      "idHex": "$30",
+      "key": "oakton",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Oakton House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 49,
+      "idHex": "$31",
+      "key": "oakton_interior",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Oakton House - Interior",
+      "requiredFlags": [86],
+      "requiredFlagBytes": [
+        {
+          "flag": 86,
+          "address": 2570,
+          "mask": 64
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 212 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 662. With flag $56 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "fr_oakton_departure_agreed"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 50,
+      "idHex": "$32",
+      "key": "freejia",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia",
+      "requiredFlags": [100],
+      "requiredFlagBytes": [
+        {
+          "flag": 100,
+          "address": 2572,
+          "mask": 16
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 61 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 374. With flag $64 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "fr_freejia_arrival_intro_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 51,
+      "idHex": "$33",
+      "key": "eriks_captivity",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Erik's Captivity Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 52,
+      "idHex": "$34",
+      "key": "freejia_darkspace",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Dark Space House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 53,
+      "idHex": "$35",
+      "key": "freejia_labor_camp",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Labor Camp",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 54,
+      "idHex": "$36",
+      "key": "mothers_house",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Mother's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 55,
+      "idHex": "$37",
+      "key": "thorn_tower",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Thorn Tower",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 56,
+      "idHex": "$38",
+      "key": "adequacy_manor",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Adequacy Manor",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 57,
+      "idHex": "$39",
+      "key": "freejia_hotel",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Hotel",
+      "requiredFlags": [88],
+      "requiredFlagBytes": [
+        {
+          "flag": 88,
+          "address": 2571,
+          "mask": 1
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 149 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 382. With flag $58 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "fr_hotel_reunion_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 58,
+      "idHex": "$3A",
+      "key": "harborer_house",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Harborer's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 59,
+      "idHex": "$3B",
+      "key": "messy_house",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Messy House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 60,
+      "idHex": "$3C",
+      "key": "slave_market",
+      "group": "freejia",
+      "prefix": "fr",
+      "description": "Freejia - Slave Market",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 61,
+      "idHex": "$3D",
+      "key": "mine_promise_passage",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Promise Passage",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 62,
+      "idHex": "$3E",
+      "key": "mine_entrance",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Entrance",
+      "requiredFlags": [106],
+      "requiredFlagBytes": [
+        {
+          "flag": 106,
+          "address": 2573,
+          "mask": 4
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $6A set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "dm_mine_entrance_intro_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 63,
+      "idHex": "$3F",
+      "key": "mine_main",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Main Chamber",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 64,
+      "idHex": "$40",
+      "key": "mine_collapsed_tunnel",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Collapsed Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 65,
+      "idHex": "$41",
+      "key": "mine_zigzag",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Zigzag Passage",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=928 y=224 facing=3 scroll=$3400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 66,
+      "idHex": "$42",
+      "key": "mine_elevator_passage",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Elevator Passage",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 67,
+      "idHex": "$43",
+      "key": "mine_elevator",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Elevator",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 68,
+      "idHex": "$44",
+      "key": "mine_foyer",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Sub Foyer",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=240 y=96 facing=3 scroll=$2200 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 69,
+      "idHex": "$45",
+      "key": "mine_morgue",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Morgue",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 70,
+      "idHex": "$46",
+      "key": "mine_nest",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Monster Nest",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=144 y=96 facing=3 scroll=$2200 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 71,
+      "idHex": "$47",
+      "key": "mine_inner",
+      "group": "diamond_mine",
+      "prefix": "dm",
+      "description": "Diamond Mine - Inner Chamber",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=112 y=64 facing=3 scroll=$3100 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 73,
+      "idHex": "$49",
+      "key": "neils_cottage",
+      "group": "nazca",
+      "prefix": "na",
+      "description": "Neil's Cottage",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 70 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 722.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 75,
+      "idHex": "$4B",
+      "key": "nazca",
+      "group": "nazca",
+      "prefix": "na",
+      "description": "Nazca Plain",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 86.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 76,
+      "idHex": "$4C",
+      "key": "garden_main",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Main",
+      "requiredFlags": [107],
+      "requiredFlagBytes": [
+        {
+          "flag": 107,
+          "address": 2573,
+          "mask": 8
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $6B set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "sg_garden_arrival_narration_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 77,
+      "idHex": "$4D",
+      "key": "garden_east",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - East",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 78,
+      "idHex": "$4E",
+      "key": "garden_east_underside",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - East (Underside)",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 79,
+      "idHex": "$4F",
+      "key": "garden_southeast",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Southeast",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 80,
+      "idHex": "$50",
+      "key": "garden_southeast_underside",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Southeast (Underside)",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 81,
+      "idHex": "$51",
+      "key": "garden_southwest",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Southwest",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 82,
+      "idHex": "$52",
+      "key": "garden_southwest_underside",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Southwest (Underside)",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 83,
+      "idHex": "$53",
+      "key": "garden_west",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - West",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 84,
+      "idHex": "$54",
+      "key": "garden_west_underside",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - West (Underside)",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 85,
+      "idHex": "$55",
+      "key": "viper_lair",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Viper's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 82 frames; the player is free from frame 82 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 86,
+      "idHex": "$56",
+      "key": "garden_interior",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Interior",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 88,
+      "idHex": "$58",
+      "key": "garden_descent",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Descent",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 258 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $5A at frame 3631.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 89,
+      "idHex": "$59",
+      "key": "garden_crash",
+      "group": "sky_garden",
+      "prefix": "sg",
+      "description": "Sky Garden - Crash",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 773 frames; the scene loads scene $58 by itself at frame 773 after the banner.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 90,
+      "idHex": "$5A",
+      "key": "palace_main",
+      "group": "seaside_palace",
+      "prefix": "sp",
+      "description": "Seabed Palace - Main",
+      "requiredFlags": [110],
+      "requiredFlagBytes": [
+        {
+          "flag": 110,
+          "address": 2573,
+          "mask": 64
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $6E set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "sp_arrival_monologue_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 91,
+      "idHex": "$5B",
+      "key": "palace_rooms",
+      "group": "seaside_palace",
+      "prefix": "sp",
+      "description": "Seabed Palace - Rooms",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 78 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 566. Entered from 3 of 4 scene-warp destinations the arrival is free.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 92,
+      "idHex": "$5C",
+      "key": "palace_coffins",
+      "group": "seaside_palace",
+      "prefix": "sp",
+      "description": "Seabed Palace - Coffins",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 93,
+      "idHex": "$5D",
+      "key": "palace_fountain",
+      "group": "seaside_palace",
+      "prefix": "sp",
+      "description": "Seabed Palace - Fountain",
+      "requiredFlags": [112],
+      "requiredFlagBytes": [
+        {
+          "flag": 112,
+          "address": 2574,
+          "mask": 1
+        }
+      ],
+      "flagNote": "The fountain actor locks the joypad at scene load when Lilly's pocket scene is done, the fountain is not yet purified and the Purification Stone is held; with the purified flag set it does nothing. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 112 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:36 {431125}, :43 {431148}",
+      "requiredFlagNames": [
+        "sp_fountain_purified_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 94,
+      "idHex": "$5E",
+      "key": "palace_passageway",
+      "group": "seaside_palace",
+      "prefix": "sp",
+      "description": "Seabed Palace - Mu Passageway",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 95,
+      "idHex": "$5F",
+      "key": "mu_entrance",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - Entrance",
+      "requiredFlags": [119],
+      "requiredFlagBytes": [
+        {
+          "flag": 119,
+          "address": 2574,
+          "mask": 128
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $77 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "mu_arrival_monologue_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 96,
+      "idHex": "$60",
+      "key": "mu_east",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - East",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 97,
+      "idHex": "$61",
+      "key": "mu_south",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - South",
+      "requiredFlags": [124],
+      "requiredFlagBytes": [
+        {
+          "flag": 124,
+          "address": 2575,
+          "mask": 16
+        }
+      ],
+      "flagNote": "The shared palace monologue actor locks the joypad at spawn and releases it in the same pass when the water remark flag is set. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 124 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/seaside_palace/palace_main/sp5A_monologue.asm:19 {427164}",
+      "requiredFlagNames": [
+        "mu_water_lowered_remark_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 98,
+      "idHex": "$62",
+      "key": "mu_west",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - West",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=824 y=64 facing=3 scroll=$4400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 99,
+      "idHex": "$63",
+      "key": "mu_prayer_room",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - Prayer Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 100,
+      "idHex": "$64",
+      "key": "mu_connector",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - Connector",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 101,
+      "idHex": "$65",
+      "key": "mu_maze",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - Maze",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 102,
+      "idHex": "$66",
+      "key": "mu_altar_room",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - Altar Room",
+      "requiredFlags": [130],
+      "requiredFlagBytes": [
+        {
+          "flag": 130,
+          "address": 2576,
+          "mask": 4
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $82 set the arrival is free (mask $0000, no message box, the player moves). Entered from 1 of 2 scene-warp destinations the arrival is free.",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "mu_altar_burial_ground_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 103,
+      "idHex": "$67",
+      "key": "mu_vampire_lair",
+      "group": "mu",
+      "prefix": "mu",
+      "description": "Mu - Vampire Lair",
+      "requiredFlags": [134],
+      "requiredFlagBytes": [
+        {
+          "flag": 134,
+          "address": 2576,
+          "mask": 64
+        }
+      ],
+      "flagNote": "Erik's cry locks the joypad (zone-gated) while the cry flag is clear and the vampires' script releases it; with the vampire reward flag set the vampires do not exist, so with the cry flag clear the lock never ends. The vampires lock again before the fight setup. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 134 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/mu/mu_vampire_lair/mu67_erik.asm:39 {434930}, release mu67_vampires.asm:191 {717477}, intro lock :179 {717449}",
+      "requiredFlagNames": [
+        "mu_lair_erik_cry_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 104,
+      "idHex": "$68",
+      "key": "undersea_tunnel",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Undersea Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 158.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 105,
+      "idHex": "$69",
+      "key": "angel_entrance",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Entrance",
+      "requiredFlags": [117],
+      "requiredFlagBytes": [
+        {
+          "flag": 117,
+          "address": 2574,
+          "mask": 32
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 571. With flag $75 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "av_entrance_arrival_scene_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 106,
+      "idHex": "$6A",
+      "key": "angel_annex",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Guest Annex",
+      "requiredFlags": [169],
+      "requiredFlagBytes": [
+        {
+          "flag": 169,
+          "address": 2581,
+          "mask": 2
+        }
+      ],
+      "flagNote": "Erik's annex scene locks the joypad when Kara is rescued and the annex reunion flag is still clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 169 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/angel_village/angel_annex/av6A_erik.asm:30 {443616}",
+      "requiredFlagNames": [
+        "av_annex_reunion_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 107,
+      "idHex": "$6B",
+      "key": "angel_village",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Walking from the entry position starts a lock (joypadMaskStd $CFF0) in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 108,
+      "idHex": "$6C",
+      "key": "angel_rooms",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Rooms",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 109,
+      "idHex": "$6D",
+      "key": "angel_tunnel_entrance",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Entrance Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 110,
+      "idHex": "$6E",
+      "key": "angel_tunnel_draco",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Draco Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=912 y=640 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 111,
+      "idHex": "$6F",
+      "key": "angel_tunnel_dark",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Dark Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 112,
+      "idHex": "$70",
+      "key": "angel_tunnel_river",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - River Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=624 y=368 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0. Entered from the scene-warp destination x=672 y=368 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 113,
+      "idHex": "$71",
+      "key": "angel_tunnel_wind",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Windy Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 114,
+      "idHex": "$72",
+      "key": "angel_tunnel_statue",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Statue Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 115,
+      "idHex": "$73",
+      "key": "angel_tunnel_waterfall",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Waterfall Tunnel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 116,
+      "idHex": "$74",
+      "key": "angel_tunnel_rooms",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Tunnel Rooms",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 117,
+      "idHex": "$75",
+      "key": "angel_tunnel_test",
+      "group": "angel_village",
+      "prefix": "av",
+      "description": "Angel Village - Ishtar's Test",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. Entered from 9 of 17 scene-warp destinations the arrival is free.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 120,
+      "idHex": "$78",
+      "key": "watermia",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia",
+      "requiredFlags": [141],
+      "requiredFlagBytes": [
+        {
+          "flag": 141,
+          "address": 2577,
+          "mask": 32
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1526. With flag $8D set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "wa_arrival_cutscene_started"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 121,
+      "idHex": "$79",
+      "key": "lukes_house",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia - Luke's House",
+      "requiredFlags": [145],
+      "requiredFlagBytes": [
+        {
+          "flag": 145,
+          "address": 2578,
+          "mask": 2
+        }
+      ],
+      "flagNote": "Lance's scene in Luke's house locks the joypad when his father's visit is done and the exchange flag, the festival flag and the glass-game flag are clear. FR40: from the story state S01r the arrival is free (no lock reproduced); with flag 145 set the scene shows a dialog state (joypadMaskStd $CFF0, displayModeFlags $2001); the claim is not decided.",
+      "flagSource": "extracted/watermia/lukes_house/wa79_lance.asm:24 {502938}",
+      "requiredFlagNames": [
+        "wa_lance_lily_exchange_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 122,
+      "idHex": "$7A",
+      "key": "lances_fathers_house",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia - Lance's Father's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 123,
+      "idHex": "$7B",
+      "key": "gambling_house",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia - Gambling House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 124,
+      "idHex": "$7C",
+      "key": "watermia_darkspace",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia - Dark Space House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 125,
+      "idHex": "$7D",
+      "key": "glass_players_house",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia - Glass Player's House",
+      "requiredFlags": [149],
+      "requiredFlagBytes": [
+        {
+          "flag": 149,
+          "address": 2578,
+          "mask": 32
+        }
+      ],
+      "flagNote": "The glass opponent locks the joypad at spawn when the glass game is won and the delivery flag and the festival flag are clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 149 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:33 {495006}",
+      "requiredFlagNames": [
+        "wa_glass_will_delivered"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 126,
+      "idHex": "$7E",
+      "key": "rumor_house",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia - Rumor House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 127,
+      "idHex": "$7F",
+      "key": "lance_lily_exchange",
+      "group": "watermia",
+      "prefix": "wa",
+      "description": "Watermia - Lance & Lily's Exchange",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $79 at frame 1855.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 130,
+      "idHex": "$82",
+      "key": "wall_entrance",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Entrance",
+      "requiredFlags": [157],
+      "requiredFlagBytes": [
+        {
+          "flag": 157,
+          "address": 2579,
+          "mask": 32
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $9D set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "gw_trail_intro_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 131,
+      "idHex": "$83",
+      "key": "wall_dive",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Long Dive",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 133,
+      "idHex": "$85",
+      "key": "wall_rampway",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Rampway",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 134,
+      "idHex": "$86",
+      "key": "wall_blind_pit",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Blind Pit",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 135,
+      "idHex": "$87",
+      "key": "wall_switchback",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Switchback",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 136,
+      "idHex": "$88",
+      "key": "wall_tomb",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Tomb",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 137,
+      "idHex": "$89",
+      "key": "ending_new_babel",
+      "group": "ending",
+      "prefix": "ed",
+      "description": "Ending - New Babel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 231 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $F7 at frame 5414.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 138,
+      "idHex": "$8A",
+      "key": "sand_fanger_lair",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Sand Fanger Lair",
+      "requiredFlags": [1283],
+      "requiredFlagBytes": [
+        {
+          "flag": 1283,
+          "address": 2720,
+          "mask": 8
+        }
+      ],
+      "flagNote": "Sand Fanger's actor locks the joypad at its intro and starts the fight; with the boss reward flag set the actor spawns no fight. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 1283 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:113 {753787}, flag test :189 {754027}",
+      "requiredFlagNames": [
+        "gw_sand_fanger_reward_claimed"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 139,
+      "idHex": "$8B",
+      "key": "wall_inner",
+      "group": "great_wall",
+      "prefix": "gw",
+      "description": "Great Wall - Inner Chamber",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 140,
+      "idHex": "$8C",
+      "key": "prologue_prophecy",
+      "group": "prologue",
+      "prefix": "pr",
+      "description": "Prologue - Prophecy",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 857 frames; the scene loads scene $FC by itself at frame 857 after the banner.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 141,
+      "idHex": "$8D",
+      "key": "prologue_legends",
+      "group": "prologue",
+      "prefix": "pr",
+      "description": "Prologue - Legends",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 398 frames; the player is still held after 1500 frames without input; with A pulses the scene loads scene $FC at frame 4682.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 142,
+      "idHex": "$8E",
+      "key": "prologue_missing",
+      "group": "prologue",
+      "prefix": "pr",
+      "description": "Prologue - Missing",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 827 frames; the scene loads scene $8C by itself at frame 1362 after the banner.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 143,
+      "idHex": "$8F",
+      "key": "prologue_mishap",
+      "group": "prologue",
+      "prefix": "pr",
+      "description": "Prologue - Mishap",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 427 frames; the scene loads scene $FC by itself at frame 1387 after the banner.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 144,
+      "idHex": "$90",
+      "key": "ending_changed_world",
+      "group": "ending",
+      "prefix": "ed",
+      "description": "Ending - Changed World",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 1286 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $E5 at frame 5442.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 145,
+      "idHex": "$91",
+      "key": "euro",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro",
+      "requiredFlags": [165],
+      "requiredFlagBytes": [
+        {
+          "flag": 165,
+          "address": 2580,
+          "mask": 32
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 2462. With flag $A5 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "eu_arrival_cutscene_played"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 146,
+      "idHex": "$92",
+      "key": "geezer_central",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Geezer Central",
+      "requiredFlags": [158],
+      "requiredFlagBytes": [
+        {
+          "flag": 158,
+          "address": 2579,
+          "mask": 64
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 74. With flag $9E set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "eu_geezers_argument_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 147,
+      "idHex": "$93",
+      "key": "power_house",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Power House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 148,
+      "idHex": "$94",
+      "key": "rolek_office",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Rolek Office",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 149,
+      "idHex": "$95",
+      "key": "rolek_mansion",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Rolek Mansion",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 150,
+      "idHex": "$96",
+      "key": "guest_room",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Guest Room",
+      "requiredFlags": [171],
+      "requiredFlagBytes": [
+        {
+          "flag": 171,
+          "address": 2581,
+          "mask": 8
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 114. With flag $AB set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "eu_hamlet_morning_scene_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 151,
+      "idHex": "$97",
+      "key": "flea_market",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Rolek Market",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 24 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 152,
+      "idHex": "$98",
+      "key": "baggage_house",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Baggage House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 153,
+      "idHex": "$99",
+      "key": "euro_darkspace_house",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Dark Space House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 154,
+      "idHex": "$9A",
+      "key": "friezers_house",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Friezer's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 155,
+      "idHex": "$9B",
+      "key": "gems_house",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Gem's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 156,
+      "idHex": "$9C",
+      "key": "mushroom_twins",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Mushroom Twins House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 157,
+      "idHex": "$9D",
+      "key": "dark_chapel",
+      "group": "euro",
+      "prefix": "eu",
+      "description": "Euro - Dark Chapel",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 160,
+      "idHex": "$A0",
+      "key": "kress_entrance",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Entrance",
+      "requiredFlags": [167],
+      "requiredFlagBytes": [
+        {
+          "flag": 167,
+          "address": 2580,
+          "mask": 128
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $A7 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "mt_kress_intro_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 161,
+      "idHex": "$A1",
+      "key": "kress_twisted",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Twisted Paths",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 162,
+      "idHex": "$A2",
+      "key": "kress_crossroads",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Crossroads",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 163,
+      "idHex": "$A3",
+      "key": "kress_gauntlet",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Treasure Gauntlet",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 164,
+      "idHex": "$A4",
+      "key": "kress_loop",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Western Loop",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 165,
+      "idHex": "$A5",
+      "key": "kress_circuit",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Broken Vines",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=72 y=992 facing=0 scroll=$4400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 166,
+      "idHex": "$A6",
+      "key": "kress_mushrooms",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Mushroom Field",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) ends in game over (playerFlags $0200 set, HP 0) at frame 45; a full warp with x=16 y=864 facing=7 scroll=$4400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 167,
+      "idHex": "$A7",
+      "key": "kress_maze",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Vine Maze",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 168,
+      "idHex": "$A8",
+      "key": "kress_detour",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Detour",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 169,
+      "idHex": "$A9",
+      "key": "kress_summit",
+      "group": "mountain_temple",
+      "prefix": "mt",
+      "description": "Mt. Temple - Summit",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=72 y=992 facing=0 scroll=$4200 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 172,
+      "idHex": "$AC",
+      "key": "native_village",
+      "group": "native_village",
+      "prefix": "nv",
+      "description": "Native Village",
+      "requiredFlags": [178],
+      "requiredFlagBytes": [
+        {
+          "flag": 178,
+          "address": 2582,
+          "mask": 4
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $B2 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "nv_hamlet_cutscene_done"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 173,
+      "idHex": "$AD",
+      "key": "vacant_hut",
+      "group": "native_village",
+      "prefix": "nv",
+      "description": "Native Village - Vacant Hut",
+      "requiredFlags": [174],
+      "requiredFlagBytes": [
+        {
+          "flag": 174,
+          "address": 2581,
+          "mask": 64
+        }
+      ],
+      "flagNote": "Kara's vacant-hut scene locks the joypad when the house search has started and neither the hut-checked flag nor the Hamlet flag is set. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 174 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/native_village/vacant_hut/nvAD_kara.asm:27 {559852}",
+      "requiredFlagNames": [
+        "nv_vacant_hut_checked"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 174,
+      "idHex": "$AE",
+      "key": "gorgon_hut",
+      "group": "native_village",
+      "prefix": "nv",
+      "description": "Native Village - Gorgon Hut",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 176,
+      "idHex": "$B0",
+      "key": "angkor_entrance",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Entrance",
+      "requiredFlags": [179],
+      "requiredFlagBytes": [
+        {
+          "flag": 179,
+          "address": 2582,
+          "mask": 8
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $B3 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "aw_entrance_intro_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 177,
+      "idHex": "$B1",
+      "key": "angkor_outer_gate",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Outer Gate",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 178,
+      "idHex": "$B2",
+      "key": "angkor_outer_east",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Outer East",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) ends in game over (playerFlags $0200 set, HP 0) at frame 54; a full warp with x=120 y=1984 facing=0 scroll=$8100 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 179,
+      "idHex": "$B3",
+      "key": "angkor_outer_north",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Outer North",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1912 y=448 facing=0 scroll=$2800 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 180,
+      "idHex": "$B4",
+      "key": "snake_pit",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Snake Pit",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 181,
+      "idHex": "$B5",
+      "key": "angkor_outer_west",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Outer West",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 182,
+      "idHex": "$B6",
+      "key": "angkor_outer_courtyard",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Outer Courtyard",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=760 y=976 facing=128 scroll=$4600 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 183,
+      "idHex": "$B7",
+      "key": "angkor_inner_gate",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Inner Gate",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 184,
+      "idHex": "$B8",
+      "key": "angkor_inner_east",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Inner East",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 185,
+      "idHex": "$B9",
+      "key": "angkor_inner_west",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Inner West",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 186,
+      "idHex": "$BA",
+      "key": "angkor_inner_courtyard",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Inner Courtyard",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=504 y=1488 facing=128 scroll=$6400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 187,
+      "idHex": "$BB",
+      "key": "angkor_shrine_main",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Main Shrine",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 74 frames; the player is free from frame 74 without input. Entered from 3 of 7 scene-warp destinations the arrival is free.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 188,
+      "idHex": "$BC",
+      "key": "angkor_shrine_crystal",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Crystal Room",
+      "requiredFlags": [183],
+      "requiredFlagBytes": [
+        {
+          "flag": 183,
+          "address": 2582,
+          "mask": 128
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $B7 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "aw_crystal_shrine_intro_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 189,
+      "idHex": "$BD",
+      "key": "angkor_shrine_dejavu",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Deja Vu",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 74 frames; the player is free from frame 74 without input. Entered from 3 of 4 scene-warp destinations the arrival is free.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 190,
+      "idHex": "$BE",
+      "key": "angkor_shrine_upper",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Upper Shrine",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=128 facing=0 scroll=$3300 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 191,
+      "idHex": "$BF",
+      "key": "angkor_pinnacle",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Pinnacle",
+      "requiredFlags": [190],
+      "requiredFlagBytes": [
+        {
+          "flag": 190,
+          "address": 2583,
+          "mask": 64
+        }
+      ],
+      "flagNote": "The spirit guide locks the joypad at spawn when the vision is seen and the Gorgon Flower is not yet given. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 190 cannot show a difference; the claim is not decided.",
+      "flagSource": "extracted/angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:46 {563927}",
+      "requiredFlagNames": [
+        "aw_gorgon_flower_given"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 192,
+      "idHex": "$C0",
+      "key": "future_vision",
+      "group": "angkor_wat",
+      "prefix": "aw",
+      "description": "Angkor Wat - Future Vision",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 844 frames; the scene loads scene $BF by itself at frame 844 after the banner.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 195,
+      "idHex": "$C3",
+      "key": "dao",
+      "group": "dao",
+      "prefix": "da",
+      "description": "Dao",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=144 y=176 facing=3 scroll=$2300 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 196,
+      "idHex": "$C4",
+      "key": "dao_hotel",
+      "group": "dao",
+      "prefix": "da",
+      "description": "Dao - Hotel",
+      "requiredFlags": [210],
+      "requiredFlagBytes": [
+        {
+          "flag": 210,
+          "address": 2586,
+          "mask": 4
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "bt_entrance_monologue_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 197,
+      "idHex": "$C5",
+      "key": "sweatshop",
+      "group": "dao",
+      "prefix": "da",
+      "description": "Dao - Sweatshop",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 198,
+      "idHex": "$C6",
+      "key": "panic_room",
+      "group": "dao",
+      "prefix": "da",
+      "description": "Dao - Snake Panic",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 199,
+      "idHex": "$C7",
+      "key": "desert_explorers",
+      "group": "dao",
+      "prefix": "da",
+      "description": "Dao - Explorer's House",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 200,
+      "idHex": "$C8",
+      "key": "dao_dorm",
+      "group": "dao",
+      "prefix": "da",
+      "description": "Dao - Dorm",
+      "requiredFlags": [210],
+      "requiredFlagBytes": [
+        {
+          "flag": 210,
+          "address": 2586,
+          "mask": 4
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 69 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 122. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "bt_entrance_monologue_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 201,
+      "idHex": "$C9",
+      "key": "indecision_room",
+      "group": "dao",
+      "prefix": "da",
+      "description": "Dao - Indecision Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 204,
+      "idHex": "$CC",
+      "key": "pyramid_main",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Main Chamber",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=504 y=288 facing=3 scroll=$4400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 205,
+      "idHex": "$CD",
+      "key": "puzzle_room",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Puzzle Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 206,
+      "idHex": "$CE",
+      "key": "pyramid_ramptastic_a",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Ramptastic A",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1392 y=192 facing=128 scroll=$4600 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 207,
+      "idHex": "$CF",
+      "key": "pyramid_ramptastic_b",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Ramptastic B",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1392 y=192 facing=0 scroll=$4600 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 208,
+      "idHex": "$D0",
+      "key": "pyramid_meltdown_a",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Meltdown A",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1136 y=192 facing=128 scroll=$5500 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 209,
+      "idHex": "$D1",
+      "key": "pyramid_meltdown_b",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Meltdown B",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 210,
+      "idHex": "$D2",
+      "key": "pyramid_focus_a",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Focus A",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=192 y=912 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 46.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 211,
+      "idHex": "$D3",
+      "key": "pyramid_focus_b",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Focus B",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 212,
+      "idHex": "$D4",
+      "key": "pyramid_trickle_a",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Trickle A",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 213,
+      "idHex": "$D5",
+      "key": "pyramid_trickle_b",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Trickle B",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 214,
+      "idHex": "$D6",
+      "key": "pyramid_vader_a",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Vader A",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 215,
+      "idHex": "$D7",
+      "key": "pyramid_vader_b",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Vader B",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=112 y=448 facing=0 scroll=$6400 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 216,
+      "idHex": "$D8",
+      "key": "pyramid_dangerslide_a",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Dangerslide A",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1152 y=192 facing=128 scroll=$5500 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 217,
+      "idHex": "$D9",
+      "key": "pyramid_dangerslide_b",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Dangerslide B",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 218,
+      "idHex": "$DA",
+      "key": "heiroglyph_room",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Hieroglyph Room",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=192 facing=0 scroll=$1100 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 219,
+      "idHex": "$DB",
+      "key": "pyramid_dangerslide_c",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Dangerslide C",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 220,
+      "idHex": "$DC",
+      "key": "babel_flight",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Flight",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 180 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $DE at frame 3084.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 221,
+      "idHex": "$DD",
+      "key": "mummy_queen_lair",
+      "group": "pyramid",
+      "prefix": "py",
+      "description": "Pyramid - Mummy Queen's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 222,
+      "idHex": "$DE",
+      "key": "babel_entrance",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Entrance",
+      "requiredFlags": [210],
+      "requiredFlagBytes": [
+        {
+          "flag": 210,
+          "address": 2586,
+          "mask": 4
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 51 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "bt_entrance_monologue_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 223,
+      "idHex": "$DF",
+      "key": "babel_lower_floors",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Lower Floors",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 224,
+      "idHex": "$E0",
+      "key": "babel_middle_floors",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Middle Floors",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "Kara's disappearance scene locks the joypad at spawn only in scene $E0, when flag $D4 (Kara follows) is set and the crystal gate word flag $0178 is set; it clears $D4, prints the text and unlocks. The player is free on arrival when $D4 is clear or $0178 is clear; both are clears, which the flag list of a scene entry cannot express. FR40: with flag 212 ($D4) set the arrival is free (mask $0000, the player moves in four directions); the other condition of the draft lock (word flag $0178) is not reached from the story state S01r, so the claim is not decided.",
+      "flagSource": "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:25 {624163}, :29 {624177}, lock :36 {624200}, unlock :40 {624213}",
+      "entry": "cutscene",
+      "flagGrade": "INFERRED"
+    },
+    {
+      "id": 225,
+      "idHex": "$E1",
+      "key": "babel_light_elevator",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Light Elevator",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=1936 facing=3 scroll=$8100 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 226,
+      "idHex": "$E2",
+      "key": "babel_exterior",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Exterior",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 227,
+      "idHex": "$E3",
+      "key": "babel_upper_floors",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Upper Floors",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 24 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 86. Entered from 3 of 4 scene-warp destinations the arrival is free.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 228,
+      "idHex": "$E4",
+      "key": "babel_rooftop",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Rooftop",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 722.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 229,
+      "idHex": "$E5",
+      "key": "ending_comet",
+      "group": "ending",
+      "prefix": "ed",
+      "description": "Ending - Comet",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 171 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; the player is still held after 7000 frames with A pulses.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 230,
+      "idHex": "$E6",
+      "key": "dark_space",
+      "group": "system",
+      "prefix": "sy",
+      "description": "Dark Space",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=192 facing=0 scroll=$1100 places the player on free ground.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "free",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 231,
+      "idHex": "$E7",
+      "key": "space_flight",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Comet - Space Flight",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the scene loads scene $E8 by itself at frame 969 after the banner.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 232,
+      "idHex": "$E8",
+      "key": "comet_lair",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Comet - Final Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 95 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 233,
+      "idHex": "$E9",
+      "key": "mansion",
+      "group": "mansion",
+      "prefix": "ma",
+      "description": "Mansion",
+      "requiredFlags": [41],
+      "requiredFlagBytes": [
+        {
+          "flag": 41,
+          "address": 2565,
+          "mask": 2
+        }
+      ],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $29 set the arrival is free (mask $0000, no message box, the player moves).",
+      "flagSource": "Mesen2 FR40",
+      "requiredFlagNames": [
+        "ma_mansion_intro_seen"
+      ],
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 234,
+      "idHex": "$EA",
+      "key": "solid_arm_lair",
+      "group": "mansion",
+      "prefix": "ma",
+      "description": "Mansion - Solid Arm's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 234 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 453.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 240,
+      "idHex": "$F0",
+      "key": "ending_class_dismissed",
+      "group": "ending",
+      "prefix": "ed",
+      "description": "Ending - Class Dismissed",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 618 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; the player is still held after 7000 frames with A pulses.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 242,
+      "idHex": "$F2",
+      "key": "dark_castoth_lair",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Dark Castoth's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 682 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 243,
+      "idHex": "$F3",
+      "key": "dark_viper_lair",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Dark Viper's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 244,
+      "idHex": "$F4",
+      "key": "dark_vampire_lair",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Dark Vampire's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 245,
+      "idHex": "$F5",
+      "key": "dark_fanger_lair",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Dark Fanger's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 246,
+      "idHex": "$F6",
+      "key": "dark_queen_lair",
+      "group": "babel_tower",
+      "prefix": "bt",
+      "description": "Babel Tower - Dark Queen's Lair",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 247,
+      "idHex": "$F7",
+      "key": "ending_credits",
+      "group": "ending",
+      "prefix": "ed",
+      "description": "Ending - Credits",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 250,
+      "idHex": "$FA",
+      "key": "diary_menu",
+      "group": "system",
+      "prefix": "sy",
+      "description": "Diary Menu",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival sets playerFlags bit $0800 (script lock); the player is still held after 1500 frames without input; with A pulses the scene loads scene $08 at frame 42.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 251,
+      "idHex": "$FB",
+      "key": "boot_logos",
+      "group": "system",
+      "prefix": "sy",
+      "description": "Boot Logos",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 115 frames; the scene loads scene $FC by itself at frame 256 after the banner.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 252,
+      "idHex": "$FC",
+      "key": "title_screen",
+      "group": "system",
+      "prefix": "sy",
+      "description": "Title Screen",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 253,
+      "idHex": "$FD",
+      "key": "statue_inventory",
+      "group": "system",
+      "prefix": "sy",
+      "description": "Statue Inventory",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 254,
+      "idHex": "$FE",
+      "key": "world_map",
+      "group": "system",
+      "prefix": "sy",
+      "description": "World Map",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    },
+    {
+      "id": 255,
+      "idHex": "$FF",
+      "key": "inventory",
+      "group": "system",
+      "prefix": "sy",
+      "description": "Inventory",
+      "requiredFlags": [],
+      "requiredFlagBytes": [],
+      "flagNote": "The inventory scene is a menu overlay: joypadMaskStd $065A is $0000 at arrival and the player does not move in the direction test.",
+      "flagSource": "Mesen2 FR40",
+      "entry": "cutscene",
+      "flagGrade": "VERIFIED-RUNTIME"
+    }
+  ]
+}

@@ -1,3 +1,14 @@
+; ==============================================================================
+; Dark Gaia projectile spriteset - bank $17
+; ==============================================================================
+; What it does: Launch and travel animations for cardinal-direction Dark Gaia
+;   projectiles (multi-frame sprite-set chains per facing).
+; Vanilla behavior: Original projectile metasprite layout in bank $17 FX tables.
+; Hooks (overrides): none (asset file for ability spawn COP 85/84 paths).
+; Depends on: Bank 17; groups reference $17Dxxx tile regions.
+; Hazards/notes: Data only; launch sets use #$0005 frame delay in headers.
+; ==============================================================================
+
 ?BANK 17
 
 ---------------------------------------------

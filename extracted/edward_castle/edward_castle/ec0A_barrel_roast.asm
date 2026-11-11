@@ -1,7 +1,8 @@
-; Kara's barrel-roast food item in the castle escape sequence.
+; Barrel with the yak roast in Edward Castle (scene $0A, scene_actors row 13 at tile (28,3B)).
 ; 
-; Kara tells Will to check barrels for food. Finding the roast
-; triggers dialog and progresses the escape preparation.
+; Flag $46 set at spawn: the script jumps into code_04D0FF, which sets $46 again, sets displayModeFlags bit $80, plays MusicAndText #17 ('You've found a large, yummy roast leg of yak!' and Kara's 'Everything's ready!') and dies; as written the pickup message therefore replays whenever the scene loads with $46 set (not watched in the emulator).
+; 
+; $46 clear: waits for scratch $01 (set by the Kara-door guard's talk before the throne scene and by Kara's talk after it, so the barrel is not gated on $21), then installs the talk handler: GiveItem #0A (inventory full: InventoryFullMessage and the flag stays clear), then the code_04D0FF path. A tile trigger at (22,37)-(26,3D) prints Kara's hint 'I think someone put food in one of these barrels.' The escape in ec0A_kara tests the item (BranchIfHasItem #0A), not $46.
 ---------------------------------------------
 
 ?INCLUDE 'f_inventory_full'

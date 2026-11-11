@@ -1,8 +1,8 @@
-; Lance at the Angel Village entrance — Neil comments on the journey.
+; Controller of the arrival cutscene at the Angel Village entrance (scene $69); the actor prints Neil's and Lance's lines.
 ; 
-; Multi-speaker NPC (~57 lines). Neil: "We're here at last.
-; We've walked through the tunnel for almost..." Establishes
-; the long journey through the undersea tunnel.
+; The actor dies at spawn when flag $8D (the Watermia arrival has started) or flag $75 (this cutscene was shown) is set. Otherwise it locks the joypad ($CFFC), prints 'Neil: We're here at last...' and 'Lance: Look! A sign!', walks, prints the sign discussion, and sets scratch flag $01 (Lilly, Neil and Erik walk). It then waits for scratch $04 (the end of the Lilly/Kara exchange), sets persistent flag $75, walks to its final position and unlocks the joypad.
+; 
+; The chain of scratch flags is $01 Lance, $02 Lilly, $03 Kara, $04 Lilly; the other four av69 actors run the same two death tests.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

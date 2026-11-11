@@ -35,7 +35,7 @@ npm run flags -- docs [--out-dir=<dir>]                 docs/flags/README.md + o
 npm run flags -- scene-flags <spec.json> [--dry-run]    merge entries into db-us/scene-flags.json
 npm run flags -- presets <spec.json> [--dry-run]        merge into db-us/flag-presets.json
 npm run flags -- inventory [--dry-run]                  scan extracted/ into plans/flags/inventory.json + inventory.md
-npm run flags -- inventory --compare=<old.json> [--compare-out=<file>]   also reconcile with an older inventory
+npm run flags -- inventory --compare=<old.json> [--compare-out=<file>]   also reconcile with an older inventory (the legacy inventory, or an earlier inventory.json: the format is detected; an inventory.json comparison also lists line shifts and checks the join-ready sites by ROM offset)
 ```
 
 Options: `--db-dir=<dir>` (every command; default `db-us`; point it at a copy to try something), `--inventory=<file>` (`export`, `docs`; default `plans/flags/inventory.json`), `--out=<file>`, `--md=<file>`, `--extracted=<dir>` (`inventory` only; defaults `plans/flags/inventory.json`, `plans/flags/inventory.md`, `extracted`). Without `--dry-run` a merge writes; with it nothing is written, ever.
@@ -275,13 +275,13 @@ npm run flags -- --check --db-dir=temp/flags-test/db-us
 
 | Dom | Name | Global indices | Bytes | Persistence | Records |
 |---|---|---|---|---|---:|
-| D1 | scene scratch | $0000-$000F | $0A00-$0A01 | scene | 0 |
-| D2 | story / world events | $0010-$00FF | $0A02-$0A1F | save | 0 |
-| D3 | event triggers / death actions | $0100-$01FF | $0A20-$0A3F | save | 0 |
-| D4 | chests, hidden Red Jewels, barriers | $0200-$02FF | $0A40-$0A5F | save | 0 |
-| D5 | scene clear reward | $0300-$03FF | $0A60-$0A7F | save | 0 |
-| D6 | dungeon kill flags | $0400-$04FF | $0A80-$0A9F | dungeon | 0 |
-| D7 | boss reward / ability unlock | $0500-$0507, $0510-$059F | $0AA0-$0AA0, $0AA2-$0AB3 | save | 0 |
+| D1 | scene scratch | $0000-$000F | $0A00-$0A01 | scene | 16 |
+| D2 | story / world events | $0010-$00FF | $0A02-$0A1F | save | 212 |
+| D3 | event triggers / death actions | $0100-$01FF | $0A20-$0A3F | save | 104 |
+| D4 | chests and hidden Red Jewels | $0200-$02FF | $0A40-$0A5F | save | 62 |
+| D5 | scene clear reward | $0300-$03FF | $0A60-$0A7F | save | 87 |
+| D6 | dungeon enemy kill | $0400-$04FF | $0A80-$0A9F | save | 192 |
+| D7 | boss reward / ability unlock | $0500-$0507, $0510-$051F | $0AA0-$0AA0, $0AA2-$0AA3 | save | 14 |
 | D8 | non-bitfield gates | n/a | n/a | none | 0 |
 | D9 | scene-meta gates | n/a | n/a | none | 0 |
 
@@ -289,41 +289,314 @@ npm run flags -- --check --db-dir=temp/flags-test/db-us
 
 | Dom | Lifecycle | How it is accessed |
 |---|---|---|
-| D1 | Zeroed by every ClearSceneState (STX $eventFlags with X = 0) and saved, cleared and restored around the inventory overlay; the same index means different things in different scenes (to confirm in FL10 and FR00). | COP $CC-$D3 (byte and word forms), SetFlagRaw/TestFlagRaw, direct LDA $eventFlags. |
-| D2 | Part of the save block $0A00-$0BFB; set once by the story and never cleared by the engine. | COP flag opcodes, the *Raw helpers (actor-parameter indices: laborers $A0-$A3, necklace stones $98/$99, statues $F8-$FD, orbs $F2/$F3). |
-| D3 | Save block. Flag $0100+n triggers event block n (ApplyAllEventBlocks) or is the death-action index of an enemy. | COP word forms, the *_0100 helpers, event_blocks, enemy death-action indices in scene_actors. |
-| D4 | Save block. One flag per chest, hidden jewel or barrier. | The *_0200 helpers (scene_chest_table byte 3, hidden jewel actor parameter, barrier table). |
-| D5 | Save block. Flag $0300+scene id marks the reward of a cleared scene as claimed. | The *_0300 helpers (A = scene id). |
-| D6 | Global = WRAM-relative wramFlags index + $0400. Zeroed on world-map entry, st68_kara, sp58_red_eye and game over (to confirm in FL10 and FR30). | SetWramFlag, CheckEnemyDefeatedFlag, COP $D8 (index = enemyNum). |
-| D7 | Save block. $0500-$0507 are boss reward flags ($0AA0); $0510+ are ability flags that live in abilityBitmask $0AA2 and beyond. | The *_Offset100 helpers (index masked to 3 bits, lands at $0500-$0507), TestFlag_0510 (characterForm*4 + slot). |
-| D8 | Items, character form, gems and other bytes of the save block that scripts test; not stored in this registry yet (FL40 extends the tool). | COP $D4-$D7 (items), SwitchCase on $0AD4/$0AA6, direct reads. |
-| D9 | A flag index read from a scene-meta command stream; it names a flag of another domain and is documented there (FL10 decodes the table). | $13 <flag> in scene_meta command streams (SceneCmd_Branch). |
+| D1 | ClearSceneState zeroes flags $0000-$000F at every scene load: STX $eventFlags with X = $0000 (16-bit, ROM bytes a2 00 00 / 8e 00 0a at 253273 / 253291) writes bytes $0A00-$0A01; its single call site is ExecuteSceneTransition (252507). OpenInventoryScreen pushes the same word, zeroes it for the overlay (the overlay exit flag is flag $0000) and pops it on close (191788-192094). The bytes are inside the save block, so a save and a load carry them, but the next scene load zeroes them again. The same index means different things in different scenes. A few scripts read the bytes as a whole: ir1F_plate_gate_opener (bits 1-4 of $0A00), mu66_rama_spirits (the $0A00 low byte equals $FE) and dm3F_switch / dm3F_mine_collapse_trigger (byte $0A01 used as a laborer counter). Verified at runtime: ClearSceneState zeroes exactly $0A00-$0A01 (flags $0000-$000F) once per scene load and leaves $0A02 and up, the kill block included, unchanged; the inventory overlay (scene $FF) zeroes the word on open and restores the saved word on close, with flag $FF cleared on open and set two frames after the close. Only quick warps were run: natural door exits and other scene-load callers were not traced. | COP $CC-$D3 (byte and word forms), SetFlagRaw/TestFlagRaw/ClearFlagRaw, direct LDA/STA $eventFlags and $0A01. |
+| D2 | Part of the save block $0A00-$0BFB. Scripts set them, and a few scripts clear them (for example $96, $F4); no scene load clears a D2 bit except flag $FF (bit 7 of $0A1F), which ClearSceneState and the inventory overlay clear and set again after setup. | COP flag opcodes, the *Raw helpers (actor-parameter indices: laborers $A0-$A3, necklace stones $98/$99, statues $F8-$FD, orbs $F2/$F3), scene-meta gates (D9). |
+| D3 | Bytes $0A20-$0A3F of the save block. ApplyAllEventBlocks (scene load, after InitCameraBounds and before SpawnSceneActors, and at inventory close) walks all 256 bits; a set flag $0100+n applies event block n when the block's scene byte equals sceneCurrent. Scene loads never clear these bits. The only clear sites are the sg52 blockers ($0125-$012A), the Ishtar room controller ($0149-$0150 at each room start), the Adrift script ($0120), the stone coffin retry ($013B), Kara's return ($0119) and the prologue ($017C-$017F). Blocks n >= 158 have no table entry (LookupEventBlock does not bound the index); no flag in $019E-$01FF has a setter. | COP word forms ($CD/$CF/$D1/$D3 and the Branch/Wait variants), SetFlag_0100/TestFlag_0100 (death-action indices, pyCC Dark Space portal), ApplyAllEventBlocks (LDA $0A20,Y), enemy-spawn rows of tables/scene_actors.asm (last operand = event-block index, stored at $7F0024). |
+| D4 | Bytes $0A40-$0A5F of the save block; no scene load, world-map entry or game over clears them (ClearSceneState zeroes only $0A00-$0A01, ClearAllWramFlags only $0A80-$0A9F) and no clear wrapper exists for the _0200 base, so a set bit stays for the life of the save. Chests use $0201-$022E (the record byte AND $7F, so the table can address only $0200-$027F); hidden Red Jewels use $0280-$028F (actor attribute >> 1 plus $80); the two ranges cannot collide. The other 194 indices have no reader and no writer. | TestEventFlag_0200 (PlaceOpenedChestTiles, RadarPlotSceneMarkers, HiddenRedJewelInteract) and SetEventFlag_0200 (HandleChestInteraction twice, HiddenRedJewelInteract); no COP literal, no direct byte access and no other helper reaches $0200-$02FF. |
+| D5 | Bytes $0A60-$0A7F of the save block; ClearSceneState zeroes only $0A00-$0A01 and ClearAllWramFlags only $0A80-$0A9F, and no clear wrapper exists for the _0300 base, so a set bit stays for the life of the save. Flag $0300 + scene id marks the stat reward of that scene as claimed. Only the 87 scenes with a nonzero enemy_clear_reward_table tier ever get the bit; the other 169 indices are never written. | TestFlag_0300 (RadarScreenSetup, StandardEnemyDefeatHandler twice, field_reveal_object, BossClearApplyStatReward) and SetFlag_0300 (RewardActorVFX, BossClearApplyStatReward); no COP operand, no direct byte access and no other helper reaches $0300-$03FF. |
+| D6 | Bytes $0A80-$0A9F of the save block (flag $0400 + enemy number; byte $0A80 + (n >> 3), bit n AND 7). Zeroed by ClearAllWramFlags (WorldMapController entry {238336}, st68_kara {438261}, sp58_red_eye {426502} only when $0AA6 = 2), by the inline loop of game_over_sequence {54988}-{55002} on a real game over (gems < 100; a revive keeps the bits) and at boot. ClearSceneState zeroes only $0A00-$0A01, so ordinary scene changes keep the bits: a number reused by two scenes of one visit is one shared bit, and a number reused by the next dungeon is a stale bit unless a reset ran between the dungeons. Each dungeon numbers its enemies from about $01, so 241 of the 253 numbers appear in several scenes. Verified at runtime: ordinary scene loads keep the kill block $0A80-$0A9F; the clearing sites (world-map entry, revive, game over, save/load) were not run. | COP $D8 SetDungeonKillFlag (StandardEnemyDefeatHandler {56306}, EnemyDefeatDispatch {697510}, awB1_wall_walker {770381}, pyCC_mystic_ball {771937}; all reach SetWramFlag {44172}), CheckEnemyDefeatedFlag at spawn ({249721}), one direct reader (gw88_tomb_dark_space {507380}, $0A9F) and the two clearing sites. No COP flag operand and no other helper call reaches $0400-$04FF. |
+| D7 | Byte $0AA0 (flags $0500-$0507) and the word $0AA2-$0AA3 (flags $0510-$051F, also abilityBitmask) lie in the save block $0A00-$0BFB. ClearSceneState zeroes only $0A00-$0A01; ClearAllWramFlags (WorldMapController {238336}, st68_kara {438261}, sp58_red_eye {426502}) and the inline loop of game_over_sequence ({54988}-{55002}) zero exactly $0A80-$0A9F, one byte below $0AA0, so a set bit survives scene changes, the world map and a game over. Boot zero-fills WRAM and SystemInit clears the low byte of abilityBitmask again ({32946}); DiaryNewGameStart writes neither byte (FL10), so a new game starts from the boot zeros. The range shipped for D7 is narrowed to the 8 + 16 bits that have storage: $0508-$050F ($0AA1) is unassigned and $0520-$059F is not flag storage ($0AA4-$0AB3 hold state words, FL10 byte map). | Boss flags: TestWramFlag_Offset100 / SetWramFlag_Offset100 (index AND 7, base $0100 on wramFlags $0A80), called by boss_clear_reward_handler ({49883}, {49928}) and tested at spawn by the six lair actors ({695049}, {708981}, {717345}, {717790}, {754027}, {763580}). Ability flags: TestFlag_0510 (+$0510, one call: TestAbilityFlag {190952}) and direct 16-bit access of abilityBitmask $0AA2 (31 inventory rows in 8 files: one live setter, sE6_gaia AbilityOrbActor {584379}/{584382}). No COP flag operand, no scene-meta gate and no other helper reaches $0500-$051F. |
+| D8 | Items, character form, gems and other bytes of the save block that scripts test (FL40 extends the tool). Four 16-bit state words sit inside the flag-array tail: $0AA6 (script state: SwitchCase selector in dc2F_adrift, plate id in UseItem plate handlers), $0AAC globalScriptIndex (Dark Space layout variant, hieroglyph slot index), $0AB0 jewelsCollected, $0AB2 (Dark Space layout variant, saved copy of $0AAC). | COP $D4-$D7 (items), SwitchCase on $0AD4/$0AA6, direct reads and writes. |
+| D9 | A flag index read from a scene-meta command stream (SceneCmd_Branch, opcode $13 <flag> <label>) at scene load. TestFlagRaw masks the index to a byte, so only flags $0000-$00FF can gate. The 18 gates of 11 records use nine indices, all D2: $21, $4C, $70, $7B, $7E, $88, $96, $B3, $F4. A set flag skips to the unique $14 label (possibly in another record); a clear flag continues with the next command. | $13 <flag> in scene_meta command streams. |
 
 ## Coverage
 
-0 flag indices, 0 meanings (0 scratch rows).
+687 flag indices, 916 meanings (7 scratch rows).
 
 | Grade | Meanings |
 |---|---:|
-| VERIFIED-RUNTIME | 0 |
-| VERIFIED-STATIC | 0 |
-| INFERRED | 0 |
-| UNKNOWN | 0 |
-| (row, no grade) | 0 |
+| VERIFIED-RUNTIME | 178 |
+| VERIFIED-STATIC | 603 |
+| INFERRED | 130 |
+| UNKNOWN | 1 |
+| (row, no grade) | 4 |
 
 ## Areas
 
-No records yet.
+| Area | Records | Rows |
+|---|---:|---:|
+| [system](system.md) | 217 | 0 |
+| [south_cape](south_cape.md) | 52 | 0 |
+| [edward_castle](edward_castle.md) | 50 | 1 |
+| [itory](itory.md) | 28 | 0 |
+| [incan_ruins](incan_ruins.md) | 49 | 0 |
+| [gold_ship](gold_ship.md) | 17 | 3 |
+| [freejia](freejia.md) | 29 | 0 |
+| [diamond_mine](diamond_mine.md) | 31 | 1 |
+| [nazca](nazca.md) | 22 | 0 |
+| [sky_garden](sky_garden.md) | 41 | 0 |
+| [seaside_palace](seaside_palace.md) | 20 | 0 |
+| [mu](mu.md) | 52 | 0 |
+| [angel_village](angel_village.md) | 43 | 0 |
+| [watermia](watermia.md) | 32 | 0 |
+| [great_wall](great_wall.md) | 30 | 1 |
+| [prologue](prologue.md) | 6 | 1 |
+| [ending](ending.md) | 5 | 0 |
+| [euro](euro.md) | 20 | 0 |
+| [mountain_temple](mountain_temple.md) | 22 | 0 |
+| [native_village](native_village.md) | 19 | 0 |
+| [angkor_wat](angkor_wat.md) | 31 | 0 |
+| [dao](dao.md) | 9 | 0 |
+| [pyramid](pyramid.md) | 47 | 0 |
+| [babel_tower](babel_tower.md) | 32 | 0 |
+| [mansion](mansion.md) | 5 | 0 |
 
 ## Scene entry
 
 | Scene | Entry | Flags | Names | Grade | Note |
 |---|---|---|---|---|---|
-| $0A (10) |  | $003F |  |  | Will showed Lance's letter to the castle guard. Without it the guard actor locks the joypad (joypadMaskStd $065A stays nonzero). |
+| $01 (1) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $02 (2) | cutscene | $0015 | `sc_cave_intro_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $15 set the arrival is free (mask $0000, no message box, the player moves). |
+| $03 (3) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $04 (4) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $05 (5) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $06 (6) | cutscene | $001D, $0025, $003D | `sc_morning_narration_seen`, `sc_lily_met_in_house`, `sc_kara_intro_done` | INFERRED | Three arrival scripts depend on the story state: Hamlet locks the joypad when the cave news is done and neither the Kara intro nor the soldier scene is done; the morning monologue locks when the dinner night has passed and the morning flag is clear; Kara's return locks when the throne room is done and Lily is not yet met. Setting one flag of each exclusion group frees the arrival; in any other story state the scene is free. FR40: from the story state S01r the arrival is free; with flag 22 set the Hamlet script locks the joypad (joypadMaskStd $CFF0) and flag 61 frees it, while flags 29 and 37 alone leave the lock in place; the other two arrival scripts need story states FR40 did not reach, so the claim is not decided. |
+| $07 (7) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $08 (8) | cutscene | $0010 |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1330. With flag $10 set the arrival is free (mask $0000, no message box, the player moves). |
+| $0A (10) | cutscene | $003F | `ec_entrance_letter_shown` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 239 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 278. With flag $3F set the arrival is free (mask $0000, no message box, the player moves). |
+| $0B (11) | cutscene | $0024 | `ec_prison_cell_door_unlocked` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $24 set the arrival is free (mask $0000, no message box, the player moves). |
+| $0C (12) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $0D (13) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $0E (14) | cutscene |  |  | VERIFIED-RUNTIME | Entered from the scene-warp destination x=88 y=64 facing=3 the player is free for 56 frames, then locks of joypadMaskStd $0F00 (17 frames each) repeat, the player's HP reaches 0 (playerFlags $0200) at frame 197 and the scene loads scene $20 at frame 437; the other scene-warp destination gives a free arrival. |
+| $0F (15) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $10 (16) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $11 (17) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $12 (18) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=632 y=1488 facing=0 scroll=$6300 places the player on free ground. |
+| $13 (19) | cutscene |  |  | VERIFIED-RUNTIME | Entered from the scene-warp destination x=120 y=80 facing=3 the player is free for 59 frames, then a script locks the joypad (joypadMaskStd $CFF0) and opens a message box (displayModeFlags $2001) that stays open without input for 600 frames; with A pulses a further lock starts at frame 146 and the joypad is locked again at frame 600. |
+| $15 (21) | cutscene | $002B | `it_village_lily_intro_done` | INFERRED | Lily's village introduction locks the joypad at spawn when the trip has started and the introduction flag is clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 43 cannot show a difference; the claim is not decided. |
+| $16 (22) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $17 (23) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $18 (24) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $19 (25) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $1A (26) | cutscene | $0049 | `it_moon_camp_gate_opened` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 30 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $49 set the arrival is free (mask $0000, no message box, the player moves). |
+| $1B (27) | cutscene | $011C | `it_moon_tribe_trial_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $11C set the arrival is free (mask $0000, no message box, the player moves). |
+| $1C (28) | cutscene | $004B | `ir_entrance_kara_catchup_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 134. With flag $4B set the arrival is free (mask $0000, no message box, the player moves). |
+| $1D (29) | cutscene | $006C | `ir_larai_monologue_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $6C set the arrival is free (mask $0000, no message box, the player moves). |
+| $1E (30) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=936 y=64 facing=131 scroll=$2400 places the player on free ground. |
+| $1F (31) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $20 (32) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $21 (33) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=312 y=976 facing=0 scroll=$4400 places the player on free ground. |
+| $22 (34) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $23 (35) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $24 (36) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=248 y=464 facing=0 scroll=$2200 places the player on free ground. |
+| $25 (37) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $26 (38) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $27 (39) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=376 y=448 facing=0 scroll=$2400 places the player on free ground. |
+| $28 (40) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $29 (41) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 171 frames; the player is free from frame 171 without input. |
+| $2A (42) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $2B (43) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=480 y=592 facing=6 scroll=$3300 places the player on free ground. |
+| $2C (44) | cutscene | $004C | `gs_ship_descent_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 378 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 398. With flag $4C set the arrival is free (mask $0000, no message box, the player moves). |
+| $2D (45) | cutscene | $0050 | `gs_wreck_interior_wakeup_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 98. With flag $50 set the arrival is free (mask $0000, no message box, the player moves). |
+| $2E (46) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $2F (47) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $30 (48) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $31 (49) | cutscene | $0056 | `fr_oakton_departure_agreed` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 212 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 662. With flag $56 set the arrival is free (mask $0000, no message box, the player moves). |
+| $32 (50) | cutscene | $0064 | `fr_freejia_arrival_intro_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 61 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 374. With flag $64 set the arrival is free (mask $0000, no message box, the player moves). |
+| $33 (51) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $34 (52) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $35 (53) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $36 (54) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $37 (55) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $38 (56) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $39 (57) | cutscene | $0058 | `fr_hotel_reunion_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 149 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 382. With flag $58 set the arrival is free (mask $0000, no message box, the player moves). |
+| $3A (58) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $3B (59) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $3C (60) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $3D (61) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $3E (62) | cutscene | $006A | `dm_mine_entrance_intro_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $6A set the arrival is free (mask $0000, no message box, the player moves). |
+| $3F (63) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $40 (64) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $41 (65) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=928 y=224 facing=3 scroll=$3400 places the player on free ground. |
+| $42 (66) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $43 (67) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $44 (68) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=240 y=96 facing=3 scroll=$2200 places the player on free ground. |
+| $45 (69) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $46 (70) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=144 y=96 facing=3 scroll=$2200 places the player on free ground. |
+| $47 (71) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=112 y=64 facing=3 scroll=$3100 places the player on free ground. |
+| $49 (73) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 70 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 722. |
+| $4B (75) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 86. |
+| $4C (76) | cutscene | $006B | `sg_garden_arrival_narration_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $6B set the arrival is free (mask $0000, no message box, the player moves). |
+| $4D (77) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $4E (78) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $4F (79) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $50 (80) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $51 (81) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $52 (82) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $53 (83) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $54 (84) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $55 (85) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 82 frames; the player is free from frame 82 without input. |
+| $56 (86) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $58 (88) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 258 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $5A at frame 3631. |
+| $59 (89) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 773 frames; the scene loads scene $58 by itself at frame 773 after the banner. |
+| $5A (90) | cutscene | $006E | `sp_arrival_monologue_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $6E set the arrival is free (mask $0000, no message box, the player moves). |
+| $5B (91) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 78 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 566. Entered from 3 of 4 scene-warp destinations the arrival is free. |
+| $5C (92) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $5D (93) | cutscene | $0070 | `sp_fountain_purified_done` | INFERRED | The fountain actor locks the joypad at scene load when Lilly's pocket scene is done, the fountain is not yet purified and the Purification Stone is held; with the purified flag set it does nothing. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 112 cannot show a difference; the claim is not decided. |
+| $5E (94) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $5F (95) | cutscene | $0077 | `mu_arrival_monologue_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $77 set the arrival is free (mask $0000, no message box, the player moves). |
+| $60 (96) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $61 (97) | cutscene | $007C | `mu_water_lowered_remark_seen` | INFERRED | The shared palace monologue actor locks the joypad at spawn and releases it in the same pass when the water remark flag is set. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 124 cannot show a difference; the claim is not decided. |
+| $62 (98) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=824 y=64 facing=3 scroll=$4400 places the player on free ground. |
+| $63 (99) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $64 (100) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $65 (101) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $66 (102) | cutscene | $0082 | `mu_altar_burial_ground_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $82 set the arrival is free (mask $0000, no message box, the player moves). Entered from 1 of 2 scene-warp destinations the arrival is free. |
+| $67 (103) | cutscene | $0086 | `mu_lair_erik_cry_seen` | INFERRED | Erik's cry locks the joypad (zone-gated) while the cry flag is clear and the vampires' script releases it; with the vampire reward flag set the vampires do not exist, so with the cry flag clear the lock never ends. The vampires lock again before the fight setup. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 134 cannot show a difference; the claim is not decided. |
+| $68 (104) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 158. |
+| $69 (105) | cutscene | $0075 | `av_entrance_arrival_scene_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 571. With flag $75 set the arrival is free (mask $0000, no message box, the player moves). |
+| $6A (106) | cutscene | $00A9 | `av_annex_reunion_done` | INFERRED | Erik's annex scene locks the joypad when Kara is rescued and the annex reunion flag is still clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 169 cannot show a difference; the claim is not decided. |
+| $6B (107) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Walking from the entry position starts a lock (joypadMaskStd $CFF0) in the direction test. |
+| $6C (108) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $6D (109) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $6E (110) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=912 y=640 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0. |
+| $6F (111) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $70 (112) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=624 y=368 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0. Entered from the scene-warp destination x=672 y=368 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0. |
+| $71 (113) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $72 (114) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $73 (115) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $74 (116) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $75 (117) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. Entered from 9 of 17 scene-warp destinations the arrival is free. |
+| $78 (120) | cutscene | $008D | `wa_arrival_cutscene_started` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1526. With flag $8D set the arrival is free (mask $0000, no message box, the player moves). |
+| $79 (121) | cutscene | $0091 | `wa_lance_lily_exchange_done` | INFERRED | Lance's scene in Luke's house locks the joypad when his father's visit is done and the exchange flag, the festival flag and the glass-game flag are clear. FR40: from the story state S01r the arrival is free (no lock reproduced); with flag 145 set the scene shows a dialog state (joypadMaskStd $CFF0, displayModeFlags $2001); the claim is not decided. |
+| $7A (122) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $7B (123) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $7C (124) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $7D (125) | cutscene | $0095 | `wa_glass_will_delivered` | INFERRED | The glass opponent locks the joypad at spawn when the glass game is won and the delivery flag and the festival flag are clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 149 cannot show a difference; the claim is not decided. |
+| $7E (126) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $7F (127) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $79 at frame 1855. |
+| $82 (130) | cutscene | $009D | `gw_trail_intro_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $9D set the arrival is free (mask $0000, no message box, the player moves). |
+| $83 (131) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $85 (133) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $86 (134) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $87 (135) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $88 (136) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $89 (137) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 231 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $F7 at frame 5414. |
+| $8A (138) | cutscene | $0503 | `gw_sand_fanger_reward_claimed` | INFERRED | Sand Fanger's actor locks the joypad at its intro and starts the fight; with the boss reward flag set the actor spawns no fight. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 1283 cannot show a difference; the claim is not decided. |
+| $8B (139) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $8C (140) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 857 frames; the scene loads scene $FC by itself at frame 857 after the banner. |
+| $8D (141) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 398 frames; the player is still held after 1500 frames without input; with A pulses the scene loads scene $FC at frame 4682. |
+| $8E (142) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 827 frames; the scene loads scene $8C by itself at frame 1362 after the banner. |
+| $8F (143) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 427 frames; the scene loads scene $FC by itself at frame 1387 after the banner. |
+| $90 (144) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 1286 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $E5 at frame 5442. |
+| $91 (145) | cutscene | $00A5 | `eu_arrival_cutscene_played` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 2462. With flag $A5 set the arrival is free (mask $0000, no message box, the player moves). |
+| $92 (146) | cutscene | $009E | `eu_geezers_argument_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 74. With flag $9E set the arrival is free (mask $0000, no message box, the player moves). |
+| $93 (147) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $94 (148) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $95 (149) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $96 (150) | cutscene | $00AB | `eu_hamlet_morning_scene_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 114. With flag $AB set the arrival is free (mask $0000, no message box, the player moves). |
+| $97 (151) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 24 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. |
+| $98 (152) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $99 (153) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $9A (154) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $9B (155) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $9C (156) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $9D (157) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $A0 (160) | cutscene | $00A7 | `mt_kress_intro_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $A7 set the arrival is free (mask $0000, no message box, the player moves). |
+| $A1 (161) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $A2 (162) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $A3 (163) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $A4 (164) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $A5 (165) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=72 y=992 facing=0 scroll=$4400 places the player on free ground. |
+| $A6 (166) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) ends in game over (playerFlags $0200 set, HP 0) at frame 45; a full warp with x=16 y=864 facing=7 scroll=$4400 places the player on free ground. |
+| $A7 (167) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $A8 (168) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $A9 (169) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=72 y=992 facing=0 scroll=$4200 places the player on free ground. |
+| $AC (172) | cutscene | $00B2 | `nv_hamlet_cutscene_done` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $B2 set the arrival is free (mask $0000, no message box, the player moves). |
+| $AD (173) | cutscene | $00AE | `nv_vacant_hut_checked` | INFERRED | Kara's vacant-hut scene locks the joypad when the house search has started and neither the hut-checked flag nor the Hamlet flag is set. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 174 cannot show a difference; the claim is not decided. |
+| $AE (174) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $B0 (176) | cutscene | $00B3 | `aw_entrance_intro_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $B3 set the arrival is free (mask $0000, no message box, the player moves). |
+| $B1 (177) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $B2 (178) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) ends in game over (playerFlags $0200 set, HP 0) at frame 54; a full warp with x=120 y=1984 facing=0 scroll=$8100 places the player on free ground. |
+| $B3 (179) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1912 y=448 facing=0 scroll=$2800 places the player on free ground. |
+| $B4 (180) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $B5 (181) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $B6 (182) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=760 y=976 facing=128 scroll=$4600 places the player on free ground. |
+| $B7 (183) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $B8 (184) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $B9 (185) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $BA (186) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=504 y=1488 facing=128 scroll=$6400 places the player on free ground. |
+| $BB (187) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 74 frames; the player is free from frame 74 without input. Entered from 3 of 7 scene-warp destinations the arrival is free. |
+| $BC (188) | cutscene | $00B7 | `aw_crystal_shrine_intro_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $B7 set the arrival is free (mask $0000, no message box, the player moves). |
+| $BD (189) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 74 frames; the player is free from frame 74 without input. Entered from 3 of 4 scene-warp destinations the arrival is free. |
+| $BE (190) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=128 facing=0 scroll=$3300 places the player on free ground. |
+| $BF (191) | cutscene | $00BE | `aw_gorgon_flower_given` | INFERRED | The spirit guide locks the joypad at spawn when the vision is seen and the Gorgon Flower is not yet given. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 190 cannot show a difference; the claim is not decided. |
+| $C0 (192) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 844 frames; the scene loads scene $BF by itself at frame 844 after the banner. |
+| $C3 (195) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=144 y=176 facing=3 scroll=$2300 places the player on free ground. |
+| $C4 (196) | cutscene | $00D2 | `bt_entrance_monologue_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves). |
+| $C5 (197) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $C6 (198) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $C7 (199) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $C8 (200) | cutscene | $00D2 | `bt_entrance_monologue_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 69 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 122. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves). |
+| $C9 (201) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $CC (204) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=504 y=288 facing=3 scroll=$4400 places the player on free ground. |
+| $CD (205) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $CE (206) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1392 y=192 facing=128 scroll=$4600 places the player on free ground. |
+| $CF (207) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1392 y=192 facing=0 scroll=$4600 places the player on free ground. |
+| $D0 (208) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1136 y=192 facing=128 scroll=$5500 places the player on free ground. |
+| $D1 (209) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $D2 (210) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=192 y=912 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 46. |
+| $D3 (211) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $D4 (212) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $D5 (213) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $D6 (214) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $D7 (215) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=112 y=448 facing=0 scroll=$6400 places the player on free ground. |
+| $D8 (216) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1152 y=192 facing=128 scroll=$5500 places the player on free ground. |
+| $D9 (217) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $DA (218) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=192 facing=0 scroll=$1100 places the player on free ground. |
+| $DB (219) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $DC (220) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 180 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $DE at frame 3084. |
+| $DD (221) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $DE (222) | cutscene | $00D2 | `bt_entrance_monologue_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 51 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves). |
+| $DF (223) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $E0 (224) | cutscene |  |  | INFERRED | Kara's disappearance scene locks the joypad at spawn only in scene $E0, when flag $D4 (Kara follows) is set and the crystal gate word flag $0178 is set; it clears $D4, prints the text and unlocks. The player is free on arrival when $D4 is clear or $0178 is clear; both are clears, which the flag list of a scene entry cannot express. FR40: with flag 212 ($D4) set the arrival is free (mask $0000, the player moves in four directions); the other condition of the draft lock (word flag $0178) is not reached from the story state S01r, so the claim is not decided. |
+| $E1 (225) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=1936 facing=3 scroll=$8100 places the player on free ground. |
+| $E2 (226) | free |  |  | VERIFIED-RUNTIME | The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. |
+| $E3 (227) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 24 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 86. Entered from 3 of 4 scene-warp destinations the arrival is free. |
+| $E4 (228) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 722. |
+| $E5 (229) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 171 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; the player is still held after 7000 frames with A pulses. |
+| $E6 (230) | free |  |  | VERIFIED-RUNTIME | The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=192 facing=0 scroll=$1100 places the player on free ground. |
+| $E7 (231) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the scene loads scene $E8 by itself at frame 969 after the banner. |
+| $E8 (232) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 95 without input. |
+| $E9 (233) | cutscene | $0029 | `ma_mansion_intro_seen` | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $29 set the arrival is free (mask $0000, no message box, the player moves). |
+| $EA (234) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 234 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 453. |
+| $F0 (240) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 618 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; the player is still held after 7000 frames with A pulses. |
+| $F2 (242) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 682 without input. |
+| $F3 (243) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input. |
+| $F4 (244) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input. |
+| $F5 (245) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input. |
+| $F6 (246) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input. |
+| $F7 (247) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input. |
+| $FA (250) | cutscene |  |  | VERIFIED-RUNTIME | The arrival sets playerFlags bit $0800 (script lock); the player is still held after 1500 frames without input; with A pulses the scene loads scene $08 at frame 42. |
+| $FB (251) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 115 frames; the scene loads scene $FC by itself at frame 256 after the banner. |
+| $FC (252) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input. |
+| $FD (253) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input. |
+| $FE (254) | cutscene |  |  | VERIFIED-RUNTIME | The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input. |
+| $FF (255) | cutscene |  |  | VERIFIED-RUNTIME | The inventory scene is a menu overlay: joypadMaskStd $065A is $0000 at arrival and the player does not move in the direction test. |
 
 ## Presets
 
-No presets in `db-us/flag-presets.json`.
+| Preset | After | Flags | Items | Form | Verify scene | Grade |
+|---|---|---:|---:|---|---|---|
+| `new_game_start` |  | 0 | 0 | Will | $08 | VERIFIED-RUNTIME |
+| `after_castle_letter` | `new_game_start` | 16 | 1 | Will | $0A | INFERRED |
+| `before_incan_ruins` | `after_castle_letter` | 59 | 4 | Will | $1C | VERIFIED-RUNTIME |
+| `before_castoth` | `before_incan_ruins` | 69 | 3 | Will | $29 | INFERRED |
+| `before_diamond_mine` | `before_castoth` | 93 | 3 | Will | $3E | VERIFIED-RUNTIME |
+| `before_sky_garden` | `before_diamond_mine` | 113 | 1 | Will | $58 | INFERRED |
+| `before_viper` | `before_sky_garden` | 121 | 1 | Will | $55 | VERIFIED-RUNTIME |
+| `before_seaside_palace` | `before_viper` | 129 | 1 | Will | $5A | VERIFIED-RUNTIME |
+| `before_mu` | `before_seaside_palace` | 140 | 1 | Will | $60 | VERIFIED-RUNTIME |
+| `before_vampires` | `before_mu` | 153 | 1 | Will | $67 | VERIFIED-RUNTIME |
+| `before_great_wall` | `before_vampires` | 182 | 3 | Will | $82 | VERIFIED-RUNTIME |
+| `before_sand_fanger` | `before_great_wall` | 188 | 3 | Will | $8A | INFERRED |
+| `before_mt_kress` | `before_sand_fanger` | 204 | 4 | Will | $A0 | VERIFIED-RUNTIME |
+| `before_angkor_wat` | `before_mt_kress` | 217 | 4 | Will | $B0 | VERIFIED-RUNTIME |
+| `before_pyramid` | `before_angkor_wat` | 236 | 7 | Will | $CD | VERIFIED-RUNTIME |
+| `before_mummy_queen` | `before_pyramid` | 247 | 7 | Will | $DD | INFERRED |
+| `before_babel_tower` | `before_mummy_queen` | 250 | 7 | Will | $DE | VERIFIED-RUNTIME |
+| `before_final_area` | `before_babel_tower` | 258 | 8 | Will | $E7 | VERIFIED-RUNTIME |
+| `before_dark_gaia` | `before_final_area` | 258 | 8 | Shadow | $E8 | INFERRED |
 
 ## Open proposals
 

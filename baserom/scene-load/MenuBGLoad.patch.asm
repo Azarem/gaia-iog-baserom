@@ -1,4 +1,20 @@
-﻿?BANK 02
+﻿; ==============================================================================
+; Scene char-tile load (opcode $17) - uncompressed menu/BG CHR
+; ==============================================================================
+; What it does: After reading the compressed-data pointer, treats $0000 or a
+;   negative size word as uncompressed ROM data (skip QuintetLzDecompress) before
+;   the existing VRAM targeting logic in SceneCmd_LoadCharTiles continues.
+; Vanilla behavior: Only a null pointer ($0000) skipped LZ; any other non-zero size
+;   header triggered QuintetLzDecompress to $7E:7000.
+; Hooks (overrides): scene_script.SceneCmd_LoadCharTiles (pointer/size gate),
+;   loc_028C81 (uncompressed entry aligns stream pointer).
+; Depends on: ?INCLUDE scene_script; LoadScriptPointer, Multiply8x8Unsigned,
+;   QuintetLzDecompress, downstream loc_028C87 VRAM DMA path (vanilla).
+; State: gfxLayerFlags $066A from script; transfer size $0666; source $3E/$40;
+;   decompress dest $7E:7000 when compression is used.
+; Hazards/notes: Bank $02; handler saves P via PHP at entry (vanilla).
+; ==============================================================================
+?BANK 02
 
 ?INCLUDE 'scene_script'
 
@@ -6,7 +22,7 @@
 
 -----------------------------------------------------
 
-SceneCmd_LoadCharTiles! {
+scene_script.SceneCmd_LoadCharTiles! {
     PHP 
     JSR $&ReadScriptByte
     STA $066A
@@ -49,6 +65,6 @@ SceneCmd_LoadCharTiles! {
     BRA loc_028C87
 }
 
-loc_028C81! {
+scene_script.loc_028C81! {
     SEP #$20
 }

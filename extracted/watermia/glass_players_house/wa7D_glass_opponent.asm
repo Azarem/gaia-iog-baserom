@@ -1,8 +1,6 @@
-; Russian Glass opponent in the glass player's house.
+; The glass player's house actor (scene $7D): the sick man before the game, the widow with the will after it.
 ; 
-; NPC (~92 lines). Says: "Cough, cough. I seem to have caught
-; a little cold." The glass game champion who Will can
-; challenge. Multi-state dialog based on game progression.
+; $95 set (the will was handed over): the actor dies at spawn. $97 set (the glass game was won): it sets $95, hides itself ($2000 in its flags), moves to tile (00,01), locks the player ($CFFC), prints the woman's text about her husband's will ("To My Opponent") and gives item $18 (Will). When the inventory is full it takes one Red Jewel (adding 1 to jewelsCollected) or else one Herb, prints "Oh. Your inventory is full. I'll hold on to one of your Red Jewels..." and gives the item. $96 set: the actor dies. Otherwise it stands solid with "Man: Cough, cough. I seem to have caught a little cold.".
 ---------------------------------------------
 
 !joypadMaskStd                  065A

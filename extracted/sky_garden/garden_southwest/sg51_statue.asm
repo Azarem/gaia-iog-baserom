@@ -1,9 +1,6 @@
-; Movable statue puzzle in the garden southwest area.
+; Movable statue in the garden southwest area (scene $51).
 ; 
-; Movable statue: push_handler_solid pulls it one tile (16 px) toward the player while the player holds L or R (the shoulder pair $0030) on the same row, at least 32 px away and facing it. Observed as Will with no ability item or form needed (from the west and the east side; pulling along the column did not move either statue in the tests). Uses
-; position tracking and flag checks to determine when the
-; statue is in the correct slot. No dialog — purely physical
-; puzzle.
+; Movable statue: push_handler_solid pulls it one tile (16 px) toward the player while the player holds L or R (the shoulder pair $0030) on the same row, at least 32 px away and facing it. Observed as Will with no ability item or form needed (from the west and the east side; pulling along the column did not move either statue in the tests). Two placements, at tiles (30,33) and (30,34). Solid; HP resets to $FF every frame. A hit while playerFlags bit $0002 is set (RunAttackFlagSetup: Psycho Slider, Psycho Dash or run attack) jumps to StandardEnemyDefeatHandler and destroys it; any other hit leaves it standing. It reads and writes no event flag and tests no slot position.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

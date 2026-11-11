@@ -1,9 +1,6 @@
-; Slave market guard — alternates between threatening and inviting.
+; Slave market guard (scene $3C).
 ; 
-; Multi-state NPC (~52 lines). Initially: "Hey, boy! Kids can't
-; come here! Go home!" Later: "I like your courage! I don't know
-; what you'd do here, but have a look around." Controls access
-; to the market area and shifts tone with story progression.
+; Solid guard with a talk handler: prints 'Hey, boy! Kids can't come here! Go home! Go home! Or did you come to get a laborer?' with a Yes/No choice. No (or cancel) prints 'Go home! Go home!'. Yes prints 'I like your courage! I don't know what you'd do here, but have a look around.' and sets scratch flag $01; the main script then clears its solid mark, steps aside (StageSpriteMoveX) and shows frame #1A. No story flag is tested.
 ---------------------------------------------
 
 ---------------------------------------------

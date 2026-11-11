@@ -164,8 +164,8 @@ and Kara's rescue path opens.
 
 | Address | End | Size | Block Name | Description |
 |---------|-----|------|------------|-------------|
-| `$04BF90` | `$04BFB9` | 42 | `ec0A_torch1` | Animated wall torch — RNG-phase flame loop; despawns after `#21` (post-prison state) |
-| `$04BFBA` | `$04BFE3` | 42 | `ec0A_torch2` | Second wall torch — different position offset and animation phase; same `#21` despawn |
+| `$04BF90` | `$04BFB9` | 42 | `ec0A_torch1` | Animated wall torch — RNG-phase flame loop; spawns only when `#21` is set (dies at spawn while it is clear) |
+| `$04BFBA` | `$04BFE3` | 42 | `ec0A_torch2` | Second wall torch — different position offset and animation phase; same `#21` spawn gate |
 | `$04BFE4` | `$04C1B1` | 462 | `ec0A_left_guard` | Left entrance guard — patrol loop, letter scene unlocks passage (`#3F`); post-`#21` warns Will to flee |
 | `$04C1B2` | `$04C2FD` | 332 | `ec0A_right_guard` | Right entrance guard — long patrol; gives one-time Red Jewel (`#D8`) for quiet conversation; sleeps after `#21` |
 | `$04C2FE` | `$04C3C7` | 202 | `ec0A_stair_guard` | Stair guard — blocks upstairs with breakfast/interview lines (`#19`); dozes after `#21` |

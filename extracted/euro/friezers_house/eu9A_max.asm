@@ -1,7 +1,6 @@
-; Max (Friezer's companion) — nervous about the next expedition.
+; Max, Friezer's companion (scene $9A).
 ; 
-; NPC: "I wonder where you're taking us exploring this time...
-; I'm afraid it might be dangerous." Shows the team's dynamic.
+; $A7 set: the actor dies at spawn. Otherwise it is solid and says "Max: I wonder where you're taking us exploring this time... I'm afraid it's up to the whims of the captain. Heh heh.".
 ---------------------------------------------
 
 ---------------------------------------------

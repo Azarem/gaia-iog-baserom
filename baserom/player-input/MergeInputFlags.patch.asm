@@ -1,3 +1,20 @@
+; ==============================================================================
+; MergeInputFlags - remap-aware joypad merging at engine read sites
+; ==============================================================================
+; What it does: ORs set bits from joypadCurrent through the $0DA6-$0DB4 remap
+;   table into a merged action word; patches save/dialog/attack/init paths to use it.
+; Vanilla behavior: Each site used joypadCurrent masks directly (fixed bit layout).
+; Hooks (overrides): GlobalInputHandler.loc_03803B (inventory open after Select);
+;   inventory_overlay.SaveGameState (snapshot/clear pads during save);
+;   DialogStringRenderer.DialogCmd_WaitForButton / WaitForAnyInput (+ wait loops);
+;   player_character.AttackInit; global_ambient_dispatcher.GlobalAmbientOnInteractPress.
+; Adds: MergeInputFlags (JSL entry, clobbers X/Y/$00).
+; Depends on: GlobalInputHandler, vblank_joypad, inventory_overlay includes.
+; State: remapR $0DA6 base; joypadCurrent $0656, joypadHeld $0658, joypadMaskStd;
+;   save snapshot $7E38AC-$7E38B0; activeActorCount -> $0DBE during save.
+; Hazards: MergeInputFlags clobbers X/Y; SaveGameState clears live pad state;
+;   dialog waits still poll raw joypadCurrent each frame after TSB joypadHeld.
+; ==============================================================================
 
 ?INCLUDE 'GlobalInputHandler'
 
@@ -33,7 +50,7 @@ MergeInputFlags {
 }
 
 
-  loc_03803B!:
+  GlobalInputHandler.loc_03803B!:
     LDA #$2000
     TSB $joypadHeld
     JSL $@vblank_joypad.VBlankWaitAndJoypad
@@ -47,7 +64,7 @@ MergeInputFlags {
     RTL 
 
 
-SaveGameState!:
+inventory_overlay.SaveGameState!:
     PHP 
     PHB 
     REP #$20
@@ -65,11 +82,11 @@ SaveGameState!:
     STA $0DBE
     LDX #$0000
 
-DialogCmd_WaitForButton! {
+DialogStringRenderer.DialogCmd_WaitForButton! {
     LDA $joypadCurrent
     TSB $joypadHeld
 
-  loc_03E6AA!:
+  DialogStringRenderer.loc_03E6AA!:
     JSR $&WaitOneFrame
     LDA $joypadCurrent
     BIT #$C0CC
@@ -80,7 +97,7 @@ DialogCmd_WaitForButton! {
     TSB $displayModeFlags
     BRA loc_03E6AA
 
-  loc_03E6C1!:
+  DialogStringRenderer.loc_03E6C1!:
     TRB $joypadCurrent
     TSB $joypadHeld
     CLC 
@@ -91,11 +108,11 @@ DialogCmd_WaitForButton! {
     RTS 
 }
 
-DialogCmd_WaitForAnyInput! {
+DialogStringRenderer.DialogCmd_WaitForAnyInput! {
     LDA $joypadCurrent
     TSB $joypadHeld
     
-  loc_03E6D8!:
+  DialogStringRenderer.loc_03E6D8!:
     JSR $&WaitOneFrame
     LDA $joypadCurrent
     BIT #$C0CC
@@ -105,7 +122,7 @@ DialogCmd_WaitForAnyInput! {
     RTS 
 }
 
-AttackInit! {
+player_character.AttackInit! {
     LDA $joypadCurrent
     AND #$CF88
     TSB $joypadHeld
@@ -119,7 +136,7 @@ AttackInit! {
     RTS 
 }
 
-GlobalAmbientOnInteractPress! {
+global_ambient_dispatcher.GlobalAmbientOnInteractPress! {
     LDA #$8000
     TSB $joypadHeld
     JSL $@GetPlayerFacingDirection

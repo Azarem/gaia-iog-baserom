@@ -1,4 +1,4 @@
-; Palette-phase thinker of the Gold Ship wreck scenes (Bank 00, 46705-46802). The three scene_thinkers lists that spawn it are $2B (ship wreck), $2D (ship wreck interior) and $2F (adrift), all Gold Ship scenes, and the flags it reads, $4D and $52, are set and cleared by dc2F_adrift (also gs2E_sleep and gs2B_erik).
+; Palette-phase thinker of the Gold Ship wreck scenes (Bank 00, 46705-46802). Three scene_thinkers lists spawn it (0CE87F, 0CE890, 0CE8A1) and five scenes run it: $2B (0CE87F), $2C (0CE87F+4, which skips the first record), $2D (0CE8A1), $2E (0CE8A1+8, which skips the first two records) and $2F (0CE890), all Gold Ship scenes. The flags it reads, $4D and $52, are set and cleared by dc2F_adrift (also gs2E_sleep and gs2B_erik).
 ; 
 ; === PHASE PICK (spawn only) ===
 ; 
@@ -10,7 +10,7 @@
 ; 
 ; === FLAG $4D: GoldShipWreckPaletteFlag4D ===
 ; 
-; Bundle #34 once (a one-shot: 16 colours at $70, palette 7, and one colour at $59), then the scene-setup latch $FF is set and bundle #33 (the same 12-strip cycle as #1A with other colour values) loops while $FF stays set. When the latch is cleared (next scene setup or inventory open) the thinker restarts with #34. #34 plays once per latch cycle.
+; Bundle #34 once (a one-shot: 16 colours at $70, palette 7, and one colour at $59), then the scene-setup latch $FF is set and bundle #33 (the same 12-strip cycle as #1A with other colour values) loops while $FF stays set. When the latch is cleared (in the first thinker pass after an inventory close; scene setup clears it before this thinker exists) the thinker restarts with #34. #34 plays once per latch cycle.
 ; 
 ; === FLAG $52: GoldShipWreckPaletteFlag52 ===
 ; 
@@ -49,7 +49,7 @@ GoldShipWreckPaletteFlag4D {
     COP [PaletteStart] ( #33 ) ; Bundle #33: the same 12-strip cycle on colours $21-$2C as #1A, other colour values
     COP [PaletteStep]
     COP [BranchOnFlagByte] ( #FF, #01, &code_00B68E ) ; Loop #33 while the latch $FF is set; when it is cleared, fall out and restart with #34
-    BRA GoldShipWreckPaletteFlag4D ; Latch cleared (next scene setup or inventory open): restart at #34
+    BRA GoldShipWreckPaletteFlag4D ; Latch cleared (first thinker pass after an inventory close): restart at #34
 }
 
 ---------------------------------------------
@@ -83,6 +83,6 @@ GoldShipWreckPaletteFlag52 {
     COP [PaletteStart] ( #36 ) ; Bundle #36: one-shot, 17 colours at $50 and 16 colours at $70
     COP [PaletteStep]
     COP [SetFlagByte] ( #FF ) ; Latch $FF set again
-    COP [WaitOnFlagByte] ( #FF, #00 ) ; Park until the latch is cleared (next scene setup or inventory open), then repeat the fill and #36
+    COP [WaitOnFlagByte] ( #FF, #00 ) ; Park until the latch is cleared (first thinker pass after an inventory close), then repeat the fill and #36
     BRA loc_00B6AA        ; Back to the fill, not to the kills
 }

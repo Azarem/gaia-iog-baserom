@@ -1,8 +1,6 @@
-; Strange voice in the Seaside Palace — the vampire's warning.
+; Strange voice and room hints of the Seaside Palace (scene $5A).
 ; 
-; Mysterious NPC: "This is the Palace of Vampires... The fountain
-; in this palace produces demons. The stone is there..."
-; Provides cryptic guidance about the palace's puzzle mechanics.
+; While flag $70 is clear it checks five trigger boxes each frame; each box prints its text once and sets its latch. (37,28)-(38,29) with $71: "Strange Voice: This is the Palace of Vampires... The fountain in this palace produces demons continuously...". (0E,38)-(0F,39) with $72: "In the basement of the castle is a strange fountain. The stone is there... Hurry! Hurry!". (2B,59)-(2C,5A) with $73: "The Purification Stone... in the castle...". (36,07)-(3B,0B) with $83: "Will: What? A sign of life from the right-hand room...". (08,18)-(0B,1A) with $84: the same remark for the left-hand room.
 ---------------------------------------------
 
 ---------------------------------------------

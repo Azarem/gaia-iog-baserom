@@ -1,6 +1,4 @@
-; Crystal gate C in the Babel middle floors.
-; 
-; Third crystal-locked gate.
+; Crystal gate C of the Babel middle floors (scene $E0): marks the cells (49,18) and (4A,18) solid, spawns two bt_static_sprite crystals and waits for $0177, which btF4_neo_female_vampire (scene $F4) sets when the Neo Vampires fight is won. It then clears the two cells and dies.
 ---------------------------------------------
 
 ?INCLUDE 'bt_static_sprite'

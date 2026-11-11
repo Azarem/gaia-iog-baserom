@@ -1,6 +1,6 @@
-; Generic aqueduct enemy for the back area.
+; Hit-toggle prop of the aqueduct back area (scene $12, tile (2B,56)); it uses the switch stats (HP $FF) and never dies.
 ; 
-; Standard dungeon enemy spawn with death handling.
+; Each hit plays frame #11; the first hit (word flag $0114 clear) also plays a sound, applies BG change #14, sets $0114, applies BG change #15 and sets $0115 (event blocks $14 and $15); later hits do nothing more. For form 0 (characterForm = 0) it first sets bit $0200 of $10.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

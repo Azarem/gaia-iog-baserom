@@ -1,9 +1,10 @@
-; Kara in the Native Village — extensive multi-phase dialog.
+; Kara of the Native Village (scene $AC): the cutscene driver of the village. One script, five states chosen by persistent flags in this order: $B6 or $CF set: dies. $B2 set: stands at tile (12,0C) with 'I learned a word from the children. It seems that (Ramapoe) means (Hello) in this region.'. $AF set: the Hamlet scene. $B0 set: the sleep scene. $AD set: dies. $AC set: stands at tile (0B,0E) with the handler 'Strange. Not a soul here, and skeletons scattered around... Should we go into the houses?' (it sets $AD) and walks away when $AD is set. All clear: the arrival.
 ; 
-; The longest NPC in Native Village (~208 lines). Covers the
-; arrival, heat observation, skeleton discoveries, and the
-; decision to enter the hut. Kara drives much of the
-; village exploration narrative.
+; Arrival: locks the player ($CFFC), prints 'It's as hot as the tropics...' (Will: 'Let's stay in this village today.'), unlocks, sets $AC and scratch $01 and walks to the standing state.
+; 
+; Sleep scene: locks the player and sets bit $2000 of the player's flags $10, plays music #1B and 'Exhausted from the trip, they fall into a deep sleep... A long time passes...', spawns three child actors (code_088A60, code_088A90, code_088AAF) and waits for scratch $01 (set by the first child at the end of its route), prints 'What... Hamlet... Let me sleep a while longer...' / 'AH! Who! Who are you?!', plays sound $0505 six times, queues scene $AC at (0080,00F0) and sets $AF.
+; 
+; Hamlet scene: spawns nv_village_event_sprite at (0088,00FE), locks the player, prints 'They seem to be very hungry...' and drives the handshake with nvAC_hamlet through scratch $01, $02 and $03 (see that note); it waits for scratch $05 (the voice of Will's mother), spawns the event sprite code_0881AE and installs 'He just jumped into the fire... Hamlet, noble pig... I will miss you...'. The player is unlocked by nvAC_hamlet, which sets $B2.
 ---------------------------------------------
 
 ?INCLUDE 'nv_village_event_sprite'

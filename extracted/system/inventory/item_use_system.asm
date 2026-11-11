@@ -38,8 +38,8 @@
 ; 
 ; === WRAM VARIABLES ===
 ; 
-; $0AA6: Current hieroglyph plate ID (item index − $1E)
-; $0AAC: Hieroglyph slot selection (0–5)
+; $0AA6: Current hieroglyph plate ID (item index − $1E) while the plate handler runs. The word is shared scene scratch: scene scripts write and read it as a stage number or a bitmask (undersea tunnel, Gold Ship drift, Neil's cottage, the glass game, the sky garden cutscenes).
+; $0AAC (globalScriptIndex): the plate handler stores the chosen slot (0–5) here. Other scripts use the same word for the Dark Space layout variant, the Dao snake game score and the statue ceremony countdown.
 ; $0B28: Hieroglyph slot table (6 words; $FFFF = empty, else plate ID)
 ---------------------------------------------
 
@@ -478,7 +478,7 @@ UseItem_IncaStatueB_CheckAlt {
 ---------------------------------------------
 ; Incan Melody — play for the mayor in Itory Village (scene $18).
 ; 
-; Prints the performance message. In scene $18 only, sets flag $2E (triggers mayor reaction) and prints the result. Otherwise prints 'nothing happened.'
+; Prints the performance message. In scene $18 only, sets flag $2E and prints 'The Mayor's expression changed!'. No actor, scene-meta gate or helper reads $2E, so the flag changes nothing visible. Otherwise prints 'nothing happened.'
 
 UseItem_IncanMelody {
     COP [PrintDialogString] ( &dialogstring_038836 )
@@ -577,11 +577,11 @@ UseItem_DiamondBlock_Place {
 dialogstring_03897C `[DEF]He fit the block[N]into the tile![END]`
 
 ---------------------------------------------
-; Wind Melody — play for the Gold Ship effect (scene $24).
+; Wind Melody — play in the Incan Ruins plate room (scene $24, ir24_glowing_tile).
 ; 
 ; First of three melody item handlers sharing FluteMusicActorController. Requires Will (form 0) — Freedan/Shadow cannot play. Checks IsMusicPlaying to prevent concurrent melody actors.
 ; 
-; In scene $24 (Gold Ship), if flag $01 is not yet set: enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path: the controller never runs, so no music plays, displayModeFlags keeps $0080 and nothing clears it, the buttons stay shown, and the player does not leave its idle entry when the D-pad is held (measured with the free list emptied at the use: displayModeFlags still $0080 after 1800 frames; with the right button held for 150 frames the player stays in entry PlayerIdleEntry, while without the use the same input moves it to the walk entry). The configure stores of the music actor land in the sentinel slot at $1FC0-$1FEF. Otherwise hides the buttons via joypadMaskStd |= $CFFC.
+; In scene $24, if scratch flag $01 is not yet set (no actor of the scene reads it; it only stops a second playing in the same visit): enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path: the controller never runs, so no music plays, displayModeFlags keeps $0080 and nothing clears it, the buttons stay shown, and the player does not leave its idle entry when the D-pad is held (measured with the free list emptied at the use: displayModeFlags still $0080 after 1800 frames; with the right button held for 150 frames the player stays in entry PlayerIdleEntry, while without the use the same input moves it to the walk entry). The configure stores of the music actor land in the sentinel slot at $1FC0-$1FEF. Otherwise hides the buttons via joypadMaskStd |= $CFFC.
 ; 
 ; Outside scene $24, prints 'nothing happened.' If not Will, prints 'doesn't have the Flute.'
 
@@ -593,7 +593,7 @@ UseItem_WindFlute {
     RTS 
 
   loc_0389A6:
-    LDA $sceneCurrent     ; Scene $24 = Gold Ship; flag $01 = wind effect already activated
+    LDA $sceneCurrent     ; Scene $24 = Incan Ruins plate room; flag $01 = the wind melody already played in this visit
     CMP #$0024
     BNE code_0389F0
     COP [BranchOnFlagByte] ( #01, #01, &code_0389F0 )
@@ -628,7 +628,7 @@ UseItem_FluteConfigureController {
 }
 
 code_0389F0 {
-    COP [PrintDialogString] ( &dialogstring_038A8A ) ; Wind Melody fallback (not the Gold Ship scene, or the flag $01 test branched here): prints 'But nothing happened'
+    COP [PrintDialogString] ( &dialogstring_038A8A ) ; Wind Melody fallback (not scene $24, or the flag $01 test branched here): prints 'But nothing happened'
     RTS 
 
   loc_0389F5:
@@ -672,9 +672,9 @@ dialogstring_038B76 `[DEF][CLR]He doesn't have[N]the Flute...[END]`
 dialogstring_038B8F `[CLR]He stopped playing.[END]`
 
 ---------------------------------------------
-; Lola's Melody — play in Edward's Castle/Itory/Tower of Babel.
+; Lola's Melody — play in the Edward's Castle aqueduct doorway, the Itory village and the Pyramid puzzle room.
 ; 
-; Same melody actor pattern as UseItem_WindFlute but supports three scenes: $15 (Itory meadow, flag $40), $11 (Edward's Castle, flags $0113 + $02), and $CD (Tower of Babel, flags $BB/$0E/$0D). Requires Will (form 0). Music track $18, melody index 1.
+; Same melody actor pattern as UseItem_WindFlute but supports three scenes: $15 (Itory meadow, flag $40), $11 (Edward's Castle, flags $0113 + $02), and $CD (Pyramid puzzle room, flags $BB/$0E/$0D: the melody needs $0E set and $BB clear, and sets $0D, which the pyCD_jackal script tests). Requires Will (form 0). Music track $18, melody index 1.
 
 UseItem_LolaMelody {
     LDA $characterForm
@@ -822,7 +822,7 @@ dialogstring_038D85 `[DEF]He bit off some [N]of the smoked meat. [FIN]It had a f
 dialogstring_038DDA `[DEF]We bit off[N]some of the meat.[FIN]It was better than any[N]food we'd ever had.[END]`
 
 ---------------------------------------------
-; Mine Key A — unlock the mine entrance (scene $44).
+; Mine Key A — use on the cell door of the mine foyer (scene $44); dm44_cell_door opens once this key and Mine Key B have both been used.
 ; 
 ; Checks tile region ($0F,$16)–($11,$19). On match, removes item and sets flag $5B.
 
@@ -852,7 +852,7 @@ dialogstring_038E61 `But there's no keyhole![END]`
 dialogstring_038E73 `The key turns, making a [N]strange sound. [END]`
 
 ---------------------------------------------
-; Mine Key B — unlock the mine entrance (scene $44). Same tile region as Mine Key A. Removes item and sets flag $5C.
+; Mine Key B — use on the cell door of the mine foyer (scene $44); see Mine Key A. Same tile region as Mine Key A. Removes item and sets flag $5C.
 
 UseItem_MineKeyB {
     COP [PrintDialogString] ( &dialogstring_038EBA )
@@ -880,9 +880,9 @@ dialogstring_038EE2 `But there's no keyhole![END]`
 dialogstring_038EF4 `The key turns, making a [N]strange sound. [END]`
 
 ---------------------------------------------
-; Memory Melody — play in the Mountain Temple (scene $39).
+; Memory Melody — play in the Freejia hotel (scene $39, Lance's room).
 ; 
-; Third melody handler. Requires Will (form 0) and scene $39 with flag $68 clear. Checks tile region ($13,$18)–($1A,$1D). Music track $1D, melody index 2. Unlike the other melodies, this handler does not use the shared UseItem_FluteConfigureController subroutine — it configures the music actor inline and additionally sets musicParentActor to $0E.
+; Third melody handler. Requires Will (form 0) and scene $39 with flag $68 clear (Lance's memory is not restored yet). Checks tile region ($13,$18)–($1A,$1D). Music track $1D, melody index 2. Unlike the other melodies, this handler does not use the shared UseItem_FluteConfigureController subroutine — it configures the music actor inline and additionally sets musicParentActor to $0E.
 
 UseItem_MemoryMelody {
     LDA $characterForm
@@ -923,7 +923,7 @@ code_038F3B {
 }
 
 ---------------------------------------------
-; Memory Melody success — removes the item, spawns a palette reset thinker, and sets flag $0F.
+; Memory Melody success (melody index 2 of the flute effect table) — removes item $0D, spawns a palette reset thinker and sets scratch flag $0F. In scene $39 fr39_lance waits for $0F, clears it and later sets $68.
 
 UseItem_MemoryMelody_Effect {
     COP [RemoveItem] ( #0D )
@@ -944,7 +944,7 @@ dialogstring_038F98 `[DEF]Will began playing the [N]melody he remembered. [FIN]B
 dialogstring_038FCD `[DEF][CLR]Will began playing the [N]melody he remembered. [END]`
 
 ---------------------------------------------
-; Crystal Ball — place in pedestals in Mu (scene $4C).
+; Crystal Ball — place on the four pedestals of the Sky Garden main area (scene $4C); each flag releases one sg4C_platform actor.
 ; 
 ; Four placement positions, each with an independent flag ($60–$63). All four use the same placement message. If a ball is already placed, prints a duplicate message. Unlike most key items, the Crystal Ball is removed via RemoveEquippedItem (JSR) rather than COP RemoveItem, since the same item can be placed in multiple slots.
 
@@ -1002,7 +1002,7 @@ dialogstring_039083 `[DEF]The Crystal Ball is [N]set in the hole! [END]`
 dialogstring_0390A5 `[DEF]The Crystal Ball is [N]already set in the hole![END]`
 
 ---------------------------------------------
-; Elevator Key — activate the mine elevator (scene $3F).
+; Elevator Key — open the elevator door of the mine main chamber (scene $3F); dm3F_elevator_door waits on the flag.
 ; 
 ; Checks tiles ($18,$34)–($1A,$37). Removes item and sets flag $69.
 
@@ -1032,7 +1032,7 @@ dialogstring_039110 `But there's no keyhole![END]`
 dialogstring_039122 `The key turns, making a[N]strange sound. [END]`
 
 ---------------------------------------------
-; Seaside Palace Key — open the palace entrance (scene $5A).
+; Seaside Palace Key — open the door to the Mu passageway on the top floor of the palace (scene $5A).
 ; 
 ; Checks tiles ($08,$07)–($0A,$08). Gate: flag $0138 must not be set (door not already opened). On success, removes item, applies tilemap change #$38, sets flag $0138, and prints Lilly's dialogue about Mu.
 
@@ -1100,9 +1100,9 @@ dialogstring_03925F `But nothing happened![END]`
 dialogstring_03926F `The stone began to glow, [N]then disappeared into [N]the spring. [END]`
 
 ---------------------------------------------
-; Statue of Hope — place in pedestals at Angel Village (scene $63).
+; Statue of Hope — place in pedestals in the Mu prayer room (scene $63, actor mu63_spirits).
 ; 
-; Two positions: ($06,$06)–($0A,$08) sets flag $7B; ($16,$06)–($1A,$08) sets flag $7E. Uses RemoveEquippedItem (JSR) since either pedestal consumes the statue.
+; Two positions: ($06,$06)–($0A,$08) sets flag $7B; ($16,$06)–($1A,$08) sets flag $7E. scene_meta reads both flags in the Mu scenes $5F–$65: flag $7B loads the half-drained effect tilemap, flag $7E (tested first) the drained one. Uses RemoveEquippedItem (JSR) since either pedestal consumes the statue.
 
 UseItem_StatueOfHope {
     COP [PrintDialogString] ( &dialogstring_0392DE )
@@ -1142,7 +1142,7 @@ dialogstring_0392FB `But nothing happened![END]`
 dialogstring_03930B `A strange whisper is[N]heard from somewhere...[END]`
 
 ---------------------------------------------
-; Rama Statue — place in pedestals at the Great Wall (scene $66).
+; Rama Statue — place in pedestals in the Mu altar room (scene $66; mu66_altar1 and mu66_altar2 wait on the flags).
 ; 
 ; Two positions: ($23,$08)–($26,$0A) sets flag $80; ($2A,$08)–($2D,$0A) sets flag $81. Same RemoveEquippedItem pattern as UseItem_StatueOfHope.
 
@@ -1292,9 +1292,9 @@ UseItem_Will {
 dialogstring_039696 `[DEF]He opened the will.[FIN][N]    To the Opponent[FIN]Even if I perish, don't[N]mourn for me.[FIN]Even if Russian Glass[N]doesn't cost me[N]my life, it's my fate[N]to pass away soon.[FIN]Six months ago, when I[N]found out I was dying,[N]I decided to amass as[N]much money as possible.[FIN]I wanted to leave it to [N]my wife, and the child [N]I'll never see. [FIN]I made my fortune [N]in spite of the  [N]unhappiness I have [N]caused others. [FIN]If I lose, I want to[N]leave part of my[N]estate to you.[FIN]Please take care of my [N]four favorite [N]Kruk horses. [END]`
 
 ---------------------------------------------
-; Teapot — pour spirits' tears at Dao (scene $95).
+; Teapot: pour the spirits' tears in the Rolek mansion (scene $95).
 ; 
-; Checks tiles ($28,$09)–($2D,$0D). Removes item and sets flag $A8.
+; Prints 'He tries using the Teapot.'. When sceneCurrent is $95 and the player stands in tiles ($28,$09)-($2D,$0D) it prints 'The spirits' tears rained down.', removes item $19 and sets flag $A8 (Neil's father and mother wait for it); anywhere else it prints 'But nothing happened!' and keeps the item.
 
 UseItem_Teapot {
     COP [PrintDialogString] ( &dialogstring_039861 )
@@ -1450,7 +1450,7 @@ dialogstring_039A63 `[DEF]He puts one petal of[N]the Gorgon Flower into[N]the st
 ---------------------------------------------
 ; Hieroglyph Plate handler — shared by items $1E–$23 (six plates).
 ; 
-; Scene $CD (Tower of Babel) only. If flag $0F is set (Memory Melody already played), shows a timing message. Otherwise checks tile region ($04,$09)–($0C,$0B) for the puzzle area, then presents a 6-option dialogue (code_039AC2) to choose a slot position.
+; Scene $CD (Pyramid puzzle room) only. If scratch flag $0F is set (pyCD_jackal sets it once all six plate pickup flags $C2-$C7 are set and the Jackal scene has not run, and clears it at the end of the Jackal sequence), shows a timing message. Otherwise checks tile region ($04,$09)–($0C,$0B) for the puzzle area, then presents a 6-option dialogue (code_039AC2) to choose a slot position.
 ; 
 ; After selection, the loc_039B0F subroutine extracts the plate ID (item byte − $1E, stored in $0AA6), removes the plate from inventory, and spawns a metatile-drawing actor. If the chosen slot ($0B28 table, indexed by $0AAC) already contains a plate, the old plate is returned to inventory via GiveItemToPlayer before the new one is stored. Empty slots ($FFFF) receive a first-time placement message.
 
@@ -1465,7 +1465,7 @@ UseItem_HieroglyphPlate {
 }
 
 ---------------------------------------------
-; Hieroglyph Plate timing guard — prints 'not the time to fit the tile' when flag $0F is active.
+; Hieroglyph Plate timing guard — prints 'not the time to fit the tile' when scratch flag $0F is set (the Jackal scene of the Pyramid puzzle room is running).
 
 UseItem_HieroglyphPlate_Detail {
     COP [PrintDialogString] ( &dialogstring_039C60 )

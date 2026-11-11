@@ -1,8 +1,6 @@
-; Erik in the Euro guest room — scared of the big house.
+; Erik in the Euro guest room (scene $96).
 ; 
-; NPC: "I'm scared! What if I have to go to the bathroom
-; and I can't find it?" Comic relief — Erik overwhelmed
-; by the Rolek mansion's size.
+; $AC set: Erik dies at spawn. $AA set: 'I just don't understand women.'. Otherwise: 'I'm scared! What if I have to go to the bathroom and I can't find it?'.
 ---------------------------------------------
 
 ---------------------------------------------

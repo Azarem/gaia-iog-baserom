@@ -1,6 +1,6 @@
-; Red-alert atmosphere thinker for Edward Castle during the alarm/infiltration sequence.
+; Red-alert palette thinker of Edward Castle (scene $0A; the second record of thinker list 0CE821).
 ; 
-; Runs an infinite loop on palette bundle #05 via PaletteStart/PaletteStep, producing a cycling emergency color scheme. Each frame also writes red tint bytes #$24 and #$42 to COLDATA ($2132), additively pulsing the screen red on top of the palette animation. Exits via KillThinker when flag #22 is set or flag #21 is clear, ending the alert state when the story beat resolves.
+; At spawn it tests flags once: $22 set (Kara escaped) or $21 clear (the throne scene has not happened) kills the thinker at once. The tests are not repeated, so the alert shows only when the scene loads with $21 set and $22 clear (the castle after the prison). Then it loops: PaletteStart #05 / PaletteStep (a cycling emergency palette), writes COLDATA $24 and $42 (red tint), sets the scene-setup latch $FF and waits for the engine to clear it before the next cycle.
 ---------------------------------------------
 
 !COLDATA                        2132

@@ -1,10 +1,6 @@
-; Sleep event in the freed ship — triggers the dream and Freedan form.
+; Bed of the Gold Ship (scene $2E) — trigger of the Shira dream.
 ; 
-; Interactable bed/rest point. If flags $4E and $4F are not set,
-; offers to sleep. Sets musicRoomGroup to 2 for the dream music.
-; Checks flag $F8 for the dream state. When sleeping, triggers
-; the Shira dream scene (gs2A_shira) and manages the Freedan
-; form transition via player_transition_handlers.
+; The actor is solid with a talk handler: flag $4E clear or $4F clear gives 'Looking around the ship? ... rest in this bed'; $4E, $4F and $F8 all set gives 'try to get some rest'; $4E and $4F set with $F8 clear gives the first line again. The script waits for $4E and $4F, sets musicRoomGroup to 2 and then tests $F8 each frame (set by the Mystic Statue ceremony of scene $FD). With $F8 set it tests each frame whether Will stands on tiles (0B,04)-(0C,06). Then it sets the joypad lock ($CFFC), prints 'I fell into a deep sleep...', holds Will in player_transition_handlers.PlayerPoseHold 8 pixels higher, waits #3B, sets $4D, sets musicRoomGroup to 0 and queues scene $2A (the dream with gs2A_shira). No form change is made in this file.
 ---------------------------------------------
 
 ?INCLUDE 'player_transition_handlers'

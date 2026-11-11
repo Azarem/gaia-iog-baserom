@@ -1,8 +1,17 @@
+; ==============================================================================
+; Console BCD tag - hex digit output for nibbles A-F
+; ==============================================================================
+; What it does: When formatting BCD/console numeric tags, emits ASCII A-F for
+;   nibbles 10-15 instead of treating them as decimal digits only.
+; Vanilla behavior: Nibbles always map to '0'-'9' via ORA #$30.
+; Hooks (overrides): ConsoleStringRenderer loc_03ED90 BCD digit loop.
+; Depends on: ConsoleStringRenderer VRAM buffer $7F0200, X cursor.
+; Hazards/notes: Alternates SEP/REP around 16-bit STA to buffer; Y source byte.
+; ==============================================================================
 
 ----------------------------------------------------------
 
-;Fix for string code 05 BCD processing to include hex chars
-loc_03ED90! {
+ConsoleStringRenderer.loc_03ED90! {
     LDA $0000, Y
     AND #$0F
     CMP #$0A

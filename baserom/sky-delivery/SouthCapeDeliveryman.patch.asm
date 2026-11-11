@@ -1,4 +1,15 @@
-﻿
+﻿; ==============================================================================
+; South Cape (scene $01) - Sky Deliveryman spawn placement
+; ==============================================================================
+; What it does: Appends a Sky Deliveryman actor at tile (#0C, #2F) facing #00
+;   using the shared SouthCapeDeliveryman actor definition from this module set.
+; Vanilla behavior: scene_01_actors list ended without this spawn entry.
+; Hooks (overrides): scene_actors.scene_01_actors+= (actor-spawn append).
+; Adds: actor_def SouthCapeDeliveryman (skyd_* COP script and dialog strings).
+; Depends on: scene $01 actor table; COP D0/C0/BF/BE/E0/65/26 on confirm path.
+; Hazards/notes: Append-only; does not replace existing South Cape spawns.
+; ==============================================================================
+
 --------------------------------------------
 
 actor_def < #0A, #00, #10, {
@@ -45,4 +56,4 @@ skyd_str_confirm `[CLR][LU1:9]here, birds.[N][LU2:3F]taking [LU1:D6]person[N]to 
 
 ----------------------------------------
 
-scene_01_actors+=: actor-spawn < #0C, #2F, #00, @SouthCapeDeliveryman >
+scene_actors.scene_01_actors+=: actor-spawn < #0C, #2F, #00, @SouthCapeDeliveryman >

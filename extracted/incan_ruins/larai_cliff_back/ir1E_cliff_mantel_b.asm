@@ -1,7 +1,6 @@
-; Statue mantel on the Larai Cliff back side (variant B).
+; Statue prop on the Larai Cliff back side, variant B (mantel tiles $26-$27, $15-$16; scene row at tile (26,17)).
 ; 
-; Identical to variant A but placed at a different position.
-; Same flag $31 check and sprite priority #30.
+; Same script as variant A with flag $31 (Incan Statue B placed on the mantel by UseItem_IncaStatueB): it spawns hidden, waits with WaitOnFlagByte(#31, #01), then shows the statue sprite and idles. Sprite priority #30.
 ---------------------------------------------
 
 ---------------------------------------------

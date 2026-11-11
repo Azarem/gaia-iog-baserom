@@ -2,10 +2,9 @@
 ; 
 ; Displays as a solid sprite (frame #00) with stat entry 0 and $FF HP.
 ; HP resets each frame so it requires a body slam/charge attack (playerFlags
-; bit $0002) to actually break it. Tracks player proximity in an 8×14
-; to 7×7 tile rectangle and sets a proximity flag. When broken: spawns
+; bit $0002) to actually break it. Scratch flag $00 is set while the player stands in tiles (05,03)-(07,07) and cleared otherwise. When broken: spawns
 ; debris burst VFX, applies BG change #33 to remove the wall tiles,
-; clears the proximity flag, and sets flag word $0133.
+; clears scratch flag $00 and sets flag word $0133.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

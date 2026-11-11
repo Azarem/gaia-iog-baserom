@@ -1,7 +1,6 @@
-; HDMA table data for the Seaside Palace coffin room effects.
+; HDMA table thinker of the Seaside Palace coffin scene ($5C).
 ; 
-; Lookup table providing HDMA gradient parameters for the
-; eerie lighting in the coffin examination rooms.
+; On its first pass it fills 17 three-byte rows ($90 and the pointer $7100) of the staging buffer $7E7000 and a table of zero words at $7E7100, queues the buffer with QueueHdma (#21), yields and sets scene setup flag $FF. From then on it queues the same buffer every frame while $FF is set and rebuilds the table if $FF is clear.
 ---------------------------------------------
 
 !tileStagingBuffer              7E7000

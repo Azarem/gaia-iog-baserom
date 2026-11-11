@@ -1,9 +1,6 @@
-; Lance in the lance/lily exchange scene — emotional dialog.
+; Lance in the bouquet scene (scene $7F): the producer of the scene's last steps.
 ; 
-; Extended NPC (~104 lines). Says: "Yes, the words are harder
-; to say than a tongue twister." Part of the emotional scene
-; where Lance tries to express his feelings for Lilly.
-; Major character development moment.
+; Scratch handshake with wa7F_lily: he waits for $01 (Lily's first line), spawns his bouquet child (code_07B1C2, which dies when $02 is set), waits for $02 and $03, prints 'Yes, the words are harder to say than a tongue twister.', starts music #1B, prints the confession ('Lilly... I love you...', 'You don't have to answer right away...') and sets $04; he then waits for $05 (Lily has run off), walks toward (02F8,0120) and spawns the narration child, which prints 'We had no idea what had happened. That day, Lilly didn't come back to her room.', sets $91 and queues scene $79.
 ---------------------------------------------
 
 !gfxCacheIdxA                   0648

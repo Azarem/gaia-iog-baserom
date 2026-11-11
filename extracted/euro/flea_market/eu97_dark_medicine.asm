@@ -1,8 +1,6 @@
-; Dark Medicine vendor in the Euro flea market.
+; Dark Medicine in the Euro flea market (scene $97): a free one-time Dark Friar power gift.
 ; 
-; Interactive NPC: "That's called Dark Medicine. Try some?
-; Yes/No" — offers a mysterious medicine with choice dialog.
-; The medicine may have negative effects.
+; $F1 set: the actor dies at spawn. Otherwise it asks 'That's called Dark Medicine. Try some?' (rows Yes/No). Yes: if $0B1C is 2 it prints 'The Dark Friar's power is strong enough!' and changes nothing; otherwise it writes $0B1C := 1, sets $F1 and prints 'Freedan's Dark Power has increased! The Dark Friar's power is increased!'. The text reports an increase; the code writes 1 even when $0B1C already holds 1.
 ---------------------------------------------
 
 ---------------------------------------------

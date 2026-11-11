@@ -1,4 +1,21 @@
-﻿
+﻿; ==============================================================================
+; Equipped item icon - HUD VRAM upload and ability palette fixes
+; ==============================================================================
+; What it does: Each frame uploads the equipped item 2bpp icon into HUD CHR via
+;   adhoc DMA when display flag $09EC bit $4000 clear; fixes aura/dark friar
+;   palette DMA glitches and sets display preset bit $4000 on select cutscenes.
+; Vanilla behavior: No dynamic item icon; ability FX reused stale CGRAM; presets
+;   lack forced $09EC bit 14 for icon compose path.
+; Hooks (overrides): sprite_composition RenderComposeBuffer; scene_lifecycle
+;   LoadHud path; palette_bundles; display_preset_table; attack/inventory FX
+;   locs; spriteset_freedan_fx sword group; pr8F_prologue4 timing.
+; Adds: item_icon_generate and per-item icon loaders (JMP table from $0AC6).
+; Depends on: scene_script, chunk_03BAE1, gfx_item_exprite data in this patch set.
+; State: $0AC6 equipped type, $09EC/$09ED display flags, $7F3100 compose buf.
+; Hazards/notes: item_icon_generate clobbers X; ItemSwapping PHX/PLX around JSL;
+;   RenderComposeBuffer calls loc_03C7F0 from InventoryCounters patch bank.
+; ==============================================================================
+
 ?INCLUDE 'scene_script'
 --------------------------------------------
 
@@ -410,7 +427,7 @@ item_icon_next {
 --------------------------------------------------
 ;Allow both static sprites and temporary sprites
 
-RenderComposeBuffer! {
+sprite_composition.RenderComposeBuffer! {
     LDX #$0000
     TXY 
 
@@ -421,7 +438,7 @@ RenderComposeBuffer! {
     JSR loc_03C7F0
     LDX #$0000
     
-  loc_03C797!:
+  sprite_composition.loc_03C797!:
     LDA $7F3100, X
     BPL loc_03C79E
     RTS 
@@ -430,7 +447,7 @@ RenderComposeBuffer! {
 --------------------------------------------------------
 ;Make system sprite page loading also load item icon
 
-loc_03E04E! {
+scene_lifecycle.loc_03E04E! {
     JML item_icon_stub
 }
 
@@ -447,7 +464,7 @@ loc_03E04E! {
 --------------------------------------------------------
 
 ;Aura barrier flame
-palette_bundle_16C1BD! [
+palette_bundles.palette_bundle_16C1BD! [
   palette-bundle < #01, &word_16C1EE, #F1, #0F, #01 >   ;00
   palette-bundle < #01, &word_16C1FE, #F1, #0F, #01 >   ;01
   palette-bundle < #01, &word_16C20E, #F1, #0F, #01 >   ;02
@@ -459,7 +476,7 @@ palette_bundle_16C1BD! [
 ]
 
 //Firebird
-palette_bundle_16CE8F! [
+palette_bundles.palette_bundle_16CE8F! [
   palette-bundle < #01, &word_16CEC0, #98, #0F, #02 >   ;00
   palette-bundle < #01, &word_16CED0, #98, #0F, #02 >   ;01
   palette-bundle < #01, &word_16CEE0, #98, #0F, #02 >   ;02
@@ -475,11 +492,11 @@ palette_bundle_16CE8F! [
 ------------------------------------------------------
 ;Enable engine flag 4000
 
-display_preset_00! [
+display_preset_table.display_preset_00! [
   display-preset < #17, #00, #80, #00, #24, #85, #09, #80, #00, #00 >   ;Statue reward scene
 ]
 
-display_preset_25! [
+display_preset_table.display_preset_25! [
   display-preset < #17, #00, #80, #03, #E4, #80, #09, #80, #00, #00 >   ;Epilogue scene
 ]
 
@@ -489,7 +506,7 @@ display_preset_25! [
 ------------------------------------------------------
 ;Force flying scene  flag 4000
 
-code_068114- {
+sp58_descent_cutscene.code_068114- {
     LDA #$4000
     TSB $09EC
     COP [4F] ( $7F0200, #$7800, #$0100 ) ;For some reason there is a situation where the BG3 data isn't refreshed
@@ -500,7 +517,7 @@ code_068114- {
 ------------------------------------------------------
 ;Force plane crash scene flag 4000
 
-code_03A0AD- {
+garden_crash_cutscene.code_03A0AD- {
     LDA #$4000
     TSB $09EC
 }
@@ -510,7 +527,7 @@ code_03A0AD- {
 ------------------------------------------------------
 ;Force babel flying scene flag 4000
 
-code_098149- {
+btDC_plane_jumping.code_098149- {
     LDA #$4000
     TSB $09EC
     COP [4F] ( $7F0200, #$7800, #$0100 ) ;For some reason there is a situation where the BG3 data isn't refreshed
@@ -521,7 +538,7 @@ code_098149- {
 ------------------------------------------------------
 ;Fix for copied palette during aura barrier
 
-loc_02B9C0! {
+attack_ability_system.loc_02B9C0! {
     COP [50] ( @fx_palette_198090, #00, #F9, #07 ) ; <-
     COP [8E] ( #06 )
     COP [80] ( #02 )
@@ -540,7 +557,7 @@ loc_02B9C0! {
 }
 
 ;Fix for copied palette during dark friar
-loc_02BB77! {
+attack_ability_system.loc_02BB77! {
     COP [50] ( @fx_palette_198070, #00, #F0, #10 )
     COP [3B] ( #4A, @PaletteResetAndKillThinker )
     COP [48]
@@ -554,7 +571,7 @@ loc_02BB77! {
 ------------------------------------------------------
 
 ;Fix for copied palette during dark friar
-loc_02EED2! {
+inventory_overlay.loc_02EED2! {
     DEC 
     BNE loc_02EEF0
     LDX #$4400
@@ -568,7 +585,7 @@ loc_02EED2! {
 }
 
 ;Fix for copied palette during aura barrier
-loc_02EEF0! {
+inventory_overlay.loc_02EEF0! {
     LDX #$4400
     STX $VMADDL
     LDX #$&misc_fx_1CC480
@@ -585,7 +602,7 @@ loc_02EEF0! {
 ------------------------------------------------------
 ;Fix for sword palette during aura barrier
 
-sprite_group_17A483! [
+spriteset_freedan_fx.sprite_group_17A483! [
   sprite_group < #13, #10, #46, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0E, [
     sprite_part < #01, #0B, #08, #00, #36, #$0E4E >   ;00
     sprite_part < #01, #0B, #08, #10, #26, #$0E6E >   ;01
@@ -610,7 +627,7 @@ sprite_group_17A483! [
 ------------------------------------------------------
 ;Fix for prologue scene 4 to wait before generating sprites
 
-code_0BCE36! {
+pr8F_prologue4.code_0BCE36! {
     LDA #$4001
     TSB $09EC
     COP [50] ( @pal_prologue_mishap, #00, #00, #20 )

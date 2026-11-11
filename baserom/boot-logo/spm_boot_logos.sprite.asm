@@ -1,3 +1,13 @@
+; ==============================================================================
+; Boot logo title sprites (spm_boot_logos)
+; ==============================================================================
+; What it does: Sprite map data for the title-screen boot logo animation: two sprite-set
+;   entries (59-frame tick $003B each) with large multi-part OAM groups for the logo art.
+; Vanilla behavior: Replaces or extends original boot logo sprite layout in ROM layout slot
+;   spm_boot_logos (see rebuilt file-layout); pairs with gfx_boot_logos / pal_boot_logos assets.
+; Adds: sprite_set_list_000000, sprite_set_000004 / 00000A, sprite_group_000010 / 000112.
+; Hazards/notes: Pure sprite-map data (no code); tile words reference boot logo CHR in VRAM.
+; ==============================================================================
 
 ---------------------------------------------
 

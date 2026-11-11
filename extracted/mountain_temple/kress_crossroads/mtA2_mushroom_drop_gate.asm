@@ -1,8 +1,6 @@
-; Mushroom Drop ball gate in the Kress crossroads.
+; Mushroom Drop gate of the Kress crossroads (scene $A2).
 ; 
-; Central gate at the crossroads area. Opens when the
-; Mushroom Drop puzzle is solved, connecting the temple
-; sections.
+; Dies at spawn when flag word $0159 is set. Otherwise it waits on WaitOnFlagByte ( #01, #01 ), the scratch flag that UseItem_MushroomWater raises when Will pours the item on the stem in tiles (14,08)-(16,09). It then locks the joypad ($EFFC), removes item #1A (Mushroom Drop) and plays sound #0F on channel 1 before each of the six BG changes #54-#59, sets $0159 and unlocks the joypad.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

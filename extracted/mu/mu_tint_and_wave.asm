@@ -1,9 +1,6 @@
 ; Mu underwater visual effects — tint and HDMA wave.
 ; 
-; Thinker/actor that applies the underwater visual atmosphere:
-; green-blue color tint via COLDATA and a wavy HDMA effect
-; to simulate looking through water. Active in all Mu
-; dungeon rooms.
+; Thinker of the Mu scenes $5F, $60, $61, $62, $64 and $65 (not the prayer room $63, the altar room $66 or the vampire lair $67). While scene setup flag $FF is clear it writes the COLDATA colour pair every frame: #$2A and #$44, or #$28 and #$41 when flag $7B (Statue of Hope on the west pedestal) is set. It then starts a sine HDMA (InitSineHdma) and, once $FF is set, ticks the wave and binds the two wave tables $7E8800 and $7E8C00 each frame.
 ---------------------------------------------
 
 !COLDATA                        2132

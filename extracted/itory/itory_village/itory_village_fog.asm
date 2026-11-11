@@ -1,6 +1,6 @@
 ; Position-dependent fog overlay for Itory Village's west side.
 ; 
-; Reads the player actor's X coordinate and compares against threshold #$01B0 (432 pixels). West of the threshold: writes #$50 to CGADSUB ($2131) for halftone subscreen color addition fog; east of it: clears CGADSUB to #$00. Exits entirely when flag #2B is set; runs every frame via SetEntryHere otherwise.
+; Waits with WaitOnFlagByte(#2B, #01) until flag $2B (Lilly's arrival cutscene is done) is set; before that it does nothing, so the fog is off during the cutscene. After that it runs every frame via SetEntryHere: it reads the player actor's X coordinate and compares it against threshold #$01B0 (432 pixels). West of the threshold it writes #$50 to CGADSUB ($2131) for halftone subscreen color addition fog; east of it, it clears CGADSUB to #$00.
 ---------------------------------------------
 
 !playerActor                    09AA

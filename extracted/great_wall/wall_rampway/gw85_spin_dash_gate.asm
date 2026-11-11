@@ -1,8 +1,6 @@
-; Spin Dash gate on the Great Wall rampway.
+; Spin Dash gate on the Great Wall rampway (scene $85).
 ; 
-; Gate that can only be opened by using the Spin Dash ability.
-; Checks the player form (Freedan with Spin Dash) and opens
-; when the attack connects. Blocks non-Freedan access.
+; The actor loops on SetEntryHere and tests BranchIfPlayerAt ( #$0458, #$00D0 ). When that test matches, code_07E90F decides from the player's state: characterForm nonzero (Freedan or Shadow) passes, Will passes when abilityBitmask bit 2 ($0004, Spin Dash) is set, and Will without Spin Dash gets $03C0 written to the player actor's field $14 (the X position word), 152 below the X operand $0458 of the test. The code does not test an attack or a hit on the gate.
 ---------------------------------------------
 
 !playerActor                    09AA

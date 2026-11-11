@@ -185,7 +185,7 @@ Dictionary expansion: switch DBR, count bytes until `$CA`, restore stream.
 
 *Evidence: [ASM] + [XREF]*
 
-**Event flag → tile copy** system. Table `event_block_table` (bank `$01`): 8-byte entries. Set flags in `$0A20`–`$0A3F` map to event indices `$0200`–`$02FF`.
+**Event flag → tile copy** system. Table `event_block_table` (bank `$01`): 8-byte entries. Set flags in `$0A20`–`$0A3F` map to event indices `$0100`–`$01FF` (flag `$0100 + n` triggers block `n`).
 
 | Address | Name | Description |
 |---------|------|-------------|
@@ -282,7 +282,7 @@ Returns **SEC** off-screen; **CLC** queued; if Y = `$0100`, **RTS** with Z = 1 (
 *Evidence: [ASM] + [INFERRED]*
 
 ```
-Event flag set ($0200–$02FF in $0A20–$0A3F)
+Event flag set ($0100–$01FF in $0A20–$0A3F)
   └─► LookupEventBlock (event_block_table[index])
         └─► Byte 0 = sceneCurrent?
               └─► CopyEventBlockTiles or AnimateEventBlock
@@ -305,7 +305,7 @@ Event flag set ($0200–$02FF in $0A20–$0A3F)
 | 6 | Dest row | `$9C` | Destination Y |
 | 7 | Layer flag | `$A4` | `$00` = L0; nonzero = L1 (`effectLayerTilemap`) |
 
-Flag bit: index `n` → byte `$0A20 + (n >> 3)`, bit `(n & 7)`. Index 0 = flag `$0200`.
+Flag bit: index `n` → byte `$0A20 + (n >> 3)`, bit `(n & 7)`. Index 0 = flag `$0100`.
 
 ### Instant vs Animated Paths
 
@@ -520,5 +520,5 @@ Return-warp bytes at `$0B08`–`$0B12` snapshot source rectangle and camera nibb
 | [spc-transfer.md](spc-transfer.md) | `SpcTransferMusicData`, `musicTransitionState` |
 | [camera-scrolling.md](camera-scrolling.md) | Map buffers (`mapLayerTilemap`, scroll registers) |
 | [map-coordinates.md](map-coordinates.md) | `TileCoordsToMapIndex`, `PixelToVramAddress` |
-| [../bank00/event-flags.md](../bank00/event-flags.md) | Flags `$0200`–`$02FF` |
+| [../bank00/event-flags.md](../bank00/event-flags.md) | Flags `$0100`–`$01FF` (event blocks) and `$0200`–`$02FF` (chests) |
 | [../../cop/README.md](../../cop/README.md) | COP `#19`, `#32`–`#34` |

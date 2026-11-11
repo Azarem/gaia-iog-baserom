@@ -7,7 +7,7 @@
 ; === WHICH PICKUP ===
 ; 
 ; - $26 nonzero, or the room's clear reward already taken (TestFlag_0300(sceneCurrent) set), or tier 0: FieldRevealFromActorStats reads the byte at +3 of the spawner's stat table. & 3 = 0 dies at once; 1 / 2 / 3 = a gem pickup with anim $04 / $05 / $06 and item $83 / $84 / $85 (1 / 2 / 5 gems, given by GiveItemToPlayer).
-; - Otherwise (only with $26 = 0, which none of the three spawners produces: the room-tier stores were never executed in the measured runs) enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item: 1 / 2 / 3 = anim $0C / $0D / $0E (the sprites of e_hp / e_str / e_def_increase) and item $80 / $81 / $82 (Max HP / STR / DEF + 1). These paths also store $FFFF in orbitAngle (no reader found). Nothing here sets scene flag $0300 (reward_actors does for the last-kill reward).
+; - Otherwise (only with $26 = 0, which none of the three spawners produces; the TestFlag_0300 read is reached only then, and the room-tier stores were never executed in the measured runs) enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item: 1 / 2 / 3 = anim $0C / $0D / $0E (the sprites of e_hp / e_str / e_def_increase) and item $80 / $81 / $82 (Max HP / STR / DEF + 1). These paths also store $FFFF in orbitAngle (no reader found). Nothing here sets scene flag $0300 (reward_actors does for the last-kill reward).
 ; 
 ; === DROP AND LIFE ===
 ; 
@@ -32,7 +32,7 @@
 
 ---------------------------------------------
 
-; Entry: metasprite spriteset_pickups_effects, palette 0, clear the ForceDir bits ($6000 of $12). Choose the pickup: $26 nonzero or scene flag $0300 set -> FieldRevealFromActorStats; else the room's tier selects a stat item (0 -> FieldRevealFromActorStats). See the block note.
+; Entry: metasprite spriteset_pickups_effects, palette 0, clear the ForceDir bits ($6000 of $12). Choose the pickup: $26 nonzero or scene flag $0300 set -> FieldRevealFromActorStats; else the room's tier selects a stat item (0 -> FieldRevealFromActorStats). Every shipped spawn passes $26 nonzero, so the flag test and the tier path are not reached. See the block note.
 
 field_reveal_object {
     COP [SetMetasprite] ( @spriteset_pickups_effects )

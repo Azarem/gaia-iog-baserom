@@ -1,11 +1,27 @@
+; ==============================================================================
+; GorgonFlowerAutoUse - auto-offer Gorgon Flower at the three stone girls
+; ==============================================================================
+; What it does: Each petrified girl gets interact + post-heal dialog; with item
+;   #1D or key_item_flags+2 bit $0080, ItemUseStub runs the per-statue placement
+;   handlers (code_0399F2 / A01 / A10). Empty dialog overrides suppress duplicate
+;   silent-statue lines; girl2/3 post-cutscene paths jump to shared neutral stub.
+; Vanilla behavior: nvAE_stone_girl1-3 actors wait on flags $BF/$C0/$C1 with
+;   PrintDialogString-only interact; no inventory branch on the statues themselves.
+; Hooks (overrides): nvAE_stone_girl1 code_0892A5!/0892DA!; girl2 code_089369!/08939E!/0893BA!
+;   and dialogstring_0893BF!/0893DE!/089415!; girl3 code_089474!/0894A9!/0894AE! and
+;   dialogstring_0894B3!/0894D2!/089509! (blank overrides).
+; Adds: nvAE_stone_girl*_use/post_interact, nvAE_stone_girl1_neutral_stub.
+; Depends on: !key_item_flags $0B58+2; $@ItemUseStub; item #1D; scene $AE flags.
+; State: Flag bytes $BF, $C0, $C1; actor $12 bit $0200 for solid interact.
+; Hazards/notes: Restores post-heal dialog on girl1; blank dialog overrides on girls 2/3;
+;   X = actor slot for COP.
+; ==============================================================================
 
 !key_item_flags      0B58
 
 -----------------------------------------------
-;nvAE_stone_girl1
 
-;Restore lost dialog message after healing the girl
-code_0892A5! {
+nvAE_stone_girl1.code_0892A5! {
     COP [MarkSolidHere]
     COP [BranchOnFlagByte] ( #BF, #01, &code_0892CE )
     LDA #$0200
@@ -24,7 +40,7 @@ code_0892A5! {
     BRA code_0892CE+4
 }
 
-code_0892DA! {
+nvAE_stone_girl1.code_0892DA! {
     LDA $key_item_flags+2
     BIT #$0080
     BNE nvAE_stone_girl1_use
@@ -46,11 +62,8 @@ nvAE_stone_girl1_post_interact {
 }
 
 -----------------------------------------------
-;nvAE_stone_girl2
 
-;Restore lost dialog message after healing the girl
-
-code_089369! {
+nvAE_stone_girl2.code_089369! {
     COP [MarkSolidHere]
     COP [BranchOnFlagByte] ( #C0, #01, &code_089392 )
     LDA #$0200
@@ -68,7 +81,7 @@ code_089369! {
     TRB $12
 }
 
-code_08939E! {
+nvAE_stone_girl2.code_08939E! {
     LDA $key_item_flags+2
     BIT #$0080
     BNE nvAE_stone_girl2_use
@@ -85,20 +98,17 @@ nvAE_stone_girl2_post_interact {
     JML $@nvAE_stone_girl1_post_interact
 }
 
-code_0893BA! {
+nvAE_stone_girl2.code_0893BA! {
     JML $@code_0892DF
 }
 
-dialogstring_0893BF!:
-dialogstring_0893DE!:
-dialogstring_089415!:
+nvAE_stone_girl2.dialogstring_0893BF!:
+nvAE_stone_girl2.dialogstring_0893DE!:
+nvAE_stone_girl2.dialogstring_089415!:
 
 -----------------------------------------------
-;nvAE_stone_girl3
 
-;Restore lost dialog message after healing the girl
-
-code_089474! {
+nvAE_stone_girl3.code_089474! {
     COP [MarkSolidHere]
     COP [BranchOnFlagByte] ( #C1, #01, &code_08949D )
     LDA #$0200
@@ -117,7 +127,7 @@ code_089474! {
     BRA code_08949D+4
 }
 
-code_0894A9! {
+nvAE_stone_girl3.code_0894A9! {
     LDA $key_item_flags+2
     BIT #$0080
     BNE nvAE_stone_girl3_use
@@ -134,10 +144,10 @@ nvAE_stone_girl3_post_interact {
     JML $@nvAE_stone_girl1_post_interact
 }
 
-code_0894AE! {
+nvAE_stone_girl3.code_0894AE! {
     JML $@code_0892DF
 }
 
-dialogstring_0894B3!:
-dialogstring_0894D2!:
-dialogstring_089509!:
+nvAE_stone_girl3.dialogstring_0894B3!:
+nvAE_stone_girl3.dialogstring_0894D2!:
+nvAE_stone_girl3.dialogstring_089509!:

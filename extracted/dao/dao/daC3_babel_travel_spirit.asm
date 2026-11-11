@@ -1,8 +1,4 @@
-; Tower of Babel travel spirit in Dao — teleport service.
-; 
-; Interactive NPC with choice: "Go to Tower of Babel? Quit/Return"
-; Provides fast travel between Dao and the Tower of Babel.
-; Standard travel spirit pattern with confirmation dialog.
+; Travel spirit of Dao (scene $C3, tile (21,08)). The actor dies at spawn while $D2 is clear (set by the Tower of Babel entrance monologue). With $D2 set it stands solid and asks 'Go to Tower of Babel?' with two rows (labelled 'Quit' and 'Return'); rows 0 and 1 of the handler table only clear the dialog; row 2 clears the dialog, zeroes $066D and $0670, sets gfxCacheIdxA and gfxCacheIdxB and queues scene $E3 at (0280,01B0).
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_npc_props'

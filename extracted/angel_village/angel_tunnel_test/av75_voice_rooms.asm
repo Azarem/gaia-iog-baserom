@@ -1,9 +1,8 @@
-; Ishtar's voice — room puzzle sequence controller (~246 lines).
+; Room controller of Ishtar's test (scene $75), one actor.
 ; 
-; Major puzzle controller. "Learn well the condition of that
-; room. When you've memorized it..." Manages the full sequence
-; of Ishtar's test rooms where the player must observe and
-; recall room states. The longest puzzle script in the game.
+; The actor dies at spawn when the player is in the corridor (Y >= $F0). In a room it first clears the eight door flags $0149-$0150. A view room (playerXTile bit 4 clear) increments the phase word $0AA6, locks the joypad ($CFFC), prints 'Learn well the condition of that room...' and unlocks.
+; 
+; An answer room (bit 4 set) locks the joypad, prints 'Show how it's different from the room before.', spawns a cursor actor (code_06DBF3, moved by the D-pad) at the player position and waits for the button press (BranchIfPressed #$8001). playerXTile >> 5 selects room 0-3 and its cursor box. Inside the box it prints that room's 'Right answer!' text and increments $0AA6; in room 3 it instead sets flag $89 and word flag $0151 (test passed). Outside the box it prints 'How are your powers of observation?... Try again!!' and decrements $0AA6. The actor then unlocks the joypad and dies.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

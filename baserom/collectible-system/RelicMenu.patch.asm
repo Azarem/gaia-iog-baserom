@@ -1,3 +1,19 @@
+; ==============================================================================
+; Inventory Relics tab - key-item grid and acquired-relic viewer
+; ==============================================================================
+; What it does: Replaces Discard tab UI with Relics: slot actors show key-item stacks via
+;   KeyItemCountAndInit / InventoryCountersGenerateSprite; fourth tab lists owned relics with
+;   name and description tables; ShowAllItemSlots routes key slots to isa_key_entry loop.
+; Vanilla behavior: DiscardGridLoop discarded items; InventorySlotActor only AnimOneFrame;
+;   ShowAllItemSlots always walked SlotActorEvaluate chain; status tab strings said Discard.
+; Hooks (overrides): inventory_menu InventorySlotActor (loc_02E8DE+), Show/HideAllItemSlots,
+;   ShowEquipCursor, DiscardGridLoop, InventoryMenuInit- / loc_02E3AB!; system_strings tab text.
+; Adds: RelicMenuScanIcon (bank 02); isa_key_entry key-slot animation path in slot actor insert.
+; Depends on: key_item_core (KeyItemCountAndInit, KeyItemGetNext, key_item_flags $0B58);
+;   InventoryCountersGenerateSprite; item_name_line_table / item_description_table TBL tags.
+; State: Scratch $7F0010-$7F001A,X slot actor chain; $18 tab index; $22 relic list cursor.
+; Hazards/notes: Patch truncates HideAllItemSlots body (;...); verify against vanilla if extending.
+; ==============================================================================
 ?BANK 02
 
 !keyItemDisplayFrames    0060
@@ -21,7 +37,7 @@ RelicMenuScanIcon {
 
 -----------------------------------------
 
-loc_02E8DE+ {
+inventory_menu.loc_02E8DE+ {
 
   isa_key_entry:
     COP [SetEntryHere]
@@ -87,7 +103,7 @@ loc_02E8DE+ {
 
 ---------------------------------------------
 
-ShowAllItemSlots! {
+inventory_menu.ShowAllItemSlots! {
     LDA $18
     BEQ sais_entry_normal
     LDA #$1000
@@ -107,7 +123,7 @@ ShowAllItemSlots! {
     BEQ loc_02EB22
     RTS
 
-  loc_02EB22!:
+  inventory_menu.loc_02EB22!:
     TSB $10
     LDA #$1000
     TSB $06EE
@@ -119,7 +135,7 @@ ShowAllItemSlots! {
     LDA $7F0010, X
     TAY 
 
-  loc_02EB32!:
+  inventory_menu.loc_02EB32!:
     LDA $0010, Y
     AND #$DFFF
     STA $0010, Y
@@ -140,13 +156,13 @@ ShowAllItemSlots! {
 
 -------------------------------------
 
-HideAllItemSlots! {
+inventory_menu.HideAllItemSlots! {
     LDA $10
     BIT #$9000
     BNE loc_02EB4D
     RTS 
 
-  loc_02EB4D!:
+  inventory_menu.loc_02EB4D!:
     LDA #$1000
     TRB $06EE
     STZ $00DA
@@ -162,7 +178,7 @@ HideAllItemSlots! {
 
 -----------------------------------------------
 
-ShowEquipCursor! {
+inventory_menu.ShowEquipCursor! {
     LDA $18
     BNE HideEquipCursor
     LDA $inventoryEquippedIndex
@@ -177,14 +193,14 @@ ShowEquipCursor! {
 
 -----------------------------------------------
 
-consolestring_01E962! |[PAL:0][POS:96,5]View acquired[DBL]Relics.|
+system_strings.consolestring_01E962! |[PAL:0][POS:96,5]View acquired[DBL]Relics.|
 
-consolestring_01E9B7! |[PAL:0][POS:96,5][TBL:@item_name_line_table,AE8][TBL:@item_description_table,AE8]|
+system_strings.consolestring_01E9B7! |[PAL:0][POS:96,5][TBL:@item_name_line_table,AE8][TBL:@item_description_table,AE8]|
 
-consolestring_01EA27! |[PAL:0][POS:84,5]View[DBL]Relics|
+system_strings.consolestring_01EA27! |[PAL:0][POS:84,5]View[DBL]Relics|
 
 
-  DiscardGridLoop!:
+  inventory_menu.DiscardGridLoop!:
     JSR $&PositionGridCursor
     COP [RunBg3Script] ( @system_strings.consolestring_01E912 )
     LDA $22
@@ -202,13 +218,13 @@ consolestring_01EA27! |[PAL:0][POS:84,5]View[DBL]Relics|
     PLA 
     RTL 
   
-InventoryMenuInit- {
+inventory_menu.InventoryMenuInit- {
     LDA #$1000
     TSB $06EE
     STZ $00DA
 }
     
-  loc_02E3AB!:
+  inventory_menu.loc_02E3AB!:
     COP [SpawnAfterFlags] ( @InventorySlotActor, #$1800 )
     DEC $24
     BPL loc_02E3AB
@@ -232,4 +248,3 @@ InventoryMenuInit- {
     STZ $inventoryTabIndex
     LDA #$1000
     TSB $10
-

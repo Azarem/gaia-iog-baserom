@@ -1,8 +1,6 @@
-; Altar object 1 in the Mu altar room — puzzle element.
+; Statue sprite and scene reload of the first altar in the Mu altar room (scene $66).
 ; 
-; Interactive altar that the player can activate as part of
-; the altar room puzzle. No dialog — activates by proximity
-; or interaction, setting flags for the puzzle state.
+; Waits for flag $80 (Rama Statue placed on the first pedestal by UseItem_RamaStatue), shows its statue frame #2D and waits for $81. When both flags are set and the player stands outside tiles (00,00)-(20,20) it locks the joypad ($CFFC), waits #1D ticks and queues a map change to scene $66 at pixel (00F8,01D8). It sets no flag.
 ---------------------------------------------
 
 !gfxCacheIdxA                   0648

@@ -1,8 +1,6 @@
-; Blocking enemy B on the garden southwest underside — variant with extra logic.
+; Toggle block B on the garden southwest underside (scene $52) — a hit switch, not an enemy to kill.
 ; 
-; Similar to blocker_enemy_a but with additional behavior:
-; more HP or different attack pattern. Guards a different
-; passage on the underside.
+; One placement. Solid enemy sprite with stat entry 118; HP resets to $FF every frame, so it never dies. Each hit swaps between frame #0F (BG change #28, sets $0127/$0128, clears $0129/$012A) and frame #10 (BG change #2A, sets $0129/$012A, clears $0127/$0128). At spawn it starts in frame #0F when $0127 is set and in frame #10 otherwise, without applying a BG change.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

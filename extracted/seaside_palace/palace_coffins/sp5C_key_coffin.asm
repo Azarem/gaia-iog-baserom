@@ -1,10 +1,6 @@
-; Key coffin in the Seaside Palace — puzzle with Lilly.
+; Key coffin of the Seaside Palace (scene $5C) — Lilly looks inside; no item is given.
 ; 
-; Interactive coffin (~95 lines). Will: "The coffins are lined
-; up..." Later: "I can't seem to open the lid..." Lilly speaks
-; from Will's pocket: "Wait a minute. Isn't there a hole in
-; the coffin?" Lilly enters through a small hole to retrieve
-; the key from inside. Uses the spirit companion mechanic.
+; Dies at spawn when word flag $013A is set. Otherwise it installs an interact handler and waits for scratch $01. The handler prints "Will: The coffins are lined up..." while flag $6F is clear; with $6F set it prints "Will: I can't seem to open the lid... Lilly: Wait a minute. Isn't there a hole in the coffin?..." and sets $01. The main script then locks the joypad ($CFFC), moves a sprite (frame #33 of spriteset_pickups_effects) from the player to the coffin, applies BG change #3A, sets $013A, prints "Lilly: Strange... There's a key fastened inside this coffin. No wonder it didn't open.", moves the sprite back to the player, unlocks the joypad and dies.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

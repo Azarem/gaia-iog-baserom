@@ -1,35 +1,19 @@
-; =============================================================================
-; Options Input Remap — Action flag conversion and button mapping persistence
-; =============================================================================
-;
-; Provides the runtime conversion between save-data button mapping bytes
-; and the engine's remap word table ($0DA6-$0DB4).
-;
-; Save data layout ($0B34-$0B39, inside the 508-byte save block):
-;   $0B34 = A button actions
-;   $0B35 = B button actions
-;   $0B36 = X button actions
-;   $0B37 = Y button actions
-;   $0B38 = L button actions
-;   $0B39 = R button actions
-;
-; Each save byte uses action bit flags:
-;   Bit 7: Act/Confirm Bit 6: Cancel      Bit 5: Attack      Bit 4: Run
-;   Bit 3: Block1      Bit 2: Block2      Bit 1: Use Item    Bit 0: Cycle Item
-;
-; joypadCurrent ($0656) action flag layout after remap:
-;   Bit 15 ($8000): ACTION_CONFIRM
-;   Bit 14 ($4000): ACTION_CANCEL
-;   Bit 13 ($2000): Select (fixed)
-;   Bit 12 ($1000): Start (fixed)
-;   Bits 11-8: D-pad (fixed)
-;   Bit 7  ($0080): ACTION_ATTACK
-;   Bit 6  ($0040): ACTION_RUN
-;   Bit 5  ($0020): ACTION_BLOCK1
-;   Bit 4  ($0010): ACTION_BLOCK2
-;   Bit 3  ($0008): ACTION_USE_ITEM
-;   Bit 2  ($0004): ACTION_CYCLE_ITEM
-;   Bits 1-0: Reserved
+; ==============================================================================
+; Options input remap - save bytes to engine joypad remap words
+; ==============================================================================
+; What it does: Converts six saved action bytes into $0DA6-$0DB4 remap words;
+;   initializes defaults on new/old saves; preset detect/load for options UI.
+; Vanilla behavior: Diary ApplySoundAndRemap wrote fixed Type-1/2 layouts from
+;   $0B26 only; no persistent per-button action bytes in save.
+; Hooks (overrides): None (called via JSL from options menu and diary hook).
+; Adds: ConvertActionByte, ApplyButtonMapping, InitDefault/AltButtonMap,
+;   DetectAndInitButtonMap, DetectPreset, LoadButtonMapPreview, SetButtonPreset.
+; Depends on: Called from options_menu_core and OptionsMenu ApplySoundAndRemap tail.
+; State: Save $0B34-$0B39 (action bits per button); preview $0BEA-$0BEF;
+;   remap words $0DA6-$0DB4; $0B26 picks Alternate vs Default on empty save.
+; Hazards: ApplyButtonMapping RTL; ConvertActionByte uses $@ActionFlagTable;
+;   Start/Select always passthrough $1000/$2000 in ApplyButtonMapping.
+; ==============================================================================
 
 !btnMapA                        0B34
 !btnMapB                        0B35

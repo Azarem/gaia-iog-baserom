@@ -1,8 +1,4 @@
-; Event sprite controller for Native Village cutscenes.
-; 
-; Technical actor that manages sprite changes during village
-; event sequences. Handles costume/appearance transitions
-; for cutscene characters.
+; Prop sprite of the Hamlet scene in the Native Village (scene $AC), spawned by nvAC_kara at (0088,00FE). It shows frame $30, waits for scratch $05 (set by the narration child of nvAC_hamlet) and then falls into code_0881AE: SetMetasprite spriteset_pickups_effects, a nudge of -10 pixels in Y, frame $07 once and Die. nvAC_kara and nvAC_erik also spawn code_0881AE directly after the same wait.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

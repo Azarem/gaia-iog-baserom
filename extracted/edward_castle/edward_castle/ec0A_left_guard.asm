@@ -1,7 +1,9 @@
-; Left guard at the castle entrance.
+; Left guard at the castle entrance (scene $0A).
 ; 
-; Two-state dialog: before prison (directions to second floor),
-; after prison escape (warns Will to flee).
+; Three states, chosen at spawn by flag $21 (the throne scene is over) and flag $3F (the letter was shown):
+; - $21 and $3F clear (first arrival): sets the joypad lock ($CFFC in joypadMaskStd), runs one walking loop, prints the intrusion dialog and the 'Will shows the letter to the guard' / 'you may pass' lines, sets $3F and releases the lock. The actor never checks for a letter item; the dialog is fixed, so the lock lasts only until this cutscene ends.
+; - $3F set, $21 clear: patrols between two walking loops for good; talk: 'Go to the second floor if you want to meet King Edward.'
+; - $21 set (after the throne scene): parked solid at tile (06,27); talk: 'Ah! It's you! You've escaped from the prison... Run from this castle.'
 ---------------------------------------------
 
 !joypadMaskStd                  065A

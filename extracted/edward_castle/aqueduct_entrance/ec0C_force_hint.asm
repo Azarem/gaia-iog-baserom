@@ -1,7 +1,6 @@
-; Will's self-narration hint about defeating enemies for jewels.
+; Will's hint about enemy-clear jewels (scene $0C, aqueduct entrance).
 ; 
-; Displays a tutorial dialog about dark gems appearing when
-; enemies are defeated.
+; Dies at spawn when playerMaxHp is not 8. With max HP 8 it yields every frame and, the moment playerMaxHp changes, locks the joypad ($CFFC), waits #$27 ticks, prints 'When you defeat all of the enemies around you, a Jewel will appear.' and unlocks. It reads and writes no event flag.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

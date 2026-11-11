@@ -1,8 +1,6 @@
-; Prize Kruk display in Watermia — Russian Glass reward.
+; Prize Kruk of the Russian Glass game (scene $78, four placements).
 ; 
-; NPC: "These are the Kruks I was given. I have to let everyone
-; know." Displays the Kruk birds won from the Russian Glass
-; game. Shows the game's reward/stakes.
+; The actor dies at spawn when $94 is set (the party has left for Euro) or when $97 is clear (the game is not won yet). In between it is a solid Kruk that waits while off screen, shows sprite frame #1C and says "These are the Kruks I was given. I have to let everyone know.".
 ---------------------------------------------
 
 ---------------------------------------------

@@ -1,8 +1,4 @@
-; Spirit at the Babel exterior — explains Will's purpose.
-; 
-; NPC: "You were brought back to save Earth. I'll take you to
-; the top floor." Provides transport to the tower's upper
-; levels after story conditions are met.
+; Spirit at the Babel exterior (scene $E2): a solid NPC with the interact handler 'You were brought back to save Earth. I'll take you to the top floor.', which sets scratch $01. The main script waits for $01 and then locks the player ($CFFC), moves to the player, spawns the child code_099899, hands the player the script btE1_comet_soon.code_0997B7 (the ride), sets bit $0800 of the player's flags, rises while y is at least $90, waits 59 ticks, moves to (0188,0110), kills the child, sets scratch $04 (read by the ride script) and unlocks. The actor tests no persistent flag.
 ---------------------------------------------
 
 ?INCLUDE 'btE1_comet_soon'

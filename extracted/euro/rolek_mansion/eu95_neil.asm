@@ -1,8 +1,6 @@
-; Neil at the Rolek mansion — philosophical reflection.
+; Neil at the Rolek mansion (scene $95): two states by flag $A8.
 ; 
-; NPC: "To live for yourself or for others, that's the
-; question..." Later: "I finally realize how important my
-; parents are to me." Neil's character arc about family values.
+; $AA set: Neil dies at spawn. Otherwise he stands solid and his interact handler depends on $A8. $A8 clear (the Teapot has not been used here): 'To live for yourself or for others, that's the question...'. $A8 set: the handler prints the long dialog ('I finally realize how important my parents are to me. I wish I could have told them...'), sets $AA and queues scene $96.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

@@ -1,8 +1,6 @@
-; Short-delay switch spear on the Great Wall rampway.
+; Switch spear on the Great Wall rampway driven by scratch flag $02.
 ; 
-; Wall spear trap with a shorter timer cycle. Faster
-; extend/retract rhythm than the long variant. Creates
-; tighter timing windows on the rampway.
+; Same script as the retractable gate: solid frame #1D, WaitOnFlagByte ( #02, #01 ) for the hit_switch placements at tiles (3B,29) and (29,2B), ClearFlagByte of the same flag, retract frame #1E, WaitByte ( #77 ), then back to solid. The retract time is the same #77 ticks as in the other three rampway actors; the names "short" and "long" only distinguish the switch flag.
 ---------------------------------------------
 
 ---------------------------------------------

@@ -1,8 +1,6 @@
-; Power-up discovery in Euro's power house.
+; Man in the Euro power house (scene $93): a one-time strength gift.
 ; 
-; NPC: "You found it here. I understand your wishes. I'll give
-; you the power at once." Grants an ability upgrade.
-; "Well, go." — brief and direct power acquisition.
+; $A6 clear: the actor sets $A6, prints 'You found it here. I understand your wishes. I'll give you the power at once.' and adds 1 to playerStr ($0ADE). $A6 set: 'Well, go.'.
 ---------------------------------------------
 
 !playerStr                      0ADE

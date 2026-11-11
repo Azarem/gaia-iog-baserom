@@ -1,9 +1,6 @@
-; Beckoning child in the Native Village — leads Will somewhere.
+; Beckoning child of the Native Village (scene $AC). Dies at spawn while $AF is clear. With $AF set and $B2 clear (the Hamlet scene) he waits for scratch $03, walks, waits for scratch $04, takes one more step and becomes solid. With $B2 set he waits for scratch $06 (set by his own interact handler) and then walks to pixel (0148,0120) and (0188,0140), next to the bones actor at tile (19,14), and installs 'He faces the skeleton with tears in his eyes... Is this the skeleton of a relative? A friend?'.
 ; 
-; Interactive NPC (~95 lines): "He tugs on Will's sleeve, as if
-; he wants to take him somewhere. Go with him? Yes/No"
-; The child guides Will to an important location if the
-; player agrees. Non-verbal communication scene.
+; Interact handler: 'He tugs on Will's sleeve, as if he wants to take him somewhere. Go with him?' Yes: 'He beckons to him...' and sets scratch $06; No: 'He looks lonely...'. The child walks to the skeleton by himself; the player is not moved.
 ---------------------------------------------
 
 !moveXAlt                       7F0018

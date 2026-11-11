@@ -1,9 +1,6 @@
-; Spirit NPCs in the Mu prayer room — scattered lore fragments.
+; Statue of Hope pedestal show in the Mu prayer room (scene $63).
 ; 
-; Multiple spirits that provide fragmented lore: "The Sun god...
-; Rama... The ocean holds a power..." Each spirit gives a
-; short cryptic message about Mu's history and the ocean's
-; connection to the comet.
+; A player standing inside tiles (10,00)-(20,10) when the actor spawns selects the east branch (flag $7E, pedestal at pixel (0180,0058)); otherwise the west branch runs (flag $7B, pedestal at (0080,0058)). With the branch's flag already set the actor only spawns the placed-statue sprite and dies. Otherwise it waits for UseItem_StatueOfHope to set the flag, spawns the sprite, locks the joypad ($CFFC), plays music #1B, fades the backdrop in and spawns ten helper sprites (six of code_069C14, four of code_069BDA). It then prints the single text "The Sun god... Rama... The ocean holds a power...", sets scratch $02 so that every helper sprite leaves, fades the backdrop out, unlocks the joypad and dies.
 ---------------------------------------------
 
 ?INCLUDE 'oneshot_backdrop_fade_in_1B'

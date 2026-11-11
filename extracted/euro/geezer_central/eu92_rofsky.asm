@@ -1,8 +1,6 @@
-; Rofsky the philosopher in Euro — disputes about the teapot.
+; Rofsky in the Euro geezer house (scene $92): first-visit argument, then teapot talk.
 ; 
-; NPC: "There is a dispute about the teapot enshrined at
-; Mt. Kress temple." Introduces the Mt. Kress subplot
-; and the philosophical debates between Euro's intellectuals.
+; Flag $9E clear: at spawn the actor sets $9E, locks the player ($CFFC), plays the argument with Erasquez ('True genius is a violent thing!' / 'You just dash off packs of lies!!') and unlocks. Afterwards he stands solid; with the Teapot (item $19) he says 'Oh, that's the Teapot... It really does exist...', otherwise 'There is a dispute about the teapot enshrined at Mt.Kress temple...'.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

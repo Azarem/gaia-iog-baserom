@@ -1,11 +1,8 @@
-; Solid Arm boss fight — Jeweler Gem's true form (~356 lines).
+; Solid Arm boss fight -- Jeweler Gem's true form (scene $EA, enemy row 04, enemy number $5F).
 ; 
-; Optional boss: "Welcome to my home. The Jeweler Gem is a
-; temporary form. The true form is called Solid Arm." Multi-phase
-; boss with extending arm attacks and area sweeps. After defeat:
-; "I was defeated again... Blazer was strong, but you are
-; stronger." Rewards completion of the Red Jewel collection
-; quest. References the game's predecessor, Soul Blazer.
+; Spawn: sets cameraBoundsY, spawns the defeat watcher (code_08F9F2), stores the revive warp (binary_08F9EA), locks the joypad ($EFFC), waits, plays sound #0E and applies BG change #9C. With flag $E8 clear it fades in music #1B, waits #$0120 ticks, SETS $E8 and prints the introduction ('Welcome to my home. The Jeweler Gem is a temporary form. The true form is called Solid Arm. ... It is I who manipulated the labor trade.'); with $E8 set (a repeat visit) the music fade, the dialog and the flag write are skipped. Because $E8 is set before the fight, the Jeweler Gem NPC (actors/jeweler_gem) disappears as soon as the introduction starts, even if Will dies. Then music #0F, a #31 wait, unlock, and the fight loop (arm attacks chosen by the player's Y and X position).
+; 
+; Defeat (code_08F9F2, polling enemiesRemaining): locks the joypad, fades in music #1B, waits #$0120 ticks, prints 'I was defeated again... Blazer was strong, but you are stronger... Danger approaches this planet. You should hurry to the Tower of Babel...' and queues scene $E3 at ($0280,$01A0). No item, flag or counter changes on defeat; nothing in the code rewards the Red Jewel collection.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

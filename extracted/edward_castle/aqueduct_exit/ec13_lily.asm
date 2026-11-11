@@ -1,8 +1,8 @@
-; Lily at the aqueduct exit.
+; Lilly at the aqueduct exit (scene $13, tile (07,08)).
 ; 
-; Major story scene: Lily reveals herself after Will transforms,
-; explains she is from Itory Village, and the two begin their
-; journey together.
+; Flag $3A clear: after WaitByte #01, music #1B and WaitByte #3B she waits; if Will is in another form (characterForm not 0) she first locks the joypad, prints 'When the enemies are destroyed, Will can return to his original shape...' and starts Transform_FreedanToWill on the player. When Will comes within #03 tiles she sets $3A, locks the joypad and prints 'Girl: I saw you!! ... You can change your shape like me! I'm Lilly, an Itory girl protected by the Flower Spirit' (Will learned the melody from Grandma Lola, who asked her to rescue him), plays a sound, prints 'The Elder is calling... I have to go. We'll meet again! Goodbye, Will!', walks away, unlocks and dies. The two do not set out together here.
+; 
+; Flag $3A set: she dies at spawn (the form revert still runs when needed).
 ---------------------------------------------
 
 ?INCLUDE 'sE6_gaia'

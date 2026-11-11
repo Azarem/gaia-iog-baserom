@@ -1,3 +1,14 @@
+; ==============================================================================
+; Dark Friar FX spriteset - bank $17 animation tables
+; ==============================================================================
+; What it does: Metasprite sets for cast flash, trail segments, fragments, and
+;   follower sprites used by the Dark Friar ability visuals.
+; Vanilla behavior: Stock game uses the freedan FX table entries this set extends.
+; Hooks (overrides): none (asset file referenced by ability COP SetMetasprite).
+; Depends on: Bank 17 CHR listed in sprite_part pointers ($17xxxx tiles).
+; Hazards/notes: Data only; groups mix 1- and 3-frame timing in sprite-set headers.
+; ==============================================================================
+
 ?BANK 17
 
 ---------------------------------------------

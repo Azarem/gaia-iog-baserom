@@ -1,7 +1,6 @@
-; Fountain palette animation for the Seaside Palace.
+; Fountain palette animation of the Seaside Palace fountain room (scene $5D).
 ; 
-; Thinker that cycles palette colors for the demon fountain's
-; water effect. Creates the shimmering water visual.
+; Thinker that sets scene setup flag $FF and then steps a palette every frame: palette #25 while the fountain is not purified (flag $70 clear), palette #1A once $70 is set. While scratch $0F is set (the fountain actor is fading the backdrop) it parks until $0F clears.
 ---------------------------------------------
 
 !CGADSUB                        2131

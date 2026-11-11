@@ -1,6 +1,6 @@
-; Prison guard NPC who refuses help.
+; Fellow prisoner in the castle prison (scene $0B, tile (02,14)); the label says 'guard' but the dialog ('I don't need anyone's help... I can get out by myself...') is a prisoner's.
 ; 
-; Single dialog where the guard says he does not need anyone's help.
+; At spawn it replays the unlocked-door state of the Prison Key doors: flag $42 set: ClearTypeAbs (09,17); flag $43 set: ClearTypeAbs (14,17) (no code sets $43). Then it marks itself solid, installs the talk handler and writes the player's attribute word ($0E) every frame: $3000 while Will is inside tiles (0D,12)-(11,14), $2000 elsewhere.
 ---------------------------------------------
 
 !playerActor                    09AA

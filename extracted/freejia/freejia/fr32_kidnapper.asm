@@ -1,9 +1,6 @@
-; Kidnapper encounter in Freejia — threatens Will in the alley.
+; Door of the back-street house where Erik is held (scene $32, from Sam's dialog) and the voice behind it.
 ; 
-; Complex event actor (~104 lines). Voice from above warns:
-; "If you don't want to lose your lives, go home!!" Will
-; responds defiantly. Multi-phase encounter with flag tracking
-; and joypad lock during the confrontation cutscene.
+; First-phase actor (code_05B371): flag $67 set -> dies. Otherwise marks tile (04,0D) solid, waits while off-screen and, when Will enters tiles (05,0E)-(0B,12), moves its sprite, spawns the door actor code_05B3A1 at pixel (0048,00E0) and dies. The door actor is a solid door sprite (spriteset_npc_props frame #01) with a talk handler: flag $66 (Sam told Will) clear prints 'Man's voice: If you don't want to lose your lives, go home!!'; $66 set prints the same line plus Will asking about Erik, sets $67 and marks tiles (08,0E)-(08,11) solid. Once $67 is set the door actor copies palette data, sets joypad mask bit $2000, clears playerFlags bit $0008, calls EnemyInitBasic with HP 5, sets bit $0100 and clears bit $1000 of $10, and prints 'If I don't save Erik...' while Will stands on tiles (07,0E)-(08,12). What a hit does afterwards is the common enemy code, not read here.
 ---------------------------------------------
 
 ?INCLUDE 'EnemyInitBasic'

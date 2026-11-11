@@ -1,8 +1,6 @@
-; Friezer the explorer in Euro — introduces himself.
+; Friezer in his Euro house (scene $9A).
 ; 
-; NPC: "I am the explorer, Friezer. I, too, plan on leaving
-; my name in history." The explorer who later appears at
-; Angkor Wat. Establishes his character.
+; $A7 set (the Mt. Kress entrance intro has played): the actor dies at spawn. Otherwise: 'I am the explorer, Friezer. I, too, plan on leaving my name in history as the discoverer of the Tower of Babel.'.
 ---------------------------------------------
 
 ---------------------------------------------

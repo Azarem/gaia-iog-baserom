@@ -1,7 +1,8 @@
-; Stairway guard NPC in Edward Castle.
+; Stairway guard NPC in Edward Castle (scene $0A).
 ; 
-; Two-state dialog: tells Will to wait during breakfast, then directs
-; him to climb the stairs to the interview room.
+; $21 clear: solid, blocking the stairs. Talk: 'King Edward is having breakfast. Wait a while, then enter.' The wait is on flag $19 (Will has met Kara; set by ec0A_kara), not on time: once $19 is set the guard clears his solid mark, steps aside, becomes solid again beside the stairs and says 'The interview room is before you. Climb the stairs to meet the king.'
+; 
+; $21 set (after the throne scene): asleep ('Zzzzzz...').
 ---------------------------------------------
 
 ---------------------------------------------

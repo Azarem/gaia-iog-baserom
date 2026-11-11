@@ -1,10 +1,6 @@
-; Ceiling trap controller — triggers spike traps in 6 rectangular zones.
+; Ceiling trap controller of scene $28 (Incan Ruins ceiling trap room).
 ; 
-; Invisible actor that checks player position against 6 tile-rectangle
-; regions using BranchIfPlayerInAbsTiles. Each zone triggers a
-; different ceiling trap sequence. Uses ec_proximity_door_toggle
-; mechanics for the trap activation. Plays rumble SFX ($2C2C)
-; on each trap trigger.
+; Invisible actor that polls six BranchIfPlayerInAbsTiles rectangles every frame: (1A,0C)-(1C,0E), (1A,16)-(1C,18), (12,24)-(14,26), (08,24)-(0A,26), (10,1C)-(12,1E) and (12,16)-(14,18). Each rectangle has its own latch, scratch flag $01-$06 (set on entry and zeroed at every scene load, so a zone fires once per visit). A zone that fires spawns falling-tile helpers of ec_proximity_door_toggle at absolute pixel positions with SpawnAfterAbsFlags: zones 1-3 spawn one code_09C2DB helper each ((01A8,0130), (01C8,01C0), (00E8,0260)); zones 4-6 spawn two code_09C2E4 helpers each, with a WaitByte #0E between them ((0088,0220) and (0088,0200), (0088,01C0) and (0088,01A0), (0128,0160) and (0128,0140)). code_09C2DB marks the landing tile solid and code_09C2E4 clears its collision. After every zone check the actor plays sound $2C2C and polls again.
 ---------------------------------------------
 
 ?INCLUDE 'ec_proximity_door_toggle'

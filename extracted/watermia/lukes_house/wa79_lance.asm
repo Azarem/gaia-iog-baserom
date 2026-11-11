@@ -1,8 +1,10 @@
-; Lance at Luke's house — proposes Lilly's birthday party.
+; Lance in Luke's house (scene $79): the party proposal and the later gifts.
 ; 
-; Extended NPC (~109 lines). "Let's have Lilly's birthday party
-; while we're all together." Initiates the birthday celebration
-; subplot. Heartwarming party scene setup.
+; With $97 clear and $96 clear: if $91 is set, or $90 is clear (he has not met his father yet), Lance dies at spawn. With $90 set and $91 clear he locks the player ($CFFC), moves the player's Y by -2, prints "Let's have Lilly's birthday party while we're all together.", sets scratch $01 (Lily's cue), waits for scratch $03 (set by Kara), prints "Ah, Lilly. Can I talk to you for a minute? I'll wait outside.", walks and sets scratch $04.
+; 
+; With $97 clear and $96 set he stands at tile (07,09) with "I made my father very happy before. I think he will slowly recover.".
+; 
+; With $97 set the handler depends on $A5: clear -> 'I'm sorry, but I want to stay here...' and scratch $01 is set (it releases Neil's departure talk); set -> the Red Jewel gift once: with $E2 clear it prints 'My father's getting better every day...' and gives item $01 (a full inventory jumps to HiddenRedJewelInventoryFull and $E2 stays clear), then sets $E2; with $E2 set it prints 'I hope you get to see your father soon.'.
 ---------------------------------------------
 
 ?INCLUDE 'hidden_red_jewel'

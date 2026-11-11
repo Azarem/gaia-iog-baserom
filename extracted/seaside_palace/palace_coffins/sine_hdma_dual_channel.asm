@@ -1,7 +1,6 @@
-; Dual-channel sine HDMA effect for the coffin room.
+; Dual-channel sine HDMA wave of the Seaside Palace.
 ; 
-; Two-channel HDMA creating overlapping wave distortions
-; for the supernatural atmosphere of the coffin area.
+; Thinker of the palace scenes $5A, $5B and $5C and of scene $6F. It starts a sine HDMA (InitSineHdma #$8800, #08) and restarts it every frame while scene setup flag $FF is clear; once $FF is set it ticks the wave (TickSineHdma #02, #02) and binds the wave tables $7E8800 and $7E8C00 (BindSineHdma, #0F and #10) each frame.
 ---------------------------------------------
 
 ---------------------------------------------

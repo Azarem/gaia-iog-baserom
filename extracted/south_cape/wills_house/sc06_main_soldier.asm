@@ -1,8 +1,6 @@
 ; Edward Castle soldier who arrests Kara in Will's house.
 ; 
-; Cutscene actor: the soldier arrives to take Kara back to the
-; castle. Kara resists. Sets the flag that triggers the kidnapping
-; event.
+; Cutscene actor. At spawn flag $1B set kills it; otherwise it waits for scratch flag $04 (Lola's line), takes tile (0A,19) and watches for the player inside tiles (04,19)-(0E,1D). On entry it locks the joypad ($CFFC), waits $1D ticks, steps in, prints the soldier and Kara exchange, sets scratch $07 and waits for scratch $08 (Kara's reply), then walks off and dies. It sets no persistent flag: sc06_kara sets $1B, and sc06_bill releases the joypad lock.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

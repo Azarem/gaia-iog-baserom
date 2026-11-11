@@ -1,4 +1,22 @@
 ﻿
+; ==============================================================================
+; Music transitions - MSU-1 overlay and scene-change fades
+; ==============================================================================
+; What it does: Detects MSU hardware at boot, routes COP APUIO0 and scene-meta
+;   music loads through MSU registers when $0D73 set; fades on scene change
+;   when BGM table entries differ; extends transition effect loops for fade sync.
+; Vanilla behavior: SPC-only IPL load, immediate music thinker handshakes, no
+;   cross-scene fade token in ExecuteSceneTransition.
+; Hooks (overrides): cop_handlers_audio WriteApuIo0; spc_transfer boot load;
+;   scene_lifecycle transition paths; hdma_dma_spc music thinker chain;
+;   scene_script SpcMusicLoadCmd / loc_028B91 loader.
+; Adds: bgm_table, bgm_track_map, bgm_loop_map, count_check, bgm_load_exit.
+; Depends on: spc_transfer, scene_meta music tags, token $00E6 scratch.
+; State: $0D72/$0D73/$06F2 music, $2004-$2007 MSU, $0642/$0644 scene meta ids.
+; Hazards/notes: ExecuteSceneTransition still calls ScreenExitTransition; MSU
+;   path skips some APUIO halt steps; loc_028B91 reached via JML from loader.
+; ==============================================================================
+
 ?INCLUDE 'cop_handlers_audio'
 ?INCLUDE 'chunk_03BAE1'
 ?INCLUDE 'scene_script'
@@ -93,7 +111,7 @@ count_check {
 
 ---------------------------------------
 
-WriteApuIo0! {
+cop_handlers_audio.WriteApuIo0! {
     SEP #$20
     LDA msu_flag
     BEQ cop0A_normal           ;Normal process when no MSU
@@ -140,7 +158,7 @@ WriteApuIo0! {
 --------------------------------------
 ;Hook for SPC init
 
-SpcLoadBuiltinEngine! {
+spc_transfer.SpcLoadBuiltinEngine! {
     REP #$20
 
     LDA $2002
@@ -174,7 +192,7 @@ SpcLoadBuiltinEngine! {
 --------------------------------------
 ;Hook for checking track changes before screen transition
 
-ExecuteSceneTransition! {
+scene_lifecycle.ExecuteSceneTransition! {
     LDA $0654
     BMI loc_03DA03
     BEQ loc_03DA00
@@ -222,7 +240,7 @@ ExecuteSceneTransition! {
 
 -----------------------------------------------
 
-loc_03DADC! {
+scene_lifecycle.loc_03DADC! {
     JSL $@UpdateFrameDialogue
     LDA $0DB6
     BEQ loc_03DAF1
@@ -238,7 +256,7 @@ loc_03DADC! {
 
 ----------------------------------------------
 
-loc_03DAF2! {
+scene_lifecycle.loc_03DAF2! {
     LDA token
     BEQ immed_skip
     BMI immed_bgm
@@ -261,7 +279,7 @@ loc_03DAF2! {
 -------------------------------------------
 ;Mosaic mode 
 
-loc_03DB05! {
+scene_lifecycle.loc_03DB05! {
     JSL $@UpdateFrameDialogue
     DEX 
     BPL loc_03DB05
@@ -284,7 +302,7 @@ loc_03DB05! {
 
 --------------------------------------------
 
-loc_03DB6F! {
+scene_lifecycle.loc_03DB6F! {
     LDA $006E
     STA $00
     PHA 
@@ -317,7 +335,7 @@ loc_03DB6F! {
 
 -------------------------------------------------
 
-loc_03DBBC! {
+scene_lifecycle.loc_03DBBC! {
     INC $006E
     STA $00
     PHA 
@@ -352,7 +370,7 @@ loc_03DBBC! {
 ---------------------------------------------
 ;Hook for fading music via COP 05
 
-SpcFadeOutHandshake! {
+hdma_dma_spc.SpcFadeOutHandshake! {
     SEP #$20
     LDA msu_flag
     BEQ cop_fade_normal     ;Assume normal process when no MSU
@@ -383,7 +401,7 @@ SpcFadeOutHandshake! {
 }
 
 
-loc_03E1C1! {
+hdma_dma_spc.loc_03E1C1! {
     SEP #$20
     LDA #$01
     STA $APUIO0
@@ -399,7 +417,7 @@ loc_03E1C1! {
 ---------------------------------------------
 ;Hook for stopping music via COP 04/05
 
-SpcTransferMusicData! {
+hdma_dma_spc.SpcTransferMusicData! {
     SEP #$20
     LDA msu_flag
     BEQ bgm_load_wait   ;Always skip APU silent since we are always branching to the standard load process
@@ -424,7 +442,7 @@ SpcTransferMusicData! {
     ;RTL 
 }
 
-loc_03E1EB! {
+hdma_dma_spc.loc_03E1EB! {
     ;COP [C2]
     ;SEP #$20
     ;LDA #$FF
@@ -441,7 +459,7 @@ loc_03E1EB! {
     RTL 
 }
 
-loc_03E208! {
+hdma_dma_spc.loc_03E208! {
     COP [DA] ( #01 )
     ;SEP #$20
     ;LDA #$01
@@ -455,7 +473,7 @@ loc_03E208! {
 
 ---------------------------------------------
 
-LoadMusicFromTransitionState! {
+hdma_dma_spc.LoadMusicFromTransitionState! {
     LDX $06FA
     BEQ loc_03E254
     BMI loc_03E254
@@ -509,14 +527,14 @@ LoadMusicFromTransitionState! {
 }
 
 
-loc_03E254! {
+hdma_dma_spc.loc_03E254! {
     RTL 
 }
 
 ---------------------------------------------
 ;Hook for music asset loading (from scene_meta)
 
-SpcMusicLoadCmd! {
+scene_script.SpcMusicLoadCmd! {
     JSR $&ReadScriptByte
     PHA
     JSR $&ReadScriptByte
@@ -530,7 +548,7 @@ SpcMusicLoadCmd! {
     RTS 
 }
 
-loc_028B88! {
+scene_script.loc_028B88! {
     PLA
     STA $06F2
     LDX #$0687
@@ -539,7 +557,7 @@ loc_028B88! {
     RTS 
 }
 
-loc_028B91! {
+scene_script.loc_028B91! {
     LDA $06F2
     BEQ bgm_check               ;Always branch to halt when reset is loading
 

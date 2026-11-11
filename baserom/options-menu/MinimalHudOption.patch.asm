@@ -1,24 +1,19 @@
-; =============================================================================
-; Minimal HUD — options-menu setting that hides the player HUD outside combat
-; =============================================================================
-;
-; Registered with the options menu (registry format: options_menu_core.asm).
-;
-; Setting storage: $0B3A bit 5 (Text Speed uses bits 0-1, Run Button bits 2-3,
-; Auto-Jewels bit 4). Stored bit set = Minimal HUD off, so zeroed storage (new
-; game / old save) reads as On, the same convention as Auto-Jewels.
-; Temp (TBL switch) word: $0BF6 (the $0BE0-$0BE9 temp words are all taken and
-; $0BEA-$0BEF is the button preview buffer)
-;
-; When the setting is On:
-;   - LoadHudTilemap skips staging the HUD tilemap in non-combat areas
-;   - UpdateHUD skips the stat/health redraw in non-combat areas
-; "Non-combat area" = playerFlags bit 3 ($0008), the combat lock set at spawn in
-; towns and cutscene rooms. When the setting is Off both routines behave like the
-; original game (HUD shown everywhere except where $09ED bit 6 suppresses it).
-;
-; The $09ED bit 6 full-suppress path is independent of the setting and always
-; runs first (cutscenes, title screen).
+; ==============================================================================
+; Minimal HUD option - hide player HUD outside combat areas
+; ==============================================================================
+; What it does: Options setting (On/Off) skips HUD tilemap upload and per-frame
+;   HUD stat redraw in non-combat scenes when On; cutscene full suppress unchanged.
+; Vanilla behavior: LoadHudTilemap and UpdateHUD always ran unless $09ED bit 6
+;   cleared them (cutscenes); combat lock bit on playerFlags was not consulted.
+; Hooks (overrides): scene_lifecycle.LoadHudTilemap (early-out before loc_03DED5);
+;   system_core.UpdateHUD (early-out before UpdateHUD_Active).
+; Adds: OptionSettingPreset- record (packed bit in $0B3A); choice strings/tables.
+; Depends on: options_menu_core registry; system_core include for UpdateHUD tail.
+; State: $0B3A bit 5 (1 = Minimal HUD off); temp $0BF6; reads playerFlags $09AE
+;   bit 3 ($0008 combat lock), hud_disable_flag $09ED bit 6 ($40).
+; Hazards: LoadHudTilemap entry expects M=8 like vanilla; full suppress still
+;   clears equipped-icon cache $00DA; minimal path preserves $00DA.
+; ==============================================================================
 
 !minimal_hud_setting            0B3A
 !minimal_hud_off_bit            20
@@ -55,7 +50,7 @@ optstr_minimal_hud_desc |[PAL:0][POS:96,5]Minimal Player HUD[DBL]Only displays w
 ;
 ; loc_03DED5 is the original loader, which immediately follows this block.
 
-LoadHudTilemap! {
+scene_lifecycle.LoadHudTilemap! {
     LDA $hud_disable_flag
     BIT #$hud_full_suppress_bit
     BEQ hud_check_option
@@ -81,7 +76,7 @@ LoadHudTilemap! {
 ; Exit:  RTL without touching the HUD when suppressed; otherwise falls into the
 ;        original body at UpdateHUD_Active, which immediately follows this block.
 
-UpdateHUD! {
+system_core.UpdateHUD! {
     LDA $hud_disable_flag
     BIT #$hud_full_suppress_bit ; Bit 6 = full HUD suppression (cutscene)
     BNE hud_update_suppress

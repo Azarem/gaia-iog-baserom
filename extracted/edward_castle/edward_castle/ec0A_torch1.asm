@@ -1,6 +1,6 @@
-; Animated torch actor in Edward Castle (instance 1).
+; Animated wall torch in Edward Castle (instance 1, ten placements in scene $0A).
 ; 
-; Cosmetic flickering torch sprite for castle ambiance.
+; The torch exists only after the throne scene: with flag $21 CLEAR the actor dies at spawn; with $21 set it runs the flame loop (RNG-phase start, WaitWhileOffscreen, frame #06 animation).
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_npc_props'

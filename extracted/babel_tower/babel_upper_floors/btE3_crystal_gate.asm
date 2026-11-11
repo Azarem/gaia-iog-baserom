@@ -1,7 +1,4 @@
-; Crystal gate in the Babel upper floors.
-; 
-; Upper-level gate with crystal key requirement. Same
-; mechanics as the middle floor gates.
+; Crystal gate of the Babel upper floors (scene $E3): marks the cells (29,38) and (2A,38) solid, spawns two bt_static_sprite crystals and waits for $0179, which btF6_neo_queen (scene $F6) sets when the Neo Queen fight is won, just before it queues scene $E3. It then clears the two cells and dies.
 ---------------------------------------------
 
 ?INCLUDE 'bt_static_sprite'

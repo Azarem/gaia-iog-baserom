@@ -1,10 +1,8 @@
-; Hittable switch block in the mine main area — counts laborer progress.
+; Hittable switch block in the mine main chamber — a hit counter.
 ; 
-; Displays as enemy sprite frame #0F with stat entry 118 and $FF HP.
-; When attacked (hit callback), shows pressed sprite frame #11 and
-; increments the laborer count at RAM $0A01. HP resets to $FF each
-; frame so it can be hit repeatedly. Used with dm3F_mine_collapse_trigger
-; which fires when $0A01 reaches 4.
+; Displays as enemy sprite frame #0F with stat entry 118 and $FF HP. Each of the four placements zeroes the byte $0A01 when it spawns, so the counter starts at 0 in every visit. When attacked (hit callback) it shows the pressed sprite frame #11 and adds 1 to $0A01 (the scratch flags $08-$0F of scene $3F read as one byte); HP resets to $FF every frame so it can be hit repeatedly.
+; 
+; The counter is not tied to a particular switch or laborer: dm3F_mine_collapse_trigger fires when the byte equals 4.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

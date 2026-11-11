@@ -166,7 +166,7 @@ Same pattern for `it1A_moon_tribe2–5`, `ec0F_sub_bat1–4`, `sg4C_platform1–
 
 ### 5. `reward_actors.asm` + `boss_clear_reward_handler.asm`
 
-HP/STR/DEF reward handlers share `RewardActorVFX` and `$&` wide strings. `boss_clear_reward_handler` (red jewel reward) calls `$&BossClearApplyStatReward` locally and `$@TestWramFlag_Offset100` globally.
+HP/STR/DEF reward handlers share `RewardActorVFX` and `$&` wide strings. `boss_clear_reward_handler` (Max HP / STR / DEF stat reward for the dungeon's rooms, no red jewel) calls `$&BossClearApplyStatReward` locally and `$@TestWramFlag_Offset100` globally.
 
 **Action:** Keep `reward_actors` as one **`parts`** group (`movable: true` already). Ensure `reward_table_01AADE` stays in same bank or is referenced via `@`.
 

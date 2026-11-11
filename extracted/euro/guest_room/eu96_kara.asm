@@ -1,8 +1,6 @@
-; Kara in the Euro guest room — impressed by the town's wealth.
+; Kara in the Euro guest room (scene $96): evening comment, morning reaction, departure.
 ; 
-; Multi-dialog NPC. "What a big house! The townspeople seem
-; to be richer than the King." Later mentions Angkor Wat
-; ruins to the west. Story progression dialog.
+; $AC set: Kara dies at spawn. $AB set: her handler says 'To the west of here are the ruins of Ankor Wat. That is where the laborer's home is located. Let's go!', stores the companion slots $0D60-$0D66, stages the world-map move and queues scene $AC. Otherwise her handler says 'What a big house! The townspeople seem to be richer than the King...'; the main script waits for $AA, then for scratch $01 (set by Neil), moves and clears $01.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

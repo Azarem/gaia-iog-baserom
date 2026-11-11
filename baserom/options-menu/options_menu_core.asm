@@ -1,110 +1,23 @@
-; =============================================================================
-; Options Menu Core — button mapping + registered settings inside the inventory screen
-; =============================================================================
-;
-; Implements the "Optn." tab of the restructured inventory menu.
-;
-;   LEFT PANEL   Eight action rows with their current button assignments.
-;                Confirm on a row enters assignment mode (press a button).
-;   RIGHT PANEL  Registered settings (see SETTING REGISTRY below). Each setting
-;                is a label row plus a value row. Confirm on a setting drops the
-;                cursor onto the value row; the D-pad changes the value;
-;                Confirm (8000) commits, Cancel (4000) reverts.
-;
-; Architecture:
-;   - TabHoverOptions: preview when hovering over the Optn. tab
-;   - OptionsTab: confirmed tab — full interactive options menu
-;   - OptionsDrawAll: draws both panels (shared by hover and tab redraw)
-;   - OptionsPrepareWram: fills WRAM with button display indices
-;   - optstr_rows_left: console string rendering the action rows via TBL lookups
-;   - Settings are rendered per-record through ConsoleStringRenderer
-;     (OptRenderString) at a position computed from the record index.
-;
-; =============================================================================
-; SETTING REGISTRY
-; =============================================================================
-;
-; InventoryOptionSetups is a flat array: a head word (record stride, 24), then
-; fixed-size records, then InventoryOptionSetupDelimiter (#$FFFF). The UI draws
-; one setting per two tile rows starting at tile row 5; the panel fits 5 records
-; (OptCountSettings clamps to 5).
-;
-; Every setting lives entirely in its OWN patch file: its strings, option table,
-; registration record and the code that consumes the value. A setting registers
-; by splicing a record in next to one of two anchors (separate blocks laid out
-; contiguously in application order):
-;
-;     OptionSettingPreset- [ ...record... ]      ; before Btn. Preset (the usual form)
-;     InventoryOptionSetups+ [ ...record... ]    ; at the very start of the list
-;
-; Place the registration at the END of the patch file, after the file's other
-; override labels: any unsuffixed block that follows an override label is
-; chain-inserted into that override's target file instead of staying in the patch.
-; Patches are applied in layer order (baserom, base project, modules), so with
-; the first form earlier registrations are listed first and Btn. Preset always
-; stays last. The head word keeps InventoryOptionSetups non-empty, which the
-; patch engine requires for merging.
-;
-; Record layout (offsets in bytes, 24 bytes total):
-;
-;   +00  render   @console string (3-byte pointer) drawn at the setting's start
-;                 position. It must NOT contain [POS]. Typical form:
-;                   |[PAL:0]Label[N] [PAL:14][TBL:@Choices,<temp>][PAL:0]|
-;   +03  desc     @console string (3-byte pointer) with its own [POS:96,5], shown
-;                 in the lower right panel while the cursor is on the setting
-;   +06  temp     WRAM word used as the TBL index (the "option value switch").
-;                 Must equal <temp> in the render string and live in $0000-$1FFF.
-;                 Allocation: $0BE0 Names, $0BE2 Text Speed, $0BE4 Auto-Jewels,
-;                 $0BE6 Run Button, $0BE8 Btn. Preset, $0BEA-$0BEF is reserved
-;                 for the button preview buffer, $0BF6 Minimal HUD.
-;   +08  store    WRAM address of the packed persistent byte (inside the save
-;                 block $0A00-$0BFB), or 0 when the handlers manage storage
-;   +0A  shift    bit position of the field inside the stored byte
-;   +0C  mask     field mask before shifting (e.g. 0003 for 2 bits)
-;   +0E  xor      value = stored field XOR xor. Set it to the default value so
-;                 that zeroed storage (new game / old save) reads as the default
-;   +10  count    number of choices (TBL entries); value is clamped below it
-;   +12  load     &routine or 0. Fills the temp word (and may raise opt_count)
-;   +14  change   &routine or 0. Runs after each D-pad step (live preview)
-;   +16  commit   &routine or 0. Persists the temp word
-;
-; A zero handler selects the built-in packed-bits behaviour (OptLoadPacked /
-; OptCommitPacked). Handlers are plain subroutines (end in RTS) invoked through
-; OptCallHandler with X = D = actor id (COPs are allowed), 16-bit A/X/Y, and may
-; clobber A, X and Y. Handler pointers are 2-byte (same bank as OptCallHandler),
-; so a setting that needs handlers either keeps them in this file or reaches its
-; own code with a JSL trampoline.
-;
-; The strings and TBL option table may live in any bank (no ?BANK needed). The
-; renderer reads the temp word through the data bank, which is set to the
-; string's own bank, and banks $00-$3F / $80-$BF all mirror WRAM $0000-$1FFF.
-; This holds while the ROM stays at or below 4 MB (every bank < $40).
-;
-; =============================================================================
-; DISPLAY HOOK
-; =============================================================================
-;
-; OptionDisplayPrologue / OptionDisplayEpilogue form a fall-through code chain
-; that runs at the end of every OptionsDrawAll, after the panels and all
-; registered settings are drawn. Insert stubs between them with:
-;
-;     OptionDisplayPrologue+ {
-;         COP [RunBg3Script] ( @my_extra_string )
-;     }
-;
-; Stubs run with 16-bit A/X/Y and X = D = actor id (COPs allowed). They must
-; leave X = actor id and must not end in RTS. The epilogue returns to the caller
-; of OptionsDrawAll. As with registrations, put the hook splice at the END of
-; the patch file.
-;
-; Persistent storage map (inside the saved WRAM block):
-;   $0B24        Names (legacy, retranslation base): bit 0, 1 = English
-;   $0B34-$0B39  button mapping
-;   $0B3A        Text Speed (bits 0-1), Run Button (bits 2-3), Auto-Jewels (bit 4),
-;                Minimal HUD (bit 5)
-;
-; All BG3 rendering goes through ConsoleStringRenderer. No direct writes to the
-; BG3 buffer except OptClearSetting, which blanks a setting's two rows.
+; ==============================================================================
+; Options menu core - Optn. tab UI, button map editor, setting registry
+; ==============================================================================
+; What it does: Inventory Optn. tab (hover + full tab): left panel maps eight
+;   actions to physical buttons; right panel lists registered settings (24-byte
+;   records in InventoryOptionSetups, max 5 visible). Btn. Preset built-in.
+; Vanilla behavior: No in-inventory options tab or save-backed button bytes UI.
+; Hooks (overrides): None in this file (OptionsMenu.patch wires tab dispatch).
+; Adds: TabHoverOptions, OptionsTab, OptionsDrawAll, Opt* helpers, registry
+;   anchors InventoryOptionSetups / OptionSettingPreset; other patches use
+;   OptionSettingPreset- chain inserts at file end for new settings.
+; Depends on: options_input_remap, ConsoleStringRenderer, inventory actors,
+;   system_strings clears; assignment reads hardware $4218 not joypadRaw.
+; State: Maps $0B34-$0B39; scratch $0BD0-$0BF6 (see !opt_* tags); packed
+;   options byte $0B3A (bits allocated per setting patches); displayModeFlags
+;   $09EC bit 0 for BG3 flush; bg1ConfigMode $0AE6 cleared for overlay.
+; Hazards: COP requires X = actor slot; OptRenderString sets DBR to string bank
+;   for TBL temp reads (WRAM mirror); OptionsToggleMapping uses $@ for ROM table;
+;   handler RTS via OptCallHandler must restore X = D (actor id).
+; ==============================================================================
 
 ?BANK 02
 

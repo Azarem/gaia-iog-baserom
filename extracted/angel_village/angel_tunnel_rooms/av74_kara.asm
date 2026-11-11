@@ -1,9 +1,10 @@
-; Kara in the Angel Village tunnel rooms — rescue scene.
+; Kara's picture and the rescue cutscene in the tunnel rooms (scene $74).
 ; 
-; Extended scene (~132 lines). Will: "If I don't spread magic
-; dust..." — part of the Kara rescue sequence in the angel
-; tunnels. Multi-phase cutscene with flag progression and
-; character movement.
+; The actor dies at spawn when flag $8C (Kara rescued) is set. Otherwise it spawns a child (code_06D251, offset (0,16)) that carries the picture's interact handler, and polls BranchIfHasItem #14 (Magic Dust); only while the player carries the item does it enter code_06D171.
+; 
+; The picture's handler (code_06D25A): with flag $89 (Ishtar's test passed) clear it prints 'Kara's picture. She is contained inside it....'. With $89 set and scratch flag $01 clear it prints 'If I don't spread magic dust...'. With $89 set and scratch flag $01 set it prints the kiss text and sets flag $8A. Scratch $01 is set by UseItem_MagicPowder when the player uses the Magic Dust in tiles (07,08)-(09,0A) of this scene, and is cleared by every scene load.
+; 
+; code_06D171 waits for scratch $01 and then flag $8A, locks the joypad ($FFFC), fades the backdrop out twice, loads the Nazca sprite set and runs the rescue: Kara walks up, three dialogs between Kara and Will (they start with Kara's 'Will....Sorry for being so selfish.'), then it sets flag $8C and queues scene $6A (the Angel Village annex).
 ---------------------------------------------
 
 ?INCLUDE 'oneshot_backdrop_fade_out_fast_40'

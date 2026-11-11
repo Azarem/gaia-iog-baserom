@@ -1,8 +1,4 @@
-; Kara in the vacant hut — suggests resting.
-; 
-; Multi-dialog NPC. "No one here... The village looks abandoned.
-; Erik: That's good. We can rest." Later: "Let's rest today."
-; Party decision to recuperate in the empty hut.
+; Kara in the vacant hut (scene $AD). $B2 set or $AD clear: dies. $AE clear (first visit): adds 8 to the player's actor word $14, locks the player, prints 'No one here... The village looks abandoned.' / Erik: 'That's good. We can rest if we want.', unlocks, sets $AE, walks and stops at tile (07,08). $AE set: stands at tile (07,08), solid, with the handler 'Let's rest today.': the handler sets $B0 first and then queues scene $AC at (00B0,00A0), where nvAC_kara plays the sleep scene.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

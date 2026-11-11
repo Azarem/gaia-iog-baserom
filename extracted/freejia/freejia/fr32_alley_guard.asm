@@ -1,9 +1,6 @@
-; Guard blocking the Freejia back alley — denies access to children.
+; Guard blocking the Freejia back alley (scene $32).
 ; 
-; Positioned to block passage. Two dialog states based on flags:
-; initially warns "Children don't come here. Go home.", later
-; becomes more aggressive: "This kid! Where did you come from?!"
-; Prevents access to the slave market area until story progression.
+; Solid actor with a talk handler. The handler compares playerXPos ($09A2) with the guard's own X position ($14): below it prints 'Children don't come here. Go home.'; at or above it prints 'This kid! Where did you come from?! Go home! Go home!!' and sets scratch flag $01, on which the guard's main script clears its solid mark, writes $FFFB to playerSpeedEw ($09B2), waits #1D, clears the flag and marks itself solid again. No story flag is tested.
 ---------------------------------------------
 
 !playerXPos                     09A2

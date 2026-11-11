@@ -1,9 +1,6 @@
-; Lance at his father's house — reveals family connection.
+; Lance in his father's house (scene $7A): the visit that sets flag $90.
 ; 
-; Major NPC (~80 lines). Says: "Will, do you recognize this
-; person? He's my father." Story revelation that Lance's father
-; was part of Olman's expedition. Strengthens the party's
-; shared connection to the Tower of Babel mystery.
+; $90 set: Lance dies at spawn. Otherwise he stands solid with the handler code_07AB6B, which sets scratch $02. The main script waits for scratch $02, locks the player ($EFFC), starts music #1B and prints 'Will, do you recognize this person? He's my father.'; from then on the handler is code_07AB6F: with scratch $01 clear (set by wa7A_lances_father when $A5 is clear) it repeats that line; with $01 set it prints 'He seems to have lost his memory. I finally met my lost father, but...' and sets $90. The main script waits for $90 and then, when the player stands in tiles (07,07)-(08,0A), locks the player ($CFFC), walks, prints 'Will, wait. I'll go, too. I'm preparing Lilly's birthday party. I want to finish by dark. Let's go to our room.' and dies.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

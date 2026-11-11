@@ -1,18 +1,15 @@
-; Sky Garden missed-Red-Jewel makeup.
-;
-; Sky Garden holds two Red Jewel chests: scene $4D (chest flag $0C) and scene $52 (chest flag $0F).
-; Once the Viper is beaten the Sky Garden can never be revisited, so any jewel still sitting in
-; its chest is lost. This actor puts the missed jewels on the Nazca Plain instead.
-;
-; One actor, spawned once per missed chest. The spawn type byte carries the chest flag index
-; (mode-1 spawn record: $0E = type byte >> 1, so chest flag $0C = #19, $0F = #1F).
-;
-; A jewel is present only when BOTH are true:
-;   1. Mystic Statue flag $F9 is set  (Viper defeated -> Sky Garden scenario complete)
-;   2. Event flag $0200+chest is clear (the chest was never opened)
-;
-; Picking the jewel up sets that same chest flag, so a collected jewel never respawns and no
-; extra event flag is needed.
+; ==============================================================================
+; Sky Garden missed Red Jewel makeup (Nazca Plain)
+; ==============================================================================
+; What it does: Spawns flag-gated hidden Red Jewels on scene $4B (Nazca Plain) for Sky
+;   Garden chests $4D ($0C) and $52 ($0F) when Viper is beaten but chest event flags stay clear.
+; Vanilla behavior: No such actors; Sky Garden jewels could become permanently inaccessible.
+; Hooks (overrides): scene_actors.scene_4B_actors+= two spawns (type bytes #19 / #1F -> $0E $0C / $0F).
+; Adds: chest_flagged_hidden_red_jewel actor; interact jumps to RedJewelSparkle hrji_complete on success.
+; Depends on: generic_sparkle; flag_helpers TestFlagRaw $F9, Test/SetEventFlag_0200; HiddenRedJewelInventoryFull.
+; State: Mystic statue flag $F9; chest flags via event $0200+$0E; sets same flag on pickup.
+; Hazards/notes: Spawn record type >> 1 must match intended chest flag index in $0E.
+; ==============================================================================
 
 chest_flagged_hidden_red_jewel [
   actor-def < #00, #00, #30, {
@@ -47,7 +44,7 @@ chest_flagged_hidden_red_jewel [
   } >
 ]
 
-scene_4B_actors+= [
+scene_actors.scene_4B_actors+= [
   actor-spawn < #1D, #2E, #19, @chest_flagged_hidden_red_jewel >   ; Sky Garden 4D chest ($0C)
   actor-spawn < #1F, #2E, #1F, @chest_flagged_hidden_red_jewel >   ; Sky Garden 52 chest ($0F)
 ]

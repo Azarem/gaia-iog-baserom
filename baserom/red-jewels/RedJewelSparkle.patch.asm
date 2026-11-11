@@ -1,10 +1,23 @@
+; ==============================================================================
+; Hidden Red Jewel - sparkle hint while collectible
+; ==============================================================================
+; What it does: Before the per-scene event flag ($0200 + $0E + $80) is set, spawns
+;   generic_sparkle child on init; on pickup sets flag, kills sparkle via $0026,Y,
+;   then gives item $01 with dialog. If flag already set at init, actor dies immediately.
+; Vanilla behavior: hidden_red_jewel init only sets handler/metasprite/hitbox; interact
+;   tested flag inside HiddenRedJewelInteract without VFX or early despawn when taken.
+; Hooks (overrides): hidden_red_jewel.code_00C672 insert-before/after; HiddenRedJewelInteract!.
+; Depends on: generic_sparkle actor; flag_helpers Test/SetEventFlag_0200; HiddenRedJewelInventoryFull.
+; State: Event flags $0280-$028F ($0E + $80 on base $0200); $26 holds sparkle child slot index.
+; Hazards/notes: X = actor slot for all COP calls; sparkle offset #$FFFC from parent.
+; ==============================================================================
 
 !activator_type      001C
 
 -----------------------------------
 ;hidden_red_jewel
 
-code_00C672- {
+hidden_red_jewel.code_00C672- {
     LDA $0E
     CLC 
     ADC #$0080
@@ -14,13 +27,13 @@ code_00C672- {
     STY $26
 }
 
-code_00C672+ {
+hidden_red_jewel.code_00C672+ {
   hidden_red_jewel_destroy:
     COP [Die]
     
 }
 
-HiddenRedJewelInteract! {
+hidden_red_jewel.HiddenRedJewelInteract! {
     COP [GiveItem] ( #01, &HiddenRedJewelInventoryFull )
     LDA $0E
     CLC 

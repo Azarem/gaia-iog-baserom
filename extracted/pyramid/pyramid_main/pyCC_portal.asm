@@ -1,8 +1,4 @@
-; Mummy Queen floor portal — deeper Pyramid access.
-; 
-; Interactive warp: "The mummified queen of the Pyramid appears.
-; Quit/Jump in" — portal leading to the Mummy Queen's domain.
-; Appears after sufficient Pyramid exploration.
+; Portal to the Mummy Queen in the main Pyramid scene ($CC). At spawn it dies when $FC (the Mummy Queen's Mystic Statue was collected) is set. Otherwise it waits for $D1 (the hieroglyph puzzle was solved), then becomes an interactable: 'The mummified queen of the Pyramid appears. Quit / Jump in'. 'Jump in' sets bit $2000 of the player's flags $10, spawns py_death_particle, sets gfxCacheIdxA and gfxCacheIdxB to $0303 and queues scene $DD at (00F8,01B0).
 ---------------------------------------------
 
 ?INCLUDE 'py_death_particle'

@@ -1,9 +1,4 @@
-; Stone girl statue 2 in the Gorgon Hut — can be restored.
-; 
-; Dual-state object. Before: "The statue of the girl stands
-; silently." After restoration: "Somehow the statue has become
-; a human girl! A tear comes to the girl's eyes..." Emotional
-; scene when the petrification is reversed.
+; Statue of the girl in the middle of the Gorgon Hut (scene $AE, tile (08,07)). Same script as nvAE_stone_girl1 with flag $C0 (tiles (08,06)-(09,08) of UseItem_GorgonFlower). The restored girl's handler gives a reward once: with $E6 clear it prints 'The girl silently offers a Red Jewel as a reward... Will gets a Red Jewel!', gives item $01 (a full inventory jumps to HiddenRedJewelInventoryFull and leaves $E6 clear) and sets $E6; with $E6 set it prints 'You don't understand...'. The text 'Somehow the statue has become a human girl! A tear comes to the girl's eyes...' is defined in the file but no code references it.
 ---------------------------------------------
 
 ?INCLUDE 'hidden_red_jewel'

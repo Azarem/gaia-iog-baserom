@@ -1,3 +1,16 @@
+; ==============================================================================
+; Key item / relic flag core - buckets, pickup, and inventory display helpers
+; ==============================================================================
+; What it does: Maps inventory item IDs to bit indices in WRAM key_item_flags ($0B58),
+;   groups them into buckets for stacked menu display, and exposes Test/Set helpers used
+;   when giving key items and when RelicMenu animates multi-relic slots.
+; Vanilla behavior: (new baserom data and routines; not in extracted ROM as this layout.)
+; Adds: KeyItemFlagIndex, KeyBucket* tables, KeyItemGetNext, KeyItemTestFlag(Wrapper),
+;   KeyItemCountAndInit, KeyItemCheckAndStore (hooks inventory store for flagged items).
+; Depends on: BitMaskTable; InventoryCheckAndStore for non-revoke items; tag key_item_flags.
+; State: $0B58+ nibble bytes hold per-relic acquisition bits (see KeyItemCounters comments).
+; Hazards/notes: KeyItemTestFlag assumes M=8 on entry; KeyItemCheckAndStore uses stack layout.
+; ==============================================================================
 
 !key_item_flags                 0B58
 

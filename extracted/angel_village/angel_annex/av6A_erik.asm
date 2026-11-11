@@ -1,8 +1,6 @@
-; Erik in the Angel Village annex — remarks on sunlight.
+; Erik in the Angel Village annex (scene $6A); he runs the reunion cutscene after Kara's rescue.
 ; 
-; Multi-dialog NPC. Says: "The sun is really bright. I never
-; noticed that before." Reflects on the contrast between
-; the dark underground village and the surface world.
+; At spawn: flag $8D set -> dies. Flag $A9 (reunion done) set -> code_06C513: placed at tile (16,0C) with the handler 'I think I saw a Red Jewel in the Angel Village.'. Flag $8C (Kara rescued) set -> code_06C4D7: locks the joypad ($CFFC), walks to tile (0F,0C) and on, prints the reunion dialog (Neil, Lilly and Kara react to Kara's return), sets flag $A9 and unlocks. Otherwise: installs the 'The sun is really bright. I never noticed that before.' handler.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

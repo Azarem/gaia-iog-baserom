@@ -1,9 +1,6 @@
-; Falling ceiling tile trap in the Inca entryway — shakes then falls.
+; Falling ceiling tile of the Incan Ruins entryway (scene $25). Six copies at tiles (08,1A), (08,1C), (08,1E), (0A,1A), (0A,1C), (0A,1E).
 ; 
-; Waits for flag $2F to not yet be set. Locks joypad, waits $3B frames,
-; plays rumble SFX ($1515), spawns camera_drift for screen shake,
-; waits $B3 frames, then drops the tile: teleports Y position up by
-; $100 pixels and falls with TRB $2000. Triggers on ceiling event.
+; Spawns hidden (the third actor-def byte #23 sets $2000 in $10) and nudges its position by (08,00). With flag $2F (the Blue Block was fitted into the slot by UseItem_DiamondBlock_Place) set at spawn it runs code_09C38D at once: it shows the tile, sets sprite priority to the minimum, clears collision on its tile, releases the joypad bits $CFFC and idles. With $2F clear it waits with WaitOnFlagByte(#2F, #01). When the flag turns on it locks the joypad ($CFFC), waits #3B, plays sound $1515, spawns camera_drift.CameraDriftLoopSimple for screen shake, waits #B3, stores a random byte in $08, yields once, subtracts $100 from its Y, shows the tile, sets the priority to the maximum and falls (StageSpriteLoopMoveY #18, #02, #0F). On landing it plays sound $1515, ends on frame #35 and runs code_09C38D.
 ---------------------------------------------
 
 ?INCLUDE 'camera_drift'

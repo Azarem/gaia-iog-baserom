@@ -1,7 +1,6 @@
-; South Cape NPC who mentions the approaching comet.
+; South Cape NPC who mentions the approaching star.
 ; 
-; Flag-gated dialog with two branches: before and after the castle
-; summons. Provides foreshadowing about the comet.
+; No flags. One interact handler prints one dialog ('a star is approaching the Earth'). The actor walks a fixed route in three legs with a wait of $EF ticks before each, then stays at the last stop.
 ---------------------------------------------
 
 ---------------------------------------------

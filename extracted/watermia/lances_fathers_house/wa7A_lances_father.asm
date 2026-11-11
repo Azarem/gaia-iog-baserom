@@ -1,8 +1,6 @@
-; Lance's father — expedition partner of Olman.
+; Lance's father (scene $7A): two states by flag $A5.
 ; 
-; NPC: "I went on an expedition with Olman." Provides
-; backstory about the Tower of Babel expedition that
-; connects Lance and Will's fathers. Key lore NPC.
+; $A5 clear (the party has not been to Euro): 'I went on an expedition with Olman. It was scary, but fun.' and scratch $01 is set (Lance's handler reads it). $A5 set: 'Oh, Will. Sorry I made you worry. Lance and Lilly did their best to nurse me back to health...'.
 ---------------------------------------------
 
 ---------------------------------------------

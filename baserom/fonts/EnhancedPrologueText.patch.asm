@@ -1,13 +1,25 @@
 
+; ==============================================================================
+; Prologue text rendering - palette bundles and thinker hooks
+; ==============================================================================
+; What it does: Prologue thinkers copy static CGRAM to $7F0B20-$7F0B26 before
+;   fade-in and rewrite sprite palette lines on fade-out; custom fade bundles
+;   drive the enhanced font colors (indices $75/$76 in palette_bundles).
+; Vanilla behavior: Thinkers only run COP fade commands without CGRAM/sprite edits.
+; Hooks (overrides): pr_thinkers e_pr_thinker_0BD031/039; palette_bundles
+;   bundles and word tables for prologue fades.
+; Depends on: pr_thinkers, palette_bundles table references.
+; State: $7F0BE0-$7F0BE6 source colors, $7F0603 sprite pal lines, $00DA OAM count.
+; Hazards/notes: Thinker COP scripts; palette rewrite loops use SEP #$20.
+; ==============================================================================
 
 !M7SEL                          211A
 
 ----------------------------------------------
 ?INCLUDE 'pr_thinkers'
 ----------------------------------------------
-;Set colors and sprite palette index to static palette when fade is complete
 
-e_pr_thinker_0BD031! {
+pr_thinkers.e_pr_thinker_0BD031! {
     COP [37] ( #75 )
     COP [39]
 
@@ -56,7 +68,7 @@ e_pr_thinker_0BD031! {
 ---------------------------------------------
 ;Revert palette number for sprites before fade out
 
-e_pr_thinker_0BD039! {
+pr_thinkers.e_pr_thinker_0BD039! {
     
     PHX
     PHY
@@ -98,11 +110,11 @@ e_pr_thinker_0BD039! {
 ----------------------------------------------
 ;Fade-in / out bundles
 
-palette_bundle_16D17B! [
+palette_bundles.palette_bundle_16D17B! [
   palette-bundle < #10, &word_16D182, #F1, #05, #04 >   ;00
 ]
 
-word_16D182! [
+palette_bundles.word_16D182! [
   #$0000   ;00
   #$0000   ;01
   #$0000
@@ -169,11 +181,11 @@ word_16D182! [
 ]
 
 
-palette_bundle_16D1C2! [
+palette_bundles.palette_bundle_16D1C2! [
   palette-bundle < #10, &word_16D1C9, #F1, #05, #04 >   ;00
 ]
 
-word_16D1C9! [
+palette_bundles.word_16D1C9! [
   #$7FFF   ;00
   #$53DE   ;01
   #$01B1

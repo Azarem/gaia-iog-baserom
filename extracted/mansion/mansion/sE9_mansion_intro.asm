@@ -1,9 +1,6 @@
-; Mansion entrance narration — awakening in a strange place.
+; Mansion entrance (scene $E9): the awakening narration and the exit trigger.
 ; 
-; Story text: "When I awoke, I was standing in the entrance
-; to a strange mansion." Introduces the optional Solid Arm
-; boss area. Sets the unsettling atmosphere of the Jeweler
-; Gem's true domain.
+; Flag $29 clear (first visit): writes CGADSUB = $21, sets $29, locks the joypad ($EFFC), waits #1D, prints 'When I awoke, I was standing in the entrance to a strange mansion.', unlocks and continues into the per-frame loop (code_08FC92). Flag $29 set: goes straight to the loop. The loop writes CGADSUB = $21 every frame and, when Will is inside the relative tile rectangle (32,3E)-(34,3F), queues scene $E3 at ($0280,$01A0) and dies (the same destination as the Solid Arm defeat). The warp to the Solid Arm lair (scene $EA) is in scene_warps (warp_def_E6). Reached from actors/jeweler_gem (50 Red Jewels).
 ---------------------------------------------
 
 !gfxCacheIdxA                   0648

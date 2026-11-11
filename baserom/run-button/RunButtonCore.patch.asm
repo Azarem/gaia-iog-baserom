@@ -1,5 +1,18 @@
-﻿
-;Options menu setting: bits 2-3 = Run Button mode (0 Run, 1 Walk, 2 Auto)
+﻿; ==============================================================================
+; Run Button core - movement sprint from options setting
+; ==============================================================================
+; What it does: Each frame via PlayerInputHooks chain, sets run state $09B2/$09B4
+;   when D-pad held and gates match Run/Walk/Auto mode from options ($0B3A).
+; Vanilla behavior: Sprint required Run button (joypad bit $0040) plus direction;
+;   no Walk/Auto modes.
+; Hooks (overrides): PlayerInputHooks+ chain insert (patch-local hook list).
+; Adds: run_button_main and direction helpers (JSL from hook).
+; Depends on: PlayerInput.patch PlayerInputHooks anchor; joypadCurrent $0656.
+; State: $0B3A bits 2-3; player motion $09AA/$09B2/$09B4/$09B8; playerFlags
+;   $09AE bits 11-13 ($0800/$1000/$2000) skip sprint when set.
+; Hazards: RTL subroutines; reads joypad after remapping (action bit $0040 = Run).
+; ==============================================================================
+
 !run_button_setting             0B3A
 
 ---------------------------------

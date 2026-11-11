@@ -1,4 +1,23 @@
-﻿?BANK 02
+﻿; ==============================================================================
+; SPC sample chunk lookup - relocated SFX pointer table (bank $02)
+; ==============================================================================
+; What it does: Replaces the vanilla C5:0000 sample library walk with a direct
+;   index into sfx_table (60 entries, 3 bytes each: size + bank) in this bank;
+;   chunk payload reads use SAMPLE_PTR instead of the library base $4A/$4C.
+; Vanilla behavior: SpcNextChunkIndex reset $4A to $C5:0000 and SpcFindChunk
+;   skipped variable-size chunks in ROM until the stream index matched; data
+;   loop used [$4A],Y with bank byte $4C.
+; Hooks (overrides): spc_transfer.SpcNextChunkIndex, SpcFindChunk,
+;   SpcSendChunkData, loc_02912C (byte loop read path).
+; Adds: sfx_table and sfx00-sfx3B labels (long pointers to sample blobs).
+; Depends on: ?INCLUDE chunk_028000 (SPC transfer engine in bank $02);
+;   SpcSendHeader, SpcChunkDone (unchanged).
+; State: Stream index Y in $32; chunk index $2A; dest accumulator $2E/$2C;
+;   handshake counter $30; sample pointer $4A (repurposed).
+; Hazards/notes: Bank $02 table must stay LoROM-mapped; chunk index byte bit $80
+;   still marks empty slots (same as vanilla).
+; ==============================================================================
+?BANK 02
 
 ?INCLUDE 'chunk_028000'
 
@@ -20,7 +39,7 @@ sfx_table:
 	#@sfx38  #@sfx39  #@sfx3A  #@sfx3B
 
 	
-  SpcNextChunkIndex!:
+  spc_transfer.SpcNextChunkIndex!:
     ;REP #$20
     LDX #&sfx_table
     STX SAMPLE_PTR
@@ -37,7 +56,7 @@ sfx_table:
     BEQ loc_0290E8
     JMP $&SpcChunkDone
 	
-  SpcFindChunk!:
+  spc_transfer.SpcFindChunk!:
 	LDA  SAMPLE_NUM
 	ASL
 	CLC
@@ -62,11 +81,11 @@ sfx_table:
 	LDA  SPC_CMD
 	BRA  SpcSendHeader
 
-SpcSendChunkData!:
+spc_transfer.SpcSendChunkData!:
 	LDA  [SAMPLE_PTR], Y
 	INY
 
-loc_02912C!:
+spc_transfer.loc_02912C!:
 	XBA
 	LDA  [SAMPLE_PTR], Y
 	INY

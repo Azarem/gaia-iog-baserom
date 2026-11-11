@@ -1,10 +1,6 @@
-; Neil in the Euro guest room — wants to talk to his parents.
+; Neil in the Euro guest room (scene $96): the evening greeting and the morning scene.
 ; 
-; Extended NPC (~123 lines). "Well, make yourself at home.
-; I want to talk to my parents. It's been three years."
-; Major character moment — Neil's reunion with his family.
-; "The next morning. Disappointment awaits..." — leads
-; to the discovery about Neil's parents.
+; $AC set: Neil dies at spawn. $AB set: he stands at tile (0A,0A) with the handler 'Neil: Take care, everyone.'. $AA set (Neil talked to the party in the mansion): the morning scene: locks the player ($EFFC), prints 'The next morning. Disappointment awaits...' and Neil's 'Good morning. Sorry about yesterday...' about taking over the company, starts music #1B, prints 'Kara, someone's come asking about you. Something about being an old friend.', sets scratch $01 and waits for it to be clear (Kara moves and clears it), then 'Hey! Come on in!' and spawns Hamlet (code_07DECB, which sets scratch $02); Neil waits for $02, starts music #02, prints Kara's reunion with Hamlet, sets $AB and unlocks. $A4 set: he dies at spawn. Otherwise the first greeting: sets $A4, locks the player ($CFFC), 'Well, make yourself at home.. I want to talk to my parents. It's been three years.'.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

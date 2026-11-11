@@ -5,7 +5,7 @@
 ; mechanics that damage the player's HP, enemy stat changes for
 ; the weakening crew, palette fades to represent passing time,
 ; and the eventual rescue. Uses hpToHeal for visual HP
-; drain effects. Includes the Freedan transformation check and
+; drain effects. Includes
 ; player_transition_handlers for cutscene movement control.
 ---------------------------------------------
 

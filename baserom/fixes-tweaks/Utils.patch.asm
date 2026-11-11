@@ -1,4 +1,20 @@
-﻿?BANK 03
+﻿; ==============================================================================
+; Misc engine tweaks - boot, save, HUD font, credits string
+; ==============================================================================
+; What it does: Skips PAL boot lockout, silences empty-slot item message,
+;   removes continue from Gaia save confirm, retitles credits, tints inventory
+;   menu palette RAM at init.
+; Vanilla behavior: PAL shows region warning; UseItem_None prints text;
+;   GaiaSaveConfirm offers continue; licensed Nintendo credits string.
+; Hooks (overrides): sFB_boot_logo BootLogoPalLockout; item_use_system UseItem_None;
+;   sE6_gaia GaiaSaveConfirm; sF7_credits dialogstring_09F2FA; inventory_menu
+;   InventoryMenuInit prepend (palette stores).
+; Depends on: chunk includes listed below, SaveGameState_Scene JSL.
+; Hazards/notes: GaiaSaveConfirm masks joypad $FFF0 during COP DA; boot patch
+;   is unconditional BRA to NTSC path.
+; ==============================================================================
+
+?BANK 03
 
 ?INCLUDE 'chunk_028000'
 ?INCLUDE 'chunk_038000'
@@ -48,14 +64,14 @@
 
 -------------------------------------------------
 ;Prevent unequipped message
-UseItem_None! {
+item_use_system.UseItem_None! {
     RTS 
 }
 
 ------------------------------------------------
 ;Disable continue option when saving
 
-GaiaSaveConfirm! {
+sE6_gaia.GaiaSaveConfirm! {
     LDA $0D8C
     JSL $@SaveGameState_Scene
     COP [07] ( #29 )
@@ -72,21 +88,21 @@ GaiaSaveConfirm! {
 -----------------------------------------------
 ;Disable region protection
 
-BootLogoPalLockout! {
+sFB_boot_logo.BootLogoPalLockout! {
     BRA BootLogoNtsc
 }
 
 -----------------------------------------------
 ?INCLUDE 'sF7_credits'
 
-dialogstring_09F2FA! `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
+sF7_credits.dialogstring_09F2FA! `[PAL:0][DLG:44,1]     Built With GaiaLabs[N][PAL:4]         By Kassiven[N][PAL:0]            Ǫįņţ[N]            ęťĔŇ[END]`!
 
 
 --------------------------------------------
 ?INCLUDE 'inventory_menu'
 --------------------------------------------
 ;Force some palette colors for cleaner font
-InventoryMenuInit- [
+inventory_menu.InventoryMenuInit- [
     LDA #$4063
     STA $7F0A06
     LDA #$2180

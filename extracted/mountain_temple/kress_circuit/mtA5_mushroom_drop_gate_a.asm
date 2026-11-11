@@ -1,8 +1,6 @@
-; Mushroom Drop gate A in the Kress circuit.
+; Mushroom Drop gate A of the Kress circuit (scene $A5).
 ; 
-; Gate controlled by a Mushroom Drop switch. Opens when
-; the corresponding Mushroom Drop is activated. Part of
-; the temple's interconnected puzzle system.
+; Dies at spawn when flag word $015F is set. Otherwise it waits on WaitOnFlagByte ( #01, #01 ), raised by UseItem_MushroomWater at stem A (tiles (2E,12)-(30,13)). It then locks the joypad, removes item #1A and plays sound #0F on channel 1 before each of the six BG changes #5A-#5F, sets $015F, unlocks the joypad and dies.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

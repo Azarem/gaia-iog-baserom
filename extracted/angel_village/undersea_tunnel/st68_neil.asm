@@ -1,8 +1,8 @@
-; Neil in the undersea tunnel — narrates the long journey.
+; Neil in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).
 ; 
-; Extended NPC (~83 lines). "Five days have passed since we
-; entered the tunnel. The same scenery..." Tracks the passage
-; of time during the tunnel journey. Multi-day dialog changes.
+; Phase 0: locks the joypad ($CFFC), prints 'Five days have passed since we entered the tunnel...', sets scratch flag $01, unlocks, installs the 'Thousands of years ago people walked through this tunnel...' handler and waits for scratch $02 (the mushrooms examined). It then polls for the player inside tiles (0B,00)-(0C,10); on entry it locks the joypad again, sets scratch $03 and plays frame #12.
+; 
+; Phase 1: dies. Phase 2: placed at tile (18,1A), locks the joypad, prints 'Two weeks since entering the tunnel...' and the Kara/Lance remark, and sets scratch $01 (st68_kara continues); the lock stays until the next scene load.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

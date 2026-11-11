@@ -1,8 +1,6 @@
-; Long-delay switch spear on the Great Wall rampway.
+; Switch spear on the Great Wall rampway driven by scratch flag $03.
 ; 
-; Wall spear trap with a longer timer cycle. Extends and
-; retracts more slowly than the standard wall_spear. Used
-; to create timing puzzles on the rampway section.
+; Solid frame #1F, WaitOnFlagByte ( #03, #01 ) for the hit_switch at tile (37,2C), ClearFlagByte of the same flag, retract frame #20, WaitByte ( #77 ), then back to solid. The retract time equals the other rampway actors; the script differs only in flag and frames.
 ---------------------------------------------
 
 ---------------------------------------------

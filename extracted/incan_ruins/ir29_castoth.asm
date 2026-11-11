@@ -7,8 +7,9 @@
 ; the central face. Arms cycle through open/closed states, blocking
 ; attacks when closed. Phase transitions increase attack speed and
 ; arm pattern complexity. Spawns camera_drift for screen shake on
-; impacts. On defeat, triggers the Freedan transformation cutscene
-; (flag word $011F) or the Babel Tower post-fight (scene $F2 variant).
+; impacts. On defeat the scene $29 variant leaves the aftermath to the
+; separate actor ir29_transform (flag word $011F); the scene $F2 variant
+; spawns code_0A9AB9, which sets flag word $0175 and queues scene $E0.
 ; Uses StandardEnemyDefeatHandler for the win sequence. The entry code of ir29_castoth tests boss flag $0500 (TestWramFlag_Offset100 with index 0: byte $0AA0 bit 0, set by boss_clear_reward_handler once the stat catch-up is done); when it is set the actor zeroes enemiesRemaining and enemiesRemainingBcd and dies at once, so a rewarded Castoth is not fought again.
 ---------------------------------------------
 

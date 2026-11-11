@@ -267,7 +267,7 @@ ClearFlagRaw {
 ---------------------------------------------
 ; JSL helper that zero-fills the $20-byte wramFlags block ($0A80–$0A9F, event flags $0400–$04FF) with a word loop (16 iterations).
 ; 
-; Callers: WorldMapController (twice, when the world map is entered), st68_kara and sp58_red_eye; game_over_sequence clears the same $20 bytes inline on a true death. No call at ordinary scene changes was found.
+; Callers: WorldMapController (once, when the world map is entered), st68_kara and sp58_red_eye; game_over_sequence clears the same $20 bytes inline on a true death. No call at ordinary scene changes was found.
 
 ClearAllWramFlags {
     PHX 

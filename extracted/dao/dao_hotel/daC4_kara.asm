@@ -1,9 +1,4 @@
-; Kara at the Dao hotel — arrival narration.
-; 
-; Multi-dialog NPC. "A town shining in the desert. We went
-; to Dao." Later: "This place is supposed to be famous for
-; labor merchants. It doesn't look like it." Kara's
-; observations about Dao's deceptive appearance.
+; Kara at the Dao hotel (scene $C4). $D2 set: dies. $D0 set: stays. $BB set with $D0 clear: dies (she is with the party in the Pyramid). Otherwise she stands solid with 'This place is supposed to be famous for labor merchants. It doesn't look like it.'. When $B6 is clear (first visit) she sets $B6 at once, locks the player ($CFFC), prints 'A town shining in the desert. We went to Dao.' and unlocks.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

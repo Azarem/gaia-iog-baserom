@@ -22,7 +22,7 @@
    - [DMA / Tilemap Scratch ($0800–$0901)](#24-dma--tilemap-scratch-080009ff)
    - [Tile Query / Graphics Cache ($0902–$09A1)](#25-tile-query--graphics-cache-090209a1)
    - [Player State ($09A2–$09FF)](#26-player-state-09a209ff)
-   - [Event & WRAM Flags ($0A00–$0A9F)](#27-event--wram-flags-0a000a9f)
+   - [Event & WRAM Flags ($0A00–$0AA3)](#27-event--wram-flags-0a000aa3)
    - [Player Stats / Inventory ($0AA0–$0B3F)](#28-player-stats--inventory-0aa00b3f)
    - [Input Remapping ($0DA0–$0DC0)](#29-input-remapping-0da00dc0)
    - [Actor Pool ($0DBC–$0FFF)](#210-actor-pool-0dbc0fff)
@@ -367,18 +367,18 @@ Reading the table:
 
 **Hook placement.** Anything that must run in every scene (e.g. the run button and item swapping) cannot live in `AttackSystemEntry`: the attack companion kills itself at spawn when `$0008` is set. Use the player input host actor (`baserom/player-input/player_input_core.asm`).
 
-### 2.7 Event & WRAM Flags ($0A00–$0A9F)
+### 2.7 Event & WRAM Flags ($0A00–$0AA3)
 
 Two bitfield arrays provide the primary persistence mechanism for game state.
 
 | Address | Size | Capacity | Name | Description |
 |---------|------|----------|------|-------------|
-| `$0A00`–`$0AFF` | 256 B | 2048 flags | `eventFlags` | **Persistent scene/world state** — chests opened, bosses defeated, switches flipped, red jewel collection. Survives scene transitions. Accessed via `SetEventFlag`, `ClearEventFlag`, `TestEventFlag` and offset wrappers (`+$0100`, `+$0200`, `+$0300`, `+$0510`). Does **not** survive a reset: the boot WRAM clear (`InitSystemVariables`, DMA fill) zeroes `$0A00-$0AFF` in frame 0 even though Mesen2's soft reset keeps WRAM. Example: event flag `$10` (`$0A02` bit 0) is the boot-logo phase latch (set at frame 203, cleared at frame 343); a reset with it set (at the title, or set by the game during the second logo) still shows the Nintendo logo first. |
-| `$0A80`–`$0A9F` | 32 B | 256 flags | `wramFlags` | **Dungeon kill and puzzle flags**, indexed by enemy number. Accessed via `SetWramFlag`, `TestWramFlag`. Zeroed by `ClearAllWramFlags` (called when the world map is entered and by `st68_kara` and `sp58_red_eye`) and inline by `game_over_sequence` on a real game over; no reset at ordinary scene changes was found, so these flags outlive a single scene. |
+| `$0A00`–`$0AA3` | 164 B | 1312 flag bits | `eventFlags` | **Script flag bit array** (flag N = bit N AND 7 of byte `$0A00 + N/8`) — chests opened, bosses defeated, switches flipped, red jewel collection. Flags `$0000`–`$000F` (`$0A00`–`$0A01`) are scene scratch: `ClearSceneState` zeroes them at every scene load (runtime-verified in warps to scenes `$15`, `$24` and `$08`), and the inventory overlay saves, zeroes and restores them (flag `$FF` is cleared on open and set two frames after close). All other flags survive scene transitions and are part of the save block `$0A00`–`$0BFB`. Accessed via `SetEventFlag`, `ClearEventFlag`, `TestEventFlag` and offset wrappers (`+$0100`, `+$0200`, `+$0300`, `+$0510`). Does **not** survive a reset: the boot WRAM clear (`InitSystemVariables`, DMA fill) zeroes `$0A00-$0AFF` in frame 0 even though Mesen2's soft reset keeps WRAM. Example: event flag `$10` (`$0A02` bit 0) is the boot-logo phase latch (set at frame 203, cleared at frame 343); a reset with it set (at the title, or set by the game during the second logo) still shows the Nintendo logo first. Bytes `$0AA4`–`$0AB3` are not flag storage: `$0AA6`, `$0AAC`, `$0AB0` and `$0AB2` are 16-bit state words and `$0AB4` starts `inventorySlots`. |
+| `$0A80`–`$0A9F` | 32 B | 256 flags | `wramFlags` | **Dungeon kill and puzzle flags**, indexed by enemy number. Accessed via `SetWramFlag`, `TestWramFlag`. Zeroed by `ClearAllWramFlags` (called when the world map is entered and by `st68_kara` and `sp58_red_eye`) and inline by `game_over_sequence` on a real game over; no reset at ordinary scene changes was found, so these flags outlive a single scene (runtime-verified: warps to scenes `$15` and `$24` with every byte of the block `$FF` kept `$0A80` = `$FFFF`; the world-map, revive, game-over and save paths were not run). |
 
 > **Bitfield indexing:** `byte_offset = index >> 3`, `bitmask = bitmasks_bit_position[index & 7]` where the mask table at `$00B11D` is `$01,$02,$04,$08,$10,$20,$40,$80`.
 >
-> **Carry convention (test routines):** Carry **clear** = flag is set; carry **set** = flag is clear. This inverted convention allows `BCC flag_true` patterns in COP scripts.
+> **Carry convention (test routines):** Carry **set** = flag is set; carry **clear** = flag is clear (`SEC`, `AND`, `BNE` over `CLC`). A returns the isolated bit mask. The COP handlers branch with `BCS` for "flag set".
 
 ### 2.8 Player Stats / Inventory ($0AA0–$0B3F)
 

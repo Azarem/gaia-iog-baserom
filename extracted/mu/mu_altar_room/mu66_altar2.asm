@@ -1,7 +1,6 @@
-; Altar object 2 in the Mu altar room — smaller puzzle element.
+; Statue sprite of the second altar in the Mu altar room (scene $66).
 ; 
-; Second altar piece in the room. Works in conjunction with
-; altar1 to complete the altar room puzzle sequence.
+; Waits for flag $81 (Rama Statue placed on the second pedestal by UseItem_RamaStatue), then shows its statue frame #2D and idles. It sets no flag.
 ---------------------------------------------
 
 ---------------------------------------------

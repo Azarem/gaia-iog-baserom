@@ -1,8 +1,4 @@
-; Explorer NPC in the Pyramid puzzle room — warning about traps.
-; 
-; Interactable NPC: "There are traps scattered around to
-; prevent entry. There's a booby trap in this room too."
-; Warns the player about the puzzle room's dangers.
+; Explorer of the Pyramid puzzle room (scene $CD): a solid NPC whose interact handler prints 'There are traps scattered around to prevent entry. There's a booby trap in this room that responds to sound.....So don't make any noise...'. At spawn it dies when any of the stone flags $C2-$C7 is set or when the player holds one of the items $1E-$23.
 ---------------------------------------------
 
 ---------------------------------------------

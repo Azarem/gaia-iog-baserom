@@ -179,7 +179,7 @@ One byte per scene id: **0** none, **1** Max HP +1, **2** STR +1, **3** DEF +1. 
 |----------|-----|
 | `StandardEnemyDefeatHandler.EnemyStatBonusReward` | Last enemy → spawn `reward_actors` pickup |
 | `boss_clear_reward_handler.BossClearApplyStatReward` | Boss catchup batch grant |
-| `field_reveal_object` | Hidden stat item variant when tier path runs |
+| `field_reveal_object` | Hidden stat item variant: runs only for `$26` = 0, which none of its three spawners passes (it never runs) |
 | `radar_map_screen` | Reward icon while flag clear and tier ≠ 0 |
 
 ---
@@ -197,8 +197,8 @@ Gem or stat-item pickup: drops to floor, hops, spawns **`collect_handler_gem`** 
 | Caller | `$26` at entry | Behavior |
 |--------|----------------|----------|
 | `EnemyDefeatDispatch.asm` | Remaining enemy count (**nonzero**) | **Gem path only** — reads defeated enemy’s `enemy_stats_table+3` & 3 |
-| `pyCC_mystic_ball.asm` | 0 | Tier path if flag `$0300` clear |
-| `awB1_wall_walker.asm` | 0 | Same |
+| `pyCC_mystic_ball.asm` | Remaining enemy count (**nonzero**) | Gem path only, as `EnemyDefeatDispatch.asm` |
+| `awB1_wall_walker.asm` | Remaining enemy count (**nonzero**) | Same |
 
 **Pickup selection (entry)**
 

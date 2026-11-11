@@ -1347,26 +1347,54 @@ function multisetOverlap(a: string[], b: string[]): number {
     return shared;
 }
 
-export function compareInventories(inv: Inventory, oldPath: string): string {
-    const old = JSON.parse(readFileSync(oldPath, 'utf-8')) as {
-        source_sha256?: string; cop_site_count: number; helper_call_count: number; direct_symbol_reference_count: number;
-        indices: Array<{ sites: OldSite[] }>; helper_sites: OldSite[]; direct_symbol_sites: OldSite[];
-        dynamic_helper_traces: Array<{ name: string; candidate_indices: number[]; call_sites: Array<{ source: string; line: number }> }>;
-        unresolved_dynamic_helper_inputs: Array<{ helper: string; source: string; line: number }>;
-    };
-    const oldItems: Item[] = [];
-    for (const idx of old.indices) for (const s of idx.sites) oldItems.push({ key: copKey(s.operation ?? '', s.index ?? -1, s.operand ?? ''), file: stripExt(s.source), line: s.line, text: s.text ?? '', cat: 'cop' });
-    for (const s of old.helper_sites) oldItems.push({ key: `H|${s.helper}`, file: stripExt(s.source), line: s.line, text: s.text ?? '', cat: 'helper' });
-    for (const s of old.direct_symbol_sites) oldItems.push({ key: `D|${s.space}|${(s.text ?? '').replace(/\s+/g, ' ').trim()}`, file: stripExt(s.source), line: s.line, text: s.text ?? '', cat: 'direct' });
-
-    const newItems: Item[] = [];
-    for (const s of inv.sites) if (s.kind === 'cop') newItems.push({ key: copKey(s.opcode, s.index, s.operands), file: s.file, line: s.line, text: `COP [${s.opcode}] ( ${s.operands} )`, cat: 'cop' });
-    for (const h of inv.helper_calls) newItems.push({ key: `H|${h.helper}`, file: h.file, line: h.line, text: `${h.call} ${h.helper}`, cat: 'helper' });
+/** The comparable items of an `inventory.json` (the same rules apply to the old and the new side). */
+function inventoryItems(inv: Inventory): Item[] {
+    const items: Item[] = [];
+    for (const s of inv.sites) if (s.kind === 'cop') items.push({ key: copKey(s.opcode, s.index, s.operands), file: s.file, line: s.line, text: `COP [${s.opcode}] ( ${s.operands} )`, cat: 'cop' });
+    for (const h of inv.helper_calls) items.push({ key: `H|${h.helper}`, file: h.file, line: h.line, text: `${h.call} ${h.helper}`, cat: 'helper' });
     for (const d of inv.direct_accesses) {
         if (!d.flagSymbol) continue;
         const space = d.symbol === 'eventFlags' ? 'eventFlags' : 'wramFlags';
-        newItems.push({ key: `D|${space}|${d.opcode} $${d.symbol}${d.operands.replace(/^\$\w+/, '')}`.replace(/\s+/g, ' ').trim(), file: d.file, line: d.line, text: `${d.opcode} ${d.operands}`, cat: 'direct' });
+        items.push({ key: `D|${space}|${d.opcode} $${d.symbol}${d.operands.replace(/^\$\w+/, '')}`.replace(/\s+/g, ' ').trim(), file: d.file, line: d.line, text: `${d.opcode} ${d.operands}`, cat: 'direct' });
     }
+    return items;
+}
+
+interface OldTrace { name: string; candidate_indices: number[] }
+interface OldUnresolved { helper: string; source: string; line: number }
+
+/**
+ * Compare the fresh inventory with an older one. The old file is either the legacy inventory (`indices`, `helper_sites`, ...)
+ * or an earlier `inventory.json` of this tool (`sites`, `helper_calls`, ...); the format is detected from its keys.
+ */
+export function compareInventories(inv: Inventory, oldPath: string): string {
+    const raw = JSON.parse(readFileSync(oldPath, 'utf-8')) as Record<string, unknown>;
+    let oldItems: Item[];
+    let oldTraces: OldTrace[];
+    let oldUnresolved: OldUnresolved[];
+    let oldInv: Inventory | null = null;
+    if (Array.isArray(raw.indices)) {
+        const old = raw as unknown as {
+            indices: Array<{ sites: OldSite[] }>; helper_sites: OldSite[]; direct_symbol_sites: OldSite[];
+            dynamic_helper_traces: Array<{ name: string; candidate_indices: number[] }>;
+            unresolved_dynamic_helper_inputs: OldUnresolved[];
+        };
+        oldItems = [];
+        for (const idx of old.indices) for (const s of idx.sites) oldItems.push({ key: copKey(s.operation ?? '', s.index ?? -1, s.operand ?? ''), file: stripExt(s.source), line: s.line, text: s.text ?? '', cat: 'cop' });
+        for (const s of old.helper_sites) oldItems.push({ key: `H|${s.helper}`, file: stripExt(s.source), line: s.line, text: s.text ?? '', cat: 'helper' });
+        for (const s of old.direct_symbol_sites) oldItems.push({ key: `D|${s.space}|${(s.text ?? '').replace(/\s+/g, ' ').trim()}`, file: stripExt(s.source), line: s.line, text: s.text ?? '', cat: 'direct' });
+        oldTraces = old.dynamic_helper_traces.map(t => ({ name: t.name, candidate_indices: t.candidate_indices }));
+        oldUnresolved = old.unresolved_dynamic_helper_inputs;
+    } else if (Array.isArray(raw.sites) && Array.isArray(raw.helper_calls) && Array.isArray(raw.direct_accesses) && Array.isArray(raw.traces)) {
+        oldInv = raw as unknown as Inventory;
+        oldItems = inventoryItems(oldInv);
+        oldTraces = oldInv.traces.map(t => ({ name: t.id, candidate_indices: t.candidate_indices }));
+        oldUnresolved = oldInv.unresolved_dynamic_helper_inputs.map(u => ({ helper: u.helper, source: u.file, line: u.line }));
+    } else {
+        throw new Error(`${oldPath}: not an inventory file (expected the legacy keys "indices" / "helper_sites", or the keys "sites" / "helper_calls" / "direct_accesses" / "traces" of inventory.json)`);
+    }
+
+    const newItems = inventoryItems(inv);
 
     const group = (items: Item[]) => {
         const m = new Map<string, Item[]>();
@@ -1411,16 +1439,19 @@ export function compareInventories(inv: Inventory, oldPath: string): string {
         pairs.push({ oldFile: c.o, newFile: c.n, how: 'renamed', score: c.score });
     }
 
-    interface Diff { file: string; lost: Item[]; gained: Item[]; same: number }
+    interface Diff { file: string; lost: Item[]; gained: Item[]; same: number; shifted: number }
     const diffs: Diff[] = [];
     let identical = 0;
+    let lineShifted = 0;
     for (const p of pairs.sort((a, b) => a.newFile.localeCompare(b.newFile))) {
         const a = oldBy.get(p.oldFile)!, b = newBy.get(p.newFile)!;
         const m = lcsPairs(a.map(i => i.key), b.map(i => i.key));
         const lostIdx = new Set(a.map((_, i) => i)), gainIdx = new Set(b.map((_, i) => i));
         for (const [i, j] of m) { lostIdx.delete(i); gainIdx.delete(j); }
         identical += m.length;
-        diffs.push({ file: p.newFile, lost: [...lostIdx].map(i => a[i]), gained: [...gainIdx].map(j => b[j]), same: m.length });
+        const shifted = m.filter(([i, j]) => a[i].line !== b[j].line).length;
+        lineShifted += shifted;
+        diffs.push({ file: p.newFile, lost: [...lostIdx].map(i => a[i]), gained: [...gainIdx].map(j => b[j]), same: m.length, shifted });
     }
     // 3. leftovers: whole files lost or gained, then cross-file moves by key
     const leftoverOld: Item[] = [], leftoverNew: Item[] = [];
@@ -1441,6 +1472,7 @@ export function compareInventories(inv: Inventory, oldPath: string): string {
     lines.push('');
     lines.push(table(['Outcome', 'Sites'], [
         ['Unchanged (same text, same neighbours; path may differ)', identical],
+        ['  of which the line number differs (line shift)', lineShifted],
         ['Moved between files (same text, different neighbours)', moved.length],
         ['Lost (in the old inventory only)', trulyLost.length],
         ['Gained (in the new inventory only)', trulyGained.length],
@@ -1483,10 +1515,37 @@ export function compareInventories(inv: Inventory, oldPath: string): string {
         lines.push('');
     }
 
+    lines.push('## Line shifts');
+    lines.push('');
+    const shiftedFiles = diffs.filter(d => d.shifted > 0);
+    lines.push(shiftedFiles.length === 0 ? 'None.' : table(['File', 'Unchanged sites', 'Line shifted'], shiftedFiles.map(d => [`\`${d.file}\``, d.same, d.shifted])));
+    lines.push('');
+
+    if (oldInv) {
+        // Both sides are inventory.json files: the join-ready sites carry the ROM offset, which must not move while the ROM bytes are unchanged.
+        const siteKey = (s: Inventory['sites'][number]) => `${s.kind}|${s.index}|${s.offset}`;
+        const oldKeys = new Map<string, number>(), newKeys = new Map<string, number>();
+        for (const s of oldInv.sites) oldKeys.set(siteKey(s), (oldKeys.get(siteKey(s)) ?? 0) + 1);
+        for (const s of inv.sites) newKeys.set(siteKey(s), (newKeys.get(siteKey(s)) ?? 0) + 1);
+        let sameKeys = 0;
+        for (const [k, n] of oldKeys) sameKeys += Math.min(n, newKeys.get(k) ?? 0);
+        const oldTotal = oldInv.sites.length, newTotal = inv.sites.length;
+        lines.push('## Join-ready sites by ROM offset');
+        lines.push('');
+        lines.push(table(['Outcome', 'Sites'], [
+            ['Old inventory', oldTotal],
+            ['New inventory', newTotal],
+            ['Same (kind, index, ROM offset) in both', sameKeys],
+            ['Only in the old inventory', oldTotal - sameKeys],
+            ['Only in the new inventory', newTotal - sameKeys],
+        ]));
+        lines.push('');
+    }
+
     lines.push('## Dynamic traces');
     lines.push('');
     const trows: Array<Array<string | number>> = [];
-    for (const ot of old.dynamic_helper_traces) {
+    for (const ot of oldTraces) {
         const nt = inv.traces.find(t => t.id === ot.name) ?? inv.traces.find(t => t.previousId === ot.name);
         if (!nt) { trows.push([`\`${ot.name}\``, ot.candidate_indices.length, '-', 'missing in the new inventory', '']); continue; }
         const oldSet = new Set(ot.candidate_indices);
@@ -1504,9 +1563,9 @@ export function compareInventories(inv: Inventory, oldPath: string): string {
     }
     lines.push(table(['Trace', 'Old candidates', 'New candidates', 'Verdict', 'Difference'], trows));
     lines.push('');
-    lines.push(`New traces without an old counterpart: ${inv.traces.filter(t => !old.dynamic_helper_traces.some(o => o.name === t.id || o.name === t.previousId)).map(t => '`' + t.id + '`').join(', ') || 'none'}.`);
+    lines.push(`New traces without an old counterpart: ${inv.traces.filter(t => !oldTraces.some(o => o.name === t.id || o.name === t.previousId)).map(t => '`' + t.id + '`').join(', ') || 'none'}.`);
     lines.push('');
-    lines.push(`Old unresolved dynamic helper inputs: ${old.unresolved_dynamic_helper_inputs.length} (${old.unresolved_dynamic_helper_inputs.map(u => `\`${u.helper}\` at \`${stripExt(u.source)}:${u.line}\``).join(', ')}). New: ${inv.unresolved_dynamic_helper_inputs.length}.`);
+    lines.push(`Old unresolved dynamic helper inputs: ${oldUnresolved.length} (${oldUnresolved.map(u => `\`${u.helper}\` at \`${stripExt(u.source)}:${u.line}\``).join(', ')}). New: ${inv.unresolved_dynamic_helper_inputs.length}.`);
     lines.push('');
     return lines.join('\n');
 }

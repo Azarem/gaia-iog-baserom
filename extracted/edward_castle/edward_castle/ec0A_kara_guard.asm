@@ -1,7 +1,12 @@
-; Guard outside Kara's room at Edward Castle.
+; Guard outside Kara's room at Edward Castle (scene $0A).
 ; 
-; Two-state dialog: initially blocks entry, then Kara threatens to
-; reveal his nickname and he lets Will in. Comedy scene.
+; States keyed on flags $21, $19 and $1A:
+; - $21, $19 and $1A clear: blocks the door with three solid marks. His talk ('This is the Princess's room. Strangers can't enter.') sets scratch $01 and locks the joypad ($CFFC); Kara answers (sets $1A and scratch $02), and the guard prints the 'shabby boy ... Let him in, or I'll tell everyone your old nickname' dialog and unlocks. The script then falls through to the door post (code_04C991).
+; - At the post: waits for scratch $03 (Kara finished her plea), says 'Princess, let's go.', clears $03 and waits for $19.
+; - $19 set (Kara's scene is done): talk 'Your business is finished. Get out! Now!' with playerSpeedEw = 8 and bit $0100 ORed into joypadCurrent (a forced walk).
+; - $21 set (after the throne scene): asleep ('Zzzzz...').
+; 
+; Comedy scene: Kara blackmails him with his old nickname.
 ---------------------------------------------
 
 !joypadCurrent                  0656

@@ -1,7 +1,6 @@
-; Dark Space portal at the Pyramid main entrance.
+; Dark Space portal at the Pyramid main entrance (scene $CC).
 ; 
-; Hidden Dark Space access point near the Pyramid entrance.
-; Standard Dark Space spawn with flag checks for visibility.
+; The actor word $0E (the spawn attribute shifted right once) is an event flag offset: the actor yields until flag $0100 + $0E is set, then spawns dark_space.DarkSpacePortalInit with config $2B00 and stores 3 in the child's $24 (1 when $0E is $72). Its only placement (scene_actors row $CC#06, attribute $E7) gives $0E = $73; that flag is set when the Mystic Ball at row $CC#05 is defeated (its death-action index is $73), so the portal appears after that kill.
 ---------------------------------------------
 
 ?INCLUDE 'dark_space'

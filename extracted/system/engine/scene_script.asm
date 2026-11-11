@@ -22,7 +22,7 @@
 ; | $11 | SpcMusicLoadCmd | Transfer SPC music data via APU handshake |
 ; | $13 | SceneCmd_Branch | Conditional execution based on game flag |
 ; | $14 | SceneCmd_Label | Label: no-op that skips its id byte; the position is what jump ($15) and branch ($13) continue at |
-; | $15 | SkipScriptCommands | Skip remaining commands in current scene block |
+; | $15 | SkipScriptCommands | Jump: continue at the $14 label whose id is the operand (the label can sit in another record) |
 ; | $17 | SceneCmd_LoadCharTiles | Load preformatted screens straight to VRAM (the one file is four BG tilemaps): header [00 W 00 H], size word, LZ or raw data |
 ; 
 ; Opcodes $00-$01, $07-$0D, $0F, $12, $16 all map to SceneCmd_Default (RTS, no-op).
@@ -254,7 +254,7 @@ scene_script_jump_table [
 ]
 
 ---------------------------------------------
-; Conditional script execution gate. Reads one byte (flag index) from the script stream and calls TestFlagRaw. If the flag is set (carry set), jumps to SkipScriptCommands to bypass the remaining commands in the block. If clear, advances Y past the flag operand and returns so subsequent commands execute normally.
+; Scene command $13 <flag> <label>: a conditional jump. Reads the flag index and calls TestFlagRaw (the index is masked to a byte, so only flags $00–$FF can gate). If the flag is set it enters SkipScriptCommands with Y on the label operand, and the stream continues at the matching $14 label, which can sit in another scene's record. If the flag is clear, Y moves past the label operand and the next command runs.
 
 SceneCmd_Branch {
     PHP 
@@ -264,7 +264,7 @@ SceneCmd_Branch {
     JSL $@flag_helpers.TestFlagRaw ; Test flag via TestFlagRaw — carry set if flag is active
     PLY 
     BCC loc_028458
-    PLP                   ; Flag active: skip remaining scene commands (conditional block)
+    PLP                   ; Flag set: jump to the label through SkipScriptCommands
     JMP $&SkipScriptCommands
 
   loc_028458:
@@ -1590,10 +1590,10 @@ FindCurrentScene {
 }
 
 ---------------------------------------------
-; Skip a counted block of scene commands. Reads a count byte (pushed as stack boundary), then scans opcodes with the same operand-size logic as FindCurrentScene. Opcode $12 terminates immediately; nested opcode $15 compares its inner count byte against the stacked boundary — equal count ends the skip. All other opcodes advance Y by their operand size until termination.
+; Jump to a label: the handler of command $15 (jump <label>) and the tail of a taken $13 branch. Reads the label id operand and keeps it on the stack, then scans the whole scene table from the start (Y = 0, stepping over each 2-byte scene id, with the operand sizes of FindCurrentScene) until it meets command $14 whose id equals the label id; Y then points just after that label and the scene loop continues there. Command $12 ends the scan at once. Every other command is skipped, so the label can lie in any record.
 
 SkipScriptCommands {
-    JSR $&ReadScriptByte  ; Read command count (boundary marker) and push to stack
+    JSR $&ReadScriptByte  ; Read the label id operand; it stays on the stack as the search key
     PHA 
     LDY #$0000
 
@@ -1654,7 +1654,7 @@ SkipScriptCommands {
     BRA loc_028D46
 
   loc_028D86:
-    LDA [$3A], Y          ; Command $15 (SkipScriptCommands): compare nested count against stacked boundary
+    LDA [$3A], Y          ; Command $14 (label): compare its id with the stacked label id; a mismatch keeps scanning
     INY 
     CMP $01, S
     BNE loc_028D46

@@ -1,8 +1,6 @@
-; Altar in the Euro dark chapel — hidden passage clue.
+; Altar of the Euro dark chapel (scene $9D): a hidden passage behind the statue.
 ; 
-; Interactive object. Will: "What? The wind is blowing from
-; behind the statue... Look?" Reveals a secret passage in
-; the chapel. Important exploration discovery.
+; Invisible actor with one polling loop and an interact handler. The loop first tests scratch $01; if it is clear it sets scratch $00 while the player stands in tiles (0F,07)-(10,09) and clears it outside (the player's idle code reads scratch $00 to pick the alternate sprite set). The handler prints 'What? The wind is blowing from behind the statue... Look?' with rows Yes/No; both rows clear the dialog box and Yes also sets scratch $01. On its next pass the loop plays sound $0101, applies BgChange #69 (the passage), removes the interact handler, clears $01 and continues. No persistent flag records the opening.
 ---------------------------------------------
 
 ---------------------------------------------

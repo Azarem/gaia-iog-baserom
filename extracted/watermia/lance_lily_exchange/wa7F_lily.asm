@@ -1,8 +1,6 @@
-; Lilly in the lance/lily exchange scene — encourages Lance.
+; Lilly in the bouquet scene (scene $7F).
 ; 
-; NPC (~77 lines). "What? You're not yourself. Relax."
-; Lance: "You're right..." Lilly supports Lance during his
-; confession scene. Emotional character development.
+; At spawn she locks the player ($CFFC) and sets the hidden bit $2000 on the player actor, then runs the scratch handshake with wa7F_lance: first line ('What? You're not yourself. Relax.') -> sets $01; bouquet line -> sets $02 and spawns her bouquet child (code_07B1CD, which dies when $04 is set); 'They smell wonderful...' -> sets $03; waits for $04 (Lance's confession), runs off the screen diagonally and sets $05.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

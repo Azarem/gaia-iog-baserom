@@ -1,7 +1,6 @@
-; Countdown dialog for the aqueduct doorway switch puzzle.
+; The strange voice of the aqueduct doorway (scene $11): an invisible actor at tile (1C,07).
 ; 
-; The strange voice counts 1-2-3 and Will must push the switch
-; at the right time. Includes timing-based success/failure.
+; Parks when word flag $0113 is set. Otherwise it waits for scratch $02 (set when Lola's Melody is played in this scene) and, when Will is within #03 tiles, locks the joypad, prints the instructions ('The door won't open unless you push this switch on the count of three'), starts music #1B, unlocks and counts: #$78 silent passes, sound #10 with digit 1 for #$3C, #$78 silent, sound #10 with digit 2 for #$3C, #$63 silent, then sets scratch $01 (the on-time window), sound #11 and digit 3 for #$28 passes, clears $01 and prints 'Wait! I told you ...'. A hit before the window sets scratch $03 (from ec11_button_voice), which restarts the count; the hit in the window opens the door and clears $02, which parks this actor.
 ---------------------------------------------
 
 ?BANK 09

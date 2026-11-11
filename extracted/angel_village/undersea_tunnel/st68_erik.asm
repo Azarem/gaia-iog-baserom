@@ -1,8 +1,8 @@
-; Erik in the undersea tunnel — embarrassed reaction.
+; Erik in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).
 ; 
-; NPC. Says: "Hey, don't look!" Part of the party interactions
-; during the long tunnel journey. Erik's reaction to being
-; observed doing something embarrassing.
+; Phase 0: waits for scratch flag $01 (Neil's narration done), walks to his camp position, installs the 'Hey, don't look!' handler and waits for scratch $04 (Kara's remark done). He then walks off, prints 'In this way, another day passed slowly...', increments $0AA6 and queues scene $68 again at (0070,01A0), which starts phase 1.
+; 
+; Phase 1: dies. Phase 2: placed at tile (17,1A) with no further behaviour.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

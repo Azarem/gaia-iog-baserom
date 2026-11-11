@@ -1,7 +1,6 @@
-; Life Medicine vendor in the Euro flea market.
+; Life Medicine in the Euro flea market (scene $97): a free one-time max HP gift.
 ; 
-; Interactive NPC: "This is Life Medicine. Try some? Yes/No"
-; Offers healing medicine with purchase choice.
+; $F0 set: the interact handler prints 'I'm sorry... One to a customer.'. Otherwise it asks 'This is Life Medicine. Try some?' (rows Yes/No); Yes sets $F0, adds 1 to playerMaxHp and playerHp, prints 'Your power is increased!' and the actor dies. No money is taken.
 ---------------------------------------------
 
 !playerMaxHp                    0ACA

@@ -1,8 +1,8 @@
-; Kara at Luke's house — shares a terrible rumor about Watermia.
+; Kara in Luke's house (scene $79): the largest party script, five states.
 ; 
-; Extended NPC (~145 lines). "Watermia is very pretty, but
-; I've heard a terrible rumor..." Multi-phase dialog revealing
-; dark secrets about the town. Extensive character dialog.
+; $94 set: Kara dies at spawn. $97 set: 'Neil's family runs a trading company in Euro.'. $96 set: 'A Kruk is an odd animal.'. Otherwise she stands solid and, with $91 clear, waits for scratch $02 (set by Lily) in the birthday sequence, spawns the cake child, prints the cake dialog and sets scratch $03; before that her handler says 'Watermia is very pretty, but I've heard a terrible rumor.'.
+; 
+; With $91 set (after the Lance and Lily scene $7F) she hands Will Lance's Letter (item $16): when $92 is clear she gives the item (on a full inventory she takes a Red Jewel, counted into jewelsCollected, or a Herb first), sets $92, locks the player ($CFFC) and prints Will's recollection ('So in the morning... When I awoke, Lance had disappeared...'). With $92 set her handler says 'What happened to Lance and Lilly? I'm worried.'. When the player holds neither a Red Jewel nor a Herb the branch falls through into the Red Jewel exchange (RemoveItem #01 and +1 on jewelsCollected) without a check.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

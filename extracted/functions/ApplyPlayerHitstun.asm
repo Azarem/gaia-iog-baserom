@@ -21,7 +21,7 @@
 ; | gw83_asp (3 sites) | 1, 1, $8001 (heavy) | 4, 4, 4 (no knockback) |
 ; | ir1F_stone_guard (4 sites) | $0B02 + 2, $0B02 + 2, 2, 2 | 0, 1, 3, 2 |
 ; 
-; $0B02 is the difficulty level (ram_map.txt), so the stone guard's two strongest hits add it to a base of 2. Combat hits from the player's own attacks and from contact use combat_collision's inline code instead.
+; $0B02 is a word inside the saved block $0A00-$0BFB that no extracted code writes (it stays at its boot value unless a loaded save holds another). The stone guard's two strongest hits add it to a base of 2; awB1_goldcap, mtA1_fire_sprite, mu5F_cyclops and the pyDD queen shots read it as an additive bias too. What the word represents is not established. Combat hits from the player's own attacks and from contact use combat_collision's inline code instead.
 ; 
 ; Measured at runtime for Will, Freedan and Shadow through the Great Wall archer (hit sound #07 for every form, stagger child, counter $003C then $FFE2) and with the actor pool full. Everything else is read from the code.
 ---------------------------------------------

@@ -1,9 +1,6 @@
-; Kara in the Gorgon Hut — used sign language with villagers.
+; Kara in the Gorgon Hut (scene $AE). $B6 set: dies. $CF set: stands with the travel handler. Otherwise she waits for $BF, $C0 and $C1 (the three petals placed by UseItem_GorgonFlower), locks the player ($CFFC), waits 59 frames, clears bit $2000 of her flags $10, walks up three rows, becomes solid, prints 'I used sign language to talk to the villagers. The animals have returned to the forest. They no longer prey on each other.', sets $CF, unlocks and installs the handler. With $CF set at load she stands at tile (07,0A) with the same handler.
 ; 
-; Extended NPC (~94 lines). "I used sign language to talk to
-; the villagers. The animals have returned to the forest."
-; Kara bridges the language barrier. Multi-phase dialog
-; about the labor traders taking villagers.
+; Handler: 'Labor traders came from a town in the northwest. They took many villagers... Travel to the labor trader's village?' Yes: 'Let's get going!', stores $0D60 = 0, $0D62 = 1 and $0D64 = 4, stages a world-map move and queues scene $C4 at (0078,00A0). No: 'Then make preparations and come back.'.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

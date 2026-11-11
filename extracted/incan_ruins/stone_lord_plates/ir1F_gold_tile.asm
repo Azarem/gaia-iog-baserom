@@ -1,11 +1,6 @@
-; Gold floor tile puzzle — detects player/actor stepping on the tile.
+; Gold floor tile of the four-plate puzzle in scene $1F. Four copies; the spawn parameter bytes #03, #05, #07 and #09 give the actor word $0E = 1, 2, 3, 4.
 ; 
-; Part of a 4-tile puzzle: checks both player proximity (1 tile)
-; and 4 other actor slots (actors #02-#05, 1 tile each) using
-; BranchIfActorNear. When any valid entity steps on, sets a flag
-; via cop_handlers_flags.SetFlagRaw using $0E as the flag index.
-; When empty, clears the flag. The companion ir1F_plate_gate_opener
-; checks when all 4 flags ($001E) are set to open the gate.
+; With flag $3C set at spawn it dies. Otherwise it nudges its position by (08,08) and tests every frame BranchIfPlayerNear(#01) and BranchIfActorNear(slot, #01) for the actors in slots #02-#05 of the scene's actor list (the four stone lords), each with radius 1. When nothing stands on the tile it calls flag_helpers.ClearFlagRaw with A = $0E; when something does it calls flag_helpers.SetFlagRaw with A = $0E, so each tile owns scratch flag $01-$04. The first time the player steps on a tile in a visit it prints 'Stepping on a gold tile emits a sound. There are four gold tiles. Stand on each of the four tiles at the same time.' (latched by scratch flag $0F). ir1F_plate_gate_opener reads eventFlags AND $001E (bits 1-4) to see that all four tiles are occupied.
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'

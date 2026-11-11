@@ -1,6 +1,6 @@
 ; Boyfriend NPC in the Adequacy Manor — caught in a comic scene.
 ; 
-; NPC with flag-gated dialog. Says: "She, uh, was just helping
+; NPC with a single talk line (no flag test). Says: "She, uh, was just helping
 ; me... Ha ha ha." Part of the couple joke sequence with the
 ; girlfriend NPC.
 ---------------------------------------------

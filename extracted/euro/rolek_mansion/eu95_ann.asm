@@ -1,10 +1,8 @@
-; Ann at the Rolek mansion — warns about the Jackal.
+; Ann at the Rolek mansion (scene $95): the Jackal warning and the apple errand.
 ; 
-; Extended NPC (~97 lines). "A few days ago, a man wearing
-; a cloak came around. He asked if anyone named Kara had
-; come here." The Jackal is hunting Kara. Also: "I don't
-; like that Kara. She acts like some kind of princess."
-; Jealousy subplot between Ann and Kara.
+; $D6 clear: she tells about the cloaked man asking for Kara and asks 'Should I tell Kara about it?' with the rows 'If you must!' and 'No, please don't!'. Row 1 prints 'I don't like that Kara. She acts like some kind of princess...' and sets nothing; row 2 or cancel prints 'Heh heh. I've found a weakness. Aah. I want an apple. Let's go to the marketplace!' and sets $D6.
+; 
+; $D6 set: with $E5 set she says 'I'll take care of Kara...'. Otherwise, without a Red Apple (item $28) she repeats the apple text; with an apple the first one sets $E3, the second $E4 (each removes the apple and prints 'Thanks. I can't eat any more.'), and the third removes the apple, prints the jewel text, gives item $01 and sets $E5 (a full inventory jumps to HiddenRedJewelInventoryFull and leaves $E5 clear, with the apple already spent).
 ---------------------------------------------
 
 ?INCLUDE 'hidden_red_jewel'

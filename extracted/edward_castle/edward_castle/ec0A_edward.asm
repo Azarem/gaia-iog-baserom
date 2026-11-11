@@ -1,8 +1,8 @@
-; King Edward -- the throne room audience scene.
+; King Edward -- the throne room audience scene (scene $0A).
 ; 
-; Major story cutscene: Edward asks Will about the Crystal Ring,
-; interrogates him, and ultimately sends him to prison. Multi-choice
-; dialog with yes/no prompts. Sets prison story flags.
+; Spawns solid at his throne (nudged +8 in X). Talk: 'You're Will? You look so...shabby. Well, did you bring the Crystal Ring?' with two answers; they print different lines ('How dare you say such a thing to me!!' for the first, 'Good. An honest lad. Give me the Ring.' ... 'Are you lying to me, young whelp?!' for the second) and both end with 'Guards!! Throw this impudent weasel in prison!!' and set scratch $05. The main script waits on $05, locks the joypad ($CFFC), sets scratch $0A and prints 'Soldier: Yes, sir!'; the throne guards start on $0A and release the lock at the end of the sequence.
+; 
+; Edward sets only scene scratch flags. The persistent flag of this scene, $21, is set by the fade-out helper of ec0A_throne_guard2 just before the prison scene is queued.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

@@ -1,8 +1,10 @@
 ; South Cape house narration actor.
 ; 
-; Displays a text box describing the house Will is entering. Uses
-; flag checks to determine which house and shows the appropriate
-; narration.
+; Each frame the actor tests the player position with BranchIfPlayerAt (exact pixel match): Will's door at X $0208, Y $00E0 or $00DF; Lance's door at ($0128,$0258); Erik's doors at ($0228,$0218) and ($0218,$0178); the cave-exit tile at ($0298,$02C0). The house is chosen by that position; the flags are once-latches.
+; 
+; Will's door: flag $12 clear prints 'This is my house' and sets $12; the door then queues scene $06 at ($0058,$01C0). With $21 set and $26 clear the narration is skipped and the scene change runs directly. Lance's door: $13 latch ('This is Lance's house'). Erik's doors: $14 latch ('My friend Erik lives here'). Cave-exit tile: with $16 set and $17 clear the actor sets $17, locks the joypad ($CFFC), waits $1D ticks, prints 'It was already dark by the time Will left the cave' and unlocks.
+; 
+; The block code_04BCCA repeats Will's door test and has no reference.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

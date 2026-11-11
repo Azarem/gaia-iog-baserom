@@ -1,9 +1,10 @@
-; Kara in her room at Edward Castle.
+; Kara in her room at Edward Castle (scene $0A, scene_actors row 10).
 ; 
-; Complex multi-phase actor covering: initial meeting through the door,
-; the escape planning sequence, searching for food in barrels, and
-; the castle escape with cutscene movement. One of the longest
-; scene scripts in the castle.
+; Tests at spawn, in order: $22 set (Kara escaped): dies. $21 set: escort mode (below). $19 set: idles with the plea talk. $1A set: stands at tile (0B,0C) and runs the meeting when Will is near. None set: waits for scratch $01 (the door guard's talk), sets $1A, prints 'Who is it?' / 'A guest?', sets scratch $02 for the guard and falls into the meeting.
+; 
+; Meeting (before the throne scene): locks the joypad ($CFFC); Will says he was told to bring the Crystal Ring; Kara's plea; sets scratch $03 (the guard says 'Princess, let's go'), waits for the guard to clear it, prints 'I feel scared ... Please save me! Take me out of here!', sets $19 and unlocks.
+; 
+; Escort (after the throne scene, $21 set): stands solid at tile (05,0A); her talk ('Of course, you've come! ... His name is Hamlet') sets scratch $01, after which she follows Will (EscortFollowPathTracker). The cellar helper code_04CF5C watches tiles (1E,2C)-(22,2D) for the action button: scratch $01 clear: 'If you want to take her away, now's the time...'; no yak roast (item #0A): 'we should take food! Would you go to the cellar with me?'; with the roast: sets $22 and word $0119, prints 'At last, we leave.', writes $0D60 and $0D62, stages a world-map move and queues scene $06 (Will's house).
 ---------------------------------------------
 
 ?INCLUDE 'EscortFollowPathTracker'

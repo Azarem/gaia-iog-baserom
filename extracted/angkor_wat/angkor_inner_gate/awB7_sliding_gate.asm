@@ -1,8 +1,4 @@
-; Sliding gate mechanism in the Angkor Wat inner area.
-; 
-; Gate that slides open/closed based on switch or flag state
-; (~58 lines). Controls access between courtyard sections.
-; Standard sliding gate pattern with sprite animation.
+; Sliding gate of the Angkor Wat inner gate (scene $B7). The actor reads no flag: it follows the player's position. Each pass it clears bit $0010 of its flags; the player in tiles (08,12)-(0A,14) sets the bit again; the player in tiles (03,10)-(07,18) sets it, marks tiles (05,0F) and (06,0F) solid, spawns code_0899FB (a child that alternately clears bits $0E00 and sets bit $0200 of its parent's word $0E) and plays the gate frames $07 and $08.
 ---------------------------------------------
 
 ---------------------------------------------

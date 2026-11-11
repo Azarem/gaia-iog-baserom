@@ -1,3 +1,15 @@
+; ==============================================================================
+; Red Jewel sparkle helper actor
+; ==============================================================================
+; What it does: Child actor that toggles priority bit $2000 on $10 while the player has
+;   inventoryEquippedType == activator_type ($1C); animates one frame when equipped type
+;   matches, otherwise idles hidden. Dies when parent sets $0026,Y to $0001 after pickup.
+; Vanilla behavior: (new actor; not in extracted ROM.)
+; Adds: generic_sparkle init, generic_sparkle_normal_loop / _loop / _destroy entry points.
+; Depends on: spriteset_pickups_effects metasprite; COP SetEntryHere, AnimOneFrame, Die.
+; State: Reads inventoryEquippedType; uses actor fields $0E/$10/$26 per parent patches.
+; Hazards/notes: X must remain actor slot ID across COP instructions in parent and here.
+; ==============================================================================
 
 !activator_type      001C
 

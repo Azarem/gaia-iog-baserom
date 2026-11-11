@@ -1,9 +1,4 @@
-; Carpet weaver in Dao — cannot communicate.
-; 
-; Multi-state NPC (~81 lines). "She didn't understand. She just
-; kept working." The weaver is too absorbed in her lifelong
-; task to respond. Repeated interaction yields the same
-; result. Powerful commentary on dehumanization.
+; Carpet weaver of Dao (scene $C5, four instances with spawn parameters $21, $23, $05 and $07). The interact handler stores $24 in $0000 and runs a four-way SwitchCase whose four dialog strings are identical: 'She didn't understand. She just kept working.'. No flag is read or written.
 ---------------------------------------------
 
 ?INCLUDE 'ActorDisplayModeSwap'

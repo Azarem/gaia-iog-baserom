@@ -1,10 +1,6 @@
-; Epilogue cutscene after Dark Gaia's defeat (~261 lines).
+; Epilogue of the ending (scene $E5), two loads chosen by persistent $DB. $DB clear: first half: Kara 'What's happened to the comet...?', Will's father 'The comet's power has disappeared...', the strange voice 'Yes. The world is awakened.', handshake with code_0BD539 and the puppets code_0BD4F7 through scratch $02, then 'Will: Mother?!' with the long family dialog; it sets $DB and queues scene $90. $DB set (code_0BD374): second half: 'Will: Why do you two know the future?', handshakes through scratch $03, $04 and $05 with the puppets and the player routine loc_0BD494, Kara's 'Will... Come here....' and Will's answer; it queues scene $89.
 ; 
-; The story conclusion. Kara: "What's happened to the comet...?"
-; Will's father: "The comet's power has disappeared. The evil
-; star has flown off to the other side..." Extended dialog
-; between Will, Kara, and Olman wrapping up the plot.
-; Transitions to the credits sequence.
+; The scene chain from the Dark Gaia fight is $E8 -> $E5 -> $90 -> $E5 -> $89 -> $F7 -> $F0. This scene does not start the credits itself.
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'

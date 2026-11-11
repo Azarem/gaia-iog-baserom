@@ -1,8 +1,8 @@
-; Neil in the Angel Village annex — theorizes about the Angel Tribe.
+; Neil in the Angel Village annex (scene $6A); he offers the trip to Watermia once the party is reunited.
 ; 
-; Extended NPC (~95 lines). Neil: "I think the Angels are
-; descendants of the Mu people." Provides lore speculation
-; connecting the Mu and Angel civilizations.
+; At spawn: flag $8D set -> dies. Flag $A9 (reunion done) set -> code_06C065: placed at tile (17,0E) in frame #15 with the handler code_06C077. Flag $8C (Kara rescued) set and $A9 clear -> code_06C056: starts at tile (0F,0E), walks four steps and falls into code_06C065. Otherwise: installs the 'I think the Angels are descendants of the Mu people.' handler.
+; 
+; code_06C077 asks 'Can we go now? Yes / Wait a minute'. Yes (row 1) prints 'I think it's very hot in the Floating City...', stages world-map move route #11 and queues scene $78 (Watermia) at (0250,0370); the other answers print 'There's no hurry. Take your time.'
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

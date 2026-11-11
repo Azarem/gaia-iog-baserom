@@ -1,10 +1,20 @@
+; ==============================================================================
+; Scene title box - centered dual-line rendering
+; ==============================================================================
+; What it does: Measures title strings (including extended $CC width tags) and
+;   renders main plus subtitle via two DialogStringRenderer passes with computed
+;   horizontal padding on the stack.
+; Vanilla behavior: Fixed-position title render without width-aware centering.
+; Hooks (overrides): DisplaySceneTitle loc_02A12C (render), loc_02A17E (width).
+; Depends on: text_measure include, DialogStringRenderer JSL.
+; State: $00B4 wait flag ($E0), string ptr $3E/$40, VRAM cursor $0998.
+; Hazards/notes: Stack layout for two renderer calls; $CA/$E0 accent bytes.
+; ==============================================================================
 
 -----------------------------------------------
 ?INCLUDE 'text_measure'
 
-;Auto-size and center scene titles
-
-loc_02A12C! {
+DisplaySceneTitle.loc_02A12C! {
     PHP 
     PHB 
     
@@ -54,7 +64,7 @@ loc_02A12C! {
 -----------------------------------------------
 ;Take extended accent characters into account during char counts
 
-loc_02A17E! {
+DisplaySceneTitle.loc_02A17E! {
     LDA [$3E], Y
     CMP #$CA
     BEQ loc_02A1A7

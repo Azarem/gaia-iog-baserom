@@ -139,7 +139,7 @@ Every block in bank $00 maps to one extracted ASM file. Links go directly to the
 | `flag_gated_palette_cool` | `$B5DF`–`$B5FE` | Scenes `$03`–`$08` | [`flag_gated_palette_cool.asm`](../../../extracted/thinkers/flag_gated_palette_cool.asm) |
 | `palette_parent_child` | `$B5FE`–`$B631` | `$FD`, `$FF` | [`palette_parent_child.asm`](../../../extracted/thinkers/palette_parent_child.asm) |
 | `oneshot_coldata_warm_flash` | `$B65E`–`$B671` | Scene `$23` / `$27` thinker lists | [`oneshot_coldata_warm_flash.asm`](../../../extracted/thinkers/oneshot_coldata_warm_flash.asm) |
-| `gold_ship_wreck_palette` | `$B671`–`$B6D2` | Gold Ship `$2B`/`$2D`/`$2F` | [`gold_ship_wreck_palette.asm`](../../../extracted/thinkers/gold_ship_wreck_palette.asm) |
+| `gold_ship_wreck_palette` | `$B671`–`$B6D2` | Gold Ship `$2B`–`$2F` | [`gold_ship_wreck_palette.asm`](../../../extracted/thinkers/gold_ship_wreck_palette.asm) |
 | `oneshot_coldata_r11g4b2` | `$B6E5`–`$B6FD` | Scene `$30` thinker list | [`oneshot_coldata_r11g4b2.asm`](../../../extracted/thinkers/oneshot_coldata_r11g4b2.asm) |
 | `oneshot_palette_flash_18` | `$B7CC`–`$B7D6` | Comet/Angkor | [`oneshot_palette_flash_18.asm`](../../../extracted/thinkers/oneshot_palette_flash_18.asm) |
 | `oneshot_palette_flash_19` | `$B7D6`–`$B7E0` | (complement) | [`oneshot_palette_flash_19.asm`](../../../extracted/thinkers/oneshot_palette_flash_19.asm) |
@@ -489,7 +489,7 @@ Covers `$00B520`–`$00B808`: 20 thinkers for ambient palette cycling and one-sh
 | `flag_gated_palette_cool` | `$B5DF` | Scenes `$03`–`$08` | Bundle #4C (7-colour step), same gate |
 | `palette_parent_child` | `$B5FE` | `$FD`, `$FF` | Bundle #03, spawns child on flag #01 |
 | `edward_castle_alarm_palette` | `$B631` | Edward Castle | Red-alert palette #05 + COLDATA red tint |
-| `gold_ship_wreck_palette` | `$B671` | Gold Ship `$2B`/`$2D`/`$2F` | Flag `$4D`/`$52` (from `dc2F_adrift`): #1A loop, #34+#33, or final phase |
+| `gold_ship_wreck_palette` | `$B671` | Gold Ship `$2B`–`$2F` | Flag `$4D`/`$52` (from `dc2F_adrift`): #1A loop, #34+#33, or final phase |
 | `dream_palette_loop` | `$B6D2` | Gold Ship | Dream palette #35 with flag #FF exit |
 | `palace_fountain_palette` | `$B71E` | Palace | CGADSUB=#03 + alternating #1A/#25 |
 | `watermia_festival_palette` | `$B754` | Watermia | Default #42; child #72 on flag #96 |

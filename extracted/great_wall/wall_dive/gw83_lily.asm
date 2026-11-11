@@ -1,9 +1,6 @@
-; Lilly at the Great Wall dive entrance — offers to accompany Will.
+; Lilly at the Great Wall dive entrance — cutscene when Will reaches the ledge.
 ; 
-; Lilly calls: "Wait!" Then: "Are you looking for Lance? I'll go
-; with you!" Story moment where Lilly joins as companion for
-; the Great Wall dungeon. Sets escort flag and manages
-; the party transition.
+; Dies at spawn when flag $93 is set. Otherwise it watches for the player in tiles (3B,08)-(3D,0B). On entry it enters display-filter mode (displayModeFlags $0080), sets $93, locks the joypad ($EFFC), prints "Wait!", walks Lilly in (sprite loops #33) and then toward the player, prints "Are you looking for Lance? I'll go with you!" and her closing line, restores the joypad and display mode and dies. The actor sets no party or escort state; the only persistent effect is flag $93.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

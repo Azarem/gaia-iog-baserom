@@ -1,8 +1,6 @@
-; Locked door in Freejia — blocks access to interior.
+; Locked door in Freejia (scene $32).
 ; 
-; Interactable door. Will says: "It's locked from the inside..."
-; Checks flag for unlock state; applies BG change to open when
-; conditions are met. Guards access to a story-important room.
+; Solid door actor. It tests no flag and applies no background change. At spawn, when Will is within #01 tile (BranchIfPlayerNear), it shows frame #00, sets the joypad lock ($CFFC) for #1D ticks and plays sound #0E; then (and otherwise at once) it shows frame #01, marks itself solid and sets the talk handler, which always prints 'It's locked from the inside...'.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_npc_props'

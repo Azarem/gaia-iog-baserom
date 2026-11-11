@@ -437,7 +437,7 @@ thinker-spawn < param, @thinker_def_address >
 | Thinker | Uses | Purpose |
 |---------|------|---------|
 | `sine_hdma_ending_wave` | 5× | Sinusoidal HDMA wave distortion for ending/Babel sequences |
-| `gold_ship_wreck_palette` | 3× | Gold Ship wreck scenes `$2B`/`$2D`/`$2F`; palette phases from flags `$4D`/`$52` |
+| `gold_ship_wreck_palette` | 3× | Gold Ship wreck scenes `$2B`–`$2F` (five scenes, three lists); palette phases from flags `$4D`/`$52` |
 | `sine_hdma_slow_wave` | 2× | Slow water wave HDMA distortion (Gold Ship, Babel Tower) |
 | `sine_hdma_dual_channel` | 2× | Dual-channel wavy distortion (Seaside Palace, Angel Village river) |
 | `ending_comet_dma_setup` | 2× | DMA initialization for comet/ending scenes |

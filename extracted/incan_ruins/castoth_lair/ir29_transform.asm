@@ -1,10 +1,6 @@
-; Freedan transformation cutscene after defeating Castoth.
+; Aftermath actor of the Castoth fight (scene $29, scene row ;04).
 ; 
-; Waits until dungeon enemy count ($0AEC) reaches 0 (Castoth dead).
-; Locks joypad, applies BG change #1F, fades to transformation music
-; (#1B), then checks the player's current form. If Will: triggers
-; the Dark Space Gaia dialogue for the Freedan transformation.
-; Sets flag word $011F and plays the full cutscene sequence.
+; With flag word $011F set at spawn it dies. Otherwise it waits until enemiesRemaining ($0AEC) is 0, locks the joypad ($EFFC), applies BG change #1F, sets $011F, fades to music #1B and waits #77. When characterForm is 0 (Will) it only unlocks the joypad. For any other form it locks the joypad ($CFFC), waits #59, prints 'After the demon disappears, Will returns to his original shape...', unlocks, sets the player actor's code pointer to sE6_gaia.Transform_FreedanToWill, sets playerFlags bit $0800, waits until that bit clears and unlocks the joypad ($EFFC).
 ---------------------------------------------
 
 ?INCLUDE 'sE6_gaia'

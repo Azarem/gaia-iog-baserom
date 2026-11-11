@@ -1,8 +1,23 @@
-﻿?BANK 02
+﻿; ==============================================================================
+; Scene layer map load (opcode $06) - uncompressed tilemap and raw tile paths
+; ==============================================================================
+; What it does: When loading scene layer maps, treats a 2-byte size of $0001 as
+;   "uncompressed geometry" (skip Quintet LZ) and DMAs raw map bytes; also allows
+;   a null compressed tileset pointer to DMA ROM tile CHR without decompressing.
+; Vanilla behavior: Zero size ($0000) entered HandleEmptyGeometry; non-zero sizes
+;   always went through QuintetLzDecompress in StoreMapAndDecompress / DmaLowVramTileset.
+; Hooks (overrides): scene_script.loc_02883D (map size gate and layer decompress path),
+;   WriteMapBounds (empty-geometry DMA setup), DmaLowVramTileset (tile-only VRAM upload).
+; Depends on: ?INCLUDE scene_script; StoreMapAndDecompress, DmaRomToWram,
+;   Multiply8x8Unsigned, QuintetLzDecompress (unchanged call sites).
+; State: Reads gfxLayerFlags $066A, script source pointer $3E/$40; writes map bounds
+;   $0692/$0696, meta sizes $0666/$0668/$069A, decompress size $78, WRAM $7E:A000/C000.
+; Hazards/notes: Bank $02; 16-bit A in overridden entry paths; preserve layer bit tests
+;   ($01 layer 0, $02 layer 1) matching vanilla routing.
+; ==============================================================================
+?BANK 02
 
 ?INCLUDE 'scene_script'
-
--- Patch for tilemap loading which adds support for no compression
 
 !sptr		                    3E
 !DCMP_SIZE	                    78
@@ -15,7 +30,7 @@
 
 ---------------------------------------------
 
-loc_02883D! {
+scene_script.loc_02883D! {
     REP #$20
     
     LDA [$sptr]
@@ -56,7 +71,7 @@ loc_02883D! {
 
 ---------------------------------------------
 
-WriteMapBounds! {
+scene_script.WriteMapBounds! {
     REP #$20
     LDA $00
     STA $map_bounds_x, X    -- copy stored width
@@ -73,7 +88,7 @@ WriteMapBounds! {
 
 ---------------------------------------------
 
-DmaLowVramTileset! {
+scene_script.DmaLowVramTileset! {
     REP #$20
     LDA [$sptr]
     INC $sptr

@@ -1,8 +1,8 @@
-; Lance in the coastal cave -- card game and flute tutorial.
+; Lance in the coastal cave -- card game and statue chain.
 ; 
-; Multi-state dialog covering the card game with Seth, the flute
-; tutorial (Melody of Wind), and the cave statue puzzle. Key
-; gameplay tutorial sequence.
+; At spawn flag $4C set kills the actor; flag $20 or $16 set selects an idle state with the interact handlers code_04B1A0 ($25 set: 'You look so gloomy'; $1C set: 'It's a day off from school'; otherwise 'One more game with Seth and I'm going home').
+; 
+; Otherwise the first talk sets scratch $01 and prints 'What is it, Will? ... Wait a minute.' After Erik's news (scratch $03 set and cleared) Lance waits for scratch $05 (Seth's 'Everyone's here'; Lance then hints 'Draw it to you by spinning the Flute around like a baton'), scratch $06 (the statue moved) and scratch $07 (Will talks to Lance again). Then he locks the joypad ($CFFC), spawns four sc02_card actors, prints 'Pick the one you think is the Ace of Diamonds', unlocks and waits for scratch $08 (a card picked), prints 'Ahhh! Right!!', waits for scratch $0A (Seth's explanation), prints two lines, sets scratch $0B, clears scratch $04 (which frees the cave exit) and releases the joypad lock.
 ---------------------------------------------
 
 ?INCLUDE 'sc02_card'

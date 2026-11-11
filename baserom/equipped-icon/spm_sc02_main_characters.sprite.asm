@@ -1,3 +1,13 @@
+; ==============================================================================
+; South Cape main characters - scene $02 sprite map
+; ==============================================================================
+; What it does: sprite_set_list and groups for Will, friends, and NPC poses used
+;   in south_cape sc02 main-character scenes (multi-part walking/idle groups).
+; Vanilla behavior: Replaces or extends the extracted sc02 character sprite block.
+; Hooks (overrides): none (standalone .sprite asset).
+; Depends on: Scene actors pointing metasprite at this asset name in baserom.
+; Hazards/notes: Pure data; large group set with shared $0Bxx tile references.
+; ==============================================================================
 
 ---------------------------------------------
 

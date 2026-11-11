@@ -1,11 +1,6 @@
 ; Imas — chained slave in the mine inner room (map $47).
 ; 
-; Shows as a chain sprite (dm_mine_static_prop) with solid collision.
-; Before freed: interaction says "Cut the chain!" After freed (status
-; bit $0040 set on the chain child actor): says his homeland has people
-; turned to stone and sick with unknown diseases. Destroyed when flag
-; $5E is set (all three slaves rescued). One of three chained slaves
-; alongside Remus and Sam.
+; Spawns as a chain prop (dm_mine_static_prop) with solid collision and dies at spawn when flag $5E is set (tested once, not waited on). Before the chain breaks (status bit $0040 of the prop) the interact handler says "Cut the chain!". After it breaks he says that his homeland has people turned to stone and sick with unknown diseases. One of three chained slaves with Remus and Sam; Sam's talk handler sets $5E when he gives the Memory Melody, not the freeing of the third slave.
 ---------------------------------------------
 
 ?INCLUDE 'dm_mine_static_prop'

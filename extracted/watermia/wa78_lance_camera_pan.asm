@@ -1,8 +1,6 @@
-; Camera pan controller for Watermia events.
+; Camera-bob controller of the Watermia scenes ($78 and $7F).
 ; 
-; Manages smooth camera panning during story cutscenes
-; in the Watermia area (~114 lines). Coordinates camera
-; target positions with dialog timing.
+; At spawn the actor sets bit $1000 in its flags, writes cameraBoundsY = $0400 and waits for flag $8D (WaitOnFlagByte ( #8D, #01 ), set by wa78_intro in the middle of the arrival cutscene; in scene $7F the flag is already set, so the loop starts at once). It then reads camera_keyframe_078238 in a loop: every entry is a signed per-frame step and a duration; the step is added to cameraTargetY on every frame for that many frames, and an entry with duration 0 restarts the table. No dialog and no other actor is involved; the loop never ends while the scene runs.
 ---------------------------------------------
 
 !cameraTargetY                  06C2

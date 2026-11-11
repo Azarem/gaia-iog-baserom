@@ -1,3 +1,27 @@
+; ==============================================================================
+; Pyramid hieroglyph wall puzzle (pyCD) - interactive rearrangement UI
+; ==============================================================================
+; What it does: Replaces pyCD_puzzle main loop with wall activators and a spawned
+;   controller actor: cursor over six alcoves, Up/Down cycles owned hieroglyphs
+;   (non-numeric order), Confirm lift/swap mode, success sets flag #D1 and vanilla
+;   success dialog. WRAM $0B28 holds slot values ($FFFF empty); $0B5B relic bits.
+; Vanilla behavior: pyCD_puzzle actor syncs metatiles from $0B28 then polls flag #D1;
+;   loc_08CBCD requires all slots filled and sequential match slot[i]==i before
+;   success (passive check, no player UI).
+; Hooks (overrides): pyCD_puzzle.code_08CBC2! spawns five pyCD_puzzle_activator
+;   actors and SetEntryHere/RTL wait loop instead of falling into loc_08CBCD.
+; Adds: pyCD_puzzle_activator, pyCD_puzzle_controller, puzzle_ctrl_* handlers,
+;   PuzzleBuildAvailability, PuzzleDraw/ClearIndicators, metatile VRAM helpers,
+;   PuzzleProcessDeferred state machine, puzzle_exit_string_stub.
+; Depends on: !key_item_flags $0B58; hieroglyphMetatiles in pyCD_puzzle extract;
+;   items $1E-$23; flag bytes #0F (activator gate), #D1 solved; joypadRaw bypass;
+;   mapLayerTilemap $7EA000, tileQueryResult queue, displayModeFlags bit 0 refresh.
+; State: Actor DP $20-$2E scratch (documented in controller comment); deferred
+;   states $2A 1/5/6/7/8; solution check slot[i]==i for i=0..5; inventory+$0B5B mask.
+; Hazards/notes: TSB/TRB joypadMaskStd $CFFC during UI; PHD/PLX before COP Die on
+;   exit; edge input from $0660; must RTL each frame when $2A deferred or orphan
+;   loc_08CBCD runs; COP calls need X=actor slot; Up/Down cycle uses tables below.
+; ==============================================================================
 
 !key_item_flags      0B58
 !joypadMaskStd       065A
@@ -7,9 +31,6 @@
 !inventorySlots      0AB4
 !sfxQueueCh2         06F9
 
-; Cycle display order: when pressing Up/Down, hieroglyphs appear
-; in this sequence rather than numeric order.
-; Position 0→hiero 2, 1→5, 2→1, 3→3, 4→0, 5→4
 hieroglyphOrderCombination [
     #020501030004
 ]
@@ -1148,7 +1169,7 @@ PuzzleProcessDeferred {
 ; Without the explicit RTL, execution falls through to orphaned sub-label
 ; loc_08CBCD which runs the ORIGINAL sequential solution check.
 
-code_08CBC2! {
+pyCD_puzzle.code_08CBC2! {
     COP [BranchOnFlagByte] ( #D1, #01, &code_08CC09 )
     COP [SpawnAfterAbsFlags] ( @pyCD_puzzle_activator, #$0048, #$0098, #$7000 )
     COP [SpawnAfterAbsFlags] ( @pyCD_puzzle_activator, #$0060, #$0098, #$7000 )

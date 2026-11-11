@@ -1,9 +1,8 @@
-; Statue of Hope pickup in Mu west area.
+; Statue of Hope pickups of the Mu west room (scene $62) and the Mu maze (scene $65).
 ; 
-; Collectible item actor. When touched: "You've found the Statue
-; of Hope! The Statue of Hope grants increased defense." If
-; inventory full, shows the full-inventory message. Grants a
-; permanent stat boost. Uses standard item pickup pattern.
+; mu62_hope_statue sets flag $78 as soon as it spawns, installs an interact handler and dies once flag $79 is set. The handler does nothing while music is playing; otherwise it calls GiveItem #12 (Statue of Hope), sets $79 and shows "You've found the Statue of Hope! ... Was there a room with the same name...?". A full inventory prints the inventory-is-full message and leaves $79 clear. mu62_hope_statue2 (the maze) does the same with flag $7F and the text "Was there another room with the same name...?".
+; 
+; The statue is a key item: UseItem_StatueOfHope consumes it on a pedestal of the prayer room (scene $63). It gives no stat boost.
 ---------------------------------------------
 
 ?INCLUDE 'music_actors'

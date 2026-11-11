@@ -1,6 +1,6 @@
-; Guard blocking the prison entrance in the castle.
+; Guard blocking the prison entrance in the castle (scene $0A).
 ; 
-; Single dialog refusing entry to innocent people.
+; $21 clear: solid two tiles high; talk: 'This is the underground prison. Innocent people can't enter.' $21 set (after the throne scene): the actor dies at spawn.
 ---------------------------------------------
 
 ---------------------------------------------

@@ -1,8 +1,6 @@
-; Neil at Luke's house — inspired by raft houses for invention.
+; Neil in Luke's house (scene $79): four states by persistent flags, then the departure for Euro.
 ; 
-; NPC. Says: "The house on this raft gives me an idea for
-; a new invention." Character-consistent dialog — Neil always
-; thinking about inventions.
+; $94 set: Neil dies at spawn (the party has left). Otherwise he stands solid and the handler depends on $97 and $96. Before the glass night ($96 and $97 clear): 'The house on this raft gives me an idea for a new invention.'. $96 set: 'If you go west of here, there's a huge desert. You can't cross it on foot without Kruks. How will I get a Kruk?'. $97 set (the game is won): with scratch $01 clear he says 'You got Kruks? ... I think we should go west, to Euro...'; scratch $01 is set by wa79_lance's post-game handler when $A5 is clear, so the player has to talk to Lance first and Neil afterwards within one visit. With $01 set the handler prints the departure text, sets $94, stores the companion slots $0D60-$0D66, stages the world-map move and queues scene $91.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

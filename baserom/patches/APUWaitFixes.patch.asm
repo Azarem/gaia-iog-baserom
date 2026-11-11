@@ -1,4 +1,17 @@
 ﻿
+; ==============================================================================
+; APU wait before music - cutscene and item-get sequences
+; ==============================================================================
+; What it does: Before playing BGM track $17 (or after SPC upload), polls MSU
+;   register $2000 bit 4 or APUIO1=$FF so jingles and long COP chains finish
+;   after the SPC is ready (chunk $1B gate via $0D72/$0D73).
+; Vanilla behavior: Scripts proceed immediately after COP music/item commands.
+; Hooks (overrides): music_actors, warps_interaction, item_use_system flute,
+;   sc06_lola, dm47_sam, sp5C_stone_coffin, sE6_gaia aura paths, ir1D_wind_melody.
+; Depends on: music COP C1 wait, IsMusicPlaying JSL where present.
+; State: $0D72 track id, $0D73 MSU flag, $2141 APUIO1, $2000 MSU status.
+; Hazards/notes: Joypad masked during waits; COP spawn paths preserve actor Y.
+; ==============================================================================
 
 !joypad_mask_std                065A
 !player_actor                   09AA
@@ -10,7 +23,7 @@
 ?INCLUDE 'warps_interaction'
 -----------------------------------------
 
-MusicJingleRenderSync! {
+music_actors.MusicJingleRenderSync! {
     COP [9C] ( @MusicRenderSync, #$2000 )
     LDA $20
     STA $0020, Y
@@ -50,7 +63,7 @@ MusicJingleRenderSync! {
 
 -----------------------------------------
 
-loc_02A813! {
+warps_interaction.loc_02A813! {
     COP [9C] ( @ChestDialogueActor, #$2000 )
     LDA $24
     STA $0024, Y
@@ -92,7 +105,7 @@ loc_02A813! {
 ?INCLUDE 'chunk_038000'
 -----------------------------------------
 
-FlutePlaybackPhase! {
+item_use_system.FlutePlaybackPhase! {
     LDA $0D73
     AND #$00FF
     BEQ chunk_halt_test3
@@ -125,7 +138,7 @@ FlutePlaybackPhase! {
 ?INCLUDE 'sc06_lola'
 -----------------------------------------
 
-code_049985! {
+sc06_lola.code_049985! {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [CC] ( #35 )
@@ -165,7 +178,7 @@ code_049985! {
 ?INCLUDE 'dm47_sam'
 -----------------------------------------
 
-loc_05D24B! {
+dm47_sam.loc_05D24B! {
     COP [C0] ( &code_05D29E )
     COP [D2] ( #5E, #01 )
     LDA #$FFF0
@@ -205,7 +218,7 @@ loc_05D24B! {
 ?INCLUDE 'sp5C_stone_coffin'
 -----------------------------------------
 
-code_0691BE! {
+sp5C_stone_coffin.code_0691BE! {
     COP [D2] ( #02, #01 )
     LDA #$CFF0
     TSB $joypadMaskStd
@@ -289,7 +302,7 @@ code_0691BE! {
 ?INCLUDE 'sE6_gaia'
 -----------------------------------------
 
-loc_08DCAF! {
+sE6_gaia.loc_08DCAF! {
     COP [D6] ( #24, &GaiaHint_AuraDesc )
     COP [D4] ( #24, &GaiaHint_AuraFull )
     COP [BF] ( &dialogstring_08E66C )
@@ -329,7 +342,7 @@ loc_08DCAF! {
 
 ---------------------------------------------
 
-loc_08EAAA! {
+sE6_gaia.loc_08EAAA! {
     COP [CA] ( #08 )
     LDA #$FFF0
     TSB $joypadMaskStd
@@ -389,7 +402,7 @@ loc_08EAAA! {
 
 -----------------------------------------
 
-AuraItemGrant! {
+sE6_gaia.AuraItemGrant! {
     LDA #$FFF0
     TSB $joypadMaskStd
     COP [DA] ( #05 )
@@ -447,7 +460,7 @@ AuraItemGrant! {
 ?INCLUDE 'ir1D_wind_melody'
 ------------------------------------------
 
-code_09C58D! {
+ir1D_wind_melody.code_09C58D! {
     LDA #$EFF0
     TSB $joypadMaskStd
     COP [DA] ( #1D )

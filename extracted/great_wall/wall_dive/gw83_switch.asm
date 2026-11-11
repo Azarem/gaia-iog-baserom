@@ -1,8 +1,6 @@
-; Switch mechanism at the Great Wall dive entrance.
+; Plug mechanism at the Great Wall dive entrance, released by a hit switch.
 ; 
-; Hittable switch that toggles a gate or passage. When struck,
-; changes sprite state and sets the corresponding flag.
-; Used to open the path deeper into the wall.
+; Dies at spawn when flag word $0152 is set. Otherwise it waits on WaitOnFlagByte ( #01, #01 ), the scratch flag raised by the hit_switch placed on the same tile (35,1B). It then shows frame #29 of spriteset_pickups_effects, clears $10 bit $2000, moves toward pixel ($0278,$0190) (StageMove ( #29, #04, #FF ), TickMove), spawns a debris burst, applies BG change #52 and sets $0152. The scratch flag is not cleared.
 ---------------------------------------------
 
 ?INCLUDE 'SpawnDebrisBurst'

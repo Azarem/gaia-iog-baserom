@@ -1,8 +1,6 @@
-; Thinker for the dream sequence palette cycling.
+; Thinker of the Shira dream (scene $2A) — palette animation #35.
 ; 
-; Loops palette animation #35 using PaletteStart/PaletteStep.
-; Sets flag $FF on each cycle and self-terminates when flag $FF
-; is cleared externally (by the dream controller ending).
+; Loops PaletteStart #35 plus PaletteStep, then sets the scene-setup latch $FF and waits until $FF is cleared outside this block (WaitOnFlagByte(#FF, #00)), then branches back to the start. The loop has no exit in this block; the KillThinker at loc_00B6E2 is not reached from it.
 ---------------------------------------------
 
 ---------------------------------------------

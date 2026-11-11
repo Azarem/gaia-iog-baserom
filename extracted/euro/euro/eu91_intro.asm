@@ -1,8 +1,6 @@
-; Euro arrival narration — town introduction.
+; Euro arrival narration and scene change (scene $91).
 ; 
-; Extended narration (~93 lines): "We crossed the desert and
-; finally arrived in the village of Euro." Multi-phase arrival
-; cutscene establishing the European setting.
+; Guarded by $A5: set -> the actor dies at spawn. Otherwise it locks the player ($CFFC), hides the player actor, spawns the narration actors, plays 'We crossed the desert and finally arrived in the village of Euro.', sets $A5 and queues scene $96 (the guest room). $A5 is also read by three Watermia actors as the sign that the party has been to Euro.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

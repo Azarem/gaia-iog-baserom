@@ -1,11 +1,6 @@
-; Wind Melody puzzle — statue singing event on Larai Cliff.
+; Wind Melody event at Larai Cliff (scene $1D).
 ; 
-; Before flag $32: waits for player at exact position ($50, $170).
-; When reached, locks joypad (all buttons), plays music #1B,
-; triggers singing SFX (#16). Shows narration: "The wind in the
-; valley plays a melody. The statue seems to be singing..."
-; then grants the Melody of the Wind item with fanfare.
-; After flag $32: shows a shortened version or despawns.
+; With flag $32 set at spawn the actor dies. Otherwise it polls BranchIfPlayerAt for the exact pixel (0050,0170). On a match it locks the joypad ($EFFC), waits #1D, starts music #1B, waits #77, plays sound #16 on channel 1, prints 'The wind in the valley plays a melody. The statue seems to be singing...', starts music #1A, waits #77 and then polls APUIO1 until it reads $FF. Then it calls GiveItem #08 (Wind Melody): on success it prints 'You've learned the Melody of the Wind!' and sets $32; with a full inventory it prints the 'inventory is full' text and leaves $32 clear, so the event repeats on the next visit. Both paths unlock the joypad and die.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

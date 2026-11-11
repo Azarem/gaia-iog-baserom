@@ -2,9 +2,7 @@
 ; 
 ; Displays as a solid enemy sprite (spriteset_pickups_effects frame #00) with
 ; $FF HP and stat entry 118. Cannot actually be killed — HP resets
-; each frame. When the player is in tiles 8-14 range, sets a proximity
-; flag. When finally freed (player uses Freedan's Dark Friar, checked
-; via playerFlags bit $0002), spawns debris burst and opens passage.
+; each frame. Scratch flag $00 is set while the player stands in tiles (08,14)-(0A,17) and cleared otherwise. A hit while playerFlags bit $0002 is set (RunAttackFlagSetup: Psycho Slider, Psycho Dash or run attack) frees him: debris burst, then the rescue below.
 ; After rescue, flag $D9 is set and the actor redraws 6 background
 ; metatiles to show the cleared rubble, then gives 3 Red Jewels
 ; (BCD add to jewelsCollected) with thank-you dialog.

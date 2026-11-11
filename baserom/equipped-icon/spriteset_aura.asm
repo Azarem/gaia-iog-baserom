@@ -1,3 +1,14 @@
+; ==============================================================================
+; Aura ability spriteset - bank $17 orbit and growth anims
+; ==============================================================================
+; What it does: Three animation sets (spark-in, grow, orbit) for Aura Barrier
+;   orbital sprites referenced by ability spawn tables.
+; Vanilla behavior: Stock aura FX used shorter metasprite groups in bank $17.
+; Hooks (overrides): none (asset file consumed by AuraBarrier COP A5 spawns).
+; Depends on: Bank 17 CHR at $179xxx in sprite_part operands.
+; Hazards/notes: Data only; each anim uses #$0007 timing in sprite-set headers.
+; ==============================================================================
+
 ?BANK 17
 
 ---------------------------------------------

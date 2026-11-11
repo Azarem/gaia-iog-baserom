@@ -1,7 +1,8 @@
-; Throne room guard NPCs in Edward Castle.
+; Throne room guards and the arrest sequence (scene $0A): ec0A_throne_guard1 and ec0A_throne_guard2 (scene_actors rows 09 and 0A).
 ; 
-; Multiple guards with dialog about meeting the King. Includes the
-; scene where Will calls Queen Edwina 'Ma'am' and she reacts angrily.
+; Both stand solid with the 'keep your wits about you' handler until scratch $0A (set by ec0A_edward) arrives, then walk their routes. Guard2 prints 'Will: Ma'am! Save me!! / Queen Edwina: Did you say Ma'am??' and sets scratch $0B; ec0A_edwina answers with $0C; both guards then continue.
+; 
+; Guard2 then spawns code_04C6F2 (moves Will's X up to $01F8, then #50 steps in Y) and code_04C721, a fade-out (INIDISP brightness 15 down to 0), which SETS flag $21, queues scene $0B (the prison) at ($00E8,$00A0), releases the joypad lock and dies.
 ---------------------------------------------
 
 !gfxCacheIdxA                   0648

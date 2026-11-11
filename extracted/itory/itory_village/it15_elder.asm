@@ -1,9 +1,8 @@
-; The Elder of Itory Village -- major story NPC.
+; The Elder of Itory Village (scene $15), story NPC.
 ; 
-; Complex multi-phase actor: Will hears a voice, finds the Elder
-; among the flowers, and receives exposition about his father,
-; the Dark Power, and the quest to collect Mystic Statues.
-; Sets multiple story-critical flags.
+; With flag $41 clear he waits for the player in tiles (04,1C)-(07,1E), prints 'Strange Voice: You've come, Will...', sets $41, then waits for tiles (08,19)-(0D,1A) and prints 'Elder: I'm here. In the flowers.'; with $41 set at spawn he skips both triggers. Then he gets the talk handler code_04E97A and the solid sprite helper code_04E96A.
+; 
+; The handler tests in this order: flag $44 set repeats the legend dialog with its Yes/No loop; item #04 held prints 'It's said that the Moon Tribe has one more. Have Lilly guide you there.'; item #03 held prints the Incan Statue legend and asks 'Understand?' (Yes prints the Moon Tribe line and sets $44; No or cancel repeats the legend); flag $47 set repeats the entrust dialog; scratch $0E set asks 'Do you plan to go?'; scratch $0F set asks 'Were you summoned by your father?'. Otherwise he prints the long family dialog (the barrier, Shira, Bill and Lola) and asks 'Were you summoned by your father?'. Yes prints 'That fulfills Lola's prophesy.' and asks 'Do you plan to go?': Yes prints the entrust dialog for the Incan Statue and sets $47; No or cancel prints 'A disobedient son, unlike your father.' and sets scratch $0E. A No or cancel to the first question prints 'What? If you weren't....That's a bad sign....' and sets scratch $0F. Scratch flags are zeroed at every scene load.
 ---------------------------------------------
 
 ---------------------------------------------

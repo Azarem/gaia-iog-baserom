@@ -1,10 +1,10 @@
-; Jackal puzzle encounter in the Pyramid — stealth challenge (~255 lines).
+; Jackal of the Pyramid puzzle room (scene $CD). At spawn it sets scratch $0E (Lola's Melody is playable from then on) and waits for the six hieroglyph stone flags $C2-$C7. If $BB is set (the scene has played) it becomes a solid prop at tile (09,0B). Otherwise it clears $0E, sets $0F and waits for the player in tiles (05,09)-(0A,0B).
 ; 
-; Major puzzle: "Walk to the left without a sound!!" The player
-; must navigate silently past the Jackal. Detection triggers
-; a restart. Multi-phase puzzle with different walking rules.
-; Also includes dialog: "It says to walk to the left!!"
-; One of the more unique puzzle mechanics in the game.
+; Entry: locks the player, starts music #1B, marks five cells solid and prints 'Walk to the left without a sound!!'. When the player reaches tiles (03,09)-(04,0D) it swaps the solid cells, prints 'There, that's good. Don't move!!', sets scratch $02, prints two more dialog strings, turns the player back into Will through sE6_gaia.Transform_ShadowToWill or Transform_FreedanToWill when the player is in another form, unlocks and sets $0E again.
+; 
+; Loop: scratch $03 set (the left flame statue fired) starts the panic path code_08B956: clears $0E, spawns 12 flame sprites and the child code_08BA04, which prints 'Wa-a-a-a-ah!!!!' and 'Kara...Kara...', sets scratch $04, $05 and $06, sets persistent $BB and clears $0F. Scratch $0D set makes the Jackal quiet. Otherwise the interact handler prints the knife line.
+; 
+; The room has no detection or restart: the only failure state is the panic path.
 ---------------------------------------------
 
 ?INCLUDE 'sE6_gaia'

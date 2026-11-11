@@ -1,7 +1,6 @@
-; Grandpa Bill NPC in Itory Village.
+; Grandpa Bill NPC in Itory Village (scene $15), solid.
 ; 
-; Multi-state dialog: initially directs Will to the Elder,
-; later asks about the Red Jewel from Edward Castle.
+; The default talk handler (code_04EFA4) prints 'Meet with the Elder. He knows something.' With flag $47 set at spawn the handler is code_04EFA9, which asks whether Will found a shiny silver stone when he fought the demon at Edward Castle (100 of them give a revive). With $47 clear and $3B clear he waits with WaitOnFlagByte(#3B, #01), shows frame #2C, waits for scratch flag $05 and returns to frame #2A.
 ---------------------------------------------
 
 ---------------------------------------------

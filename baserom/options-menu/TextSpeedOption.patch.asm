@@ -1,15 +1,16 @@
-; =============================================================================
-; Text Speed — applies the options-menu setting to the dialogue typing delay
-; =============================================================================
-;
-; Registered with the options menu (registry format: options_menu_core.asm).
-;
-; Setting storage: $0B3A bits 0-1 (Run Button uses bits 2-3, Auto-Jewels bit 4)
-; Temp (TBL switch) word: $0BE2
-;   0 Normal       keep the script's per-character delay ($007E)
-;   1 Fast         halve the delay (rounded up)
-;   2 Instant      no delay
-;   3 Run-Instant  normal speed, but instant while the run button is held
+; ==============================================================================
+; Text Speed option - dialogue per-character delay from options menu
+; ==============================================================================
+; What it does: Four speed modes adjust WaitNFrames_PerChar delay; Run-Instant
+;   uses joypadCurrent bit 6 ($0040) for instant text while Run is held.
+; Vanilla behavior: WaitNFrames_PerChar waited frames from script delay $007E only.
+; Hooks (overrides): DialogStringRenderer.WaitNFrames_PerChar (calls TextSpeedAdjust
+;   then falls through to loc_03E7C2 or skips wait at loc_03E7D4).
+; Adds: TextSpeedAdjust (JSL from hook); OptionSettingPreset- record; strings.
+; Depends on: options_menu_core registry.
+; State: Packed $0B3A bits 0-1; temp $0BE2; reads $007E, $0656 joypadCurrent.
+; Hazards: TextSpeedAdjust preserves X/Y; hook uses SEP #$20 around JSL.
+; ==============================================================================
 
 !joypadCurrent                  0656
 !text_speed_setting             0B3A
@@ -82,7 +83,7 @@ TextSpeedAdjust {
 ; skips the wait entirely; non-zero falls through to the original wait loop
 ; (loc_03E7C2) which is left untouched.
 
-WaitNFrames_PerChar! {
+DialogStringRenderer.WaitNFrames_PerChar! {
     PHP
     SEP #$20
     JSL $@TextSpeedAdjust

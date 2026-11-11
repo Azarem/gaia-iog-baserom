@@ -33,7 +33,7 @@ npm run flags -- docs [--out-dir=<dir>]                 docs/flags/README.md + o
 npm run flags -- scene-flags <spec.json> [--dry-run]    merge entries into db-us/scene-flags.json
 npm run flags -- presets <spec.json> [--dry-run]        merge into db-us/flag-presets.json
 npm run flags -- inventory [--dry-run]                  scan extracted/ into plans/flags/inventory.json + inventory.md
-npm run flags -- inventory --compare=<old.json> [--compare-out=<file>]   also reconcile with an older inventory
+npm run flags -- inventory --compare=<old.json> [--compare-out=<file>]   also reconcile with an older inventory (the legacy inventory, or an earlier inventory.json: the format is detected; an inventory.json comparison also lists line shifts and checks the join-ready sites by ROM offset)
 ```
 
 Options: `--db-dir=<dir>` (every command; default `db-us`; point it at a copy to try something), `--inventory=<file>` (`export`, `docs`; default `plans/flags/inventory.json`), `--out=<file>`, `--md=<file>`, `--extracted=<dir>` (`inventory` only; defaults `plans/flags/inventory.json`, `plans/flags/inventory.md`, `extracted`). Without `--dry-run` a merge writes; with it nothing is written, ever.

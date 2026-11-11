@@ -1,9 +1,6 @@
-; Kara missing at the Babel entrance — search begins.
+; Kara as the follower of Will in the Tower of Babel (placed in scenes $DE, $DF, $E0, $E1 and $E3). It dies at load when $D4 (Kara follows Will) is clear. In scene $E0 with $0178 set (the Neo Fanger fight was won) it clears $D4, locks the player, waits 29 ticks, prints 'Kara's not here... Where did she go...?', unlocks and dies. Otherwise it spawns EscortFollowPathTracker at the player's position, follows the player and spawns the effect sprite code_09870C each time bit $2000 of the player's field $0E changes state.
 ; 
-; Event NPC (~113 lines): "Kara's not here... Where did she go..."
-; Triggers the search for Kara in the tower. Multi-phase
-; scene with joypad lock and party member reactions.
-; Sets up the Kara rescue subplot for the tower ascent.
+; $D4 is set by btDF_kara (scene $DF) and by btE3_kara (scene $E3).
 ---------------------------------------------
 
 ?INCLUDE 'EscortFollowPathTracker'

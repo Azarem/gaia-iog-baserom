@@ -1,7 +1,6 @@
 ; South Cape woman worried about strange merchants.
 ; 
-; Multi-state dialog gated by game progress flags. Initially worried
-; about merchants, dialog changes as story progresses.
+; No flags. One interact handler prints the worried line. The actor waits $B3 and $77 ticks, then after a delay of $053C ticks walks a route out and back, standing solid for $EF ticks at the far stop, and redraws the metatile at tiles (2C,0E) and (1C,0E) between $F8 and $F9 as she leaves and returns.
 ---------------------------------------------
 
 ---------------------------------------------

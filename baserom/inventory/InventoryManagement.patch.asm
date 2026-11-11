@@ -1,4 +1,22 @@
-﻿?BANK 03
+﻿; ==============================================================================
+; Inventory management extensions - give/remove items, counters, Auto-Jewels
+; ==============================================================================
+; What it does: Extends pickup and use so red jewels can auto-consume (options
+;   bit at $0B3A:4), herbs/jewels/crystals use per-type counts ($0B55-$0B57),
+;   and the jeweler can bulk-cash stored jewel count into BCD $0AB0.
+; Vanilla behavior: GiveItemToPlayer scans 16 slots only; red jewel use removes
+;   slot and spawns sparkle; jeweler scans slots for item $01 in a loop.
+; Hooks (overrides): inventory_mgmt (give/remove/search), item_use_system (red
+;   jewel use, RemoveEquippedItem), jeweler_gem (JewelerCountJewels + loop).
+; Adds: InventoryCheckAndStore, AutoUseRedJewelHandler, inv_remove_stub (JSR).
+; Depends on: InventoryCounters (JSL), KeyItemCheckAndStore, options_menu_core
+;   OptionSettingPreset chain, chunk_03BAE1, jeweler_gem.
+; State: $0AB0 jewels BCD, $0AB4 slots, $0AC4/$0AC6 equip, $0B55-$0B58 counts.
+; Hazards/notes: GiveItemToPlayer uses PHP/SEP; jewel math uses SED; COP spawn
+;   needs X=actor slot; loc_08CF74/84 stubs empty jeweler loop bodies.
+; ==============================================================================
+
+?BANK 03
 
 ?INCLUDE 'chunk_038000'
 ?INCLUDE 'chunk_03BAE1'
@@ -138,7 +156,7 @@ InventoryCheckAndStore {
 
 ------------------------------------------------
 ;Entry point for gem use (prevent increase, this is done elsewhere)
-UseItem_RedJewel! {
+item_use_system.UseItem_RedJewel! {
     COP [PrintDialogString] ( &dialogstring_038517 )
     JSR $&RemoveEquippedItem
     BRA UseItem_SpawnSparkle
@@ -176,7 +194,7 @@ UseItem_RedJewel! {
 ---------------------------------------------
 ;Entry point for removing an item from the inventory upon use
 
-RemoveEquippedItem! {
+item_use_system.RemoveEquippedItem! {
     PHX
     LDX $inventory_equipped_index
     JSR inv_remove_stub
@@ -212,7 +230,7 @@ AutoUseRedJewelHandler {
 --------------------------------------------------
 ;Entry point for adding an item to the inventory
 
-GiveItemToPlayer! {
+inventory_mgmt.GiveItemToPlayer! {
     PHP 
     SEP #$20
     BIT #$80
@@ -239,14 +257,14 @@ GiveItemToPlayer! {
     BCS inv_give_item_full
     JMP GiveItem_StoreInSlot+4
 
-  loc_03EFA2!:
-  loc_03EFAA!:
+  inventory_mgmt.loc_03EFA2!:
+  inventory_mgmt.loc_03EFAA!:
 }
 
 ---------------------------------------------
 ;Entry point for checking inventory for item
 
-loc_03F0B9! {
+inventory_mgmt.loc_03F0B9! {
     CMP $inventory_slots, Y
     BEQ loc_03F0C7
     INY 
@@ -269,7 +287,7 @@ loc_03F0B9! {
 ---------------------------------------------
 ;Route COP item removal through common process
 
-RemoveItemFromInventory! {
+inventory_mgmt.RemoveItemFromInventory! {
     PHP
     SEP #$20
     CMP $inventoryEquippedType
@@ -281,7 +299,7 @@ RemoveItemFromInventory! {
     LDY #$0000
 }
 
-loc_03F0A0! {
+inventory_mgmt.loc_03F0A0! {
     PHX
     TYX
     JSR inv_remove_stub
@@ -292,7 +310,7 @@ loc_03F0A0! {
 -----------------------------------------
 ;Entry point for giving Jewels to Gem
 
-JewelerCountJewels! {
+jeweler_gem.JewelerCountJewels! {
     SEP #$20
     LDA #$00
     XBA
@@ -348,10 +366,10 @@ JewelerCountJewels! {
     REP #$20
 }
 
-loc_08CF74! {
+jeweler_gem.loc_08CF74! {
 }
 
-loc_08CF84! {
+jeweler_gem.loc_08CF84! {
 }
 
 ------------------------------------------------

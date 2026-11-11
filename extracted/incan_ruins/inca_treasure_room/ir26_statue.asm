@@ -1,8 +1,6 @@
-; Pushable gold statue in the Inca treasure room — variant of ir20_statue.
+; Gold statue of the Inca treasure room (scene $26): same script as ir20_statue without the flag.
 ; 
-; Same mechanics as the secret hallway statue: solid enemy with
-; push_handler_solid, $FF HP, is moved by the L / R pull of push_handler_solid, which tests only the shoulder buttons and the player's facing (no form test; the sg51 statue, which uses the same handler, was pulled as Will; this room was not run).
-; No destruction flag — stays as a movable obstacle.
+; Solid enemy-type actor: it points statsPtr at enemy_stats_table, marks its tile solid and spawns interaction_handlers.push_handler_solid as a child (that child pulls the statue one tile toward the player on a shoulder-button press plus facing). The main loop keeps currentHp at $FF. After a hit: when playerFlags bit $0002 is set it jumps to StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop, so the statue is destroyed; otherwise it decrements the actor word $24 and restores HP to $FF once the word goes negative. It sets no event flag, so a destroyed statue is back on the next scene load. The script has no form test (push_handler_solid tests only the shoulder buttons and the player's facing; the sg51 statue, which uses the same handler, was pulled as Will; this room was not run).
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

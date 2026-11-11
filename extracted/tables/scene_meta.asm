@@ -30,7 +30,7 @@
 ; 
 ; === LABELS, JUMPS AND BRANCHES ===
 ; 
-; A label is a position inside a record, so shared art is stored once: the first scene that needs it defines a label before its bitmap / tileset commands and the other scenes jump to it after their own palette and tilemap commands. The 56 labels use ids $01-$3F; the 8 ids $00 $0A $12 $13 $14 $21 $34 $35 are unused. The most used targets: $22 (18 jumps), $31 (14), $18 (14), $2C (11), $29 (9). A branch tests a story flag and picks one of two sprite sets (scene_meta_0006) or one of two tracks (scene_meta_00AC).
+; A label is a position inside a record, so shared art is stored once: the first scene that needs it defines a label before its bitmap / tileset commands and the other scenes jump to it after their own palette and tilemap commands. The 56 labels use ids $01-$3F; the 8 ids $00 $0A $12 $13 $14 $21 $34 $35 are unused. The most used targets: $22 (18 jumps), $31 (14), $18 (14), $2C (11), $29 (9). A branch tests a story flag and picks a variant: the sprite sets of scenes $06, $5A, $5C and $67, the effect tilemap of the Mu scenes $5F–$65, the palette of scene $78, the map of scene $8C or the track of scene $AC.
 ; 
 ; The sample records below are listed in the part notes. Scene id to place names was not decoded here (the asset names such as pal_southcape, gfx_palace and gfx_village hint at the places).
 ---------------------------------------------

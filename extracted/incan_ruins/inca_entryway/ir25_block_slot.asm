@@ -1,8 +1,6 @@
-; Block slot receiver in the Inca entryway — detects placed block.
+; Block slot of the Incan Ruins entryway (scene $25), scene row at tile (0E,1C).
 ; 
-; Positioned at (+8,0). Checks flag $2F — if not yet set, waits for
-; the block to be pushed into position. When triggered, plays SFX
-; #2C. After flag $2F is set, hides display ($2000 TRB) and idles.
+; Spawns hidden (the third actor-def byte #23 sets $2000 in $10) and nudges its position by (08,00). With flag $2F (the Blue Block was fitted into the slot by UseItem_DiamondBlock_Place) set at spawn it runs code_09C3B3: it clears $2000 in $10, which shows the block, and idles. With $2F clear it waits with WaitOnFlagByte(#2F, #01), plays sound #2C on channel 2 and then runs the same show-block code.
 ---------------------------------------------
 
 ---------------------------------------------

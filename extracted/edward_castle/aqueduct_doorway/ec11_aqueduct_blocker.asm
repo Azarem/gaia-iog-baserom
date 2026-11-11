@@ -1,7 +1,6 @@
-; Aqueduct doorway blocker actor.
+; Second switch-shaped hit target of the aqueduct doorway (scene $11, tile (03,07)).
 ; 
-; Physical barrier that blocks passage until a puzzle condition
-; is met.
+; Solid and unkillable (HP $FF); when hit it plays frames #11 and #12 and re-arms. It reads and writes no flag and has no effect on the door: only ec11_button_voice opens it.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

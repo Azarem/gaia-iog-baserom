@@ -1,6 +1,8 @@
-; Right guard at the castle entrance.
+; Right guard at the castle entrance (scene $0A).
 ; 
-; Multi-state dialog about castle etiquette and strict rules.
+; $21 clear: walks one patrol loop (talk meanwhile: 'Be courteous and know that the King is very strict.'), then stands still with a second talk handler. Its first talk prints 'Don't raise your voice. And mind your manners.', gives one Red Jewel (GiveItem #01; inventory full jumps to hidden_red_jewel.HiddenRedJewelInventoryFull and leaves the latch clear), prints 'In exchange, I will give you one Red Jewel.' and sets flag $D8; later talks print only the manners line.
+; 
+; $21 set (after the throne scene): parked at tile (38,29) with the 'Zzzzzz' handler.
 ---------------------------------------------
 
 ?INCLUDE 'hidden_red_jewel'

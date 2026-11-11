@@ -1,8 +1,6 @@
-; Multi-switch spear on the Great Wall rampway.
+; Switch spear on the Great Wall rampway driven by scratch flag $04; two placements share it.
 ; 
-; Wall spear that responds to multiple switch states.
-; Coordinated with other switches in the rampway for
-; complex timing puzzles.
+; Solid frame #1D, WaitOnFlagByte ( #04, #01 ) for the hit_switch at tile (64,1D), ClearFlagByte of the same flag, retract frame #1E, WaitByte ( #77 ), then back to solid. The two placements at tiles (64,19) and (65,19) wait on the same flag and each clears it after leaving the wait, so the spear that is polled first consumes the trigger; whether the second one also retracts depends on the actor update order (not traced).
 ---------------------------------------------
 
 ---------------------------------------------

@@ -340,9 +340,9 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C80D` | LadderMoveDown | Move down: sprite `#2D`, force-move Y+29. |
 | `$02C831` | LadderMoveUp | Move up: sprite `#2C`, force-move Y−30. |
 | `$02C855` | LadderIdleSouth | Idle south: `#2B` / `#2F`. |
-| `$02C860` | LadderIdleSouthShadow | Shadow: `#2F`. |
+| `$02C860` | LadderIdleSouthFlagged | Shadow: `#2F`. |
 | `$02C865` | LadderIdleNorth | Idle north: `#2A` / `#2E`. |
-| `$02C870` | LadderIdleNorthShadow | Shadow: `#2E`. |
+| `$02C870` | LadderIdleNorthFlagged | Shadow: `#2E`. |
 | `$02C897` | LadderLandBottom | Landing at bottom. |
 | `$02C8AA` | LadderReachTop | Reaching top. |
 | `$02C8BD` | ShimmyRightEntry | Right shimmy. Sprite `#33`, force-move X `$51`. |
@@ -356,9 +356,9 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C9A9` | ShimmyLeftUpCheck | Probe north. |
 | `$02C9B0` | ShimmyLeftDownCheck | Probe south. |
 | `$02C9B7` | ShimmyDetachRight | Detach right: sprite `#31`/`#35`. |
-| `$02C9C5` | ShimmyDetachRightShadow | Shadow: `#35`. |
+| `$02C9C5` | ShimmyDetachRightFlagged | Shadow: `#35`. |
 | `$02C9CA` | ShimmyDetachLeft | Detach left: sprite `#30`/`#34`. |
-| `$02C9D8` | ShimmyDetachLeftShadow | Shadow: `#34`. |
+| `$02C9D8` | ShimmyDetachLeftFlagged | Shadow: `#34`. |
 | `$02CA19` | ShimmyTopCorner | Corner reached. |
 | `$02CA22` | BlockFromWalkSouth | Merge `$0400` joypad. |
 | `$02CA28` | BlockSouth | Blocking south: sprite `#3A`. |

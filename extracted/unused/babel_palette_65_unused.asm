@@ -1,6 +1,4 @@
-; Unreferenced thinker that would loop palette animation #65 each frame unless flag byte $F5 is set.
-; 
-; Likely intended for a Babel Tower area palette effect. Never spawned in any scene or cutscene.
+; Unreferenced thinker that waits for flag byte $F5 to be set and then runs palette animation #65 every frame. $F5 is set only by unused_mode7_boss. Never spawned in any scene or cutscene.
 ---------------------------------------------
 
 ---------------------------------------------

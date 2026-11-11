@@ -1,8 +1,4 @@
-; Stone girl statue 1 in the Gorgon Hut — silent, waiting.
-; 
-; Interactive object: "The statue of a girl stands silently."
-; One of three petrified villagers turned to stone by the
-; Gorgon. Can be restored later in the story.
+; Statue of the girl on the left of the Gorgon Hut (scene $AE, tile (06,07)). Flag $BF set at load: frame $32 with the handler 'You don't understand...'. Clear: solid statue with 'The statue of a girl stands silently.'; it waits for $BF (set by UseItem_GorgonFlower when the player stands in tiles (06,06)-(07,08)), alternates frames $36 and $32 thirty times, clears bit $0200 of its flags $12 and falls into the restored state. The text 'Somehow the statue has become a human girl! A tear comes to the girl's eyes...' is defined in the file but no code references it.
 ---------------------------------------------
 
 ---------------------------------------------

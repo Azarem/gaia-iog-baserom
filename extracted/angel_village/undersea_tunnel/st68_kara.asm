@@ -1,9 +1,8 @@
-; Kara in the undersea tunnel — complains about conditions.
+; Kara in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).
 ; 
-; Extended NPC (~152 lines). "I want a steak! And a salad!
-; My skin has gone dry from eating nothing but mushrooms."
-; Multi-phase dialog showing Kara's frustration during the
-; long tunnel journey. Character development through humor.
+; Phase 0: waits for scratch flag $01 (Neil's narration done), walks to her camp position, installs the 'I want a steak! And a salad!' handler, waits for scratch $03 (Neil at the exit strip), prints 'Oh, no! Will found more mushrooms...' and sets scratch $04. Phase 1: dies.
+; 
+; Phase 2: placed at tile (15,1B); waits for scratch $01 (Neil's 'Two weeks' narration), then plays the Morse-code finale: sound #1E taps, ship-style camera drift actors (code_06B00C), music #06, the party's dialog, Seth's message, and 'Neil: I don't hear anything now...'. It then calls ClearAllWramFlags (zero-fills the kill-flag block $0A80-$0A9F), sets gfxCacheIdxB := $0404 and queues scene $69 (the Angel Village entrance) at (02A0,00C0).
 ---------------------------------------------
 
 ?INCLUDE 'camera_drift'

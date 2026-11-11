@@ -1,8 +1,6 @@
-; Floor switch on the garden southwest underside — makes a sound on step.
+; Knight-armor plate on the garden southwest underside (scene $52).
 ; 
-; Interactable tile. When stepped on: "When you step on this
-; tile it makes a sound..." Used as part of a puzzle sequence
-; to open a passage on the underside area.
+; While flag word $012E is clear it tests each frame whether scene actor #3 (the pushable sg4F_knight_armor2, spawned at tile (38,33)) stands at pixel ($0258,$0330), the tile of the plate itself; when the player stands near it prints "When you step on this tile it makes a sound...". When the armor is there it applies BG change #2E and sets $012D and $012E. With $012E set (also at load) it places that actor exactly at ($0258,$0330), clears the solid mark at tile (38,32) and then idles.
 ---------------------------------------------
 
 ---------------------------------------------

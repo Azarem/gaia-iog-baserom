@@ -1,7 +1,4 @@
-; Crystal gate D in the Babel middle floors.
-; 
-; Fourth crystal-locked gate. All four must be opened
-; to reach the upper floors.
+; Crystal gate D of the Babel middle floors (scene $E0): marks the cells (15,08) and (16,08) solid, spawns two bt_static_sprite crystals and waits for $0178, which btF5_neo_fanger (scene $F5) sets when the Neo Fanger fight is won. It then clears the two cells and dies. The gate waits on its own flag only. $0178 is also read by btDE_kara_missing.
 ---------------------------------------------
 
 ?INCLUDE 'bt_static_sprite'

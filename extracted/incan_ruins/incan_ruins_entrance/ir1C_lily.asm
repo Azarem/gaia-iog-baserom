@@ -1,11 +1,8 @@
-; Lilly (the spirit guide) at the Incan Ruins entrance — long escort scene.
+; Lilly at the Incan Ruins entrance (scene $1C): one escort scene in two states.
 ; 
-; Before flag $4B: locks joypad, Lilly introduces the ruins entrance,
-; warns that "this is where the puzzle of the Incan" begins. Sets
-; a solid tile at (6,19) to block backtracking. After initial dialog,
-; Lilly follows the player as an escort using EscortFollowPathTracker.
-; On re-entry after flag $4B: manages Freedan form check and Dark Space
-; availability. Scene $4C variant (Sky Garden) has different behavior.
+; Flag $4B clear: she locks the joypad ($CFFC), waits #1D, prints the entrance dialog (the Elder's story of the Incan Gold Ship), marks tiles (06,19) and (07,19) solid, unlocks, spawns EscortFollowPathTracker and polls scratch flag $01. When ir1C_kara sets $01 she kills the tracker, clears both solid tiles, waits for scratch $03, faces the player, prints the Lilly and Kara dialog (09CCD0), sets scratch $02 and waits for it to clear. Then she walks, prints the Elder-quote dialog (the statue on the Larai Cliff), sets $4B and unlocks the joypad.
+; 
+; Flag $4B set at spawn: she stands at tile (16,13), solid, with the Elder-quote dialog as her talk handler. When characterForm is not 0 (Will) she also sets the player actor's code pointer to sE6_gaia.Transform_FreedanToWill and sets playerFlags bit $0800. The file has no Dark Space or scene $4C code.
 ---------------------------------------------
 
 ?INCLUDE 'EscortFollowPathTracker'

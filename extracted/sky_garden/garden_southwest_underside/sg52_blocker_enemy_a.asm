@@ -1,8 +1,6 @@
-; Blocking enemy A on the garden southwest underside.
+; Toggle block A on the garden southwest underside (scene $52) — a hit switch, not an enemy to kill.
 ; 
-; Enemy that blocks a passage until defeated. Simpler AI
-; than the main garden enemies — guards a specific position
-; and must be killed to proceed.
+; Two placements. Solid enemy sprite with stat entry 118; HP resets to $FF every frame, so it never dies. Each hit swaps between two states: frame #0F with BG change #90 and $0125/$0126 cleared, and frame #10 with BG change #26 and $0125/$0126 set. Both placements test $0126 every frame, so the one that was not hit follows the other and the two always show the same state. The state at spawn follows $0126.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

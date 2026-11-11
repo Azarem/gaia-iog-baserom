@@ -1,9 +1,6 @@
-; Demon fountain in the Seaside Palace — key puzzle (~112 lines).
+; Demon fountain of the Seaside Palace (scene $5D) — the Purification Stone cutscene (~112 lines).
 ; 
-; Lilly: "What!! It's a strange fountain... Could there be a
-; connection between this and the room layout?" Central puzzle
-; element: the fountain produces demons. Understanding its
-; mechanics is key to navigating the palace safely.
+; Dies at spawn when flag $70 is set, when $6F is clear or when the player does not hold item #11 (Purification Stone). Otherwise it locks the joypad, prints "Lilly: What!! It's a strange fountain... Could there be a connection between this and the rock...?", unlocks and waits for scratch $0E, which UseItem_PurificationStone sets inside tiles (0A,11)-(17,1A). It then locks the joypad ($EFFC), plays sound #25, moves its sprite from the player toward pixel (0100,0160), fades the backdrop out (scratch $0F is set while this runs), sets $70 (fountain purified), clears the fountain's solid tile (0D,0F) and unlocks the joypad.
 ---------------------------------------------
 
 ?INCLUDE 'actor_pool'

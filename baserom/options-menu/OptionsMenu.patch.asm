@@ -1,14 +1,23 @@
-; =============================================================================
-; Options Menu — Inventory restructure, item reorder, button mapping UI
-; =============================================================================
-;
-; Module layer on top of the baserom InputRemap system.
-; Adds the Options tab to the inventory menu for button remapping UI.
-; Adds item reorder feature (Run-button in Items tab).
-; Overrides ApplySoundAndRemap to call ApplyButtonMapping on save load.
-;
-; The baserom InputRemap.patch.asm + transforms.json handle all mask changes.
-; This module only adds: tab restructure, reorder, options UI, save hooks.
+; ==============================================================================
+; Options Menu (module) - inventory tabs, item reorder, save-load remap hook
+; ==============================================================================
+; What it does: Replaces the four inventory tabs with Items / Remove / Status /
+;   Optn.; wires the Optn. tab to options_menu_core; adds Run+confirm item
+;   reorder in the Items tab; rebuilds joypad remap words after diary load.
+; Vanilla behavior: Tabs were Items / Order / Remove / Cond.; no in-inventory
+;   button UI; ApplySoundAndRemap set legacy Type-1/2 remap bytes from $0B26 only.
+; Hooks (overrides): system_strings.consolestring_01E8E9 (tab labels);
+;   inventory_menu.TabHoverDispatch / TabActionDispatch (fourth tab -> Optn.);
+;   inventory_menu.UseItemCursorRight+ (anchor for reorder helpers);
+;   sFA_diary_menu.loc_0BE695 / loc_0BE6B3 (ApplySoundAndRemap tail ->
+;   DetectAndInitButtonMap + ApplyButtonMapping).
+; Adds: TabHoverStatusClear, UseItemReorderStart/Confirm/Cancel (reorder flow).
+; Depends on: options_menu_core, options_input_remap, inventory_menu,
+;   inventory_overlay, save_system, sFA_diary_menu, system_init.
+; State: Button map bytes $0B34-$0B39 (save block); tab index $0AFA unchanged.
+; Hazards: COP paths need X = actor slot; reorder uses $2E/$22 scratch like vanilla
+;   Arrange flow; save hook must run after LoadGameState succeeds (diary paths).
+; ==============================================================================
 
 ?INCLUDE 'options_menu_core'
 ?INCLUDE 'options_input_remap'
@@ -50,12 +59,12 @@
 ; --- Tab sidebar labels ---
 ; Old: " Items / Order / Remove / Cond."
 ; New: " Items / Remove / Cond. / Optn."
-consolestring_01E8E9! |[PAL:0][POS:84,5] Items[DBL] Relics[DBL] Status[DBL] Option|
+system_strings.consolestring_01E8E9! |[PAL:0][POS:84,5] Items[DBL] Relics[DBL] Status[DBL] Option|
 
 ; --- Tab hover dispatch (4 entries) ---
 ; TabHoverStatus does not clear the upper panel BG3 content on its own.
 ; TabHoverStatusClear wraps it to clear Options/other residual BG3 tiles.
-TabHoverDispatch! [
+inventory_menu.TabHoverDispatch! [
   &TabHoverUse   ;00 Items
   &TabHoverDiscard   ;01 Remove
   &TabHoverStatusClear   ;02 Cond.
@@ -69,7 +78,7 @@ TabHoverStatusClear {
 }
 
 ; --- Tab action dispatch ---
-TabActionDispatch! [
+inventory_menu.TabActionDispatch! [
   &UseItemTab   ;00 Items
   &DiscardItemTab   ;01 Remove
   &StatusViewTab   ;02 Cond.
@@ -79,7 +88,7 @@ TabActionDispatch! [
 
 
 ; Place the following content after UseItemCursorRight to avoid branch distance issues
-UseItemCursorRight+ { }
+inventory_menu.UseItemCursorRight+ { }
 
 ; --- Reorder: pick source slot ---
 UseItemReorderStart {
@@ -200,8 +209,8 @@ UseItemReorderCancel {
 
 ; Override ApplySoundAndRemap to call ApplyButtonMapping after sound setup.
 ; This module override supersedes the baserom InputRemap's sound-only version.
-loc_0BE695!:
-loc_0BE6B3! {
+sFA_diary_menu.loc_0BE695!:
+sFA_diary_menu.loc_0BE6B3! {
     JSL $@options_input_remap.DetectAndInitButtonMap
     JSL $@options_input_remap.ApplyButtonMapping
     RTS

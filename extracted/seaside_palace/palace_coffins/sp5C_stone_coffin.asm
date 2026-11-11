@@ -1,10 +1,6 @@
-; Stone coffin puzzle in the Seaside Palace — Lilly investigates.
+; Stone coffin of the Seaside Palace (scene $5C) — Lilly finds the Purification Stone (~151 lines).
 ; 
-; Extended coffin interaction (~151 lines). Will: "The coffins
-; are lined up..." Lilly speaks from pocket: "Isn't there a
-; hole in the coffin? I could get in through there."
-; Lilly enters to investigate, finding items or clues.
-; Multi-step puzzle with dialog progression.
+; Dies at spawn when word flag $013B is set. The interact handler prints "Will: The coffins are lined up..." while flag $6F is clear; with $6F set it prints the "Isn't there a hole in the coffin?" dialog and sets scratch $02. The main script then locks the joypad ($CFFC), moves a sprite (frame #33 of spriteset_pickups_effects) from the player to the coffin, applies BG change #3B, sets $013B and calls GiveItem #11 (Purification Stone): Lilly says "I found a strange stone inside this coffin." and "You've found the Purification Stone!" is shown. When GiveItem fails (inventory full) the script prints "...But your inventory is full..."; when it fails or music is playing it clears $013B and $02, moves the sprite back and waits for the next talk.
 ---------------------------------------------
 
 ?INCLUDE 'music_actors'

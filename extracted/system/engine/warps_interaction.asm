@@ -132,7 +132,7 @@ CheckWarpAndChest {
     REP #$20
     JSR $&CheckWarpRectangles ; Per-frame dispatch: test warp rectangles before chest interaction
     BCS loc_02A5EA
-    JSR $&HandleChestInteraction ; No warp hit — try A-button chest open on facing tile
+    JSR $&HandleChestInteraction ; No warp hit: test for a chest in front of the player (Up pushed against a closed chest tile)
     BCS loc_02A5EA
 
   loc_02A5EA:
@@ -389,13 +389,13 @@ HandleChestInteraction {
     LDA $0012, Y          ; Flag it $1000 so it keeps running in display-filter mode
     ORA #$1000
     STA $0012, Y
-    LDA #$0017            ; Load dialogue string ID in actor $0026 for child handoff
+    LDA #$0017            ; Track number $17 goes into actor field $26; ChestOpeningActor passes $26 + 1 to the music upload child
     STA $0026, Y
     PLX 
     PLA 
-    STA $0024, Y          ; Forward dialogue pointer ($24) and render bank ($20) to opening actor
+    STA $0024, Y          ; Forward the dialogue pointer to $24 of the opening actor; the item ID follows in $20
     LDA $0DB8
-    STA $0020, Y
+    STA $0020, Y          ; Item ID (stored at $0DB8 by GiveItemToPlayer) goes to $20; ChestDialogueActor restores it for the item-name text
 
   loc_02A7A1:
     LDA $01, S

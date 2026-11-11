@@ -1,3 +1,10 @@
+; ==============================================================================
+; generic_sparkle - UNUSED example patch (not assembled)
+; ==============================================================================
+; What it demonstrates: Optional override of generic_sparkle loop labels to animate the
+;   sparkle every frame regardless of inventoryEquippedType (drops activator_type checks).
+; Targets live only in baserom generic_sparkle.asm, not in extracted/; overrides left unprefixed.
+; ==============================================================================
 
 
 generic_sparkle_normal_loop! {

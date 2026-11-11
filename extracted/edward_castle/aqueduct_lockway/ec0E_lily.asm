@@ -1,7 +1,6 @@
-; Lily NPC in the aqueduct lockway.
+; Lilly's first appearance in the aqueduct lockway (scene $0E, tile (3D,0E)).
 ; 
-; Lily warns Will about demons and guides him through the
-; lockway puzzle. Multi-state dialog with movement sequences.
+; Flag $DE set: the actor dies at spawn. Otherwise, when Will comes within #01 tile, it sets $DE, spawns an orbiting orb (code_09A9A1: hittable, 'Hey! What are you doing!!' when hit), moves for #$04B0 ticks by the direction DirToPlayer returns, prints 'Come here, or the demon will get you!' and moves away (moveXAlt $60, moveYAlt $30). It gives no puzzle guidance and has a single appearance, not multi-state dialog.
 ---------------------------------------------
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'

@@ -16,11 +16,11 @@
 ;    Ledge jump: the player steps off a ledge and falls (3-frame alternating sprite cycle, force Y movement #07) until the solid-type test under the feet passes, then lands with pose $1C. Seen in Mesen2 in scene $01 (South Cape): Will walks south onto a type $08 cell, a gap in a mossy wall edge, and drops about 87 px onto the roof below. Entered through a type $08 cell (SouthLedgeTile in player_move_south) or by the scripts awB3_ledge_jump_trigger and pyD0_ledge_jump_trigger. It is not limited to Freedan: SouthLedgeTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the animations $18-$1B. Only the drop attack is Freedan-only: CheckLedgeJumpAttack gates it to Freedan (form 1) with abilityBitmask bit 6 ($0040). LedgeJumpDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 480 ticks, WaitWord #$01DF) and CameraShakeActor (61 ticks of random camera-target offsets, with sound #15 queued on every tick: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).
 ; 
 ; 3. LADDER SYSTEM (182198–182461)
-;    LadderClimbSouth/North, LadderMoveDown/Up, LadderIdleSouth/North (+ Shadow variants), LadderLandBottom, LadderReachTop.
-;    Bi-directional ladder traversal. Entry sets joypadMaskStd |= $CFFC (all of joypadCurrent hidden except Start/Select) and reads Up/Down through raw masks ($0801 / $0401); exit clears the same bits. LadderMoveDown/Up check solid tiles at 16-pixel boundaries for exit transitions. Idle poses have Shadow-specific sprites (flag byte #00 == $01).
+;    LadderClimbSouth/North, LadderMoveDown/Up, LadderIdleSouth/North (+ Flagged variants), LadderLandBottom, LadderReachTop.
+;    Bi-directional ladder traversal. Entry sets joypadMaskStd |= $CFFC (all of joypadCurrent hidden except Start/Select) and reads Up/Down through raw masks ($0801 / $0401); exit clears the same bits. LadderMoveDown/Up check solid tiles at 16-pixel boundaries for exit transitions. When scratch flag byte #00 is set the idle poses use the alternate animations (#10-#13 standing, #2F / #2E ladder idle south / north, #35 / #34 shimmy detach right / left). The test does not look at characterForm: Will, Freedan and Shadow each carry real multi-frame animations at those indices (spriteset_will, spriteset_freedan, spriteset_shadow). The scenes and scripts that set the flag are listed in the scene_flag_init block note; what the alternate pose depicts is not established.
 ; 
 ; 4. SHIMMY SYSTEM (182461–182818)
-;    ShimmyRightEntry, ShimmyRightCheckWall, ShimmyRightLoop, ShimmyRightUpCheck, ShimmyRightDownCheck, ShimmyLeftEntry, ShimmyLeftCheckWall, ShimmyLeftLoop, ShimmyLeftUpCheck, ShimmyLeftDownCheck, ShimmyDetachRight/Left (+ Shadow variants), ShimmyTopCorner.
+;    ShimmyRightEntry, ShimmyRightCheckWall, ShimmyRightLoop, ShimmyRightUpCheck, ShimmyRightDownCheck, ShimmyLeftEntry, ShimmyLeftCheckWall, ShimmyLeftLoop, ShimmyLeftUpCheck, ShimmyLeftDownCheck, ShimmyDetachRight/Left (+ Flagged variants), ShimmyTopCorner.
 ;    Horizontal wall shimmy with wall-contact detection at 8-pixel intervals. CheckWall verifies east/west solid tiles before allowing movement. Detach states listen for L/R to re-enter shimmy or up/down for corner transitions. ShimmyTopCorner restores normal movement and returns to idle.
 ; 
 ; 5. BLOCKING + INERTIAL MOVEMENT (182818–183186)
@@ -803,23 +803,23 @@ LadderMoveUp {
 }
 
 LadderIdleSouth {
-    COP [BranchOnFlagByte] ( #00, #01, &LadderIdleSouthShadow ) ; Ladder idle south: Shadow flag check → normal sprite #2B or Shadow sprite #2F
+    COP [BranchOnFlagByte] ( #00, #01, &LadderIdleSouthFlagged ) ; Ladder idle south: flag byte #00 set stages the alternate animation #2F instead of #2B
     COP [StagePlayerSprite] ( #2B )
     BRA loc_02C873
 }
 
-LadderIdleSouthShadow {
-    COP [StagePlayerSprite] ( #2F ) ; Shadow ladder idle south: sprite #2F
+LadderIdleSouthFlagged {
+    COP [StagePlayerSprite] ( #2F ) ; Alternate ladder idle south animation (#2F)
     BRA loc_02C873
 }
 
 LadderIdleNorth {
-    COP [BranchOnFlagByte] ( #00, #01, &LadderIdleNorthShadow ) ; Ladder idle north: normal sprite #2A or Shadow sprite #2E
+    COP [BranchOnFlagByte] ( #00, #01, &LadderIdleNorthFlagged ) ; Ladder idle north: flag byte #00 set stages the alternate animation #2E instead of #2A
     COP [StagePlayerSprite] ( #2A )
     BRA loc_02C873
 }
 
-LadderIdleNorthShadow {
+LadderIdleNorthFlagged {
     COP [StagePlayerSprite] ( #2E )
 
   loc_02C873:
@@ -988,26 +988,26 @@ ShimmyLeftDownCheck {
 }
 
 ShimmyDetachRight {
-    COP [StageMoveX] ( #00 ) ; Detach right: stop X movement, select normal (#31) or Shadow (#35) sprite, enter wall-hang idle
-    COP [BranchOnFlagByte] ( #00, #01, &ShimmyDetachRightShadow )
+    COP [StageMoveX] ( #00 ) ; Detach right: stop X movement, stage #31 (alternate #35 when flag byte #00 is set), enter wall-hang idle
+    COP [BranchOnFlagByte] ( #00, #01, &ShimmyDetachRightFlagged )
     COP [StagePlayerSprite] ( #31 )
     BRA loc_02C9DB
 }
 
-ShimmyDetachRightShadow {
-    COP [StagePlayerSprite] ( #35 ) ; Shadow detach right sprite (#35)
+ShimmyDetachRightFlagged {
+    COP [StagePlayerSprite] ( #35 ) ; Alternate detach right animation (#35)
     BRA loc_02C9DB
 }
 
 ShimmyDetachLeft {
-    COP [StageMoveX] ( #00 ) ; Detach left: stop X movement, normal (#30) or Shadow (#34) sprite
-    COP [BranchOnFlagByte] ( #00, #01, &ShimmyDetachLeftShadow )
+    COP [StageMoveX] ( #00 ) ; Detach left: stop X movement, stage #30 (alternate #34 when flag byte #00 is set)
+    COP [BranchOnFlagByte] ( #00, #01, &ShimmyDetachLeftFlagged )
     COP [StagePlayerSprite] ( #30 )
     BRA loc_02C9DB
 }
 
-ShimmyDetachLeftShadow {
-    COP [StagePlayerSprite] ( #34 ) ; Shadow detach left sprite (#34)
+ShimmyDetachLeftFlagged {
+    COP [StagePlayerSprite] ( #34 ) ; Alternate detach left animation (#34)
 
   loc_02C9DB:
     STZ $2C

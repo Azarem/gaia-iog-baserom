@@ -1,11 +1,22 @@
 
+; ==============================================================================
+; Dialog string renderer - extended accent glyph table
+; ==============================================================================
+; What it does: Bytes $E0-$FF map through accent_table to font tile pairs in
+;   the VRAM dialog buffer instead of passing through as raw tile indices.
+; Vanilla behavior: $E0+ treated like ordinary characters in loc_03E27C path.
+; Hooks (overrides): DialogStringRenderer entry, CharLoop, loc_03E27C; adds
+;   do_accent_table branch and accent_table data in bank 03.
+; Depends on: chunk_03BAE1, DialogStringCommandTable for $C0-$DF commands.
+; State: $0998 VRAM write index, $0986/$0987 palette attrs, $7F0200/$7F0240 rows.
+; Hazards/notes: CharLoop RTS dispatch unchanged for $C0-$DF; accent uses SEP ORA.
+; ==============================================================================
+
 -------------------------------------------
 ?INCLUDE 'chunk_03BAE1'
 -------------------------------------------
 
-;Characters >= 0xE0 will use the accent table
-
-DialogStringRenderer! {
+DialogStringRenderer.DialogStringRenderer! {
     PHP 
     PHD 
     PHX 
@@ -13,7 +24,7 @@ DialogStringRenderer! {
     TCD 
     LDX $0998
 
-  DialogString_CharLoop!:
+  DialogStringRenderer.DialogString_CharLoop!:
     SEP #$20
     LDA $0000, Y
     CMP #$E0
@@ -34,7 +45,7 @@ DialogStringRenderer! {
     RTS 
 }
 
-loc_03E27C! {
+DialogStringRenderer.loc_03E27C! {
     REP #$20
     AND #$00FF
     INY 

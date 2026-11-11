@@ -1,10 +1,6 @@
-; Snake Panic mini-game controller in Dao (~223 lines).
+; Snake Panic whack-a-mole game of Dao (scene $C6): a parent actor, three pot actors (code_08B0D4) and a timer (code_08AFB4), coordinated through scratch $01-$04.
 ; 
-; Interactive mini-game: "Play the game with the snakes? Yes/No"
-; Player navigates between moving snakes to reach the goal.
-; Includes game setup, snake movement patterns, collision
-; detection, win/lose outcomes, and reward dialog.
-; "Too bad. Come back if you change your mind."
+; Parent: asks 'Play the game with the snakes?'. Yes: shows the rules ('Hit as many snakes as you can in one minute. Hit whatever pot you like!'), sets scratch $01, zeroes the hit counter $0AAC and clears the combat lock bit $0008 of playerFlags. It then spawns the timer, clears scratch $03 and idles until scratch $04 is set, when it installs 'You've hit N snakes. Try again!' (the game is not offered again until the scene reloads). Pots: wait for $01, clear bit $0200 of their flags, set HP $FF and arm a hit callback; the first hit sets scratch $02 and the callback becomes a counter that adds 1 in BCD to $0AAC and plays sound ch1 $0D. Timer: waits for $02, counts $24 up to $0E10 frames, then ends the round: with $E7 clear and $0AAC of at least $51 it sets $E7, prints 'Wow N snakes. Very good! For your prize, I'll give you two Red Jewels. I'll send them to the Jeweler.' and adds 2 (BCD) to jewelsCollected; otherwise it prints 'OK! Stop! You've hit N snakes. Try again!'. It clears scratch $01 and $02, sets scratch $03, sets the combat lock again and dies.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

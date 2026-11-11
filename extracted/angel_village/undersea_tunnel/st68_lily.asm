@@ -1,9 +1,8 @@
-; Lilly in the undersea tunnel — philosophical about human nature.
+; Lilly in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).
 ; 
-; Extended NPC (~87 lines). "People are strange... I am afraid
-; the longer we travel in the darkness..." Lilly worries that
-; prolonged darkness is changing the party. Foreshadows
-; the Angel Tribe's condition.
+; Phase 0: waits for scratch flag $01, changes frame, installs the 'People are strange... I am afraid the longer we travel in this tunnel...' handler and changes frame again when scratch $04 is set.
+; 
+; Phase 1 (the eighth night): placed at tile (11,1C), locks the joypad ($CFFC), prints 'Eighth day in the tunnel...', walks to Will, asks 'Can't sleep?', turns the player to face her (SetPlayerIdleFacing #0003), prints the Will/Lilly talk, increments $0AA6 and queues scene $68 again at (0160,01C0), which starts phase 2. Phase 2: placed at tile (19,1D), idle.
 ---------------------------------------------
 
 ?INCLUDE 'SetPlayerIdleFacing'

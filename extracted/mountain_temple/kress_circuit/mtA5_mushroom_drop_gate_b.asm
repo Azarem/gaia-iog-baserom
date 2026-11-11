@@ -1,7 +1,6 @@
-; Mushroom Drop gate B in the Kress circuit.
+; Mushroom Drop gate B of the Kress circuit (scene $A5).
 ; 
-; Second Mushroom Drop-controlled gate. Requires a different
-; Mushroom Drop activation flag. Longer reveal sequence than gate A.
+; Dies at spawn when flag word $0167 is set. Otherwise it waits on WaitOnFlagByte ( #02, #01 ), raised by UseItem_MushroomWater at stem B (tiles (28,24)-(2A,25)). It then locks the joypad, removes item #1A and plays sound #0F on channel 1 before each BG change of the sequence #60, #61, #61, #62-#67, sets $0167, unlocks the joypad and dies.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

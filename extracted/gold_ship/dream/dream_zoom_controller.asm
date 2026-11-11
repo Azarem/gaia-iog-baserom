@@ -1,9 +1,6 @@
-; Camera zoom controller for Will's dream about his mother.
+; Camera zoom controller for Will's dream about his mother (scene $2A).
 ; 
-; Manages the visual zoom effect during the Shira dream scene.
-; Computes offset between camera position and fixed points
-; ($0088 for BG1, $0180 for BG2) and writes to HDMA scroll
-; registers ($00F6/$00FA/$00FE). Waits for flag $0E to end.
+; Waits for scratch flag $0E (set by gs2A_shira in its talk handler). Then it writes $00F6 = $0088 minus bg1ScrollH and $00FA = $0180 minus mapScrollV, starts $00FE at $00A0, lowers $00FE by 2 each frame and dies when $00FE is below $0040.
 ---------------------------------------------
 
 !bg1ScrollH                     068A

@@ -1,9 +1,6 @@
-; Ishtar's voice — door puzzle instructions.
+; Door objects of Ishtar's test corridor (scene $75): eight actors share this script, the door index 0-7 being the low nibble of the actor word $0E.
 ; 
-; Multi-phase puzzle guide (~129 lines). "Ishtar's voice resounds.
-; Don't hurry. Open the doors in order from the left."
-; Provides step-by-step instructions for the door sequence
-; puzzle. Tracks player progress through each door.
+; An actor dies at spawn when flag $89 (test passed) is set or when the player is inside a room (Y < $F0). In the corridor it installs an interact handler that compares the phase word $0AA6 with the door index: a smaller counter prints 'Ishtar's voice resounds. Don't hurry. Open the doors in order from the left.', a larger one prints 'That door is already open. There's no need to open it.', an equal one plays sound #0E, applies BgChange #49 + index and sets word flag $0149 + index.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

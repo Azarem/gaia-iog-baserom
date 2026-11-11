@@ -1,8 +1,6 @@
 ; South Cape traveling weapon salesman NPC.
 ; 
-; Multi-state dialog gated by game progress flags. Initially refuses
-; to sell weapons to a child. Later dialog changes based on story
-; progression.
+; No flags. After a first wait of $EF ticks he walks a fixed route with four stops of $78 ticks each. The interact handler prints 'I won't sell a weapon to a child' (code_0482CD) until the walk ends; the actor then switches the handler to code_0482D2 ('Salesman: Hmmm...') and stands solid.
 ---------------------------------------------
 
 ---------------------------------------------

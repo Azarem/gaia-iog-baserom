@@ -48,7 +48,7 @@ bitmask     = bitmasks_bit_position[bit_number]
 ```text
 Global flag index     WRAM bytes (inclusive)   Typical role (from asm comments + callers)
 -----------------     ----------------------   -------------------------------------------
-$0000–$01FF (+Raw)     $0A00–$0A1F              Low event flags (statues, switches, COP byte forms, …)
+$0000–$00FF (+Raw)     $0A00–$0A1F              Low event flags (statues, switches, COP byte forms, …)
 $0100–$01FF (+_0100)  $0A20–$0A3F              Event/trigger flags (defeat reveal, event blocks, puzzles)
 $0200–$02FF (+_0200)  $0A40–$0A5F              Chest-open + Red Jewel persistence (scene_chest_table byte 3)
 $0300–$03FF (+_0300)  $0A60–$0A7F              Per-scene “clear reward claimed” (scene ID in A)

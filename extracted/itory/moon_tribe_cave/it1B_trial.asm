@@ -1,8 +1,6 @@
-; Moon Tribe trial in their cave.
+; Moon Tribe trial in their cave (scene $1B).
 ; 
-; Challenge sequence: the Moon Tribe tests Will before giving
-; the statue. Includes dialog about creatures changed by the
-; comet's light. Success grants Incan Statue B.
+; With flag word $011C set at spawn the actor dies. Otherwise it locks the joypad ($CFFC), prints the challenge (the creatures touched by the comet's light; destroy them within 20 seconds to get the Incan Statue), unlocks, and runs a decimal countdown from 20 (orbitAngle = $20; orbitDiameter counts #3C ticks per second; sound #10 each second) drawn as digit sprites next to the player. When enemiesRemaining reaches 0 in time it locks the joypad ($FFFC), prints the success dialog, plays sound $0F0F, applies BG change #1C and sets $011C. When the countdown ends first it prints 'In that case, I can't give you the statue.' The trial grants no item itself; the statue is handed out by it1B_inca_statue_b (GiveItem #04).
 ---------------------------------------------
 
 ?INCLUDE 'oam_digit_compose'

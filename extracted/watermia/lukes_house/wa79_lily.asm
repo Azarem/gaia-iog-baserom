@@ -1,8 +1,6 @@
-; Lilly at Luke's house — heard about Lance seeing someone.
+; Lilly in Luke's house (scene $79): the birthday surprise and four later states.
 ; 
-; Extended NPC (~107 lines). "I heard that Lance saw someone
-; he knew in town." Provides story context about Lance
-; recognizing his father in Watermia.
+; $97 set: she stands at tile (08,09); with $A5 clear she says 'I decided to stay in this town, too. Ask Lance the reason why.', with $A5 set 'Rumor is we're going to collide with a big star. I don't believe rumors like that.'. $96 set: tile (08,09), 'I hope Lance's father recovers quickly.'. $91 set: she dies at spawn (she is in the scene $7F exchange or gone). Otherwise she stands solid with 'I heard that Lance saw someone he knew in town.' until Lance sets scratch $01; then she animates, prints the surprise dialog ('What? Everybody remembered my birthday?'), sets scratch $02, waits for scratch $04 (set by Lance), says 'Excuse me everyone. I'll be right back..', walks off and queues scene $7F.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

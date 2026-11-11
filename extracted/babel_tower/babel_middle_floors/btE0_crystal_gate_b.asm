@@ -1,7 +1,4 @@
-; Crystal gate B in the Babel middle floors.
-; 
-; Second crystal-locked gate. Same mechanics as gate A
-; with a different flag condition.
+; Crystal gate B of the Babel middle floors (scene $E0): marks the cells (0D,28) and (0E,28) solid, spawns two bt_static_sprite crystals and waits for $0176, which btF3_neo_viper (scene $F3) sets when the Neo Viper fight is won. It then clears the two cells and dies.
 ---------------------------------------------
 
 ?INCLUDE 'bt_static_sprite'

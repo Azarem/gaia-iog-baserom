@@ -1,10 +1,8 @@
-; Bomb defusal puzzle in the vampire lair — red or blue wire.
+; Bomb of the Mu vampire lair (scene $67) — a two-wire question and a countdown.
 ; 
-; Interactive puzzle (~185 lines): "There's a red wire and a blue
-; wire sticking out of the bomb... Cut which wire?" Player
-; must choose the correct wire. Wrong choice has consequences.
-; "The red wire is cut!" is the success path. Part of the
-; tense vampire lair rescue sequence.
+; The bomb stands solid next to Erik. Its interact handler asks "There's a red wire and a blue wire sticking out of the bomb... Cut which one?"; either answer prints "The red wire is cut!" or "The blue wire is cut!" and sets scratch $01, so the choice has no consequence. Once enemiesRemaining is 0 the main script changes the player back to Will if needed, applies BG changes #46 and #47 and sets $0146 and $0147; then it waits for $01. After the wire is cut it locks the joypad, plays music #1B and sound #2C, prints "Will: The bomb has been defused..." with Erik's and Lilly's lines, sets scratch $03 (Neil's cue), applies BG change #93, unlocks the joypad and dies.
+; 
+; A second actor spawned at the start is the countdown. It waits for scratch $02 (the fight has started), counts down from BCD $0140 by one per #3C ticks (paused while displayModeFlags bit $2000 is set), shows the digits with ComposeDigitSprites and dies when $01 is set. If the count passes zero while a vampire is alive, playerHp is set to 0; with both vampires dead it prints "It was a dud. I'm saved...".
 ---------------------------------------------
 
 ?INCLUDE 'oam_digit_compose'

@@ -1,7 +1,6 @@
-; Rudy (Friezer's companion) — enthusiastic about ruins.
+; Rudy, Friezer's companion (scene $9A).
 ; 
-; NPC: "The ruins are a great place. They just take my breath
-; away." Contrasts with Max's nervousness. The eager explorer.
+; $A7 set: the actor dies at spawn. Otherwise: 'The ruins are a great place. They just take my breath away.'.
 ---------------------------------------------
 
 ---------------------------------------------

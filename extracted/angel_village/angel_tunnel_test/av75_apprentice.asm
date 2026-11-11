@@ -1,8 +1,8 @@
-; Ishtar's apprentice — explains the puzzle room test.
+; Ishtar's apprentice in the test scene ($75).
 ; 
-; NPC: "When you solve the puzzle of the room you may pass."
-; Guards the entrance to Ishtar's test chambers and provides
-; the rules for the puzzle sequence.
+; At spawn the actor tests the player against tiles (70,00)-(80,10), the last observation room. Inside, it sets scratch flag $00 (the byte the player code reads to select the alternate idle sprite set) and writes playerSpeedNs := $FFFF. It then places itself by $0AA6 >> 1: 1 -> tile (3A,1D), 2 -> (57,1D), 3 -> (00,71); other values keep the placed position.
+; 
+; The actor marks itself solid and its interact handler prints 'When you solve the puzzle of the room you may pass.'
 ---------------------------------------------
 
 !playerSpeedNs                  09B4

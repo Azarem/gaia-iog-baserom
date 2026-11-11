@@ -1,8 +1,8 @@
-; Waterfall ambient sound effect in the Angel Village tunnel.
+; Waterfall sound and alcove flag in the waterfall tunnel (scene $73).
 ; 
-; Audio actor that plays flowing water sounds near waterfalls
-; in the tunnel. Adjusts volume based on player distance
-; for spatial audio effect.
+; At spawn, if the player is inside tiles (00,00)-(40,10) the actor sets scratch flag $00 and dies. Otherwise it spawns a watcher (code_06D733) that sets scratch $00 while the player is inside tiles (2A,17)-(2F,1D) and clears it everywhere else, and its main script writes APUIO0 = $40 + min(2 * |playerXTile - $2C|, $30) every fourth frame, so the value grows with the horizontal distance from tile column $2C. What the sound engine does with that port value (volume or another parameter) is not traced here.
+; 
+; Scratch $00 is read by the player's idle, ladder and shimmy code, which selects the alternate sprite set while it is set.
 ---------------------------------------------
 
 !frameCounter                   0036

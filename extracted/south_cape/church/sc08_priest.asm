@@ -1,8 +1,6 @@
 ; South Cape school teacher (Priest) who gives the opening narration.
 ; 
-; Runs the game's opening sequence: Will's monologue about his father,
-; the teacher's lesson, and dismissal. Sets the initial story flags
-; that begin gameplay. The longest dialog sequence in the opening.
+; At spawn the actor stands solid with the interact handler code_048AD9 (flag $21 clear: 'Please recite with me'; set: 'What is it, Will?'). With flag $10 clear it locks the joypad ($CFFC), waits $1D ticks, prints Will's monologue, waits $3B ticks, plays six sound pairs $1E ticks apart, prints the lesson ('That's all for today's lesson'), waits $3B ticks and sets $10. That is the only flag it sets; sc08_erik releases the joypad lock after its walk. With $10 set at load the lesson is skipped and the joypad stays free; Lance, Erik and Seth die at spawn.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A
