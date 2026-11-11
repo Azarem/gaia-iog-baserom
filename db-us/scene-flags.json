@@ -1,0 +1,1640 @@
+{
+  "1": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "2": {
+    "flags": [21],
+    "names": ["sc_cave_intro_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $15 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "3": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "4": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "5": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "6": {
+    "flags": [29, 37, 61],
+    "names": ["sc_morning_narration_seen", "sc_lily_met_in_house", "sc_kara_intro_done"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Three arrival scripts depend on the story state: Hamlet locks the joypad when the cave news is done and neither the Kara intro nor the soldier scene is done; the morning monologue locks when the dinner night has passed and the morning flag is clear; Kara's return locks when the throne room is done and Lily is not yet met. Setting one flag of each exclusion group frees the arrival; in any other story state the scene is free. FR40: from the story state S01r the arrival is free; with flag 22 set the Hamlet script locks the joypad (joypadMaskStd $CFF0) and flag 61 frees it, while flags 29 and 37 alone leave the lock in place; the other two arrival scripts need story states FR40 did not reach, so the claim is not decided.",
+    "source": "extracted/south_cape/wills_house/sc06_hamlet.asm:21 {303603}, sc06_monologue.asm:51 {304311}, sc06_kara_return.asm:23 {304583}"
+  },
+  "7": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "8": {
+    "flags": [16],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1330. With flag $10 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "10": {
+    "flags": [63],
+    "names": ["ec_entrance_letter_shown"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 239 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 278. With flag $3F set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "11": {
+    "flags": [36],
+    "names": ["ec_prison_cell_door_unlocked"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $24 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "12": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "13": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "14": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "Entered from the scene-warp destination x=88 y=64 facing=3 the player is free for 56 frames, then locks of joypadMaskStd $0F00 (17 frames each) repeat, the player's HP reaches 0 (playerFlags $0200) at frame 197 and the scene loads scene $20 at frame 437; the other scene-warp destination gives a free arrival.",
+    "source": "Mesen2 FR40"
+  },
+  "15": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "16": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "17": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "18": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=632 y=1488 facing=0 scroll=$6300 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "19": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "Entered from the scene-warp destination x=120 y=80 facing=3 the player is free for 59 frames, then a script locks the joypad (joypadMaskStd $CFF0) and opens a message box (displayModeFlags $2001) that stays open without input for 600 frames; with A pulses a further lock starts at frame 146 and the joypad is locked again at frame 600.",
+    "source": "Mesen2 FR40"
+  },
+  "21": {
+    "flags": [43],
+    "names": ["it_village_lily_intro_done"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lily's village introduction locks the joypad at spawn when the trip has started and the introduction flag is clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 43 cannot show a difference; the claim is not decided.",
+    "source": "extracted/itory/itory_village/it15_lily.asm:35 {320194}"
+  },
+  "22": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "23": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "24": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "25": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "26": {
+    "flags": [73],
+    "names": ["it_moon_camp_gate_opened"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 30 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $49 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "27": {
+    "flags": [284],
+    "names": ["it_moon_tribe_trial_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $11C set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "28": {
+    "flags": [75],
+    "names": ["ir_entrance_kara_catchup_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 134. With flag $4B set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "29": {
+    "flags": [108],
+    "names": ["ir_larai_monologue_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $6C set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "30": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=936 y=64 facing=131 scroll=$2400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "31": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "32": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "33": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=312 y=976 facing=0 scroll=$4400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "34": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "35": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "36": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=248 y=464 facing=0 scroll=$2200 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "37": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "38": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "39": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=376 y=448 facing=0 scroll=$2400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "40": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "41": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 171 frames; the player is free from frame 171 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "42": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "43": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=480 y=592 facing=6 scroll=$3300 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "44": {
+    "flags": [76],
+    "names": ["gs_ship_descent_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 378 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 398. With flag $4C set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "45": {
+    "flags": [80],
+    "names": ["gs_wreck_interior_wakeup_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 98. With flag $50 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "46": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "47": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "48": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "49": {
+    "flags": [86],
+    "names": ["fr_oakton_departure_agreed"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 212 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 662. With flag $56 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "50": {
+    "flags": [100],
+    "names": ["fr_freejia_arrival_intro_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 61 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 374. With flag $64 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "51": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "52": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "53": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "54": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "55": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "56": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "57": {
+    "flags": [88],
+    "names": ["fr_hotel_reunion_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 149 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 382. With flag $58 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "58": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "59": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "60": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "61": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "62": {
+    "flags": [106],
+    "names": ["dm_mine_entrance_intro_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $6A set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "63": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "64": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "65": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=928 y=224 facing=3 scroll=$3400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "66": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "67": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "68": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=240 y=96 facing=3 scroll=$2200 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "69": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "70": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=144 y=96 facing=3 scroll=$2200 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "71": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=112 y=64 facing=3 scroll=$3100 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "73": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 70 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 722.",
+    "source": "Mesen2 FR40"
+  },
+  "75": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 86.",
+    "source": "Mesen2 FR40"
+  },
+  "76": {
+    "flags": [107],
+    "names": ["sg_garden_arrival_narration_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $6B set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "77": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "78": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "79": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "80": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "81": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "82": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "83": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "84": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "85": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 82 frames; the player is free from frame 82 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "86": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "88": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 258 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $5A at frame 3631.",
+    "source": "Mesen2 FR40"
+  },
+  "89": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 773 frames; the scene loads scene $58 by itself at frame 773 after the banner.",
+    "source": "Mesen2 FR40"
+  },
+  "90": {
+    "flags": [110],
+    "names": ["sp_arrival_monologue_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $6E set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "91": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 78 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 566. Entered from 3 of 4 scene-warp destinations the arrival is free.",
+    "source": "Mesen2 FR40"
+  },
+  "92": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "93": {
+    "flags": [112],
+    "names": ["sp_fountain_purified_done"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The fountain actor locks the joypad at scene load when Lilly's pocket scene is done, the fountain is not yet purified and the Purification Stone is held; with the purified flag set it does nothing. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 112 cannot show a difference; the claim is not decided.",
+    "source": "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:36 {431125}, :43 {431148}"
+  },
+  "94": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "95": {
+    "flags": [119],
+    "names": ["mu_arrival_monologue_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $77 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "96": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "97": {
+    "flags": [124],
+    "names": ["mu_water_lowered_remark_seen"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The shared palace monologue actor locks the joypad at spawn and releases it in the same pass when the water remark flag is set. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 124 cannot show a difference; the claim is not decided.",
+    "source": "extracted/seaside_palace/palace_main/sp5A_monologue.asm:19 {427164}"
+  },
+  "98": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=824 y=64 facing=3 scroll=$4400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "99": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "100": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "101": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "102": {
+    "flags": [130],
+    "names": ["mu_altar_burial_ground_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $82 set the arrival is free (mask $0000, no message box, the player moves). Entered from 1 of 2 scene-warp destinations the arrival is free.",
+    "source": "Mesen2 FR40"
+  },
+  "103": {
+    "flags": [134],
+    "names": ["mu_lair_erik_cry_seen"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Erik's cry locks the joypad (zone-gated) while the cry flag is clear and the vampires' script releases it; with the vampire reward flag set the vampires do not exist, so with the cry flag clear the lock never ends. The vampires lock again before the fight setup. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 134 cannot show a difference; the claim is not decided.",
+    "source": "extracted/mu/mu_vampire_lair/mu67_erik.asm:39 {434930}, release mu67_vampires.asm:191 {717477}, intro lock :179 {717449}"
+  },
+  "104": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 158.",
+    "source": "Mesen2 FR40"
+  },
+  "105": {
+    "flags": [117],
+    "names": ["av_entrance_arrival_scene_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 571. With flag $75 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "106": {
+    "flags": [169],
+    "names": ["av_annex_reunion_done"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Erik's annex scene locks the joypad when Kara is rescued and the annex reunion flag is still clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 169 cannot show a difference; the claim is not decided.",
+    "source": "extracted/angel_village/angel_annex/av6A_erik.asm:30 {443616}"
+  },
+  "107": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Walking from the entry position starts a lock (joypadMaskStd $CFF0) in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "108": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "109": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "110": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=912 y=640 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0.",
+    "source": "Mesen2 FR40"
+  },
+  "111": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "112": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=624 y=368 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0. Entered from the scene-warp destination x=672 y=368 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 0.",
+    "source": "Mesen2 FR40"
+  },
+  "113": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "114": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "115": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "116": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "117": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. Entered from 9 of 17 scene-warp destinations the arrival is free.",
+    "source": "Mesen2 FR40"
+  },
+  "120": {
+    "flags": [141],
+    "names": ["wa_arrival_cutscene_started"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1526. With flag $8D set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "121": {
+    "flags": [145],
+    "names": ["wa_lance_lily_exchange_done"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lance's scene in Luke's house locks the joypad when his father's visit is done and the exchange flag, the festival flag and the glass-game flag are clear. FR40: from the story state S01r the arrival is free (no lock reproduced); with flag 145 set the scene shows a dialog state (joypadMaskStd $CFF0, displayModeFlags $2001); the claim is not decided.",
+    "source": "extracted/watermia/lukes_house/wa79_lance.asm:24 {502938}"
+  },
+  "122": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "123": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "124": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "125": {
+    "flags": [149],
+    "names": ["wa_glass_will_delivered"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The glass opponent locks the joypad at spawn when the glass game is won and the delivery flag and the festival flag are clear. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 149 cannot show a difference; the claim is not decided.",
+    "source": "extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:33 {495006}"
+  },
+  "126": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "127": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $79 at frame 1855.",
+    "source": "Mesen2 FR40"
+  },
+  "130": {
+    "flags": [157],
+    "names": ["gw_trail_intro_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $9D set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "131": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "133": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "134": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "135": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "136": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "137": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 231 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $F7 at frame 5414.",
+    "source": "Mesen2 FR40"
+  },
+  "138": {
+    "flags": [1283],
+    "names": ["gw_sand_fanger_reward_claimed"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Sand Fanger's actor locks the joypad at its intro and starts the fight; with the boss reward flag set the actor spawns no fight. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 1283 cannot show a difference; the claim is not decided.",
+    "source": "extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:113 {753787}, flag test :189 {754027}"
+  },
+  "139": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "140": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 857 frames; the scene loads scene $FC by itself at frame 857 after the banner.",
+    "source": "Mesen2 FR40"
+  },
+  "141": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 398 frames; the player is still held after 1500 frames without input; with A pulses the scene loads scene $FC at frame 4682.",
+    "source": "Mesen2 FR40"
+  },
+  "142": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 827 frames; the scene loads scene $8C by itself at frame 1362 after the banner.",
+    "source": "Mesen2 FR40"
+  },
+  "143": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 427 frames; the scene loads scene $FC by itself at frame 1387 after the banner.",
+    "source": "Mesen2 FR40"
+  },
+  "144": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 1286 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $E5 at frame 5442.",
+    "source": "Mesen2 FR40"
+  },
+  "145": {
+    "flags": [165],
+    "names": ["eu_arrival_cutscene_played"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 2462. With flag $A5 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "146": {
+    "flags": [158],
+    "names": ["eu_geezers_argument_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 74. With flag $9E set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "147": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "148": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "149": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "150": {
+    "flags": [171],
+    "names": ["eu_hamlet_morning_scene_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 114. With flag $AB set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "151": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 24 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62.",
+    "source": "Mesen2 FR40"
+  },
+  "152": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "153": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "154": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "155": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "156": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "157": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "160": {
+    "flags": [167],
+    "names": ["mt_kress_intro_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $A7 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "161": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "162": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "163": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "164": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "165": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=72 y=992 facing=0 scroll=$4400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "166": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) ends in game over (playerFlags $0200 set, HP 0) at frame 45; a full warp with x=16 y=864 facing=7 scroll=$4400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "167": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "168": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "169": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=72 y=992 facing=0 scroll=$4200 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "172": {
+    "flags": [178],
+    "names": ["nv_hamlet_cutscene_done"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50. With flag $B2 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "173": {
+    "flags": [174],
+    "names": ["nv_vacant_hut_checked"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Kara's vacant-hut scene locks the joypad when the house search has started and neither the hut-checked flag nor the Hamlet flag is set. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 174 cannot show a difference; the claim is not decided.",
+    "source": "extracted/native_village/vacant_hut/nvAD_kara.asm:27 {559852}"
+  },
+  "174": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "176": {
+    "flags": [179],
+    "names": ["aw_entrance_intro_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $B3 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "177": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "178": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) ends in game over (playerFlags $0200 set, HP 0) at frame 54; a full warp with x=120 y=1984 facing=0 scroll=$8100 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "179": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1912 y=448 facing=0 scroll=$2800 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "180": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "181": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "182": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=760 y=976 facing=128 scroll=$4600 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "183": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "184": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "185": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "186": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=504 y=1488 facing=128 scroll=$6400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "187": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 74 frames; the player is free from frame 74 without input. Entered from 3 of 7 scene-warp destinations the arrival is free.",
+    "source": "Mesen2 FR40"
+  },
+  "188": {
+    "flags": [183],
+    "names": ["aw_crystal_shrine_intro_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38. With flag $B7 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "189": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 74 frames; the player is free from frame 74 without input. Entered from 3 of 4 scene-warp destinations the arrival is free.",
+    "source": "Mesen2 FR40"
+  },
+  "190": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=128 facing=0 scroll=$3300 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "191": {
+    "flags": [190],
+    "names": ["aw_gorgon_flower_given"],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The spirit guide locks the joypad at spawn when the vision is seen and the Gorgon Flower is not yet given. FR40: from the story state S01r the arrival is free (no lock reproduced), so flag 190 cannot show a difference; the claim is not decided.",
+    "source": "extracted/angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:46 {563927}"
+  },
+  "192": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 844 frames; the scene loads scene $BF by itself at frame 844 after the banner.",
+    "source": "Mesen2 FR40"
+  },
+  "195": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=144 y=176 facing=3 scroll=$2300 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "196": {
+    "flags": [210],
+    "names": ["bt_entrance_monologue_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "197": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "198": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "199": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "200": {
+    "flags": [210],
+    "names": ["bt_entrance_monologue_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 69 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 122. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "201": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "204": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=504 y=288 facing=3 scroll=$4400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "205": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "206": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1392 y=192 facing=128 scroll=$4600 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "207": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1392 y=192 facing=0 scroll=$4600 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "208": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1136 y=192 facing=128 scroll=$5500 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "209": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "210": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test. Entered from the scene-warp destination x=192 y=912 facing=3 the arrival ends in game over (playerFlags $0200 set, HP 0) at frame 46.",
+    "source": "Mesen2 FR40"
+  },
+  "211": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "212": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "213": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "214": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "215": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=112 y=448 facing=0 scroll=$6400 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "216": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=1152 y=192 facing=128 scroll=$5500 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "217": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "218": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=192 facing=0 scroll=$1100 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "219": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "220": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 180 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses the scene loads scene $DE at frame 3084.",
+    "source": "Mesen2 FR40"
+  },
+  "221": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "222": {
+    "flags": [210],
+    "names": ["bt_entrance_monologue_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 51 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62. With flag $D2 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "223": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "224": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Kara's disappearance scene locks the joypad at spawn only in scene $E0, when flag $D4 (Kara follows) is set and the crystal gate word flag $0178 is set; it clears $D4, prints the text and unlocks. The player is free on arrival when $D4 is clear or $0178 is clear; both are clears, which the flag list of a scene entry cannot express. FR40: with flag 212 ($D4) set the arrival is free (mask $0000, the player moves in four directions); the other condition of the draft lock (word flag $0178) is not reached from the story state S01r, so the claim is not decided.",
+    "source": "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:25 {624163}, :29 {624177}, lock :36 {624200}, unlock :40 {624213}"
+  },
+  "225": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=1936 facing=3 scroll=$8100 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "226": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free: joypadMaskStd $065A is $0000, no message box is open and the player moves in the direction test.",
+    "source": "Mesen2 FR40"
+  },
+  "227": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 24 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 86. Entered from 3 of 4 scene-warp destinations the arrival is free.",
+    "source": "Mesen2 FR40"
+  },
+  "228": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 722.",
+    "source": "Mesen2 FR40"
+  },
+  "229": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 171 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; the player is still held after 7000 frames with A pulses.",
+    "source": "Mesen2 FR40"
+  },
+  "230": {
+    "flags": [],
+    "entry": "free",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival is free. A quick warp (default position x=88 y=160) puts the player in a wall (no movement in four directions, collision cells solid); a full warp with x=120 y=192 facing=0 scroll=$1100 places the player on free ground.",
+    "source": "Mesen2 FR40"
+  },
+  "231": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the scene loads scene $E8 by itself at frame 969 after the banner.",
+    "source": "Mesen2 FR40"
+  },
+  "232": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 95 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "233": {
+    "flags": [41],
+    "names": ["ma_mansion_intro_seen"],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. With flag $29 set the arrival is free (mask $0000, no message box, the player moves).",
+    "source": "Mesen2 FR40"
+  },
+  "234": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 234 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 453.",
+    "source": "Mesen2 FR40"
+  },
+  "240": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 618 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; the player is still held after 7000 frames with A pulses.",
+    "source": "Mesen2 FR40"
+  },
+  "242": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 682 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "243": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "244": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "245": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "246": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the player is free from frame 680 without input.",
+    "source": "Mesen2 FR40"
+  },
+  "247": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+    "source": "Mesen2 FR40"
+  },
+  "250": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival sets playerFlags bit $0800 (script lock); the player is still held after 1500 frames without input; with A pulses the scene loads scene $08 at frame 42.",
+    "source": "Mesen2 FR40"
+  },
+  "251": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0) for 115 frames; the scene loads scene $FC by itself at frame 256 after the banner.",
+    "source": "Mesen2 FR40"
+  },
+  "252": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+    "source": "Mesen2 FR40"
+  },
+  "253": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+    "source": "Mesen2 FR40"
+  },
+  "254": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The arrival locks the joypad (joypadMaskStd $065A = $FFF0); the player is still held after 1500 frames without input.",
+    "source": "Mesen2 FR40"
+  },
+  "255": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "VERIFIED-RUNTIME",
+    "note": "The inventory scene is a menu overlay: joypadMaskStd $065A is $0000 at arrival and the player does not move in the direction test.",
+    "source": "Mesen2 FR40"
+  }
+}
