@@ -1,0 +1,1069 @@
+{
+  "thinkers/parallax_thinker.asm": {
+    "blockNote": [
+      "Scanline-band HDMA thinker driven by parallax_scroll_table (Bank 00, 47245-48013). One spawn = one HDMA channel that rewrites a single PPU register per scanline band every frame. Despite the name, only some table entries scroll a background: others stream COLDATA / CGADSUB / CGDATA colour values or a WH0/WH1 window rectangle through the same band format.",
+      "",
+      "=== SPAWN AND FRAME FLOW ===",
+      "",
+      "thinker-def <#04,#08>: the filter word is $0804, so bit 2 puts it in RunThinkers_TypeB. That pass runs every frame right after ResetHdmaState, so the channel binding is redone every frame. The spawn-record parameter byte (animScratch+2) is the INDEX into parallax_scroll_table (37 word pointers, $00-$24).",
+      "1. Entry (once): ParallaxClearHdmaScratch zeroes the 24 band accumulators at $0720-$074F and chatPtr is set to 0.",
+      "2. SetEntryHere, then every frame: chatPtr is copied to the global word $0012 and incremented (a frame counter whose bit 0 picks the buffer half), ParallaxBuildHdmaTable rewrites the whole table, and SetupHdmaChannel_Direct binds it to the B-bus register from the entry config (A = register index << 8 | bank $7E, Y = table start). The thinker then leaves $0060 = 1 and $005E = 0.",
+      "",
+      "=== TABLE ENTRY FORMAT (parallax_scroll_table) ===",
+      "",
+      "| Offset | Meaning |",
+      "|--------|---------|",
+      "| +0 word | WRAM buffer address in bank $7E. Even frames build there, odd frames at +$0200 (double buffer: the HDMA channel reads the half written last frame) |",
+      "| +2 byte | Bank $7E |",
+      "| +3 byte | Config: bits 0-5 = B-bus register index n ($2100 + n; also the index into hdma_channel_config); bit 6 ($40) = camera delta x16; bit 7 ($80) = swap the scroll sources (below) |",
+      "| +4 byte | Record size: 4 = constant band, 8 = scroll band, 9 = window rectangle |",
+      "| +5 ... | Records, ended by a zero height word (size 4 / 8) or a word with bit 15 set (size 9). An entry that is just $FFFF is unused |",
+      "",
+      "Buffers: $7000, $7400, $7800, $7C00, $8000 and $8400, 1 KB each (two $200 halves). Scenes with two or more parallax thinkers (2B, 2D, 2E, 2F, DF, E0, E3) give them different buffers.",
+      "",
+      "=== SCROLL SOURCES AND STRIDE ===",
+      "",
+      "Default: $18 = bg1ScrollH ($068A, BG1 horizontal scroll) as the multiplicand for proportional bands, and $1C = effectScrollV ($0690, BG2 vertical scroll) as the vertical position that the band heights are measured against. With config bit 7 the sources become $18 = effectScrollH ($068C, BG2 horizontal) and $1C = mapScrollV ($068E, BG1 vertical). $1A = effectDeltaX ($06E4, this frame's camera X delta), shifted left 4 times with config bit 6.",
+      "ParallaxResolveChannelSpeed sets $04 = parallax_speed_config[hdma_channel_config[n] & 7]. That byte is the HDMA ENTRY STRIDE (count byte plus data): 2 for transfer mode 0 (one byte) and 3 for modes 1 and 2 (one word). It is not a speed. The band writers advance the buffer pointer $62 by $04 per entry.",
+      "",
+      "=== RECORD TYPES ===",
+      "",
+      "Size 4 (colour bands): {height word, value word}. The height is a NEGATIVE line count. $1C accumulates the heights; bands whose running sum is still >= 0 lie above the visible area and are skipped. The first band that makes the sum negative starts the table with |sum| lines; later bands use |height|. Each band is written as count byte (at most $7F lines per HDMA entry, longer bands are split) plus the 1 or 2 value bytes. The value word is read from record +2.",
+      "Size 8 (scroll bands): {height word, accumulator pointer, factor word, base word}. The accumulator pointer addresses a word in $0720-$0760. Factor <> 0: MulDivide(A = factor, Y = $18) = (factor low byte x $18) / factor high byte, plus base. This is fixed point with 4 fractional bits: factor $0108 is x0.5 and $0110 is x1.0 of the scroll value, $010E is x0.875. Factor = 0: accumulator += base + $1A, an auto-scroll of base/16 pixels per frame that also follows the camera delta. The value stored per HDMA entry is the accumulator >> 4 with the sign extended from bit 11. Bands above the visible area still update their accumulator; bands below the 224-line budget are not processed.",
+      "Size 9 (window rectangles, register $2126/$2127 pair WH0/WH1): {x, width, y, height} in map pixels. Each rectangle is converted against bg1ScrollH and mapScrollV into a WH0 (left) / WH1 (right) byte pair. Lines between rectangles get the value $0000. Horizontally a rectangle is skipped when it starts at column $FF or beyond, ends left of the screen, or starts left of the screen and its right edge is at column $FF or beyond; otherwise the right edge is clamped to $FF. Vertically it is skipped when its top is at line $FF or beyond or, if it starts above the screen, when its bottom is at or above line 0 or at line $FF or beyond. The table ends with one more $0000 line.",
+      "",
+      "=== ENTRIES USED BY SCENES ===",
+      "",
+      "| Type | Register / content | Buffer | Scenes (spawn lists) |",
+      "|------|--------------------|--------|----------------------|",
+      "| $00 | BG2HOFS: 7 scroll bands (5 proportional, 2 auto) | $7800 | 0A |",
+      "| $01 | BG2HOFS: 4 scroll bands (1 proportional, 3 auto) | $7800 | 15, 1A, 1C |",
+      "| $02 | COLDATA: 96 constant bands | $7C00 | 02-08, 16-18, 2A, 31, 33-38, 3A-3C, 49, 56, 5E, 79-7E, 92-9D, AD, AE, C4-C9, DF, E0, E3 |",
+      "| $03 | BG2HOFS (delta x16): 11 scroll bands (0 proportional, 11 auto) | $8000 | FD, FF |",
+      "| $05 | BG2HOFS (delta x16): 29 scroll bands (0 proportional, 29 auto) | $8000 | 2B-2E |",
+      "| $06 | COLDATA: 24 constant bands | $7400 | 2B, 2D, 2F |",
+      "| $07 | CGADSUB: 2 constant bands | $7800 | 2D |",
+      "| $08 | COLDATA: 24 constant bands | $7C00 | 2D, 2E |",
+      "| $0A | COLDATA: 17 constant bands | $7400 | 29 |",
+      "| $0B | BG1HOFS (delta x16): 7 scroll bands (0 proportional, 7 auto) | $7800 | 1D |",
+      "| $0E | BG2HOFS (delta x16): 2 scroll bands (0 proportional, 2 auto) | $8000 | 2F |",
+      "| $1B | CGDATA: 2 constant bands | $7800 | 5C |",
+      "| $1C | CGADSUB: 2 constant bands | $7400 | 6B |",
+      "| $1D | COLDATA: 23 constant bands | $7400 | 59 |",
+      "| $1E | BG2HOFS: 6 scroll bands (6 proportional, 0 auto) | $7800 | 82, 83, 86-88, 8B |",
+      "| $1F | BG2HOFS: 2 scroll bands (2 proportional, 0 auto) | $7800 | 84, 8A |",
+      "| $20 | window: 1 rectangle(s) | $7000 | C3 |",
+      "| $21 | BG2HOFS: 6 scroll bands (6 proportional, 0 auto) | $7800 | 85 |",
+      "| $23 | BG2HOFS: 1 scroll bands (1 proportional, 0 auto) | $7800 | DF-E1, E3 |",
+      "| $24 | BG1HOFS: 33 scroll bands (0 proportional, 33 auto) | $7800 | E5 |",
+      "",
+      "Types $04 and $22 (COLDATA bands) and all $FFFF entries are not spawned by any scene thinker list. Type $02 (COLDATA colour gradient) accounts for 53 of the 81 scenes with a parallax thinker; its scene list includes the South Cape interiors 03-08 (which also run flag_gated_palette_cool). Type $03 is spawned by scenes $FD and $FF; scene $FF also spawns inventory_dma_setup, the inventory-screen scene.",
+      "",
+      "=== QUIRKS ===",
+      "",
+      "- The accumulator clear covers only $0720-$074F, but entry $05 uses accumulators up to $0758 and entry $24 up to $0760. Those extra words are never cleared by this thinker. $0720 is also used by sE7_space_bg_scroll and the F7 credits code, so this region is shared.",
+      "- A table that covers fewer than 224 lines ends with an explicit count-0 byte; the PPU register then simply keeps the last value written for the rest of the frame.",
+      "- The window path hard-codes a 3-byte stride, which only matches register pair WH0/WH1 (mode 1).",
+      "- All reads of the table use absolute addressing under DBR $81, which mirrors ROM bank 01.",
+      "- Runtime behaviour of the individual entries (what the screen looks like) was not checked; see the questions file."
+    ],
+    "partNotes": {
+      "code_00B88D": [
+        "Thinker body. Runs once to clear the accumulators, then loops through SetEntryHere every frame: build the table, bind the channel. See the block note for the entry format."
+      ],
+      "ParallaxClearHdmaScratch": [
+        "Zeroes the 24 words $0720-$074F that hold the per-band scroll accumulators. Called only at spawn, so accumulators persist (and keep running) across frames. Entries that use more than 24 accumulators (types $05 and $24) are not fully covered."
+      ],
+      "ParallaxBuildHdmaTable": [
+        "Rewrites the whole HDMA table for the entry chosen by the spawn parameter. Switches D to 0 (restored from the stacked X at every exit) so $00-$26 are global scratch: $00 = record size then stride, $02 = register index, $04 = entry stride, $08 = lines emitted (window path), $0E = lines left in the current band, $10 = lines still to fill (starts at 224), $18 = scroll multiplicand, $1A = camera delta, $1C = vertical position, $20-$26 = window working values, $5E / $60 = table start / bank for the HDMA bind, $62 / $64 = write pointer.",
+        "Dispatches on the record size: 4 = loc_00B98E, 9 = loc_00B9B3, anything else (8) = loc_00B966."
+      ],
+      "loc_00B966": [
+        "Scroll-band records (size 8). Walks the records; a band whose running height sum is still non-negative is above the screen and only updates its accumulator (ParallaxApplyScrollOffset). The first band that crosses into the visible area jumps to ParallaxWriteNegativeScrollRamp, which emits it and every following band."
+      ],
+      "loc_00B98E": [
+        "Constant-band records (size 4). Skips bands above the screen, then ParallaxWriteNegativeScrollRampY emits the rest."
+      ],
+      "loc_00B9B3": [
+        "Window-rectangle records (size 9). Each rectangle is clipped against bg1ScrollH / mapScrollV and, if visible, emitted by ParallaxWriteWindowHdmaEntry. A negative x word ends the list, after which one final $0000 line and the terminator are written."
+      ],
+      "ParallaxWriteWindowHdmaEntry": [
+        "Converts one visible rectangle into $24 (first line), $26 (line count) and a WH0/WH1 word (left in the low byte, right in the high byte, right clamped to $FF). A rectangle partly above the screen starts at line 0 with the visible part of its height; one that starts left of the screen gets WH0 = 0."
+      ],
+      "ParallaxFillHdmaRampRow": [
+        "Emits the gap between the previous rectangle and this one (value $0000) and then the rectangle's own lines (the window word in Y). Counts are split into HDMA entries of at most $7F lines and $08 tracks the total. The 3-byte stride is hard-coded."
+      ],
+      "ParallaxResolveChannelSpeed": [
+        "Looks up hdma_channel_config[register index] & 7 (the DMAP transfer mode), then parallax_speed_config[mode] into $04. The result is the byte stride of one HDMA entry (count + data): 2 for mode 0, 3 for modes 1 and 2. It is a stride, not a speed."
+      ],
+      "ParallaxWriteNegativeScrollRamp": [
+        "Emits scroll bands (size 8) starting at the current record until $10 (lines left) reaches 0 or the list ends. The first band uses only its visible part (-running sum). Each band calls ParallaxApplyScrollOffset, writes count bytes of at most $7F lines and stores the accumulator >> 4, sign-extended from bit 11, as the value. The 'Negative' in the name refers to the negative height words it consumes."
+      ],
+      "ParallaxWriteNegativeScrollRampY": [
+        "The same loop for constant bands (size 4): value = record word +2 copied unchanged. Used by the COLDATA, CGADSUB and CGDATA entries."
+      ],
+      "ParallaxApplyScrollOffset": [
+        "Computes one scroll band's value into $06 and its accumulator word. Factor <> 0: accumulator = (factor low byte x $18 / factor high byte) + base, i.e. a proportional follow of the scroll source. Factor = 0: accumulator += base + $1A, an auto-scroll."
+      ]
+    },
+    "comments": {
+      "47245": {
+        "text": "Spawn only: zero the 24 band accumulators $0720-$074F before the first frame",
+        "expect": "JSR $&ParallaxClearHdmaScratch"
+      },
+      "47251": {
+        "text": "chatPtr (thinker's own word at +$0A) = frame counter, starts at 0",
+        "expect": "STA $chatPtr, X"
+      },
+      "47255": {
+        "text": "Every later frame resumes here, so the accumulator clear above runs once",
+        "expect": "COP [SetEntryHere]"
+      },
+      "47261": {
+        "text": "Copy the frame counter to global $0012; the builder tests its bit 0 to choose the buffer half",
+        "expect": "STA $0012"
+      },
+      "47265": {
+        "text": "Count this frame",
+        "expect": "STA $chatPtr, X"
+      },
+      "47269": {
+        "text": "Rewrite the HDMA table for the entry selected by the spawn parameter; returns $02 = register index, $5E / $60 = table start / bank",
+        "expect": "JSR $&ParallaxBuildHdmaTable"
+      },
+      "47274": {
+        "text": "A low byte = B-bus register index of the entry",
+        "expect": "LDA $0002"
+      },
+      "47277": {
+        "text": "Move it to the high byte",
+        "expect": "XBA"
+      },
+      "47278": {
+        "text": "A low byte = table bank ($7E), so A = register << 8 | bank",
+        "expect": "LDA $0060"
+      },
+      "47281": {
+        "text": "Y = table start address in bank $7E",
+        "expect": "LDY $005E"
+      },
+      "47284": {
+        "text": "Bind a free HDMA channel in direct mode to the table (type-B thinker: runs after ResetHdmaState, so this repeats every frame)",
+        "expect": "JSL $@hdma_dma_spc.SetupHdmaChannel_Direct"
+      },
+      "47288": {
+        "text": "Leave $60 = 1 ...",
+        "expect": "LDA #$01"
+      },
+      "47295": {
+        "text": "... and $5E = 0 (reason not found, see questions)",
+        "expect": "STZ $005E"
+      },
+      "47298": {
+        "text": "Back to the thinker runner; resumes at SetEntryHere next frame",
+        "expect": "RTL"
+      },
+      "47299": {
+        "text": "Zero $0720-$074F: 24 words of band accumulators",
+        "expect": "LDY #$0000"
+      },
+      "47310": {
+        "text": "48 bytes = 24 words",
+        "expect": "CPY #$0030"
+      },
+      "47316": {
+        "text": "Save the thinker slot; every exit restores D and X from this value",
+        "expect": "PHX"
+      },
+      "47320": {
+        "text": "D = 0: $00-$26 below are global scratch bytes",
+        "expect": "TCD"
+      },
+      "47321": {
+        "text": "Camera X delta of this frame",
+        "expect": "LDA $effectDeltaX"
+      },
+      "47324": {
+        "text": "$1A = camera delta",
+        "expect": "STA $1A"
+      },
+      "47326": {
+        "text": "224 scanlines to fill",
+        "expect": "LDA #$00E0"
+      },
+      "47329": {
+        "text": "$10 = lines still to fill",
+        "expect": "STA $10"
+      },
+      "47331": {
+        "text": "Spawn parameter byte = table entry index",
+        "expect": "LDA $animScratch+2, X"
+      },
+      "47335": {
+        "text": "Word table: index x 2",
+        "expect": "ASL"
+      },
+      "47337": {
+        "text": "Entry pointer from parallax_scroll_table (bank 01, read through DBR $81)",
+        "expect": "LDA $&parallax_scroll_table, X"
+      },
+      "47340": {
+        "text": "X = entry pointer",
+        "expect": "TAX"
+      },
+      "47341": {
+        "text": "Config byte at entry +3 (the word load also picks up +4)",
+        "expect": "LDA $0003, X"
+      },
+      "47344": {
+        "text": "Config bit 6: camera delta x16",
+        "expect": "BIT #$0040"
+      },
+      "47349": {
+        "text": "Bit 6 set: shift the camera delta left four times ...",
+        "expect": "LDA $1A"
+      },
+      "47355": {
+        "text": "... so auto-scroll bands follow the camera 1:1 in 12.4 fixed point",
+        "expect": "STA $1A"
+      },
+      "47357": {
+        "text": "Default vertical source: BG2 vertical scroll ($0690)",
+        "expect": "LDA $effectScrollV"
+      },
+      "47360": {
+        "text": "$1C = vertical position the band heights are measured against",
+        "expect": "STA $1C"
+      },
+      "47362": {
+        "text": "Default horizontal source: BG1 horizontal scroll ($068A)",
+        "expect": "LDA $bg1ScrollH"
+      },
+      "47365": {
+        "text": "$18 = multiplicand for proportional bands",
+        "expect": "STA $18"
+      },
+      "47370": {
+        "text": "Config bit 7: swap the sources",
+        "expect": "BIT #$0080"
+      },
+      "47375": {
+        "text": "Bit 7 set: vertical source = BG1 vertical scroll ($068E) ...",
+        "expect": "LDA $mapScrollV"
+      },
+      "47378": {
+        "text": "... into $1C",
+        "expect": "STA $1C"
+      },
+      "47380": {
+        "text": "... and horizontal source = BG2 horizontal scroll ($068C) ...",
+        "expect": "LDA $effectScrollH"
+      },
+      "47383": {
+        "text": "... into $18",
+        "expect": "STA $18"
+      },
+      "47385": {
+        "text": "Frame counter bit 0 chooses the buffer half",
+        "expect": "LDA $0012"
+      },
+      "47389": {
+        "text": "Odd frame: use the second half",
+        "expect": "BCS loc_00B92F"
+      },
+      "47391": {
+        "text": "Entry word +2 = bank $7E (low byte) and config (high byte)",
+        "expect": "LDA $0002, X"
+      },
+      "47394": {
+        "text": "$64 = bank of the write pointer",
+        "expect": "STA $64"
+      },
+      "47396": {
+        "text": "$60 = bank for the HDMA bind",
+        "expect": "STA $60"
+      },
+      "47398": {
+        "text": "Entry word +0 = buffer address",
+        "expect": "LDA $0000, X"
+      },
+      "47401": {
+        "text": "$62 = write pointer (long pointer $62-$64)",
+        "expect": "STA $62"
+      },
+      "47403": {
+        "text": "$5E = table start for the HDMA bind",
+        "expect": "STA $5E"
+      },
+      "47414": {
+        "text": "Odd frame: buffer address + $0200 ...",
+        "expect": "LDA $0000, X"
+      },
+      "47418": {
+        "text": "... second half of the 1 KB buffer",
+        "expect": "ADC #$0200"
+      },
+      "47425": {
+        "text": "Low 6 bits of the config select the B-bus register",
+        "expect": "LDA $0003, X"
+      },
+      "47431": {
+        "text": "$02 = register index",
+        "expect": "STA $02"
+      },
+      "47433": {
+        "text": "$04 = HDMA entry stride (2 or 3 bytes) for that register",
+        "expect": "JSR $&ParallaxResolveChannelSpeed"
+      },
+      "47436": {
+        "text": "Entry byte +4 = record size",
+        "expect": "LDA $0004, X"
+      },
+      "47442": {
+        "text": "$00 = record size (4, 8 or 9)",
+        "expect": "STA $00"
+      },
+      "47446": {
+        "text": "Records start after the 5-byte header",
+        "expect": "ADC #$0005"
+      },
+      "47449": {
+        "text": "X = first record",
+        "expect": "TAX"
+      },
+      "47455": {
+        "text": "Size 4: constant colour bands",
+        "expect": "BEQ loc_00B98E"
+      },
+      "47460": {
+        "text": "Size 9: window rectangles; any other size is treated as 8 (scroll bands)",
+        "expect": "BEQ loc_00B9B3"
+      },
+      "47462": {
+        "text": "Scroll bands: height word, negative line count; 0 ends the list",
+        "expect": "LDA $0000, X"
+      },
+      "47465": {
+        "text": "End of list before any band reached the screen: empty table",
+        "expect": "BEQ loc_00B981"
+      },
+      "47468": {
+        "text": "$1C = vertical position + running sum of band heights",
+        "expect": "ADC $1C"
+      },
+      "47472": {
+        "text": "Sum became negative: this band is the first visible one",
+        "expect": "BMI loc_00B97E"
+      },
+      "47475": {
+        "text": "Band above the screen: still advance its accumulator so auto-scroll keeps running",
+        "expect": "JSR $&ParallaxApplyScrollOffset"
+      },
+      "47480": {
+        "text": "Next record: X += record size",
+        "expect": "ADC $00"
+      },
+      "47486": {
+        "text": "Emit the visible bands until 224 lines are filled or the list ends",
+        "expect": "JSR $&ParallaxWriteNegativeScrollRamp"
+      },
+      "47489": {
+        "text": "Table terminator: a count byte of 0 ends the HDMA table ...",
+        "expect": "LDA #$0000"
+      },
+      "47492": {
+        "text": "... written through the long pointer at $62",
+        "expect": "STA [$62]"
+      },
+      "47494": {
+        "text": "Clear the write pointer",
+        "expect": "STZ $62"
+      },
+      "47498": {
+        "text": "Restore the thinker slot ...",
+        "expect": "PLA"
+      },
+      "47499": {
+        "text": "... into D ...",
+        "expect": "TCD"
+      },
+      "47500": {
+        "text": "... and X",
+        "expect": "TAX"
+      },
+      "47502": {
+        "text": "Colour bands: height word, negative line count; 0 ends the list",
+        "expect": "LDA $0000, X"
+      },
+      "47508": {
+        "text": "Add the height to the running vertical position",
+        "expect": "ADC $1C"
+      },
+      "47512": {
+        "text": "Negative: this band is the first visible one",
+        "expect": "BMI loc_00B9A3"
+      },
+      "47517": {
+        "text": "Skipped band: X += record size",
+        "expect": "ADC $00"
+      },
+      "47523": {
+        "text": "Emit the visible constant bands",
+        "expect": "JSR $&ParallaxWriteNegativeScrollRampY"
+      },
+      "47526": {
+        "text": "Table terminator (count 0)",
+        "expect": "LDA #$0000"
+      },
+      "47535": {
+        "text": "Restore thinker slot into D and X",
+        "expect": "PLA"
+      },
+      "47539": {
+        "text": "Window records are 8 bytes of data, not 9: stride 9 -> 8",
+        "expect": "DEC $00"
+      },
+      "47541": {
+        "text": "$08 = lines emitted so far",
+        "expect": "STZ $08"
+      },
+      "47543": {
+        "text": "Rectangle x; a word with bit 15 set ends the list",
+        "expect": "LDA $0000, X"
+      },
+      "47549": {
+        "text": "Left edge on screen = x - BG1 horizontal scroll",
+        "expect": "SBC $bg1ScrollH"
+      },
+      "47552": {
+        "text": "Negative: starts left of the screen",
+        "expect": "BMI loc_00B9C9"
+      },
+      "47554": {
+        "text": "Left edge at column $FF or beyond: skip",
+        "expect": "CMP #$00FF"
+      },
+      "47562": {
+        "text": "Starts off screen to the left: right edge = left + width",
+        "expect": "ADC $0002, X"
+      },
+      "47565": {
+        "text": "Entirely off screen to the left: skip",
+        "expect": "BMI loc_00B9F9"
+      },
+      "47567": {
+        "text": "Right edge at column $FF or beyond: skip",
+        "expect": "CMP #$00FF"
+      },
+      "47574": {
+        "text": "Rectangle y",
+        "expect": "LDA $0004, X"
+      },
+      "47578": {
+        "text": "Top edge on screen = y - BG1 vertical scroll",
+        "expect": "SBC $mapScrollV"
+      },
+      "47581": {
+        "text": "Negative: starts above the screen",
+        "expect": "BMI loc_00B9E9"
+      },
+      "47583": {
+        "text": "Top at line $FF or beyond: skip",
+        "expect": "CMP #$00FF"
+      },
+      "47588": {
+        "text": "Emit this rectangle",
+        "expect": "JSR $&ParallaxWriteWindowHdmaEntry"
+      },
+      "47594": {
+        "text": "Starts above the screen: bottom edge = top + height",
+        "expect": "ADC $0006, X"
+      },
+      "47597": {
+        "text": "Bottom edge exactly at the top of the screen: nothing visible",
+        "expect": "BEQ loc_00B9F9"
+      },
+      "47601": {
+        "text": "Bottom edge at line $FF or beyond: skip",
+        "expect": "CMP #$00FF"
+      },
+      "47606": {
+        "text": "Emit the visible part",
+        "expect": "JSR $&ParallaxWriteWindowHdmaEntry"
+      },
+      "47609": {
+        "text": "Next record: X += stride",
+        "expect": "TXA"
+      },
+      "47616": {
+        "text": "End of list: one last line of window value $0000 ...",
+        "expect": "LDY #$0001"
+      },
+      "47622": {
+        "text": "... count byte 1",
+        "expect": "STA [$62]"
+      },
+      "47624": {
+        "text": "Value $0000 ...",
+        "expect": "LDA #$0000"
+      },
+      "47627": {
+        "text": "... written as the data word (1 line) ...",
+        "expect": "STA [$62], Y"
+      },
+      "47632": {
+        "text": "... and again after the next count slot ...",
+        "expect": "STA [$62], Y"
+      },
+      "47637": {
+        "text": "... then the terminator byte",
+        "expect": "STA [$62], Y"
+      },
+      "47639": {
+        "text": "Restore thinker slot into D and X",
+        "expect": "PLA"
+      },
+      "47643": {
+        "text": "Rectangle y",
+        "expect": "LDA $0004, X"
+      },
+      "47647": {
+        "text": "dy = y - BG1 vertical scroll",
+        "expect": "SBC $mapScrollV"
+      },
+      "47650": {
+        "text": "dy >= 0: the top edge is on screen",
+        "expect": "BCS loc_00BA2E"
+      },
+      "47653": {
+        "text": "Starts above: visible lines = height + dy",
+        "expect": "ADC $0006, X"
+      },
+      "47656": {
+        "text": "$26 = line count",
+        "expect": "STA $26"
+      },
+      "47658": {
+        "text": "$24 = first line 0",
+        "expect": "STZ $24"
+      },
+      "47662": {
+        "text": "$24 = first line = dy",
+        "expect": "STA $24"
+      },
+      "47664": {
+        "text": "Full height is visible",
+        "expect": "LDA $0006, X"
+      },
+      "47667": {
+        "text": "$26 = line count",
+        "expect": "STA $26"
+      },
+      "47669": {
+        "text": "Rectangle x",
+        "expect": "LDA $0000, X"
+      },
+      "47673": {
+        "text": "dx = x - BG1 horizontal scroll",
+        "expect": "SBC $bg1ScrollH"
+      },
+      "47676": {
+        "text": "dx >= 0: the left edge is on screen",
+        "expect": "BCS loc_00BA4A"
+      },
+      "47679": {
+        "text": "Left of the screen: right edge = dx + width",
+        "expect": "ADC $0002, X"
+      },
+      "47682": {
+        "text": "Keep the low byte",
+        "expect": "AND #$00FF"
+      },
+      "47685": {
+        "text": "WH1 (right) in the high byte, WH0 (left) = 0",
+        "expect": "XBA"
+      },
+      "47686": {
+        "text": "$20 = window word",
+        "expect": "STA $20"
+      },
+      "47690": {
+        "text": "$20 = left edge (WH0)",
+        "expect": "STA $20"
+      },
+      "47693": {
+        "text": "Right edge = left + width",
+        "expect": "ADC $0002, X"
+      },
+      "47696": {
+        "text": "Past column $FF?",
+        "expect": "CMP #$0100"
+      },
+      "47701": {
+        "text": "Clamp: right = $FF (high byte of the word)",
+        "expect": "LDA #$FFFF"
+      },
+      "47704": {
+        "text": "Right edge into the high byte of the window word",
+        "expect": "STA $21"
+      },
+      "47706": {
+        "text": "Y = window word, left | right << 8",
+        "expect": "LDY $20"
+      },
+      "47708": {
+        "text": "Emit the gap before the rectangle and the rectangle itself",
+        "expect": "JSR $&ParallaxFillHdmaRampRow"
+      },
+      "47712": {
+        "text": "First line of the rectangle ...",
+        "expect": "LDA $24"
+      },
+      "47715": {
+        "text": "... minus lines already emitted = gap size",
+        "expect": "SBC $08"
+      },
+      "47717": {
+        "text": "No gap",
+        "expect": "BEQ loc_00BA91"
+      },
+      "47719": {
+        "text": "$0E = gap lines still to emit",
+        "expect": "STA $0E"
+      },
+      "47724": {
+        "text": "Lines emitted += gap",
+        "expect": "STA $08"
+      },
+      "47730": {
+        "text": "More than $7F lines?",
+        "expect": "CMP #$0080"
+      },
+      "47736": {
+        "text": "Take $7F now, keep the rest in $0E",
+        "expect": "SBC #$007F"
+      },
+      "47744": {
+        "text": "Count byte",
+        "expect": "STA [$62]"
+      },
+      "47751": {
+        "text": "Gap value $0000 (WH0 = WH1 = 0)",
+        "expect": "STA [$62]"
+      },
+      "47755": {
+        "text": "Advance the write pointer by the 3-byte entry",
+        "expect": "INC $62"
+      },
+      "47759": {
+        "text": "More gap lines left",
+        "expect": "BNE loc_00BA70"
+      },
+      "47764": {
+        "text": "Lines emitted += rectangle lines",
+        "expect": "ADC $08"
+      },
+      "47772": {
+        "text": "More than $7F lines?",
+        "expect": "CMP #$0080"
+      },
+      "47778": {
+        "text": "Take $7F now, keep the rest in $26",
+        "expect": "SBC #$007F"
+      },
+      "47786": {
+        "text": "Count byte",
+        "expect": "STA [$62]"
+      },
+      "47791": {
+        "text": "Window word (left | right << 8)",
+        "expect": "STA [$62]"
+      },
+      "47795": {
+        "text": "Advance the write pointer by the 3-byte entry",
+        "expect": "INC $62"
+      },
+      "47799": {
+        "text": "More lines left in this rectangle",
+        "expect": "BNE loc_00BA9A"
+      },
+      "47802": {
+        "text": "$02 = B-bus register index",
+        "expect": "LDA $02"
+      },
+      "47805": {
+        "text": "DMAP transfer mode byte of that register",
+        "expect": "LDA $&hdma_ramp_tables.hdma_channel_config, Y"
+      },
+      "47808": {
+        "text": "Mode in the low 3 bits",
+        "expect": "AND #$0007"
+      },
+      "47812": {
+        "text": "Bytes per HDMA entry for that mode (count + data)",
+        "expect": "LDA $&hdma_ramp_tables.parallax_speed_config, Y"
+      },
+      "47818": {
+        "text": "$04 = stride",
+        "expect": "STA $04"
+      },
+      "47821": {
+        "text": "A = running height sum (negative): negate to the visible line count",
+        "expect": "EOR #$FFFF"
+      },
+      "47826": {
+        "text": "Advance this band's accumulator; its value is left in $06",
+        "expect": "JSR $&ParallaxApplyScrollOffset"
+      },
+      "47829": {
+        "text": "Lines still to fill ...",
+        "expect": "LDA $10"
+      },
+      "47832": {
+        "text": "... minus this band's lines",
+        "expect": "SBC $01, S"
+      },
+      "47834": {
+        "text": "$10 = remaining",
+        "expect": "STA $10"
+      },
+      "47839": {
+        "text": "More than $7F lines?",
+        "expect": "CMP #$0080"
+      },
+      "47845": {
+        "text": "Take $7F now, keep the rest in $0E",
+        "expect": "SBC #$007F"
+      },
+      "47853": {
+        "text": "Count byte",
+        "expect": "STA [$62]"
+      },
+      "47858": {
+        "text": "Band value in 12.4 fixed point",
+        "expect": "LDA $06"
+      },
+      "47863": {
+        "text": "Drop the 4 fractional bits",
+        "expect": "LSR"
+      },
+      "47864": {
+        "text": "Sign bit of the 12-bit result",
+        "expect": "BIT #$0800"
+      },
+      "47869": {
+        "text": "Sign-extend",
+        "expect": "ORA #$F000"
+      },
+      "47872": {
+        "text": "Data word for this HDMA entry",
+        "expect": "STA [$62], Y"
+      },
+      "47877": {
+        "text": "Advance the write pointer by the entry stride ($04)",
+        "expect": "ADC $04"
+      },
+      "47883": {
+        "text": "More lines left in this band",
+        "expect": "BNE loc_00BADD"
+      },
+      "47885": {
+        "text": "Lines left to fill?",
+        "expect": "LDA $10"
+      },
+      "47889": {
+        "text": "224 lines done: stop",
+        "expect": "RTS"
+      },
+      "47892": {
+        "text": "Next record: X += record size",
+        "expect": "ADC $00"
+      },
+      "47898": {
+        "text": "Zero height ends the list",
+        "expect": "BNE loc_00BB1D"
+      },
+      "47901": {
+        "text": "Next band",
+        "expect": "BRA ParallaxWriteNegativeScrollRamp"
+      },
+      "47903": {
+        "text": "A = running height sum (negative): negate to the visible line count",
+        "expect": "EOR #$FFFF"
+      },
+      "47908": {
+        "text": "Lines still to fill ...",
+        "expect": "LDA $10"
+      },
+      "47911": {
+        "text": "... minus this band's lines",
+        "expect": "SBC $01, S"
+      },
+      "47913": {
+        "text": "$10 = remaining",
+        "expect": "STA $10"
+      },
+      "47918": {
+        "text": "More than $7F lines?",
+        "expect": "CMP #$0080"
+      },
+      "47924": {
+        "text": "Take $7F now, keep the rest in $0E",
+        "expect": "SBC #$007F"
+      },
+      "47932": {
+        "text": "Count byte",
+        "expect": "STA [$62]"
+      },
+      "47934": {
+        "text": "Record word +2 = value",
+        "expect": "LDA $0002, X"
+      },
+      "47940": {
+        "text": "Data word for this HDMA entry",
+        "expect": "STA [$62], Y"
+      },
+      "47945": {
+        "text": "Advance the write pointer by the entry stride ($04)",
+        "expect": "ADC $04"
+      },
+      "47951": {
+        "text": "More lines left in this band",
+        "expect": "BNE loc_00BB2C"
+      },
+      "47953": {
+        "text": "Lines left to fill?",
+        "expect": "LDA $10"
+      },
+      "47957": {
+        "text": "224 lines done: stop",
+        "expect": "RTS"
+      },
+      "47960": {
+        "text": "Next record: X += record size",
+        "expect": "ADC $00"
+      },
+      "47966": {
+        "text": "Zero height ends the list",
+        "expect": "BNE loc_00BB61"
+      },
+      "47969": {
+        "text": "Next band",
+        "expect": "BRA ParallaxWriteNegativeScrollRampY"
+      },
+      "47971": {
+        "text": "Record word +4 = factor; 0 selects the auto-scroll path",
+        "expect": "LDA $0004, X"
+      },
+      "47976": {
+        "text": "Y = scroll source ($18)",
+        "expect": "LDY $18"
+      },
+      "47978": {
+        "text": "(factor low byte x Y) / factor high byte",
+        "expect": "JSL $@hardware_math.MulDivide"
+      },
+      "47983": {
+        "text": "Plus the band's base value",
+        "expect": "ADC $0006, X"
+      },
+      "47986": {
+        "text": "Record word +2 = accumulator address",
+        "expect": "LDY $0002, X"
+      },
+      "47989": {
+        "text": "Store the result in the accumulator",
+        "expect": "STA $0000, Y"
+      },
+      "47992": {
+        "text": "$06 = band value for the caller",
+        "expect": "STA $06"
+      },
+      "47995": {
+        "text": "Auto-scroll: accumulator address",
+        "expect": "LDY $0002, X"
+      },
+      "47998": {
+        "text": "Base = speed in 1/16 pixel per frame",
+        "expect": "LDA $0006, X"
+      },
+      "48002": {
+        "text": "Plus the old accumulator value ...",
+        "expect": "ADC $0000, Y"
+      },
+      "48006": {
+        "text": "... plus the camera delta",
+        "expect": "ADC $1A"
+      },
+      "48008": {
+        "text": "Store it back",
+        "expect": "STA $0000, Y"
+      },
+      "48011": {
+        "text": "$06 = band value for the caller",
+        "expect": "STA $06"
+      }
+    }
+  },
+  "tables/parallax_scroll_table.asm": {
+    "blockNote": [
+      "Entry index for parallax_thinker (Bank 01, 37 word pointers, $00-$24). The spawn-record parameter byte of the thinker is the index. Each pointer addresses one entry blob: buffer address (word, bank $7E), bank byte, config byte, record size, then records. The format and the decoded contents of every used entry are in the parallax_thinker block note.",
+      "",
+      "The header bytes are NOT a BG mode / layer setting. Config bits 0-5 are the B-bus register index the HDMA channel writes, bit 6 multiplies the camera delta by 16 and bit 7 swaps the scroll sources.",
+      "",
+      "Entries $09, $0C, $0D and $0F-$1A are bare $FFFF words (unused). Types $09 and $19 share one $FFFF word."
+    ],
+    "partNotes": {
+      "parallax_scroll_table": [
+        "37 entry pointers (word table, bank 01) indexed by the parallax_thinker spawn parameter. See the block note."
+      ],
+      "binary_01CC4A": [
+        "Table type $00: BG2HOFS: 7 scroll bands (5 proportional, 2 auto), buffer $7800. Used by scenes 0A. Bands (top to bottom): 127 lines x0.5, 128 lines auto +1/16, 80 lines x0.5, 32 lines x1, 144 lines auto +1/16, 75 lines x0.5, 1280 lines x1."
+      ],
+      "binary_01CC89": [
+        "Table type $01: BG2HOFS: 4 scroll bands (1 proportional, 3 auto), buffer $7800. Used by scenes 15, 1A, 1C. Bands (top to bottom): 47 lines auto +32/16, 16 lines auto +24/16, 8 lines auto +16/16, 200 lines x0.875."
+      ],
+      "binary_01CD0D": [
+        "Table type $02: COLDATA: 96 constant bands, buffer $7C00. Used by scenes 02-08, 16-18, 2A, 31, 33-38, 3A-3C, 49, 56, 5E, 79-7E, 92-9D, AD, AE, C4-C9, DF, E0, E3. First bands (lines:value): 3:$F7, 3:$F6, 3:$F5, 3:$F4 ..."
+      ],
+      "binary_01CCAE": [
+        "Table type $03: BG2HOFS (delta x16): 11 scroll bands (0 proportional, 11 auto), buffer $8000, config bit 6 (camera delta x16). Used by scenes FD, FF. Bands (top to bottom): 6 lines auto +2/16, 8 lines auto +4/16, 8 lines auto +6/16, 8 lines auto +8/16, 10 lines auto +10/16, 14 lines auto +12/16, 16 lines auto +14/16, 16 lines auto +16/16, 24 lines auto +18/16, 48 lines auto +20/16, 48 lines auto +22/16."
+      ],
+      "binary_01CE94": [
+        "Table type $04: COLDATA: 9 constant bands, buffer $7400. Not spawned by any scene thinker list. First bands (lines:value): 32:$E0, 16:$E1, 16:$E2, 16:$E3 ..."
+      ],
+      "binary_01CEBD": [
+        "Table type $05: BG2HOFS (delta x16): 29 scroll bands (0 proportional, 29 auto), buffer $8000, config bit 6 (camera delta x16). Used by scenes 2B-2E. Bands (top to bottom): 78 lines auto -16/16, 1 lines auto -2/16, 1 lines auto -4/16, 1 lines auto -6/16, 2 lines auto -8/16, 2 lines auto -10/16, 2 lines auto -12/16, 3 lines auto -14/16, 3 lines auto -16/16, 3 lines auto -18/16, 4 lines auto -20/16, 4 lines auto -22/16, 4 lines auto -24/16, 6 lines auto -26/16, 6 lines auto -28/16, 6 lines auto -30/16, 8 lines auto -32/16, 8 lines auto -34/16, 8 lines auto -36/16, 10 lines auto -38/16, 10 lines auto -40/16, 10 lines auto -42/16, 12 lines auto -44/16, 12 lines auto -46/16, 14 lines auto -48/16, 14 lines auto -50/16, 16 lines auto -52/16, 16 lines auto -54/16, 1024 lines auto -56/16."
+      ],
+      "binary_01CFAA": [
+        "Table type $06: COLDATA: 24 constant bands, buffer $7400. Used by scenes 2B, 2D, 2F. First bands (lines:value): 78:$0, 1:$F4, 1:$F3, 1:$F2 ..."
+      ],
+      "binary_01D00F": [
+        "Table type $07: CGADSUB: 2 constant bands, buffer $7800, config bit 7 (swapped scroll sources). Used by scenes 2D. Bands (lines:value): 76:$A1, 1024:$22."
+      ],
+      "binary_01D01C": [
+        "Table type $08: COLDATA: 24 constant bands, buffer $7C00, config bit 7 (swapped scroll sources). Used by scenes 2D, 2E. First bands (lines:value): 3:$F7, 3:$F6, 3:$F5, 3:$F4 ..."
+      ],
+      "binary_01D081": [
+        "Table type $0A: COLDATA: 17 constant bands, buffer $7400. Used by scenes 29. First bands (lines:value): 80:$E0, 5:$EF, 5:$EE, 5:$ED ..."
+      ],
+      "binary_01D0CA": [
+        "Table type $0B: BG1HOFS (delta x16): 7 scroll bands (0 proportional, 7 auto), buffer $7800, config bit 6 (camera delta x16). Used by scenes 1D. Bands (top to bottom): 798 lines auto +0/16, 176 lines auto +8/16, 64 lines auto +0/16, 128 lines auto +4/16, 160 lines auto +8/16, 192 lines auto +4/16, 256 lines auto +0/16."
+      ],
+      "binary_01D109": [
+        "Table type $0E: BG2HOFS (delta x16): 2 scroll bands (0 proportional, 2 auto), buffer $8000, config bit 6 (camera delta x16). Used by scenes 2F. Bands (top to bottom): 78 lines auto +16/16, 1 lines auto +0/16."
+      ],
+      "binary_01D13C": [
+        "Table type $1B: CGDATA: 2 constant bands, buffer $7800. Used by scenes 5C. Bands (lines:value): 239:$4162, 238:$2906."
+      ],
+      "binary_01D14B": [
+        "Table type $1C: CGADSUB: 2 constant bands, buffer $7400. Used by scenes 6B. Bands (lines:value): 256:$1, 768:$41."
+      ],
+      "binary_01D15A": [
+        "Table type $1D: COLDATA: 23 constant bands, buffer $7400. Used by scenes 59. First bands (lines:value): 14:$F5, 1:$F4, 1:$F3, 1:$F2 ..."
+      ],
+      "binary_01D1BD": [
+        "Table type $1E: BG2HOFS: 6 scroll bands (6 proportional, 0 auto), buffer $7800. Used by scenes 82, 83, 86-88, 8B. Bands (top to bottom): 96 lines x0.5, 160 lines x1, 80 lines x0.5, 176 lines x1, 80 lines x0.5, 2048 lines x1."
+      ],
+      "binary_01D1F4": [
+        "Table type $1F: BG2HOFS: 2 scroll bands (2 proportional, 0 auto), buffer $7800. Used by scenes 84, 8A. Bands (top to bottom): 96 lines x0.5, 1024 lines x1."
+      ],
+      "binary_01D20B": [
+        "Table type $20: window: 1 rectangle(s), buffer $7000. Used by scenes C3. Rectangle x=320, width=63, y=367, height=48 (map pixels)."
+      ],
+      "binary_01D21A": [
+        "Table type $21: BG2HOFS: 6 scroll bands (6 proportional, 0 auto), buffer $7800. Used by scenes 85. Bands (top to bottom): 128 lines x0.5, 160 lines x1, 80 lines x0.5, 176 lines x1, 80 lines x0.5, 2048 lines x1."
+      ],
+      "binary_01D251": [
+        "Table type $22: COLDATA: 22 constant bands, buffer $8400. Not spawned by any scene thinker list. First bands (lines:value): 14:$F5, 1:$F4, 1:$F3, 1:$F2 ..."
+      ],
+      "binary_01D2B0": [
+        "Table type $23: BG2HOFS: 1 scroll bands (1 proportional, 0 auto), buffer $7800. Used by scenes DF-E1, E3. Bands (top to bottom): 2048 lines x1."
+      ],
+      "binary_01D2BF": [
+        "Table type $24: BG1HOFS: 33 scroll bands (0 proportional, 33 auto), buffer $7800. Used by scenes E5. Bands (top to bottom): 159 lines auto +0/16, 2 lines auto -1/16, 2 lines auto -2/16, 2 lines auto -3/16, 2 lines auto -4/16, 2 lines auto -5/16, 2 lines auto -6/16, 2 lines auto -7/16, 2 lines auto -8/16, 2 lines auto -9/16, 2 lines auto -10/16, 2 lines auto -11/16, 2 lines auto -12/16, 2 lines auto -13/16, 2 lines auto -14/16, 2 lines auto -15/16, 2 lines auto -16/16, 2 lines auto -17/16, 2 lines auto -18/16, 2 lines auto -19/16, 2 lines auto -20/16, 2 lines auto -21/16, 2 lines auto -22/16, 2 lines auto -23/16, 2 lines auto -24/16, 2 lines auto -25/16, 2 lines auto -26/16, 2 lines auto -27/16, 2 lines auto -28/16, 2 lines auto -29/16, 2 lines auto -30/16, 2 lines auto -31/16, 2 lines auto -32/16."
+      ]
+    },
+    "comments": {}
+  },
+  "system/hdma_ramp_tables.asm": {
+    "blockNote": [
+      "Composite block of HDMA configuration tables and ramp motion curves (121022-121201, Bank 01). Parts: hdma_channel_config (64 bytes, the DMAP transfer mode per B-bus register), parallax_speed_config (13 bytes, of which entries 00-02 are the HDMA entry stride per transfer mode) and the two ramp arc curves behind ramp_motion_curves (64 and 32 frames). The parts are unrelated except for sharing the block; the name hdma_ramp_tables only describes them as a group."
+    ],
+    "partNotes": {
+      "parallax_speed_config": [
+        "HDMA entry stride (count byte + data bytes) indexed by the DMAP transfer mode: mode 0 = 2, modes 1 and 2 = 3. ParallaxResolveChannelSpeed (parallax_thinker) looks up hdma_channel_config[register index] & 7 and stores the result in DP $04, where the band writers use it to step the buffer write pointer. It is a stride, not a scroll speed. Only entries 00-02 ($02, $03, $03) are reachable because every config byte has a low-3-bit value of 0-2; entries 03-0C ($05, $05, $64, $00, then $FF / $7F pairs) have no reader (the FF 7F pattern resembles HDMA line-count data, inferred)."
+      ]
+    },
+    "comments": {}
+  },
+  "system/inventory/inventory_dma_setup.asm": {
+    "blockNote": [
+      "Inventory-screen BG3 vertical-scroll HDMA (Bank 00, 48016-48022). A type-B thinker (filter word $0804, so it runs right after ResetHdmaState every frame) that does nothing but bind one HDMA channel to a fixed 7-entry table. It is spawned by the inventory overlay scene $FF.",
+      "",
+      "COP [QueueDma] ( @dma_channel_00BB97, #12 ): the second operand is the B-bus register index, $12 = $2112 BG3VOFS (transfer mode 2, written twice for the low and high byte). It is not a byte count. QueueDma goes through SetupHdmaChannel_Direct.",
+      "",
+      "The table (dma_channel_00BB97, 21 bytes) is {count, low, high} per entry: lines 0-111 V = 0, then 48 lines V = 0, then four 12-line bands with V = $0B, $0F, $13, $17, then 64 lines V = $20. The line counts add to 272, more than a frame, so no terminator is needed. From line 160 down BG3's vertical scroll steps up from 0 to $20 (visual result not checked).",
+      "",
+      "Earlier notes called this a '12-byte DMA table to VRAM'; that was wrong."
+    ],
+    "partNotes": {
+      "code_00BB90": [
+        "Binds the BG3VOFS table and returns. Re-run every frame because ResetHdmaState clears the channel assignment."
+      ],
+      "dma_channel_00BB97": [
+        "Direct-mode HDMA table for BG3VOFS: seven {line count, scroll value low, scroll value high} entries (111+48 lines at 0, 12 lines each at $0B / $0F / $13 / $17, then 64 lines at $20). The line counts are shown in the data lines as the first operand."
+      ]
+    },
+    "comments": {
+      "48016": {
+        "text": "Bind a direct HDMA channel to the table at the first operand; #12 is B-bus register $2112 = BG3VOFS",
+        "expect": "COP [QueueDma] ( @dma_channel_00BB97, #12 )"
+      },
+      "48022": {
+        "text": "Back to the thinker runner; the binding is repeated next frame",
+        "expect": "RTL"
+      }
+    }
+  },
+  "actors/debug_stat_setter.asm": {
+    "blockNote": [
+      "Unused debug actor (Bank 0B, 784986-785010): sets four player stats to $0040 and kills itself. Nothing in extracted/ spawns it - it is in no scene_actors list and no script spawn - so it is dead code kept in the ROM.",
+      "",
+      "The four writes are playerStr, playerDef, playerMaxHp and hpToHeal, all $0040 (64). It does not touch playerHp, so the player's current HP only rises through the heal request. For comparison debug_man sets HP 40 / STR 127 / DEF 127 (plus the ability mask and a warp menu) and unused_debug_mode sets HP 19 / STR 32 / DEF 33.",
+      "",
+      "The WRAM map describes hpToHeal as a heal request that the HUD plays out as the HP recovery animation; no reader of $0B22 was found in extracted/, so that is documentation only (see the questions file)."
+    ],
+    "partNotes": {
+      "DebugStatSetterInit": [
+        "One-shot: stats = $0040, then COP Die."
+      ]
+    },
+    "comments": {
+      "784986": {
+        "text": "A = 64",
+        "expect": "LDA #$0040"
+      },
+      "784989": {
+        "text": "Strength = 64",
+        "expect": "STA $playerStr"
+      },
+      "784995": {
+        "text": "Defense = 64",
+        "expect": "STA $playerDef"
+      },
+      "785001": {
+        "text": "Maximum HP = 64",
+        "expect": "STA $playerMaxHp"
+      },
+      "785007": {
+        "text": "Heal request of 64 (HP recovery animation per the WRAM map); playerHp itself is not written",
+        "expect": "STA $hpToHeal"
+      },
+      "785010": {
+        "text": "One-shot actor: remove itself",
+        "expect": "COP [Die]"
+      }
+    }
+  }
+}

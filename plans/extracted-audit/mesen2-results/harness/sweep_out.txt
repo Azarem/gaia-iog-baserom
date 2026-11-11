@@ -1,0 +1,27 @@
+ROM C:\Work\gaia-iog-baserom\rebuilt\Illusion of Gaia.smc sha1 38de0c84dd2bc3bdfc0a3d7ab0220c79b70887c3 crc32 1c3848c0 size 2097152
+S14 ramp actors {'W': [(4240, 1000, 176, 1), (4288, 1288, 176, 1), (4336, 1576, 176, 1), (4384, 1672, 176, 1)], 'E': [(4432, 1032, 176, 1), (4480, 1320, 176, 1), (4528, 1608, 176, 1), (4576, 1704, 176, 1)]}
+E1150 s6         cases= 8 launched= 8 launchX=[1032] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E1150 s7         cases= 8 launched= 8 launchX=[1032] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E1150 s8         cases= 8 launched= 8 launchX=[1032] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E1180 s6         cases= 8 launched= 8 launchX=[1320] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E1180 s7         cases= 8 launched= 8 launchX=[1320] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E1180 s8         cases= 8 launched= 8 launchX=[1320] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E11B0 s6         cases= 8 launched= 7 launchX=[1608] (dx,dy)first-land=[(-264, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E11B0 s7         cases= 8 launched= 8 launchX=[1608] (dx,dy)first-land=[(-264, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E11B0 s8         cases= 8 launched= 8 launchX=[1608] (dx,dy)first-land=[(-264, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E11E0 s6         cases= 8 launched= 8 launchX=[1704] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E11E0 s7         cases= 8 launched= 8 launchX=[1704] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+E11E0 s8         cases= 8 launched= 8 launchX=[1704] (dx,dy)first-land=[(-263, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+W1090 s6         cases= 8 launched= 8 launchX=[1000] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=2 ctl=True
+W1090 s7         cases= 8 launched= 8 launchX=[1000] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=2 ctl=True
+W1090 s8         cases= 8 launched= 8 launchX=[1000] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=1 ctl=True
+W10C0 s6         cases= 8 launched= 8 launchX=[1288] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=2 ctl=True
+W10C0 s7         cases= 8 launched= 8 launchX=[1288] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=2 ctl=True
+W10C0 s8         cases= 8 launched= 8 launchX=[1288] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=1 ctl=True
+W10F0 s6         cases= 8 launched= 8 launchX=[1576] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=2 ctl=True
+W10F0 s7         cases= 8 launched= 8 launchX=[1576] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=2 ctl=True
+W10F0 s8         cases= 8 launched= 8 launchX=[1576] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=1 ctl=True
+W1120 s6         cases= 8 launched= 8 launchX=[1672] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=1 ctl=True
+W1120 s7         cases= 8 launched= 8 launchX=[1672] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=0 ctl=True
+W1120 s8         cases= 8 launched= 8 launchX=[1672] (dx,dy)first-land=[(264, 8)] arcFrames=[32] disarmEvents=1 ctl=True
+wrote C:\Work\gaia-iog-baserom\plans\extracted-audit\mesen2-results\raw\B4\sweep_O_20261030.json

@@ -1,0 +1,388 @@
+{
+  "system/engine/vblank_joypad.asm": {
+    "comments": {
+      "163974": {
+        "text": "Center X (M7X): low byte $CA here; the high byte $CB is masked to 5 bits (13-bit signed) below",
+        "expect": "LDA $CA"
+      },
+      "163986": {
+        "text": "Center Y (M7Y): low byte $CC here; the high byte $CD is masked to 5 bits below",
+        "expect": "LDA $CC"
+      }
+    }
+  },
+  "system/engine/cop_handlers_sprite.asm": {
+    "comments": {
+      "39394": {
+        "text": "Store the animation index to $28 (the next line clears the frame counter $2A)",
+        "expect": "STA $28"
+      },
+      "39398": {
+        "text": "Read the VRAM word-address operand (stored to $24 below)",
+        "expect": "LDA [$0A]"
+      },
+      "40651": {
+        "text": "StageSpriteLoopMoveX: read the animation byte; the repeat count and the X movement index follow",
+        "expect": "INC $0A"
+      },
+      "40696": {
+        "text": "StageSpriteLoopMoveY: read the animation byte; the repeat count and the Y movement index follow",
+        "expect": "INC $0A"
+      },
+      "40807": {
+        "text": "Bit 7 set = mirrored variant (the low 7 bits are the animation index)",
+        "expect": "BIT #$0080"
+      },
+      "40815": {
+        "text": "Store the animation index (low 7 bits) to $28",
+        "expect": "STA $28"
+      },
+      "40879": {
+        "text": "Carry clear: a frame was staged, branch to the yield. Carry set (list ended) falls through and clears the deltas",
+        "expect": "BCC"
+      },
+      "40931": {
+        "text": "Carry clear: a frame was staged, skip the delta clear. Carry set (list ended) falls through and clears the deltas",
+        "expect": "BCC"
+      },
+      "40950": {
+        "text": "Carry clear: still animating, branch to the frame test. Carry set (ended) falls through, clears the deltas and continues",
+        "expect": "BCC"
+      }
+    }
+  },
+  "system/engine/cop_handlers_player_sprite.asm": {
+    "comments": {
+      "41200": {
+        "text": "Mask the Y movement index operand to a byte",
+        "expect": "AND #$00FF"
+      }
+    }
+  },
+  "system/engine/map_coords.asm": {
+    "comments": {
+      "176534": {
+        "text": "Cell one row below the probe is $0A: east slope (exit with Z set, carry clear)",
+        "expect": "CMP #$0A"
+      },
+      "176538": {
+        "text": "Cell one row below the probe is $05: west slope (exit with Z set, carry set)",
+        "expect": "CMP #$05"
+      },
+      "176542": {
+        "text": "ProbeFutureTL: slope sample at the stepped top-left corner (this routine serves DispatchDiagDownLeft, not a rightward move)",
+        "expect": "ProbeFutureTL"
+      },
+      "176625": {
+        "text": "ProbeFutureTR: slope sample at the stepped top-right corner (this routine serves DispatchEastMove, not a leftward move)",
+        "expect": "ProbeFutureTR"
+      }
+    }
+  },
+  "system/engine/spc_transfer.asm": {
+    "comments": {
+      "168161": {
+        "text": "Bit 7 set: empty slot, nothing to send; jump to code_029153 (next record or finish)",
+        "expect": "BIT #$80"
+      },
+      "168163": {
+        "text": "Bit 7 clear: $2A = the wanted chunk index; walk the sample library below",
+        "expect": "BEQ"
+      },
+      "168187": {
+        "text": "$2A = chunks still to skip; zero means the wanted chunk starts at $4A / $4C",
+        "expect": "LDA $2A"
+      },
+      "168189": {
+        "text": "Wanted chunk reached: start sending its bytes at loc_029113",
+        "expect": "BEQ"
+      },
+      "168193": {
+        "text": "Skip this chunk's payload: $4A += its size (the 2-byte size word was already passed)",
+        "expect": "LDA $4A"
+      },
+      "168200": {
+        "text": "Still inside this 32 KB page: next chunk header; otherwise wrap into the next bank below",
+        "expect": "BPL"
+      },
+      "168221": {
+        "text": "Next chunk byte from the sample library: [$4A],Y with $4A = 0, so Y is the offset inside the page at bank $4C",
+        "expect": "LDA [$4A], Y"
+      },
+      "168237": {
+        "text": "Next chunk byte from the sample library (same source as above)",
+        "expect": "LDA [$4A], Y"
+      }
+    }
+  },
+  "system/engine/hdma_dma_spc.asm": {
+    "comments": {
+      "254148": {
+        "text": "Sub-entry offset: $0E x 6 (6-byte sub-entries: count, source word, color index, size - 1, wait)",
+        "expect": "LDA $0E"
+      },
+      "254424": {
+        "text": "Port command $F0 = CmdStop (the engine's stop command, not a transfer-start signal)",
+        "expect": "LDA #$F0"
+      },
+      "254472": {
+        "text": "WaitByte #01 = 2 actor ticks (N + 1): a plain delay, not an SPC acknowledgment",
+        "expect": "WaitByte"
+      },
+      "254503": {
+        "text": "music_pointer_array offset: the ID x 3 is added below and the table is read at -3, so the entry is (ID - 1) x 3",
+        "expect": "TXA"
+      },
+      "254532": {
+        "text": "Blocking SPC upload: SpcBlockTransfer speaks the IPL byte-stream protocol (not DMA)",
+        "expect": "SpcBlockTransfer"
+      }
+    },
+    "partNotes": {
+      "SpcTransferMusicData": "Thinker script that requests the music upload and waits for the main loop to perform it (entry of StartMusic's thinker; also reached from SpcCheckMusicReady).\n\nSends $F0 (the engine's CmdStop), yields and requires a zero echo; yields again, sends $FF (jump into the engine's resident IPL-clone loader, which then posts $BBAA) and copies the music ID from chatPtr into musicTransitionState ($06FA); this staged ID is what LoadMusicFromTransitionState picks up.\n\nThen waits (one yield per frame) for musicTransitionState = $FFFF, which LoadMusicFromTransitionState writes after the blocking SpcBlockTransfer. Once seen: COP WaitByte #01 (a two-tick delay, N + 1; not an SPC acknowledgment), sends $01, yields once more, clears sfxQueueCh1 and musicTransitionState and ends with COP Die.\n\nOnly the block transfer itself blocks the main loop; every protocol step here is spread over frames."
+    },
+    "blockNote": "DMA, HDMA, and SPC audio utility routines (252033\u2013252182 + 254128\u2013254549 + 258512\u2013258561, Bank 03).\n\nA mixed utility block spanning three non-contiguous address ranges, providing hardware transfer and audio infrastructure used by the scene lifecycle, NMI handler, and actor/thinker systems.\n\n=== PLAYER TILE DMA (252033\u2013252182) ===\n\nDmaPlayerTilesToVram uploads the player's queued 16\u00d716 sprite tiles from WRAM to VRAM. ClearSceneState calls it during scene loading and the NMI handler calls it whenever displayModeFlags bit 3 is set (in that NMI it replaces DmaAdhocVramBlock and the write-queue flush). The list at $06FE is one bank byte (playerTileDmaBank) followed by word pointers; each pointer addresses 64 bytes of upper-half tile rows and the lower half lies $0200 bytes further on. Four passes: upper halves of the first 8 pointers to VRAM $4000, upper halves of the pointers after the 8th (until a zero pointer) to $4200, lower halves to $4100, lower-half continuation to $4300.\n\n=== PALETTE-BUNDLE ANIMATION (254128\u2013254278) ===\n\nLoadPaletteBundle and DecompressGfxToVram are the two halves of one palette-animation step. Only the five palette-bundle COP handlers (#36\u2013#3A, cop_handlers_palette) call them. A bundle (palette_bundles table, ROM bank $96) is a list of 6-byte sub-entries, and each sub-entry is an animation STRIP of N frames: byte 0 = frame count N (0 ends the bundle), bytes 1\u20132 = address in bank $96 of the first frame's colors, byte 3 = first CGRAM color index (destination = $7F0A00 + 2 \u00d7 index, the palette staging buffer), byte 4 = frame size \u2212 1 in bytes ($0D = 7 colors, $03 = 2 colors, $02 = one 3-byte backdrop RGB triplet), byte 5 = extra ticks to wait between frames. The frames of a strip are stored back to back (a strip with N = 8 and byte 4 = 3 is followed by exactly 32 bytes of colors, then the next sub-entry's data), and every step overwrites the same destination with the next frame. LoadPaletteBundle fills the actor fields from the next sub-entry (N \u2192 spritesetPtr, source \u2192 chatPtr, destination \u2192 metaspritePtr, size \u2212 1 \u2192 $7F0008, wait \u2192 DP $08 and animScratch); DecompressGfxToVram (misnamed: nothing is decompressed and VRAM is not touched) block-moves one frame with the RAM stub at $0402 (PHB / MVN $7F,$96 / PLB / RTS, written by system_init) and advances chatPtr to the next frame. The 14 shipped sub-entries with byte 4 = 2 write the backdrop triplet: LoadPaletteBundle then adds $0200 to the destination so $7F0A00 + $0200 = backdropColors ($7F0C00).\n\n=== HDMA CHANNEL MANAGEMENT (254278\u2013254378) ===\n\nResetHdmaState (called by every frame routine: the main loop, UpdateFrameDialogue, UpdateFrameRender, UpdateFrameFull and the scene-start sequence, always after the type-A/C thinkers and before the type-B/D ones) clears the allocation state: enable mask $66 = 0, next channel bit $68 = $02 (channel 1), register block offset $6A = $10. $6C is a one-shot lock: when negative the reset is skipped once; scene_lifecycle's wave transition calls ResetHdmaState explicitly, arms $6C = $FF and runs ApplyScrollWaveEffect, whose UpdateFrameDialogue call then skips its reset (and clears $6C) so the HDMA the wave just bound survives that frame.\n\nSetupHdmaChannel_Indirect and SetupHdmaChannel_Direct bind the next free channel (1\u20137): A = bank byte (low) | B-bus register number (high), Y = table address. The register number indexes hdma_channel_config to get the DMAP transfer mode (the indirect entry ORs $40 and also writes the table bank to DASB). Both finish in a shared tail that writes BBADx, A1Tx and A1Bx, sets the channel's bit in the enable mask and advances $68/$6A. The tail's ADC #$10 has no CLC: the carry is the carry-out of ASL $0068, which is clear for channels 1\u20136, so seven channels is the maximum (binding the 7th leaves $6A = $81).\n\n=== SPC MUSIC CHANGE (254378\u2013254549) ===\n\nStartMusic and FadeThenStartMusic (cop_handlers_audio) spawn a thinker that enters at SpcTransferMusicData or SpcCheckMusicReady with the music ID in chatPtr. The thinker talks to the SPC sound engine through port commands on APUIO0 (docs/audio/spc-disassembly.md, ProcessPortCommand): $F1 = CmdFadeOut (sets the engine's fade counters $30/$31 to $FF), $F0 = CmdStop, $FF = jump into the engine's resident clone of the IPL loader (sub_0f89), which posts $BBAA and speaks the boot-ROM upload protocol; $01 enters the engine's ASL-to-$02 path (ClearAramTail, stream pointer from ARAM $0FFC). OQ-61 is answered here: SpcCheckMusicReady's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (whether the fade is audible before the following $01/$F0 commands is OQ-I021-2).\n\nSequence: the thinker stages the ID in musicTransitionState; the main loop's LoadMusicFromTransitionState (once per pass, after UpdateHUD) turns it into a music_pointer_array entry, enables NMI and joypad and runs spc_transfer.SpcBlockTransfer (blocking; the NMI calls UpdateFrameFull each frame meanwhile), then stores $FFFF, which releases the thinker: it waits two actor ticks (COP WaitByte #01 = N + 1 ticks: a plain delay, not an SPC acknowledgment), sends $01, clears sfxQueueCh1 and musicTransitionState and dies.\n\n=== AD-HOC VRAM DMA (258512\u2013258561) ===\n\nDmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03\u2013$7F0C09 (source word, source bank, destination word = trigger, byte count). It only runs from the NMI handler, which has just programmed VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 for it, and it is skipped when dmaSkipFlag is set or when displayModeFlags bit 3 selected the player-tile path instead. Writers must store the size before the destination (the destination arms the transfer; OQ-64)."
+  },
+  "system/inventory/inventory_overlay.asm": {
+    "comments": {
+      "192006": {
+        "text": "NMITIMEN = $81: NMI + joypad on for the fade-in VBlank wait only; EnableNmiOnly turns the NMI off again below",
+        "expect": "EnableNmiAndJoypad"
+      },
+      "192210": {
+        "text": "DEC (accumulator, the FX id from $00EA): zero = FX type 1 path, nonzero = type 2 or higher",
+        "expect": "DEC"
+      }
+    }
+  },
+  "system/inventory/inventory_menu.asm": {
+    "comments": {
+      "190170": {
+        "text": "Y = slot index of the discarded item (from $22)",
+        "expect": "LDY $22"
+      }
+    }
+  },
+  "system/inventory/item_use_system.asm": {
+    "comments": {
+      "230634": {
+        "text": "Switch DP and X to the player actor slot so the spawn below is placed at the player",
+        "expect": "LDA $playerActor"
+      },
+      "231920": {
+        "text": "Wind Melody fallback (not the Gold Ship scene, or the flag $01 test branched here): prints 'But nothing happened'",
+        "expect": "PrintDialogString"
+      },
+      "236338": {
+        "text": "Pass the plate ID to the spawned actor's field $24 (Y = new actor slot) for the metatile selection",
+        "expect": "STA $0024, Y"
+      },
+      "237717": {
+        "text": "WaitByte #01 = 2 actor ticks (N + 1) after the restoration completes, then die",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "FluteMusicActorController": "Multi-phase music playback actor for melody items.\n\nOrchestrates the complete melody playback lifecycle shared by Wind Melody, Lola's Melody, and Memory Melody:\n\nPhase 1 \u2014 Setup: Enter display-filter mode (displayModeFlags $0080), store the original music ID from musicParentActor into DP $24, spawn SpcTransferMusicData to upload the melody's music data to the SPC700. If spawn fails (Y=$1FC0 = pool full), jump to code_03A098 and die. Otherwise swap X/Y registers to configure the spawned music actor: store track number (+1) in chatPtr, set the display-filter bit ($1000 in $12). Give the player actor the same bit, override it to a static idle pose (PlayerStaticBodyPose via SetPlayerTransition), set playerFlags $0800 (script/ability lock), and hide the buttons (joypadMaskStd |= $CFFC). Yield and poll each frame until musicTransitionState == $FFFF.\n\nPhase 2 \u2014 Playback: Poll APUIO1 ($2141) each frame. When the SPC signals $FF (track finished), clear the display-filter bit from the player actor, restore the player to normal pose (PlayerWalkingIdlePose), unhide the buttons, and dispatch to the melody-specific *_Effect handler via SwitchCase on DP $20 (melody index 0/1/2).\n\nPhase 3 \u2014 Restoration (code_03A06E): After the effect handler, spawn another SpcTransferMusicData to restore the original background music. Wait for musicTransitionState == $FFFF again, delay 2 ticks (WaitByte #01 = N + 1), then fall through into code_03A098.\n\nCleanup (code_03A098): Reached by that fall-through and by the jump on spawn failure \u2014 clears displayModeFlags $0080 (leaves display-filter mode) and dies."
+    }
+  },
+  "thinkers/hdma_gradient_thinker.asm": {
+    "comments": {
+      "392663": {
+        "text": "Z set (nothing left to emit): return below; otherwise emit the next entry",
+        "expect": "BNE"
+      },
+      "392801": {
+        "text": "Odd change count? (bit 0 of chatPtr, not the frame parity)",
+        "expect": "LSR"
+      }
+    }
+  },
+  "actors/player/player_character.asm": {
+    "comments": {
+      "181203": {
+        "text": "Clear playerFlags $2800: the script/ability lock $0800 and the guard / Spin Dash stance $2000",
+        "expect": "LDA #$2800"
+      },
+      "181934": {
+        "text": "Frame test: $2A nonzero = a frame was staged; move its hold time $08 to $24, clear $08, CLC. $2A zero: SEC",
+        "expect": "LDA $2A"
+      },
+      "183340": {
+        "text": "End of the south Psycho Slider: restore the saved pointer (the north slider starts at loc_02CC2E below)",
+        "expect": "RestoreSavedPtr"
+      }
+    }
+  },
+  "actors/player/slope_ramp_physics.asm": {
+    "comments": {
+      "177579": {
+        "text": "Negate the curve word (EOR #$FFFF + INC): the west slope pushes playerSpeedEw toward negative",
+        "expect": "EOR #$FFFF"
+      }
+    }
+  },
+  "system/player/tile_collision.asm": {
+    "comments": {
+      "188704": {
+        "text": "Primary cell type >= $0E: blocked (falls through to the SEC). Below $0E: go on to the row-above check",
+        "expect": "CMP #$000E"
+      },
+      "188720": {
+        "text": "Cell above (Y straddles two rows): a type >= $0E there makes the move blocked",
+        "expect": "ReadCollisionNibble"
+      },
+      "188826": {
+        "text": "TileProbeMain at BR: carry set = any nonzero collision type (slopes and ladders too), A = the type",
+        "expect": "TileProbeMain"
+      },
+      "188835": {
+        "text": "Nonzero type at BR: restore flags, return with carry set",
+        "expect": "PLP"
+      },
+      "188872": {
+        "text": "TR probe found a nonzero type: return with carry set",
+        "expect": "SEC"
+      },
+      "188908": {
+        "text": "BL probe found a nonzero type: return with carry set",
+        "expect": "SEC"
+      },
+      "188978": {
+        "text": "Future TR found a nonzero type: return with carry set",
+        "expect": "SEC"
+      },
+      "189022": {
+        "text": "Future BR found a nonzero type: return with carry set",
+        "expect": "SEC"
+      },
+      "189098": {
+        "text": "Future BL found a nonzero type: return with carry set",
+        "expect": "SEC"
+      },
+      "189157": {
+        "text": "ReadCollisionNibble: Z clear = nonzero type (any terrain type or an actor solid mark, not only solid tiles)",
+        "expect": "ReadCollisionNibble"
+      },
+      "189165": {
+        "text": "Nonzero type: restore flags, return with carry set (this does not mean solid)",
+        "expect": "PLP"
+      }
+    }
+  },
+  "system/player/player_move_diag.asm": {
+    "comments": {
+      "187341": {
+        "text": "MapCellDown: step from the future-TL cell ($00) to the cell below it",
+        "expect": "MapCellDown"
+      },
+      "187456": {
+        "text": "Zero the actor wait counter (+$0008) before the ladder shimmy",
+        "expect": "LDA #$0000"
+      },
+      "187817": {
+        "text": "Future TL blocked: probe BL. BL passable = north Y snap (code_02DDFA); BL solid = dual-wall snap below",
+        "expect": "ProbeFutureBL"
+      },
+      "187835": {
+        "text": "Dual-wall X snap: X px = ($22+$20)/4; the left edge (X - 8) is rounded UP to a 16-px line, then +8 and x4",
+        "expect": "LSR"
+      },
+      "188167": {
+        "text": "Future TL blocked: probe BL. BL passable = north Y snap (code_02DF54); BL solid = dual-wall snap below",
+        "expect": "ProbeFutureBL"
+      },
+      "188360": {
+        "text": "Offset < 4: skip the south nudge and take the upper-grid path at loc_02DFDB; offset >= 4 falls through to probe FutureBL",
+        "expect": "BCC"
+      }
+    },
+    "partNotes": {
+      "DiagPushRight": "Y push of the north-side wall slide (code_02DC4B / code_02DC77 chain); also used by player_move_east. Mirror of DiagPushLeft.\n\nUses the complemented Y sub-tile nibble; the valid push is POSITIVE ($02 << 2 in $24, Y grows, down) and the overshoot case clears $AA bits $0440. The original player_move_east comments called this push 'slide upward'; the arithmetic says downward and the east notes now agree (UNVERIFIED-RUNTIME, OQ-I029-4)."
+    }
+  },
+  "system/player/player_move_east.asm": {
+    "comments": {
+      "186253": {
+        "text": "Write ShimmyRightEntry to actor +$0000; zero the wait counter +$0008",
+        "expect": "STA $0000, Y"
+      }
+    }
+  },
+  "system/player/player_move_ns.asm": {
+    "comments": {
+      "184549": {
+        "text": "Zero the actor wait counter (+$0008) for a clean ladder climb entry",
+        "expect": "LDA #$0000"
+      }
+    }
+  },
+  "system/player/player_move_ramps.asm": {
+    "comments": {
+      "186687": {
+        "text": "EastRampUp: east on slope $0A (the surface falls toward east, Y grows with X; 'Up' in the name is misleading)",
+        "expect": "DiagClearReturnFlags"
+      },
+      "186953": {
+        "text": "Floor the post-step left edge (X px - 8) to a 16-px line; +8 below recentres on that column; x4 back to sub-pixels",
+        "expect": "SEC"
+      }
+    }
+  },
+  "system/player/player_move_south.asm": {
+    "comments": {
+      "185650": {
+        "text": "Gap under the north wall: zero playerSpeedNs and return, no movement applied",
+        "expect": "STZ $playerSpeedNs"
+      },
+      "186010": {
+        "text": "FineAdjustXWest: push X EAST away from the $09 wall under the left foot (the mirror of FineAdjustXEast)",
+        "expect": "LDX $playerActor"
+      }
+    }
+  },
+  "actors/player/attack_ability_system.asm": {
+    "comments": {
+      "178660": {
+        "text": "Clear the attack-request bit $0001 so a new attack press during the orbit (tested later) can start the early shrink",
+        "expect": "LDA #$0001"
+      },
+      "178681": {
+        "text": "Kill the palette FX actor saved in orbitDiameter now that the barrier has ended",
+        "expect": "KillSpawnedProjectile"
+      },
+      "179197": {
+        "text": "WaitByte #07 = 8 actor ticks for the casting animation to complete",
+        "expect": "WaitByte"
+      },
+      "179221": {
+        "text": "WaitByte #07 = 8 ticks before revealing the projectile (syncs with the casting animation)",
+        "expect": "WaitByte"
+      },
+      "179269": {
+        "text": "WaitByte #07 = 8 ticks (sync with the projectile reveal delay)",
+        "expect": "WaitByte"
+      },
+      "179346": {
+        "text": "WaitByte #07 = 8 ticks (sync with the projectile reveal delay)",
+        "expect": "WaitByte"
+      },
+      "179689": {
+        "text": "Test the off-screen flag $4000 (actor left the screen), not a wall hit",
+        "expect": "BIT #$4000"
+      }
+    },
+    "partNotes": {
+      "AttackSystemEntry": "Attack dispatcher and Freedan ability implementations (178099\u2013179702).\n\nThis part contains the attack companion actor's main dispatch logic plus all of Freedan's abilities. Despite being named after its first piece (AttackSystemEntry), the part spans the full attack dispatcher, both character-specific dispatch paths, all helper routines, and the complete Dark Friar and Aura Barrier ability implementations.\n\nMajor sections within this part:\n\n1. Attack Dispatcher (178099\u2013178432): AttackSystemEntry checks player state each frame and listens for the attack button (mask $0081, held level in joypadRaw). WillAttackDispatch handles Will's 40-frame hold + 120-frame charge with ability bitmask gating for Psycho Dash/Spin Dash. FreedanAttackDispatch handles Freedan's 40-frame hold + 100-frame charge with Dark Friar/Aura Barrier selection. LaunchPsychoDash, LaunchSpinDash, LaunchDarkFriar, and LaunchAuraBarrier validate and hijack the player actor function pointer.\n\n2. Attack Helpers (178433\u2013178558): AttackCleanup kills spawned FX and restores palette. SetPlayerActorFunc overwrites the player actor's entry point. ValidateAttackReady checks $3A00 flags and facing direction. ValidateAttackContinue does per-frame $2B00 checks. SavePlayerPosition snapshots position. CheckAttackChargeable returns carry clear only while playerFlags $8000 is clear and the player body animation index is 0-3 or $10-$13.\n\n3. Aura Barrier (178559\u2013178710): AuraBarrierMain sets flags, spawns VRAM DMA loader, waits for tile upload, loads FX palette, spawns orbital children, and runs the expand\u2192orbit\u2192shrink lifecycle. AuraBarrierEnd clears flags and returns to idle. AuraVramDmaLoader does a one-shot DMA of Aura tile graphics.\n\n4. Aura Orbital System (178711\u2013179002): AuraOrbitalSpawner spawns 2-4 orbital children (count depends on upgrade flag $0B1E), manages 240-frame orbit rotation expanding from diameter 0 to 64, then runs a 30-frame shrink. UpdateOrbitalPositions iterates children with angle spacing via ApplyOrbitalOffsetFromRef. AuraProjectileChild is the individual orbiting sprite with 3-frame animation. AuraProjectileShrink reverses the animation and flags for removal.\n\n5. Dark Friar (179003\u2013179701): DarkFriarMain sets flags, spawns VRAM DMA, loads palette, spawns a palette reset thinker (#4A), and dispatches by facing direction. Each directional handler (South/North/West/East) spawns a projectile and trail at character-appropriate offsets. DarkFriarProjectile is the initial flash sprite. DarkFriarTrailSouth and DarkFriarTrailEastWest are the growing trail actors with optional collision (enabled by upgrade level $0B1C). DarkFriarBounceLoop keeps the trail travelling until it leaves the screen, and at upgrade level 2 holding attack runs DarkFriarDisableCollide, which detonates it into fragments on demand. DarkFriarOnHit spawns 4 fragment actors at 90\u00b0 intervals. DarkFriarFragmentInit sets up spiraling outward motion, DarkFriarFragmentLoop applies the reversed velocity every frame until the fragment leaves the screen (actor flag $4000), then it dies.",
+      "TrailPositionInit": "Initialize trail follower position FIFO.\n\nSets all three FIFO stages to the follower's own current position ($14 / $16, its spawn position), so the delayed trail starts co-located instead of at (0,0). Called once by the shared trail follower entry (loc_02BDFE) of TrailFollowerSprA and TrailFollowerSprB."
+    }
+  },
+  "system/engine/QuintetLzDecompress.asm": {
+    "comments": {
+      "164667": {
+        "text": "Mask $72 >= $10 means 5 or more bits are left in the source byte (high path); 4 or fewer takes the low path below",
+        "expect": "LDA $72"
+      }
+    }
+  }
+}

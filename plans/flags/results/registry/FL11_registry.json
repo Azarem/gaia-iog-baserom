@@ -1,0 +1,3436 @@
+{
+  "_note": "FL11 fragment. flags: one full record per owned index of $0100-$019D with a flag site or a death-action row (D3). proposals: spine indices (touched by more than one scene group). _block_only and _no_use are informational (keys starting with _ are ignored by the tool): indices whose block is reachable only through StageBgChange, and indices with no use.",
+  "domains": {
+    "D3": {
+      "name": "event triggers / death actions",
+      "ranges": [
+        [
+          256,
+          511
+        ]
+      ],
+      "indexed": true,
+      "persistence": "save",
+      "lifecycle": "Bytes $0A20-$0A3F of the save block. ApplyAllEventBlocks (scene load, after InitCameraBounds and before SpawnSceneActors, and at inventory close) walks all 256 bits; a set flag $0100+n applies event block n when the block's scene byte equals sceneCurrent. Scene loads never clear these bits. The only clear sites are the sg52 blockers ($0125-$012A), the Ishtar room controller ($0149-$0150 at each room start), the Adrift script ($0120), the stone coffin retry ($013B), Kara's return ($0119) and the prologue ($017C-$017F). Blocks n >= 158 have no table entry (LookupEventBlock does not bound the index); no flag in $019E-$01FF has a setter.",
+      "access": "COP word forms ($CD/$CF/$D1/$D3 and the Branch/Wait variants), SetFlag_0100/TestFlag_0100 (death-action indices, pyCC Dark Space portal), ApplyAllEventBlocks (LDA $0A20,Y), enemy-spawn rows of tables/scene_actors.asm (last operand = event-block index, stored at $7F0024)."
+    }
+  },
+  "flags": {
+    "257": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_main_canal_worm_03_defeated",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The enemy at scene $0D row #03 (@ec0D_canal_worm, enemy number $04) was defeated; its death-action index $01 set this flag and applied event block $01.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $01 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $0D and every inventory close re-applies block $01 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1094 {820929}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:12 {119766}"
+          ],
+          "notes": "Event block $01: scene $0D: 3x2 metatiles from (06,40) to (15,21), layer 0. Enemy number $04 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "258": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_main_canal_worm_05_defeated",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The enemy at scene $0D row #05 (@ec0D_canal_worm, enemy number $06) was defeated; its death-action index $02 set this flag and applied event block $02.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $02 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $0D and every inventory close re-applies block $02 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1096 {820947}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:13 {119774}"
+          ],
+          "notes": "Event block $02: scene $0D: 6x2 metatiles from (00,40) to (03,3E), layer 0. Enemy number $06 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "259": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_lockway_canal_worm_06_defeated",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The enemy at scene $0E row #06 (@ec0D_canal_worm, enemy number $16) was defeated; its death-action index $03 set this flag and applied event block $03.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $03 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $0E and every inventory close re-applies block $03 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1118 {821132}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:14 {119782}"
+          ],
+          "notes": "Event block $03: scene $0E: 2x1 metatiles from (05,06) to (05,04), layer 0. Enemy number $16 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "260": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_rusty_switch_pushed",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "Will pushed the rusty switch in the aqueduct hall (scene $0F); event block $04 is applied.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0F_rusty_switch tests the flag, plays sound $0E on both channels, runs StageBgChange #04 with ApplyBgChange and sets the flag; every later load of scene $0F applies block $04 through ApplyAllEventBlocks.",
+            "clear": "No clear site; the switch actor stays at its parked state (SetEntryHere + RTL) once the flag is set."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_hall/ec0F_rusty_switch.asm:43 {690600}",
+            "extracted/edward_castle/aqueduct_hall/ec0F_rusty_switch.asm:47 {690616}",
+            "extracted/edward_castle/aqueduct_hall/ec0F_rusty_switch.asm:45 {690611}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:15 {119790}"
+          ],
+          "notes": "Name from the actor name and the script comment (needs Psycho Dash to force it open). Event block $04: scene $0F: 4x4 metatiles from (00,60) to (0A,26), layer 0."
+        }
+      ]
+    },
+    "261": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_hall_king_bat_0b_defeated",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The enemy at scene $0F row #0B (@ec0F_king_bat, enemy number $2B) was defeated; its death-action index $05 set this flag and applied event block $05.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $05 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $0F and every inventory close re-applies block $05 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1155 {821412}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:16 {119798}"
+          ],
+          "notes": "Event block $05: scene $0F: 4x5 metatiles from (00,64) to (06,00), layer 0. Enemy number $2B also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "264": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_plate_gate_open",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The plate gate of Inca scene $1F is open; event block $08 is applied.",
+          "kinds": [
+            "gate-open",
+            "puzzle-state"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_plate_gate_opener sets the flag (with byte flag $3C) after eventFlags bits 1-4 of $0A00 are all set; every later load of scene $1F applies block $08.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:29 {640169}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:27 {640164}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:19 {119822}"
+          ],
+          "notes": "The four plate bits are scene-scratch flags ($0001-$0004), cleared at every scene load; this flag is the persistent result. Event block $08: scene $1F: 4x4 metatiles from (00,20) to (0E,02), layer 0."
+        }
+      ]
+    },
+    "266": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_inca_side_passage_four_way_0e_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The enemy at scene $27 row #0E (@ir1D_four_way, enemy number $78) was defeated; its death-action index $0A set this flag and applied event block $0A.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $0A and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $27 and every inventory close re-applies block $0A through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1538 {823994}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:21 {119838}"
+          ],
+          "notes": "Event block $0A: scene $27: 5x4 metatiles from (00,20) to (19,16), layer 0. Enemy number $78 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "267": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_inca_guarded_gap_frozen_whirligig_13_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The enemy at scene $23 row #13 (@ir21_frozen_whirligig, enemy number $4F) was defeated; its death-action index $0B set this flag and applied event block $0B.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $0B and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $23 and every inventory close re-applies block $0B through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1466 {823498}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:22 {119846}"
+          ],
+          "notes": "Event block $0B: scene $23: 2x8 metatiles from (00,30) to (29,10), layer 0. Enemy number $4F also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "268": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_inca_river_crossing_frozen_whirligig_19_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The enemy at scene $21 row #19 (@ir21_frozen_whirligig, enemy number $2C) was defeated; its death-action index $0C set this flag and applied event block $0C.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $0C and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $21 and every inventory close re-applies block $0C through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1416 {823116}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:23 {119854}"
+          ],
+          "notes": "Event block $0C: scene $21: 4x3 metatiles from (00,40) to (24,13), layer 0. Enemy number $2C also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "269": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_larai_cliff_four_way_0c_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The enemy at scene $1D row #0C (@ir1D_four_way, enemy number $07) was defeated; its death-action index $0D set this flag and applied event block $0D.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $0D and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $1D and every inventory close re-applies block $0D through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1339 {822564}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:24 {119862}"
+          ],
+          "notes": "Event block $0D: scene $1D: 2x12 metatiles from (02,50) to (12,1D), layer 0. Enemy number $07 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "270": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_larai_cliff_four_way_0d_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The enemy at scene $1D row #0D (@ir1D_four_way, enemy number $08) was defeated; its death-action index $0E set this flag and applied event block $0E.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $0E and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $1D and every inventory close re-applies block $0E through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1340 {822573}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:25 {119870}"
+          ],
+          "notes": "Event block $0E: scene $1D: 2x14 metatiles from (04,50) to (28,33), layer 0. Enemy number $08 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "271": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_larai_cliff_four_way_10_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The enemy at scene $1D row #10 (@ir1D_four_way, enemy number $0B) was defeated; its death-action index $0F set this flag and applied event block $0F.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $0F and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $1D and every inventory close re-applies block $0F through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1343 {822600}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:26 {119878}"
+          ],
+          "notes": "Event block $0F: scene $1D: 2x16 metatiles from (00,50) to (2A,09), layer 0. Enemy number $0B also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "272": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_ceiling_trap_room_four_way_08_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The enemy at scene $28 row #08 (@ir1D_four_way, enemy number $84) was defeated; its death-action index $10 set this flag and applied event block $10.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $10 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $28 and every inventory close re-applies block $10 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1555 {824116}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:27 {119886}"
+          ],
+          "notes": "Event block $10: scene $28: 4x3 metatiles from (00,30) to (0B,27), layer 0. Enemy number $84 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "274": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_glowing_tile_done",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "The glowing floor tile of the Inca plate room (scene $24) was stood on long enough; event block $12 is applied.",
+          "kinds": [
+            "gate-open",
+            "puzzle-state"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir24_glowing_tile counts 600 frames (orbitAngle = $0258) while the player is inside tiles (14,17)-(17,1A); at zero it plays sound $0F, runs StageBgChange #12 and sets the flag. The actor dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/incan_ruins/inca_plate_room/ir24_glowing_tile.asm:18 {640625}",
+            "extracted/incan_ruins/inca_plate_room/ir24_glowing_tile.asm:40 {640675}",
+            "extracted/incan_ruins/inca_plate_room/ir24_glowing_tile.asm:38 {640670}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:29 {119902}"
+          ],
+          "notes": "Event block $12: scene $24: 4x2 metatiles from (04,22) to (0E,1E), layer 0."
+        }
+      ]
+    },
+    "276": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_back_prop_hit_a",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The hittable prop of the aqueduct back area (scene $12) was hit once; event block $14 (effect layer) is applied.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec12_aqueduct_enemy (HP $FF, so it never dies) runs StageBgChange #14, ApplyBgChange and sets this flag and $0115 in one hit callback; later loads of scene $12 apply blocks $14 and $15.",
+            "clear": "No clear site; the hit callback tests the flag first and does nothing after the first hit."
+          },
+          "pairsWith": [
+            277
+          ],
+          "evidence": [
+            "extracted/edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm:45 {638795}",
+            "extracted/edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm:49 {638811}",
+            "extracted/edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm:47 {638806}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:31 {119918}"
+          ],
+          "notes": "Block $14 is a layer 1 (effect layer) copy; block $15 is layer 0. Event block $14: scene $12: 4x3 metatiles from (26,51) to (26,4E), layer 1."
+        }
+      ]
+    },
+    "277": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_back_prop_hit_b",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The hittable prop of the aqueduct back area (scene $12) was hit once; event block $15 is applied.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by ec12_aqueduct_enemy right after $0114, in the same hit callback.",
+            "clear": "No clear site; no code tests this flag as a literal."
+          },
+          "pairsWith": [
+            276
+          ],
+          "evidence": [
+            "extracted/edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm:52 {638820}",
+            "extracted/edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm:50 {638815}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:32 {119926}"
+          ],
+          "notes": "Event block $15: scene $12: 5x5 metatiles from (00,60) to (25,4D), layer 0."
+        }
+      ]
+    },
+    "278": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_back_dark_space_open",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The canal worm at scene $12 row #08 was defeated: event block $16 is applied and the aqueduct Dark Space portal exists.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler sets it (death-action index $16 of scene_actors row $12#08); ec12_aqueduct_dark_space waits on it (WaitOnFlagWord) and then spawns the portal.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_back/ec12_aqueduct_dark_space.asm:14 {638830}",
+            "extracted/edward_castle/aqueduct_back/ec12_aqueduct_dark_space.asm:15 {638837}",
+            "extracted/tables/scene_actors.asm:1202 {821704}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:33 {119934}"
+          ],
+          "notes": "The portal is placed at pixel ($00A8,$04C0), inside block $16's destination rectangle (08,4A) 4x3 (tiles 8-B, 4A-4C); the match supports the reading that the worm's defeat uncovers the portal alcove. Event block $16: scene $12: 4x3 metatiles from (0C,54) to (08,4A), layer 0."
+        }
+      ]
+    },
+    "279": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_back_skull_chaser_17_defeated",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The enemy at scene $12 row #17 (@ec12_skull_chaser, enemy number $44) was defeated; its death-action index $17 set this flag and applied event block $17.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $17 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $12 and every inventory close re-applies block $17 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1217 {821839}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:34 {119942}"
+          ],
+          "notes": "Event block $17: scene $12: 2x1 metatiles from (07,33) to (07,35), layer 0. Enemy number $44 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The skull chaser changes into a second form on its first death (its death callback is cleared), and the flag is set on the second death. The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "280": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ec_aqueduct_back_skull_chaser_18_defeated",
+          "area": "edward_castle",
+          "scope": null,
+          "summary": "The enemy at scene $12 row #18 (@ec12_skull_chaser, enemy number $45) was defeated; its death-action index $18 set this flag and applied event block $18.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $18 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $12 and every inventory close re-applies block $18 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1218 {821848}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:35 {119950}"
+          ],
+          "notes": "Event block $18: scene $12: 3x1 metatiles from (28,0E) to (28,10), layer 0. Enemy number $45 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The skull chaser changes into a second form on its first death (its death callback is cleared), and the flag is set on the second death. The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "282": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "it_cave_wall_broken",
+          "area": "itory",
+          "scope": null,
+          "summary": "The breakable wall of the Itory cave (scene $19) is broken; event block $1A is applied.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it19_breakable_wall spawns debris, runs StageBgChange #1A and sets the flag when it breaks; it dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/itory/itory_cave/it19_breakable_wall.asm:21 {324560}",
+            "extracted/itory/itory_cave/it19_breakable_wall.asm:66 {324667}",
+            "extracted/itory/itory_cave/it19_breakable_wall.asm:64 {324662}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:37 {119966}"
+          ],
+          "notes": "Per the script comment the wall guards Incan Statue A. Event block $1A: scene $19: 3x3 metatiles from (02,30) to (08,05), layer 0."
+        }
+      ]
+    },
+    "283": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "it_cave_statue_a_taken",
+          "area": "itory",
+          "scope": null,
+          "summary": "Incan Statue A was taken from its pedestal in the Itory cave (scene $19); event block $1B is applied.",
+          "kinds": [
+            "reward-claimed",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it19_inca_statue_a waits for byte flag $2D, runs StageBgChange #1B and sets the flag, then dies.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/itory/itory_cave/it19_inca_statue_a.asm:20 {324461}",
+            "extracted/itory/itory_cave/it19_inca_statue_a.asm:18 {324456}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:38 {119974}"
+          ],
+          "notes": "Block $1B copies a 2x2 patch onto (07,27), consistent with an empty pedestal; the tiles were not decoded. Event block $1B: scene $19: 2x2 metatiles from (00,30) to (07,27), layer 0."
+        }
+      ]
+    },
+    "284": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "it_moon_tribe_trial_done",
+          "area": "itory",
+          "scope": null,
+          "summary": "The Moon Tribe trial in the Moon Tribe cave (scene $1B) is complete; event block $1C is applied.",
+          "kinds": [
+            "cutscene-stage",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it1B_trial prints the trial dialog, plays sound $0F, runs StageBgChange #1C and sets the flag; with the flag set the actor takes its after-trial branch.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/itory/moon_tribe_cave/it1B_trial.asm:23 {325784}",
+            "extracted/itory/moon_tribe_cave/it1B_trial.asm:90 {325946}",
+            "extracted/itory/moon_tribe_cave/it1B_trial.asm:88 {325941}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:39 {119982}"
+          ],
+          "notes": "Event block $1C: scene $1B: 2x1 metatiles from (00,1F) to (0F,13), layer 0."
+        }
+      ]
+    },
+    "285": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "it_moon_tribe_statue_b_taken",
+          "area": "itory",
+          "scope": null,
+          "summary": "Incan Statue B was taken in the Moon Tribe cave (scene $1B); event block $1D is applied.",
+          "kinds": [
+            "reward-claimed",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it1B_inca_statue_b waits for byte flag $48, runs StageBgChange #1D, sets the flag and dies.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/itory/moon_tribe_cave/it1B_inca_statue_b.asm:20 {326361}",
+            "extracted/itory/moon_tribe_cave/it1B_inca_statue_b.asm:18 {326356}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:40 {119990}"
+          ],
+          "notes": "Event block $1D: scene $1B: 2x2 metatiles from (02,1E) to (0F,0F), layer 0."
+        }
+      ]
+    },
+    "287": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ir_castoth_defeated",
+          "area": "incan_ruins",
+          "scope": null,
+          "summary": "Castoth (scene $29) was defeated and the transformation cutscene has started; event block $1F is applied.",
+          "kinds": [
+            "cutscene-stage",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir29_transform waits until enemiesRemaining ($0AEC) is zero, locks the joypad, runs StageBgChange #1F and sets the flag; the actor dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/incan_ruins/castoth_lair/ir29_transform.asm:24 {642953}",
+            "extracted/incan_ruins/castoth_lair/ir29_transform.asm:35 {642979}",
+            "extracted/incan_ruins/castoth_lair/ir29_transform.asm:33 {642974}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:42 {120006}"
+          ],
+          "notes": "The other Castoth scripts (ir29_castoth) run StageBgChange #1E without any flag; block $1E is only reachable by that COP. The Babel rematch variant sets $0175, a different flag. Event block $1F: scene $29: 4x2 metatiles from (00,0E) to (06,00), layer 0."
+        }
+      ]
+    },
+    "288": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "gs_adrift_effect_layer_set",
+          "area": "gold_ship",
+          "scope": null,
+          "summary": "The Gold Ship adrift sequence (scene $2F) reloads its own scene with the 32x16 effect-layer block $20 applied.",
+          "kinds": [
+            "cutscene-stage",
+            "idiom"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "dc2F_adrift sets the flag with byte flag $52, adds one to $0AA6 and queues a map change to scene $2F; the reload applies block $20 (layer 1, copy of 32x16 metatiles from (00,10) to (00,00)) through ApplyAllEventBlocks.",
+            "clear": "dc2F_adrift clears the flag with byte flag $52 and adds one to $0AA6 at the end of the sequence (before the next scene change)."
+          },
+          "evidence": [
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:376 {367371}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:425 {367491}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:43 {120014}"
+          ],
+          "notes": "Both sites are in one script, one SwitchCase stage apart ($0AA6 is the stage counter). Missing: a run that shows what the layer-1 swap looks like and that the second reload shows the plain layer; the name describes the code, not the picture. Event block $20: scene $2F: 32x16 metatiles from (00,10) to (00,00), layer 1.",
+          "queue": [
+            "FL11-04"
+          ]
+        }
+      ]
+    },
+    "289": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_mine_collapse_done",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The mine tunnel in scene $3F has collapsed (the fourth laborer was freed); event block $21 is applied.",
+          "kinds": [
+            "cutscene-stage",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3F_mine_collapse_trigger yields each frame until byte $0A01 equals 4, then sets the flag, runs StageBgChange #21 with ApplyBgChange and plays rumble sound $0E on both channels.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_main/dm3F_mine_collapse_trigger.asm:17 {381033}",
+            "extracted/diamond_mine/mine_main/dm3F_mine_collapse_trigger.asm:26 {381054}",
+            "extracted/diamond_mine/mine_main/dm3F_mine_collapse_trigger.asm:27 {381058}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:44 {120022}"
+          ],
+          "notes": "Event block $21: scene $3F: 2x2 metatiles from (00,3E) to (20,1D), layer 0."
+        }
+      ]
+    },
+    "290": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_mine_main_grundit_02_defeated",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The enemy at scene $3F row #02 (@dm3D_grundit, enemy number $21) was defeated; its death-action index $22 set this flag and applied event block $22.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $22 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $3F and every inventory close re-applies block $22 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1823 {825640}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:45 {120030}"
+          ],
+          "notes": "Event block $22: scene $3F: 3x8 metatiles from (0A,08) to (14,08), layer 0. Enemy number $21 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "291": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_mine_zigzag_bat_spawner_07_defeated",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The enemy at scene $41 row #07 (@dm41_bat_spawner, enemy number $55) was defeated; its death-action index $23 set this flag and applied event block $23.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $23 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $41 and every inventory close re-applies block $23 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1879 {826062}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:46 {120038}"
+          ],
+          "notes": "Event block $23: scene $41: 1x6 metatiles from (3F,2A) to (24,08), layer 0. Enemy number $55 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "292": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_southwest_blue_cyber_04_defeated",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The enemy at scene $51 row #04 (sg4D_blue_cyber, enemy number $80) was defeated; its death-action index $24 set this flag and applied event block $24.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $24 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $51 and every inventory close re-applies block $24 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2109 {827623}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:47 {120046}"
+          ],
+          "notes": "Event block $24: scene $51: 2x3 metatiles from (27,14) to (27,17), layer 0. Enemy number $80 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "293": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_blocker_a_top_set",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "Sky Garden blocker A is in its hit state; event block $25 (scene $51, the top side) is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sg52_blocker_enemy_a sets $0125 and $0126 together in its hit-state routine (after StageBgChange #26).",
+            "clear": "The same actor clears $0125 and $0126 together in its reset routine (after StageBgChange #90). Nothing reads $0125 as a literal; scene $51 sees it only through ApplyAllEventBlocks."
+          },
+          "pairsWith": [
+            294
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:38 {390677}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:54 {390716}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:48 {120054}"
+          ],
+          "notes": "Blocker A toggles between two states on every hit; $0126 is the copy the actor itself reads. Both flags always have the same value. Event block $25: scene $51: 2x4 metatiles from (03,40) to (21,08), layer 0."
+        }
+      ]
+    },
+    "294": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_blocker_a_underside_set",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "Sky Garden blocker A is in its hit state; event block $26 (scene $52, the underside) is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sg52_blocker_enemy_a runs StageBgChange #26 and sets $0125 and $0126 when it is hit while in the reset state; at spawn a set $0126 starts the actor in the hit state.",
+            "clear": "The actor clears $0125 and $0126 and runs StageBgChange #90 (the undo block, scene $52 copy of 1x3 from (1E,09) to (1D,09)) when it is hit while in the hit state."
+          },
+          "pairsWith": [
+            293
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:30 {390656}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:39 {390681}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:41 {390687}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:55 {390720}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:57 {390726}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:52 {390711}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:49 {120062}"
+          ],
+          "notes": "A scene $52 reload with the flag set applies block $26; with the flag clear the map shows the unmodified tiles. Block $90 is only reachable through StageBgChange. Event block $26: scene $52: 1x4 metatiles from (04,40) to (1D,08), layer 0."
+        }
+      ]
+    },
+    "295": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_blocker_b_top_state1",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "Sky Garden blocker B is in state 1; event block $27 (scene $51, the top side) is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sg52_blocker_enemy_b sets $0127 and $0128 together (after StageBgChange #28) when it is hit while $0127 is clear.",
+            "clear": "The same actor clears $0127 and $0128 when it is hit while $0127 is set (it then runs StageBgChange #2A and sets $0129 and $012A)."
+          },
+          "pairsWith": [
+            296,
+            297,
+            298
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:25 {390761}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:33 {390780}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:58 {390835}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:50 {120070}"
+          ],
+          "notes": "States 1 and 2 alternate on every hit and exclude each other ($0127/$0128 against $0129/$012A); the initial state (all four clear) is the unmodified map. $0127 is the flag the actor reads at spawn. Event block $27: scene $51: 4x8 metatiles from (00,44) to (03,07), layer 0."
+        }
+      ]
+    },
+    "296": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_blocker_b_underside_state1",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "Sky Garden blocker B is in state 1; event block $28 (scene $52, the underside) is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by sg52_blocker_enemy_b together with $0127.",
+            "clear": "Cleared together with $0127 when blocker B moves to state 2."
+          },
+          "pairsWith": [
+            295,
+            297,
+            298
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:34 {390784}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:59 {390839}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:31 {390775}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:51 {120078}"
+          ],
+          "notes": "Block $28 copies 4x8 metatiles from (00,40) to (39,07); block $2A (state 2) copies from (00,48) to the same rectangle. Event block $28: scene $52: 4x8 metatiles from (00,40) to (39,07), layer 0."
+        }
+      ]
+    },
+    "297": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_blocker_b_top_state2",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "Sky Garden blocker B is in state 2; event block $29 (scene $51, the top side) is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by sg52_blocker_enemy_b (after StageBgChange #2A) together with $012A when it is hit while $0127 is set.",
+            "clear": "Cleared together with $012A when blocker B moves to state 1."
+          },
+          "pairsWith": [
+            295,
+            296,
+            298
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:35 {390788}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:56 {390827}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:52 {120086}"
+          ],
+          "notes": "Nothing reads $0129 as a literal. Event block $29: scene $51: 4x8 metatiles from (04,44) to (03,07), layer 0."
+        }
+      ]
+    },
+    "298": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_blocker_b_underside_state2",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "Sky Garden blocker B is in state 2; event block $2A (scene $52, the underside) is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by sg52_blocker_enemy_b together with $0129.",
+            "clear": "Cleared together with $0129 when blocker B moves to state 1."
+          },
+          "pairsWith": [
+            295,
+            296,
+            297
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:36 {390792}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:57 {390831}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:54 {390822}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:53 {120094}"
+          ],
+          "notes": "Event block $2A: scene $52: 4x8 metatiles from (00,48) to (39,07), layer 0."
+        }
+      ]
+    },
+    "299": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_southwest_blue_cyber_07_defeated",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The enemy at scene $51 row #07 (sg4D_blue_cyber, enemy number $83) was defeated; its death-action index $2B set this flag and applied event block $2B.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $2B and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $51 and every inventory close re-applies block $2B through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2112 {827650}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:54 {120102}"
+          ],
+          "notes": "Event block $2B: scene $51: 3x2 metatiles from (05,40) to (16,09), layer 0. Enemy number $83 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "300": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_southwest_dynapede2_10_defeated",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The enemy at scene $51 row #10 (sg4D_dynapede2, enemy number $8C) was defeated; its death-action index $2C set this flag and applied event block $2C.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $2C and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $51 and every inventory close re-applies block $2C through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2121 {827731}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:55 {120110}"
+          ],
+          "notes": "Event block $2C: scene $51: 2x4 metatiles from (03,40) to (21,1C), layer 0. Enemy number $8C also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "301": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_switch_top_pressed",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The floor switch of the Sky Garden southwest underside was pressed; event block $2D (scene $51, the top side) is applied.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sg52_switch sets $012D and $012E together after StageBgChange #2E when the tracked actor reaches pixel ($0258,$0330).",
+            "clear": "No clear site."
+          },
+          "pairsWith": [
+            302
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_switch.asm:27 {390896}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:56 {120118}"
+          ],
+          "notes": "Nothing reads $012D as a literal; scene $51 sees it only through ApplyAllEventBlocks. Event block $2D: scene $51: 3x4 metatiles from (00,40) to (16,30), layer 0."
+        }
+      ]
+    },
+    "302": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_sw_switch_underside_pressed",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The floor switch of the Sky Garden southwest underside was pressed; event block $2E (scene $52) is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by sg52_switch together with $012D.",
+            "clear": "No clear site. sg52_switch reads the flag at spawn: set skips the trigger and parks the actor, clearing the solid tile (38,32) and moving actor $1090 to ($0258,$0330)."
+          },
+          "pairsWith": [
+            301
+          ],
+          "evidence": [
+            "extracted/sky_garden/garden_southwest_underside/sg52_switch.asm:14 {390867}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_switch.asm:28 {390900}",
+            "extracted/sky_garden/garden_southwest_underside/sg52_switch.asm:25 {390891}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:57 {120126}"
+          ],
+          "notes": "Event block $2E: scene $52: 2x3 metatiles from (05,40) to (27,31), layer 0."
+        }
+      ]
+    },
+    "303": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_west_underside_pressure_switch_done",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The pressure switch of the Sky Garden west underside (scene $54) was triggered; event block $2F is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sg54_pressure_switch runs StageBgChange #2F and sets the flag when the tracked actor reaches pixel ($0348,$02E0); it dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/sky_garden/garden_west_underside/sg54_pressure_switch.asm:14 {390988}",
+            "extracted/sky_garden/garden_west_underside/sg54_pressure_switch.asm:24 {391012}",
+            "extracted/sky_garden/garden_west_underside/sg54_pressure_switch.asm:22 {391007}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:58 {120134}"
+          ],
+          "notes": "Event block $2F: scene $54: 2x3 metatiles from (30,2A) to (30,2E), layer 0."
+        }
+      ]
+    },
+    "304": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_southeast_underside_red_cyber_09_defeated",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The enemy at scene $50 row #09 (sg4D_red_cyber, enemy number $64) was defeated; its death-action index $30 set this flag and applied event block $30.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $30 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $50 and every inventory close re-applies block $30 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2091 {827489}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:59 {120142}"
+          ],
+          "notes": "Event block $30: scene $50: 8x1 metatiles from (34,0D) to (34,07), layer 0. Enemy number $64 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "305": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_southwest_underside_red_cyber_08_defeated",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The enemy at scene $52 row #08 (sg4D_red_cyber, enemy number $A5) was defeated; its death-action index $31 set this flag and applied event block $31.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $31 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $52 and every inventory close re-applies block $31 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2139 {827858}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:60 {120150}"
+          ],
+          "notes": "Event block $31: scene $52: 10x10 metatiles from (06,46) to (13,1A), layer 0. Enemy number $A5 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "306": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_hidden_dark_space_open",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The Grundit at scene $40 row #07 was defeated: event block $32 is applied and the hidden Dark Space portal of the collapsed tunnel exists.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler sets it (death-action index $32 of scene_actors row $40#07, enemy number $45); dm40_hidden_dark_space yields until it is set (WaitOnFlagWord) and then spawns the portal.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_hidden_dark_space.asm:18 {382497}",
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_hidden_dark_space.asm:19 {382504}",
+            "extracted/tables/scene_actors.asm:1866 {825980}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:61 {120158}"
+          ],
+          "notes": "The portal row ($40#08) is at tile (1C,16) and block $32's destination is (1C,16) 2x2, the same tiles. Event block $32: scene $40: 2x2 metatiles from (13,16) to (1C,16), layer 0."
+        }
+      ]
+    },
+    "307": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_promise_passage_wall_broken",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The breakable wall in Promise Passage (scene $3D) was broken; event block $33 is applied.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3D_breakable_wall (a body-slam target with HP reset each frame) spawns a debris burst, runs StageBgChange #33, clears byte flag $00 and sets the flag; it dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:25 {698863}",
+            "extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:65 {698958}",
+            "extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:62 {698950}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:62 {120166}"
+          ],
+          "notes": "Event block $33: scene $3D: 2x4 metatiles from (00,60) to (05,01), layer 0."
+        }
+      ]
+    },
+    "308": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_mine_promise_passage_flayzer3_03_defeated",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The enemy at scene $3D row #03 (dm3D_flayzer3, enemy number $02) was defeated; its death-action index $34 set this flag and applied event block $34.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $34 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $3D and every inventory close re-applies block $34 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1792 {825421}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:63 {120174}"
+          ],
+          "notes": "Event block $34: scene $3D: 4x2 metatiles from (02,60) to (01,36), layer 0. Enemy number $02 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "309": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_mine_promise_passage_eye_stalker1_07_defeated",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The enemy at scene $3D row #07 (dm3D_eye_stalker1, enemy number $06) was defeated; its death-action index $35 set this flag and applied event block $35.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $35 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $3D and every inventory close re-applies block $35 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1796 {825457}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:64 {120182}"
+          ],
+          "notes": "Event block $35: scene $3D: 4x2 metatiles from (02,60) to (01,47), layer 0. Enemy number $06 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "310": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_mine_promise_passage_eye_stalker3_06_defeated",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The enemy at scene $3D row #06 (dm3D_eye_stalker3, enemy number $05) was defeated; its death-action index $36 set this flag and applied event block $36.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $36 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $3D and every inventory close re-applies block $36 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1795 {825448}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:65 {120190}"
+          ],
+          "notes": "Event block $36: scene $3D: 4x2 metatiles from (02,60) to (01,25), layer 0. Enemy number $05 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "311": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sg_garden_southeast_blue_cyber_0b_defeated",
+          "area": "sky_garden",
+          "scope": null,
+          "summary": "The enemy at scene $4F row #0B (sg4D_blue_cyber, enemy number $45) was defeated; its death-action index $37 set this flag and applied event block $37.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $37 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $4F and every inventory close re-applies block $37 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2067 {827304}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:66 {120198}"
+          ],
+          "notes": "Event block $37: scene $4F: 2x2 metatiles from (2A,19) to (1F,11), layer 0. Enemy number $45 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "313": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_rama_council_done",
+          "area": "mu",
+          "scope": null,
+          "summary": "King Rama's council scene in the Mu altar room (scene $66) is over; event block $39 is applied.",
+          "kinds": [
+            "cutscene-stage",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu66_rama_spirits flashes the palette, runs StageBgChange #39 and sets the flag near the end of the conversation; the actor dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:28 {433727}",
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:63 {433885}",
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:61 {433880}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:68 {120214}"
+          ],
+          "notes": "Event block $39: scene $66: 8x4 metatiles from (20,10) to (0C,00), layer 0."
+        }
+      ]
+    },
+    "314": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sp_key_coffin_opened",
+          "area": "seaside_palace",
+          "scope": null,
+          "summary": "The key coffin of the Seaside Palace (scene $5C) was opened by Lilly; event block $3A is applied.",
+          "kinds": [
+            "gate-open",
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5C_key_coffin moves Lilly into the coffin, runs StageBgChange #3A and sets the flag; the actor dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:23 {430062}",
+            "extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:53 {430158}",
+            "extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:51 {430153}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:69 {120222}"
+          ],
+          "notes": "Blocks $3A and $3B copy the same 4x3 source (32,09) onto different coffins. Event block $3A: scene $5C: 4x3 metatiles from (32,09) to (2E,09), layer 0."
+        }
+      ]
+    },
+    "315": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "sp_stone_coffin_opened",
+          "area": "seaside_palace",
+          "scope": null,
+          "summary": "The stone coffin of the Seaside Palace (scene $5C) was opened by Lilly; event block $3B is applied.",
+          "kinds": [
+            "gate-open",
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5C_stone_coffin runs StageBgChange #3B and sets the flag, then calls GiveItem #11.",
+            "clear": "When GiveItem fails (no room) or music is still playing, the actor prints its message, clears this flag and byte flag $02 and loops back to wait for a new interaction; the tiles stay open until the next load of the scene, which then shows the closed coffin because the flag is clear."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:26 {430511}",
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:58 {430607}",
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:115 {430743}",
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:56 {430602}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:70 {120230}"
+          ],
+          "notes": "Event block $3B: scene $5C: 4x3 metatiles from (32,09) to (2A,09), layer 0."
+        }
+      ]
+    },
+    "317": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_mu_entrance_cyclops2_05_defeated",
+          "area": "mu",
+          "scope": null,
+          "summary": "The enemy at scene $5F row #05 (mu5F_cyclops2, enemy number $01) was defeated; its death-action index $3D set this flag and applied event block $3D.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $3D and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $5F and every inventory close re-applies block $3D through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2351 {829248}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:72 {120246}"
+          ],
+          "notes": "Event block $3D: scene $5F: 1x3 metatiles from (28,3B) to (27,3B), layer 0. Enemy number $01 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "318": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_mu_east_skuddle_06_defeated",
+          "area": "mu",
+          "scope": null,
+          "summary": "The enemy at scene $60 row #06 (@sp5C_skuddle, enemy number $21) was defeated; its death-action index $3E set this flag and applied event block $3E.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $3E and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $60 and every inventory close re-applies block $3E through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2379 {829465}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:73 {120254}"
+          ],
+          "notes": "Event block $3E: scene $60: 1x1 metatiles from (3B,2F) to (3A,2F), layer 0. Enemy number $21 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "319": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_mu_east_skuddle_08_defeated",
+          "area": "mu",
+          "scope": null,
+          "summary": "The enemy at scene $60 row #08 (@sp5C_skuddle, enemy number $23) was defeated; its death-action index $3F set this flag and applied event block $3F.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $3F and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $60 and every inventory close re-applies block $3F through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2381 {829483}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:74 {120262}"
+          ],
+          "notes": "Event block $3F: scene $60: 1x1 metatiles from (3A,31) to (39,31), layer 0. Enemy number $23 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "320": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_mu_maze_skuddle_13_defeated",
+          "area": "mu",
+          "scope": null,
+          "summary": "The enemy at scene $65 row #13 (@sp5C_skuddle, enemy number $9E) was defeated; its death-action index $40 set this flag and applied event block $40.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $40 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $65 and every inventory close re-applies block $40 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2526 {830581}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:75 {120270}"
+          ],
+          "notes": "Event block $40: scene $65: 3x3 metatiles from (00,40) to (28,2A), layer 0. Enemy number $9E also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "321": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_mu_maze_cyclops2_05_defeated",
+          "area": "mu",
+          "scope": null,
+          "summary": "The enemy at scene $65 row #05 (mu5F_cyclops2, enemy number $90) was defeated; its death-action index $41 set this flag and applied event block $41.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $41 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $65 and every inventory close re-applies block $41 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2512 {830455}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:76 {120278}"
+          ],
+          "notes": "Event block $41: scene $65: 3x3 metatiles from (03,40) to (1B,3B), layer 0. Enemy number $90 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "322": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_mu_west_slipper_09_defeated",
+          "area": "mu",
+          "scope": null,
+          "summary": "The enemy at scene $62 row #09 (@sp5C_slipper, enemy number $64) was defeated; its death-action index $42 set this flag and applied event block $42.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $42 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $62 and every inventory close re-applies block $42 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2466 {830146}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:77 {120286}"
+          ],
+          "notes": "Event block $42: scene $62: 8x3 metatiles from (34,28) to (29,24), layer 0. Enemy number $64 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "323": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_tunnel_river_passage_found",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "The hidden passage in the Angel Village river tunnel (scene $70) was found; event block $43 is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av70_hidden_passage (scene $70 variant) waits for the interact flag, plays sound $0F, runs StageBgChange #43 and sets the flag; the actor dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:19 {447913}",
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:25 {447937}",
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:23 {447932}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:78 {120294}"
+          ],
+          "notes": "Event block $43: scene $70: 3x5 metatiles from (08,03) to (16,04), layer 0."
+        }
+      ]
+    },
+    "324": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_tunnel_passage_73_found",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "The hidden passage in scene $73 of the Angel Village tunnels was found; event block $44 is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The same actor, running in scene $73 (sceneCurrent test), uses flag $0144 and StageBgChange #44.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:33 {447943}",
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:39 {447967}",
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:37 {447962}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:79 {120302}"
+          ],
+          "notes": "Event block $44: scene $73: 3x5 metatiles from (26,02) to (2B,13), layer 0."
+        }
+      ]
+    },
+    "326": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_bomb_wire_cut_a",
+          "area": "mu",
+          "scope": null,
+          "summary": "The bomb wire was cut in the Mu vampire lair (scene $67); event block $46 is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu67_bomb runs StageBgChange #46 and #47 back to back and sets $0146 and $0147.",
+            "clear": "No clear site."
+          },
+          "pairsWith": [
+            327
+          ],
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:64 {435312}",
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:60 {435302}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:81 {120318}"
+          ],
+          "notes": "Blocks $46 and $47 copy the same 2x1 source (07,14) onto (07,13) and (07,0E). Event block $46: scene $67: 2x1 metatiles from (07,14) to (07,13), layer 0."
+        }
+      ]
+    },
+    "327": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mu_bomb_wire_cut_b",
+          "area": "mu",
+          "scope": null,
+          "summary": "The bomb wire was cut in the Mu vampire lair (scene $67); event block $47 is applied.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by mu67_bomb together with $0146.",
+            "clear": "No clear site."
+          },
+          "pairsWith": [
+            326
+          ],
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:65 {435316}",
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:62 {435307}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:82 {120326}"
+          ],
+          "notes": "Event block $47: scene $67: 2x1 metatiles from (07,14) to (07,0E), layer 0."
+        }
+      ]
+    },
+    "329": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_1_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 1 (leftmost, actor word $0E = 0) of Ishtar's door corridor in scene $75 is open; event block $49 is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av75_voice_doors, interacted with while $0AA6 equals 0, plays sound $0E, runs StageBgChange #49 and sets the flag (SwitchCase on the door number).",
+            "clear": "av75_voice_rooms clears $0149-$0150 together when it starts with the player's Y position below $00F0; the doors are closed again on the next load of scene $75."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:70 {448489}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:26 {448714}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:68 {448484}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:84 {120342}"
+          ],
+          "notes": "A door opens only when its number equals $0AA6, the stage counter that av75_voice_rooms advances after each correct room; a door numbered above $0AA6 prints a refusal text. All eight blocks copy the same 2x4 source (70,10) onto one door position each. Event block $49: scene $75: 2x4 metatiles from (70,10) to (08,16), layer 0."
+        }
+      ]
+    },
+    "330": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_2_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 2 of Ishtar's door corridor in scene $75 is open; event block $4A is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by av75_voice_doors (SwitchCase case 1, StageBgChange #4A) when interacted with at stage 1.",
+            "clear": "Cleared with the other seven door flags by av75_voice_rooms."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:77 {448499}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:27 {448718}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:75 {448494}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:85 {120350}"
+          ],
+          "notes": "Event block $4A: scene $75: 2x4 metatiles from (70,10) to (12,16), layer 0."
+        }
+      ]
+    },
+    "331": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_3_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 3 of Ishtar's door corridor in scene $75 is open; event block $4B is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by av75_voice_doors (case 2, StageBgChange #4B).",
+            "clear": "Cleared with the other seven door flags by av75_voice_rooms."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:84 {448509}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:28 {448722}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:82 {448504}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:86 {120358}"
+          ],
+          "notes": "Event block $4B: scene $75: 2x4 metatiles from (70,10) to (25,16), layer 0."
+        }
+      ]
+    },
+    "332": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_4_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 4 of Ishtar's door corridor in scene $75 is open; event block $4C is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by av75_voice_doors (case 3, StageBgChange #4C).",
+            "clear": "Cleared with the other seven door flags by av75_voice_rooms."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:91 {448519}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:29 {448726}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:89 {448514}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:87 {120366}"
+          ],
+          "notes": "Event block $4C: scene $75: 2x4 metatiles from (70,10) to (2F,16), layer 0."
+        }
+      ]
+    },
+    "333": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_5_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 5 of Ishtar's door corridor in scene $75 is open; event block $4D is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by av75_voice_doors (case 4, StageBgChange #4D).",
+            "clear": "Cleared with the other seven door flags by av75_voice_rooms."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:98 {448529}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:30 {448730}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:96 {448524}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:88 {120374}"
+          ],
+          "notes": "Event block $4D: scene $75: 2x4 metatiles from (70,10) to (42,16), layer 0."
+        }
+      ]
+    },
+    "334": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_6_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 6 of Ishtar's door corridor in scene $75 is open; event block $4E is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by av75_voice_doors (case 5, StageBgChange #4E).",
+            "clear": "Cleared with the other seven door flags by av75_voice_rooms."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:105 {448539}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:31 {448734}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:103 {448534}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:89 {120382}"
+          ],
+          "notes": "Event block $4E: scene $75: 2x4 metatiles from (70,10) to (4C,16), layer 0."
+        }
+      ]
+    },
+    "335": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_7_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 7 of Ishtar's door corridor in scene $75 is open; event block $4F is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by av75_voice_doors (case 6, StageBgChange #4F).",
+            "clear": "Cleared with the other seven door flags by av75_voice_rooms."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:112 {448549}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:32 {448738}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:110 {448544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:90 {120390}"
+          ],
+          "notes": "Event block $4F: scene $75: 2x4 metatiles from (70,10) to (5F,16), layer 0."
+        }
+      ]
+    },
+    "336": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_door_8_open",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "Door 8 (rightmost) of Ishtar's door corridor in scene $75 is open; event block $50 is applied on later loads.",
+          "kinds": [
+            "puzzle-state",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Set by av75_voice_doors (case 7, StageBgChange #50).",
+            "clear": "Cleared with the other seven door flags by av75_voice_rooms."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:119 {448559}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:33 {448742}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:117 {448554}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:91 {120398}"
+          ],
+          "notes": "Event block $50: scene $75: 2x4 metatiles from (70,10) to (69,16), layer 0."
+        }
+      ]
+    },
+    "337": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "av_ishtar_test_passed",
+          "area": "angel_village",
+          "scope": null,
+          "summary": "The player passed Ishtar's observation test in scene $75; event block $51 is applied on the next load of scene $74.",
+          "kinds": [
+            "quest-done",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av75_voice_rooms (spawned only by scene_actors row $75#0A) prints 'Right answer! ... You may return.' (dialogstring_06DB9F), sets byte flag $89 and this flag when the answer position lies inside pixel box ($0790-$07B0, $00A0-$00C0).",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:164 {449021}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:92 {120406}"
+          ],
+          "notes": "Cross-scene effect: the setter runs in scene $75, block $51 belongs to scene $74 (copy of 2x2 from (00,0E) to (27,07)). av75_voice_doors dies at spawn when byte flag $89 is set. Event block $51: scene $74: 2x2 metatiles from (00,0E) to (27,07), layer 0."
+        }
+      ]
+    },
+    "338": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "gw_dive_switch_hit",
+          "area": "great_wall",
+          "scope": null,
+          "summary": "The switch at the Great Wall dive entrance (scene $83) was struck; event block $52 is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw83_switch moves to its hit position, spawns a debris burst, runs StageBgChange #52 and sets the flag; at spawn a set flag jumps to the already-open state.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_dive/gw83_switch.asm:20 {507303}",
+            "extracted/great_wall/wall_dive/gw83_switch.asm:36 {507362}",
+            "extracted/great_wall/wall_dive/gw83_switch.asm:34 {507357}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:93 {120414}"
+          ],
+          "notes": "Event block $52: scene $83: 1x4 metatiles from (20,17) to (27,17), layer 0."
+        }
+      ]
+    },
+    "339": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "gw_wall_switchback_archer1_03_defeated",
+          "area": "great_wall",
+          "scope": null,
+          "summary": "The enemy at scene $87 row #03 (gw82_archer1, enemy number $9B) was defeated; its death-action index $53 set this flag and applied event block $53.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $53 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $87 and every inventory close re-applies block $53 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3108 {834460}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:94 {120422}"
+          ],
+          "notes": "Event block $53: scene $87: 3x1 metatiles from (1D,08) to (17,08), layer 0. Enemy number $9B also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "345": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mt_crossroads_mushroom_gate_open",
+          "area": "mountain_temple",
+          "scope": null,
+          "summary": "The Mushroom Drop gate of the Kress crossroads (scene $A2) was opened; the final event block $59 is applied.",
+          "kinds": [
+            "gate-open",
+            "puzzle-state"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "mtA2_mushroom_drop_gate removes item $1A, then runs StageBgChange #58 and #59 (13x3 copies from (10,4C) onto the same rectangle in two steps, sound $0F each) and sets only $0159.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:16 {518131}",
+            "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:39 {518199}",
+            "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:37 {518194}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:100 {120470}"
+          ],
+          "notes": "Flag $0158 is never set, so a reload applies block $59 alone. That block reproduces the final state only if its source row already holds the finished picture; not decoded, hence INFERRED. Event block $59: scene $A2: 13x3 metatiles from (10,4C) to (07,07), layer 0.",
+          "queue": [
+            "FL11-06"
+          ]
+        }
+      ]
+    },
+    "351": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mt_circuit_mushroom_gate_a_open",
+          "area": "mountain_temple",
+          "scope": null,
+          "summary": "Mushroom Drop gate A of the Kress circuit (scene $A5) was opened; the final event block $5F is applied.",
+          "kinds": [
+            "gate-open",
+            "puzzle-state"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "mtA5_mushroom_drop_gate_a removes item $1A, runs StageBgChange #5A, #5B, #5C, #5D, #5E, #5F in sequence (sound $0F before each) and sets only $015F.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:16 {518214}",
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:39 {518282}",
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:37 {518277}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:106 {120518}"
+          ],
+          "notes": "Flags $015A-$015E are never set; a reload applies block $5F alone. Same missing evidence as $0159. Event block $5F: scene $A5: 13x3 metatiles from (10,4C) to (21,11), layer 0.",
+          "queue": [
+            "FL11-07"
+          ]
+        }
+      ]
+    },
+    "359": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mt_circuit_mushroom_gate_b_open",
+          "area": "mountain_temple",
+          "scope": null,
+          "summary": "Mushroom Drop gate B of the Kress circuit (scene $A5) was opened; the final event block $67 is applied.",
+          "kinds": [
+            "gate-open",
+            "puzzle-state"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "mtA5_mushroom_drop_gate_b runs StageBgChange #60 through #67 in sequence and sets only $0167.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:15 {518297}",
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:47 {518389}",
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:45 {518384}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:114 {120582}"
+          ],
+          "notes": "Flags $0160-$0166 are never set; a reload applies block $67 alone. Same missing evidence as $0159. Event block $67: scene $A5: 13x3 metatiles from (10,4C) to (29,23), layer 0.",
+          "queue": [
+            "FL11-08"
+          ]
+        }
+      ]
+    },
+    "360": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "mt_kress_loop_yorrick_3_11_defeated",
+          "area": "mountain_temple",
+          "scope": null,
+          "summary": "The enemy at scene $A4 row #11 (mtA1_yorrick_3, enemy number $6E) was defeated; its death-action index $68 set this flag and applied event block $68.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $68 and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $A4 and every inventory close re-applies block $68 through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3508 {837002}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:115 {120590}"
+          ],
+          "notes": "Event block $68: scene $A4: 2x12 metatiles from (38,05) to (34,0F), layer 0. Enemy number $6E also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "362": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "gw_sand_fanger_defeated",
+          "area": "great_wall",
+          "scope": null,
+          "summary": "The Sand Fanger (scene $8A row #03) was defeated; event block $6A is applied and the reward sequence starts.",
+          "kinds": [
+            "quest-done",
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler sets it (death-action index $6A of scene_actors row $8A#03, enemy number $00). gw8A_sand_fanger reaches the handler through its death callback (EnemyDefeatDispatch, last enemy -> StandardEnemyDefeatHandler).",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:111 {753779}",
+            "extracted/tables/scene_actors.asm:3166 {834863}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:117 {120606}"
+          ],
+          "notes": "The boss-clear actor (code_0B8060) waits on this flag (WaitOnFlagWord), then prints the Mystic Statue message and queues a map change to scene $FD, so the death-action flag also serves as the signal that ends the fight. Event block $6A: scene $8A: 2x45 metatiles from (30,00) to (27,00), layer 0."
+        }
+      ]
+    },
+    "363": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "aw_outer_east_wall_walker_defeated",
+          "area": "angkor_wat",
+          "scope": null,
+          "summary": "The Wall Walker at scene $B2 row #0B was defeated; event block $6B is applied and the Psycho Slider glide trigger fires.",
+          "kinds": [
+            "gate-open",
+            "handshake"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "awB1_wall_walker (its own copy of the kill code, code_0BC11B) sets it (death-action index $6B, enemy number $37); awB2_slider_glide_trigger waits on it (WaitOnFlagWord), then sets $0E = $000A and JumpFar's to slider_glide.SliderGlideTriggerNorthMain.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/angkor_wat/angkor_outer_east/awB2_slider_glide_trigger.asm:14 {563403}",
+            "extracted/tables/scene_actors.asm:3769 {838912}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:535 {770400}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:538 {770410}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:118 {120614}"
+          ],
+          "notes": "Event block $6B: scene $B2: 4x2 metatiles from (00,80) to (06,25), layer 0."
+        }
+      ]
+    },
+    "364": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "aw_angkor_outer_gate_wall_walker1_0f_defeated",
+          "area": "angkor_wat",
+          "scope": null,
+          "summary": "The enemy at scene $B1 row #0F (awB1_wall_walker1, enemy number $1D) was defeated; its death-action index $6C set this flag and applied event block $6C.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (the actor's own copy of the kill code) sets the flag when deathActionIdx is $6C and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $B1 and every inventory close re-applies block $6C through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3749 {838747}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:535 {770400}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:538 {770410}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:119 {120622}"
+          ],
+          "notes": "Event block $6C: scene $B1: 12x5 metatiles from (00,20) to (3C,0F), layer 0. Enemy number $1D also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "365": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "aw_snake_pit_wall_walker1_04_defeated",
+          "area": "angkor_wat",
+          "scope": null,
+          "summary": "The enemy at scene $B4 row #04 (awB1_wall_walker1, enemy number $50) was defeated; its death-action index $6D set this flag and applied event block $6D.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (the actor's own copy of the kill code) sets the flag when deathActionIdx is $6D and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $B4 and every inventory close re-applies block $6D through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3794 {839071}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:535 {770400}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:538 {770410}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:120 {120630}"
+          ],
+          "notes": "Event block $6D: scene $B4: 4x8 metatiles from (00,20) to (07,05), layer 0. Enemy number $50 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "366": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "aw_outer_north_ledge_opened",
+          "area": "angkor_wat",
+          "scope": null,
+          "summary": "The player stepped into the trigger box of Angkor Wat outer north (scene $B3); event block $6E is applied and the player jumps.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "awB3_ledge_jump_trigger waits until the player is inside tiles (6A,0C)-(6F,0D), runs StageBgChange #6E, sets the flag and writes player_character.LedgeJumpEntry; it dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/angkor_wat/angkor_outer_north/awB3_ledge_jump_trigger.asm:20 {563421}",
+            "extracted/angkor_wat/angkor_outer_north/awB3_ledge_jump_trigger.asm:35 {563459}",
+            "extracted/angkor_wat/angkor_outer_north/awB3_ledge_jump_trigger.asm:33 {563454}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:121 {120638}"
+          ],
+          "notes": "Event block $6E: scene $B3: 7x5 metatiles from (37,1B) to (69,0C), layer 0."
+        }
+      ]
+    },
+    "367": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "aw_angkor_inner_east_wall_walker4_08_defeated",
+          "area": "angkor_wat",
+          "scope": null,
+          "summary": "The enemy at scene $B8 row #08 (awB1_wall_walker4, enemy number $B5) was defeated; its death-action index $6F set this flag and applied event block $6F.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (the actor's own copy of the kill code) sets the flag when deathActionIdx is $6F and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $B8 and every inventory close re-applies block $6F through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3898 {839892}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:535 {770400}",
+            "extracted/angkor_wat/awB1_wall_walker.asm:538 {770410}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:122 {120646}"
+          ],
+          "notes": "Event block $6F: scene $B8: 6x11 metatiles from (00,60) to (05,1C), layer 0. Enemy number $B5 also has a D6 kill flag, and CheckEnemyDefeatedFlag applies the block at spawn while that flag is set (D6 is cleared at world-map entry; this flag is not). The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "368": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "py_meltdown_a_ledge_opened",
+          "area": "pyramid",
+          "scope": null,
+          "summary": "The ledge trigger of Pyramid scene $D0 fired; event block $70 is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyD0_ledge_jump_trigger with actor word $0E = 0 runs StageBgChange #70 and sets the flag; it dies at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/pyramid/pyD0_ledge_jump_trigger.asm:35 {570793}",
+            "extracted/pyramid/pyD0_ledge_jump_trigger.asm:114 {570926}",
+            "extracted/pyramid/pyD0_ledge_jump_trigger.asm:112 {570921}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:123 {120654}"
+          ],
+          "notes": "Event block $70: scene $D0: 6x20 metatiles from (52,14) to (24,14), layer 0."
+        }
+      ]
+    },
+    "369": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "py_meltdown_b_ledge_opened",
+          "area": "pyramid",
+          "scope": null,
+          "summary": "The ledge trigger of Pyramid scene $D1 fired; event block $71 is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The same script with actor word $0E nonzero runs StageBgChange #71 and sets $0171.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/pyramid/pyD0_ledge_jump_trigger.asm:31 {570784}",
+            "extracted/pyramid/pyD0_ledge_jump_trigger.asm:121 {570937}",
+            "extracted/pyramid/pyD0_ledge_jump_trigger.asm:119 {570932}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:124 {120662}"
+          ],
+          "notes": "Event block $71: scene $D1: 6x41 metatiles from (44,18) to (34,18), layer 0."
+        }
+      ]
+    },
+    "371": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "py_main_dark_space_open",
+          "area": "pyramid",
+          "scope": null,
+          "summary": "The Mystic Ball at scene $CC row #05 was defeated: event block $73 is applied and the pyramid entrance Dark Space portal appears.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCC_mystic_ball sets it in its own copy of the kill code (death-action index $73, enemy number $02); pyCC_dark_space_portal tests flag $0100 + its actor word $0E ($73 for its only row, attribute $E7), yields until it is set, then spawns the portal.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/pyramid/pyramid_main/pyCC_dark_space_portal.asm:17 {570989}",
+            "extracted/pyramid/pyramid_main/pyCC_dark_space_portal.asm:21 {570999}",
+            "extracted/tables/scene_actors.asm:4085 {841054}",
+            "extracted/pyramid/pyCC_mystic_ball.asm:248 {771956}",
+            "extracted/pyramid/pyCC_mystic_ball.asm:251 {771966}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:126 {120678}"
+          ],
+          "notes": "The portal actor has a branch for $0E = $72 (portal config 1 instead of 3) that no placed actor reaches: its single spawn row is $CC#06 with attribute $E7. Flag $0172 therefore has no use. Event block $73: scene $CC: 3x1 metatiles from (29,3B) to (26,1C), layer 0."
+        }
+      ]
+    },
+    "372": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "gw_tomb_dark_space_open",
+          "area": "great_wall",
+          "scope": null,
+          "summary": "The Dark Space portal of the Great Wall tomb (scene $88) was revealed; event block $74 is applied.",
+          "kinds": [
+            "gate-open",
+            "once-latch"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw88_tomb_dark_space yields until byte $0A9F equals $3F (dungeon kill flags $04F8-$04FD set and $04FE-$04FF clear), then runs StageBgChange #74, sets the flag and spawns the portal; it takes a separate branch at spawn when the flag is set.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_tomb/gw88_tomb_dark_space.asm:16 {507371}",
+            "extracted/great_wall/wall_tomb/gw88_tomb_dark_space.asm:27 {507397}",
+            "extracted/great_wall/wall_tomb/gw88_tomb_dark_space.asm:25 {507392}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:127 {120686}"
+          ],
+          "notes": "Event block $74: scene $88: 2x4 metatiles from (1E,24) to (1C,24), layer 0."
+        }
+      ]
+    },
+    "378": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_cell_door_open",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The double-locked cell door of the mine foyer (scene $44) was opened with both keys; event block $7A is applied.",
+          "kinds": [
+            "gate-open",
+            "quest-done"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm44_cell_door waits for byte flags $5B and $5C (both keys used), runs StageBgChange #7A, sets the flag and dies.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_foyer/dm44_cell_door.asm:25 {382277}",
+            "extracted/diamond_mine/mine_foyer/dm44_cell_door.asm:23 {382272}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:133 {120734}"
+          ],
+          "notes": "Event block $7A: scene $44: 2x2 metatiles from (05,14) to (0F,17), layer 0."
+        }
+      ]
+    },
+    "379": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "dm_elevator_door_open",
+          "area": "diamond_mine",
+          "scope": null,
+          "summary": "The elevator door of the mine main area (scene $3F) was opened with the Elevator Key; event block $7B is applied.",
+          "kinds": [
+            "gate-open",
+            "quest-done"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3F_elevator_door waits for byte flag $69, runs StageBgChange #7B, sets the flag and dies.",
+            "clear": "No clear site."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_main/dm3F_elevator_door.asm:23 {382555}",
+            "extracted/diamond_mine/mine_main/dm3F_elevator_door.asm:21 {382550}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:134 {120742}"
+          ],
+          "notes": "Event block $7B: scene $3F: 2x2 metatiles from (00,3E) to (18,35), layer 0."
+        }
+      ]
+    },
+    "380": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "pr_legends_page_1_shown",
+          "area": "prologue",
+          "scope": null,
+          "summary": "The first page of the legends prologue (scene $8D) has been started; on the next load of scene $8D event block $7C (picture 1 at (1E,1E)) is applied.",
+          "kinds": [
+            "cutscene-stage"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pr8D_prologue2 sets the flag when no page flag is set, spawns the page-1 text and dies; every page ends by a queued reload of scene $8D.",
+            "clear": "pr8D_prologue2 clears it on the last page; pr8C_prologue1 clears $017C-$017F together before it queues scene $8D."
+          },
+          "pairsWith": [
+            381,
+            382,
+            383
+          ],
+          "evidence": [
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:125 {772907}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:29 {772960}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:30 {772967}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:75 {773135}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:199 {773365}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:135 {120750}"
+          ],
+          "notes": "The four flags act as a page counter and as event-block triggers at once: block n copies a 4x4 picture from (02/0A/12/1A, 42) onto (1E,1E), so each reload shows the picture of the previous pages. $017D-$017F stay set after the prologue and nothing else enters scene $8D. Event block $7C: scene $8D: 4x4 metatiles from (02,42) to (1E,1E), layer 0."
+        }
+      ]
+    },
+    "381": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "pr_legends_page_2_shown",
+          "area": "prologue",
+          "scope": null,
+          "summary": "The second page of the legends prologue (scene $8D) has been started; event block $7D is applied on the next load.",
+          "kinds": [
+            "cutscene-stage"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pr8D_prologue2 sets it when $017C is set and $017D is clear.",
+            "clear": "Cleared by pr8C_prologue1 together with the other three page flags."
+          },
+          "pairsWith": [
+            380,
+            382,
+            383
+          ],
+          "evidence": [
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:126 {772911}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:41 {773002}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:42 {773009}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:136 {120758}"
+          ],
+          "notes": "Event block $7D: scene $8D: 4x4 metatiles from (0A,42) to (1E,1E), layer 0."
+        }
+      ]
+    },
+    "382": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "pr_legends_page_3_shown",
+          "area": "prologue",
+          "scope": null,
+          "summary": "The third page of the legends prologue (scene $8D) has been started; event block $7E is applied on the next load.",
+          "kinds": [
+            "cutscene-stage"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pr8D_prologue2 sets it when $017D is set and $017E is clear.",
+            "clear": "Cleared by pr8C_prologue1."
+          },
+          "pairsWith": [
+            380,
+            381,
+            383
+          ],
+          "evidence": [
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:127 {772915}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:52 {773044}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:53 {773051}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:137 {120766}"
+          ],
+          "notes": "Event block $7E: scene $8D: 4x4 metatiles from (12,42) to (1E,1E), layer 0."
+        }
+      ]
+    },
+    "383": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "pr_legends_page_4_shown",
+          "area": "prologue",
+          "scope": null,
+          "summary": "The fourth page of the legends prologue (scene $8D) has been started; event block $7F is applied on the next load.",
+          "kinds": [
+            "cutscene-stage"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pr8D_prologue2 sets it when $017E is set and $017F is clear; when all four are set the actor spawns the closing page.",
+            "clear": "Cleared by pr8C_prologue1."
+          },
+          "pairsWith": [
+            380,
+            381,
+            382
+          ],
+          "evidence": [
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:128 {772919}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:63 {773086}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:64 {773093}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:138 {120774}"
+          ],
+          "notes": "Event block $7F: scene $8D: 4x4 metatiles from (1A,42) to (1E,1E), layer 0."
+        }
+      ]
+    },
+    "410": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ma_mansion_flayzer3_07_defeated",
+          "area": "mansion",
+          "scope": null,
+          "summary": "The enemy at scene $E9 row #07 (dm3D_flayzer3, enemy number $00) was defeated; its death-action index $9A set this flag and applied event block $9A.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $9A and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $E9 and every inventory close re-applies block $9A through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:4577 {844375}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:165 {120990}"
+          ],
+          "notes": "Event block $9A: scene $E9: 2x2 metatiles from (2D,2D) to (1A,3C), layer 0. Enemy number $00 is zero, so no dungeon kill flag exists for this row. The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    },
+    "411": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "name": "ma_mansion_eye_stalker3_12_defeated",
+          "area": "mansion",
+          "scope": null,
+          "summary": "The enemy at scene $E9 row #12 (dm3D_eye_stalker3, enemy number $00) was defeated; its death-action index $9B set this flag and applied event block $9B.",
+          "kinds": [
+            "gate-open"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The defeat handler (StandardEnemyDefeatHandler or EnemyDefeatDispatch) sets the flag when deathActionIdx is $9B and the flag is clear, and spawns SpawnFieldRevealEffect (flags $0342), which flies to the destination rectangle and runs StageBgChangeFromDeathIdx and ApplyBgChange; every later load of scene $E9 and every inventory close re-applies block $9B through ApplyAllEventBlocks.",
+            "clear": "No clear site: ClearFlag_0100 has no caller and no COP clears this index. The block stays applied in the save."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:4588 {844474}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:119 {56361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:122 {56371}",
+            "extracted/functions/EnemyDefeatDispatch.asm:88 {697534}",
+            "extracted/functions/EnemyDefeatDispatch.asm:91 {697544}",
+            "extracted/system/engine/event_blocks.asm:81 {172529}",
+            "extracted/system/event_block_table.asm:166 {120998}"
+          ],
+          "notes": "Event block $9B: scene $E9: 2x2 metatiles from (2D,2D) to (0C,3C), layer 0. Enemy number $00 is zero, so no dungeon kill flag exists for this row. The tiles were not decoded, so what the rectangle looks like is not stated."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "262": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "ec_prison_door_unlocked",
+        "summary": "The prison door of Edward's Castle (scene $0B) was unlocked with the Prison Key; event block $06 (layer 1) is applied on later loads.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: item_use_system.asm:302, offset 230891 (system group), after StageBgChange #06 and byte flag $24",
+          "block: scene $0B (edward_castle), layer 1",
+          "event block $06: scene $0B: 2x2 metatiles from (1E,2E) to (0E,10), layer 1 (extracted/system/event_block_table.asm:17, offset 119806)"
+        ],
+        "confidence": "medium",
+        "notes": "Item-use handler (system group) sets it; the block belongs to the edward_castle group. FL31 writes the record."
+      }
+    ],
+    "275": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "ec_aqueduct_door_open",
+        "summary": "The aqueduct doorway of Edward's Castle (scene $11) was opened by the button puzzle; event block $13 is applied on later loads.",
+        "kinds": [
+          "gate-open",
+          "puzzle-state"
+        ],
+        "roles": [
+          "setter: ec11_button_voice.asm:73, offset 638278 (after StageBgChange #13)",
+          "readers: ec11_button_voice.asm:45 (offset 638212), ec11_countdown.asm:22 (638392), item_use_system.asm:700 (232391) and :774 (232536), the item and melody handlers of the system group",
+          "byte flag $02 and $01 carry the button handshake",
+          "event block $13: scene $11: 4x4 metatiles from (00,10) to (0E,06), layer 0 (extracted/system/event_block_table.asm:30, offset 119910)"
+        ],
+        "confidence": "medium",
+        "notes": "Read by the system item handler and by two scene actors, so FL31 owns the record."
+      }
+    ],
+    "281": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "sc_wills_house_ransacked",
+        "summary": "Event block $19 (scene $06, 16x32 whole-room copy) is applied on every load of Will's house while the flag is set.",
+        "kinds": [
+          "cutscene-stage",
+          "idiom"
+        ],
+        "roles": [
+          "setter: ec0A_kara.asm:186, offset 315306 (edward_castle group), with byte flag $22",
+          "clearer: sc06_kara_return.asm:85, offset 304776 (south_cape group), with byte flags $02 and $25",
+          "event block $19: scene $06: 16x32 metatiles from (00,30) to (00,00), layer 0 (extracted/system/event_block_table.asm:36, offset 119958)"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the script comment of sc06_kara_return (house ransacked, grandparents missing); not confirmed. The setter is in Edward's Castle, the block in South Cape."
+      }
+    ],
+    "312": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "sp_palace_entrance_open",
+        "summary": "The Seaside Palace entrance in scene $5A was opened with the Seaside Palace Key; event block $38 is applied on later loads.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: item_use_system.asm:1057, offset 233840 (UseItem_SeasidePalaceKey, system group), after RemoveItem #10 and StageBgChange #38",
+          "reader: item_use_system.asm:1052, offset 233821 (a second use prints 'But there's no keyhole!')",
+          "event block $38: scene $5A: 3x4 metatiles from (0D,21) to (08,03), layer 0 (extracted/system/event_block_table.asm:67, offset 120206)"
+        ],
+        "confidence": "medium",
+        "notes": "The handler runs only inside tiles (08,07)-(0A,08) of scene $5A. The setter is the system item handler, the block is in the seaside_palace group. FL31 writes the record."
+      }
+    ],
+    "373": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "bt_crystal_gate_a_open",
+        "summary": "The first crystal gate of the Babel middle floors (scene $E0) is open: Castoth's Babel rematch was beaten.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: ir29_castoth.asm:161 (label btF2_neo_castoth), offset 695015, followed by QueueMapChange to scene $E0",
+          "waiter: btE0_crystal_gate_a.asm:19, offset 624441 (WaitOnFlagWord, then ClearSolidAbs of tiles $71/$72,$38 and Die)",
+          "block $75 (scene $E0) is applied at the E0 load that the setter queues",
+          "event block $75: scene $E0: 4x7 metatiles from (46,32) to (3E,33), layer 0 (extracted/system/event_block_table.asm:128, offset 120694)"
+        ],
+        "confidence": "high",
+        "notes": "The same pattern repeats for $0176-$0179 (five Babel gates, five rematch bosses). FL31 writes the five records together."
+      }
+    ],
+    "374": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "bt_crystal_gate_b_open",
+        "summary": "The second crystal gate of the Babel middle floors (scene $E0) is open: the Viper rematch was beaten.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: sg55_viper.asm:109, offset 708947, then QueueMapChange to scene $E0",
+          "waiter: btE0_crystal_gate_b.asm:19, offset 624489",
+          "block $76 (scene $E0)",
+          "event block $76: scene $E0: 4x7 metatiles from (46,32) to (3E,23), layer 0 (extracted/system/event_block_table.asm:129, offset 120702)"
+        ],
+        "confidence": "high",
+        "notes": "See $0175."
+      }
+    ],
+    "375": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "bt_crystal_gate_c_open",
+        "summary": "The third crystal gate of the Babel middle floors (scene $E0) is open: the Vampires rematch was beaten.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: mu67_vampires.asm:115, offset 717275, then QueueMapChange to scene $E0",
+          "waiter: btE0_crystal_gate_c.asm:18, offset 624537",
+          "block $77 (scene $E0)",
+          "event block $77: scene $E0: 4x7 metatiles from (46,32) to (2E,13), layer 0 (extracted/system/event_block_table.asm:130, offset 120710)"
+        ],
+        "confidence": "high",
+        "notes": "See $0175."
+      }
+    ],
+    "376": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "bt_crystal_gate_d_open",
+        "summary": "The fourth crystal gate of the Babel middle floors (scene $E0) is open: the Sand Fanger rematch was beaten.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: gw8A_sand_fanger.asm:157, offset 753950, then QueueMapChange to scene $E0",
+          "waiter: btE0_crystal_gate_d.asm:19, offset 624585",
+          "branch: btDE_kara_missing.asm:29, offset 624177 (in scene $E0 a set flag clears byte flag $D4 and shows Kara's message; a clear flag runs the escort path)",
+          "block $78 (scene $E0)",
+          "event block $78: scene $E0: 4x7 metatiles from (46,32) to (2E,03), layer 0 (extracted/system/event_block_table.asm:131, offset 120718)"
+        ],
+        "confidence": "high",
+        "notes": "See $0175. The extra reader makes this flag the one that also gates the Kara-missing event."
+      }
+    ],
+    "377": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "bt_crystal_gate_e_open",
+        "summary": "The crystal gate of the Babel upper floors (scene $E3) is open: the Mummy Queen rematch was beaten.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: pyDD_mummy_queen.asm:109, offset 763546, then QueueMapChange to scene $E3",
+          "waiter: btE3_crystal_gate.asm:19, offset 624633",
+          "block $79 (scene $E3)",
+          "event block $79: scene $E3: 4x6 metatiles from (17,33) to (1E,34), layer 0 (extracted/system/event_block_table.asm:132, offset 120726)"
+        ],
+        "confidence": "high",
+        "notes": "See $0175."
+      }
+    ],
+    "389": [
+      {
+        "source": "FL11",
+        "scope": null,
+        "name": "gs_ship_departure_started",
+        "summary": "The Gold Ship departure sequence (scene $2C) has started; event block $85 (1x1 copy from (1A,12) to (19,11)) is applied on later loads of scene $1E.",
+        "kinds": [
+          "cutscene-stage",
+          "gate-open"
+        ],
+        "roles": [
+          "setter: gs2C_descent.asm:29, offset 360840 (gold_ship group), before byte flag $4C and the display setup",
+          "block: scene $1E (incan_ruins group), layer 0",
+          "event block $85: scene $1E: 1x1 metatiles from (1A,12) to (19,11), layer 0 (extracted/system/event_block_table.asm:144, offset 120822)"
+        ],
+        "confidence": "low",
+        "notes": "The setter and the block are in different groups; the tile that changes in scene $1E was not decoded, so the visual meaning is unknown."
+      }
+    ]
+  },
+  "_block_only": {
+    "286": {
+      "block": "1E",
+      "scene": "$29",
+      "rect": "scene $29: 4x1 metatiles from (02,0D) to (06,0D), layer 0",
+      "stageBgChange": [
+        "extracted/incan_ruins/ir29_castoth.asm:197 {695107}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "325": {
+      "block": "45",
+      "scene": "$6B",
+      "rect": "scene $6B: 2x4 metatiles from (00,30) to (3A,23), layer 0",
+      "stageBgChange": [
+        "extracted/angel_village/angel_village/av6B_door.asm:30 {448370}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "340": {
+      "block": "54",
+      "scene": "$A2",
+      "rect": "scene $A2: 3x3 metatiles from (0A,40) to (11,07), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:22 {518154}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "341": {
+      "block": "55",
+      "scene": "$A2",
+      "rect": "scene $A2: 4x3 metatiles from (09,43) to (10,07), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:25 {518162}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "342": {
+      "block": "56",
+      "scene": "$A2",
+      "rect": "scene $A2: 5x3 metatiles from (08,46) to (0F,07), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:28 {518170}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "343": {
+      "block": "57",
+      "scene": "$A2",
+      "rect": "scene $A2: 6x3 metatiles from (07,49) to (0E,07), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:31 {518178}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "344": {
+      "block": "58",
+      "scene": "$A2",
+      "rect": "scene $A2: 7x3 metatiles from (06,4C) to (0D,07), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:34 {518186}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "346": {
+      "block": "5A",
+      "scene": "$A5",
+      "rect": "scene $A5: 3x3 metatiles from (0A,40) to (2C,11), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:22 {518237}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "347": {
+      "block": "5B",
+      "scene": "$A5",
+      "rect": "scene $A5: 4x3 metatiles from (09,43) to (2B,11), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:25 {518245}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "348": {
+      "block": "5C",
+      "scene": "$A5",
+      "rect": "scene $A5: 5x3 metatiles from (08,46) to (2A,11), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:28 {518253}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "349": {
+      "block": "5D",
+      "scene": "$A5",
+      "rect": "scene $A5: 6x3 metatiles from (07,49) to (29,11), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:31 {518261}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "350": {
+      "block": "5E",
+      "scene": "$A5",
+      "rect": "scene $A5: 7x3 metatiles from (06,4C) to (28,11), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:34 {518269}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "352": {
+      "block": "60",
+      "scene": "$A5",
+      "rect": "scene $A5: 5x3 metatiles from (08,46) to (31,23), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:21 {518320}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "353": {
+      "block": "61",
+      "scene": "$A5",
+      "rect": "scene $A5: 6x3 metatiles from (07,49) to (30,23), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:24 {518328}",
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:27 {518336}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "354": {
+      "block": "62",
+      "scene": "$A5",
+      "rect": "scene $A5: 7x3 metatiles from (06,4C) to (2F,23), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:30 {518344}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "355": {
+      "block": "63",
+      "scene": "$A5",
+      "rect": "scene $A5: 13x3 metatiles from (10,40) to (29,23), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:33 {518352}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "356": {
+      "block": "64",
+      "scene": "$A5",
+      "rect": "scene $A5: 13x3 metatiles from (10,43) to (29,23), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:36 {518360}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "357": {
+      "block": "65",
+      "scene": "$A5",
+      "rect": "scene $A5: 13x3 metatiles from (10,46) to (29,23), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:39 {518368}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "358": {
+      "block": "66",
+      "scene": "$A5",
+      "rect": "scene $A5: 13x3 metatiles from (10,49) to (29,23), layer 0",
+      "stageBgChange": [
+        "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:42 {518376}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "361": {
+      "block": "69",
+      "scene": "$9D",
+      "rect": "scene $9D: 3x6 metatiles from (00,20) to (0E,02), layer 0",
+      "stageBgChange": [
+        "extracted/euro/dark_chapel/eu9D_altar.asm:32 {517520}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "384": {
+      "block": "80",
+      "scene": "$90",
+      "rect": "scene $90: 10x8 metatiles from (03,13) to (03,03), layer 0",
+      "stageBgChange": [
+        "extracted/ending/ending_changed_world/s90_changed_world.asm:35 {777829}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "385": {
+      "block": "81",
+      "scene": "$90",
+      "rect": "scene $90: 10x8 metatiles from (03,23) to (03,03), layer 0",
+      "stageBgChange": [
+        "extracted/ending/ending_changed_world/s90_changed_world.asm:42 {777847}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "386": {
+      "block": "82",
+      "scene": "$90",
+      "rect": "scene $90: 10x8 metatiles from (03,33) to (03,03), layer 0",
+      "stageBgChange": [
+        "extracted/ending/ending_changed_world/s90_changed_world.asm:49 {777865}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "387": {
+      "block": "83",
+      "scene": "$90",
+      "rect": "scene $90: 10x8 metatiles from (03,43) to (03,03), layer 0",
+      "stageBgChange": [
+        "extracted/ending/ending_changed_world/s90_changed_world.asm:56 {777883}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "388": {
+      "block": "84",
+      "scene": "$90",
+      "rect": "scene $90: 10x8 metatiles from (03,53) to (03,03), layer 0",
+      "stageBgChange": [
+        "extracted/ending/ending_changed_world/s90_changed_world.asm:63 {777901}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "390": {
+      "block": "86",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (00,10) to (02,02), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:428 {580084}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "391": {
+      "block": "87",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (04,10) to (02,02), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:272 {579834}",
+        "extracted/system/dark_space/sE6_gaia.asm:339 {579942}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "392": {
+      "block": "88",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (08,10) to (02,02), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:205 {579726}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "393": {
+      "block": "89",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (0C,10) to (02,02), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:524 {580240}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "394": {
+      "block": "8A",
+      "scene": "$E6",
+      "rect": "scene $E6: 2x1 metatiles from (00,0F) to (03,0A), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:207 {579731}",
+        "extracted/system/dark_space/sE6_gaia.asm:274 {579839}",
+        "extracted/system/dark_space/sE6_gaia.asm:341 {579947}",
+        "extracted/system/dark_space/sE6_gaia.asm:403 {580044}",
+        "extracted/system/dark_space/sE6_gaia.asm:526 {580245}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "395": {
+      "block": "8B",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (00,18) to (02,02), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:444 {580124}",
+        "extracted/system/dark_space/sE6_gaia.asm:520 {580230}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "397": {
+      "block": "8D",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (08,18) to (0A,02), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:343 {579952}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "398": {
+      "block": "8E",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (0C,18) to (0A,02), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:210 {579742}",
+        "extracted/system/dark_space/sE6_gaia.asm:277 {579850}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "399": {
+      "block": "8F",
+      "scene": "$E6",
+      "rect": "scene $E6: 2x1 metatiles from (00,0F) to (0B,0A), layer 0",
+      "stageBgChange": [
+        "extracted/system/dark_space/sE6_gaia.asm:212 {579747}",
+        "extracted/system/dark_space/sE6_gaia.asm:279 {579855}",
+        "extracted/system/dark_space/sE6_gaia.asm:345 {579957}",
+        "extracted/system/dark_space/sE6_gaia.asm:522 {580235}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "400": {
+      "block": "90",
+      "scene": "$52",
+      "rect": "scene $52: 1x3 metatiles from (1E,09) to (1D,09), layer 0",
+      "stageBgChange": [
+        "extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:36 {390672}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "401": {
+      "block": "91",
+      "scene": "$67",
+      "rect": "scene $67: 4x3 metatiles from (0A,1D) to (06,1D), layer 0",
+      "stageBgChange": [
+        "extracted/mu/mu_vampire_lair/mu67_vampires.asm:184 {717463}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "402": {
+      "block": "92",
+      "scene": "$67",
+      "rect": "scene $67: 4x3 metatiles from (06,1D) to (06,20), layer 0",
+      "stageBgChange": [
+        "extracted/mu/mu_vampire_lair/mu67_vampires.asm:182 {717458}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "403": {
+      "block": "93",
+      "scene": "$67",
+      "rect": "scene $67: 4x3 metatiles from (06,20) to (06,1D), layer 0",
+      "stageBgChange": [
+        "extracted/mu/mu_vampire_lair/mu67_bomb.asm:90 {435388}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "404": {
+      "block": "94",
+      "scene": "$DA",
+      "rect": "scene $DA: 2x1 metatiles from (00,0F) to (07,05), layer 0",
+      "stageBgChange": [
+        "extracted/pyramid/heiroglyph_room/pyDA_lithograph1.asm:34 {575391}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "405": {
+      "block": "95",
+      "scene": "$DA",
+      "rect": "scene $DA: 2x1 metatiles from (00,0F) to (17,05), layer 0",
+      "stageBgChange": [
+        "extracted/pyramid/heiroglyph_room/pyDA_lithograph2.asm:30 {575590}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "406": {
+      "block": "96",
+      "scene": "$DA",
+      "rect": "scene $DA: 2x1 metatiles from (00,0F) to (27,05), layer 0",
+      "stageBgChange": [
+        "extracted/pyramid/heiroglyph_room/pyDA_lithograph3.asm:28 {575758}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "407": {
+      "block": "97",
+      "scene": "$DA",
+      "rect": "scene $DA: 2x1 metatiles from (00,0F) to (37,05), layer 0",
+      "stageBgChange": [
+        "extracted/pyramid/heiroglyph_room/pyDA_lithograph4.asm:28 {575926}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "408": {
+      "block": "98",
+      "scene": "$DA",
+      "rect": "scene $DA: 2x1 metatiles from (00,0F) to (47,05), layer 0",
+      "stageBgChange": [
+        "extracted/pyramid/heiroglyph_room/pyDA_lithograph5.asm:28 {576094}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "409": {
+      "block": "99",
+      "scene": "$DA",
+      "rect": "scene $DA: 2x1 metatiles from (00,0F) to (57,05), layer 0",
+      "stageBgChange": [
+        "extracted/pyramid/heiroglyph_room/pyDA_lithograph6.asm:29 {576262}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "412": {
+      "block": "9C",
+      "scene": "$EA",
+      "rect": "scene $EA: 4x3 metatiles from (0A,0C) to (06,0C), layer 0",
+      "stageBgChange": [
+        "extracted/mansion/solid_arm_lair/sEA_solid_arm.asm:52 {587577}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    },
+    "413": {
+      "block": "9D",
+      "scene": "$E8",
+      "rect": "scene $E8: 2x2 metatiles from (00,1E) to (07,14), layer 0",
+      "stageBgChange": [
+        "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:234 {847954}"
+      ],
+      "note": "No flag COP site, no helper call and no death row uses this index. The block is reachable only through StageBgChange (COP #32) at the listed sites; setting the flag by hand would apply it at the next load of the scene."
+    }
+  },
+  "_no_use": {
+    "256": {
+      "block": "00",
+      "scene": "$02",
+      "rect": "scene $02: 2x2 metatiles from (07,08) to (07,0B), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    },
+    "263": {
+      "block": "07",
+      "scene": "$00",
+      "rect": "scene $00: 1x1 metatiles from (00,00) to (00,00), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    },
+    "265": {
+      "block": "09",
+      "scene": "$1F",
+      "rect": "scene $1F: 4x3 metatiles from (12,02) to (0E,02), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    },
+    "273": {
+      "block": "11",
+      "scene": "$24",
+      "rect": "scene $24: 2x12 metatiles from (00,20) to (0C,10), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    },
+    "316": {
+      "block": "3C",
+      "scene": "$5A",
+      "rect": "scene $5A: 4x8 metatiles from (02,14) to (02,03), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    },
+    "328": {
+      "block": "48",
+      "scene": "$67",
+      "rect": "scene $67: 2x3 metatiles from (17,02) to (07,01), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    },
+    "370": {
+      "block": "72",
+      "scene": "$CC",
+      "rect": "scene $CC: 1x1 metatiles from (18,1A) to (18,1A), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    },
+    "396": {
+      "block": "8C",
+      "scene": "$E6",
+      "rect": "scene $E6: 4x8 metatiles from (04,18) to (0A,02), layer 0",
+      "note": "No use found: inventory sites 0, narrow helper-call indices 0, trace candidates none, no StageBgChange operand, no scene_actors row with this event-block byte, literal $01xx hits on Flag/Event lines are positions or tick counts."
+    }
+  },
+  "_no_use_range": {
+    "$019E-$01FF": {
+      "count": 98,
+      "note": "Not event blocks (the table has 158 entries, $00-$9D). Searches: plans/flags/inventory.json sites 0, narrow helper-call indices 0, trace candidates none; fl11_query.mjs unused 19E 1FF lists every index with a literal $01xx hit on a Flag/Event line, and each of those hits is a SpawnAfterAbsFlags position operand, a tick count or a sprite-part tile number (each hit was read in its file). The only access to bytes $0A20-$0A3F outside the COP and helper paths is event_blocks.asm:81. Hazard: a set bit here would make LookupEventBlock read past the table (entry address event_block_table + 8n, no bound check)."
+    }
+  }
+}

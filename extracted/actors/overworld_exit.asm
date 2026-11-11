@@ -6,7 +6,7 @@
 ; 2. Zone tests: a pixel test on playerYPos (South Cape: Y < $10, Edward's Castle: Y == $2D0) or COP BranchIfPlayerInAbsTiles ( minX, minY, maxX, maxY ). The tile test runs on (player X, player Y - 8) and is strict at the minimum edge and inclusive at the maximum edge, in tiles x 16.
 ; 3. Inside the zone the handler may test story flags with BranchOnFlagByte. The first flag found set wins, so the later-story flag is tested first where there are two.
 ; 4. Every success path does the same: $0D60 := 0, COP StageWorldMapChoice ( start X, start Y, choice id ), JMP OverworldExitFinalize. StageWorldMapChoice only writes worldMapStagedX/PlayerY/ChoiceId; a nonzero staged X makes CheckSceneTransition send the game to scene $FE (the world map). WorldMapController then drops the player at the staged position and runs world_map_options[choice] (a 'Quit / destination' menu).
-; 5. OverworldExitFinalize sets gfxCacheIdxB := $0400, SetEntryHere and RTL: the actor then idles at the RTL until the scene changes.
+; 5. OverworldExitFinalize sets gfxCacheIdxB := $0400, SetEntryHere and RTL: the actor then idles at the RTL until the scene changes. The word is the transition speed: the low byte ($00, the fastest fade) is read by ScreenExitTransition (16 fade steps measured) and the high byte ($04, a delay of 4 between steps) by ScreenEnterTransition (15 reads measured), then the scene loader clears the word.
 ; 
 ; === EXITS ===
 ; 
@@ -34,8 +34,8 @@
 ; 
 ; === QUIRKS ===
 ; 
-; - Edward's Castle compares playerYPos with == $2D0, not a range. If the player can skip that row the exit never fires; not checked.
-; - The Itory Village exit is disabled while flag $01 is set. $01 is set by unrelated scripts (angel_village, undersea_tunnel, great_wall floor buttons); whether it is cleared on scene load was not traced.
+; - Edward's Castle compares playerYPos with == $2D0, not a range. Measured walking south from the castle gate: playerYPos ($09A4) stepped 2 px per frame from $2C0 to $2D0 and the compare fired on that frame; with the actor shifted one pixel (odd Y) the last step before the exit was +1 and playerYPos still stopped at $2D0, so the row is reached from either parity (the player does not move below it; the clamp that holds it there was not traced).
+; - The Itory Village exit is disabled while flag $01 is set. ClearSceneState zeroes flags $00-$0F at every scene setup, so $01 is clear when scene $15 starts, whatever other scenes set. Inside scene $15 only it15_lily sets it (after its palette flash and WaitByte #7F) and clears it again; it15_kara waits for it.
 ; - $0D60 is cleared on every path. It is the first word of the six-word companion array at $0D60-$0D6A that WorldMapController scans to place companion dots; why only the first word is cleared is not known.
 ; - The handlers do not fall through into OverworldExitFinalize: they JMP to it.
 ---------------------------------------------
@@ -207,7 +207,7 @@ OverworldExitEdwardCastle {
 ; Scene 15. Flag $01 disables the exit; otherwise tiles (2D,2E)-(2F,30) trigger it.
 
 OverworldExitItoryVillage {
-    COP [BranchOnFlagByte] ( #01, #01, &OverworldExitItoryVillageBlocked ) ; Flag $01 set (set by many unrelated scripts): exit disabled
+    COP [BranchOnFlagByte] ( #01, #01, &OverworldExitItoryVillageBlocked ) ; Flag $01 set (by it15_lily inside this scene; clear at scene start): exit disabled
     COP [BranchIfPlayerInAbsTiles] ( #2D, #2E, #2F, #30, &OverworldExitItoryVillageStage ) ; BranchIfPlayerInAbsTiles tests (player X, player Y - 8) against the tile rectangle: strict at the minimum edge, inclusive at the maximum
 }
 

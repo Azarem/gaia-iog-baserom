@@ -1,0 +1,158 @@
+{
+    "system/inventory/item_use_system.asm": {
+        "blockNote": [
+            "Item use dispatch and handler system (230416–237738, Bank 03).",
+            "",
+            "Contains the complete inventory item usage pipeline. When the player activates an equipped item, ItemUseDispatch reads the slot index, extracts the 6-bit item ID ($00–$3F), and dispatches through a 64-entry jump table to the appropriate handler. Each handler returns via RTS into ItemUseEpilogue, which runs a dialogue frame update and consumes the use-item button again so the press cannot re-trigger the item.",
+            "",
+            "=== HANDLER PATTERNS ===",
+            "",
+            "1. Display-only: Print a description and return. No gameplay effect. Used for story items (Lance Letter, Lilly Necklace, Will, Crystal Ring, Prize Money, Black Glasses, Bill & Lola Letter, Father's Journal).",
+            "",
+            "2. Scene-gated key items: Check sceneCurrent for the target location, verify the player's tile position via BranchIfPlayerInAbsTiles, then activate (remove item, set event flag, optionally modify tilemap). Prints failure message if location doesn't match. Used for keys (Prison, Elevator, Mine A/B, Seaside Palace), placement items (Diamond Block, Inca Statues A/B, Crystal Ball, Purification Stone, Statue of Hope, Rama Statue, Magic Powder, Teapot), and consumable quest items (Smoked Meat, Mushroom Water, Gorgon Flower).",
+            "",
+            "3. Melody items: Wind Melody, Lola's Melody, and Memory Melody share FluteMusicActorController for music playback. Requires Will (form 0). Each melody handler verifies the target scene, spawns the music actor with a melody index ($20 = 0/1/2), and the controller manages the full SPC upload → playback → poll → effect → restore cycle.",
+            "",
+            "4. Dialogue option items: Herb (yes/no heal), Journal (3 topics), Hieroglyph Plates (6-slot puzzle with swap logic).",
+            "",
+            "=== BUTTON AND DISPLAY CONVENTIONS ===",
+            "The use-item button is logical bit $0008 (db-us/transforms.json rewrites the vanilla $4000 constants of this block to $0008, and the vanilla $CFF0 joypadMaskStd constants to $CFFC). TSB joypadHeld consumes a button (joypadCurrent stops reporting it); TSB joypadMaskStd with $CFFC hides everything except Start/Select and bits 0-1 from joypadCurrent, D-pad included. Neither concerns the Start button.",
+            "displayModeFlags $0080 is the display-filter mode: actor_execution then runs RunActors_DisplayFiltered, which only processes actors with $1000 set in $10 or $12, so the rest of the world is frozen while the melody plays. It does not suppress rendering.",
+            "",
+            "=== SHARED HELPERS ===",
+            "",
+            "RemoveEquippedItem: Clears the equipped slot byte, resets inventoryEquippedType to 0, and sets inventoryEquippedIndex to $FFFF (no selection).",
+            "",
+            "FluteMusicActorController: Multi-phase actor orchestrating melody playback — enters display-filter mode, hides the buttons, spawns SPC transfer actors, overrides the player to a static pose, polls for music completion, dispatches to the melody-specific *_Effect handler via SwitchCase, then restores background music and leaves display-filter mode.",
+            "",
+            "SetPlayerTransition: Sets the player actor's function pointer and clears its frame timer. Used by melody handlers and UseItem_Aura to override player behavior.",
+            "",
+            "=== SPECIAL MECHANICS ===",
+            "",
+            "Red Jewel: BCD arithmetic (SED/CLD) for decimal jewel counter. Spawns an orbit visual effect that expands from diameter 1 to 255 via ApplyOrbitalOffsetFromRef.",
+            "",
+            "Hieroglyph Plates: Items $1E–$23 share one handler. Plate ID = item − $1E. Six slots stored at $0B28 (word each, $FFFF = empty). Placing a plate in an occupied slot swaps the old plate back to inventory via GiveItemToPlayer.",
+            "",
+            "Aura: Shadow-only (form 2), requires stationary player with no active dialogue/cutscene flags. Triggers transformation via player actor function pointer override to PlayerAuraTransformEntry.",
+            "",
+            "Gorgon Flower: Three independent petal flags ($BF/$C0/$C1). Item is only removed when all three are set — partial placement persists across visits.",
+            "",
+            "Inca Statues A/B: two mantels in scene $1E, statue A at tiles ($37-$38, $12-$13) and statue B at ($26-$27, $15-$16); standing on the other statue's mantel prints the shape-mismatch message. db-us/transforms.json (block item_use_system) repairs four vanilla branch quirks: (1) the four branches in the primary tile checks (two to loc_0386EA in A, two to loc_038800 in B) jumped into the middle of the CheckAlt routine, past its Y test, and now target the start of UseItem_IncaStatueA_CheckAlt / UseItem_IncaStatueB_CheckAlt; (2) the last X test of each CheckAlt routine (CMP #$27 in A, CMP #$38 in B) used a BNE whose target was the very next instruction, so the second tile of the mantel never reported a mismatch; it becomes BEQ to the mismatch message (loc_0386F2 / loc_038818). The two rewrites in (2) span a line break, so extract:lt text (address tags between the lines) still shows the vanilla BNE, and a rebuild from extract:lt output lacks them (OQ-I026-1).",
+            "",
+            "=== WRAM VARIABLES ===",
+            "",
+            "$0AA6: Current hieroglyph plate ID (item index − $1E)",
+            "$0AAC: Hieroglyph slot selection (0–5)",
+            "$0B28: Hieroglyph slot table (6 words; $FFFF = empty, else plate ID)"
+        ],
+        "partNotes": {
+            "ItemUseDispatch": [
+                "Entry point for inventory item usage.",
+                "",
+                "Pushes ItemUseEpilogue−1 as an RTS-trick return address so each handler can simply RTS to reach the cleanup code. Reads the equipped slot index from inventoryEquippedIndex — if negative ($FFFF = nothing equipped), jumps to UseItem_None. Otherwise reads the item byte from inventorySlots, masks to a 6-bit item ID ($00–$3F), doubles it for a word-sized jump table index, consumes the use-item button ($0008 in joypadHeld) so holding it does not re-trigger the item, and dispatches through ItemHandlerJumpTable via indirect JMP."
+            ],
+            "ItemUseEpilogue": [
+                "Post-handler cleanup for item use. Calls UpdateFrameDialogue to process one frame of dialogue/UI, consumes the use-item button ($0008 in joypadHeld) again, restores processor flags, and returns to the caller via RTL."
+            ],
+            "UseItem_RedJewel": [
+                "Red Jewel handler — increments the jewel counter and spawns a visual orbit effect.",
+                "",
+                "Removes the jewel from inventory, then uses BCD arithmetic (SED/CLD-bracketed addition) to increment the packed-decimal counter at jewelsCollected ($0AB0). Switches DP to the player actor slot and spawns a child actor (code_038566) at the player's position with spawn flags $2000 (not a display-filter flag; $1000 is that bit). The child sets up a second actor (code_038576) that performs the orbiting jewel animation. Copies the player's XY position to the spawned actor and sets its OAM priority to $3000."
+            ],
+            "UseItem_IncaStatueA": [
+                "Inca Statue A — place on the mantel in Inca Ruins (scene $1E).",
+                "",
+                "Checks primary mantel position at tiles ($37–$38, $12–$13). If correct, places the statue (removes item, sets flag $30). A wrong Y or X tile branches to UseItem_IncaStatueA_CheckAlt (vanilla branched into the middle of it, past the Y test; transforms.json retargets it)."
+            ],
+            "UseItem_IncaStatueA_CheckAlt": [
+                "Alternate position check for Inca Statue A.",
+                "",
+                "Checks tiles ($26–$27, $15–$16), the mantel statue B belongs on. If the Y tile is $15/$16 and X is $26, or (after the transforms.json fix) $27, it prints the shape mismatch message (code_03876D). Otherwise, if flag $44 is set it prints the spirits hint; if not it prints a generic query about the Inca secret. In the extract:lt text the X = $27 test still reads BNE loc_0386FA, which reaches the hint code either way (OQ-I026-1)."
+            ],
+            "UseItem_IncaStatueB": [
+                "Inca Statue B — place on the alternate mantel in Inca Ruins (scene $1E).",
+                "",
+                "Mirror structure of UseItem_IncaStatueA but checks the alternate mantel position first ($26–$27, $15–$16). If correct, places the statue (removes item, sets flag $31). A wrong Y or X tile branches to UseItem_IncaStatueB_CheckAlt (transforms.json retargets the vanilla branch into the middle of it)."
+            ],
+            "UseItem_IncaStatueB_CheckAlt": [
+                "Alternate position check for Inca Statue B. Same logic as UseItem_IncaStatueA_CheckAlt but with swapped mantel positions.",
+                "",
+                "Tiles ($37–$38, $12–$13), statue A's mantel: X = $37, or (after the transforms.json fix) $38, prints the shape mismatch message (loc_038818); otherwise the spirits hint (flag $44) or the generic Inca-secret query. The extract:lt text still shows BNE loc_03880D for the X = $38 test (OQ-I026-1)."
+            ],
+            "UseItem_WindFlute": [
+                "Wind Melody — play for the Gold Ship effect (scene $24).",
+                "",
+                "First of three melody item handlers sharing FluteMusicActorController. Requires Will (form 0) — Freedan/Shadow cannot play. Checks IsMusicPlaying to prevent concurrent melody actors.",
+                "",
+                "In scene $24 (Gold Ship), if flag $01 is not yet set: enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path (OQ-I026-3). Otherwise hides the buttons via joypadMaskStd |= $CFFC.",
+                "",
+                "Outside scene $24, prints 'nothing happened.' If not Will, prints 'doesn't have the Flute.'"
+            ],
+            "UseItem_LolaMelody_Effect": [
+                "Lola's Melody success effects — dispatches per-scene results.",
+                "",
+                "Scene $15: sets flag $40, melody spreads over meadow; if flag $40 is already set it jumps to code_038C68 instead (OQ-I026-2). Scene $11: sets flag $02, voice guides to wall switch. Scene $CD: jumps to code_038C68, which sets flag $01 and clears flag $0E without a message. Fallthrough prints 'nothing happened.'"
+            ],
+            "FluteMusicActorController": [
+                "Multi-phase music playback actor for melody items.",
+                "",
+                "Orchestrates the complete melody playback lifecycle shared by Wind Melody, Lola's Melody, and Memory Melody:",
+                "",
+                "Phase 1 — Setup: Enter display-filter mode (displayModeFlags $0080), store the original music ID from musicParentActor into DP $24, spawn SpcTransferMusicData to upload the melody's music data to the SPC700. If spawn fails (Y=$1FC0 = pool full), jump to code_03A098 and die. Otherwise swap X/Y registers to configure the spawned music actor: store track number (+1) in chatPtr, set the display-filter bit ($1000 in $12). Give the player actor the same bit, override it to a static idle pose (PlayerStaticBodyPose via SetPlayerTransition), set playerFlags $0800 (script/ability lock), and hide the buttons (joypadMaskStd |= $CFFC). Yield and poll each frame until musicTransitionState == $FFFF.",
+                "",
+                "Phase 2 — Playback: Poll APUIO1 ($2141) each frame. When the SPC signals $FF (track finished), clear the display-filter bit from the player actor, restore the player to normal pose (PlayerWalkingIdlePose), unhide the buttons, and dispatch to the melody-specific *_Effect handler via SwitchCase on DP $20 (melody index 0/1/2).",
+                "",
+                "Phase 3 — Restoration (code_03A06E): After the effect handler, spawn another SpcTransferMusicData to restore the original background music. Wait for musicTransitionState == $FFFF again, delay 1 frame (WaitByte), then fall through into code_03A098.",
+                "",
+                "Cleanup (code_03A098): Reached by that fall-through and by the jump on spawn failure — clears displayModeFlags $0080 (leaves display-filter mode) and dies."
+            ]
+        },
+        "comments": {
+            "230438": { "text": "Consume the use-item button ($0008 in joypadHeld) so holding it does not re-trigger the item", "expect": "LDA #$0008" },
+            "230455": { "text": "Consume the use-item button again (the dialogue frame may have released it)", "expect": "LDA #$0008" },
+            "230639": { "text": "Spawn the orbit effect actor at the player position (spawn flags $2000, which is not the display-filter bit)", "expect": "SpawnListAppend" },
+            "231076": { "text": "Wrong Y: transforms.json retargets the vanilla branch (to loc_0386EA, the X test without a Y test) to the start of CheckAlt", "expect": "BNE UseItem_IncaStatueA_CheckAlt" },
+            "231089": { "text": "Wrong X: same retargeted branch (vanilla target loc_0386EA)", "expect": "BNE UseItem_IncaStatueA_CheckAlt" },
+            "231160": { "text": "Vanilla BNE reaches loc_0386FA either way; transforms.json makes it BEQ loc_0386F2 (mismatch) in the normal extract (OQ-I026-1)", "expect": "BNE loc_0386FA" },
+            "231354": { "text": "Wrong Y: transforms.json retargets the vanilla branch (to loc_038800, the X test without a Y test) to the start of CheckAlt", "expect": "BNE UseItem_IncaStatueB_CheckAlt" },
+            "231367": { "text": "Wrong X: same retargeted branch (vanilla target loc_038800)", "expect": "BNE UseItem_IncaStatueB_CheckAlt" },
+            "231435": { "text": "Vanilla BNE reaches loc_03880D either way; transforms.json makes it BEQ loc_038818 (mismatch) in the normal extract (OQ-I026-1)", "expect": "BNE loc_03880D" },
+            "231860": { "text": "Enter display-filter mode (displayModeFlags $0080): only actors with $1000 in $10/$12 keep running during the melody", "expect": "LDA #$0080" },
+            "231874": { "text": "Spawn FluteMusicActorController with flags $2000; code_0389D9 then adds the display-filter bit $1000 to its $12", "expect": "SpawnListAppend" },
+            "231891": { "text": "Hide all buttons but Start/Select ($CFFC) from joypadCurrent during the melody", "expect": "LDA #$CFFC" },
+            "231906": { "text": "Music track $19 (bgm_lost_incan_melody), the tune of the Wind Melody; stored in the controller's $26", "expect": "LDA #$0019" },
+            "232521": { "text": "Flag $40 already set (melody played here before): jump to code_038C68, which sets flag $01 and clears $0E with no message (OQ-I026-2)", "expect": "BranchOnFlagByte" },
+            "237514": { "text": "Phase 1: enter display-filter mode (displayModeFlags $0080); code_03A098 clears it again", "expect": "LDA #$0080" },
+            "237562": { "text": "Let the player actor run in display-filter mode too ($1000 in its $12)", "expect": "LDY $playerActor" },
+            "237592": { "text": "Hide all buttons but Start/Select ($CFFC) from joypadCurrent", "expect": "LDA #$CFFC" },
+            "237651": { "text": "Unhide the buttons: remove $CFFC from joypadMaskStd", "expect": "LDA #$CFFC" },
+            "237720": { "text": "Leave display-filter mode (clear displayModeFlags $0080) and die; reached by fall-through after the Phase 3 WaitByte and on spawn failure", "expect": "LDA #$0080" }
+        }
+    },
+    "functions/ToggleActorVisibilityFlag.asm": {
+        "blockNote": [
+            "Per-tick flicker helper: flips bit $2000 of the PARENT actor's flags $10 (the parent is the actor whose slot is in $24).",
+            "",
+            "Spawned with SpawnAfterAbsFlags (flags $2800) by the Seaside Palace party-member rooms (sp5B_neil, sp5B_lance, sp5B_kara, sp5B_erik; spawned only while flag #70 is clear) and by sp5A_phantom_ribber. CopyActorState stores the spawner's slot in $24 of every spawned actor, which is how the helper finds its parent. The routine ends with RTL and never changes its entry point or calls Die, so it runs again on every tick and flips the bit every tick. sprite_composition.SortActorsByDepth skips actors with $2000 set, so the parent is drawn on alternate frames: a 50 % flicker, probably the ghost look of these actors (UNVERIFIED-RUNTIME). It is not a one-shot show/hide, and it is not a marked child, so it outlives the parent (OQ-I026-5, OQ-I026-6, R-I026-1)."
+        ],
+        "comments": {
+            "51194": { "text": "Y = parent actor slot (CopyActorState stored the spawner's slot in $24)", "expect": "LDY $24" },
+            "51199": { "text": "Flip bit $2000 of the parent's $10 (SortActorsByDepth skips actors with it set)", "expect": "EOR #$2000" },
+            "51205": { "text": "RTL without Die or a new entry point: the helper runs again next tick, so the bit flips every tick", "expect": "RTL" }
+        }
+    },
+    "functions/DeathPaletteFadeThinker.asm": {
+        "blockNote": [
+            "One-shot thinker spawned by GameOverSequence (COP SpawnThinker) that plays palette bundle $10, then bundle $0E, then kills itself.",
+            "",
+            "PaletteStart selects a palette bundle and PaletteStep then plays its strips one frame per tick, continuing past the op only when the bundle ends, so each pair runs one whole bundle. combat_collision assigns GameOverSequence to the player when HP reaches zero; the sequence masks the joypad and spawns this thinker together with GameOverCutsceneSprites. What the two bundles contain (the earlier 'desaturated death-screen fade' wording) was not decoded (OQ-I026-4)."
+        ],
+        "comments": {
+            "46515": { "text": "Select palette bundle $10", "expect": "PaletteStart" },
+            "46518": { "text": "Play bundle $10 to its end (one frame per tick, the op repeats until the bundle is done)", "expect": "PaletteStep" },
+            "46520": { "text": "Select palette bundle $0E", "expect": "PaletteStart" },
+            "46523": { "text": "Play bundle $0E to its end", "expect": "PaletteStep" },
+            "46525": { "text": "Remove this thinker", "expect": "KillThinker" }
+        }
+    }
+}

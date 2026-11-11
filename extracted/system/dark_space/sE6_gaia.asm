@@ -199,7 +199,7 @@ code_list_08D888 [
 ]
 
 ---------------------------------------------
-; Room for Will: BG changes $88 and $8A, plus $8E and $8F when event flag $B4 is set (the Shadow statue). Zones: Gaia (7,8)-(9,9), left statue (3,A)-(5,B) = Freedan, right statue (B,A)-(D,B) = Shadow, exit (5,D)-(B,F). What the BG changes draw was not decoded.
+; Room for Will: BG changes $88 and $8A, plus $8E and $8F when event flag $B4 is set (the Shadow statue). Zones: Gaia (7,8)-(9,9), left statue (3,A)-(5,B) = Freedan, right statue (B,A)-(D,B) = Shadow, exit (5,D)-(B,F). BG change $88 draws the Freedan statue (an armoured knight with a sword) on the left pedestal, a 4x8 tile block at tile (2,2); $8E draws the Shadow statue (a twisted figure) on the right pedestal at (10,2); $8A and $8F draw the 2x1 tile strips at (3,10) and (11,10). Without flag $B4 the right pedestal stays empty.
 
 DS_WillTransformRoom {
     COP [StageBgChange] ( #88 )
@@ -266,7 +266,7 @@ DS_WillToShadow {
 }
 
 ---------------------------------------------
-; Room for Freedan: BG changes $87 and $8A, plus $8E and $8F when event flag $B4 is set. Left statue = back to Will, right statue = Shadow.
+; Room for Freedan: BG changes $87 and $8A, plus $8E and $8F when event flag $B4 is set. Left statue = back to Will, right statue = Shadow. $87 draws the Will statue (a small figure) on the left pedestal; $8E draws the Shadow statue on the right one.
 
 DS_FreedanTransformRoom {
     COP [StageBgChange] ( #87 )
@@ -333,7 +333,7 @@ DS_FreedanToShadow {
 }
 
 ---------------------------------------------
-; Room for Shadow: BG changes $87, $8A, $8D and $8F unconditionally (flag $B4 is necessarily set). Left statue = back to Will, right statue = Freedan. The wait and active states are loc_08D97A and loc_08D997 (the room label itself is the set-up).
+; Room for Shadow: BG changes $87, $8A, $8D and $8F unconditionally (flag $B4 is necessarily set). $87 draws the Will statue (a small figure) on the left pedestal and $8D the Freedan statue (the armoured knight) on the right one. Left statue = back to Will, right statue = Freedan. The wait and active states are loc_08D97A and loc_08D997 (the room label itself is the set-up).
 
 DS_ShadowTransformRoom {
     COP [StageBgChange] ( #87 )
@@ -397,7 +397,7 @@ DS_ShadowToFreedan {
 }
 
 ---------------------------------------------
-; Layout 2: BG change $8A, then a search of AbilitySceneTable for $0B12. Found: a Will ability (low nibble) shows BG $86 and spawns AbilityOrbActor at (64,109) with orbitAngle = 0; a Freedan ability shows BG $8B and the orb at (64,84) with orbitAngle = 1. Not found: no orb. Then the Gaia and exit zones.
+; Layout 2: BG change $8A, then a search of AbilitySceneTable for $0B12. Found: a Will ability (low nibble) shows BG $86 and spawns AbilityOrbActor at (64,109) with orbitAngle = 0; a Freedan ability shows BG $8B and the orb at (64,84) with orbitAngle = 1. Not found: no orb. $86 draws the Will statue in a second pose on the left pedestal (the orb is drawn over it); $8B draws a tall Freedan-type statue there. Then the Gaia and exit zones.
 
 DS_LayoutAbility {
     COP [StageBgChange] ( #8A )
@@ -514,7 +514,7 @@ DS_LayoutSpecial {
 }
 
 ---------------------------------------------
-; No reference in extracted code: alternate room with BG changes $8B, $8F, $89, $8A and an AuraItemInteraction actor at ($C0, $78); zones Gaia, left statue (to Shadow) and exit. Layout 3 reaches the Aura item through GaiaHint_AuraItem instead.
+; No reference in extracted code: alternate room with BG changes $8B, $8F, $89, $8A and an AuraItemInteraction actor at ($C0, $78); zones Gaia, left statue (to Shadow) and exit. Layout 3 reaches the Aura item through GaiaHint_AuraItem instead. Of its BG changes $89 draws a twisted Shadow-like statue on the left pedestal. BG change $8C, the Will statue for the right pedestal (a small figure like $87), is staged by no code.
 
 DS_AuraItemRoom {
     COP [StageBgChange] ( #8B )
@@ -983,7 +983,7 @@ GaiaHint_DaoVillageC3 {
 }
 
 ---------------------------------------------
-; Scene $CC (Pyramid): when $0AAC is non-zero (layout 3): gives item $24 (the Aura) unless the player has it (GaiaHint_AuraDesc) or the inventory is full (GaiaHint_AuraFull): text, fanfare (track $18, then 90 ticks: WaitByte #59), 'You have the Aura!', waits for the SPC reply $FF, back to track $16, the Aura description, then the save prompt. With $0AAC = 0 it is just the save prompt.
+; Scene $CC (Pyramid): when $0AAC is non-zero (layout 3): gives item $24 (the Aura) unless the player has it (GaiaHint_AuraDesc) or the inventory is full (GaiaHint_AuraFull): text, fanfare (track $18, then 90 ticks: WaitByte #59), 'You have the Aura!', waits for the SPC reply $FF, back to track $16, the Aura description, then the save prompt. With $0AAC = 0 it is just the save prompt: the standard pyramid portal (room variant 1) leaves $0AAC at 0 here and only the hidden portal (variant 3, shown when event flag $173 is set) gives 1. The ability index that AbilityOrbActor stores in $0AAC never reaches this code, which runs only for source scene $CC; that scene is not in AbilitySceneTable.
 
 GaiaHint_AuraItem {
     LDA $globalScriptIndex
@@ -1249,7 +1249,7 @@ AbilityAcquisitionDispatch {
     TSB $playerFlags
     BRA loc_08EA9B
 
-; Will ability: if the player is not Will, write Transform_FreedanToWill (also used from the Shadow form) and set $0800.
+; Will ability: if the player is not Will, write Transform_FreedanToWill (also used from the Shadow form: Shadow plays the Freedan sequence, frame 6 drawn in the Shadow palette, the sphere frames 9 and 8, then the Will frames, and never the frames $0D, $10, $0F, $0E of Transform_ShadowToWill) and set $0800.
 
   loc_08EA78:
     LDA $characterForm    ; Will/Freedan statue: revert to Will
@@ -1810,7 +1810,7 @@ dialogstring_08F357 `[TPL:B]Return to young Will? [N] Yes [N] No `
 dialogstring_08F37B `[CLD]`
 ---------------------------------------------
 
-; Freedan -> Will: frames 6, 9, 8 (SFX $25 after the first), characterForm = 0, one-frame yield, palette thinker (bundle ID $0B), frames 3, 2, 5, DarkSpaceRestoreControl. Entered from 6 other files.
+; Freedan -> Will: frames 6, 9, 8 (SFX $25 after the first), characterForm = 0, one-frame yield, palette thinker (bundle ID $0B), frames 3, 2, 5, DarkSpaceRestoreControl. Entered from 6 other files. Measured in the Will ability rooms (ticks after the 6-tick pause of the dispatch): frame 6 is shown for 320 ticks, 9 for 12, 8 for 32; characterForm = 0 is set when frame 8 ends, then 3 shows for 32, 2 for 76 and 5 for 70 before DarkSpaceRestoreControl runs.
 
 Transform_FreedanToWill {
     COP [SetPlayerSpriteDirect] ( #05 )
@@ -2045,7 +2045,7 @@ FireflySpawnerLoop {
 }
 
 ---------------------------------------------
-; One firefly: display-filtered, spriteset_pickups_effects animation #02, starts at Y = 0 and a random X (RNG x 2), movement chains 4 / 6 / 8 / 10 on X and one less on Y, removed when Y reaches $FF. The loop would end at once for a negative Y step, so it must move down.
+; One firefly: display-filtered, spriteset_pickups_effects animation #02, starts at Y = 0 and a random X (RNG x 2), movement chain 4 or 8 on X and 3 or 7 on Y (the speed bits come from RNG x 2, whose bit 0 is 0, so the chains 6 and 10 never occur), removed when Y reaches $FF. X and Y are screen coordinates: the sprite is drawn at the actor position without the camera offset. Every tick the firefly moves 2 px left and 2 px down (chains 4 / 3) or 4 px left and 4 px down (chains 8 / 7), a down-left diagonal. X = RNG x 2 reaches 510, so about half of the fireflies start off the right edge of the 256 px screen and drift in. The Y test runs once per animation pass of 21 ticks: a 2 px firefly lives 147 ticks (it dies at Y = 294), a 4 px firefly 84 ticks (Y = 336).
 
 FireflyParticle {
     LDA #$1000            ; Display-filtered
@@ -2057,13 +2057,13 @@ FireflyParticle {
     COP [RngByte]         ; Random X position
     ASL                   ; ×2 → 0–510 px range
     STA $14
-    AND #$0003            ; Low 2 bits → speed variant (0–3)
-    ASL                   ; ×2 → 0–6
+    AND #$0003            ; bit 1 of RNG x 2 (bit 0 is always 0): 0 or 2
+    ASL                   ; x2: 0 or 4
     CLC 
-    ADC #$0004            ; Base speed 4 → range 4–10
-    STA $moveXAlt, X      ; X movement chain index 4, 6, 8 or 10 (from the random low bits)
+    ADC #$0004            ; +4: 4 or 8
+    STA $moveXAlt, X      ; X chain 4 or 8: 2 or 4 px left per tick
     DEC 
-    STA $moveYAlt, X      ; Y movement chain index = X index - 1
+    STA $moveYAlt, X      ; Y chain 3 or 7: 2 or 4 px down per tick
 
 ; Per-frame loop: reload the move chains, animate, repeat while Y < $FF.
 

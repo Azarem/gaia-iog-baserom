@@ -1,0 +1,67 @@
+{
+  "_note": "M4 (2026-11-09), see mesen2-results/M4_20261109.md. Draft only, dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/M4_notes.json --dry-run. Two edits correct a wrong note (tile $20 is a period, not a blank; the scene title box interior is 20 tiles, not 18). Four edits replace a hedge with the measured fact (PrintNumber above 4 digits, the 73-tick jingle wait, the colour-word roles of the speaker templates, the unreferenced digit-sprite entry). The apply pass decides.",
+  "system/engine/ConsoleStringRenderer.asm": {
+    "partNotes": {
+      "ConsoleCmd_PrintBcdNumber": {
+        "edit": [
+          {
+            "find": "the project's string map names tile $20 '.', which is probably a blank in the actual font (unverified).",
+            "with": "the project's string map names tile $20 '.', and the font draws a period there (tile $20 of the BG3 font is a period glyph, not a blank), so a suppressed leading zero would show as a dot; no vanilla string runs that pass on a leading zero."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/DisplaySceneTitle.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18).",
+          "with": "The box interior is 20 tiles wide (10 columns of 2 tiles: the border sits at columns 6 and 27 and the text starts at column 7), so the title is centred in 18 of the 20 tiles: it sits one tile left of the true centre ('South Cape', 10 glyphs, starts 4 tiles in and leaves 6 free on the right) and an 18-glyph title leaves its last 2 tiles empty. There is no clamp for N > 18; the longest vanilla title is 18 glyphs, so none reaches the border."
+        }
+      ]
+    }
+  },
+  "system/engine/music_actors.asm": {
+    "comments": {
+      "172261": {
+        "text": "WaitByte #48 = 73 ticks (73 NMI frames measured) before the text opens; the SPC has not replied $FF by then (74 polls), so the jingle is still playing",
+        "expect": "WaitByte"
+      }
+    }
+  },
+  "tables/dialog_template_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Not traced: which of the two colour words is the glyph and which the outline.",
+          "with": "The dialog glyph tiles are 2bpp with pixel value 1 for the body of each stroke (colour word 1, CGRAM $11, the lighter word), pixel value 2 for the top and bottom rows of the strokes (colour word 2, CGRAM $12, the darker word) and pixel value 3 (CGRAM $13, black unless a scene sets it) around the letters."
+        }
+      ]
+    }
+  },
+  "system/engine/DialogStringRenderer.asm": {
+    "partNotes": {
+      "DialogCmd_PrintNumber": {
+        "edit": [
+          {
+            "find": "that prints a leading zero — E1 analysis, unverified at runtime)",
+            "with": "that prints a leading zero, and the printed zero ends the suppression, so every zero after it prints too: a count of 5 on the value 3 prints 00003 where a count of 2 prints 3)"
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/oam_digit_compose.asm": {
+    "partNotes": {
+      "ComposeDigitSprites_AtCursor": {
+        "edit": [
+          {
+            "find": "(inferred as a fixed alignment offset for the diary counter, the only user)",
+            "with": "(the only caller, DiaryDigitDisplay_noref, has no reference and did not run in a diary-menu session, so the shift is dead code and its purpose cannot be observed)"
+          }
+        ]
+      }
+    }
+  }
+}

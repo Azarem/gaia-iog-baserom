@@ -1,8 +1,6 @@
-; Lower Vader barrier in Pyramid — Shadow form gate (~96 lines).
+; Lower Vader barrier of Pyramid scene $D6 (two copies): the hit target that swaps the solid row pair back.
 ; 
-; Barrier that requires Shadow form to pass. Detects player
-; form and opens only for Shadow's low-profile ability.
-; Part of the form-switching puzzle design.
+; A sword hit (physical B, Will form works) runs the callback (code_08C456): with scratch flag $0F clear it sets $0F, marks the upper row pair y $2B-$2C solid and counts the slot word at $1060 + $26 down toward $FE00; at $FE00 it clears the lower row pair y $4B-$4C, plays the sound and clears $0F (about 26 frames when the word is already $FE00). While $0F is set (the upper barrier is still counting) the callback only jumps back to the idle state and the hit is ignored. The actor never tests characterForm or any other form state.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

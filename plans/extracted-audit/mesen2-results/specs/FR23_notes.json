@@ -1,0 +1,24 @@
+{
+  "_note": "FR23 draft (2026-11-05). Supersedes three entries of plans/flags/results/specs/FL27_notes.json (apply FL27 first, then this file; each entry replaces the whole block note). eu92_erasquez: the Teapot test is the other way round in FL27 (BranchIfHasItem #19 jumps to the 'presence of evil' text; the flag is set only WITHOUT the Teapot; runtime FL27-05 and FL40-05). eu95_neils_father / eu95_neils_mother: both actors fall through into their COP Die label (code_07E21A, code_07E314) when the sequence ends (runtime FL27-07). Dry-run only until the apply pass: npm run merge -- plans/extracted-audit/mesen2-results/specs/FR23_notes.json --dry-run",
+  "euro/geezer_central/eu92_erasquez.asm": {
+    "blockNote": [
+      "Erasquez in the Euro geezer house (scene $92): the Teapot test and the hint that sets flag $9F.",
+      "",
+      "Solid and interactable. The interact handler tests the inventory first (BranchIfHasItem #19). With the Teapot (item $19) he prints 'Erasquez: I feel the presence of evil from somewhere in town...' and changes nothing (the item stays, $9F is not touched). Without the Teapot and $9F clear he sets $9F and prints 'Hey, you! I feel a strange power coming from you...' ending with 'At the right time, go to Mt.Kress and take a look at the Teapot.' and 'Rofsky marked Mt.Kress on Will's map!'. Without the Teapot and $9F set he prints 'The spirits' tears in the teapot reflect your true form.'. $9F is read by the Euro world-map exit (scene $91), which then stages menu $10 (Quit / Mt.Temple / Watermia) instead of menu $0F; flag $AC takes precedence with menu $1A."
+    ]
+  },
+  "euro/rolek_mansion/eu95_neils_father.asm": {
+    "blockNote": [
+      "Neil's father at the Rolek mansion (scene $95): a Moon Tribe reveal triggered by the Teapot.",
+      "",
+      "$A8 set: the actor dies at spawn. Otherwise it stands solid with 'You can't go wrong by taking over the Rolek Company.' and waits for $A8 (set by UseItem_Teapot when the Teapot is used in tiles (28,09)-(2D,0D) of this scene). Then it locks the player ($EFFC, joypadMaskStd reads $EFF0), waits 4 ticks (WaitByte #03), starts music #1B, waits (WaitByte #3B), clears its solidity, walks, prints 'Moon Tribe: Ku ku ku... Soon this world will be wrapped in darkness. The previous owner of this body is now a skeleton sleeping under the shrine...', walks toward (0268,0060), starts music #04, waits 120 ticks (WaitByte #77), unlocks the player and falls through into code_07E21A (COP Die). Neil's mother runs the same walk and dies earlier in the same visit."
+    ]
+  },
+  "euro/rolek_mansion/eu95_neils_mother.asm": {
+    "blockNote": [
+      "Neil's mother at the Rolek mansion (scene $95).",
+      "",
+      "$A8 set: the actor dies at spawn. Otherwise it stands solid with 'We've made money and wish to spend our remaining years enjoying life. Why don't you succeed us...' and waits for $A8 (the Teapot use); then it clears its solidity, walks off, moves toward (0268,0060), the same target as Neil's father, and dies when the walk ends (the actor definition falls through into code_07E314, COP Die)."
+    ]
+  }
+}

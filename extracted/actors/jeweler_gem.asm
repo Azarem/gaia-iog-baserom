@@ -2,7 +2,7 @@
 ; 
 ; === SPAWN (code_08CEA3) ===
 ; 
-; Event flag $E8 is the Solid Arm flag: sEA_solid_arm sets it, so after that optional fight Gem no longer appears (JewelerDie). Otherwise the spawn parameter in $0E picks an 8-frame animation group (all six records pass #01, which gives group 0): the animation index $28 is set to group x 8 + 2 (it is an animation index, not a sprite frame). $0E is then replaced by $3000, the OAM attribute word. Gem marks his tile solid, registers JewelerInteract as his chatPtr and idles on a bare RTL; the shared talk handler in global_ambient_dispatcher runs JewelerInteract when the player presses the interact button (A in this build) facing him.
+; Event flag $E8 is the Solid Arm flag: sEA_solid_arm sets it before its intro dialog (after the scene's lock and the WaitWord #$0120 wait, with no fight needed), so from the first entry into scene $EA on, Gem no longer appears (JewelerDie) in the six scenes that spawn him ($01, $32, $6B, $7B, $9B, $C3). Otherwise the spawn parameter in $0E picks an 8-frame animation group (all six records pass #01, which gives group 0): the animation index $28 is set to group x 8 + 2 (it is an animation index, not a sprite frame). $0E is then replaced by $3000, the OAM attribute word. Gem marks his tile solid, registers JewelerInteract as his chatPtr and idles on a bare RTL; the shared talk handler in global_ambient_dispatcher runs JewelerInteract when the player presses the interact button (A in this build) facing him.
 ; 
 ; === REWARD TIERS (JewelerInteract, JewelerCheck*) ===
 ; 
@@ -14,7 +14,7 @@
 ;   20 (flag $ED): $0B16 = 1, the Psycho Dash upgrade level (attack_ability_system reads it: damage 5 at level 0, 10 at level 1).
 ;   30 (flag $EE): $0B1C = 2, the Dark Friar upgrade level (damage 5 / 8 / 12; level 2 is the fully upgraded form).
 ;   50 (no flag): warp to scene $E9, the sE9_mansion_intro scene that leads to the optional Solid Arm fight. There is no 'given' flag, so every talk with 50 or more jewels warps again; the jewels are not consumed and the menu below is never reached.
-; The dialogue string for the 8-jewel tier says 'Your Life Power will be raised' and then 'Your Strength is raised by one'; the code raises max HP, so the second sentence is a text inconsistency.
+; The dialogue string for the 8-jewel tier says 'Your Life Power will be raised' and then 'Your Strength is raised by one'; the code raises max HP (maxHp $0ACA 8 to 9 while the first page is on screen, hpToHeal $0B22 0 to 1 and HP 8 to 9 about 39 frames later) and leaves the strength and defence words ($0ADE, $0ADC) unchanged, so the second sentence is a text inconsistency (both pages observed on screen).
 ; 
 ; === MENU AND JEWEL COUNTING ===
 ; 
@@ -38,7 +38,7 @@ jeweler_gem [
   actor-def < #02, #00, #10, {
 
   code_08CEA3:
-    COP [BranchOnFlagByte] ( #E8, #01, &JewelerDie ) ; Flag $E8 (set by sEA_solid_arm after the Solid Arm fight): Gem is gone, die
+    COP [BranchOnFlagByte] ( #E8, #01, &JewelerDie ) ; Flag $E8 (set by sEA_solid_arm before its intro dialog, not after the fight): Gem is gone, die
     LDA $0E               ; Spawn parameter (all six records pass #01, which gives 0): selects the 8-frame animation group
     ASL 
     ASL 

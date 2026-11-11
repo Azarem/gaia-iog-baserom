@@ -1,0 +1,13 @@
+{
+  "_note": "R1 (2026-11-09), see mesen2-results/R1_20261109.md. Measured in ROM O (SHA-1 38de0c84dd2bc3bdfc0a3d7ab0220c79b70887c3), scene $01 (South Cape, Will). Draft only, dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/R1_notes.json --dry-run. 'find' must occur exactly once in the stored note.",
+  "system/player/player_move_ns.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.",
+          "with": "Runtime check of the dead pair (five entries into NorthProbeRedirect, scene $01): the $00 word, the stack pointer, D and DBR are equal at the entry and at loc_02D208. MapCellDown only adds $10 to X, ReadCollisionNibble only sets A and the flags, and MapCellLeft overwrites X and A from $00, so the pair changes nothing the chain uses. The rest of the arithmetic is read from the code."
+        }
+      ]
+    }
+  }
+}

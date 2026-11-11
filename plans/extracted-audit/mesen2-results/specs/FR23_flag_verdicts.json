@@ -1,0 +1,327 @@
+[
+  {
+    "flag": 141,
+    "scope": null,
+    "queueId": "FL26-01",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $8D set at load, scene $69 holds 7 actors instead of 12 (five av69 party actors absent) and scene $6A holds 5 instead of 10 (five av6A party actors absent). The Angel Village world-map exit (scene $69, tiles (29,0D)-(2C,0F)) stages menu $0A at offset 52197 with $8D set and menu $15 at offset 52181 with $8D clear (each hit once at frame 580 after the walk into the exit tiles; the other stage offsets 52207, 52216, 52234, 52250, 52266 are not hit).",
+      "clear": "Control: scene $69 12 actors, scene $6A 10 actors, menu $15 at 52181."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL26-01_A0_s69_ctl, A1_s69_8D, B0_s6A_ctl, B1_s6A_8D (actor counts 12/7 and 10/5), A2_s69_exit_ctl, A3_s69_exit_8D (stage offsets), M2/M3 menu runs with screenshots. ctl36 = settle + 42 in the in-scene runs (A0, A1, B0, B1; the exit runs read 66 after the scene change). Positive control: standing control passed at start and end (raw/FR23_b0_*)."
+  },
+  {
+    "flag": 0,
+    "scope": { "scenes": [117] },
+    "queueId": "FL26-02",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $75 entered at (0798,00B0) (inside tiles (70,00)-(80,10)): scratch $00 is 1 at settle frame 1 and the alternate idle sprite code (offset 181402) runs once at frame 580. Entered at (0598,00B0) or at the default (0050,0090): scratch $00 is 0 and offset 181402 is never hit (only the normal idle 181397 runs).",
+      "clear": "Outside the box the byte stays 0 for the 400 settle frames."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR23_FL26-02_s75_default, s75_room3, s75_room4 (pre-set $0AA6 = 7 for room3/room4; ctl36 = settle + 42). The scene-start gate (inside the box at spawn) is observed; the 'wind blew your hair' text of the last room was not read."
+  },
+  {
+    "flag": 0,
+    "scope": { "scenes": [115] },
+    "queueId": "FL26-03",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $73: walking east along y 416 scratch $00 turns 1 at player x 704 (settle frame 101, tiles (2A..2F,17..1D)) and the alternate idle exec (181434) runs; walking west it turns 0 at x 512 (frame 251) and the normal idle exec (181429) runs. Started at (0100,0080) (inside tiles (00,00)-(40,10)) scratch $00 is 1 at settle frame 1 and offset 181434 runs at frame 634.",
+      "clear": "Outside both boxes the byte is 0 and offset 181429 runs. Not checked: the absence of the sound actor when the scene starts in the top-left box."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR23_FL26-03_s73_default_walk (400 frames, player walked from (0080,01C0)), s73_startbox (start at (0100,0080)). Idle exec offsets 181429 (normal) and 181434 (alternate) agree with FL27-09 and FL27-10."
+  },
+  {
+    "flag": 1,
+    "scope": { "scenes": [116] },
+    "queueId": "FL26-04",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_MagicPowder (item $14) at tile (08,0A) of scene $74 removes the item and sets scratch $01 whether $89 is set (run A) or clear (run D): offsets 234426, 234430 and 234433 run once and the inventory slot 0 changes from 20 to 0 with scratch $01 = 1. av74_kara tests the item once, at spawn (BranchIfHasItem #14 at 446827); the rescue actor code_06D171 waits for scratch $01 and then $8A. Staying in the scene after the use (run A): talking with $89 set prints the dust text (447083) and sets $8A, then the rescue prints 447003 and sets $8C (447035) and queues the map change (447044) to scene $6A. Leaving and re-entering scene $74 after the use (runs B and C): scratch $01 is 0 again after the load, the item is gone, av74_kara does not park at code_06D171 (offset 446833 runs once, at the first load) and talking only prints 'If I don't spread magic dust...' (447078, 17 hits); 447003/447035/447044 are never hit, $8A and $8C stay clear.",
+      "clear": "Scratch $01 is cleared by every scene load (run B, frame 317: scene $73, byte 0). With $89 clear and the dust used (run D) talking prints dialogstring_06D2FF (447091, 34 hits) and $8A stays clear."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL26-04_A_f89set_use_talk (rescue reached, f8A at settle frame 146, f8C at 878, scene $6A at 955), B_f89clear_use_reenter_set89, C_f89set_use_reenter, D_f89clear_use_talk, P_probe_f89set. The item test happens only at spawn, so the claim 'enters its rescue script only while the player carries item #14' means 'when the scene loads with the item'."
+  },
+  {
+    "flag": 1328,
+    "scope": null,
+    "queueId": "FL26-05",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Reset half observed: scene $6B loaded with $0AA6 = 5 keeps 5 while the player stands far or near the door (400 frames); interacting with the door at (944,656) writes 0 at settle frame 71 (offset 448378 runs once at frame 655, offset 448384 twice). Spawning next to the door (offset 448378 at frame 566) leaves $0AA6 = 0 at frame 1.",
+      "clear": "Not run: that the value left by the tunnel scene (2) or another cutscene is the start value of the door and room counter of scene $75 (the second half of the claim)."
+    },
+    "expectGrade": "none (word $0AA6 aliasing indices $0530-$053F)",
+    "evidence": "raw/FR23_FL26-05_s6B_far, s6B_near, s6B_interact, s6B_spawn_near (each run pre-sets $0AA6 = 5). The reset by av6B_door is verified; the carry-over half is not."
+  },
+  {
+    "flag": 141,
+    "scope": null,
+    "queueId": "FL27-01",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "wa78_intro runs SetFlagByte #8D (offset 491619) once at frame 1356 in the control. With $8D set at load, the camera-bob actor's WaitOnFlagByte #8D (offset 491980) passes at once (1 hit at frame 565, control: 788 hits between frames 565 and 1356), the moving pad's WaitOnFlagByte #8D (499621) passes and its SpawnBefore (499625) and WaitByte #77 (499638) run at frames 565-566 (control: 499621 hit 33 times between frames 565 and 618, 499625 and 499638 never hit), and the scene holds 45 actors instead of 47 (two fewer; the two are not named in the raw). The Angel Village exit offers menu $0A (see FL26-01).",
+      "clear": "Control: 47 actors; camera Y descends from 766 over the first 25 settle frames (the pan) and the intro reaches 491619 at frame 1356."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-01_C0_s78_ctl, F0_s78_8D. The intro's QueueMapChange #79 (offset 491643) is not reached in either run within the settle window."
+  },
+  {
+    "flag": 148,
+    "scope": null,
+    "queueId": "FL27-02",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "wa79_neil sets $94 on the departure talk: Neil talked to first (offset 500186 'You got Kruks?' hit at frame 614), then Lance (scratch $01 set at settle frame 578), then Neil again: $94 turns 1 at frame 782 (offset 500195 at frame 1358), QueueMapChange #91 at 500236, scene $FE then $91. With $94 set at load: scene $79 holds 7 actors instead of 10 (Neil, Erik, Kara absent), scene $78 holds 45 instead of 49 (four prize Kruks absent), and the Watermia exit stages menu $0E at 52266 instead of menu $0B at 52234 (each once at frame 589).",
+      "clear": "Lance first (run C2): offset 500186 is never hit, the departure still runs (500195 at frame 1010, scene $FE at settle frame 510). Scratch $01 is cleared by the scene load."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-02_C1_s79_order, C2_s79_lance_first, D0_s79_97, F1_s79_94, F2a_s78_97_ctl, F2b_s78_97_94, E0_s78_exit_ctl, E1_s78_exit_94 (control runs share the loaded state and frames with the forced runs)."
+  },
+  {
+    "flag": 150,
+    "scope": null,
+    "queueId": "FL27-03",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $78 with $96 set at load: 55 actors instead of 45 (the ten game children), CGRAM words 0x20-0xE0 match pal_watermia_dark in 189 words (control: 63) and pal_watermia in 59 (control: 202), the festival palette actor branches at 46934 to the set arm (SpawnThinker WatermiaFestivalPaletteWave 46947, PaletteStart #48 at 46952) instead of PaletteStart #42 (46940), and wa78_glass_game's WaitOnFlagByte #02 (offset 495734) polls 403 times between frames 566 and 989 (control: 0). A full Russian Glass game ends with $96 clear and $97 set (settle frame 2210) and the scene change to $7D at frame 2332.",
+      "clear": "$96 is cleared at the end of the game (offsets 496163, 496166 run once at frame 2798)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-03_G0_s78_ctl, G1_s78_96, PAL_ctl(+_cgram), PAL_f96(+_cgram), GAME_s78_96 (five scripted steps with the fr23.seq bot: glass bits $02, $03, $04 then the fifth glass with $0F; 2343 settle frames). Opponent order observed: an opponent skips any step whose glass the player already drank."
+  },
+  {
+    "flag": 157,
+    "scope": null,
+    "queueId": "FL27-04",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $78 with $9D set at load holds 44 actors instead of 45 (one actor fewer; that it is Luke, the wa78_men instance with spawn parameter #0B, follows from the spawn list, the slots are not named in the raw).",
+      "clear": "Control: 45 actors, Luke present. The set side was written by hand in a disposable state; the setter gw82_trail_intro was not run. The other seven $9D tests (scenes $7B and $7E) were not run."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-04_M_ctl, M_f9D (ctl36 = settle + 36). The missing actor is identified by the actor-count difference and the spawn list of scene $78."
+  },
+  {
+    "flag": 159,
+    "scope": null,
+    "queueId": "FL27-05",
+    "verdict": "CONTRADICTED",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Corrected meaning: eu92_erasquez sets $9F when the player does NOT hold the Teapot (item $19). Without the Teapot: BranchIfHasItem (offset 513962) falls through, 513967 and 513973 (SetFlagByte #9F) run at frame 703 and $9F turns 1 at settle frame 132. With the Teapot in slot 0: the branch jumps to offset 513986 (the 'I feel the presence of evil' text), 513973 never runs and $9F stays 0. The Euro world-map exit stages menu $10 at offset 52344 with $9F set and menu $0F at 52328 with $9F clear; with $AC set it stages menu $1A at 52360 regardless of $9F (runs E2, E3).",
+      "clear": "With $9F already set and no Teapot (R3): offset 513981 (the 'spirits' tears reflect your true form' text) runs, no further write."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-05_R0_er_noitem, R1_er_teapot, R3_er_9F_noitem, E0_exit_ctl, E1_exit_9F, E2 and E3 (from FL27-08). Shipped docs/code/bank07-watermia-euro-actors.md:241 and the FL27 draft block note of eu92_erasquez (plans/flags/results/specs/FL27_notes.json:116-118) state the Teapot test the other way round."
+  },
+  {
+    "flag": 167,
+    "scope": null,
+    "queueId": "FL27-06",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $9A with $A7 set at load holds 5 actors instead of 8 (Friezer, Max and Rudy absent).",
+      "clear": "Control: 8 actors. The setter mtA0_intro was not run."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-06_ctl, FL27-06_fA7 (ctl36 = settle + 42)."
+  },
+  {
+    "flag": 168,
+    "scope": null,
+    "queueId": "FL27-07",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_Teapot (item $19) inside tiles (28,09)-(2D,0D) of scene $95 sets $A8 and removes the item (offsets 235581, 235606, 235610, 235613 hit once; slot 0 25 -> 0; $A8 turns 1 at settle frame 62). Outside the tiles only 235601 runs and the item stays. After the use the father's reveal runs: lock (516569), music #1B (516575 at frame 636), music #04 (516622 at frame 1061), unlock (516631) and the Die label (516634) at frame 1181 (120 frames after the music start; WaitByte #77 = 120 ticks). The mother reaches her Die at 516884 at frame 997. Neil: with $A8 set his interact handler runs 517021 (long dialog), with $A8 clear 517016 ('To live for yourself...').",
+      "clear": "Not used with the Teapot (control): none of 516569, 516575, 516622, 516631, 516634 or 516884 runs in 900 frames; the father and mother wait at 516562."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-07_C_noitem_talk_neil, I_use_inside, O_use_outside, scan_neil. The 'die at the next spawn' half is shown by the Die exec at the end of the sequence (both actors fall through into COP Die); a reload of scene $95 with $A8 set was not run."
+  },
+  {
+    "flag": 172,
+    "scope": null,
+    "queueId": "FL27-08",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $96 with $AC set at load holds 5 actors instead of 8 (Neil, Kara and Erik absent). The Euro exit stages menu $1A at offset 52360 with $AC set, with or without $9F (E2, E3).",
+      "clear": "Control: 8 actors and menu $0F or $10. The setter nvAC_kara was not run."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-08_A96_ctl, A96_fAC, E2_exit_AC, E3_exit_9F_AC."
+  },
+  {
+    "flag": 0,
+    "scope": { "scenes": [120] },
+    "queueId": "FL27-09",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scratch $00 is 1 at settle frame 1 of scene $78 and never changes in the 300 frames walked; the alternate idle exec (181434) runs at frame 657.",
+      "clear": "With bit 0 of $0A00 cleared at frame 2 the normal idle exec (181429) runs at frame 657 instead and the byte stays 0."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR23_FL27-09_ctl, FL27-09_clear (same spawn (0250,0370), same frames)."
+  },
+  {
+    "flag": 0,
+    "scope": { "scenes": [157] },
+    "queueId": "FL27-10",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $9D, walking from (0050,0090): scratch $00 is 0 at spawn, turns 1 at player x 238 (settle frame 101, tile (0E..0F,08)) and the alternate idle exec (181434) runs at frame 700; it turns 0 again at x 320 (frame 251) and the normal idle (181429) runs at frame 850.",
+      "clear": "Outside tiles (0F,07)-(10,09) the byte is 0."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR23_FL27-10_s9D_walk (400 frames)."
+  },
+  {
+    "flag": 15,
+    "scope": { "scenes": [120] },
+    "queueId": "FL27-11",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Game started in scene $78 with $96 set, glass bits $02, $03 and $04 played (GAME run), then the fifth glass: with scratch $0F (bit 7 of $0A01) forced to 1 the talk reaches 498354, 498358 and 498370 (the Yes arm), playerHp goes 8 -> 0 at settle frame 110 and the scene becomes $F0 (game over). The main actor writes $0F = 1 twice during the game (settle frames 371 and 635, 8 frames each) and not before the fifth glass.",
+      "clear": "With $0F clear the fifth-glass talk never reaches 498354..498370: 36 talk attempts in 490 frames hit only 498348 and 498386 and playerHp stays 8. Both direction runs (up and down) end with hp 0; the Yes/No selection by direction is not separated."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-11_FIFTH_ctl, FIFTH_f0F_up, FIFTH_f0F_down, FL27-03_GAME_s78_96."
+  },
+  {
+    "flag": 143,
+    "scope": { "scenes": [122] },
+    "queueId": "FL27-12",
+    "verdict": "INCONCLUSIVE",
+    "grade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Not run. fireplace_journal never spawned: scene $7A holds 7 actors (none is fireplace_journal) in all three setups (no flags, $A5 $91 $97 $E2 set, many flags set); three 300-frame fireplace walks with a free and with a full inventory (slot 0 = 22, slot 15 = 37) found no actor at the fireplace tile, no $8F write and no GiveItem (offsets 505046..505060 never hit).",
+      "clear": "Coverage: scene $7A entered by quick warp with three flag sets, 320 settle frames each, plus three 1100-frame interact walks. Missing: the flag state that places the actor (no spawn list references it)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-12_F7A_none, F7A_many, F7A_A5_91_97_E2, J_free, J_full, J_full_reenter (seq 'notfound' every step)."
+  },
+  {
+    "flag": 143,
+    "scope": { "scenes": [122] },
+    "queueId": "FL40-10",
+    "verdict": "INCONCLUSIVE",
+    "grade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Same evidence and reason as FL27-12: the fireplace actor is not in the runtime actor list of scene $7A.",
+      "clear": "-"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-12_* (see FL27-12)."
+  },
+  {
+    "flag": 150,
+    "scope": null,
+    "queueId": "FL31-04",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Playing gw8B_lance_lily from scene $8B to the end: $96 turns 1 at settle frame 4738 together with $C8 (offsets 505825, 505828, 505837 run once at frame 5335), then the scene changes to $79. Scene $78 with $96 set uses the dark palette and spawns the game (FL27-03).",
+      "clear": "$96 turns 0 and $97 turns 1 at the end of the glass game (FL27-03 GAME run, frame 2210; offset 496163 at frame 2798). The three parts were run in separate loads; the whole chain in one session was not run."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL31-04_gw8B (4836 settle frames, scripted talks with fr23.seq), FL27-03_GAME_s78_96, FL27-03_PAL_f96."
+  },
+  {
+    "flag": 165,
+    "scope": null,
+    "queueId": "FL31-11",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "eu91_intro sets $A5 (offset 507527 hit at frame 2114, settle frame 1512). With $A5 set at load the narration is not run (507527 and 507538 never hit). In scene $79 with $A5 set the wa79 actors take other branches (502053 -> 502058, 503053 -> 503061, new execs 503067, 503076, 503084) and the Red Jewel is given once ($E2 turns 1 at settle frame 265, slot 0 = 1). In scene $7A the father's line branch changes (504757 -> 504765).",
+      "clear": "Control (A5 clear): the post-A5 branches are not hit; no item is given."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL31-11_E91_ctl, E91_fA5, W79_ctl, W79_fA5, W7A_ctl, W7A_fA5, probe_79, probe_7A."
+  },
+  {
+    "flag": null,
+    "scope": { "scenes": [146] },
+    "queueId": "FL40-05",
+    "verdict": "CONTRADICTED",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Erasquez half contradicted: the Teapot test also gates a flag write ($9F is set only without the Teapot, FL27-05). Rofsky half confirmed: with and without the Teapot (4 talks each) the test (offset 513551) only selects the text (513556 without, 513561 with); $9F and $AC stay 0 and the inventory is unchanged.",
+      "clear": "-"
+    },
+    "expectGrade": "none",
+    "evidence": "raw/FR23_FL40-05_RF0_rofsky_noitem, RF1_rofsky_teapot, FL27-05_R0, R1."
+  },
+  {
+    "flag": 141,
+    "scope": null,
+    "queueId": "FL30-35",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Angel Village exit offers menu $0A (offset 52197) with $8D set, menu $15 (52181) with it clear (FL26-01).",
+      "clear": "-"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL26-01_A2_s69_exit_ctl, A3_s69_exit_8D."
+  },
+  {
+    "flag": 148,
+    "scope": null,
+    "queueId": "FL30-36",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Watermia exit stages menu $0E (offset 52266) with $94 set, menu $0B (52234) with it clear (FL27-02).",
+      "clear": "-"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-02_E0_s78_exit_ctl, E1_s78_exit_94."
+  },
+  {
+    "flag": 159,
+    "scope": null,
+    "queueId": "FL30-37",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Euro exit stages menu $10 (offset 52344) with $9F set, $0F (52328) with it clear, $1A (52360) with $AC set (FL27-05, FL27-08). The setter is eu92_erasquez without the Teapot, not with it.",
+      "clear": "-"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-05_E0_exit_ctl, E1_exit_9F, FL27-08_E2_exit_AC, E3_exit_9F_AC."
+  },
+  {
+    "flag": 168,
+    "scope": null,
+    "queueId": "FL30-38",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_Teapot sets $A8 inside tiles (28,09)-(2D,0D) of scene $95 (FL27-07).",
+      "clear": "-"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR23_FL27-07_I_use_inside, O_use_outside."
+  }
+]

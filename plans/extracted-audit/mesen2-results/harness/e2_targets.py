@@ -1,0 +1,203 @@
+#!/usr/bin/env python3
+"""E2 targeted runs: bundles that the plain scene sweep does not reach (flag/HP/menu gated).
+usage:  timeout 600 python e2_targets.py death warm ...        (names of SCENARIOS; each run = reload state + one e2.run)
+Output: raw/E2_trg_<name>.txt (S/E/C/N/L/P rows from the kit plus X rows from the scenario hooks), raw/E2_trg_<name>.json (the reply summary)."""
+import json
+import os
+import sys
+import time
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from e2_run import RAW, h1, open_session, STATE  # noqa: E402
+
+PRELUDE = r"""
+local X = {}
+local WR = emu.memType.snesWorkRam
+local function xr(fmt, ...) if #X < 160 then X[#X + 1] = string.format(fmt, ...) end end
+local function fl(id) return iog.getEventFlag(id) and 1 or 0 end
+local function r16(a) return emu.read16(a, WR, false) end
+local function r8(a) return emu.read(a, WR, false) end
+local function press(btn, nf, from, len) if nf >= from and nf < from + len then gaia.hold({ btn }) end end
+"""
+
+SCENARIOS = {
+    # game over: HP 0 in South Cape, then the death fade thinker (bundles $10, $0E)
+    "death": dict(scenes=[1], post=260, code="""
+e2.run({1}, FILE, {post=260, tag='death', capLimit=3, extra=function() return X end,
+  tick=function(sc, t, nf)
+    if t == 20 then emu.write16(0x0ACE, 0, WR) end
+    if t == 21 or t == 60 or t == 120 or t == 200 or t == 255 then xr('X|death|t%d|hp%d|pf%04X|mask%04X|cgram81=%04X|cgramF1=%04X', t, r16(0x0ACE), r16(0x09AE), r16(0x065A), emu.read16(0x81*2, emu.memType.snesCgRam, false), emu.read16(0xF1*2, emu.memType.snesCgRam, false)) end
+  end})
+"""),
+    # flag-gated warm/cool thinkers: flag $16 set, $1C clear; inventory (Start) opened at t=60 and again at t=140
+    "warm": dict(scenes=[1, 3, 4, 5, 6, 7, 8, 0x30], post=260, code="""
+e2.run({1,3,4,5,6,7,8,0x30}, FILE, {post=260, tag='warm', capLimit=3, extra=function() return X end,
+  flagsFor=function(sc) return {0x16} end,
+  tick=function(sc, t, nf)
+    if t == 40 or t == 70 or t == 100 or t == 150 or t == 200 or t == 255 then xr('X|warm|%02X|t%d|ff%d|scene%02X|mask%04X|joy%04X', sc, t, fl(0xFF), r16(0x0644), r16(0x065A), r16(0x0100)) end
+    if t >= 60 and t < 68 then gaia.hold({'select'}) elseif t >= 110 and t < 118 then gaia.hold({'select'}) elseif t >= 130 and t < 138 then gaia.hold({'b'}) else gaia.release() end
+  end})
+"""),
+    "warm_ctl": dict(scenes=[1, 3, 0x30], post=120, code="""
+e2.run({1,3,0x30}, FILE, {post=120, tag='warmctl', capLimit=3, extra=function() return X end,
+  flagsFor=function(sc) return {} end,
+  tick=function(sc, t, nf) if t == 100 then xr('X|warmctl|%02X|t%d|ff%d|f16=%d|f1C=%d', sc, t, fl(0xFF), fl(0x16), fl(0x1C)) end end})
+"""),
+    "warm_both": dict(scenes=[1, 3, 0x30], post=120, code="""
+e2.run({1,3,0x30}, FILE, {post=120, tag='warmboth', capLimit=3, extra=function() return X end,
+  flagsFor=function(sc) return {0x16, 0x1C} end,
+  tick=function(sc, t, nf) if t == 100 then xr('X|warmboth|%02X|t%d|ff%d|f16=%d|f1C=%d', sc, t, fl(0xFF), fl(0x16), fl(0x1C)) end end})
+"""),
+
+    # colour-math flashes #18 / #19: gating flags per scene (lily $40, Rama $0F, spirit guide $BD, blinding light $B7), future vision (C0) unconditional
+    "flash": dict(scenes=[0x15, 0x66, 0xBF, 0xBC, 0xC0], post=420, code="""
+local FL = {[0x15]={0x40}, [0x66]={0x0F}, [0xBF]={0xBD}, [0xBC]={0xB7}, [0xC0]={}}
+e2.run({0x15,0x66,0xBF,0xBC,0xC0}, FILE, {post=420, tag='flash', capLimit=2, ppuIds={[0x18]=true,[0x19]=true}, extra=function() return X end,
+  flagsFor=function(sc) return FL[sc] or {} end,
+  tick=function(sc, t, nf)
+    if t == 5 or t == 100 or t == 200 or t == 300 or t == 400 then xr('X|flash|%02X|t%d|scene%02X|fc%04X|en%02X', sc, t, r16(0x0644), emu.getState()['ppu.fixedColor'], emu.getState()['ppu.colorMathEnabled']) end
+  end})
+"""),
+
+    "flash_ramp": dict(scenes=[0xC0, 0xBC], post=260, code="""
+local FL = {[0xBC]={0xB7}, [0xC0]={}}
+e2.run({0xC0,0xBC}, FILE, {post=260, tag='flashramp', capLimit=1, ppuIds={[0x18]=true,[0x19]=true}, extra=function() return X end,
+  flagsFor=function(sc) return FL[sc] or {} end,
+  tick=function(sc, t, nf)
+    if t % 8 == 0 and t >= 40 and t <= 200 then xr('X|ramp|%02X|t%d|fc%04X|en%02X', sc, t, emu.getState()['ppu.fixedColor'], emu.getState()['ppu.colorMathEnabled']) end
+  end})
+"""),
+
+    # who sets / clears event flag $01 (byte $0A00 bit $02) and when bundle #03 starts: inventory (Select) and map (Start) opened from South Cape
+    "flag01": dict(scenes=[1], post=330, code="""
+local prev = r8(0x0A00) & 2
+emu.addMemoryCallback(function()
+  local v = r8(0x0A00) & 2
+  if v ~= prev then
+    local st = emu.getState()
+    xr('X|flag01|W|t%d|scene%02X|%s|pc%02X:%04X|frame%d', r16(0x0036), r16(0x0644), (v ~= 0) and 'SET' or 'CLR', st['cpu.k'], st['cpu.pc'], st['frameCount'])
+    prev = v
+  end
+end, emu.callbackType.write, 0x0A00, 0x0A00, emu.cpuType.snes, WR)
+e2.run({1}, FILE, {post=330, tag='flag01', capLimit=3, extra=function() return X end,
+  tick=function(sc, t, nf)
+    if t % 15 == 0 then xr('X|flag01|S|t%d|scene%02X|f01=%d|ff=%d', t, r16(0x0644), fl(1), fl(0xFF)) end
+    if t >= 40 and t < 48 then gaia.hold({'select'}) elseif t >= 100 and t < 108 then gaia.hold({'select'})
+    elseif t >= 150 and t < 158 then gaia.hold({'start'}) elseif t >= 230 and t < 238 then gaia.hold({'start'}) elseif t >= 270 and t < 278 then gaia.hold({'b'}) else gaia.release() end
+  end})
+"""),
+
+    "pc03": dict(scenes=[0xFF, 0xFD, 0xFE], post=240, code="""
+e2.run({0xFF,0xFD,0xFE}, FILE, {post=240, tag='pc03', capLimit=3, extra=function() return X end,
+  noBanner={[0xFE]=true,[0xFF]=true},
+  tick=function(sc, t, nf) if t == 5 then iog.setEventFlag(1) end if t > 0 and t % 60 == 0 then xr('X|pc03|%02X|t%d|f01=%d|cg_CE=%04X|cg_CF=%04X', sc, t, fl(1), emu.read16(0xCE*2, emu.memType.snesCgRam, false), emu.read16(0xCF*2, emu.memType.snesCgRam, false)) end end})
+"""),
+
+    "wm": dict(scenes=[0xFE], post=60, code="""
+-- two PaletteResetAndKillThinker records (WorldMapController 238330 and 238340): site = return address of the PaletteRestart (46363) path is shared, so the slot and frame of every start are logged
+e2.run({0xFE}, FILE, {post=60, tag='wm', capLimit=6, noBanner={[0xFE]=true}, extra=function() return X end,
+  tick=function(sc, t, nf) if t == 0 or t == 1 or t == 3 or t == 20 then xr('X|wm|t%d|cg81=%04X|cg8F=%04X|stg81=%04X', t, emu.read16(0x81*2, emu.memType.snesCgRam, false), emu.read16(0x8F*2, emu.memType.snesCgRam, false), emu.read16(0x10A00+0x81*2, WR, false)) end end})
+"""),
+
+    # OQ-31: executed PCs of the palette handlers (37729-37887) and of LoadPaletteBundle / CopyPaletteBundleFrame (254128-254277), plus Decompress entry hits with their return address
+    "oq31": dict(scenes=[1, 0x15, 0x30, 0xFF, 0x23, 0x5D], post=200, code="""
+local dec, decIn = 0, 0
+emu.addMemoryCallback(function()
+  dec = dec + 1
+  local st = emu.getState()
+  local sp = st['cpu.sp']
+  local lo, hi, bk = r8(sp + 1), r8(sp + 2), r8(sp + 3)
+  local ret = ((bk & 0x3F) << 16) | (hi << 8) | lo
+  if (ret >= 37729 and ret <= 37887) or (ret >= 254128 and ret <= 254277) then decIn = decIn + 1 end
+end, emu.callbackType.exec, 39291, 39291, emu.cpuType.snes, emu.memType.snesPrgRom)
+e2.run({1,0x15,0x30,0xFF,0x23,0x5D}, FILE, {post=200, tag='oq31', capLimit=1, pcSet=true, extra=function() xr('X|oq31|decompressEntryHits%d|fromPaletteRanges%d', dec, decIn) return X end})
+"""),
+}
+
+
+def _gold_ship(tag, flags):
+    fl = ",".join("0x%02X" % f for f in flags)
+    code = """
+local function hook(pc, label)
+  emu.addMemoryCallback(function()
+    local st = emu.getState()
+    xr('X|@TAG@|%s|slot%X|x%X|scene%02X|frame%d', label, st['cpu.d'], st['cpu.x'], r16(0x0644), st['frameCount'])
+  end, emu.callbackType.exec, pc, pc, emu.cpuType.snes, emu.memType.snesPrgRom)
+end
+hook(47245, 'scanlineInit')
+hook(46751, 'kill1')
+hook(46759, 'kill2')
+e2.run({0x2F,0x2B,0x2D}, FILE, {post=200, tag='@TAG@', capLimit=2, extra=function() return X end,
+  flagsFor=function(sc) return {@FL@} end,
+  tick=function(sc, t, nf) if t == 20 or t == 150 then xr('X|@TAG@|flags|scene%02X|t%d|f4D=%d|f52=%d|ff=%d', sc, t, fl(0x4D), fl(0x52), fl(0xFF)) end end})
+"""
+    return dict(scenes=[0x2F, 0x2B, 0x2D], post=200, code=code.replace("@TAG@", tag).replace("@FL@", fl))
+
+
+SCENARIOS["gs_default"] = _gold_ship("gsdef", [])
+SCENARIOS["gs_4d"] = _gold_ship("gs4d", [0x4D])
+SCENARIOS["gs_52"] = _gold_ship("gs52", [0x52])
+
+
+SCENARIOS["b40_1f"] = dict(scenes=[0x1A, 0x74, 0x5D], post=420, code="""
+local lastfc = {}
+e2.run({0x1A,0x74,0x5D}, FILE, {post=420, tag='b40', capLimit=3, ppuIds={[0x40]=true,[0x1F]=true}, extra=function() return X end,
+  flagsFor=function(sc) if sc == 0x1A then return {0x2A} elseif sc == 0x74 then return {0x8A} else return {} end end,
+  beforeWarp=function(sc) if sc == 0x74 then emu.write(0x0AB4, 0x14, WR) end end,
+  tick=function(sc, t, nf)
+    if sc == 0x74 and t == 5 then iog.setEventFlag(1) end
+    if sc == 0x5D and t == 40 then iog.setEventFlag(0x0E) end
+    if t > 0 then
+      local st = emu.getState()
+      local fc = st['ppu.fixedColor']
+      if lastfc[sc] ~= fc then lastfc[sc] = fc; xr('X|b40|fc|%02X|t%d|fc%04X|en%02X|bd%02X%02X%02X', sc, t, fc, st['ppu.colorMathEnabled'], r8(0x10C00), r8(0x10C01), r8(0x10C02)) end
+      if t % 100 == 0 then xr('X|b40|chk|%02X|t%d|f01=%d|f0E=%d|f0F=%d|f2A=%d|f8A=%d|scene%02X', sc, t, fl(1), fl(0x0E), fl(0x0F), fl(0x2A), fl(0x8A), r16(0x0644)) end
+    end
+  end})
+""")
+
+
+SCENARIOS["it1a"] = dict(scenes=[0x1A], post=300, code="""
+local stepHits, runHits = {}, 0
+emu.addMemoryCallback(function()
+  local d = emu.getState()['cpu.d']
+  local t = (r16(0x0036) // 1)
+  stepHits[d] = (stepHits[d] or 0) + 1
+end, emu.callbackType.exec, 37802, 37802, emu.cpuType.snes, emu.memType.snesPrgRom)
+local function cg() local t = {} for i = 0xF1, 0xFF do t[#t + 1] = string.format('%04X', emu.read16(i * 2, emu.memType.snesCgRam, false)) end return table.concat(t, ' ') end
+e2.run({0x1A}, FILE, {post=300, tag='it1a', capLimit=3, extra=function() local o = {} for d, n in pairs(stepHits) do o[#o + 1] = string.format('%X:%d', d, n) end table.sort(o) xr('X|it1a|stepHitsBySlot %s', table.concat(o, ' ')) return X end,
+  flagsFor=function(sc) return {0x2A} end,
+  tick=function(sc, t, nf) if t > 0 and (t == 20 or t == 40 or t == 60 or t == 100 or t == 295) then
+    xr('X|it1a|t%d|framesLeft=%04X|hits20=%d|mask=%04X|ovl=%02X|pf10=%04X|f1000=%04X', t, emu.read16(0x10006 + 0xF20, WR, false), stepHits[0xF20] or 0, r16(0x065A), r8(0x00B4), r16(0x1010), r16(0x0036)) end end})
+""")
+
+
+def main():
+    names = sys.argv[1:]
+    m, info = open_session()
+    try:
+        h = h1(m)
+        print("H1", h, flush=True)
+        if not h["ok"]:
+            raise SystemExit("H1 failed")
+        for name in names:
+            sc = SCENARIOS[name]
+            m.call("load_state_file", path=STATE)
+            fname = f"E2_trg_{name}.txt"
+            code = PRELUDE + "local FILE = '" + fname + "'\n" + sc["code"]
+            t0 = time.time()
+            r = m.run_script_checked(code, frames=200000, includes=["e2_palette"], turbo=True, timeoutMs=60000, maxLog=5, name="e2_trg")
+            summary = {"name": name, "elapsed": round(time.time() - t0, 1), "result": {k: v for k, v in r.get("result", {}).items() if k != "pcs"},
+                       "files": [(f["name"], f["bytes"], f["sha1"]) for f in r.get("filesWritten", [])]}
+            pcs = r.get("result", {}).get("pcs")
+            if pcs:
+                json.dump(pcs, open(os.path.join(RAW, f"E2_trg_{name}_pcs.json"), "w"))
+            json.dump(summary, open(os.path.join(RAW, f"E2_trg_{name}.json"), "w"), indent=1)
+            print(summary, flush=True)
+    finally:
+        m.close()
+
+
+if __name__ == "__main__":
+    main()

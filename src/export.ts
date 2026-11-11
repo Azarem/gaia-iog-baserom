@@ -9,6 +9,7 @@
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
 import { dirname, join, resolve } from 'path';
+import { loadSceneFlagsForExport } from './flags.ts';
 
 function readJson<T>(path: string): T {
     return JSON.parse(readFileSync(path, 'utf-8')) as T;
@@ -133,14 +134,12 @@ export function exportLabels(pkgRoot: string, options: ExportLabelsOptions = {})
 export interface ExportScenesOptions {
     /** Output file (default `artifacts/scenes.json`). */
     out?: string;
+    /** Folder with groups.json, scene-flags.json and (optional) flags.json (default `db-us`; use a copy to test). */
+    dbDir?: string;
 }
 
 interface GroupsFile {
     [group: string]: { prefix?: string; scenes?: Record<string, { id: number; description?: string }> };
-}
-
-interface SceneFlagsFile {
-    [sceneId: string]: { flags: number[]; note?: string; source?: string };
 }
 
 export interface ExportScenesResult {
@@ -152,13 +151,18 @@ export interface ExportScenesResult {
 
 /**
  * Writes one JSON file with every scene id of `db-us/groups.json` (id, key, group, prefix, description) and,
- * where known, the event flags a scene needs (`db-us/scene-flags.json`: `{ "<id>": { "flags": [n, ...], "note", "source" } }`).
- * Event flag `#n` lives in WRAM byte `0x0A00 + (n >> 3)`, bit `n & 7`.
+ * where known, the event flags a scene needs (`db-us/scene-flags.json`:
+ * `{ "<id>": { "flags": [n, ...], "note", "source", "names": [...], "entry", "grade" } }`; the last three are optional).
+ * `names` are checked against the flag registry (`db-us/flags.json`) when that file exists; `entry` and `grade` use the
+ * vocabularies of `src/flags.ts`. Event flag `#n` lives in WRAM byte `0x0A00 + (n >> 3)`, bit `n & 7`.
  */
 export function exportScenes(pkgRoot: string, options: ExportScenesOptions = {}): ExportScenesResult {
-    const groups = readJson<GroupsFile>(join(pkgRoot, 'db-us', 'groups.json'));
-    const flagsPath = join(pkgRoot, 'db-us', 'scene-flags.json');
-    const flagsFile: SceneFlagsFile = existsSync(flagsPath) ? readJson<SceneFlagsFile>(flagsPath) : {};
+    const dbDir = options.dbDir ? resolve(options.dbDir) : join(pkgRoot, 'db-us');
+    const groups = readJson<GroupsFile>(join(dbDir, 'groups.json'));
+    const flagsPath = join(dbDir, 'scene-flags.json');
+    const rawFlags: unknown = existsSync(flagsPath) ? readJson<unknown>(flagsPath) : {};
+    //Unknown scene ids, unknown names (against db-us/flags.json when it exists), bad entry/grade values: all reported together.
+    const flagsFile = loadSceneFlagsForExport(dbDir, rawFlags);
 
     const scenes: Array<Record<string, unknown>> = [];
     const seen = new Map<number, number>();
@@ -183,6 +187,9 @@ export function exportScenes(pkgRoot: string, options: ExportScenesOptions = {})
                 row.requiredFlagBytes = requirement.flags.map(n => ({ flag: n, address: 0x0A00 + (n >> 3), mask: 1 << (n & 7) }));
                 if (requirement.note) row.flagNote = requirement.note;
                 if (requirement.source) row.flagSource = requirement.source;
+                if (requirement.names) row.requiredFlagNames = requirement.names;
+                if (requirement.entry) row.entry = requirement.entry;
+                if (requirement.grade) row.flagGrade = requirement.grade;
             }
             scenes.push(row);
         }
@@ -193,10 +200,6 @@ export function exportScenes(pkgRoot: string, options: ExportScenesOptions = {})
     const idSet = new Set(ids);
     const missing: number[] = [];
     for (let id = 0; id <= 255; id++) if (!idSet.has(id)) missing.push(id);
-
-    for (const key of Object.keys(flagsFile)) {
-        if (!idSet.has(Number(key))) throw new Error(`db-us/scene-flags.json: scene id ${key} is not in db-us/groups.json`);
-    }
 
     const output = {
         game: 'Illusion of Gaia (US)',

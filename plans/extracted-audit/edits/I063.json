@@ -1,0 +1,129 @@
+{
+  "tables/spriteset_particle_fx.asm": {
+    "blockNote": [
+      "Snake pit effect tile animation (Bank 14, 1360172-1360280). It is a spriteset only in format: its one user streams the frames into VRAM as tiles, it is not a library of particle sprites.",
+      "",
+      "The only user is awB4_snake_pit_fx (Angkor Wat snake pit): SetScratchPointer(misc_fx_1CD380) names the tile art, SetMetasprite(spriteset_particle_fx) names this table, ResetSpriteState(0, $2020) picks animation 0 and the VRAM word address $2020, and AdvanceSpriteAnim runs the frames.",
+      "",
+      "=== WHAT AdvanceSpriteAnim READS ===",
+      "",
+      "On this tile-streaming path only two bytes of each sprite group matter: the size flag of its first sub-sprite (group +$0D: 0 = 32 bytes, nonzero = 128 bytes = four 4bpp tiles) and the tile byte of that sub-sprite (group +$12, times 32 = the offset of the frame in the art). The extents, the two collision boxes and the X/Y offsets are not read here. The frame hold is the usual word (hold n lasts n + 1 ticks).",
+      "",
+      "=== CONTENT ===",
+      "",
+      "One animation (the table has one entry): 6 frame records, hold 5 (6 ticks each, a 36-tick loop), showing 4 distinct groups in the order 0, 1, 2, 3, 2, 1 (a ping-pong). Each group has the default header (extents 8, 8, 16, 0 and the boxes $F8 $F0 $01 $01 / $F8 $10 $F0 $10) and one sub-sprite of size 1 with tile word $0E00, $0E04, $0E08, $0E0C. Tile bytes 0, 4, 8, $0C are four 128-byte frames laid back to back in misc_fx_1CD380; each is DMAed to VRAM word $2020. The high byte $0E of the tile word (palette / priority bits in an OAM word) is not read by this path.",
+      "",
+      "General format of the sprite-set / sprite-group / sprite-part structs: see the block note of spriteset_freedan.",
+      "",
+      "The previous note ('sparkles, dust and other lightweight ambient particles') was a guess from the name: nothing but the snake pit effect uses this block."
+    ],
+    "partNotes": {
+      "spriteset_particle_fx": [
+        "Animation table with a single entry (index 0), used by awB4_snake_pit_fx. Any other animation index would read past the table."
+      ],
+      "sprite_set_14C12E": [
+        "Frame list of animation 0: groups 14C148, 14C15C, 14C170, 14C184, 14C170, 14C15C, each held 5 (6 ticks). The hidden $FFFF terminator after the last record wraps the loop (AdvanceSpriteAnim clears the frame counter at it). 36 ticks per cycle."
+      ],
+      "sprite_group_14C148": [
+        "Frame 0: tile byte $00 = the first 128 bytes of misc_fx_1CD380. Groups 14C15C, 14C170 and 14C184 differ only by the tile byte ($04, $08, $0C)."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/shared_word_table.asm": {
+    "blockNote": [
+      "Shared word strings (Bank 01, 125711-125864). 15 console strings that other strings splice in with the text tag [LU:n] (console command $10, ConsoleCmd_InsertSharedWord): the operand byte is the index, and the renderer calls itself on shared_word_table[index]. Each word carries its own trailing space; there is no separator logic.",
+      "",
+      "The words are not only item name prefixes: they also serve ability names ('Psycho Dash', 'Dark Friar'), item descriptions ('Restores strength.', 'Letter from Lance.') and the item menu prompts ('Rearrange items.', 'Select item and enter.'). See the table part note for the index list and which indices are used.",
+      "",
+      "Only the vanilla strings were counted (tables/system_strings, 63 lines carrying 68 tags). The retranslation patches may use other indices."
+    ],
+    "partNotes": {
+      "shared_word_table": [
+        "15 word pointers, indexed by the [LU:n] operand ($00-$0E), all in Bank 01. The number is how many [LU:n] tags of that index the vanilla system_strings contain.",
+        "",
+        "| n | Word | Tags | Examples |",
+        "|---|------|------|----------|",
+        "| $00 | Crystal | 0 | |",
+        "| $01 | Diamond | 2 | 'Diamond Mine' |",
+        "| $02 | Dark | 9 | 'Dark Knight', 'Dark Friar', 'Dark Power' |",
+        "| $03 | Hieroglyph | 0 | |",
+        "| $04 | Inca | 3 | 'Inca Statue A/B' (with $0C), 'Inca Melody' |",
+        "| $05 | Mystery | 8 | the 8 'Mystery Doll' items |",
+        "| $06 | Prison | 3 | 'Prison Key', 'Edward Castle Prison Key' |",
+        "| $07 | Plate | 6 | the 6 'Plate with hieroglyph' descriptions |",
+        "| $08 | Psycho | 4 | 'Psycho Dash', 'Psycho Slider' (ability names, menu and detail screens) |",
+        "| $09 | Restores | 3 | 'Restores strength.', 'Restores Memory.' |",
+        "| $0A | Rearrange | 2 | item menu prompt |",
+        "| $0B | Select | 3 | item menu prompts |",
+        "| $0C | Statue | 18 | 'Mystic Statue' (8 items), 'Incan Statue', 'Statue of Hope' and their descriptions |",
+        "| $0D | Uses | 0 | |",
+        "| $0E | from | 7 | 'Melody learned from Lola.' and the other 'obtained from' lines |",
+        "",
+        "The strings of $00, $03 and $0D exist in the ROM but no vanilla string selects them (OQ-I063-1)."
+      ],
+      "consolestring_01EB2D": [
+        "Index $00 'Crystal '. No vanilla [LU:0] tag."
+      ],
+      "consolestring_01EB45": [
+        "Index $03 'Hieroglyph '. No vanilla [LU:3] tag (the plate descriptions spell 'hieroglyph' out in plain text)."
+      ],
+      "consolestring_01EB9C": [
+        "Index $0D 'Uses '. No vanilla [LU:D] tag."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/spriteset_freedan.asm": {
+    "blockNote": [
+      "Freedan player spriteset (Bank 0E, 950272-969435): every frame the player can show in form 1. 76 animations ($00-$4B), 353 frame records, 186 sprite groups, 2147 sub-sprites (at most 14 per group). Chosen by body_table[1] (art free_sprites_1AC000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The player scripts pick the animation with StagePlayerSprite and friends; the numbering is shared with spriteset_will and spriteset_shadow.",
+      "",
+      "=== FORMAT (the same in every spriteset_* file) ===",
+      "",
+      "- Table: one word pointer per animation index ($28), relative to the spriteset bank.",
+      "- Frame list (sprite-set): 4-byte records < hold, &sprite_group >. A frame is shown for hold + 1 ticks. The list ends with a hidden $FFFF word that the extraction does not show (a list of n records is 4n + 2 bytes; this was checked for all 76 lists by label spacing and in the ROM). Any negative word works, AdvanceSpriteAnim tests the sign. docs/structs-reference.md says the terminator is $0000: that is wrong.",
+      "- Sprite group: 13-byte header, then 7-byte sub-sprites.",
+      "  - Header bytes 0-1: X extents (left, right); bytes 2-3: Y extents (top, bottom). UpdateActorAnimation loads them into $18/$1C and $1A/$1E (screen culling) and swaps each pair for a flipped actor.",
+      "  - Bytes 4-7 and 8-11: two 4-byte boxes for the collision code. The default is $F8 $F0 $01 $01 and $F8 $10 $F0 $10; some groups have other values in the second box.",
+      "  - Byte 12: the number of sub-sprites (equal to the real count in all 186 groups).",
+      "- Sub-sprite < size, x, x', y, y', tile word >: size 0 = 8x8, 1 = 16x16 (the OAM size bit); x / y is the offset inside the extent box and x' / y' the mirrored offset used for a flipped actor (x + x' = total width - size, checked by hand on three sub-sprites); the tile word is a normal OAM word (tile low byte, bit 8 name table, bits 9-11 palette, 12-13 priority, $4000 H flip, $8000 V flip).",
+      "- The same group is used by several frames and animations (353 records name 186 groups): animations $04-$07 reuse the four idle groups of $00-$03.",
+      "",
+      "Tile art: the tile byte of a sub-sprite selects 32-byte tiles in free_sprites_1AC000; the player art is DMAed as the frames change (sprite_composition).",
+      "",
+      "=== PLAYER ANIMATION NUMBERS ===",
+      "",
+      "See the part note of the table for the index map. The previous header claimed 'Dark Friar cast poses': the ability cast in attack_ability_system stages the ordinary attack animations $36-$39, no separate Dark Friar animation was identified."
+    ],
+    "partNotes": {
+      "spriteset_freedan": [
+        "76 word pointers to frame lists, indexed by the actor animation index ($28). Indices the player scripts stage (player_character, attack_ability_system), with the shape of the Freedan data:",
+        "",
+        "| Index | Use | Frames |",
+        "|-------|-----|--------|",
+        "| $00-$03 | idle south / north / west / east (the Spin Dash launch stages the same four) | 1 frame, hold $63 (101 ticks) |",
+        "| $04-$07 | the same four groups again; nothing found stages them | 1 frame |",
+        "| $08-$0B | walk south / north / west / east | 4 frames, hold 7 (8 ticks) |",
+        "| $0C-$0F | the 'Moving' cycles of the momentum code: MovingToSouth $0C, MovingNorthSouth $0D (north), MovingToWest $0E, MovingEastWest $0F (east) | |",
+        "| $10-$13 | idle south / north / west / east staged for Shadow (form 2) only; the table has entries as well | |",
+        "| $18 | first pose of the vine entry (StagePlayerMoveXY) | |",
+        "| $19, $1A, $1B | vine climb cycle $1A, $1B, $19, repeating | |",
+        "| $2A, $2B | ladder idle north, south ($2E, $2F: Shadow) | |",
+        "| $2C, $2D | ladder move up, down | |",
+        "| $30, $31 | detach from the shimmy left, right ($34, $35: Shadow) | |",
+        "| $32, $33 | shimmy left, right | |",
+        "| $36-$39 | melee attack south / north / west / east (the Freedan ability cast stages the same four) | |",
+        "| $3A-$3D | guard (block) south / north / west / east | |",
+        "| $42, $43 | attack against a wall west / east (forms 0 and 1) | |",
+        "| $44-$47 | Will's lunge south / north / west / east (form 0 only; the Freedan table still has entries) | |",
+        "| $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |",
+        "",
+        "Not staged by the player scripts: $14-$17, $1C-$29, $3E-$41, $4A, $4B. Several of $1C-$29 are staged through StagePlayerMoveY/XY by other files (player_transition_handlers, ramps, credits) and were not resolved one by one (OQ-I063-2)."
+      ],
+      "sprite_group_0E86B4": [
+        "Example group: Freedan idle south, animations $00 and $04 (the first group of the file). Header: extents X 27 / 20, Y 45 / 0, default boxes, 12 sub-sprites; the one with tile word $405F has the H flip bit set."
+      ]
+    },
+    "comments": {}
+  }
+}

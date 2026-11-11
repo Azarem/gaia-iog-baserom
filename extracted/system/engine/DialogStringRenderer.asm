@@ -328,7 +328,7 @@ DialogCmd_IndirectString {
 ; 
 ; Stack frame (6 words above the saved Y): SP+1 = data address, SP+3 = digit count, SP+5 = nibble position within the current word (1–4, 4 = highest), SP+7 = digits already handled, SP+9 = word index, SP+B = digits-printed flag. Each pass derives the position from (count − handled): repeated subtraction of 4 gives the word index and position, the word is fetched from data + 2 × index, and LSR ×4 per position moves the nibble into the low bits.
 ; 
-; The nibble is mapped through HexDigitTileTable and written to both tile rows. Leading zeros are suppressed until the first nonzero digit, except that a zero at position 1 is always printed (the last digit of the number, but also the lowest nibble of any higher word: with more than 4 digits that prints a leading zero — E1 analysis, unverified at runtime). Each digit calls WaitNFrames_PerChar for the typing effect.
+; The nibble is mapped through HexDigitTileTable and written to both tile rows. Leading zeros are suppressed until the first nonzero digit, except that a zero at position 1 is always printed (the last digit of the number, but also the lowest nibble of any higher word: with more than 4 digits that prints a leading zero, and the printed zero ends the suppression, so every zero after it prints too: a count of 5 on the value 3 prints 00003 where a count of 2 prints 3). Each digit calls WaitNFrames_PerChar for the typing effect.
 
 DialogCmd_PrintNumber {
     PHY 

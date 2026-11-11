@@ -120,7 +120,7 @@ The 24-entry jump table at `$028416` maps command indices `$00`–`$17` to handl
 | `$14` | `$14` | `SceneCmd_Label` | Skip 1 script byte |
 | `$15` | `$15` | `SkipScriptCommands` | Skip N commands of varying sizes |
 | `$16` | — | `SceneCmd_Default` | Unimplemented (NOP return) |
-| `$17` | `$17` | `SceneCmd_LoadCharTiles` | Character-specific tile data to BG1/BG2 VRAM |
+| `$17` | `$17` | `SceneCmd_LoadCharTiles` | Preformatted screens (BG tilemaps) DMA'd straight to VRAM; see [dmap-inventory-bg](../../dmap-inventory-bg.md) |
 
 **Implemented script commands:** 11 of 24 table entries (`$02`–`$06`, `$0E`, `$10`–`$11`, `$13`–`$15`, `$17`).
 
@@ -228,7 +228,7 @@ Tier 1 applies to cached loaders (`SceneCmd_LoadBgTiles` modes 0–1, metatile/l
 | `$028A6D` | SceneCmd_ConfigDisplay | Command `$02` configures the SNES PPU for a scene by reading a 1-byte index into `display_preset_table` — a preset table of display register values. |
 | `$028B69` | SceneCmd_Skip3 | Command `$0E` is a placeholder NOP that advances the script index by 3 bytes. |
 | `$028BE4` | SceneCmd_LoadSpriteTiles | Command `$10` loads sprite tile graphics to OBJ VRAM. |
-| `$028C30` | SceneCmd_LoadCharTiles | Command `$17` loads character-specific tile data to BG VRAM. |
+| `$028C30` | SceneCmd_LoadCharTiles | Command `$17` loads preformatted tilemap screens (`dmap_inventory_bg`) to VRAM. |
 | `$028CE7` | ReadScriptByte | Reads the next byte from the script stream at `[$3A],Y` and advances `Y` by one. |
 | `$028CF2` | FindCurrentScene | Linearly scans the script stream at `($3A)` starting from `Y = 0` to find the entry matching `scene_current` at `$0644`. |
 | `$028D3D` | SkipScriptCommands | Advances `Y` past N commands in the script stream, where N is read from the first byte via `ReadScriptByte` and stored on the stack. |
@@ -804,33 +804,34 @@ Command `$10` loads sprite tile graphics to OBJ VRAM. Reads a 2-byte size word d
 
 ### SceneCmd_LoadCharTiles
 
-Command `$17` loads character-specific tile data to BG VRAM. Reads a mode byte to `$066A` and a 3-byte source pointer. Reads inline width/height, computes tile data size via `Multiply8x8Unsigned`, and optionally decompresses to `$7E:7000`. Supports three VRAM targets based on mode: negative mode (bit 7 set) uses computed address; bit 0 → BG1 at VRAM `$1000`; bit 1 → BG2 at VRAM `$1800`; both bits can load sequentially via the `code_028CB0` continuation. DMA uses word mode to upload `$0666` bytes from the source buffer.
+Command `$17` DMAs a preformatted block straight to VRAM. Operands: a flags byte (stored in `$066A`) and a 3-byte source pointer. The source file starts with a 4-byte header `00 W 00 H`, then a 2-byte size word, then the data (QuintetLZ in the original ROM). Columns = `b0|b3` and rows = `b1|b2` (two words merged with `XBA`+`ORA`); `Multiply8x8Unsigned` gives the number of 32×32 tilemap screens and `XBA` + `ASL`×3 turns that into the DMA size in `$0666` (screens × 2048 bytes). The size word is the decompressed length; the data is decompressed to `$7E:7000` and DMA'd from there. Despite the name, the only file (`dmap_inventory_bg`) holds four BG tilemap screens. See [dmap-inventory-bg](../../dmap-inventory-bg.md).
 
 **Algorithm:**
 
 | Step | Action |
 |------|--------|
-| 1 | Read mode, source pointer, inline dimensions |
-| 2 | `Multiply8x8Unsigned` → size in `$0666` |
-| 3 | Decompress if needed |
-| 4 | If mode bit 7: compute VRAM addr from `$066A` |
-| 5 | Else if bit 0: VRAM `$1000`; if bit 1: VRAM `$1800` |
-| 6 | Word-mode DMA `$0666` bytes to VRAM |
+| 1 | Read flags, source pointer, and the 4-byte header |
+| 2 | `Multiply8x8Unsigned` (columns × rows) → `XBA` + `ASL`×3 → size in `$0666` |
+| 3 | Read the size word and skip it; decompress to `$7E:7000` (the raw branch after the `INC` pair is dead in the original ROM, because `BEQ` tests the `INC` result; `MenuBGLoad.patch.asm` makes a zero or negative size word select raw data) |
+| 4 | If flags bit 7: VRAM word address = `(flags & $7F) << 10` (`$400` words per tilemap screen) |
+| 5 | Else if bit 0: VRAM `$1000`; if bit 1: VRAM `$1800` (both bits upload the same data twice via `code_028CB0`); neither bit: no DMA |
+| 6 | General DMA channel 0, mode `$01`, B-bus `$18`, `$0666` bytes |
 
 **Variables:**
 
 | Location | Direction | Role |
 |----------|-----------|------|
-| `$066A` | In | Mode: bit 7=computed, 0=BG1, 1=BG2 |
-| `$0666` | Out | Tile data byte count |
+| `$066A` | In | Flags: bit 7 = destination `(flags & $7F) << 10`; else bit 0 = `$1000`, bit 1 = `$1800` |
+| `$0666` | Out | DMA byte count (screens × 2048) |
 | `$2116` | Out | VRAM destination |
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `Multiply8x8Unsigned` | Size computation |
-| `QuintetLzDecompress` | Compressed tile data |
+| `Multiply8x8Unsigned` | Screen count |
+| `QuintetLzDecompress` | Decompresses to `$7E:7000` |
+| `MenuBGLoad.patch.asm` | Rebuild patch: raw (size word ≤ 0) path |
 | `SceneCmd_LoadBgTiles` | Related BG tile loading |
 
 #### Parsing Helpers

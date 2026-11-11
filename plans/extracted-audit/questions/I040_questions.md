@@ -1,0 +1,10 @@
+# I040 open questions
+
+Mesen2 MCP was not available, so everything below is UNVERIFIED-RUNTIME.
+
+| ID | Iter | Question | Static evidence so far | Suggested check |
+|----|------|----------|------------------------|-----------------|
+| OQ-I040-1 | I040 | Does `large_ramp_booster` boost the player once per approach (not every frame), and does it only ever change `playerSpeedEw`? | After `LargeRampBoostEastWest` the entry is the radius-3 test whose target is `LargeRampBoostNorthSouth` (a bare `RTL`); `playerSpeedNs` is only read | Stand within 32 px of an `ir21` / `dm41` ramp while moving and log `playerSpeedEw` / `playerSpeedNs` for 60 frames; then leave the 48-px box and re-enter |
+| OQ-I040-2 | I040 | If only the NS speed is nonzero when the gate runs, is `playerSpeedEw` really incremented to `+1` (east)? | The gate accepts either speed nonzero; the east-west boost code increments a zero EW speed to `+1` | Walk straight north / south at the ramp and watch `playerSpeedEw` |
+| OQ-I040-3 | I040 | Which scripts set and clear palette flag `#01` in scenes `$FD` / `$FF`, what does bundle `#03` contain, and is the doc claim "World Map, Inventory" wrong? | The spawn records list scenes `$FD` and `$FF` only; the script polls the flag every pass and restarts bundle #03 after each child kill | Break `PaletteStart` with bundle `#03`; find the setter of the flag with a write watch on the flag byte while opening the menus and the world map |
+| OQ-I040-4 | I040 | Do the east wall-slide handlers push the player in the directions the notes now state (TR `$09` pushes down, BR `$06` pushes up, 1..16 px), and does the Y auto-align (n = 1..3 north, 4..10 south preferred, 11..15 south only, 2 px per call) feel as described? | `DiagPushRight` stores a positive `$24`; `DiagPushLeft` a negative one; the auto-align ranges and the `$06,S` parked-velocity guard were traced by hand | Walk east into a `$09` / `$06` corner with `$26` on a watch; log the Y change per tick, and the `AutoAlignNS_East` branch taken for each n |

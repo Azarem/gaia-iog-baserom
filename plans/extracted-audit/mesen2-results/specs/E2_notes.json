@@ -1,0 +1,59 @@
+{
+  "_note": "E2 draft (2026-11-06, ROM O). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/E2_notes.json --dry-run. Sources: mesen2-results/E2_20261106.md, raw/E2_bundles.md, raw/E2_trg_pc03.txt, raw/E2_trg_warm.txt, raw/E2_sw1-8.txt.",
+  "thinkers/palette_parent_child.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "docs/code/bank0C-scene-spawn-tables-comet.md lists the thinker for 'World Map, Inventory'; only $FD and $FF appear in the records. Which scripts set and clear flag #01 in those scenes was not traced.",
+          "with": "docs/code/bank0C-scene-spawn-tables-comet.md lists the thinker for 'World Map, Inventory'; the records are for scene $FD (Statue Inventory) and scene $FF (Inventory), and scene $FE (World Map) does not start it (measured: no start of bundle #03 in $FE with flag #01 set). Bundle #03 is one strip of 8 frames of two colours at CGRAM $CE-$CF with 3 extra ticks per frame, 32 ticks per pass (measured): a grey pulse, $CE $5EF7 to $4210 and $CF $7FFF to $5EF7 and back. In these two scenes the only code that sets flag #01 is the item-use script of the inventory (item_use_system sets it at {231958} in UseItem_WindFlute_Effect, and at {232552}, {234433}, {235734} and {235760}); with the flag set the child restarts the bundle on every pass (measured: 9 starts of #03 in 240 ticks in each of $FD and $FF with the flag set at tick 5)."
+        }
+      ]
+    }
+  },
+  "thinkers/flag_gated_palette_warm.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "a single 1-frame step that writes 80 colours starting at colour index $30 (decoded from the bundle table, delay 0).",
+          "with": "a single 1-frame step that writes 80 colours starting at colour index $30 (decoded from the bundle table, delay 0). Measured in scene 01 with flag $16 set: 75 of the 80 colours change, towards darker values with red dominant (for example $31 $20C5 to $0003, $36 $4ADA to $2DF2)."
+        },
+        {
+          "find": "whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+          "with": "after an inventory open/close the loop plays the bundle once more (measured in scenes 01 and 30: one extra start of bundle $02 per open/close, after the overlay has closed, in the same scene)."
+        },
+        {
+          "find": "so there the gate kills the thinker at once - inferred, not run.",
+          "with": "so there the gate kills the thinker at once. The gate itself was measured (flags $16 and $1C both set: no start in scenes 01, 03 and 30; only $16 set: bundle $02 starts in scenes 01 and 30; neither set: no start); the flag state on a normal arrival at Oakton was not read."
+        }
+      ]
+    }
+  },
+  "thinkers/flag_gated_palette_cool.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "a single 1-frame step that writes 7 colours starting at colour index $19 (decoded from the bundle table, delay 0).",
+          "with": "a single 1-frame step that writes 7 colours starting at colour index $19 (decoded from the bundle table, delay 0). Measured in scene 03 with flag $16 set: the seven colours go from (near) black ($0000 for $19-$1C, $0002, $0400, $0020 for $1D-$1F) to $18ED, $192F, $1D91, $1DF4, $2236, $2298, $26FB, dark brown to red-orange tones with red the largest channel."
+        },
+        {
+          "find": "whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+          "with": "after an inventory open/close the loop plays the bundle once more (measured in scenes 03-07: one extra start of bundle $4C per open/close, after the overlay has closed, in the same scene; scene 08 masks the joypad on arrival, so no overlay was opened there)."
+        }
+      ]
+    }
+  },
+  "thinkers/ambient_palette_cycler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "bundle $13 (scenes 1D and 27)",
+          "with": "bundle $13 (scenes 1D, 20, 25, 26, 27 and 28)"
+        },
+        {
+          "find": "The bundle-ID list per scene is in scene_thinkers;",
+          "with": "The bundle-ID list per scene is in scene_thinkers (the 59 records use 33 distinct bundle IDs; a sweep of all 228 scenes saw 32 of them play, the exception is #47, whose record belongs to scene $84, a scene id that is not in the scene list);"
+        }
+      ]
+    }
+  }
+}

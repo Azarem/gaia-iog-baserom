@@ -1,0 +1,17 @@
+{
+  "_note": "FR24 draft (2026-11-05). Replaces the two Vader barrier block notes of Pyramid scene $D6: neither actor tests characterForm or any form; a real sword hit in Will form (physical B) drives both (runtime FL29-03). Dry-run only until the apply pass: npm run merge -- plans/extracted-audit/mesen2-results/specs/FR24_notes.json --dry-run",
+  "pyramid/pyramid_vader_a/pyD6_vader_barrier_upper.asm": {
+    "blockNote": [
+      "Upper Vader barrier of Pyramid scene $D6: the hit target that swaps the solid row pair y $2B-$2C (tiles $34-$39) for y $4B-$4C.",
+      "",
+      "Idle state: solid rows y $2B-$2C are marked, y $4B-$4C are open, a hit callback (code_08C36C) is armed and the counter word at slot $1060 + $26 is $FE00. A sword hit (physical B, Will form works) runs the callback: with scratch flag $0F clear it sets $0F, marks the lower row pair y $4B-$4C solid and counts the slot word up from $FE00; when it reaches 0 (513 frames) it clears the upper row pair y $2B-$2C, plays the sound, clears $0F and re-arms the callback (the hit callback is not armed while the counter runs, so further swings in that window do not reach it). A callback entered with $0F already set (set by a lower barrier, or forced) only jumps back to the idle state and nothing changes; the lower barriers share the same flag. The actor never tests characterForm or any other form state."
+    ]
+  },
+  "pyramid/pyramid_vader_a/pyD6_vader_barrier_lower.asm": {
+    "blockNote": [
+      "Lower Vader barrier of Pyramid scene $D6 (two copies): the hit target that swaps the solid row pair back.",
+      "",
+      "A sword hit (physical B, Will form works) runs the callback (code_08C456): with scratch flag $0F clear it sets $0F, marks the upper row pair y $2B-$2C solid and counts the slot word at $1060 + $26 down toward $FE00; at $FE00 it clears the lower row pair y $4B-$4C, plays the sound and clears $0F (about 26 frames when the word is already $FE00). While $0F is set (the upper barrier is still counting) the callback only jumps back to the idle state and the hit is ignored. The actor never tests characterForm or any other form state."
+    ]
+  }
+}

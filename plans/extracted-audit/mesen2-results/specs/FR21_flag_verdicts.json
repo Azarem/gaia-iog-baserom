@@ -1,0 +1,236 @@
+[
+  {
+    "flag": 46, "scope": null, "queueId": "FL22-01", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_IncanMelody sets $2E at ROM offset 231465 when used in scene $18; the same item in scene $15 reaches the 'nothing happened' path at 231473 and the bit stays clear.",
+      "clear": "No clear observed. Set-only: with $2E set or clear, talking to it18_warning_man (handler 318914) and it18_warning_woman (handler 319100) prints the same text (screenshots identical) and the actor lists are identical."
+    },
+    "expectGrade": "none (spine proposal)",
+    "evidence": "FR21_20261105.md FL22-01 (raw/FR21_FL22-01_ctl_s15, _forced_s18, _talk_man_*, _talk_woman_*). Not tested: leaving and re-entering scene $18 with the bit set."
+  },
+  {
+    "flag": 0, "scope": { "scenes": [30] }, "queueId": "FL22-02", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scratch $00 in scene $1E is set while the player's Y is below the north threshold (player Y word $09A4 = 144 and 240 set it) and cleared at Y 496; with $30 and $31 both set it stays set at Y 496.",
+      "clear": "Follows the player's Y (cleared at Y 496 when $30/$31 are not both set)."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "FR21_20261105.md FL22-02 (raw/FR21_FL22-02_ctl, _f30_31). Not measured: the idle sprite variant (the player was off screen in the screenshots)."
+  },
+  {
+    "flag": 38, "scope": null, "queueId": "FL22-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "No writer exercised (set by the poke). With $26 set at load, scene $15 keeps it15_lily and it15_kara (@744,864 / @728,864), stores $CFF0 at arrival (free again at frame 29 of the settle), the dialog 'Lilly: This is my village, but you're probably surprised that there are no houses.' opens (dmf $2000); the camera word (cx) is 0 with $26 set versus 5104 with it clear (the pan itself was not followed).",
+      "clear": "With $26 clear: it15_lily and it15_kara are absent, the player is free, no dialog."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "FR21_20261105.md FL22-03 (raw/FR21_FL22-03_ctl, _f26, _f26_early)"
+  },
+  {
+    "flag": 47, "scope": null, "queueId": "FL22-04", "verdict": "CONTRADICTED", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_DiamondBlock (item $07) sets $2F (offset 231800) only when the player's tile is X $0E and Y $19 or $1A (tested (0E,19) and (0E,1A)); at (0F,19), (0D,19) and (10,19) it prints the failure text (offset 231737) and sets nothing. With $2F set at runtime by a poke (cells run) the six ir25_ceiling_tile actors change entry (0x2300 > 0x301), 16 of the 39 watched collision cells change (the changed ones go from $0F to $00) and the joypad is locked ($CFF0) for 374 frames; a reload with $2F set shows the landed state at once. The tile fall after the item itself was not recorded separately.",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-04 (raw/FR21_FL22-04_forced_use_x0E, _x0F, _y1A, _dlg_*, _cells_*, _reload_set). Shipped note wrong: notes/partNotes/bank03.json:308 (extracted/system/inventory/item_use_system.asm:540-541) says X $0E-$0F places and calls scene $25 the Diamond Mine."
+  },
+  {
+    "flag": 48, "scope": null, "queueId": "FL22-05", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Incan Statue A (item $03) used at tile (37,12) of scene $1E reaches UseItem_IncanStatueA's set (offset 231098) and sets $30; ir1E_cliff_mantel_a changes entry (0x7002 > 0x1002); after a reload with $30 set it is at 0x5002; ir1E_cliff_mantel_b and the slide trigger are unchanged and no slide starts with $31 clear.",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-05 (raw/FR21_FL22-05_use, _reload_f30, _reload_none)"
+  },
+  {
+    "flag": 49, "scope": null, "queueId": "FL22-06", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Incan Statue B (item $04) used at tile (26,15) of scene $1E reaches UseItem_IncanStatueB's set (offset 231376) and sets $31. With $30 and $31 set, standing on pixel (01E8,0120) or (01E7,0120) locks the joypad ($EFF0) and from then on playerSpeedEw = $FFF8 (slide); with $30 set and $31 clear nothing happens.",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-06 (raw/FR21_FL22-06_ctl_trigger_only30, _use_then_trigger, _trigger_both*). Not counted: the 40 debris helpers."
+  },
+  {
+    "flag": 64, "scope": null, "queueId": "FL22-07", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Lola's Melody (item $09) in scene $15 with $26 set: the flute actor is spawned (offset 232445) and UseItem_LolaMelody_Effect sets $40 at offset 232527 (flag visible at settle frame 1497).",
+      "clear": "No clear observed. With $40 set the same item reaches the 'nothing happened' text (offset 232491, 21 times over 900 frames of the bot) and spawns no flute actor (232445 count 0)."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "FR21_20261105.md FL22-07 (raw/FR21_FL22-07_first2, _second2). Not observed in detail: the reveal (palette flash, 16-step camera pan, barrier dialog): CGRAM checksums at two settle frames were equal."
+  },
+  {
+    "flag": 68, "scope": null, "queueId": "FL22-08", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Elder (scene $15) with item $03 and the answer Yes to 'Understand?' reaches offset 322039 and sets $44 at 322043; with item $04 held and $44 clear the item $04 branch (322012) runs and $44 stays clear. With $44 set the item text in scene $1E reads 'He said to dedicate the statues where the breath of the spirits can't reach.'; with $44 clear it reads 'Is the Inca secret hidden in the statue?'.",
+      "clear": "No clear observed. The prompt cursor starts on the default option; the No answer repeats the legend (322033)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-08 (raw/FR21_FL22-08_item03_yes0b, _item04_south, _spirits_44set, _spirits_ctl44clear)"
+  },
+  {
+    "flag": 74, "scope": null, "queueId": "FL22-09", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Lily's talk handler (scene $1A) with item $04 held sets $4A at offset 324858 before the options (324865). Answering No still sets it, and the No block (324877) has no RTL: it falls through into the Yes block (324881) so both answers end in QueueMapChange (324911) and the world-map move to scene $1C.",
+      "clear": "No clear observed. With $4A set the Itory exit (scene $15) stages world-map menu $06 (offset 52053); with it clear menu $04 (offset 52037). With $4A set Lily is absent on re-entry of scene $1A (0 it1A_lily actors versus 3)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-09 (raw/FR21_FL22-09_talk_*, _exit_*, _reenter_*)"
+  },
+  {
+    "flag": 255, "scope": { "scenes": [29] }, "queueId": "FL22-10", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "larai_cliff_scroll_wave sets $FF at offset 48543 in the first frames of scene $1D (bit set at frame 1 of the settle).",
+      "clear": "Clearing the bit at settle frames 100 and 160 re-runs the setup (48543 count 1 > 3, HDMA enable $66 toggles $06 > $0E > $06 one frame later); the BranchOnFlagByte at 48579 is polled 262 times."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-10 (raw/FR21_FL22-10_ctl, _forced_clear)"
+  },
+  {
+    "flag": 373, "scope": null, "queueId": "FL22-11", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "In scene $F2 the helper spawned by btF2_neo_castoth (offset 694870, run at emulator frame 1261) waits on enemiesRemaining; with it poked to 0 (SIMULATED defeat, the fight was not played) it reaches SetFlagWord #$0175 at 695015 and QueueMapChange #E0 at 695031, and the bit is visible at settle frame 1264 (poke at 900; the helper's wait and the Shadow-to-Will transform come first). The only SetFlagWord #$0175 in extracted/ is that one (rg).",
+      "clear": "No clear observed. In scene $29 the helper (694969) and 695015 never ran in 700 frames of the intro (bit stays clear); the real scene $29 fight was not played."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-11 (raw/FR21_FL22-11_sF2_poke_late, _s29_obs). Static: the only SpawnListAppend of code_0A9AB9 is ir29_castoth.asm:93 inside btF2_neo_castoth."
+  },
+  {
+    "flag": 274, "scope": { "scenes": [36] }, "queueId": "FL22-12", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "ir24_glowing_tile sets word $0112 (byte $0A22 bit 2) and plays the chime (offset 640666) 603 frames after the player (last) stands on tiles (14,17)-(17,1A) (counter orbitAngle starts at $0258 = 600 and drops 1 per frame); no item is used.",
+      "clear": "Stepping off (teleport off at frame 300, back at 303) reloads the counter to 600 (read: 304 before, 600 after); the flag is then set at settle frame 906 (603 frames after the re-entry at 303) instead of 606. With the player never on the tiles the counter stays 600 and the flag stays clear."
+    },
+    "expectGrade": "none (FL11 record ir_glowing_tile_done)",
+    "evidence": "FR21_20261105.md FL22-12 (raw/FR21_FL22-12_stay, _stepoff, _never_on)"
+  },
+  {
+    "flag": 185, "scope": null, "queueId": "FL22-13", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "ir20_statue (scene $20): with its HP lowered by a poke (SIMULATED hit) and playerFlags bit $0002 set it executes SetFlagByte #B9 (offset 690471) and dies one frame later (flag set, statue absent); with the bit clear it takes the DEC $24 path (690466), HP back to $FF the next frame, no flag. A scene load with $B9 set has no statue.",
+      "clear": "No clear observed. Real sword hits at the statue (A mashed while holding up) did not change its HP in 1 trial; a real hit and the real source of bit $0002 were not observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL22-13 (raw/FR21_FL22-13_poke_pf_clear, _poke_pf_set, _reload_B9, _real_hits). Shipped note wrong: notes/blockNotes/bank0A.json:36 ('checked via position')."
+  },
+  {
+    "flag": 76, "scope": null, "queueId": "FL23-01", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $2C with $4C clear: joypad locked ($EFF0 at arrival), word $0185 set from the start, $4C set at frame 377 and the lock released at 378. With $4C set: gs2C_descent absent, two gs2C_crow_crew actors (helper child), scene $02 without sc02_erik and sc02_lance (one sc02_seth, the statue object, remains), scene $06 art changes (VRAM chunks 40-47, CGRAM palettes 11-14).",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL23-01 (raw/FR21_FL23-01_s2C_*, _s02_*, _s06_*). Not traced: the scene_meta $13 gate that selects the scene $06 art."
+  },
+  {
+    "flag": 77, "scope": null, "queueId": "FL23-02", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set also by gs2E_sleep (offset 362126) when the bed starts the dream. With $4D set (and $52 clear) the wreck palette thinker in scenes $2B, $2D and $2F takes the 46726 path (bundle #34 once, then the #33 loop at 46734, 7 strips in 300 frames); with it clear the #1A cycle (46719). Palette 7 sum 437923 > 162202 and colour $59 9381 > 2152 in $2F; the buffer cycle colours change ($24A0.. > $08A9..) in all three scenes.",
+      "clear": "No clear observed. The phase is fixed for the scene visit (the tests at 46707/46713 run once)."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "FR21_20261105.md FL23-02 (raw/FR21_FL23-02_2F_d1_*, _2B_*, _2D_*). The adrift-day value $0AA6 (1 or 3) did not change the thinker."
+  },
+  {
+    "flag": 82, "scope": null, "queueId": "FL23-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $52 set in scene $2F the thinker runs the 46747 path before any $4D test (46713 not executed even with $4D also set): two KillThinker calls (46751, 46759), palette 2 buffer colours $21-$2C all $1421, colour 0 $1442, bundle #36 (46788).",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "FR21_20261105.md FL23-03 (raw/FR21_FL23-02_2F_d3_52, _2F_d3_52_4D, _2F_d3_ctl). The killed thinkers are shown by the two KillThinker execs, not by a thinker-list walk."
+  },
+  {
+    "flag": 101, "scope": null, "queueId": "FL23-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "No writer exercised (poked). With $65 set the scene $32 exit zone stages world-map menu $07 (offset 52125) instead of $09 (52109); scene $39 has fr39_erik and the joypad is free from arrival (with $65 clear: $CFF0 until the reunion at frame 149); fr32_kara is absent in scene $32 with $65 set and also with $57 set.",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL23-04 (raw/FR21_FL23-04_s32exit_*, _s39_*, _kara_*)"
+  },
+  {
+    "flag": 104, "scope": null, "queueId": "FL23-05", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Memory Melody (item $0D) in scene $39 on tile (13,18) with $68 clear: UseItem_MemoryMelody_Effect sets scratch $0F (offset 233336), the Lance sequence follows and $68 is set at offset 378843 (frame 5309 of the run); scratch bytes are clear again at the end.",
+      "clear": "No clear observed. With $68 set the same item reaches the 'nothing happened' path (233341) and 233336 does not run."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL23-05 (raw/FR21_FL23-05_mel3_ctl, _mel_f68). Not tested: the changed dialog of Kara, Lilly and Erik."
+  },
+  {
+    "flag": 106, "scope": null, "queueId": "FL23-06", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "No writer exercised (poked). With $6A set fr3C_imas and fr3C_sam are absent (their BranchOnFlagByte #6A at offsets 376553 and 376950 take the Die path) and fr3C_remus takes the 376769 path (StageSpriteFrame #27) with chatPtr $BFD9 (line 'How can things like this happen?') instead of $BFD4.",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "FR21_20261105.md FL23-06 (raw/FR21_FL23-06_ctl, _forced). The dialog itself and the sprite frame were not read at runtime: the handler pointer and the exec of the StageSpriteFrame stand for them."
+  },
+  {
+    "flag": 248, "scope": null, "queueId": "FL23-07", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Holding item $38 in scene $2E starts the statue ceremony (scene $FD at settle frame 23, back in scene $2E at frame 293); $F8 is set at frame 40 of the ceremony.",
+      "clear": "No clear observed. The bed trigger (gs2E_sleep, offset 362085) fires only with $F8 set: scene $2A and $4D set (offset 362126); with $F8 clear it never ran."
+    },
+    "expectGrade": "none (spine proposal)",
+    "evidence": "FR21_20261105.md FL23-07 (raw/FR21_FL23-07_ceremony, _bed_f248_b, _bed_ctl_b)"
+  },
+  {
+    "flag": 255, "scope": { "scenes": [42] }, "queueId": "FL23-08", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "dream_palette_loop sets $FF once (offset 46809; the bit is already set at the first settle sample of scene $2A) and parks in WaitOnFlagByte #FF,#00 (46812 polled 724 times in 700 frames).",
+      "clear": "Clearing the bit at settle frames 250 and 450 restarts bundle #35 (46804 count 1 > 2 > 3) and sets the bit again within 1 frame; KillThinker (46818) never ran. The inventory was not opened: the clear is by script."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL23-08 (raw/FR21_FL23-08_ctl, _forced_clear)"
+  },
+  {
+    "flag": 389, "scope": null, "queueId": "FL23-09", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set before the first sampled frame of gs2C_descent in scene $2C and still set after the dialog (frame 377+); $4C follows at frame 377.",
+      "clear": "No clear observed. The reader (event block $85 of scene $1E) was not run here (FL11-14)."
+    },
+    "expectGrade": "none (spine proposal)",
+    "evidence": "FR21_20261105.md FL23-09 (raw/FR21_FL23-01_s2C_ctl)"
+  },
+  {
+    "flag": 103, "scope": null, "queueId": "FL23-10", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Talking to the door voice in scene $32 with $66 set reaches offsets 373782 and 373786 and sets $67 (frame 1021 of the run); without $66 only the warning path (373777, 14 times) runs. After the set the door actor shows HP 5 and loses 1 HP per sword hit (5 > 4 > 3 > 2 > 1) and cells (08,0E)-(08,11) become solid.",
+      "clear": "No clear observed. A reload with $67 set: the cell (04,0D) is $00 (with $67 clear $F0) and fr32_kidnapper is replaced by a town_door actor."
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "FR21_20261105.md FL23-10 (raw/FR21_FL23-10_door_ctl, _door_f66, _reload_c04_*, _reload_c10_*)"
+  },
+  {
+    "flag": 83, "scope": null, "queueId": "FL23-11", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "The first fr32_herb interaction runs GiveItem and SetFlagByte #53 (offsets 380727, 380732; inventory gets item $06); the other two herb placements ((24,0E), (34,10)) are interacted with (handler 380721 about 14 times each) and pay nothing (inventory unchanged, 380732 count stays 1).",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL23-11 (raw/FR21_FL23-11_all). The text lines were not read from the screen."
+  },
+  {
+    "flag": 84, "scope": null, "queueId": "FL23-11", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "The first fr32_hp_jewel interaction runs SetFlagByte #54 (offset 380828) and raises playerMaxHp $0ACA from 8 to 9; the other two jewel placements ((1D,0F), (36,10)) are interacted with and pay nothing (380828 count stays 1, max HP stays 9).",
+      "clear": "No clear observed."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR21_20261105.md FL23-11 (raw/FR21_FL23-11_all)"
+  },
+  {
+    "flag": 1, "scope": { "scenes": [47] }, "queueId": "FL23-12", "verdict": "INCONCLUSIVE", "grade": "none",
+    "effects": {
+      "set": "Not run: the day table of dc2F_adrift (days 0, 2, 3, 5 with two or more Kara talks, the jar letter and the Smoked Meat per day) needs a per-day scripted walkthrough; only the palette thinker of scene $2F and its $0AA6 pokes were run (FL23-02/03).",
+      "clear": "Not run."
+    },
+    "expectGrade": "none (scratch rows of scene $2F)",
+    "evidence": "none"
+  }
+]

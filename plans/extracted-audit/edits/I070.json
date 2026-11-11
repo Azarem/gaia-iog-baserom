@@ -1,0 +1,90 @@
+{
+  "tables/enemy_clear_reward_table.asm": {
+    "blockNote": [
+      "Scene clear reward tier (Bank 01, 109278-109534, 256 bytes), one byte per scene ID ($00-$FF). It is not specific to Dark Space rooms (the old note said 'when all enemies in a Dark Space room are defeated'): any scene whose entry is nonzero pays a permanent stat point once. The tiers are not 'minor/medium/major'; they select the stat:",
+      "",
+      "| Tier | Reward | Scenes |",
+      "|------|--------|--------|",
+      "| 0 | none | 169 |",
+      "| 1 | Max HP + 1 (item $80, pickup e_hp_increase, anim $0C of spriteset_enemies) | 29: $0C $0F $22 $23 $27 $3D $3E $46 $4D $50 $53 $5F $62 $6E $71 $83 $85 $88 $A2 $A4 $A6 $B0 $B3 $B6 $B9 $BC $BE $D2 $D4 |",
+      "| 2 | STR + 1 (item $81, e_str_increase, anim $0D) | 27: $0D $1D $20 $26 $3F $45 $4F $52 $60 $65 $6D $6F $84 $87 $A0 $A3 $A8 $B1 $B5 $B7 $BB $CD $D1 $D5 $D7 $D9 $DB |",
+      "| 3 | DEF + 1 (item $82, e_def_increase, anim $0E) | 31: $0E $12 $21 $25 $28 $40 $41 $4E $51 $54 $61 $64 $70 $72 $82 $86 $A1 $A5 $A7 $B2 $B4 $B8 $BA $BD $CC $CE $CF $D0 $D3 $D6 $D8 |",
+      "",
+      "Values above 3 do not occur; the readers treat 3 and above as DEF. Whether a scene's reward was already taken is the scene flag $0300 + scene (set when the reward is paid).",
+      "",
+      "Readers: (1) StandardEnemyDefeatHandler.EnemyStatBonusReward: when the last enemy of the scene dies and the flag is clear, spawns the e_hp / e_str / e_def_increase pickup of reward_actors (this also makes the enemy drop a gem only while the reward is already taken or enemies remain, see enemy_stats_table). (2) field_reveal_object: tier & 3 picks the hidden stat item (anim $0C / $0D / $0E, item $80 / $81 / $82). (3) boss_clear_reward_handler.BossClearApplyStatReward: after a boss is defeated, walks a range of scenes and pays every unclaimed tier at once. (4) radar_map_screen: draws the reward frame and icon on the radar while the flag is clear and the tier is nonzero. (The old note's 'draws chest icons' is wrong: chests are drawn from a different list.)"
+    ],
+    "partNotes": {
+      "enemy_clear_reward_table": [
+        "256 tier bytes indexed by sceneCurrent: 0 none, 1 Max HP, 2 STR, 3 DEF. The extracted ;NN labels are the scene ID."
+      ]
+    }
+  },
+  "tables/spriteset_dark_friar.asm": {
+    "blockNote": [
+      "Sprite set of the Dark Friar ability effects (Bank 17, 1540096-1541149, 1053 bytes; tile graphics misc_fx_1CC000, uploaded to VRAM $4400 by DarkFriarVramDma, $0480 bytes). The Dark Friar is Freedan's ranged ability; the old note ('fireball travel frames and hit splash') does not fit the code: there is a cast flash, a trail that grows, and spiralling fragments with trail followers. Selected with SetMetasprite ( @spriteset_dark_friar ) in attack_ability_system.",
+      "",
+      "| Index | Set | Frames (hold) | Used by |",
+      "|-------|-----|---------------|---------|",
+      "| $00 | sprite_set_17800E | 9 (0, 0, 0, 1, 1, 3, 3, 3, 0) | DarkFriarProjectile: StageSpriteFrame #00, played once (about 20 ticks) |",
+      "| $01 | sprite_set_178034 | 3 (0 each) | DarkFriarTrailSouth / DarkFriarTrailEastWest: first trail stage, 2 passes (StageSpriteLoopMoveY / MoveX #01) |",
+      "| $02 | sprite_set_178042 | 3 (0 each) | second trail stage, 3 passes |",
+      "| $03 | sprite_set_178050 | 4 (0 each) | final trail stage with an active hitbox (StageSprAndHitbox #03) |",
+      "| $04 | sprite_set_178062 | 4 (1 each; frames 0 1 2 1) | the fragments (DarkFriarFragmentInit: StageSprAndHitbox #04) |",
+      "| $05 | sprite_set_178074 | 4 (1 each; frames 0 1 2 1) | TrailFollowerSprA (StageSprAndHitbox #05) |",
+      "| $06 | sprite_set_178086 | 4 (1 each; frames 0 1 2 1) | TrailFollowerSprB (StageSprAndHitbox #06) |",
+      "",
+      "Structure (format in the spriteset_freedan block note): 7 animations, 23 groups. 14 B pointer table + 138 B frame lists + 901 B groups = 1053 bytes. Sets $01 and $06 use the same two groups (1783B1, 1783C5), and 178128 is both frame 3 of $00 and frame 2 of $01. Appearance not viewed."
+    ],
+    "partNotes": {
+      "spriteset_dark_friar": [
+        "7 pointers to the animation frame lists: $00 cast flash, $01-$03 trail stages, $04 fragment, $05 and $06 trail followers."
+      ],
+      "sprite_set_17800E": [
+        "Animation $00, cast flash: 9 frames, hold 0, 0, 0, 1, 1, 3, 3, 3, 0 (about 20 ticks)."
+      ],
+      "sprite_set_178034": [
+        "Animation $01, first trail stage: 3 frames, hold 0."
+      ],
+      "sprite_set_178042": [
+        "Animation $02, second trail stage: 3 frames, hold 0."
+      ],
+      "sprite_set_178050": [
+        "Animation $03, final trail stage (with hitbox): 4 frames, hold 0."
+      ],
+      "sprite_set_178062": [
+        "Animation $04, fragment: 4 frames, hold 1, pulsing 0, 1, 2, 1."
+      ],
+      "sprite_set_178074": [
+        "Animation $05, TrailFollowerSprA: 4 frames, hold 1, pulsing 0, 1, 2, 1."
+      ],
+      "sprite_set_178086": [
+        "Animation $06, TrailFollowerSprB: 4 frames, hold 1, pulsing 0, 1, 2, 1 (the same groups as $01)."
+      ]
+    }
+  },
+  "tables/dialog_dictionaries.asm": {
+    "blockNote": [
+      "Word dictionaries of the dialogue system (Bank 01, 125864-130340, 4476 bytes): two pointer tables of words, each word a string that ends in the $CA return code and normally includes its trailing space (or punctuation and space), for example 'Attack ', 'Eric: ', 'you. '. A script writes tag $D6 (LU1, DialogCmd_DictionaryA) or $D7 (LU2, DialogCmd_DictionaryB) followed by a 1-byte index; the handler doubles the index, reads the word pointer from the table, and renders the word with a recursive JSL to DialogStringRenderer. DisplaySceneTitle does the same lookup to count characters.",
+      "",
+      "The old note ('~512 compressed word slots', 'Dictionary B: 256 extended words') was wrong on the size: A has 256 words and B has 200 (the index $C7 is the last), 456 words in all (E1, counted in the extracted file). The tables use `&` short pointers and the words follow in address order:",
+      "",
+      "| Part | Table | Words | Total |",
+      "|------|-------|-------|-------|",
+      "| dialog_dictionary_a | 01EBA8 (512 B) | 01EDA8-01F54C (1957 B) | 2469 B |",
+      "| dialog_dictionary_b | 01F54D (400 B) | 01F6DD-01FD23 (1607 B) | 2007 B |",
+      "",
+      "Order (SAMPLED about 6%: the first and last words of each table and the section boundaries): each dictionary is a capitalised section (A $00-$6A, from 'Attack ' to 'Yes, '; B $00-$43, from '1994 ' and 'Actually, ' on) followed by a lowercase section (A $6B-$FF, 'about ' to 'you're '; B $44-$C7, 'always ' to 'you. '), each roughly alphabetical. The words include character names ('Eric: ', 'Erasquez: ', 'Elder ', 'Angel ', 'Ankor '), place and ability names ('Desert ', 'Aura ', 'Attack ') and common words and phrases. 'The most frequently used words (the, you, have)' of the old note was not checked and is dropped.",
+      "",
+      "The extracted dialogue text contains no [LU1] / [LU2] tags (0 hits in extracted/), and db-us/stringTypes.json declares both tables as dictionaries, so the extractor expands the words and rebuild recompresses them; how the compressor decides which words to substitute was not traced (OQ-I070-1). Frequency of use of individual words was not measured."
+    ],
+    "partNotes": {
+      "dialog_dictionary_a": [
+        "Dictionary A pointer table (256 short pointers, 512 bytes): tag $D6 (LU1), index $00-$FF. $00-$6A capitalised words (names, speaker labels), $6B-$FF lowercase words."
+      ],
+      "dialog_dictionary_b": [
+        "Dictionary B pointer table (200 short pointers, 400 bytes): tag $D7 (LU2), index $00-$C7 (not 256; indexes above $C7 would read past the table into the first words). $00-$43 capitalised words, $44-$C7 lowercase words."
+      ]
+    }
+  }
+}

@@ -1,0 +1,194 @@
+[
+  {
+    "id": "FL25-01",
+    "flag": 123,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Statue of Hope on the west pedestal sets $7B; the prayer-room show of mu63_spirits runs only on the branch that matches the half of the room the player is in when the actor spawns (box (10,00)-(20,10) = east branch, flag $7E).",
+    "start": { "scene": 99, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "enter scene $63 from the west door (scene $5F warp) with a Statue of Hope in the inventory, stand in tiles (06,06)-(0A,08), use the statue",
+      "forced": "same, but write $7B := 1 directly before loading scene $63 and then load it from each door; also enter from the east door (scene $65) and use the statue on the west pedestal",
+      "observe": ["bit 3 of byte $0A0F ($7B)", "whether the show starts (music #1B, spirit sprites, 'The Sun god... Rama...' text)", "placed-statue sprite at pixel (0080,0058)", "screenshot"]
+    },
+    "confirms": "the show is armed for the side where the player spawns and starts on the flag; with the flag preset the actor only spawns the placed statue",
+    "refutes": "the show depends on the pedestal that receives the statue rather than the spawn position",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-02",
+    "flag": 126,
+    "scope": null,
+    "priority": "P1",
+    "claim": "$7E drains the Mu scenes $5F, $60, $61, $62, $64 and $65 (scene_meta loads map_mu_drained_effect, label 17) and $7B alone gives the half-drained tilemap (labels 16, 19, 1A, 1B) in $5F-$62; the tint thinker uses COLDATA #$28/#$41 when $7B is set.",
+    "start": { "scene": 95, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scenes $5F, $60, $61, $62, $64, $65 with both flags clear",
+      "forced": "load the same scenes with $7B only, then with $7E only, then with both",
+      "observe": ["screenshot of each scene", "BG1/BG2 tilemap sample", "COLDATA writes ($2132) of the tint thinker"]
+    },
+    "confirms": "scene_meta order: $7E tested before $7B; $7B alone gives the half-drained look in $5F-$62 only; $64 and $65 change only with $7E",
+    "refutes": "any scene of the list shows a different state than the gates predict",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-03",
+    "flag": 128,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Rama Statue on the first pedestal sets $80 and on the second sets $81; once both are set, mu66_altar1 reloads scene $66 at pixel (00F8,01D8) if the player is outside tiles (00,00)-(20,20).",
+    "start": { "scene": 102, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "write $80 only and stand outside the box",
+      "forced": "write $80 and $81, once with the player inside tiles (00,00)-(20,20) and once outside",
+      "observe": ["altar sprite frames (#2D)", "joypadMaskStd $065A", "scene id after the map change", "player position"]
+    },
+    "confirms": "the reload fires only with both flags set and the player outside the box",
+    "refutes": "one flag is enough or the box test is inverted",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-04",
+    "flag": 255,
+    "scope": null,
+    "priority": "P3",
+    "claim": "The thinkers of scenes $5C and $5D write $FF themselves; in the Mu scenes the tint thinker only reads it and rewrites COLDATA every frame while it is clear.",
+    "start": { "scene": 95, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $5F and read byte $0A1F bit 7 on frames 1, 2, 3 and 10",
+      "forced": "repeat for scene $5C and scene $5D",
+      "observe": ["bit 7 of byte $0A1F per frame", "COLDATA writes per frame"]
+    },
+    "confirms": "the engine setter (scene_lifecycle.asm:886) raises $FF before the first thinker pass, so the thinkers' own writes are redundant",
+    "refutes": "$FF is set only by the thinkers in $5C and $5D",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-05",
+    "flag": 375,
+    "scope": null,
+    "priority": "P3",
+    "claim": "$0177 is set by code_0AF1AD of mu67_vampires.asm when both rematch vampires of scene $F4 are dead (after Transform_ShadowToWill) and the map change to scene $E0 follows.",
+    "start": { "scene": 244, "flags": ["mu_lair_vampire_intro_seen"], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $F4 and read $0177 (byte $0A2E bit 7) before the fight",
+      "forced": "win the fight",
+      "observe": ["bit 7 of byte $0A2E at the moment the map change is queued", "destination scene $E0 at (02F8,01A0)"]
+    },
+    "confirms": "the flag is set on the last frame of scene $F4 and scene $E0's crystal gate C waits on it",
+    "refutes": "another actor sets the flag",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-06",
+    "flag": 326,
+    "scope": null,
+    "priority": "P2",
+    "claim": "$0146 and $0147 are set when the last vampire dies, before the player answers the wire question (scratch $01); the names mu_bomb_wire_cut_a/b of FL11 are therefore misleading.",
+    "start": { "scene": 103, "flags": ["mu_lair_erik_cry_seen", "mu_lair_vampire_intro_seen"], "form": "Will", "state": null },
+    "trial": {
+      "control": "kill both vampires without touching the bomb; read $0146 and $0147 (byte $0A28 bits 6 and 7) and the tilemap at (07,13) and (07,0E)",
+      "forced": "answer the wire question first with a vampire still alive, then kill them",
+      "observe": ["flag bits at the kill frame", "tile changes at (07,13) and (07,0E)", "scratch byte $0A00 bit 1 ($01)"]
+    },
+    "confirms": "the tile changes and both flags appear when enemiesRemaining reaches 0, independent of the wire answer",
+    "refutes": "the flags or tiles appear only after the wire is cut",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-07",
+    "flag": 133,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Only the villager at scene $5A row $0A (tile (04,49), type byte #15, variant $0A) gives the Seaside Palace Key; the variant is the low nibble of type byte >> 1.",
+    "start": { "scene": 90, "flags": ["sp_fountain_purified_done", "sp_lilly_pocket_scene_done"], "form": "Will", "state": null },
+    "trial": {
+      "control": "talk to the other seven villagers of scene $5A and the six of scene $5C",
+      "forced": "talk to the villager at tile (04,49)",
+      "observe": ["inventory item #10", "bit 5 of byte $0A10 ($85)", "dialog text"]
+    },
+    "confirms": "exactly one villager gives the key and sets $85",
+    "refutes": "another placement gives the key or the variant is derived differently",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-08",
+    "flag": 312,
+    "scope": null,
+    "priority": "P2",
+    "claim": "The Seaside Palace Key opens the door on the top floor of scene $5A that blocks warp #05 to the passageway of scene $5E (event block $38 changes tiles (08,03)-(0A,06)); it is not the palace entrance.",
+    "start": { "scene": 90, "flags": ["sp_fountain_purified_done", "sp_villager_palace_key_given"], "form": "Will", "state": null },
+    "trial": {
+      "control": "walk to tile (09,06) before using the key",
+      "forced": "use the Seaside Palace Key inside tiles (08,07)-(0A,08), then walk to warp #05",
+      "observe": ["tilemap of tiles (08,03)-(0A,06) before and after", "$0138 (byte $0A27 bit 0)", "scene id after the walk (expect $5E)"]
+    },
+    "confirms": "the key changes exactly that block and makes warp #05 reachable",
+    "refutes": "the changed tiles belong to a different door",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-09",
+    "flag": 134,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Entering scene $67 with $0502 set and $86 clear locks the joypad for good when the player steps into tiles (01,13)-(0F,15): Erik sets $EFFC and only the (absent) male vampire releases it.",
+    "start": { "scene": 103, "flags": ["mu_vampires_reward_claimed"], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $67 with $0502 set, $86 and $87 set, walk into the box",
+      "forced": "load scene $67 with $0502 set and $86 clear, walk into the box",
+      "observe": ["joypadMaskStd $065A after the box", "whether the player can move", "actor list (vampires present?)"]
+    },
+    "confirms": "the lock remains with $86 clear and no vampires",
+    "refutes": "another actor unlocks, or the vampires exist",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-10",
+    "flag": 1,
+    "scope": { "scenes": [102] },
+    "priority": "P2",
+    "claim": "Rama's finale needs the low byte of eventFlags to equal $FE (scratch $01-$07 set, $00 clear); writing byte $0A00 := $FE in scene $66 and talking to Rama starts the finale.",
+    "start": { "scene": 102, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "write byte $0A00 := $FC (flag $01 clear) and talk to Rama",
+      "forced": "write byte $0A00 := $FE, talk to Rama; then write $FF and talk again",
+      "observe": ["text printed", "bit 7 of byte $0A01 ($0F)", "map change to scene $FD"]
+    },
+    "confirms": "only $FE starts the finale; $FF (scratch $00 set) does not",
+    "refutes": "the test compares another value",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-11",
+    "flag": 120,
+    "scope": null,
+    "priority": "P3",
+    "claim": "$78 is set by mu62_hope_statue at spawn and gates mu61_hint together with $7A.",
+    "start": { "scene": 97, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $61 with $78 clear and walk into tiles (0A,30)-(0C,37)",
+      "forced": "visit scene $62 once, then walk into the box in scene $61",
+      "observe": ["byte $0A0F bit 0 ($78)", "Lilly's sightline hint text", "byte $0A0F bit 2 ($7A)"]
+    },
+    "confirms": "the hint fires only after scene $62 has been loaded",
+    "refutes": "the hint fires with $78 clear",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL25-12",
+    "flag": 14,
+    "scope": { "scenes": [93] },
+    "priority": "P3",
+    "claim": "sp5D_fountain exists only when the player holds the Purification Stone (item #11) at scene load, with $6F set and $70 clear.",
+    "start": { "scene": 93, "flags": ["sp_lilly_pocket_scene_done"], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $5D with item #11 in the inventory",
+      "forced": "load scene $5D without item #11, add the item through the debug menu and use it in tiles (0A,11)-(17,1A)",
+      "observe": ["actor list for sp5D_fountain", "byte $0A01 bit 6 ($0E)", "whether the stone is consumed", "$70"]
+    },
+    "confirms": "without the actor the stone is consumed and nothing happens; with the actor the cutscene runs",
+    "refutes": "the cutscene runs without the actor",
+    "needs": ["FR00"]
+  }
+]

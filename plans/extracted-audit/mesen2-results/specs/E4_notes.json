@@ -1,0 +1,68 @@
+{
+  "_note": "E4 draft (2026-11-08, ROM O, states orig_E4_*.mss, orig_S06, orig_S07). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/E4_notes.json --dry-run. Sources: mesen2-results/E4_20261108.md and raw/E4_*. Names spec: specs/E4_names.json (apply the names after the notes: the Mu part note mentions the old label code_0AF53D, which the names tool rewrites).",
+  "thinkers/hdma_circle_window_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What the credits window looks like was not verified (open question).",
+          "with": "Measured on the credits screen: the radius grows by 1 per frame from 0 to $3F and then stays there; the lit area is a filled oval centred on ($80, $7F), about 125 pixels wide (x = $42-$BE at radius $3F) and 63 scanlines tall (96-158), with the picture inside and black outside. It is not a set of thin slivers."
+        },
+        {
+          "find": "sF7_credits and gs2A_shira also set W12SEL to $33 themselves (window 1 on BG1 and BG2); gs2A_shira writes WOBJSEL as well.",
+          "with": "sF7_credits and gs2A_shira also set W12SEL to $33 themselves: window 1 enabled and inverted on BG1 and BG2, so with the display preset's TMW = $17 both layers show only inside the circle and are hidden outside it. gs2A_shira also writes WOBJSEL = $03 (window 1 enabled and inverted for sprites), so there the sprites are hidden outside the circle as well; the credits leave WOBJSEL at 0, so sprites stay visible everywhere."
+        },
+        {
+          "find": "The window setup of the Mu scene is not in the extracted actors (open question).",
+          "with": "The window setup of the Mu scene is in mu67_vampires (address 718141, code_0AF53D, spawned by mu67_male_vampire at its start, address 717306): it writes WOBJSEL = $30 (colour window 1, enabled and inverted), CGWSEL = $22 (colour math prevented inside the window area, which is the part outside the circle; the sub screen is the addend) and CGADSUB = $03 (add to BG1 and BG2); W12SEL stays 0. While the radius is $FFFF the table is empty, so the whole screen is inside the window area and no colour math runs; with a circle the colour math (the fixed colour added to BG1 and BG2) runs only inside it."
+        },
+        {
+          "find": "shrinks the radius by 2 per frame from $A0 until it falls below $40;",
+          "with": "shrinks the radius by 2 per frame from $A0 until it falls below $40 (measured in the dream scene: the centre is ($88, $160) on screen, below the last visible line, so the lit area is a cap at the bottom edge that has left the screen after about 18 frames; from then on every visible line has the empty window and BG1, BG2 and the sprites stay hidden while BG3, the HUD, stays);"
+        }
+      ]
+    }
+  },
+  "system/diary_menu/diary_menu_window_dma.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the band appearance is decoded from the registers, not observed.",
+          "with": "measured: inside a band the main screen is black and only the BG3 text shows (the sub screen is added by colour math); outside the band the map is unchanged."
+        },
+        {
+          "find": "so the source row flickers at 30 Hz.",
+          "with": "so the source row flickers at 30 Hz (measured: the band is drawn on every second frame; consecutive frames differ in the band's 31 lines and frames two apart are identical)."
+        },
+        {
+          "find": "so the three tables overlay each other on the same registers.",
+          "with": "so the three tables overlay each other on the same registers. The channels run in order on every scanline and the last write wins, so an empty entry of a later channel hides an earlier channel's band on its lines. Measured: with the tab cursor at 0 the slot-1 band is invisible (the tab-0 table covers lines 79-93 with its own band and then writes $FF / $00 for lines 94-189), while the slot-3 band is visible."
+        }
+      ]
+    }
+  },
+  "thinkers/scanline_band_hdma_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "- Runtime behaviour of the individual entries (what the screen looks like) was not checked.",
+          "with": "- Measured on screen: type $02 (scene $03) is a COLDATA gradient (a fixed colour that changes every few lines) that CGADSUB $A3 subtracts from BG1, BG2 and the backdrop; type $05 (scene $2B) scrolls the water bands through BG2HOFS and is combined with type $06, a COLDATA gradient that CGADSUB $22 adds to BG2 and the backdrop; scene $2D runs types $07 (CGADSUB bands $A1 / $22), $06, $08 and $05 together on four channels; type $24 (scene $E5) moves 33 BG1HOFS bands; type $20 (scene $C3) is the window rectangle: with W12SEL $02 (window 1 enabled, not inverted, on BG1) and TMW $17 it cuts BG1 out of the rectangle (x $60-$9F and 48 lines when the camera is at the position tested), and the gap lines carry $0000, a window one pixel wide at x = 0 that hides the BG1 column x = 0 wherever BG1 is opaque there. The thinker writes only its one register: TM, TMW, TS, TSW, CGWSEL and the base CGADSUB come from the scene's display preset (written once at the scene load), not from this thinker. Types not run on screen: $00, $01, $03, $0A, $0B, $0E, $1B-$1F, $21 and $23."
+        }
+      ]
+    }
+  },
+  "thinkers/sine_hdma_slow_wave.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "#02 is a byte offset into the camera scroll words (cameraTargetX / cameraTargetY + 2) that the table builder uses.",
+          "with": "#02 is a byte offset into the camera scroll words (cameraTargetX / cameraTargetY + 2, $06C0 and $06C4) that the table builder uses. Measured in scenes $32, $E9 and $EA: the two words change every frame ($32: X +1, Y -1; $E9: X -1, Y +1; $EA: about X -3, Y +3 per frame); the table's base value follows the X word, and BG1VOFS ($210E) follows the Y word, while BG2 scrolls with $068A / $068E. Within one frame the BG1HOFS values written by the table span 8 consecutive values (7 pixels from the lowest to the highest) with a period of 64 scanlines."
+        }
+      ]
+    }
+  },
+  "mu/mu_vampire_lair/mu67_vampires.asm": {
+    "partNotes": {
+      "code_0AF53D": "Colour-window set-up of the Mu vampire lair, spawned by mu67_male_vampire at its start (address 717306) and run once: WOBJSEL = $30 (colour window 1 enabled and inverted), CGWSEL = $22 (colour math prevented inside the window area, the sub screen is the addend) and CGADSUB = $03 (add to BG1 and BG2). The window itself is the circle that circle_window_thinker_v2 builds from the parameters at $F6 / $FA / $FE: with the radius $FFFF the window is empty and no colour math runs; with a circle the fixed colour is added to BG1 and BG2 only inside it (measured with the parameters forced to centre ($80, $70) and radius $30: a 97 x 97 pixel round patch tinted by the fixed colour, nothing changed outside it)."
+    }
+  }
+}

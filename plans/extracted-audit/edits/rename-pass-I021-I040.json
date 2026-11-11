@@ -1,0 +1,121 @@
+{
+    "system/engine/spc_transfer.asm": {
+        "partNotes": {
+            "SpcNextChunkIndex": "Start of the per-chunk loop inside SpcBlockTransfer: resets the sample-library pointer to bank C5 page 0, reads the next chunk index byte from the stream at Y in $32, and skips to SpcChunkDone when bit 7 marks an empty slot; otherwise accumulates the running SPC destination offset and enters SpcFindChunk.",
+            "SpcFindChunk": "Walks the C5 sample library: for each header word at [$4A], subtracts one from the wanted index in $2A until zero, skipping payload bytes and wrapping $4A at 32K page boundaries; when the target chunk is found, sets Y to the data offset and branches into SpcSendHeader with the handshake counter from $30.",
+            "SpcSendChunkData": "Byte loop for one library chunk after SpcSendHeader: reads from [$4A],Y with bank byte $4C, waits for APUIO0 echo, writes data and an incrementing counter to APUIO0/1, wraps Y at $8000, and exits when X (byte count) reaches zero.",
+            "SpcSendHeader": "Shared block header inside SpcBlockTransfer (also reached from SpcChunkDone when all chunks are done): pushes the continuation counter, writes chunk size to the port handshake, SPC RAM dest to APUIO2/3, more-data flag to APUIO1, disables NMI around the kick, waits for APUIO0 echo, optionally re-enables NMI when worldReadyFlag is $0F, then branches to SpcSendChunkData if more bytes remain or clears ports and returns.",
+            "SpcSendRecord": "IPL record sender inside SpcIplHandshake: pushes the kick counter, reads size and destination words from [$46],Y, disables NMI, writes port 1/2/3, kicks port 0 and waits for echo, restores NMI when worldReadyFlag is $0F, loops to the byte sender when overflow indicates data, else clears APUIO2 and returns with the saved P."
+        }
+    },
+    "system/engine/slider_glide.asm": {
+        "partNotes": {
+            "SliderGlideTriggerNorthMain": "Main per-frame entry of SliderGlideTriggerNorth after SetEntryHere: requires the player in a 32 px X window (trigger X minus 8 through plus $18), Y equal to trigger Y, Psycho Slide sprite bank, and animation $0F or $10, then redirects the player to SliderGlideNorth and calls LockPlayerForClimb; otherwise returns with RTL.",
+            "SliderGlideTriggerNorthOffset": "Entry variant in SliderGlideTriggerNorthEntry: COP NudgePosition shifts the trigger actor by (-8, 0) once, then BRA into SliderGlideTriggerNorthMain for the normal north-slide gate."
+        }
+    },
+    "actors/player/player_character.asm": {
+        "partNotes": {
+            "FreezeCameraForAttack": "Called from attack_ability_system before Psycho Dash and run attack paths: clears bit $0100 in the player actor flags and sets layerPriorityFlag bit $0200 so camera_scroll_controller stops scrolling, then falls through into RunAttackFlagSetup.",
+            "UnfreezeCameraAfterAttack": "Called when Psycho Dash animation completes: clears layerPriorityFlag $0200 so the camera scrolls again, then falls through into RunAttackCleanup."
+        }
+    },
+    "system/inventory/item_use_system.asm": {
+        "partNotes": {
+            "UseItem_IncaMantelMismatch": "Shared mismatch tail for Inca statue placement on the wrong mantel shape: prints dialogstring_038772 and returns with RTS.",
+            "UseItem_IncaStatueA_Mismatch": "Reached from UseItem_IncaStatueA_CheckAlt when the player stands on mantel tiles ($15-$16, X $26): jumps to UseItem_IncaMantelMismatch instead of the spirits hint or generic query.",
+            "UseItem_IncaStatueB_Mismatch": "Alternate-position failure in UseItem_IncaStatueB_CheckAlt: prints the mantel shape mismatch string directly and returns without placing the statue.",
+            "UseItem_FluteConfigureController": "After a successful SpawnListAppend of FluteMusicActorController from UseItem_WindMelody (Y holds the new slot): ORs display-filter bit $1000 into the controller $12, sets track $19 in $26 and melody index 0 in $20, restores X, returns to the caller.",
+            "FlutePlaybackPhase": "Phase 2 entry of FluteMusicActorController after musicTransitionState is $FFFF: SetEntryHere polls APUIO1 each frame until $FF signals the melody finished, then clears player display-filter, restores walking idle pose, unmasks joypad, and SwitchCases on melody index into the effect handlers with return set to FluteRestoreMusicPhase.",
+            "FluteRestoreMusicPhase": "Phase 3 after the melody effect: spawns SpcTransferMusicData with chatPtr from saved DP $24, polls until musicTransitionState is $FFFF again, WaitByte one frame, then falls through into FluteControllerExit.",
+            "FluteControllerExit": "Cleanup for FluteMusicActorController: clears displayModeFlags bit $0080 (leave display-filter mode) and COP Die; reached on spawn failure and after restoration wait."
+        }
+    },
+    "actors/player/attack_ability_system.asm": {
+        "partNotes": {
+            "DarkFriarTrailNorthInit": "Spawn entry stub for the north Dark Friar trail: sets bit $2000 in actor $12 to negate Y movement so the shared south trail code runs upward, then falls into DarkFriarTrailSouth."
+        }
+    },
+    "thinkers/oneshot_backdrop_fade_out_fast_40.asm": {
+        "partNotes": {
+            "FadeBackdropOutFast40": "Thinker body: PaletteStart bundle $40 then PaletteStep runs the fast backdrop COLDATA fade (white to black), then KillThinker and RTL."
+        }
+    },
+    "thinkers/oneshot_palette15_grey_fade_in_1F.asm": {
+        "partNotes": {
+            "FadePalette15In1F": "Thinker body: PaletteStart bundle $1F then PaletteStep fades 16 grey colors into CGRAM palette 15 at $F0, then KillThinker and RTL."
+        }
+    },
+    "system/inventory/inventory_menu.asm": {
+        "partNotes": {
+            "UseItemRefreshCursor": "Use-tab loop head: positions the equip cursor from $1A, runs BG3 item list and detail scripts, yields, and branches on D-pad or confirm masks; entered from UseItemTab and after cursor moves.",
+            "ArrangeSourceReset": "Arrange tab setup after spawning the selection cursor: clears blink counter $1C, draws Arrange tab BG3 strings, then enters ArrangeSourceLoop.",
+            "ArrangeSourceLoop": "First-phase Arrange poll: positions the grid cursor at slot $22, yields, B cancels the tab, A picks a source slot via ArrangePickTarget, or D-pad navigation returns through a pushed resume address.",
+            "ArrangeTargetLoop": "Second-phase Arrange poll after a source slot is saved in $2E/$2C: positions the target cursor, B cancels target pick, confirm mask $8044 runs ArrangePerformSwap, else grid navigation loops.",
+            "DiscardGridReset": "Discard tab setup: clears $1C, draws Discard tab BG3 strings, then enters DiscardGridLoop.",
+            "DiscardGridLoop": "Discard tab poll: positions cursor, B leaves the tab, A runs DiscardAttempt, D-pad moves the grid with resume on the stack.",
+            "SlotActorEvaluate": "Per-frame entry for InventorySlotActor after ComputeSlotPosition: hides the slot actor when sprite frame $28 is zero, otherwise shows it and AnimOneFrame loops until refresh flag $2A is set."
+        }
+    },
+    "thinkers/oneshot_backdrop_fade_in_1B.asm": {
+        "partNotes": {
+            "FadeBackdropIn1B": "Thinker body: PaletteStart bundle $1B then PaletteStep runs the slow backdrop fixed-color ramp black toward near-white, then KillThinker and RTL."
+        }
+    },
+    "thinkers/oneshot_backdrop_fade_out_1C.asm": {
+        "partNotes": {
+            "FadeBackdropOut1C": "Thinker body: PaletteStart bundle $1C then PaletteStep runs the backdrop white-to-black fade counterpart to bundle $1B, then KillThinker and RTL."
+        }
+    },
+    "thinkers/hdma_circle_window_thinker.asm": {
+        "partNotes": {
+            "CircleWindowV1Entry": "Credits circle-window thinker frame entry: SetEntryHere, HdmaCircleWindowBuildV1, then QueueHdma on config $26 using buffer A at tileStagingBuffer or B at $7E7100 based on chatPtr bit 0.",
+            "CircleWindowV2Entry": "Dream and vampire-lair thinker entry: HdmaInitPrevState once, then each frame HdmaCompareParams skips rebuild when unchanged, else HdmaCircleWindowBuildV2 and HdmaCopyCurrentToPrev, then QueueHdma with the same buffer select as V1.",
+            "CircleNextRowV1": "Bresenham row step inside HdmaCircleWindowBuildV1: advances Y offset $1C (by 2 on first entry), writes WH0/WH1 word pairs for symmetric rows, and loops until x drops below y or goes negative, else jumps back from the loop tail.",
+            "CircleNextRowV2": "Row step inside HdmaCircleWindowBuildV2: increments $1C, emits hold/repeat HDMA segments for above- and below-centre rows while y stays in range, then returns to the x/y loop or exits to HdmaCircleWindowExitV2.",
+            "HdmaCircleWindowExitV1": "Restore path for HdmaCircleWindowBuildV1: PLB, PLD, PLX and return; taken when parameters unchanged, radius negative, or the Bresenham loop finishes.",
+            "HdmaCircleWindowExitV2": "Restore path for HdmaCircleWindowBuildV2: same register restore and return; also reached when HdmaParamChangeCheck reports no parameter change or radius is negative."
+        }
+    },
+    "actors/player/slope_ramp_physics.asm": {
+        "partNotes": {
+            "SlopeHandlerExit": "Common tail after slope curve handlers in SlopeType0AHandler: calls ClampSpeeds, restores direct page and X from the entry save, returns with RTL.",
+            "SlopeSpeedZeroLatch": "Shared zero-speed branch from ApplySlopeCurvePosEW and NS helpers: clears slopeStepCounter, sets playerFlags bit $1000 (stopped on slope), returns with RTS to the caller.",
+            "DecelResetCounterEW": "Tail inside DecelerateEW when east-west speed reaches zero after a decel step: clears decelStepCounter and returns with RTS; also used from the west-moving decel paths."
+        }
+    },
+    "actors/interaction_handlers.asm": {
+        "partNotes": {
+            "PushSolidRestorePlayerNorth": "Idle restore for the north-side solid pull path: COP RestoreSavedPtr only.",
+            "PushSolidRestorePlayerSouth": "RestoreSavedPtr exit for the south-side solid pull.",
+            "PushSolidRestorePlayerWest": "RestoreSavedPtr exit for the west-side solid pull.",
+            "PushSolidRestorePlayerEast": "RestoreSavedPtr exit for the east-side solid pull.",
+            "PushSolidDistPlayerNorth": "Distance gate in the north-side solid pull path after abs Y delta: compares to $20 and branches to PushSolidRestorePlayerNorth when the player is too close; otherwise checks facing and collision.",
+            "PushSolidDistPlayerWest": "Distance gate in the west-side solid pull path after abs X delta: same $20 minimum before facing and tile tests.",
+            "PushForceballMovePlayerNorth": "Forceball pull when the player is above: distance and sprIdx $3A checks, facing down, NudgePosition (0,-$10), sound $2C, 16-step parent Y slide; south/west/east halves mirror with other facings and offsets.",
+            "PushForceballRestorePlayerNorth": "RestoreSavedPtr exit for the north-side forceball pull.",
+            "PushForceballMovePlayerSouth": "South half of forceball vertical pull: sprIdx $3B, facing up, nudge Y+$10, slide loop toward player.",
+            "PushForceballRestorePlayerSouth": "RestoreSavedPtr for south forceball pull failures or completion.",
+            "PushForceballMovePlayerWest": "West-side forceball pull with sprIdx $3D, facing right, X nudge -$10.",
+            "PushForceballRestorePlayerWest": "RestoreSavedPtr for west forceball pull.",
+            "PushForceballMovePlayerEast": "East-side forceball pull with sprIdx $3C, facing left, X nudge +$10.",
+            "PushForceballRestorePlayerEast": "RestoreSavedPtr for east forceball pull.",
+            "PushForceballDistPlayerNorth": "Minimum-distance check ($20) in PushForceballMovePlayerNorth before sprite and facing tests.",
+            "PushForceballDistPlayerWest": "Minimum-distance check ($20) in PushForceballMovePlayerWest before sprite and facing tests.",
+            "CollectGemRestorePlayerNorth": "RestoreSavedPtr when north-side gem alignment fails or the nudge step count in orbitAngle reaches zero.",
+            "CollectGemRestorePlayerSouth": "RestoreSavedPtr for the south-side gem nudge path.",
+            "CollectGemRestorePlayerWest": "RestoreSavedPtr for the west-side gem nudge path.",
+            "CollectGemRestorePlayerEast": "RestoreSavedPtr for the east-side gem nudge path.",
+            "CollectGemNudgePlayerNorthHalf": "After abs Y delta halved into orbitAngle: requires facing down, SetEntryHere, moves linked gem posY up 2 px per frame until the counter expires, then restores.",
+            "CollectGemNudgePlayerWestHalf": "West gem nudge: facing right, gem posX minus 2 per frame with the same orbitAngle countdown."
+        }
+    },
+    "system/player/player_move_ramps.asm": {
+        "partNotes": {
+            "RampSnapEastSouthBrWall": "East ramp post-move corner fix when future TR is passable but BR is solid: calls SnapYSouthCollision then ApplyMovementDeltas; reached from EastRampDown/EastRampUp wall probes.",
+            "RampSnapEastNorthTrWall": "East ramp path when TR is blocked but BR is open: SnapYNorthCollision then ApplyMovementDeltas.",
+            "RampSnapWestSouthBrWall": "West ramp analogue of the TR-open BR-solid case: SnapYSouthCollision then ApplyMovementDeltas from WestRampDown/WestRampUp probes.",
+            "RampSnapWestNorthTrWall": "West ramp TR-blocked BR-open case: SnapYNorthCollision then ApplyMovementDeltas."
+        }
+    }
+}

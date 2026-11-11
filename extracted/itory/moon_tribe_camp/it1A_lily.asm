@@ -109,7 +109,7 @@ code_list_04F507 [
 ]
 
 code_04F50D {
-    COP [PrintDialogString] ( &dialogstring_04F653 )
+    COP [PrintDialogString] ( &dialogstring_04F653 ) ; Options 0 and 2 (the first and the cancel answer) print this line; the block has no RTL and falls through into code_04F511, so every answer ends in the move to the Inca ruins
 }
 
 code_04F511 {

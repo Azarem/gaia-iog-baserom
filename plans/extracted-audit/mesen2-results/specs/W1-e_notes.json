@@ -1,0 +1,23 @@
+{
+  "_note": "W1-e draft: ClearActorRenderList has a third caller (the Decompress COP handler, cop_handlers_vram.asm:165; measured: every COP #51 call is followed by one clear). The block note and the part note list only scene setup and the inventory overlay.",
+  "system/engine/sprite_composition.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "It is called at scene setup (scene_lifecycle, inventory_overlay), not every frame:",
+          "with": "It is called at scene setup (ClearSceneState), by OpenInventoryScreen and after every Decompress COP (cop_handlers_vram), not every frame:"
+        }
+      ]
+    },
+    "partNotes": {
+      "ClearActorRenderList": {
+        "edit": [
+          {
+            "find": "Called only at scene setup (scene_lifecycle) and by inventory_overlay; during normal frames",
+            "with": "Called at scene setup (ClearSceneState), twice by OpenInventoryScreen and after every Decompress COP (the decompressor leaves its dictionary in the bucket page); during normal frames"
+          }
+        ]
+      }
+    }
+  }
+}

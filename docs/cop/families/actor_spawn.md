@@ -439,7 +439,7 @@ COP [DA] ( #02 )
 COP [SpawnAfterAbsFlags] ( @code_0BCAB1, #$0166, #$041A, #$1800 )
 
 ; extracted/system/title_screen/sFC_title_intro.asm
-COP [SpawnAfterAbsFlags] ( @TitleCometSpriteActor, #$0080, #$0050, #$1800 )
+COP [SpawnAfterAbsFlags] ( @TitleEarthSpriteActor, #$0080, #$0050, #$1800 )
 ```
 
 ##### Parameters & contract

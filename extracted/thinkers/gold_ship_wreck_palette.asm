@@ -16,7 +16,7 @@
 ; 
 ; Kills the thinker at the list head ($5A) and the one in the next pool slot (+$10): the first two thinkers spawned, which are scanline_band_hdma_thinker records 0 and 1 in all three lists (pool slots are handed out in ascending order from $0F00). KillThinker works on the slot in X and uses D only for its operand pointer, so D can stay on this thinker. Then it fills palette-buffer bytes $7F0A40-$7F0A5F, colours $20-$2F (palette 2), with $1421 (very dark blue, R1 G1 B5) so the colours the cycle used stay flat, sets colour 0 ($7F0A00) to $1442, applies bundle #36 (17 colours at $50, 16 at $70), sets $FF and waits for the latch to clear before repeating the fill and #36 (the kills are not repeated).
 ; 
-; What $4D and $52 mean in story terms (adrift day / night / starvation phase) and what the colours depict is not decoded.
+; On screen in scene $2F: with neither flag the sea is daytime blue (the Day 2 state), with $4D it is a red-brown dusk (Day 4 and Day 21), with $52 it is a dark night (Day 12); the flags were set for each $0AA6 state as the static reading of dc2F_adrift gives them. Why the story picks those looks beyond that is not decoded.
 ---------------------------------------------
 
 !cgramPalette                   7F0A00

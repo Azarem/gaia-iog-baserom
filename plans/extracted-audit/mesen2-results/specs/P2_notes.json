@@ -1,0 +1,137 @@
+{
+  "_note": "P2 (2026-11-09), see mesen2-results/P2_20261109.md. Measured in ROM O (SHA-1 38de0c84...), scene $0C, Will (S10), Freedan (S11), Shadow (S12). Draft only, dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/P2_notes.json --dry-run. Comment keys are the {n} tags of the stored comments; 'expect' guards the instruction text (the stored comments print a tag, so expectOld is refused). 'find' must occur exactly once in the stored note.",
+  "actors/player/attack_ability_system.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.",
+          "with": "Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7 (stored when the charge completes); Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7. SpinDashLaunch loads entry 1 again, which is the Psycho Slider record, so the Spin Dash flight itself adds 5/8 (by the Slider level word $0B18), not 4/7: $09E0 was 4/7 at the charge end and 5/8 in flight. Word 0 of a record is not read: in every Will cast (Psycho Dash, Psycho Slider, Spin Dash, levels 0 and 1) the loader read exactly the table index word, record+2 and record+4+level. No code loads the Aura Barrier record (index 1, 5/9): the four calls of LoadAbilityDamageB pass index 0 (Dark Friar trail south, trail east/west, fragments) or 2 (LedgeJumpDropLand), and the Aura Barrier orbitals are counted from $0B1E (2 at level 0, 4 at level 1)."
+        }
+      ]
+    },
+    "partNotes": {
+      "ComputeParentOffset": {
+        "edit": [
+          {
+            "find": "stages movement index $36 (a delta chain, not a distance), then returns to idle.",
+            "with": "stages movement index $36 (a delta chain, see PsychoDashSouth: the player moves 52 px away in 7 ticks and the trail actor's replay brings it back to the start), then returns to idle."
+          },
+          {
+            "find": "record 8 position deltas during the dash and replay them in reverse as afterimage segments.",
+            "with": "record the position deltas during the dash and replay them in reverse, one per tick, onto the player: the dash ends where it started (net displacement 0; 52 px out and back in all four directions, at upgrade levels 0 and 1)."
+          }
+        ]
+      },
+      "AttackSystemEntry": {
+        "edit": [
+          {
+            "find": "DarkFriarFragmentLoop applies the reversed velocity every frame until the fragment leaves the screen (actor flag $4000), then it dies.",
+            "with": "DarkFriarFragmentLoop applies the negated stored velocity every frame. The spiral phase moves a fragment by minus the stored value, so after the negation it moves by the stored value and flies straight on along the direction it had at the end of the spiral (no U-turn), until it leaves the screen (actor flag $4000); then it dies."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "179576": {
+        "text": "Diameter overflow (carry set): maximum range reached; the stored velocity is negated below and the fragment flies on in the same direction",
+        "expect": "BCS"
+      },
+      "179624": {
+        "text": "Maximum range: restore 16-bit mode for the velocity negation (the sign of the stored velocity flips, the fragment does not turn back)",
+        "expect": "REP #$20"
+      },
+      "179631": {
+        "text": "Negate the stored X velocity (EOR #$FFFF + INC = two's complement). The spiral moved the fragment by minus the stored value, so now it moves by the stored value and keeps its direction (measured: stored X -6 before the negation and 6 after it, the fragment moves +6 px per tick in X on both sides of the change)",
+        "expect": "LDA $7F100C, X"
+      },
+      "179643": {
+        "text": "Negate the stored Y velocity (same effect: the sign flips, the direction of travel stays)",
+        "expect": "LDA $7F100E, X"
+      },
+      "179657": {
+        "text": "Outward flight phase: animate and apply the negated velocity each frame; the fragment flies on in a straight line until it leaves the screen",
+        "expect": "AnimOneFrame"
+      },
+      "181088": {
+        "text": "abilityDamageBonus ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7 at the charge end; the Spin Dash flight stores the Slider record again: 5/8)",
+        "expect": "STA $abilityDamageBonus"
+      },
+      "179872": {
+        "text": "Entry 0 of the Will damage table (the Psycho Dash record, level word $0B16): LoadAbilityDamageA stores 5 / 10 in abilityDamageBonus; no sprite configuration is loaded here",
+        "expect": "LDA #$0000"
+      },
+      "179911": {
+        "text": "Sprite #04, Y movement index $36 (delta chain 8×0, 4,4,7,7,9,9,12,12, 0,0, 8×−8). Measured on the player: 8 ticks of 0, then 4, 4, 7, 7, 9, 9 and 12 px per tick (52 px away; the eighth entry does not show), a hold of 5 ticks, then the trail actor replays the recorded deltas in reverse (12, 9, 9, 7, 7, 4, 4) and the player is back at its start (net 0); AnimOnce ends the movement with the animation",
+        "expect": "StageSpriteMoveY"
+      },
+      "180637": {
+        "text": "Entry 1 of the Will damage table, the Psycho Slider record (level word $0B18): the Spin Dash flight adds 5 / 8 from here on, not the 4 / 7 stored at the charge end",
+        "expect": "LDA #$0001"
+      }
+    }
+  },
+  "actors/player/player_character.asm": {
+    "comments": {
+      "183295": {
+        "text": "Psycho Slider NS: Will damage table entry 1 (the Psycho Slider record, level word $0B18: 5 / 8 into abilityDamageBonus), then body sprite #04; south or north by speed sign",
+        "expect": "LDA #$0001"
+      },
+      "183378": {
+        "text": "Psycho Slider EW: the same damage table entry 1 (Psycho Slider record) for the horizontal axis",
+        "expect": "LDA #$0001"
+      },
+      "183543": {
+        "text": "Freedan wall-adjacent south: for an unaligned X the cell one column right in the actor's own row (x >> 4 + 1, y >> 4) also selects #48 (measured with x = 204; the cell two rows above gives #36)",
+        "expect": "BranchIfSolidOffset"
+      },
+      "183660": {
+        "text": "Tests the same cell as AttackSouth: BranchIfSolidSouth reads the collision cell (x >> 4, y >> 4) of the actor's own tile row, not a wall north of Freedan. Measured with one painted cell: a solid cell there gives #49, the cells one row above and one row below give #37",
+        "expect": "BranchIfSolidSouth"
+      },
+      "183672": {
+        "text": "Cell one column right and two rows above (x >> 4 + 1, y >> 4 - 2) of an unaligned X: solid gives #49 (measured with x = 204; the cell (x >> 4 + 1, y >> 4) gives #37)",
+        "expect": "BranchIfSolidOffset"
+      }
+    }
+  },
+  "tables/spriteset_will_abilities.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "where it only reaches this table while the override of SetPlayerSpriteDirect #04 is still active (OQ-I072-4)",
+          "with": "where StagePlayerSprite clears the body override (playerFlags bit 15 goes from set to clear) and restores the Will spriteset, so the pose is drawn from spriteset_will (95:8000) and these entries are not reached by this path (measured at the end of the dash in all four directions: playerFlags $8001 before the stage, $0001 and sprite set 95:8000 after it)"
+        }
+      ]
+    }
+  },
+  "tables/spriteset_dark_friar.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Appearance not viewed.",
+          "with": "Appearance: two frames of a south cast were viewed (which group of this table each one is was not matched): the cast frame draws Freedan as a pale white silhouette with a small spiky white shape beside it, and the trail frame draws a white-blue starburst with a red centre in front of Freedan with a grey winged shape trailing it. The VRAM layout is the one the groups assume: VRAM byte $8800 (word $4400) holds the $0480 bytes of misc_fx_1CC000 byte for byte, and the tile words $0440-$044E and $0460 of the groups lie inside that range. Other groups use tiles $C4, $C5, $D5 and $E8, which are not part of this upload (what fills them was not traced). The other animations were not viewed one by one."
+        }
+      ]
+    }
+  },
+  "tables/spriteset_freedan_fx.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The appearance of the tiles was not viewed (OQ-I069-3).",
+          "with": "Viewed: animation $02 (the Aura Barrier cast) shows Freedan with the sword raised straight up and the arms at the sides; animation $03 (the sustain pose, $28 = 3 while the barrier lasts, body row $06) shows the same body with a blue flame above the head and two blue blades below the feet. The drop poses $00 and $01 were not viewed (no ledge-jump scene was run)."
+        }
+      ]
+    }
+  },
+  "tables/spriteset_shadow_aura_body.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "but the art was not viewed (OQ-I071-1). The palette the frames use and where the Aura sequence ends (PlayerAuraTransformExit) are not covered here.",
+          "with": "and the screen agrees at the three ticks that were viewed: animation $00 (86 ticks) shows Shadow as a translucent blue figure of the body and later as a flat blue puddle; 14 ticks into animation $01 on the abort path (85 ticks in all) the picture is a small puddle with a few droplets, and the normal body is drawn again after it; animation $02 (16 ticks, Y +1 px per tick) is staged once per pass of the landing slide and was not viewed. The frames use OBJ palette 0 (the player's palette). Nothing stages another body_table row afterwards: the abort path leaves through PlayerAuraTransformExit (anim 0 of the normal Shadow body), the landing path ends with StagePlayerMoveY #1C (the normal Shadow body, 30 ticks); staging a player sprite clears playerFlags bit 15, and $0AC8 keeps the stale value 8."
+        }
+      ]
+    }
+  }
+}

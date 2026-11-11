@@ -1,0 +1,36 @@
+{
+  "_note": "IT-03: the chest table (scene_chest_table) holds chest placement records only; PlaceOpenedChestTiles redraws opened chests (the open 2x2 pattern $FE/$FF over $FC/$FD in mapLayerTilemap, warps_interaction.asm). Remove 'barrier' wording for it and two history sentences. Block and part notes use edit ops, so re-running this spec reports an error instead of =unchanged.",
+
+  "system/engine/scene_lifecycle.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "not graphics-cache indices (rename proposed in the audit log):", "with": "not graphics-cache indices:" },
+        { "find": "- PlaceOpenedChestTiles: place barrier collision tiles", "with": "- PlaceOpenedChestTiles: redraw the chests of scene_chest_table whose event flag is set as open chests in the map" }
+      ]
+    },
+    "partNotes": {
+      "ClearSceneState": {
+        "edit": [
+          { "find": "5. PlaceOpenedChestTiles — write barrier collision tiles to map", "with": "5. PlaceOpenedChestTiles — write the open-chest tiles of every chest whose event flag is set (records of scene_chest_table) to the map" }
+        ]
+      }
+    },
+    "comments": {
+      "253481": { "text": "Init camera bounds, apply event blocks, redraw opened chests", "expect": "InitCameraBounds" }
+    }
+  },
+
+  "tables/scene_chest_table.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "The old note ('barrier/chest placement', 'event-blocking barrier tiles', bit 7 as an end sentinel in the flag byte) was wrong: the table holds chests only, and the terminator is a byte >= $80 in the first (X) byte of a record.", "with": "The table holds chest records only; a list ends at a record whose first (X) byte has bit 7 set." }
+      ]
+    }
+  },
+
+  "system/engine/warps_interaction.asm": {
+    "comments": {
+      "173599": { "text": "TileCoordsToMapIndex — map index for the chest's top-left cell (X, Y-1)", "expect": "LDX" }
+    }
+  }
+}

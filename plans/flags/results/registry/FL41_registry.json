@@ -1,0 +1,255 @@
+{
+  "_iteration": "FL41",
+  "_note": "FL41 gap analysis. 'proposals' holds the four spine flags that have no record yet ($F8 $0138 $0185 $0512): each is the consolidated, final text of the earlier proposals (FL11, FL15, FL23, FL25, FL32) with stage and milestone, for the apply pass (FA-4) to write as a record. 'flags' holds patch rows (expectOld + patch:true) that add the queue id of an INFERRED/UNKNOWN meaning that had none, complete the evidence of two records. Nothing here is applied to db-us/flags.json.",
+  "_queueOnlyPatches": "Nine meanings were INFERRED/UNKNOWN with no queue field: $0000 (scene 1), $0000 (scene 225), $0006, $000F (scenes 140-143), $000F (scene 214), $0020, $00DB, $00F2, $00F3. Each already had a live item in the FL20/FL29 queues; the patch rows below add the id to the record.",
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "expectOld": "sc_town_player_south_strip_active",
+          "patch": true,
+          "scope": {
+            "scenes": [
+              1
+            ]
+          },
+          "queue": [
+            "FL20-11"
+          ]
+        },
+        {
+          "expectOld": "bt_light_elevator_player_pose_cue",
+          "patch": true,
+          "scope": {
+            "scenes": [
+              225
+            ]
+          },
+          "queue": [
+            "FL29-01"
+          ]
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "expectOld": "ec_doorway_melody_played_req",
+          "patch": true,
+          "scope": {
+            "scenes": [
+              17
+            ]
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:775 {232543}",
+            "extracted/system/inventory/item_use_system.asm:701 {232398}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:23 {638399}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:72 {638539}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_button_voice.asm:46 {638219}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_button_voice.asm:68 {638265}"
+          ],
+          "notes": "Producer: UseItem_LolaMelody_Effect (system/inventory), scene $11 branch only, and only while $0113 is clear: the use gate tests $0113 at item_use_system.asm:700 {232391} and refuses the melody when $02 is already set at :701 {232398}. The inventory overlay saves, zeroes and restores the scratch word, so the effect runs after the overlay returns. FL41 corrected the citation: FL21 put the $02 test at :700."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "expectOld": "sc_cave_statue_moved_ack",
+          "patch": true,
+          "scope": {
+            "scenes": [
+              2
+            ]
+          },
+          "queue": [
+            "FL20-12"
+          ]
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "expectOld": "pr_text_fade_out_done",
+          "patch": true,
+          "scope": {
+            "scenes": [
+              140,
+              141,
+              142,
+              143
+            ]
+          },
+          "queue": [
+            "FL20-13"
+          ]
+        },
+        {
+          "expectOld": "py_vader_barrier_busy",
+          "patch": true,
+          "scope": {
+            "scenes": [
+              214
+            ]
+          },
+          "queue": [
+            "FL29-03"
+          ]
+        }
+      ]
+    },
+    "32": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "sc_cave_friends_idle",
+          "patch": true,
+          "scope": null,
+          "queue": [
+            "FL20-10"
+          ]
+        }
+      ]
+    },
+    "67": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "ec_prison_door_c_open",
+          "patch": true,
+          "scope": null,
+          "evidence": [
+            "extracted/edward_castle/castle_prison/ec0B_guard.asm:20 {318502}"
+          ]
+        }
+      ]
+    },
+    "219": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "end_epilogue_first_half_done",
+          "patch": true,
+          "scope": null,
+          "queue": [
+            "FL29-07"
+          ]
+        }
+      ]
+    },
+    "242": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "py_trickle_orbs_a_fallen",
+          "patch": true,
+          "scope": null,
+          "queue": [
+            "FL29-04"
+          ]
+        }
+      ]
+    },
+    "243": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "py_trickle_orbs_b_fallen",
+          "patch": true,
+          "scope": null,
+          "queue": [
+            "FL29-05"
+          ]
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "248": [
+      {
+        "source": "FL41",
+        "scope": null,
+        "name": "gs_mystic_statue_ceremony_done",
+        "summary": "The Gold Ship Mystic Statue has been delivered to the Queen's crew (statue ceremony of scene $FD done).",
+        "kinds": [
+          "quest-done",
+          "reward-claimed"
+        ],
+        "roles": [
+          "trigger: gs2E_crew2.asm:21 {362736} (BranchIfHasItem #38), :32 RemoveItem, :35-:46 writes $0AAC = 0, $0B12 = $2E and queues scene $FD",
+          "setter: system/statue_inventory/statue_inventory_reward.asm (SetFlagRaw of statue_reward_table row 0, index $F8)",
+          "tests in scope: gs2E_sleep.asm:32 {362056} and :76 {362170} (bed trigger and talk line), gs2C_crew5.asm:17 {361423} (placement)",
+          "stage and milestone: act2.gold_ship, M09 (gold_ship_done), proposals like the name (FL32)"
+        ],
+        "confidence": "high",
+        "notes": "No literal SetFlagByte #F8 exists; the setter is the table-driven ceremony. Item $38 is the Mystic Statue (chest flag $0208 in scene $2E, FL12). Spine flag: FL31 writes the record."
+      }
+    ],
+    "312": [
+      {
+        "source": "FL41",
+        "scope": null,
+        "name": "sp_mu_passage_door_open",
+        "summary": "The door on the top floor of the Seaside Palace (scene $5A) that blocks the way to the passageway to Mu is open; the Seaside Palace Key opened it.",
+        "kinds": [
+          "gate-open",
+          "quest-done"
+        ],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1057 {233840} (UseItem_SeasidePalaceKey, player inside tiles (08,07)-(0A,08) of scene $5A), after the test at extracted/system/inventory/item_use_system.asm:1052 {233821}",
+          "stage and milestone: act3.seaside_palace, M15 (FL32 proposal)"
+        ],
+        "confidence": "high",
+        "notes": "FL25 (high) replaced the FL11 name sp_palace_entrance_open and FL32 used the FL11 name; FL41 keeps FL25. Evidence: event block $38 copies a 3x4 metatile block onto tiles (08,03)-(0A,06) of scene $5A, which contain the trigger of warp #05 to scene $5E (the passageway to Mu). Not an entrance of the palace: the key is given by a villager inside the palace. Queue FL25-08. Spine flag: FL31 writes the record."
+      }
+    ],
+    "389": [
+      {
+        "source": "FL41",
+        "scope": null,
+        "name": "gs_ship_departure_started",
+        "summary": "The Gold Ship departure sequence (scene $2C) has started; event block $85 (1x1 copy from (1A,12) to (19,11)) is applied on later loads of scene $1E.",
+        "kinds": [
+          "cutscene-stage",
+          "gate-open"
+        ],
+        "roles": [
+          "setter: gs2C_descent.asm:29, offset 360840 (gold_ship group), before byte flag $4C and the display setup",
+          "block: scene $1E (incan_ruins group), layer 0",
+          "event block $85: scene $1E: 1x1 metatiles from (1A,12) to (19,11), layer 0 (extracted/system/event_block_table.asm:144, offset 120822)",
+          "stage and milestone: act2.gold_ship, M09 (gold_ship_done), proposals like the name (FL32)"
+        ],
+        "confidence": "low",
+        "notes": "The setter and the block are in different groups and the tile that changes in scene $1E was not decoded, so the visual meaning is unknown: confidence stays low. Queue items FL11-14 and FL23-09 are the runtime check. Spine flag: FL31 writes the record."
+      }
+    ],
+    "1298": [
+      {
+        "source": "FL41",
+        "scope": null,
+        "name": "sys_will_spin_dash_unlocked",
+        "summary": "Will owns Spin Dash (form 0, slot 2; abilityBitmask $0AA2 bit 2, mask $04).",
+        "kinds": [
+          "engine",
+          "reward-claimed"
+        ],
+        "roles": [
+          "setter: system/dark_space/sE6_gaia.asm:1290 {584379} / :1291 {584382} (AbilityOrbActor, source scene $86)",
+          "reader (system): actors/player/attack_ability_system.asm:155 {178162} (gate $0005), :177 {178217} (BIT #$0004)",
+          "reader (great_wall): great_wall/wall_rampway/gw85_spin_dash_gate.asm:27 {518420}",
+          "owned-check: system/dark_space/sE6_gaia.asm:1189 {584186}",
+          "stage and milestone: act3.great_wall, M19 (gw_sand_fanger_defeated), proposals like the name (FL32)"
+        ],
+        "confidence": "high",
+        "notes": "This bit overlaps ability state: the coverage matrix of FL41 lists it as 'overlaps inventory/ability/other state'. Two groups read it, so FL31 writes the record. The shipped gw85_spin_dash_gate block note is wrong (specs/FL15_notes.json, FL15)."
+      }
+    ]
+  },
+  "_notRenamed": "$0146/$0147 (FL11 names mu_bomb_wire_cut_a/b) are not patched here: FL25 proposes mu_lair_gate_a/b_open (medium) and asked the user whether to rename (FL25 question 1, queue FL25-06). FL41 lists the rename in section Quality for the apply pass."
+}

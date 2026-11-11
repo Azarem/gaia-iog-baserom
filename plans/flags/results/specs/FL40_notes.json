@@ -1,0 +1,34 @@
+{
+  "_note": "FL40 draft: shipped block notes that the code contradicts or that cite a hint file as evidence (gw85 Spin Dash gate, the $0AA6/$0AAC description in item_use_system, the $0B02 'difficulty level' claim in ApplyPlayerHitstun). The per-handler scene-name corrections of item_use_system (Wind Melody, Lola's Melody, Memory Melody, Diamond Block, Mine Keys, Crystal Ball, Statue of Hope, Rama Statue, Teapot, Hieroglyph plate, Incan Melody) are already in FL10/FL23/FL24/FL25/FL27/FL30 specs and are not repeated. Partial edits need the stored text to be unchanged; run with --dry-run first.",
+  "great_wall/wall_rampway/gw85_spin_dash_gate.asm": {
+    "blockNote": [
+      "Spin Dash gate on the Great Wall rampway (scene $85).",
+      "",
+      "The actor loops on SetEntryHere and tests BranchIfPlayerAt ( #$0458, #$00D0 ). When that test matches, code_07E90F decides from the player's state: characterForm nonzero (Freedan or Shadow) passes, Will passes when abilityBitmask bit 2 ($0004, Spin Dash) is set, and Will without Spin Dash gets $03C0 written to the player actor's field $14 (the X position word), 152 below the X operand $0458 of the test. The code does not test an attack or a hit on the gate."
+    ]
+  },
+  "system/inventory/item_use_system.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$0AA6: Current hieroglyph plate ID (item index − $1E)",
+          "with": "$0AA6: Current hieroglyph plate ID (item index − $1E) while the plate handler runs. The word is shared scene scratch: scene scripts write and read it as a stage number or a bitmask (undersea tunnel, Gold Ship drift, Neil's cottage, the glass game, the sky garden cutscenes)."
+        },
+        {
+          "find": "$0AAC: Hieroglyph slot selection (0–5)",
+          "with": "$0AAC (globalScriptIndex): the plate handler stores the chosen slot (0–5) here. Other scripts use the same word for the Dark Space layout variant, the Dao snake game score and the statue ceremony countdown."
+        }
+      ]
+    }
+  },
+  "functions/ApplyPlayerHitstun.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$0B02 is the difficulty level (ram_map.txt), so the stone guard's two strongest hits add it to a base of 2.",
+          "with": "$0B02 is a word inside the saved block $0A00-$0BFB that no extracted code writes (it stays at its boot value unless a loaded save holds another). The stone guard's two strongest hits add it to a base of 2; awB1_goldcap, mtA1_fire_sprite, mu5F_cyclops and the pyDD queen shots read it as an additive bias too. What the word represents is not established."
+        }
+      ]
+    }
+  }
+}

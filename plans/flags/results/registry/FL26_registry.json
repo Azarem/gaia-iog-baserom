@@ -1,0 +1,921 @@
+{
+  "_note": "FL26 registry fragment: angel_village (scenes $68-$75 = decimal 104-117) and nazca (scenes $49 and $4B = decimal 73 and 75). Scratch flags are keyed by scene; the spine flag $8D is a proposal only (FL27/FL31 write the record). Flags >= $0100 of the group (FL11 records) are cross-referenced in _crossref with the sites of this scope. Names marked 'guessed from dialog' in notes are not backed by code.",
+  "_crossref": [
+    "$0143 av_tunnel_river_passage_found (FL11): the wall-crack actor tests it at extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:19 {447913} and sets it at :25 {447937} (scene $70, decimal 112)",
+    "$0144 av_tunnel_passage_73_found (FL11): same actor file, test at extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:33 {447943}, set at :39 {447967} (scene $73, decimal 115). The two word flags are selected by the actor's own scene test; the file is placed in both scenes.",
+    "$0149-$0150 av_ishtar_door_1_open .. av_ishtar_door_8_open (FL11): set by the eight door actors of scene $75 at extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:70 {448489}, :77 {448499}, :84 {448509}, :91 {448519}, :98 {448529}, :105 {448539}, :112 {448549}, :119 {448559} (door n sets $0149+n when the counter $0AA6 equals n); cleared together by the room controller at extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:26 {448714}, :27 {448718}, :28 {448722}, :29 {448726}, :30 {448730}, :31 {448734}, :32 {448738}, :33 {448742} whenever the player stands in a room (Y < $F0)",
+    "$0151 av_ishtar_test_passed (FL11): set together with $89 (av_ishtar_riddles_solved, flag 137) by the fourth correct answer at extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:164 {449021}; no COP reader exists (event block $51 is applied by ApplyAllEventBlocks, FL11)",
+    "Direct accesses of the scope that are not flag bits: the word $0AA6 is a story-phase counter written or read by st68_* (read at the top of every actor: st68_campfire.asm:15 {436912}, st68_neil.asm:16 {436952}, st68_erik.asm:16 {437744}, st68_lance.asm:13 {437939}, st68_kara.asm:20 {438066}, st68_lily.asm:20 {439535}, st68_mushrooms.asm:14 {440387}; INC at st68_erik.asm:53 {437836} and st68_lily.asm:65 {439643}), reset to 0 by av6B_door.asm:33 {448378}, read by av75_voice_doors.asm:46 {448445} and av75_apprentice.asm (LDA at :27 {449638}), incremented and decremented by av75_voice_rooms.asm (:37 {448754}, :100 {448890}, :105 {448900}, :121 {448934}, :126 {448943}, :142 {448976}, :147 {448985}, :169 {449031}), reset to 0 by na49_neil.asm:69 {383283} and read by na49_neil.asm:98 {383343}; the four inventions of the cottage OR bits 0-3 into it (na49_tank.asm:28 {385821}/:30 {385827}, na49_wings.asm:29 {386063}/:31 {386069}, na49_telescope.asm:27 {386287}/:29 {386293}, na49_camera.asm:28 {386386}/:30 {386392}). The word aliases global flag indices $0530-$053F (flags:tail of the save block). JSL ClearAllWramFlags at st68_kara.asm:96 {438261} clears the kill-flag block $0A80-$0A9F (indices $0400-$04FF); FL14 owns that lifetime.",
+    "Scene entry and warps: scene_flag_init (placed by tables/scene_actors.asm in scenes $6D $6E $6F $70 $71 $72 at lines 2655, 2685, 2717, 2734, 2758, 2769) sets scratch $00 at spawn in those six scenes; the wind-room actor av75_apprentice and the waterfall actor av73_waterfall_sound set the same scratch byte in scenes $75 and $73 (see flag 0)."
+  ],
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [115] },
+          "name": "av_waterfall_alt_idle_zone",
+          "area": "angel_village",
+          "summary": "The player is in the waterfall alcove of the Angel Village waterfall tunnel (or spawned in the top-left start area); the player's idle, ladder and shimmy code selects the alternate sprite set.",
+          "kinds": ["unknown"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character.asm branches to the '*Shadow' idle, ladder-idle and shimmy-detach pieces (alternate sprite ids #10-#13 / #2E-#2F) at lines 232, 243, 254, 265, 806, 817, 992, 1004; av73_waterfall_sound stops spawning its zone sub-actor when the player starts in tiles (00,00)-(40,10).",
+            "clear": "The player uses the normal idle sprites #00-#03."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_waterfall/av73_waterfall_sound.asm:51 {448302}",
+            "extracted/angel_village/angel_tunnel_waterfall/av73_waterfall_sound.asm:58 {448317}",
+            "extracted/angel_village/angel_tunnel_waterfall/av73_waterfall_sound.asm:63 {448321}",
+            "extracted/actors/player/player_character.asm:232 {181375}"
+          ],
+          "notes": "Producer: av73_waterfall_sound. At spawn, BranchIfPlayerInAbsTiles (00,00)-(40,10) (code_06D72E) sets the byte and the actor dies (no sound, no zone watcher); otherwise it spawns code_06D733 (flags $2000), which sets the byte while the player is inside tiles (2A,17)-(2F,1D) and clears it everywhere else, and the main script writes APUIO0 = $40 + min(2*|playerXTile-$2C|, $30) every fourth frame. Consumer outside the group: player_character.asm (eight reads, FL30). The grade is INFERRED because the alternate sprite set is what the shipped comments call 'Shadow' and what it looks like in this tunnel was not observed; the meaning of the pose (wind, water) is not established. The name describes the effect, not a guessed cause.",
+          "queue": ["FL26-03"]
+        },
+        {
+          "scope": { "scenes": [117] },
+          "name": "av_test_wind_room_alt_idle",
+          "area": "angel_village",
+          "summary": "The player started the scene inside the fourth observation room of Ishtar's test (tiles (70,00)-(80,10)); the player code selects the alternate idle sprite set there.",
+          "kinds": ["unknown"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character.asm uses the alternate ('Shadow') idle, ladder-idle and shimmy sprites for the rest of the scene load; the apprentice also writes playerSpeedNs := $FFFF.",
+            "clear": "The player uses the normal idle sprites."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_apprentice.asm:22 {449629}",
+            "extracted/actors/player/player_character.asm:232 {181375}"
+          ],
+          "queue": ["FL26-02"],
+          "notes": "Set-only in this scene (no ClearFlagByte in the file); the box is tested once at spawn, so the byte reflects the spawn position. The fourth room is the answer room of the last pair (warp #07 of scene $75 lands at (0798,00B0)). The correct-answer dialog for that room is 'The wind blew your hair around.' (dialogstring_06DB9F, printed by av75_voice_rooms immediately before it sets $89), which is the only text hint for what the alternate pose shows; name and meaning are guessed from that dialog and from the set-in-one-room code. Not described by any note."
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_arrival_talk_done",
+          "area": "nazca",
+          "summary": "Neil's greeting at the cottage door is finished; the party NPCs walk to their places (Lilly clears the byte when she has arrived).",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_lance, na49_lily, na49_kara and na49_erik leave their first WaitOnFlagByte and run their entry movement; Lilly clears the byte after her walk (na49_lily.asm:26) and na49_neil resumes at its WaitOnFlagByte sense 00.",
+            "clear": "The four NPCs wait; Neil waits for the clear after setting it."
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_neil.asm:55 {383235}",
+            "extracted/nazca/neils_cottage/na49_neil.asm:56 {383238}",
+            "extracted/nazca/neils_cottage/na49_lance.asm:19 {385355}",
+            "extracted/nazca/neils_cottage/na49_lily.asm:19 {384325}",
+            "extracted/nazca/neils_cottage/na49_lily.asm:26 {384347}",
+            "extracted/nazca/neils_cottage/na49_kara.asm:21 {385057}",
+            "extracted/nazca/neils_cottage/na49_erik.asm:16 {385694}"
+          ],
+          "notes": "Producer: na49_neil (after the 'It's open, come in' exchange, the walk script code_05D942 and the opening wait). Consumers: Lance, Lilly, Kara, Erik (set); Neil (clear). Lilly is the one who clears it, so the byte doubles as 'everyone arrived'."
+        },
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_neil_intro_done",
+          "area": "nazca",
+          "summary": "Neil's welcome speech on the Nazca plain is finished and the joypad is free; the party NPCs may start their idle behaviour.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_lily, na4B_kara, na4B_lance and na4B_erik leave their first wait; Neil installs his 'Don't be in such a hurry. Wait for everyone else.' interact handler.",
+            "clear": "The NPCs wait at their spawn positions; the joypad is locked ($CFFC) by Neil until he sets the byte."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_neil.asm:22 {387155}",
+            "extracted/nazca/nazca/na4B_lily.asm:20 {389102}",
+            "extracted/nazca/nazca/na4B_kara.asm:17 {388240}",
+            "extracted/nazca/nazca/na4B_lance.asm:17 {388774}",
+            "extracted/nazca/nazca/na4B_erik.asm:16 {389630}"
+          ],
+          "notes": "Producer na4B_neil locks $CFFC at spawn (na4B_neil.asm line 19, ROM offset 387145), prints the speech, sets the byte and unlocks ($CFFC) at line 24 (ROM offset 387161)."
+        },
+        {
+          "scope": { "scenes": [104] },
+          "name": "av_undersea_neil_narration_done",
+          "area": "angel_village",
+          "summary": "Neil's narration for the current phase of the tunnel journey is finished ('Five days have passed...' in phase 0, 'Two weeks since entering the tunnel...' in phase 2).",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Phase 0 ($0AA6 = 0): st68_erik, st68_lance and st68_kara leave their first wait and walk to their camp positions; st68_lily waits #3F ticks and changes frame; all four install their interact handlers. Phase 2 ($0AA6 = 2): st68_kara leaves its first wait and starts the Morse-code finale (sound #1E taps, music #06, dialog, ClearAllWramFlags, QueueMapChange #69).",
+            "clear": "The NPCs wait; the joypad stays locked ($CFFC) in the narrating phase."
+          },
+          "evidence": [
+            "extracted/angel_village/undersea_tunnel/st68_neil.asm:34 {436985}",
+            "extracted/angel_village/undersea_tunnel/st68_neil.asm:69 {437064}",
+            "extracted/angel_village/undersea_tunnel/st68_erik.asm:29 {437762}",
+            "extracted/angel_village/undersea_tunnel/st68_lance.asm:26 {437957}",
+            "extracted/angel_village/undersea_tunnel/st68_kara.asm:33 {438084}",
+            "extracted/angel_village/undersea_tunnel/st68_kara.asm:64 {438156}",
+            "extracted/angel_village/undersea_tunnel/st68_lily.asm:33 {439553}"
+          ],
+          "notes": "Every st68 actor reads $0AA6 first and SwitchCase-dispatches (phase 0, 1, 2); the same index therefore appears in two phases of one scene, with one meaning ('Neil has finished narrating'). Phase 1 uses no scratch flag at all (st68_lily runs the eighth-day talk alone and does INC $0AA6)."
+        },
+        {
+          "scope": { "scenes": [105] },
+          "name": "av_entrance_lance_sign_talk_done",
+          "area": "angel_village",
+          "summary": "The arrival dialog at the Angel Village entrance (Lance's sign speech) is finished; Lilly, Neil and Erik start walking.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av69_lily, av69_neil and av69_erik leave their third wait and run their movement; av69_lily then speaks 'Will, let's go' and sets scratch $02.",
+            "clear": "The three NPCs wait; the joypad is locked ($CFFC) by av69_lance until $75 is set."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_entrance/av69_lance.asm:29 {441015}",
+            "extracted/angel_village/angel_entrance/av69_lily.asm:18 {442817}",
+            "extracted/angel_village/angel_entrance/av69_neil.asm:15 {442377}",
+            "extracted/angel_village/angel_entrance/av69_erik.asm:16 {443513}"
+          ],
+          "notes": "All five av69 actors first test $8D and $75 and die when either is set, so the whole handshake chain ($01-$04) runs only while the arrival scene has not been shown."
+        },
+        {
+          "scope": { "scenes": [107] },
+          "name": "av_village_door_open_req",
+          "area": "angel_village",
+          "summary": "The player interacted with the village door; the door actor opens it.",
+          "kinds": ["handshake", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av6B_door leaves its WaitOnFlagByte: it plays sound #06 on channel 2, applies BgChange #45 (door tiles), writes $0AA6 := 0 and idles.",
+            "clear": "The door stays closed (unless the player is near it at spawn: BranchIfPlayerNear #01 jumps straight to the open piece)."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_village/av6B_door.asm:39 {448384}",
+            "extracted/angel_village/angel_village/av6B_door.asm:24 {448363}"
+          ],
+          "notes": "Producer: the interact handler code_06D780 of the same actor. Opening is never persisted: no persistent flag exists, so the door is closed again at the next load of scene $6B unless the player starts next to it. The reset $0AA6 := 0 (av6B_door.asm:33 {448378}) is what returns the shared phase word to 0 before the tunnels of Ishtar's test."
+        },
+        {
+          "scope": { "scenes": [112, 115] },
+          "name": "av_tunnel_crack_inspected_req",
+          "area": "angel_village",
+          "summary": "The player examined the cracked wall; the wall actor's main script opens the hidden passage.",
+          "kinds": ["handshake", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av70_hidden_passage leaves its wait, applies BgChange #43 (scene $70) or #44 (scene $73) and sets the persistent word flag $0143 or $0144.",
+            "clear": "The wall stays as it is; the interact handler prints the crack text."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:48 {447977}",
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:21 {447924}",
+            "extracted/angel_village/angel_tunnel_river/av70_hidden_passage.asm:35 {447954}"
+          ],
+          "notes": "One actor file serves two scenes: the scene-$70 piece waits at :21 and sets $0143 (tested at :19 {447913}, set at :25 {447937}); the scene-$73 piece waits at :35 and sets $0144 (tested at :33 {447943}, set at :39 {447967}). If the word flag is already set the actor dies at spawn."
+        },
+        {
+          "scope": { "scenes": [116] },
+          "name": "av_tunnel_rooms_magic_dust_used",
+          "area": "angel_village",
+          "summary": "The player used the Magic Dust (item #14) on Kara's picture from the tiles (07,08)-(09,0A) of scene $74; the item is gone.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av74_kara's main script (inside code_06D171, entered only while the player carries item #14) passes its first wait; the picture's interact handler takes the 'kiss' branch (when $89 is set), prints 'Will gently kisses the picture of Kara...' and sets $8A. With $89 clear the handler prints 'Kara's picture. She is contained inside it....'.",
+            "clear": "The picture's handler prints 'If I don't spread magic dust...' when $89 is set; the main script keeps waiting."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:1206 {234433}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_kara.asm:37 {446837}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_kara.asm:109 {447072}"
+          ],
+          "queue": ["FL26-04"],
+          "notes": "Producer outside the group: UseItem_MagicPowder (item_use_system.asm:1187-1213) sets it after RemoveItem #14, only when sceneCurrent = $74 and the player is in tiles (07,08)-(09,0A); it does not test $89. Hazard (queue FL26-04): the byte is scratch and the item is removed, so leaving the scene after using the dust loses both; the picture handler needs the byte, and av74_kara.asm:30 {446827} (BranchIfHasItem #14) is the only way into code_06D171. Whether another source of item #14 exists was not searched beyond the scene-$74 chest (FL12)."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_welcome_talk_done",
+          "area": "nazca",
+          "summary": "Neil's 'Oh! Will! You've gotten strong! Are all of these people your friends?' line is finished; Lilly answers Kara's insult and clears the byte.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_lily leaves its wait, prints Kara's 'This person stinks...' and Lilly's reply, then clears the byte.",
+            "clear": "Neil continues (WaitOnFlagByte sense 00) with the socks speech."
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_neil.asm:62 {383258}",
+            "extracted/nazca/neils_cottage/na49_neil.asm:63 {383261}",
+            "extracted/nazca/neils_cottage/na49_lily.asm:27 {384350}",
+            "extracted/nazca/neils_cottage/na49_lily.asm:32 {384367}"
+          ],
+          "notes": "Producer na49_neil; consumer and clearer na49_lily."
+        },
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_spirit_seen",
+          "area": "nazca",
+          "summary": "The Moon Tribe spirit has appeared and said 'Ku ku ku...'; the party NPCs react.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_neil, na4B_lily, na4B_kara, na4B_lance and na4B_erik leave the wait at their second stage (Neil installs the second interact handler, the others advance their idle script).",
+            "clear": "The spirit has not appeared; the NPCs keep their first-stage behaviour."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_spirit.asm:41 {389932}",
+            "extracted/nazca/nazca/na4B_neil.asm:26 {387168}",
+            "extracted/nazca/nazca/na4B_lily.asm:31 {389137}",
+            "extracted/nazca/nazca/na4B_kara.asm:44 {388322}",
+            "extracted/nazca/nazca/na4B_lance.asm:31 {388817}",
+            "extracted/nazca/nazca/na4B_erik.asm:26 {389660}"
+          ],
+          "notes": "The spirit actor waits for $06 and $07 (Kara's and Lilly's remarks), then polls BranchIfPlayerNear #02; when the player comes near it locks $FFFC, prints 'Ku ku ku...', unlocks, sets the byte and flies away."
+        },
+        {
+          "scope": { "scenes": [104] },
+          "name": "av_undersea_mushrooms_examined",
+          "area": "angel_village",
+          "summary": "The player examined the mushrooms in phase 0 of the tunnel scene; Neil may continue.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "st68_neil leaves its second wait, installs its idle poll and waits for the player to enter tiles (0B,00)-(0C,10).",
+            "clear": "Neil keeps the interact handler 'Thousands of years ago people walked through this tunnel...'."
+          },
+          "evidence": [
+            "extracted/angel_village/undersea_tunnel/st68_mushrooms.asm:38 {440425}",
+            "extracted/angel_village/undersea_tunnel/st68_neil.asm:41 {437006}"
+          ],
+          "notes": "Producer: the mushrooms' interact handler (code_06B863) after its dialog. The mushrooms actor dies in phases 1 and 2."
+        },
+        {
+          "scope": { "scenes": [105] },
+          "name": "av_entrance_lily_urge_done",
+          "area": "angel_village",
+          "summary": "Lilly's 'Will, let's go.' line at the entrance is finished; Kara continues.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av69_kara leaves its wait, speaks and sets scratch $03.",
+            "clear": "Kara waits."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_entrance/av69_lily.asm:26 {442842}",
+            "extracted/angel_village/angel_entrance/av69_kara.asm:15 {443223}"
+          ],
+          "notes": "Producer av69_lily, consumer av69_kara."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_socks_talk_done",
+          "area": "nazca",
+          "summary": "Neil's remark about his appearance ('Hey, hey. Both of you talk pretty harshly...') is finished; Lance and then Kara answer, and Kara clears the byte.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_lance leaves its wait, prints 'I've only had mine on for three weeks. I guess I lose!' and sets $04.",
+            "clear": "Kara clears it after her 'I can't believe it!' line; na49_neil resumes (WaitOnFlagByte sense 00) with 'I've heard enough about my socks.'"
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_neil.asm:65 {383269}",
+            "extracted/nazca/neils_cottage/na49_neil.asm:66 {383272}",
+            "extracted/nazca/neils_cottage/na49_lance.asm:24 {385371}",
+            "extracted/nazca/neils_cottage/na49_kara.asm:32 {385093}"
+          ],
+          "notes": "Chain: Neil sets $03, Lance consumes it and sets $04, Kara consumes $04 and clears $03, Neil consumes the clear."
+        },
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_neil_statue_talk_done",
+          "area": "nazca",
+          "summary": "After the spirit, Neil's second interact handler has run ('We'll talk about it when everyone comes back...' with the Mystic Statue exchange); Lilly continues.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_lily leaves its wait at :38 and runs her clue sequence ('I've got it'), which sets $08.",
+            "clear": "Lilly waits; the byte is set only by talking to Neil (interact handler code_05E8C3)."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_neil.asm:67 {387271}",
+            "extracted/nazca/nazca/na4B_lily.asm:38 {389158}"
+          ],
+          "notes": "The player must talk to Neil after $02: the story cannot advance by itself."
+        },
+        {
+          "scope": { "scenes": [104] },
+          "name": "av_undersea_neil_strip_reached",
+          "area": "angel_village",
+          "summary": "After the mushrooms, Neil saw the player enter tiles (0B,00)-(0C,10) and posed; Kara speaks next.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "st68_kara leaves its second wait, plays its loop, prints 'Oh, no! Will found more mushrooms...' (with Lilly's reply) and sets $04.",
+            "clear": "Kara keeps the interact handler 'I want a steak! And a salad!'."
+          },
+          "evidence": [
+            "extracted/angel_village/undersea_tunnel/st68_neil.asm:50 {437027}",
+            "extracted/angel_village/undersea_tunnel/st68_kara.asm:40 {438106}"
+          ],
+          "notes": "Neil locks the joypad ($CFFC) at st68_neil.asm line 49 (ROM offset 437024) immediately before setting the byte; the lock is released by the actor that ends the day (st68_erik) through the map change, because scene load clears joypadMaskStd."
+        },
+        {
+          "scope": { "scenes": [105] },
+          "name": "av_entrance_kara_talk_done",
+          "area": "angel_village",
+          "summary": "Kara's line at the entrance is finished; Lilly speaks again.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av69_lily leaves its wait at :27, speaks and sets $04.",
+            "clear": "Lilly waits."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_entrance/av69_kara.asm:25 {443254}",
+            "extracted/angel_village/angel_entrance/av69_lily.asm:27 {442845}"
+          ],
+          "notes": "Producer av69_kara, consumer av69_lily."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_lance_socks_reply_done",
+          "area": "nazca",
+          "summary": "Lance's socks remark is finished; Kara answers.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_kara leaves its wait, prints 'I can't believe it! I don't want to breathe the same air as him!' and clears $03.",
+            "clear": "Kara waits."
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_lance.asm:30 {385391}",
+            "extracted/nazca/neils_cottage/na49_kara.asm:26 {385073}"
+          ],
+          "notes": "Producer na49_lance, consumer na49_kara."
+        },
+        {
+          "scope": { "scenes": [104] },
+          "name": "av_undersea_kara_mushroom_remark_done",
+          "area": "angel_village",
+          "summary": "Kara's 'Oh, no! Will found more mushrooms...' scene is finished; the party eats and Erik ends the day.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "st68_erik, st68_lance and st68_lily leave their wait: Erik walks, prints 'In this way, another day passed slowly...', increments $0AA6 and queues scene $68 again (phase 1); Lance walks and changes frame; Lilly changes frame.",
+            "clear": "The three NPCs stay at their camp positions with their interact handlers."
+          },
+          "evidence": [
+            "extracted/angel_village/undersea_tunnel/st68_kara.asm:46 {438125}",
+            "extracted/angel_village/undersea_tunnel/st68_erik.asm:44 {437808}",
+            "extracted/angel_village/undersea_tunnel/st68_lance.asm:33 {437979}",
+            "extracted/angel_village/undersea_tunnel/st68_lily.asm:39 {439571}"
+          ],
+          "notes": "Erik is the actor that advances the phase counter (st68_erik.asm:53 {437836}) and reloads the scene (QueueMapChange #68 at (0070,01A0))."
+        },
+        {
+          "scope": { "scenes": [105] },
+          "name": "av_entrance_lily_grouch_done",
+          "area": "angel_village",
+          "summary": "Lilly's last line at the entrance is finished; Lance and Erik finish the arrival scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av69_lance leaves its wait at :34, sets persistent $75 and unlocks ($CFFC); av69_erik leaves its wait at :28.",
+            "clear": "Lance and Erik wait."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_entrance/av69_lily.asm:31 {442858}",
+            "extracted/angel_village/angel_entrance/av69_lance.asm:34 {441029}",
+            "extracted/angel_village/angel_entrance/av69_erik.asm:28 {443551}"
+          ],
+          "notes": "Producer av69_lily; consumers av69_lance and av69_erik."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_intro_released",
+          "area": "nazca",
+          "summary": "Neil finished the three-part introduction, reset $0AA6 to 0 and released the joypad; the party NPCs take their final positions and the player can walk.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_lance, na49_kara, na49_lily and na49_erik leave their wait and set their interact handlers and final positions.",
+            "clear": "The four NPCs keep waiting; the joypad is locked ($CFFC)."
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_neil.asm:70 {383286}",
+            "extracted/nazca/neils_cottage/na49_lance.asm:31 {385394}",
+            "extracted/nazca/neils_cottage/na49_kara.asm:33 {385096}",
+            "extracted/nazca/neils_cottage/na49_lily.asm:33 {384370}",
+            "extracted/nazca/neils_cottage/na49_erik.asm:21 {385710}"
+          ],
+          "notes": "Neil unlocks at na49_neil.asm line 72 (ROM offset 383292), one instruction after setting the byte."
+        },
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_kara_first_talk_done",
+          "area": "nazca",
+          "summary": "The player talked to Kara once (first interact handler); Kara's script moves on to her second remark.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_kara leaves its wait at :32 and installs the second interact handler.",
+            "clear": "Kara keeps the first handler."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_kara.asm:88 {388431}",
+            "extracted/nazca/nazca/na4B_kara.asm:32 {388286}"
+          ],
+          "notes": "Producer and consumer are the same actor (interact handler and main script): a private latch."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_inventions_toured",
+          "area": "nazca",
+          "summary": "The player has examined all four of Neil's inventions ($0AA6 = $000F) and talked to Neil, who then asks why they came.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_kara leaves its wait at :40 and runs her 'Cygnus?!' exchange (sets $07).",
+            "clear": "Neil's handler prints the inventions speech ('It's been about two years...') instead."
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_neil.asm:106 {383360}",
+            "extracted/nazca/neils_cottage/na49_kara.asm:40 {385117}"
+          ],
+          "notes": "The test at na49_neil.asm:98 {383343} is CMP #$000F on the word $0AA6; the four inventions OR bits 0 (tank), 1 (wings), 2 (telescope) and 3 (camera) into it."
+        },
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_kara_stomach_remark_done",
+          "area": "nazca",
+          "summary": "Kara's second remark (the painting compared to a Condor's stomach) has been said.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_spirit counts this as one of its two start conditions (it also needs $07).",
+            "clear": "The spirit stays hidden."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_kara.asm:94 {388439}",
+            "extracted/nazca/nazca/na4B_spirit.asm:16 {389874}"
+          ],
+          "notes": "The remark text is read from na4B_kara.asm dialog; the 'stomach' wording is the file's own header text, so the name follows the dialog."
+        }
+      ]
+    },
+    "7": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_kara_cygnus_done",
+          "area": "nazca",
+          "summary": "Kara's 'Cygnus?!' exchange with Neil (the Tower of Babel in the middle of the white-bird painting) is finished; Lilly raises the question of going.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_lily leaves its wait at :40, prints the red-star dialog and opens the two-row 'go' question.",
+            "clear": "Lilly waits."
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_kara.asm:50 {385147}",
+            "extracted/nazca/neils_cottage/na49_lily.asm:40 {384391}"
+          ],
+          "notes": "Kara locks the joypad (na49_kara.asm line 42, ROM offset 385124) before the exchange; nothing in the scene releases it, the lock ends at the map change."
+        },
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_lily_rocks_remark_done",
+          "area": "nazca",
+          "summary": "Lilly's remark about the pattern of the scattered rocks has been said.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_spirit counts this as its second start condition (with $06).",
+            "clear": "The spirit stays hidden."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_lily.asm:96 {389311}",
+            "extracted/nazca/nazca/na4B_spirit.asm:17 {389878}"
+          ],
+          "notes": "Producer: Lilly's interact handler. The wording follows the file's own header ('pattern in the way the rocks are scattered')."
+        }
+      ]
+    },
+    "8": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [73] },
+          "name": "na_cottage_expedition_agreed",
+          "area": "nazca",
+          "summary": "Lilly's two-row question about going to Nazca was answered with the affirmative row; Lance announces the departure.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na49_lance leaves its wait at :41, prints 'We're going, too!...', sets persistent $6D, stages the world-map move and queues scene $4B.",
+            "clear": "Lilly repeats the question after Neil's 'Don't say that. Actually, I want to go.'"
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_lily.asm:67 {384437}",
+            "extracted/nazca/neils_cottage/na49_lance.asm:41 {385427}"
+          ],
+          "notes": "DialogueOptions returns 0 for cancel and 1.. for rows; the list at code_list_05DDA5 sends 00 and 02 to the 'Don't say that' branch and 01 to the byte-setting branch."
+        },
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_lily_cygnus_hint_done",
+          "area": "nazca",
+          "summary": "Lilly's realization about Cygnus ('I've got it') is finished; the other party members continue.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_neil, na4B_kara, na4B_lance and na4B_erik leave their wait (Neil changes its frame and waits for $0A).",
+            "clear": "The four NPCs wait."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_lily.asm:46 {389183}",
+            "extracted/nazca/nazca/na4B_neil.asm:28 {387176}",
+            "extracted/nazca/nazca/na4B_kara.asm:51 {388343}",
+            "extracted/nazca/nazca/na4B_lance.asm:37 {388834}",
+            "extracted/nazca/nazca/na4B_erik.asm:33 {389681}"
+          ],
+          "notes": "Lilly locks $CFFC at na4B_lily.asm line 40 (ROM offset 389165) before the speech; Neil unlocks it at na4B_neil.asm line 35 (ROM offset 387197) after $0A."
+        }
+      ]
+    },
+    "9": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_condor_quiz_solved",
+          "area": "nazca",
+          "summary": "The player picked the third row ('Condor's Left Foot') of Neil's 'Where is the red star?' question; the party walks to the left foot and the buried tile becomes interactive.",
+          "kinds": ["handshake", "puzzle-state", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_lily, na4B_kara, na4B_lance, na4B_erik leave their wait and walk to the foot; na4B_buried_tile installs its interact handler (code_05E6AD).",
+            "clear": "Neil repeats the question after 'I would think it would be at the bottom.'"
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_neil.asm:94 {387309}",
+            "extracted/nazca/nazca/na4B_lily.asm:56 {389213}",
+            "extracted/nazca/nazca/na4B_kara.asm:54 {388352}",
+            "extracted/nazca/nazca/na4B_lance.asm:40 {388843}",
+            "extracted/nazca/nazca/na4B_erik.asm:36 {389690}",
+            "extracted/nazca/nazca/na4B_buried_tile.asm:26 {386641}"
+          ],
+          "notes": "DialogueOptions ( #04, #00 ) returns 0 for cancel and 1-4 for the rows; code_list_05E8D9 maps index 3 (third row) to the correct branch and every other index to the retry branch."
+        }
+      ]
+    },
+    "10": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_lily_red_star_hint_done",
+          "area": "nazca",
+          "summary": "Lilly's remark about where to look ('Look where the rocks are...') is finished; Neil unlocks the joypad and runs the quiz.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_neil leaves its wait at :31, restores the frame, unlocks $CFFC and runs code_05E8CB (the quiz).",
+            "clear": "Neil waits."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_lily.asm:55 {389210}",
+            "extracted/nazca/nazca/na4B_neil.asm:31 {387185}"
+          ],
+          "notes": "The line wording of Lilly's text was taken from the dialog string of na4B_lily.asm; the name follows the handshake order, not the dialog."
+        }
+      ]
+    },
+    "11": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_neil_at_left_foot",
+          "area": "nazca",
+          "summary": "Neil has walked to the left foot of the Condor; the buried tile's handler lets the player inspect it.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_buried_tile's interact handler takes the inspection branch (prints the 'tile buried in the sand' text and sets $0F).",
+            "clear": "The handler prints Neil's 'Will! Don't look yet! You don't know what's in there!!'."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_neil.asm:54 {387256}",
+            "extracted/nazca/nazca/na4B_buried_tile.asm:57 {386733}"
+          ],
+          "notes": "Producer na4B_neil after its walk script; test in the buried tile's interact handler (BranchOnFlagByte sense 00 jumps to Neil's line when clear)."
+        }
+      ]
+    },
+    "12": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_erik_alarm_done",
+          "area": "nazca",
+          "summary": "Erik's 'Something huge is coming down!' alarm is finished; Kara, Lance and Lilly react.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_kara, na4B_lance and na4B_lily leave their wait (the object falls: the sub-actor code_05E7A6 then sets $0D).",
+            "clear": "They wait."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_buried_tile.asm:43 {386694}",
+            "extracted/nazca/nazca/na4B_kara.asm:66 {388390}",
+            "extracted/nazca/nazca/na4B_lance.asm:54 {388887}",
+            "extracted/nazca/nazca/na4B_lily.asm:72 {389264}"
+          ],
+          "notes": "Producer: the buried-tile main script after the COLDATA tint loop and Erik's dialog (the dialog is printed by the tile actor)."
+        }
+      ]
+    },
+    "13": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_object_landed",
+          "area": "nazca",
+          "summary": "The falling object has landed (sub-actor code_05E7A6 shows frame #1C with sound #$0C0C); Kara and Lilly react.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_kara and na4B_lily leave their last wait; the buried tile main script then prints Kara's 'Will! Will! Wi-i-i-i-l-l-l!' and queues scene $4C (Sky Garden).",
+            "clear": "They wait."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_buried_tile.asm:89 {387018}",
+            "extracted/nazca/nazca/na4B_kara.asm:71 {388404}",
+            "extracted/nazca/nazca/na4B_lily.asm:77 {389278}"
+          ],
+          "notes": "Producer: the spawned sub-actor, not the tile's main script; the main script's later QueueMapChange #4C is on a fixed WaitByte schedule, not on this byte."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [75] },
+          "name": "na_plain_buried_tile_inspected",
+          "area": "nazca",
+          "summary": "The player inspected the buried tile after Neil reached the left foot; the tile's main script starts the final scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "na4B_buried_tile leaves its wait at :28, locks $EFFC, runs the COLDATA tint loop (8 steps of 31 ticks), prints Erik's alarm and sets $0C.",
+            "clear": "The tile stays idle."
+          },
+          "evidence": [
+            "extracted/nazca/nazca/na4B_buried_tile.asm:59 {386743}",
+            "extracted/nazca/nazca/na4B_buried_tile.asm:28 {386649}"
+          ],
+          "notes": "Producer: the tile's own interact handler; consumer: its own main script (a private latch)."
+        }
+      ]
+    },
+    "109": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "na_cottage_party_left_for_nazca",
+          "area": "nazca",
+          "summary": "Lance announced the departure from Neil's cottage ('We're going, too!') and the party left for the Nazca plain.",
+          "kinds": ["cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "No actor reads it: the cottage cutscene replays on every visit of scene $49 regardless of the byte.",
+            "clear": "The same."
+          },
+          "evidence": [
+            "extracted/nazca/neils_cottage/na49_lance.asm:47 {385447}"
+          ],
+          "notes": "Set-only. Absence of a reader: the inventory lists one site for index 109 (this SetFlagByte, 'S1/C0/T0/W0'); no direct access to byte $0A0D (flags $68-$6F) exists in the inventory (direct accesses of $0A0D-$0A0F, $0A11, $0A15 were listed: none); no scene_meta $13 gate (the nine gate indices are 33 76 112 123 126 136 150 179 244) and no other trace candidate list contains 109. Searches: tools/fl_scope.mjs index 109, inventory direct_accesses by address and the trace candidate_indices of all 17 traces. A runtime reader through a dynamic index that the inventory cannot see was not excluded, so no scenes are guarded by it. The name is guessed from the surrounding dialog."
+        }
+      ]
+    },
+    "116": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_annex_lance_confided",
+          "area": "angel_village",
+          "summary": "Lance has confided in Will in the guest annex ('Will. I want to talk to you about something...').",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Lance's interact handler (code_06BC19) skips the confession and prints the follow-up ('Thanks for the advice...').",
+            "clear": "The handler runs the confession and sets the byte before the dialog."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_annex/av6A_lance.asm:37 {441369}",
+            "extracted/angel_village/angel_annex/av6A_lance.asm:38 {441375}"
+          ],
+          "notes": "Test and set are in the same handler (one actor, scene $6A only). The name and wording are taken from the file's dialog; no other actor reads the flag (inventory index 116: 2 sites)."
+        }
+      ]
+    },
+    "117": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_entrance_arrival_scene_done",
+          "area": "angel_village",
+          "summary": "The arrival cutscene at the Angel Village entrance (the sign, Lilly's urge, Kara and Lilly's quarrel) has been shown.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av69_lance, av69_lily, av69_kara, av69_neil and av69_erik die at spawn: the entrance has no party NPCs and no joypad lock.",
+            "clear": "The five actors run the arrival chain (scratch $01-$04) with the joypad locked ($CFFC) by Lance."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_entrance/av69_lance.asm:35 {441033}",
+            "extracted/angel_village/angel_entrance/av69_lance.asm:17 {440974}",
+            "extracted/angel_village/angel_entrance/av69_lily.asm:17 {442811}",
+            "extracted/angel_village/angel_entrance/av69_kara.asm:14 {443217}",
+            "extracted/angel_village/angel_entrance/av69_neil.asm:14 {442371}",
+            "extracted/angel_village/angel_entrance/av69_erik.asm:15 {443507}"
+          ],
+          "notes": "Set by av69_lance after the $04 wait (the last handshake), immediately before it unlocks the joypad. All other sites of index 117 are in this scope."
+        }
+      ]
+    },
+    "137": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_ishtar_riddles_solved",
+          "area": "angel_village",
+          "summary": "The player gave the fourth correct answer of Ishtar's observation test in scene $75 ('You have passed my test well. You may return.').",
+          "kinds": ["quest-done", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av74_ishtar dies at spawn and her portrait child switches to frame #15 with the long-speech interact handler (and the $8B latch); the picture of Kara (av74_kara) switches its handler from 'Kara's picture. She is contained inside it....' to the Magic Dust branches; the eight door actors of scene $75 (av75_voice_doors) die at spawn.",
+            "clear": "Ishtar stands at her post (frame #12; she says 'I wonder if you're here to get Kara. Go into this room...'); the portrait child shows frame #13 without handler; the picture of Kara cannot be kissed."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:163 {449018}",
+            "extracted/angel_village/angel_tunnel_test/av75_voice_doors.asm:22 {448396}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_ishtar.asm:20 {446109}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_ishtar.asm:42 {446136}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_kara.asm:108 {447066}"
+          ],
+          "notes": "Set together with the FL11 word flag $0151 (av_ishtar_test_passed) by the next instruction (av75_voice_rooms.asm line 164, ROM offset 449021); the two flags carry the same event, $89 for actor scripts and $0151 for the event-block pipeline, and are never set separately. Other users of index 137: none (inventory: 5 sites, all in this scope). No clear site exists, so the test cannot be replayed."
+        }
+      ]
+    },
+    "138": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_kara_portrait_kissed",
+          "area": "angel_village",
+          "summary": "Will kissed Kara's picture after spreading Magic Dust on it; the rescue cutscene starts.",
+          "kinds": ["cutscene-stage", "handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av74_kara leaves its second wait: locks $FFFC, fades the backdrop twice, loads the Nazca sprite set, animates Kara, runs three dialogs, sets $8C and queues scene $6A.",
+            "clear": "The main script keeps waiting."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_rooms/av74_kara.asm:116 {447087}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_kara.asm:38 {446841}"
+          ],
+          "notes": "The byte is persistent but only the main script of the same scene waits on it. If the player saves or the scene reloads between the set and the end of the cutscene, the main script is entered again only while the player carries item #14 (av74_kara.asm:30 {446827}); the dust was already removed (see scratch $01 of scene $74, queue FL26-04)."
+        }
+      ]
+    },
+    "139": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_ishtar_portrait_speech_seen",
+          "area": "angel_village",
+          "summary": "Ishtar's long speech from the self-portrait ('I have been waiting for you. Sprinkle magic powder on the painting, and give it a kiss...') has been heard.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The portrait's interact handler (code_06CEDF) prints only '.............'.",
+            "clear": "The handler sets the byte and prints the long speech."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_rooms/av74_ishtar.asm:67 {446175}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_ishtar.asm:68 {446181}"
+          ],
+          "notes": "The handler is installed only when $89 is set (the portrait child at code_06CEB8), so the speech is reachable only after the test."
+        }
+      ]
+    },
+    "140": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_kara_rescued_from_portrait",
+          "area": "angel_village",
+          "summary": "Kara has been freed from her picture in the tunnel rooms; the party is reunited in the annex.",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av74_kara dies at spawn (no picture); in scene $6A all five annex actors take their reunion positions, Kara becomes visible and Erik runs the reunion cutscene (which sets $A9).",
+            "clear": "In scene $6A the party stands at its initial positions and answers with generic remarks; in scene $74 the picture and Magic Dust handshake are active."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_tunnel_rooms/av74_kara.asm:89 {447035}",
+            "extracted/angel_village/angel_tunnel_rooms/av74_kara.asm:25 {446801}",
+            "extracted/angel_village/angel_annex/av6A_lance.asm:15 {441336}",
+            "extracted/angel_village/angel_annex/av6A_lily.asm:15 {443031}",
+            "extracted/angel_village/angel_annex/av6A_erik.asm:18 {443592}",
+            "extracted/angel_village/angel_annex/av6A_neil.asm:18 {442439}",
+            "extracted/angel_village/angel_annex/av6A_kara.asm:15 {443275}"
+          ],
+          "notes": "Set by av74_kara immediately before QueueMapChange #6A. Other users of index 140: none (inventory: 7 sites, all in this scope)."
+        }
+      ]
+    },
+    "169": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_annex_reunion_done",
+          "area": "angel_village",
+          "summary": "The reunion cutscene in the guest annex is finished; the party stands at its final positions and Neil offers to leave for Watermia.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "av6A_erik and av6A_neil start in their final pieces (Erik's handler 'I think I saw a Red Jewel in the Angel Village.'; Neil's handler asks 'Can we go now?' with Yes/Wait a minute, the Yes row stages the world-map move and queues scene $78); av6A_kara leaves its wait at :19 and takes her final piece.",
+            "clear": "With $8C set the cutscene (av6A_erik code_06C4D7) runs at scene entry and sets the byte."
+          },
+          "evidence": [
+            "extracted/angel_village/angel_annex/av6A_erik.asm:43 {443655}",
+            "extracted/angel_village/angel_annex/av6A_erik.asm:17 {443586}",
+            "extracted/angel_village/angel_annex/av6A_neil.asm:17 {442433}",
+            "extracted/angel_village/angel_annex/av6A_kara.asm:19 {443288}"
+          ],
+          "notes": "Erik locks $CFFC at av6A_erik.asm line 30 (ROM offset 443616) before the reunion and unlocks at line 45 (ROM offset 443661). Other users of index 169: none (inventory: 4 sites, all in this scope)."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "141": [
+      {
+        "source": "FL26",
+        "scope": null,
+        "name": "wa_arrival_cutscene_started",
+        "summary": "The Watermia arrival cutscene (wa78_intro) has started: the Angel Village party NPCs are gone and the Angel Village world-map exit offers Watermia.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/watermia/watermia/wa78_intro.asm:51 {491619} (the only SetFlagByte of index 141; no clear site exists in the inventory); the cutscene is skipped when it is already set (test at extracted/watermia/watermia/wa78_intro.asm:22 {491523})",
+          "waiter: extracted/watermia/wa78_lance_camera_pan.asm:25 {491980} and extracted/watermia/watermia/wa78_moving_pad.asm:19 {499621} (the camera pan and the moving pad actors wait for it)",
+          "test: extracted/actors/overworld_exit.asm:319 {52169} (OverworldExitAngelVillageStage: set selects world-map menu $0A 'Quit / Watermia', clear selects $15 'Quit only')",
+          "test: extracted/angel_village/angel_entrance/av69_lance.asm:16 {440968}, extracted/angel_village/angel_entrance/av69_lily.asm:16 {442805}, extracted/angel_village/angel_entrance/av69_kara.asm:13 {443211}, extracted/angel_village/angel_entrance/av69_neil.asm:13 {442365}, extracted/angel_village/angel_entrance/av69_erik.asm:14 {443501} (die at spawn in scene $69)",
+          "test: extracted/angel_village/angel_annex/av6A_lance.asm:14 {441330}, extracted/angel_village/angel_annex/av6A_erik.asm:16 {443580}, extracted/angel_village/angel_annex/av6A_kara.asm:14 {443269}, extracted/angel_village/angel_annex/av6A_lily.asm:14 {443025}, extracted/angel_village/angel_annex/av6A_neil.asm:16 {442427} (die at spawn in scene $6A)"
+        ],
+        "confidence": "high",
+        "notes": "Roles are read in full for the ten angel_village sites and the Watermia sites listed by the inventory (watermia: 4, actors: 1). The set point is the start of the arrival cutscene (after the camera pan and before the narration and QueueMapChange #79), so the meaning is 'arrival cutscene started', not 'party left'. The name is for FL27/FL31 to decide; 'av_party_left_village' was considered and rejected because the flag is set from a Watermia script. Queue FL26-01."
+      }
+    ]
+  }
+}

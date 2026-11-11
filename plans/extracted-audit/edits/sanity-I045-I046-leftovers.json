@@ -1,0 +1,14 @@
+{
+  "system/player/player_move_main.asm": {
+    "comments": {
+      "184281": null,
+      "184288": null,
+      "185023": null
+    }
+  },
+  "actors/hit_stagger_controller.asm": {
+    "comments": {
+      "55415": "Victim's extendedFlags: bit $0020 'hitstun skip' = no collision-checked movement; else $10 |= $0008 so the knockback stops at walls"
+    }
+  }
+}

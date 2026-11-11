@@ -1,8 +1,8 @@
 ; Camera scroll actor definitions and shared subroutines (Bank 00).
 ; 
-; Defines four actor-based camera scroll behaviors used during gameplay and cutscenes. Each actor sets bit 12 ($1000) of its status word ($12; the meaning of that bit was not verified) and then computes per-frame scroll deltas with the hardware multiply/divide unit (MulDivide).
+; Defines four actor-based camera scroll behaviors used during gameplay and cutscenes. Each actor sets bit 12 ($1000) of its status word ($12; the display / overlay-active qualifier: while displayModeFlags bit 7 is set only actors with this bit in $10 or $12 run, so the camera actor keeps running while the player stands still, measured over 40 frames) and then computes per-frame scroll deltas with the hardware multiply/divide unit (MulDivide).
 ; 
-; Spawn parameters: the X/Y bytes of the actor-spawn entry are not positions. The spawner makes them pixel coordinates (tile × 16); TileAlignCoord then packs each into (page << 8 | tile) and ComputeScrollDeltas passes it to MulDivide as the packed operand: low byte = multiplier, high byte = divisor. Zero skips the axis. Spawn bytes seen in extracted/: #11 (most common), #21, #41, #00, #DF (Init only). The −8 px X offset makes the X multiplier one less than the Y one for the same spawn byte.
+; Spawn parameters: the X/Y bytes of the actor-spawn entry are not positions. The spawner makes them pixel coordinates (tile × 16); TileAlignCoord then packs each into (page << 8 | tile) and ComputeScrollDeltas passes it to MulDivide as the packed operand: low byte = multiplier, high byte = divisor. Zero skips the axis. Spawn bytes seen in extracted/: #11 (most common), #21, #41, #00, #DF (Init only). X and Y give the same packed word for the same spawn byte, so the −8 px X offset does not lower the X multiplier (measured: #11, #11 packs to $0101 on both axes, #21, #21 to $0201 on both; the delta equals the target x lo / hi on every call).
 ; 
 ; The four scroll modes are:
 ; - ScrollCameraInit: aligns both coordinates, runs the delta computation 3 times (identical inputs), copies the Y delta to effectScrollV, then computes once more and moves cameraDeltaX (bit 15 set) into forcedScrollOverride, zeroing cameraDeltaX. Used only with spawn #DF, #DF.
@@ -35,14 +35,14 @@
 ; 
 ; Runs COP LoopStart with count 3 around ComputeScrollDeltas; all three passes use the same inputs, so they give the same result. After the loop, copies cameraDeltaY to effectScrollV ($0690).
 ; 
-; Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. Outside layer1_scroll_actors no reader of $06C8 was found in extracted/.
+; Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. WriteBgScroll reads $06C8 as the layer-1 horizontal scroll override while bit 15 is set (measured in scenes $A0 and $A1: BG2HOFS equals $06C8 & $03FF on all 759 override passes).
 
 ScrollCameraInit [
   actor-def < #00, #00, #2C, {
 
   code_00E950:
     LDA #$1000
-    TSB $12               ; Set bit 12 in actor status — marks this actor as the active camera controller
+    TSB $12               ; Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes
     LDA $14
     SEC 
     SBC #$0008            ; Subtract 8px X centering offset
@@ -62,7 +62,7 @@ ScrollCameraInit [
     JSR $&ComputeScrollDeltas
     LDA $cameraDeltaX
     ORA #$8000            ; Set bit 15 on the X delta
-    STA $forcedScrollOverride ; Store in forcedScrollOverride ($06C8); no reader outside layer1_scroll_actors was found
+    STA $forcedScrollOverride ; Store in forcedScrollOverride ($06C8); WriteBgScroll uses it as the layer-1 horizontal scroll while bit 15 is set
     STZ $cameraDeltaX     ; Zero cameraDeltaX after moving its value into the override word
     RTL 
 } >
@@ -80,7 +80,7 @@ ScrollCameraTrack [
 
   code_00EA99:
     LDA #$1000
-    TSB $12               ; Set camera-active flag (bit 12) in actor status word
+    TSB $12               ; Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes
     JSR $&TileAlignPosition
     COP [SetEntryHere]    ; Set re-entry point; actor recomputes both scroll deltas every frame from here
     JSR $&ComputeScrollDeltas

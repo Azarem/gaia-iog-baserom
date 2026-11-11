@@ -1,0 +1,769 @@
+{
+  "_note": "FL28 registry fragment: native_village, dao, angkor_wat. Scratch flags are keyed by scene; spine flags ($AC $B1 $B3 $B4 $B6 $BB $BF $C0 $C1 $D0 $D2 $FF) are proposals only (FL31 writes the record). The two flags >= $0100 of the scope ($016B, $016E) belong to the FL11 records (aw_outer_east_wall_walker_defeated, aw_outer_north_ledge_opened) and are not re-recorded: their sites are cross-referenced in _crossref so that every inventory site of the scope is cited.",
+  "_crossref": [
+    "$016B aw_outer_east_wall_walker_defeated (FL11): wait extracted/angkor_wat/angkor_outer_east/awB2_slider_glide_trigger.asm:14 {563403}; the setter is the wall-walker death handler (extracted/angkor_wat/awB1_wall_walker.asm:535 {770400} TestFlag_0100, :538 {770410} SetFlag_0100) for the enemy-spawn row of scene $B2 with death-action index $6B (tables/scene_actors.asm:3769)",
+    "$016E aw_outer_north_ledge_opened (FL11): test extracted/angkor_wat/angkor_outer_north/awB3_ledge_jump_trigger.asm:20 {563421}, set extracted/angkor_wat/angkor_outer_north/awB3_ledge_jump_trigger.asm:35 {563459}",
+    "$016C / $016D / $016F (FL11): the death-action indices of the other three wall-walker rows of the scope (scene $B1 row 0F tables/scene_actors.asm:3749, scene $B4 row 04 :3794, scene $B8 row 08 :3898); same handler lines 535 and 538 of awB1_wall_walker.asm",
+    "$028C nv_gorgon_hut_hidden_jewel_taken and $028D da_dao_hidden_jewel_taken (FL12): hidden_red_jewel placements tables/scene_actors.asm:3707 (scene $AE, tile (03,0D), parameter #19) and :4027 (scene $C3, tile (28,05), parameter #1B)"
+  ],
+  "flags": {
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [172] },
+          "name": "nv_village_cutscene_start_cue",
+          "area": "native_village",
+          "summary": "Cue byte of the Native Village cutscenes. Scene 172 is loaded three times with three different cutscenes (arrival, sleep, Hamlet); the byte is a start cue in the last two and a write nobody reads in the first.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Sleep scene ($B0 set, $AF clear): Kara leaves her wait and prints 'What... Hamlet... Let me sleep a while longer...'. Hamlet scene ($AF set, $B2 clear): nvAC_hamlet leaves its wait, waits 59 frames and walks to Kara.",
+            "clear": "Kara or Hamlet keeps waiting."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_kara.asm:79 {557337}",
+            "extracted/native_village/native_village/nvAC_kara.asm:185 {559755}",
+            "extracted/native_village/native_village/nvAC_kara.asm:108 {557429}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:62 {558800}",
+            "extracted/native_village/native_village/nvAC_kara.asm:38 {557216}"
+          ],
+          "notes": "Sleep scene: the first of the three child actors Kara spawns (code_088A60) sets the byte at the end of its route ({559755}) and Kara waits for it at {557337}. Hamlet scene: Kara sets it after the 'They seem to be very hungry...' dialog ({557429}); the only reader is nvAC_hamlet ({558800}). Arrival load: nvAC_kara sets $AC and then this byte ({557216}); searched `WaitOnFlagByte ( #01` and `BranchOnFlagByte ( #01` in extracted/native_village: the only readers are {557337} and {558800}, and neither path runs in a load where $AC is clear, so the write at {557216} is not read by any script of that load. Name from the dialog order, not from a label."
+        },
+        {
+          "scope": { "scenes": [198] },
+          "name": "da_snake_game_start_requested",
+          "area": "dao",
+          "summary": "The player answered Yes to 'Play the game with the snakes?' in the Snake Panic room: the three pots and the timer start; the timer clears it when the minute is over.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The parent leaves its wait, swaps the interact handler for 'Hey, hey. There's plenty of them.' and spawns the timer (code_08AFB4); the pots stop waiting, clear bit $0200 of their flags $10 (they set it again between pops), reset HP to $FF and arm the first-hit callback.",
+            "clear": "The parent keeps its 'Play the game with the snakes?' handler; the pots stay in their idle frame."
+          },
+          "evidence": [
+            "extracted/dao/panic_room/daC6_snake_panic.asm:71 {569021}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:32 {568955}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:172 {569573}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:138 {569343}"
+          ],
+          "notes": "Set by the Yes row of code_08AEB9 together with STZ $0AAC (the hit counter) and TRB $0008 of playerFlags (combat lock off, so Will can attack the pots). Cleared by the timer at the end of the minute ({569343}), next to the clear of $02 and the set of $03."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [172] },
+          "name": "nv_hamlet_sad_look_cue",
+          "area": "native_village",
+          "summary": "Hamlet scene step 2: Hamlet has walked up to Kara and stands in place; Kara says 'Hamlet... Why such a sad look?' and clears the byte as the acknowledgement.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "nvAC_kara leaves its wait and prints the dialog; Hamlet is still waiting for the byte to clear.",
+            "clear": "Hamlet (waiting for clear) continues: 59 frames, the jump animation and the next cue ($03)."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_hamlet.asm:70 {558826}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:71 {558829}",
+            "extracted/native_village/native_village/nvAC_kara.asm:109 {557432}",
+            "extracted/native_village/native_village/nvAC_kara.asm:111 {557440}"
+          ],
+          "notes": "Producer Hamlet (set and wait for clear), consumer Kara (wait for set, dialog, clear). Name guessed from the dialog text."
+        },
+        {
+          "scope": { "scenes": [198] },
+          "name": "da_snake_game_first_pot_hit",
+          "area": "dao",
+          "summary": "The first pot has been hit: the minute starts. The timer actor waits for it, then counts 3600 frames.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The pots leave their wait and take the counting hit callback (code_08B138); the timer clears $0410-$041F, writes $0055 to $041E and counts $24 up to $0E10.",
+            "clear": "The timer keeps waiting; the pots keep the first-hit callback (code_08B0FD)."
+          },
+          "evidence": [
+            "extracted/dao/panic_room/daC6_snake_panic.asm:182 {569597}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:97 {569268}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:178 {569593}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:139 {569346}"
+          ],
+          "notes": "Set by the first-hit callback code_08B0FD, which then installs code_08B138 (plays sound ch1 #0D and adds 1 in BCD to $0AAC, the hit counter shown by the [BCD:3,AAC] text). The pots that were not hit leave their wait and fall through into code_08B0FD as well (the wait is the last instruction of code_08B0D4). Cleared by the timer when time is up."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [172] },
+          "name": "nv_hamlet_fire_jump_cue",
+          "area": "native_village",
+          "summary": "Hamlet scene step 3: Hamlet has started its jump animation (sound $2121, frames $AB/$AC). Kara shows 'A-a-a-a!!!!! Hamlet!!' and clears the byte; seven native NPCs start to move when it is set.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Kara prints the dialog; map_kid, beckon_kid, staring_man1/2 and dumpling_man2 leave their wait and walk; hand_man1 and dumpling_man1 leave their polling loop.",
+            "clear": "Hamlet (waiting for clear) goes on: unlock bit of its flags, music $11, the 'Poor Hamlet... To eat or not to eat...?' dialog and the effect actor."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_hamlet.asm:80 {558860}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:85 {558874}",
+            "extracted/native_village/native_village/nvAC_kara.asm:112 {557443}",
+            "extracted/native_village/native_village/nvAC_kara.asm:114 {557451}",
+            "extracted/native_village/native_village/nvAC_map_kid.asm:18 {561047}",
+            "extracted/native_village/native_village/nvAC_beckon_kid.asm:22 {561311}",
+            "extracted/native_village/native_village/nvAC_staring_man.asm:19 {560789}",
+            "extracted/native_village/native_village/nvAC_staring_man.asm:77 {561771}",
+            "extracted/native_village/native_village/nvAC_dumpling_man.asm:21 {560509}",
+            "extracted/native_village/native_village/nvAC_dumpling_man.asm:90 {561679}",
+            "extracted/native_village/native_village/nvAC_hand_man.asm:21 {560255}"
+          ],
+          "notes": "Producer Hamlet; consumers Kara (wait, dialog, clear = ack) and seven natives (hand_man2 does not read it; the natives run while Kara's dialog is open). hand_man1 and dumpling_man1 poll it with BranchOnFlagByte; the other four use WaitOnFlagByte. Name guessed from Kara's later line 'He just jumped into the fire...'."
+        },
+        {
+          "scope": { "scenes": [198] },
+          "name": "da_snake_game_time_up",
+          "area": "dao",
+          "summary": "The minute of the Snake Panic game is over: the timer sets it, the pots notice it and park, and the parent switches to the result handler.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Each pot's loop branches to code_08B133 (sets $04, goes back to wait for $01); the timer actor dies after the prize/result text.",
+            "clear": "The pots keep jumping up and down (random delay) and counting hits."
+          },
+          "evidence": [
+            "extracted/dao/panic_room/daC6_snake_panic.asm:140 {569349}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:186 {569604}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:35 {568970}"
+          ],
+          "notes": "The parent clears it right after spawning the timer ({568970}); the timer sets it once at the end ({569349}); it is never cleared again, so the game cannot be played a second time until the scene reloads."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [172] },
+          "name": "nv_fire_effect_actor_started",
+          "area": "native_village",
+          "summary": "Hamlet scene step 4: the effect actor (code_088755 in nvAC_hamlet, metasprite from spriteset_pickups_effects) has finished its first frames; the natives step to their final tiles and become solid.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "map_kid, beckon_kid, hand_man1, dumpling_man1/2, staring_man1/2 leave their second wait, take one more short step in X and mark themselves solid.",
+            "clear": "The natives stand where they walked to after $03."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_hamlet.asm:126 {558970}",
+            "extracted/native_village/native_village/nvAC_map_kid.asm:26 {561070}",
+            "extracted/native_village/native_village/nvAC_beckon_kid.asm:28 {561328}",
+            "extracted/native_village/native_village/nvAC_hand_man.asm:41 {560304}",
+            "extracted/native_village/native_village/nvAC_dumpling_man.asm:41 {560558}",
+            "extracted/native_village/native_village/nvAC_dumpling_man.asm:102 {561714}",
+            "extracted/native_village/native_village/nvAC_staring_man.asm:27 {560812}",
+            "extracted/native_village/native_village/nvAC_staring_man.asm:89 {561806}"
+          ],
+          "notes": "Set by code_088755 after sound $0F0F, frame #25 and the first StageSpriteMoveY. Nobody clears it; it is never read again in the scene. What the effect sprite shows (fire/smoke) is a guess from the dialog."
+        },
+        {
+          "scope": { "scenes": [198] },
+          "name": "da_snake_game_result_ready",
+          "area": "dao",
+          "summary": "The pots have seen the end of the round: the parent switches to the 'You've hit N snakes. Try again!' handler and idles.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The parent installs code_08AECF (prints the hit count of $0AAC) and stays in its idle loop; the 'Play?' prompt is not offered again.",
+            "clear": "The parent keeps polling."
+          },
+          "evidence": [
+            "extracted/dao/panic_room/daC6_snake_panic.asm:30 {568948}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:38 {568973}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:210 {569651}"
+          ],
+          "notes": "Cleared by the parent at spawn ({568948}), set by the first pot that sees $03 ({569651}); tested by the parent loop ({568973}). Three pots run the same code, so the set happens up to three times."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [172] },
+          "name": "nv_mother_voice_done",
+          "area": "native_village",
+          "summary": "Hamlet scene step 5: the narration child (code_0887BA) has shown the voice of Will's mother ('It was Hamlet's wish to be food for these people... find the Mystic Statues and go to the Tower of Babel...') and sets the byte before it dies.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Kara and Erik spawn the event sprite nv_village_event_sprite.code_0881AE and change to their final frames and interact handlers; the effect actor (code_088755) leaves its loop, moves, sets $B2 and unlocks the player; nv_village_event_sprite leaves its wait.",
+            "clear": "The effect actor keeps cycling frame #2A; Kara and Erik stay frozen at their cutscene frames."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_hamlet.asm:156 {559041}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:134 {558991}",
+            "extracted/native_village/native_village/nvAC_kara.asm:115 {557454}",
+            "extracted/native_village/native_village/nvAC_erik.asm:53 {558510}",
+            "extracted/native_village/native_village/nv_village_event_sprite.asm:15 {557482}"
+          ],
+          "notes": "Setter is the child spawned by the effect actor (SpawnBeforeFlags code_0887BA); readers: Kara, Erik, the event sprite (waits) and the effect actor loop (BranchOnFlagByte). The dialog sets the story: 'Mystic Statues' and 'Tower of Babel'."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [172] },
+          "name": "nv_beckon_kid_follow_accepted",
+          "area": "native_village",
+          "summary": "After Hamlet ($B2 set) the player answered Yes to 'He tugs on Will's sleeve... Go with him?': the child walks to the skeleton.",
+          "kinds": ["handshake", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "nvAC_beckon_kid (code_0890C1) removes its interact handler, un-solids, walks to pixel (0148,0120) and then (0188,0140), marks itself solid and installs 'He faces the skeleton with tears in his eyes...'.",
+            "clear": "The child stands at its tile with 'Go with him?'."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_beckon_kid.asm:83 {561437}",
+            "extracted/native_village/native_village/nvAC_beckon_kid.asm:38 {561345}"
+          ],
+          "notes": "Self handshake: the interact handler (Yes row, code_089119, text 'He beckons to him...') sets the byte and the actor's own main script waits for it. The walk targets match the bones actor of scene 172 at tile (19,14) (pixel (0190,0140))."
+        }
+      ]
+    },
+    "173": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_party_house_search_started",
+          "area": "native_village",
+          "summary": "Kara asked 'Strange. Not a soul here, and skeletons scattered around... Should we go into the houses?' (interact on Kara at tile (0B,0E)); the party walks away and the vacant hut opens.",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene 172, at load: Erik and Hamlet die at spawn (after the $B2 and $AF tests); Kara dies too unless $B0 or $AF send her into the sleep or Hamlet scene. During the first visit: the three party actors waiting at tiles (0B,0E), (0B,11) and (0B,0F) leave their wait, walk and fall into a Die. Scene 173: the hut party is active (Kara plays the arrival talk when $AE is clear).",
+            "clear": "Scene 172: the party stands at its tiles and waits. Scene 173: Kara, Erik and Hamlet die at spawn."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_kara.asm:137 {557524}",
+            "extracted/native_village/native_village/nvAC_kara.asm:29 {557182}",
+            "extracted/native_village/native_village/nvAC_kara.asm:54 {557255}",
+            "extracted/native_village/native_village/nvAC_erik.asm:20 {558433}",
+            "extracted/native_village/native_village/nvAC_erik.asm:38 {558484}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:26 {558713}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:45 {558768}",
+            "extracted/native_village/vacant_hut/nvAD_kara.asm:20 {559830}",
+            "extracted/native_village/vacant_hut/nvAD_erik.asm:15 {560046}",
+            "extracted/native_village/vacant_hut/nvAD_hamlet.asm:15 {560157}"
+          ],
+          "notes": "Setter: the interact handler code_0881D0 right after its dialog. The hut actors treat a clear flag as 'party not here yet' (die). With $AD set and the village still without $B0, a visit to scene 172 shows no party (they are in the hut). Name from the dialog; the flag has no other meaning in code."
+        }
+      ]
+    },
+    "174": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_vacant_hut_checked",
+          "area": "native_village",
+          "summary": "The arrival talk in the vacant hut has played (Kara: 'No one here... The village looks abandoned.' Erik: 'That's good. We can rest if we want.').",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene 173: Kara stands at tile (07,08) with the 'Let's rest today' handler; Erik stands at tile (07,0A) (Hamlet takes its own standing branch); the talk does not replay.",
+            "clear": "Scene 173: Kara plays the talk (player lock $CFFC, +8 on the player's actor word $14) and sets the flag; Erik and Hamlet wait for it, then walk."
+          },
+          "evidence": [
+            "extracted/native_village/vacant_hut/nvAD_kara.asm:32 {559868}",
+            "extracted/native_village/vacant_hut/nvAD_kara.asm:19 {559824}",
+            "extracted/native_village/vacant_hut/nvAD_erik.asm:14 {560040}",
+            "extracted/native_village/vacant_hut/nvAD_erik.asm:17 {560056}",
+            "extracted/native_village/vacant_hut/nvAD_hamlet.asm:14 {560151}",
+            "extracted/native_village/vacant_hut/nvAD_hamlet.asm:17 {560167}"
+          ],
+          "notes": "The three hut actors read it with the order $B2, $AE, $AD: $B2 set kills all three (Hamlet scene over)."
+        }
+      ]
+    },
+    "175": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_sleep_cutscene_done",
+          "area": "native_village",
+          "summary": "The sleep scene in the village has played ('Exhausted from the trip, they fall into a deep sleep... A long time passes...'); the natives are now in the village and the Hamlet scene follows.",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene 172: the bonfire and the eight native NPCs (hand men, dumpling men, staring men, map kid, beckon kid) stay; Kara plays the Hamlet scene when $B2 is clear (Erik and Hamlet too).",
+            "clear": "Scene 172: the bonfire and the native NPCs die at spawn; with $B0 set Kara plays the sleep scene."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_kara.asm:93 {557388}",
+            "extracted/native_village/native_village/nvAC_kara.asm:27 {557170}",
+            "extracted/native_village/native_village/nvAC_erik.asm:19 {558427}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:25 {558707}",
+            "extracted/native_village/native_village/nvAC_bonfire.asm:13 {560212}",
+            "extracted/native_village/native_village/nvAC_beckon_kid.asm:18 {561293}",
+            "extracted/native_village/native_village/nvAC_dumpling_man.asm:15 {560494}",
+            "extracted/native_village/native_village/nvAC_dumpling_man.asm:87 {561667}",
+            "extracted/native_village/native_village/nvAC_hand_man.asm:15 {560240}",
+            "extracted/native_village/native_village/nvAC_hand_man.asm:87 {561739}",
+            "extracted/native_village/native_village/nvAC_map_kid.asm:15 {561035}",
+            "extracted/native_village/native_village/nvAC_staring_man.asm:16 {560777}",
+            "extracted/native_village/native_village/nvAC_staring_man.asm:74 {561759}"
+          ],
+          "notes": "Setter: nvAC_kara code_0880D6, after QueueMapChange to scene 172 at (0080,00F0): the flag is set while the map change is queued, so the next load of scene 172 already sees it. Twelve test sites of the scope, the largest user count of the group. Name from the story order."
+        }
+      ]
+    },
+    "176": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_party_rest_decided",
+          "area": "native_village",
+          "summary": "In the vacant hut Kara's interact handler ('Let's rest today.') was used: the party decided to sleep and the village is entered again.",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene 172 (with $AF clear): nvAC_kara runs the sleep scene; Erik and Hamlet die ($AD is set).",
+            "clear": "Scene 172: Kara dies at spawn when $AD is set and $B0 is clear (the party is still in the hut)."
+          },
+          "evidence": [
+            "extracted/native_village/vacant_hut/nvAD_kara.asm:53 {559898}",
+            "extracted/native_village/native_village/nvAC_kara.asm:28 {557176}"
+          ],
+          "notes": "The flag is set before the dialog text and before QueueMapChange to scene 172 at (00B0,00A0)."
+        }
+      ]
+    },
+    "178": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_hamlet_cutscene_done",
+          "area": "native_village",
+          "summary": "The Hamlet scene is over: the pig 'jumped into the fire', Will's mother's voice told the party to find the Mystic Statues, and the player is unlocked.",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene 172: Kara (tile (12,0C), 'Ramapoe' = Hello), Erik (tile (12,0B)) and Hamlet (roasted-Hamlet frame at tile (08,13), 'Sniff sniff... aroma of roasting Hamlet.') stand with fixed interact texts; the beckon kid waits for scratch $06. Scene 173: Kara, Erik and Hamlet die at spawn.",
+            "clear": "Scene 172 with $AF set: Kara plays the Hamlet scene and locks the player; scene 173: the hut party is active."
+          },
+          "evidence": [
+            "extracted/native_village/native_village/nvAC_hamlet.asm:147 {559023}",
+            "extracted/native_village/native_village/nvAC_kara.asm:26 {557164}",
+            "extracted/native_village/native_village/nvAC_erik.asm:18 {558421}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:24 {558701}",
+            "extracted/native_village/native_village/nvAC_beckon_kid.asm:21 {561305}",
+            "extracted/native_village/vacant_hut/nvAD_kara.asm:18 {559818}",
+            "extracted/native_village/vacant_hut/nvAD_erik.asm:13 {560034}",
+            "extracted/native_village/vacant_hut/nvAD_hamlet.asm:13 {560145}"
+          ],
+          "notes": "Set by the effect actor (code_088755 path code_08879C) after it moves, then TRB $CFFC (unlock) and Die. The player stays locked from scene entry (Kara's TSB $CFFC at {557408}) until this flag is set. Name from the dialog."
+        }
+      ]
+    },
+    "181": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_snake_pit_fall_effect_played",
+          "area": "angkor_wat",
+          "summary": "Once-latch of the fixed-colour effect (TM $15, CGADSUB $A1, COLDATA $FF) and the backdrop fade-out that awB4_snake_pit_entry plays the first time the player arrives at pixel (0578,0010) of scene $B4.",
+          "kinds": ["once-latch"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The player's fall animation still runs at (0578,0010) (player entry set to player_character.loc_02C63B, playerFlags |= $0800), but the effect and thinker are skipped.",
+            "clear": "The effect runs once: sets $B5, writes TM = $15, CGADSUB = $A1, COLDATA = $FF, waits $B3 frames and spawns oneshot_backdrop_fade_out_1C."
+          },
+          "evidence": [
+            "extracted/angkor_wat/snake_pit/awB4_snake_pit_entry.asm:46 {563556}",
+            "extracted/angkor_wat/snake_pit/awB4_snake_pit_entry.asm:47 {563562}"
+          ],
+          "queue": ["FL28-13"],
+          "notes": "The latch logic is verified; the visible result of the register values is inferred from the register encoding (CGADSUB bit 7 = subtract, COLDATA all channels at 31) and has not been seen: it may be a black fade rather than a white flash. The latch name is therefore neutral."
+        }
+      ]
+    },
+    "183": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_crystal_shrine_intro_seen",
+          "area": "angkor_wat",
+          "summary": "The narration 'Setting one foot inside, the floating crystal started to glow!' of the crystal shrine (scene $BC) has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "awBC_blinding_light skips the narration (and the player lock) and runs only the palette-flash loop.",
+            "clear": "The actor sets the flag, locks the player ($CFFC), waits 29 frames, prints the narration, unlocks and then falls into the flash loop."
+          },
+          "evidence": [
+            "extracted/angkor_wat/angkor_shrine_crystal/awBC_blinding_light.asm:19 {563743}",
+            "extracted/angkor_wat/angkor_shrine_crystal/awBC_blinding_light.asm:20 {563749}"
+          ],
+          "notes": "Both branches reach code_089A3B. With the Black Crystal Glasses (item #1C) already equipped no flash runs; otherwise FlashPalette18 is spawned once and the actor polls the equip test every frame; once equipped it spawns FlashPalette19 once and parks in a loop that spawns FlashPalette18 again only if the glasses are unequipped later."
+        }
+      ]
+    },
+    "184": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "da_hotel_letter_and_journal_given",
+          "area": "dao",
+          "summary": "The Dao luggage man has handed over the letter and the father's journal (items #25 and #26, 'from someone named Bill and Lola').",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The interact handler prints only 'This is a hotel for travelling merchants.'.",
+            "clear": "The handler asks 'Would you happen to be Will?'; Yes with at least two empty inventory slots gives #25 and #26 and sets the flag; Yes with fewer prints 'Somehow, your inventory is full...'; No prints 'Hmmm. I hope he arrives soon.'."
+          },
+          "evidence": [
+            "extracted/dao/dao/daC3_luggage_man.asm:29 {569703}",
+            "extracted/dao/dao/daC3_luggage_man.asm:72 {569784}"
+          ],
+          "notes": "The flag is set after both GiveItem calls; a GiveItem failure jumps to the RTL at code_08B1C7 and leaves the flag clear. The two-slot count walks the 16 bytes of $inventorySlots ($0AB4)."
+        }
+      ]
+    },
+    "186": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_black_crystal_glasses_taken",
+          "area": "angkor_wat",
+          "summary": "The Black Crystal Glasses (item #1C) were picked up in the inner courtyard (scene $BA, tile (3D,0E)).",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "awBA_glasses dies at spawn.",
+            "clear": "The glasses sprite blinks at the tile; interact prints 'There's something shiny on the ground.', gives #1C, sets the flag and shows 'You've found the Black Crystal Glasses!'."
+          },
+          "evidence": [
+            "extracted/angkor_wat/angkor_inner_courtyard/awBA_glasses.asm:19 {565119}",
+            "extracted/angkor_wat/angkor_inner_courtyard/awBA_glasses.asm:36 {565158}"
+          ],
+          "notes": "Set after the GiveItem: on a full inventory GiveItem jumps to InventoryFullMessage and the flag stays clear (the item can be taken later). The glasses are the item awBC_blinding_light tests with BranchIfItemEquipped #1C."
+        }
+      ]
+    },
+    "189": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_pinnacle_vision_seen",
+          "area": "angkor_wat",
+          "summary": "The spirit guide on the pinnacle (scene $BF) has shown Will the vision (scene $C0, future_vision_cutscene); after the return the aftermath plays.",
+          "kinds": ["cutscene-stage", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "At the next load of scene $BF awBF_spirit_guide runs the aftermath (player lock $FFFC, 'Huh? What was that?' dialog, two palette flashes, gives the Gorgon Flower); it is set while the vision is queued.",
+            "clear": "awBF_spirit_guide stands as a statue with the interact handler ('Will.. I've been waiting for you to come for thousands of years...')."
+          },
+          "evidence": [
+            "extracted/angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:113 {564081}",
+            "extracted/angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:36 {563911}"
+          ],
+          "notes": "Set in the interact handler after the dialog and before QueueMapChange to scene $C0; scene $C0's future_vision_cutscene queues scene $BF at (00F8,00C0) at its end (line 171 of future_vision_cutscene.asm {238296})."
+        }
+      ]
+    },
+    "190": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_gorgon_flower_given",
+          "area": "angkor_wat",
+          "summary": "The spirit guide gave Will the Gorgon Flower (item #1D) after the vision.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "awBF_spirit_guide and awB0_intro die at spawn.",
+            "clear": "awBF_spirit_guide is active (statue before the vision, aftermath after it); awB0_intro plays the entrance narration when $B3 is clear."
+          },
+          "evidence": [
+            "extracted/angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:27 {563878}",
+            "extracted/angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:68 {563996}",
+            "extracted/angkor_wat/angkor_entrance/awB0_intro.asm:16 {563171}"
+          ],
+          "queue": ["FL28-14"],
+          "notes": "Set at loc_089B10 after a successful GiveItem #1D (or after one Red Jewel or herb has been removed on a full inventory). The branch code_089B27 has no 'neither item' exit: with no Red Jewel and no herb it falls into code_089B31, which removes a Red Jewel without a check and adds 1 to $jewelsCollected (BCD)."
+        }
+      ]
+    },
+    "207": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_gorgon_hut_statues_restored",
+          "area": "native_village",
+          "summary": "All three statue girls of the Gorgon Hut (scene $AE) were restored with the petals and Kara finished 'I used sign language to talk to the villagers. The animals have returned to the forest.'.",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "nvAC_kara, nvAC_erik and nvAC_hamlet die at spawn in scene 172; in scene 174 Kara and Erik stand with fixed texts; Kara's interact asks 'Travel to the labor trader's village?'.",
+            "clear": "Scene 174: Kara and Erik wait for $BF, $C0 and $C1 and then walk in; Kara plays the sign-language talk and sets the flag."
+          },
+          "evidence": [
+            "extracted/native_village/gorgon_hut/nvAE_kara.asm:35 {562524}",
+            "extracted/native_village/gorgon_hut/nvAE_kara.asm:19 {562471}",
+            "extracted/native_village/gorgon_hut/nvAE_erik.asm:15 {563001}",
+            "extracted/native_village/native_village/nvAC_kara.asm:25 {557158}",
+            "extracted/native_village/native_village/nvAC_erik.asm:17 {558415}",
+            "extracted/native_village/native_village/nvAC_hamlet.asm:23 {558695}"
+          ],
+          "notes": "Erik in the hut does not set the flag. The travel handler runs StageWorldMapMove and QueueMapChange to scene $C4 at (0078,00A0)."
+        }
+      ]
+    },
+    "230": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_gorgon_hut_red_jewel_given",
+          "area": "native_village",
+          "summary": "The restored statue girl 2 gave Will a Red Jewel (item #01) as a reward.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The interact handler of the restored girl prints the fixed text and gives nothing.",
+            "clear": "The handler prints the offering text and gives item #01 (full inventory: HiddenRedJewelInventoryFull), then sets the flag."
+          },
+          "evidence": [
+            "extracted/native_village/gorgon_hut/nvAE_stone_girl2.asm:48 {562083}",
+            "extracted/native_village/gorgon_hut/nvAE_stone_girl2.asm:51 {562098}"
+          ],
+          "notes": "The flag is set after the GiveItem returns; on a full inventory the jump goes to the inventory-full message and the flag stays clear."
+        }
+      ]
+    },
+    "231": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "da_snake_panic_prize_given",
+          "area": "dao",
+          "summary": "The Snake Panic prize (two Red Jewels, $0AAC hits of at least BCD $51 in one minute) has been paid once.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The timer ends every round with the 'OK! Stop! You've hit N snakes. Try again!' text, whatever the count.",
+            "clear": "A round with at least $51 hits sets the flag, prints 'Wow N snakes. Very good! For your prize, I'll give you two Red Jewels. I'll send them to the Jeweler.' and adds 2 to $jewelsCollected (BCD); fewer hits print the Try-again text."
+          },
+          "evidence": [
+            "extracted/dao/panic_room/daC6_snake_panic.asm:128 {569325}",
+            "extracted/dao/panic_room/daC6_snake_panic.asm:146 {569360}"
+          ],
+          "notes": "The jewels go straight into jewelsCollected (no GiveItem, no inventory check)."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "172": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "nv_party_arrived_native_village",
+        "summary": "The party has arrived in the Native Village (scene $AC): the first-visit dialog was shown; the party NPCs of Euro stay away.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/native_village/native_village/nvAC_kara.asm:37 {557213} (after the 'It's as hot as the tropics...' dialog)",
+          "test: extracted/native_village/native_village/nvAC_kara.asm:30 {557188} (set -> Kara stands at tile (0B,0E)); extracted/native_village/native_village/nvAC_erik.asm:21 {558439}; extracted/native_village/native_village/nvAC_hamlet.asm:27 {558719}",
+          "waiter: extracted/native_village/native_village/nvAC_erik.asm:22 {558445}, extracted/native_village/native_village/nvAC_hamlet.asm:28 {558725} (Erik and Hamlet walk only after Kara has set it)",
+          "test elsewhere: extracted/actors/overworld_exit.asm:406 {52310} (the Euro exit menu; FL27); extracted/euro/guest_room/eu96_erik.asm:14 {514720}, extracted/euro/guest_room/eu96_kara.asm:16 {514440}, extracted/euro/guest_room/eu96_neil.asm:18 {514856}"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL27 proposal. Set at the first arrival (all other Native Village flags clear), before the party walks to its tiles."
+      }
+    ],
+    "177": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "nv_temple_drawn_on_map",
+        "summary": "The map kid drew the temple on the map: the Native Village world-map exit offers Ankor Wat.",
+        "kinds": ["quest-done", "gate-open"],
+        "roles": [
+          "setter: extracted/native_village/native_village/nvAC_map_kid.asm:59 {561117} (Yes row of 'Show him the map?'; text 'He drew a picture of the temple on the map!')",
+          "test elsewhere: extracted/actors/overworld_exit.asm:465 {52410} (menu selection for scene $AC with $B6 clear)"
+        ],
+        "confidence": "high",
+        "notes": "The interact handler of the map kid exists whenever $AF is set; the player is locked until $B2, so the flag can be set only after the Hamlet scene."
+      }
+    ],
+    "179": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "aw_entrance_intro_seen",
+        "summary": "The Angkor Wat entrance narration ('Through the jungle, three days journey from the native village, there is a huge temple.') has been shown.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/angkor_wat/angkor_entrance/awB0_intro.asm:18 {563183} (the narration is skipped when set or when $BE is set; tests at :16 {563171} and :17 {563177})",
+          "test in this scope: extracted/native_village/native_village/nvAC_hamlet.asm:22 {558689} (Hamlet dies at spawn: the Hamlet NPC is gone once the party has been to Angkor Wat)",
+          "test elsewhere: extracted/tables/scene_meta.asm:2217 {893152} (scene $AC picks bgm_blessing_of_nature when set, bgm_ominous_whispers otherwise)"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with FL10 (low). The Hamlet and music effects in scene 172 show that the flag also means 'the party has left the Native Village for Angkor Wat'; both effects are static reads. Name keeps the FL10 proposal."
+      }
+    ],
+    "180": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "da_neil_reunion_seen",
+        "summary": "Neil's reunion talk in the Dao dormitory (scene $C8) has been shown ('Will!! I never thought I'd meet you in a place like this!').",
+        "kinds": ["once-latch", "cutscene-stage", "gate-open"],
+        "roles": [
+          "setter: extracted/dao/dao_dorm/daC8_neil.asm:22 {566723} (the first visit with $D2 clear; tested at :21 {566717})",
+          "test elsewhere: extracted/actors/overworld_exit.asm:522 {52498} (menu selection that offers the Pyramid), extracted/system/dark_space/sE6_gaia.asm:209 {579736}, :276 {579844}, :1868 {586730} (Dark Space: the Shadow transformation is locked while clear)"
+        ],
+        "confidence": "high",
+        "notes": "The existing block note of sE6_gaia already names daC8_neil as the only writer. In scene $C8 Neil with the flag set stays solid with a fixed text ('I came to Dao to replace the labor trade with pepper imports.') until $D0 is set."
+      }
+    ],
+    "182": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "da_arrived_dao",
+        "summary": "The party has arrived in Dao: the hotel narration ('A town shining in the desert. We went to Dao.') was shown; the Native Village party NPCs are gone and the world-map exit offers Dao.",
+        "kinds": ["once-latch", "cutscene-stage", "gate-open"],
+        "roles": [
+          "setter: extracted/dao/dao_hotel/daC4_kara.asm:41 {566486} (set before the lock and the narration; test at :26 {566470}, clear -> run)",
+          "test in this scope: extracted/native_village/native_village/nvAC_kara.asm:24 {557152}, extracted/native_village/native_village/nvAC_erik.asm:16 {558409}, extracted/native_village/gorgon_hut/nvAE_kara.asm:18 {562465}, extracted/native_village/gorgon_hut/nvAE_erik.asm:14 {562995} (all four die at spawn when set)",
+          "test elsewhere: extracted/actors/overworld_exit.asm:464 {52404} (menu selection that offers Dao)"
+        ],
+        "confidence": "high",
+        "notes": "The Gorgon Hut Kara handler travels to scene $C4 without setting it; the flag is set by Kara's own script on the first load of the hotel."
+      }
+    ],
+    "187": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "py_jackal_scene_done",
+        "summary": "The Jackal scene in the Pyramid puzzle room (scene $CD) has played.",
+        "kinds": ["quest-done", "cutscene-stage"],
+        "roles": [
+          "test in this scope: extracted/dao/dao_hotel/daC4_kara.asm:19 {566458} (the Dao hotel Kara dies when set and $D0 is clear: she is in the Pyramid with the party)",
+          "setter and tests elsewhere: extracted/pyramid/puzzle_room/pyCD_jackal.asm:186 {571869}, :32 {571452}, extracted/pyramid/puzzle_room/pyCD_kara.asm:29 {572753}, extracted/system/inventory/item_use_system.asm:709 {232414} (UseItem_LolaMelody)"
+        ],
+        "confidence": "low",
+        "notes": "FL29 and FL31 own the Pyramid side; the name only paraphrases the setter's file. The Dao rule is: $D2 set -> die; $D0 set -> stay; $BB set (with $D0 clear) -> die; else the block falls through into the standing state."
+      }
+    ],
+    "191": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "nv_statue1_petal_placed",
+        "summary": "The first Gorgon Flower petal is in the mouth of statue girl 1 (Gorgon Hut, tile box (06,06)-(07,08)).",
+        "kinds": ["puzzle-state", "quest-done"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1417 {236024} (UseItem_GorgonFlower, scene $AE only); test at :1416 {236018} and :1436 {236063} (the item is removed when all three are set)",
+          "waiter in this scope: extracted/native_village/gorgon_hut/nvAE_stone_girl1.asm:19 {561846} (the statue waits, then blinks and restores), test at :15 {561831} (restored at load); extracted/native_village/gorgon_hut/nvAE_kara.asm:20 {562477} and extracted/native_village/gorgon_hut/nvAE_erik.asm:16 {563007} (wait for the three petals)"
+        ],
+        "confidence": "high",
+        "notes": "The tile boxes of the item handler match the statue placements of scene $AE (tiles (06,07), (08,07), (0A,07))."
+      }
+    ],
+    "192": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "nv_statue2_petal_placed",
+        "summary": "The second Gorgon Flower petal is in the mouth of statue girl 2 (tile box (08,06)-(09,08)).",
+        "kinds": ["puzzle-state", "quest-done"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1424 {236039}; tests at :1423 {236033} and :1437 {236069}",
+          "waiter in this scope: extracted/native_village/gorgon_hut/nvAE_stone_girl2.asm:22 {562042}, test at :18 {562027} (restored at load; this girl gives the Red Jewel, flag $E6); extracted/native_village/gorgon_hut/nvAE_kara.asm:21 {562481}, extracted/native_village/gorgon_hut/nvAE_erik.asm:17 {563011}"
+        ],
+        "confidence": "high",
+        "notes": "See $BF."
+      }
+    ],
+    "193": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "nv_statue3_petal_placed",
+        "summary": "The third Gorgon Flower petal is in the mouth of statue girl 3 (tile box (0A,06)-(0B,08)).",
+        "kinds": ["puzzle-state", "quest-done"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1431 {236054}; tests at :1430 {236048} and :1438 {236075}",
+          "waiter in this scope: extracted/native_village/gorgon_hut/nvAE_stone_girl3.asm:18 {562309}, test at :14 {562294}; extracted/native_village/gorgon_hut/nvAE_kara.asm:22 {562485}, extracted/native_village/gorgon_hut/nvAE_erik.asm:18 {563015}"
+        ],
+        "confidence": "high",
+        "notes": "See $BF. When all three flags are set the item handler removes item #1D (RemoveItem at {236081})."
+      }
+    ],
+    "208": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "py_kara_scene_done",
+        "summary": "Kara's scene at the end of the Pyramid (scene $CD) has played; the Dao hotel Kara returns and Neil offers the flight to the Tower of Babel.",
+        "kinds": ["quest-done", "cutscene-stage"],
+        "roles": [
+          "test in this scope: extracted/dao/dao_dorm/daC8_neil.asm:49 {566767} (set -> Neil's handler says 'Really.... Do you have to go?', stores $0D60 = $0B, stages a world-map move and queues scene $DC), extracted/dao/dao_hotel/daC4_kara.asm:18 {566452} (set -> Kara stays)",
+          "setter and test elsewhere: extracted/pyramid/puzzle_room/pyCD_kara.asm:119 {573003}, :22 {572723}"
+        ],
+        "confidence": "medium",
+        "notes": "FL29 owns the Pyramid side. In Dao the flag is the progress marker 'the Pyramid is done'."
+      }
+    ],
+    "210": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "bt_entrance_monologue_seen",
+        "summary": "The monologue at the Tower of Babel entrance (scenes $DE and $DF) has played; Dao shows the Babel travel spirit and no party NPCs.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "test in this scope: extracted/dao/dao/daC3_babel_travel_spirit.asm:22 {622795} (clear -> the spirit dies at spawn; set -> it stands solid at tile (21,08) and offers 'Go to Tower of Babel?' with QueueMapChange to scene $E3), extracted/dao/dao_dorm/daC8_neil.asm:18 {566705}, extracted/dao/dao_hotel/daC4_erik.asm:13 {566634}, extracted/dao/dao_hotel/daC4_kara.asm:17 {566446} (all three die at spawn when set)",
+          "setter and test elsewhere: extracted/babel_tower/babel_entrance/btDE_monologue.asm:30 {628940}, :29 {628934}"
+        ],
+        "confidence": "medium",
+        "notes": "FL29 owns the Babel side."
+      }
+    ],
+    "255": [
+      {
+        "source": "FL28",
+        "scope": null,
+        "name": "sys_scene_setup_done",
+        "summary": "Scene-setup latch: the HDMA thinkers run their init pass while it is clear and their steady state once it is set.",
+        "kinds": ["engine", "idiom"],
+        "roles": [
+          "test in this scope: extracted/native_village/native_village/native_village_sine_hdma.asm:18 {48898} and extracted/dao/dao/dao_sine_hdma_slow.asm:17 {48865} (BranchOnFlagByte #FF, #00: clear -> restart the init code_00BEF4 / code_00BED3, set -> tick)"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with FL10, FL21, FL22, FL23 and FL25. Neither file writes the flag (init: InitSineHdma, yield, test; tick: TickSineHdma and two BindSineHdma); the writer is outside this scope (FL10 / FL30)."
+      }
+    ]
+  }
+}

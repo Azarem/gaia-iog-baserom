@@ -4,7 +4,7 @@
 ; 
 ; === RENDER LIST CLEARING (ClearActorRenderList, 252010) ===
 ; 
-; ClearActorRenderList zeroes the 512-byte depth-sort bucket array at $0200–$03FE and writes a $FFFF end sentinel at $0400, preparing it for SortActorsByDepth. It is called at scene setup (scene_lifecycle, inventory_overlay), not every frame: SortActors_BuildFinalList re-zeroes each bucket it consumes (a PHA written over the popped bucket word), so the array is already clean at the start of the next frame's sort.
+; ClearActorRenderList zeroes the 512-byte depth-sort bucket array at $0200–$03FE and writes a $FFFF end sentinel at $0400, preparing it for SortActorsByDepth. It is called at scene setup (ClearSceneState), by OpenInventoryScreen and after every Decompress COP (cop_handlers_vram), not every frame: SortActors_BuildFinalList re-zeroes each bucket it consumes (a PHA written over the popped bucket word), so the array is already clean at the start of the next frame's sort.
 ; 
 ; === DEPTH SORTING (SortActorsByDepth) ===
 ; 
@@ -82,7 +82,7 @@
 
 ; Clear the depth-sort bucket array at $0200 in preparation for the next frame.
 ; 
-; Zeroes 512 bytes ($0200–$03FE, 256 words) and writes $FFFF as an end sentinel at $0400. This array is used by SortActorsByDepth as bucket storage for the Y-position depth sort. Called only at scene setup (scene_lifecycle) and by inventory_overlay; during normal frames the sort leaves the buckets zeroed on its own.
+; Zeroes 512 bytes ($0200–$03FE, 256 words) and writes $FFFF as an end sentinel at $0400. This array is used by SortActorsByDepth as bucket storage for the Y-position depth sort. Called at scene setup (ClearSceneState), twice by OpenInventoryScreen and after every Decompress COP (the decompressor leaves its dictionary in the bucket page); during normal frames the sort leaves the buckets zeroed on its own.
 
 ClearActorRenderList {
     PHP                   ; Zero 512 bytes ($0200–$03FE) of depth-sort bucket array
@@ -406,7 +406,7 @@ ComposeAllSprites {
 ; 
 ; Normal mode (bit clear): Iterates the compose buffer (6 bytes per entry). For each entry, subtracts scroll offsets to convert to screen coordinates, bounds-checks Y (< $F0) and X (< $110), and writes to OAM low table ($0422,Y) with hi-table bit packing. Entries are consumed in groups of 6 bytes (X += 6), OAM advances by 4 bytes (Y += 4).
 ; 
-; Layer priority mode (bit set): Block-copies compose buffer data directly to OAM via MVN $00,$7F. Copies min($00DA, $0200) bytes from $7F0600 to $0422 ($00DA is a byte count, 4 per sprite — pr_text_placement_calc builds the entries and doubles its sprite count twice). Then computes the hi-table byte count ($00DA >> 4), fills those bytes with $AA (every sprite large-size, X bit 8 clear) and sets the rolling register for the leftover sprites from OamHiTableMasks. Y is left at $00DA, so actor sprites follow the copied block. No setter for bit 12 of layerPriorityFlag was found in the extracted code, so what triggers this mode is unconfirmed.
+; Layer priority mode (bit set): Block-copies compose buffer data directly to OAM via MVN $00,$7F. Copies min($00DA, $0200) bytes from $7F0600 to $0422 ($00DA is a byte count, 4 per sprite — pr_text_placement_calc builds the entries and doubles its sprite count twice). Then computes the hi-table byte count ($00DA >> 4), fills those bytes with $AA (every sprite large-size, X bit 8 clear) and sets the rolling register for the leftover sprites from OamHiTableMasks. Y is left at $00DA, so actor sprites follow the copied block. SceneCmd_ConfigDisplay sets the bit: the low 5 bits of display_preset_table record byte +7 go to scrollModeFlags ($06EF), and bit 4 of that byte is bit 12 of this word. The presets with it belong to scenes $59, $8C-$8F, $C0 and $FE; the preset write of every other scene clears it. The copy needs a nonzero $00DA: the prologue scenes $8C-$8F fill it and so does the destination-name display of the world map in $FE (measured: the copy runs there with $00DA = $24 and $38), while $59 and $C0 take this branch with $00DA = 0 in the measured frames and return at once.
 
 RenderComposeBuffer {
     LDX #$0000

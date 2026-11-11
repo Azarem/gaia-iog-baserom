@@ -1,0 +1,218 @@
+{
+  "actors/visual_effect_pipeline.asm": {
+    "comments": {
+      "59675": {
+        "text": "WaitByte #01 = 2 ticks (N + 1); the code below then runs every frame (no SetEntryHere in this actor, OQ-I051-1)",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "effect_velocity_init": "Layer-1 drift at constant velocity, no bounds. Actor-def: sprite 0, flags 0, header byte $2C. The spawn bytes are decoded into $2C / $2E (see the block note), the offsets are zeroed, and after a WaitByte #01 (2 ticks) the code integrates every frame: $14 / $16 are the accumulated layer-1 X / Y offset.\nPer frame (after the WaitByte, apparently without an own SetEntryHere: OQ-I051-1): $14 += $2C + effectDeltaX and forcedScrollOverride := $14 | $8000 (X); $16 += $2E + effectDeltaY and cameraDeltaY := $16 (Y); effectRenderDeltaX := the X velocity ($2C), effectRenderDeltaY := cameraDeltaY - effectScrollV. The two axes are not symmetric: X never reaches cameraDeltaX."
+    }
+  },
+  "actors/field_reveal_object.asm": {
+    "comments": {
+      "56159": {
+        "text": "WaitByte #0B = 12 ticks: the hop plays out",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "loc_00DB47": "Landing row found: target = (X, Y), return to the spawn Y, fly there, hop (Y chain $45), wait 12 ticks (WaitByte #0B), spawn the collect handler."
+    },
+    "blockNote": "Gem / stat-item pickup spawned by the field-reveal events (Bank 00, 55928-56200): it drops to the floor, hops once, becomes a pullable pickup (collect_handler_gem child) and, if it is a gem, expires.\n\n=== SPAWN ===\n\nSpawnAfterFlags ( field_reveal_object, #$0020 ) from EnemyDefeatDispatch (every kill but the last; the child's $26 = enemies remaining, nonzero), pyCC_mystic_ball (771837) and awB1_wall_walker (769369) (child $26 = 0). The spawn copies the spawner's position and statsPtr ($7F0020).\n\n=== WHICH PICKUP ===\n\n- $26 nonzero, or the room's clear reward already taken (TestFlag_0300(sceneCurrent) set), or tier 0: FieldRevealFromActorStats reads the byte at +3 of the spawner's stat table. & 3 = 0 dies at once; 1 / 2 / 3 = a gem pickup with anim $04 / $05 / $06 and item $83 / $84 / $85 (1 / 2 / 5 gems, given by GiveItemToPlayer).\n- Otherwise enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item: 1 / 2 / 3 = anim $0C / $0D / $0E (the sprites of e_hp / e_str / e_def_increase) and item $80 / $81 / $82 (Max HP / STR / DEF + 1). These paths also store $FFFF in orbitAngle (no reader found: OQ-I051-4). Nothing here sets scene flag $0300 (reward_actors does for the last-kill reward): OQ-I051-5.\n\n=== DROP AND LIFE ===\n\nloc_00DB0B stores the item id in chatPtr ($7F000A), remembers the spawn Y in $24 and sets $26 := 7 (the step budget). With Y aligned to a 16 px row it probes the tile with BranchIfSolidHere: while the tile is solid it moves one row (16 px) down, at most 8 rows, and stops early on a tile whose collision byte is $0E; after 8 failures the target is the spawn Y + 1. The target goes to moveXAlt / moveYAlt, the actor returns to its spawn Y, flies to the target (MoveToward, 4 px per frame), hops once (Y chain $45: -2, -2, -1, -1, 0, 0, +1, +1, +2, +2), waits 12 ticks (WaitByte #0B) and spawns collect_handler_gem (SpawnAfterMarked #$2300): holding L / R then pulls the pickup toward the player.\nIt then animates in 100-frame blocks. A stat item (anim $0C-$0E, at least 8) repeats forever. A gem (anim $04-$06) switches to anim + 5 after the first block (the blink animations $09 / $0A / $0B, inferred: OQ-I051-7), plays 10 more frames and falls into FieldRevealDieEmpty (Die): a gem lives about 110 frames.\n\nThe old header said it checks that all enemies are cleared and stages HP / STR / DEF gem sprites. The flag means 'this room's reward is already taken', and only the tier path stages stat items; the gem path stages gems."
+  },
+  "actors/player_transition_handlers.asm": {
+    "comments": {
+      "50325": {
+        "text": "WaitByte #03 = 4 ticks out of the depth sort",
+        "expect": "WaitByte"
+      },
+      "50407": {
+        "text": "WaitByte #03 = 4 ticks",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "PlayerFallFromHeight": "Fall into the scene (awBD_fall_trigger): hide the buttons, lock the player, leave collision-aware movement, freeze the camera; 4 ticks (WaitByte #03) out of the depth sort, Y -= 128, then 8 passes of fall anim $19 with Y chain 7 (+4 px per frame), landing SFX $2C and frame $1C. Then restore $10 / camera / buttons and return to PlayerIdleEntry (which clears the $0800 lock). Whether the fall ends exactly on the original Y is not checked: OQ-I052-3.",
+      "PlayerSkyGardenJumpLanding": "Jump sequence of sg4D_jump_handler (the caller sets playerFlags $0800): leave collision-aware movement, $10 |= $2200, Y -= 64, freeze the camera, 4 ticks (WaitByte #03), Y += 64, show the player, flip the sprite vertically, Y -= 32 and rise with decelerating Y chains (8 x4 passes, 4 x2, 2 x2); flip back, Y += 32, descend (chains 1, 3), landing SFX $2C and frame $1F; restore $10 and the camera and return to PlayerIdleEntry. The buttons are not masked or unmasked here."
+    }
+  },
+  "functions/SpawnFieldRevealEffect.asm": {
+    "comments": {
+      "56958": {
+        "text": "WaitByte #01 = 2 ticks",
+        "expect": "WaitByte"
+      },
+      "57005": {
+        "text": "WaitByte #03 = 4 ticks, and LoopEnd yields once more: one scatter child every 5 ticks",
+        "expect": "WaitByte"
+      }
+    },
+    "blockNote": "Room-reveal effect (Bank 00, 56818-57107): after the enemy that guards a hidden room part is defeated, a glowing sprite rises from the corpse, flies to the centre of the revealed region, flashes, scatters ten sparkles and swaps the background tiles (StageBgChangeFromDeathIdx + ApplyBgChange). Three actor bodies live in this file: SpawnFieldRevealEffect, field_reveal_scatter (which falls through into field_reveal_flash) and field_reveal_flash.\n\n=== SPAWN ===\n\nSpawnListAppend ( SpawnFieldRevealEffect, #00, #00, #$0342 ) in StandardEnemyDefeatHandler (56375), EnemyDefeatDispatch_CountKill (697548), pyCC_mystic_ball (771970) and awB1_wall_walker (770414). The spawner copies its deathActionIdx ($7F0024, the event-block index of its scene record) into the child; EnemyDefeatDispatch_CountKill guards the spawn with event flag $0100 + index so each reveal fires once.\n\n=== TARGET ===\n\nevent_block_table is indexed by deathActionIdx x 8. The bytes used are +3 width, +4 height, +5 dstX and +6 dstY (event-block-def, tile units). The flight target is the centre of the destination rectangle in pixels: moveXAlt = (2 x dstX + width) x 8, moveYAlt = (2 x dstY + height) x 8. orbitAngle := width / 2 and orbitDiameter := height / 2 are passed to the scatter particles as their range tier.\n\n=== SEQUENCE ===\n\nFlags $0342, palette 0, anim $29: three rising passes (Y chains $02, $12, $14), a two-pass hover loop, sprite priority $30, then StageMove to the target at 4 px per frame (TickMove). On arrival: a field_reveal_flash child, a 2-tick wait (WaitByte #01), $10 |= $2000, then ten field_reveal_scatter children (one every 5 ticks: WaitByte #03 is 4 ticks and LoopEnd yields once more; each gets the half-width and half-height), then StageBgChangeFromDeathIdx (SFX $0F on both channels, stages the swap), ApplyBgChange and Die. Each child gets $12 |= $1000 (the display / overlay-active qualifier, which CopyActorState clears).\n\nThe old header named an 'Incan Ruins wind trap' as a user (the four callers above are the real ones) and called +3 / +5 the 'target X tile' and 'X size'; they are the width and dstX."
+  },
+  "actors/dark_space.asm": {
+    "comments": {
+      "579420": {
+        "text": "WaitByte #1D = 30 ticks after the animation list has ended",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "DarkSpaceEnterWarp": "Entry sequence, run by the monitor (see the block note): mask the joypad, hide the player, play animation #1C (the warp effect) at the player's spot and wait 30 ticks (WaitByte #1D) after it ends, snap the player onto the portal (one tile north in the warp-test position), set the transition words, layerPriorityFlag $0200 and the variant in globalScriptIndex. The scene change itself comes from the E6 warp rectangle. It never restores the mask or the player's hidden bit: the scene change resets them."
+    }
+  },
+  "functions/game_over_sequence.asm": {
+    "comments": {
+      "54842": {
+        "text": "WaitByte #20 = 33 ticks",
+        "expect": "WaitByte"
+      },
+      "54855": {
+        "text": "WaitByte #77 = 120 ticks",
+        "expect": "WaitByte"
+      },
+      "54884": {
+        "text": "8-bit: counter - 1 goes to INIDISP (14 down to 0), 4 ticks per step (WaitByte #03); below 0 leaves the loop",
+        "expect": "SEP #$20"
+      },
+      "55113": {
+        "text": "WaitByte #62 = 99 ticks, then Die (marked sparkles die with it)",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "loc_00D664": "Fade loop: 8-bit step of orbitAngle (15 down to 0) into INIDISP, 4 ticks per step (WaitByte #03); the DEC that goes below 0 leaves the loop.",
+      "GameOverCutsceneSprites": "Invisible spawner (spawned by GameOverSequence at the player's position) that creates three marked sparkle actors, 12, 15 and 20 ticks after it starts (WaitByte #0B, #02, #04), at (-25, -40), (+25, -24) and (-25, -8) from the player, then dies 99 ticks later (119 in all), which also ends the sparkles. The $2000 write is already done by CopyActorState; SetMetasprite and SetSpritePalette #00 prepare the sprite data the sparkles inherit.",
+      "DeathWakeupMessage": "Actor spawned by player_character at the start of the scene after a death (gameOverWakeupFlag set). Masks the joypad except Select and Start, clears the flag, waits 3 ticks (WaitByte #02), prints the line for characterForm (0 Will, 1 Freedan, 2 Shadow), unmasks and dies. The label sits inside the GameOverSparkleDriftB block but is a separate entry."
+    },
+    "blockNote": "Player death sequence (Bank 00, 54831-55263) with its helper actors. combat_collision.CheckPlayerDeath sets playerFlags $0200 when playerHp is zero, replaces the player actor's entry point with GameOverSequence and calls StopPlayerOnDeath, so the player actor itself runs this script from the next tick. Entry points: GameOverSequence (player), GameOverCutsceneSprites (spawned by it), GameOverSparkleDriftA/B (spawned by that) and DeathWakeupMessage (spawned by player_character after the respawn).\n\n=== TIMELINE ===\n\nFrame 0: player $10 |= $0040 (dead; shadow_shimmer reads it) and joypadMaskStd |= $FFFC (every button and the D-pad, Start and Select included).\nAfter 33 ticks (WaitByte #20): spawn DeathPaletteFadeThinker (palette bundles $10, then $0E) and GameOverCutsceneSprites (the sparkles).\nAfter 120 more ticks (WaitByte #77): clear player $10 bit $8000 (the player stops using DecomposePlayerSprites), SFX $0C on both channels (the same SFX as the Dark Space warp) and play animation #1C of spriteset_enemies once (also used by the Dark Space warp).\nFade: orbitAngle starts at 15; every pass writes counter - 1 to INIDISP (brightness 14 down to 0) and waits 4 ticks (WaitByte #03), 60 ticks in all. Forced blank is never set.\nThen two one-frame palette thinkers (PaletteResetAndKillThinker with bundle IDs $0B and $0D: sub-entry 0 of each bundle is applied once), one yield and the respawn choice.\n\n=== RESPAWN CHOICE ===\n\ngemCount >= 100 (revive): gemCount -= 100, playerHp = playerMaxHp >> 1, and the respawn record is the one stored by the last warp the player took (reviveWarpPtr / reviveWarpBank, $0AF4 / $0AF6; ExecuteWarp writes a pointer to entry + 4 for every warp). Form and wramFlags are kept.\ngemCount < 100 (real game over): gemCount = 0, characterForm = 0 (Will), or 2 (Shadow) when sceneCurrent is $E8 (the Dark Gaia arena in the comet lair; presumably because that fight is played as Shadow), playerHp = playerMaxHp, the 16 words of wramFlags ($0A80-$0A9F: dungeon kill and puzzle flags) are cleared, and the respawn record is sceneSaveData / sceneSaveDataBank ($0AF0 / $0AF2), which ExecuteWarp writes only for warps whose entry byte 9 has bit 7 set.\n\n=== SHARED RESPAWN TAIL ===\n\nReads the warp record at DBR:Y: byte 0 = scene (sceneNext, 8-bit store), +1 and +3 = spawn X and Y (warpDestX / warpDestY), +5 = facing with bit 7 masked (warpFacing), +6 = packed camera window (warpScrollParams). Then gfxCacheIdxB := $0404, gameOverWakeupFlag += 1, worldReadyFlag := 0 (ExecuteSceneTransition then skips the exit transition, because the screen is already black, and runs the enter transition) and SetEntryHere + RTL; the scene change takes over.\n\n=== WAKE-UP MESSAGE ===\n\nplayer_character spawns DeathWakeupMessage (SpawnAfterFlags $2000) at the start of the next scene when gameOverWakeupFlag ($0AF8) is set. It masks the joypad with $CFFC (Select and Start stay live), clears the flag, waits 3 ticks (WaitByte #02), prints one of three strings chosen by characterForm (0 Will, 1 Freedan, 2 Shadow), unmasks and dies. The message follows a revive as well as a real game over. After a real game over the form is Will (Shadow in $E8), so the Freedan line appears only after a revive as Freedan.\n\n=== CORRECTIONS ===\n\nThe ROM masks the joypad with $FFF0 (and $CFF0 in DeathWakeupMessage); db-us/transforms.json (block game_over_sequence) widens both to $FFFC / $CFFC so the software-only buttons $0004 and $0008 are masked too, and the extracted asm shows the transformed values. The old comment credited the first block with spawning both helpers (it is a 33-tick wait first); 'sound #$0C' is the 16-bit pair $0C0C on both channels. The old header did not say that 100 gems are paid in the revive case, that the wramFlags are cleared only on a real game over, or that two different warp records are used."
+  },
+  "functions/StandardEnemyDefeatHandler.asm": {
+    "comments": {
+      "56282": {
+        "text": "WaitByte #02 = 3 ticks",
+        "expect": "WaitByte"
+      },
+      "56434": {
+        "text": "WaitByte #05 = 6 ticks",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "EnemyDefeatBossCleanup": "Defeat of a boss or no-stats actor: after a 3-tick wait (WaitByte #02, the same length as the flash wait) hide it ($10 |= $2000), free its solid tile when extendedFlags $0008 is set, wait 6 ticks and Die. No counters, kill flag, drop or reward.",
+      "loc_00DC72": "Final wait (WaitByte #05 = 6 ticks) before Die."
+    }
+  },
+  "system/dark_space/sE6_gaia.asm": {
+    "comments": {
+      "579609": {
+        "text": "WaitByte #1D = 30 ticks for the dissolve",
+        "expect": "WaitByte"
+      },
+      "580342": {
+        "text": "WaitByte #05 = 6 ticks",
+        "expect": "WaitByte"
+      },
+      "580545": {
+        "text": "WaitByte #3B = 60 ticks for the jingle",
+        "expect": "WaitByte"
+      },
+      "587406": {
+        "text": "x8 -> timer 0-120 (the wait lasts timer + 1 ticks)",
+        "expect": "ASL"
+      },
+      "587506": {
+        "text": "Clear bit 9 ($0200, the scripted-motion marker of the player's $10; not the game-over flag, which is playerFlags $0200)",
+        "expect": "AND #$FDFF"
+      }
+    },
+    "partNotes": {
+      "DarkSpaceExit": "Leaves the Dark Space: masks input, hides the player, plays the dissolve at his spot, waits 30 ticks (WaitByte #1D) and fills the warp words from $0B12 / $0B08 / $0B0C / $0B10 (see the block note). The scene change itself is done by the warp words and the next frame's transition.",
+      "GaiaDialogueEntry": "Gaia talk: 6-tick pause (WaitByte #05) with input masked, voice sparkle on, intro text on the first visit (event flag $DC), then GaiaHealAndHints.",
+      "GaiaSaveConfirm": "Record: SaveGameState_Scene for slot $0D8C, SFX $29, 60 ticks (WaitByte #3B), then 'Continue your journey?' (Yes = entry 1).",
+      "GaiaHint_AuraItem": "Scene $CC (Pyramid): when $0AAC is non-zero (layout 3): gives item $24 (the Aura) unless the player has it (GaiaHint_AuraDesc) or the inventory is full (GaiaHint_AuraFull): text, fanfare (track $18, then 90 ticks: WaitByte #59), 'You have the Aura!', waits for the SPC reply $FF, back to track $16, the Aura description, then the save prompt. With $0AAC = 0 it is just the save prompt.",
+      "AbilityAcquisitionDispatch": "The player stands at the statue: input masked, 6 ticks (WaitByte #05), LookupStatueType decides the form. Will ability: Freedan / Shadow -> Transform_FreedanToWill. Freedan ability: Will -> Transform_WillToFreedanAlt, Shadow -> Transform_ShadowToFreedan, Freedan -> nothing. Then it waits for playerFlags $0800 to clear, grants the ability, flies the orb to the player, plays the fanfare and the two texts, restores the music and unmasks.",
+      "loc_08F2E6": "The player is not Will: pause 6 ticks (WaitByte #05), show the prompt.",
+      "FireflySpawnerLoop": "Ambient loop: sets the $08 timer to a random 0 to 120 (RNG & $0F, x 8; the wait lasts timer + 1 ticks), spawns one FireflyParticle, then yields until the timer is done; repeats forever."
+    },
+    "blockNote": "Dark Space / Gaia hub (scene $E6, the room reached from the Dark Space portals and from the diary menu's load) plus a shared character-transformation library (Bank 08, 579499-587528; GaiaNpcSprite and GaiaVoiceSparkle in Bank 09, 630928-630997). The same spawn list is also used by scene $09, which has no scene-meta entry. scene_meta_00E6 loads spm_darkspace_sprites ($0579 bytes) and plays track $16 (bgm_space_beyond_time).\n\n=== STRUCTURE ===\n\nDarkSpaceMainInit spawns three children with SpawnAfter: FireflySpawnerLoop, GaiaNpcSprite and GaiaVoiceSparkle. SpawnAfter inserts each new actor right after the parent, so the main actor's $06 link ends up on the LAST one spawned, the voice sparkle (the old notes called it the Gaia NPC link). Every 'LDY $06 / STA $0024, Y' below is therefore the voice sparkle's on / off switch ($FFFF = on, 0 = off), not an NPC interaction lock.\nIt then validates globalScriptIndex ($0AAC: the room variant, written by the portal actor or restored by the diary load; 4 or more becomes 0), keeps it in $0AB2 (saved with the game, restored by the diary menu), clears $0AAC and switch-cases to a layout: 0 DS_LayoutBasic (Gaia only), 1 DS_LayoutTransform (statues chosen by characterForm), 2 DS_LayoutAbility (ability orb chosen by the scene), 3 DS_LayoutSpecial (sets $0AAC = 1 and runs layout 1; this is the pyramid's Dark Space, where GaiaHint_AuraItem tests $0AAC and gives the Aura item).\nEvery room polls BranchIfPlayerInAbsTiles zones (x1, y1, x2, y2 in tiles): Gaia (7,8)-(9,9) = GaiaDialogueEntry, left statue (3,A)-(5,B), right statue (B,A)-(D,B), exit (5,D)-(B,F) = DarkSpaceExit. Each room has a wait state (the player is still standing in a zone: nothing happens, so a dialogue cannot retrigger) and an active state that dispatches the zones; the *Wait / *TileWait pairs and the loc_ labels after them are these two states.\nThe called scripts (GaiaDialogueEntry, the *TransformDialogue routines) are entered with CallNear and end with RestoreSavedPtr, which returns to the room loop.\n\n=== EXIT ===\n\nDarkSpaceExit masks the joypad, hides the player ($10 |= $2000), puts this actor on him, plays SFX $0C on both channels and the dissolve animation $1C of spriteset_enemies once, waits 30 ticks (WaitByte #1D), then fills the warp words: sceneNext = $0B12 (the scene the player warped from, saved by ExecuteWarp), player spawn X = $0B08 x 16 and Y = ($0B0C + 2) x 16 (the source warp rectangle's tile position), facing 3 and the packed camera window $0B10 / $0B11 -> warpScrollParams. gfxCacheIdxB = $0101 is the transition speed (exit and enter 1), gfxCacheIdxA = $0002 is exit effect 2 = mosaic, enter effect 0 = fade. The old notes called the destination a camera position and $0101 a brightness fade.\n\n=== GAIA DIALOGUE ===\n\nGaiaDialogueEntry: 6-tick pause (WaitByte #05), voice sparkle on, first visit (event flag $DC) the intro text, then GaiaHealAndHints. If HP < max it prints the 'hurt' text and writes hpToHeal = 40; UpdateHUD turns that request into +1 HP every 8 frames (SFX $0D) until HP = max (the loop yields until then). The hint is chosen by the position of the source scene in GaiaHintSceneTable (34 scenes, one GaiaHint_xx handler each; 21 of them have no text and go straight to the save prompt). GaiaSavePrompt: 'Record what's happened so far?' (DialogueOptions: entry 0 = cancel, 1 = first option, 2 = second option). Record = SaveGameState_Scene for the active slot ($0D8C), SFX $29, 60 ticks (WaitByte #3B), then 'Continue your journey?': Yes (entry 1) = GaiaDontRecord, 'Then go.', returns to the room; No (entry 2) = GaiaContinueJourney, 'Then rest a while.', fades to track $0E (bgm_longing_for_the_past) and the actor yields forever. The two labels are named after the first prompt and are swapped for the second one.\n\n=== FORMS AND ABILITIES ===\n\ncharacterForm ($0AD4): 0 Will, 1 Freedan, 2 Shadow. A statue dialogue writes a Transform_* routine into the player actor's entry pointer ($0000 / $0002, $0008 = 0) and sets playerFlags $0800; the player then plays it (player body entry #05, the transformation frames), the routine sets characterForm and DarkSpaceRestoreControl clears $0800 and sends the player back to PlayerIdleEntry. The Shadow statue needs event flag $B4, whose only writer is daC8_neil (the Neil reunion in the Dao dormitory; the old header said it is unlocked at Ankor Wat); first Freedan visit flag $F7, first Shadow visit flag $DD.\nThe Transform_* routines are a shared library: Transform_WillToShadow is entered from sE5_epilogue, pyDD_mummy_queen, gw8A_sand_fanger, mu67_vampires, sg55_viper, ir29_castoth and btE4_kara; Transform_ShadowToWill from pyDD_mummy_queen, gw8A_sand_fanger, mu67_vampires, sg55_viper, ir29_castoth and pyCD_jackal; Transform_FreedanToWill from sg55_mystic_statue, ir29_transform, ir1C_lily, ec13_lily, pyCD_jackal and mu67_bomb (13 files in all).\nAbilitySceneTable has 6 entries of (scene, abilityBitmask bit): $15 Psycho Dash $01, $62 Psycho Slider $02, $86 Spin Dash $04, $42 Dark Friar $10, $A7 Aura Barrier $20, $B8 Earthquaker $40, ended by $00. The low nibble holds the Will abilities, the high nibble the Freedan abilities; the old header called byte 1 'ability index + statue type'. The table position is the ability index used by table_08EB8F (names) and table_08EBD3 (descriptions) through globalScriptIndex. DS_LayoutAbility shows the orb for the current scene (BG change $86 and orb at (64,109) for a Will ability, $8B and (64,84) for a Freedan ability); AbilityOrbActor dies when the bit is already in abilityBitmask, otherwise waits for the player at the statue zone, turns him into the form that can use it (Will for the low nibble, Freedan for the high nibble) with LookupStatueType, ORs the bit in, plays the orb flight, fanfare (track $18) and the two texts.\n\n=== SPRITES (spm_darkspace_sprites) ===\n\nAnimation #00 (4 frames, hold $63 then $0C x 3) is GaiaNpcSprite; #01 to #03 are the three sparkle variants of GaiaVoiceSparkle; #0A (32 frames of hold 0, a 16 x 16 spark alternating with an 8 x 8 tile) is the ability orb. #04 to #09 (8 x 8 effect tiles) are not used by this file. FireflyParticle and DarkSpaceExit use spriteset_enemies.\n\n=== NOT REFERENCED ===\n\nNo reference was found in extracted/ for: DS_AuraItemRoom and its handlers, AuraItemInteraction and its helpers (with dialogstring_08EFEF / 08F003 / 08F060), DarkSpaceAmbientParticle, the code at loc_08DA6B / loc_08DA77 (after an unconditional BRA), and the unused hint strings dialogstring_08DEC6, 08E066, 08E0C7, 08E109, 08E19C, 08E261, 08E2B9 and 08E615.\n\n=== CORRECTIONS ===\n\nReplaced claims: byte 1 of AbilitySceneTable is an ability bit, not an index with a statue nibble; the continue prompt's Yes / No were described the other way round; $06 is the voice sparkle, not the Gaia NPC, and $24 is its voice switch; 'Unmask D-pad and face buttons' ($0F00) is the D-pad only; hpToHeal 40 is a heal request (not 'damage flash ticks'); warpDestX / warpDestY and the $0B08-$0B12 values are the player's spawn position and source scene, not a camera; GaiaNpcSprite loops an idle animation (it is not a single frame); the Shadow flag $B4 is set by Neil, not at Ankor Wat; 'spriteset #05 (transformation frames)' is player body entry #05 and the 'transformation spriteset' of the exit effect is spriteset_enemies; Transform_ShadowToFreedan uses SetEntryHereAndYield, not SetEntryExit."
+  },
+  "system/diary_menu/sFA_diary_menu.asm": {
+    "comments": {
+      "781177": {
+        "text": "WaitByte #1D = 30 ticks",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "DiaryEraseExecute": "Yes: erase SFX #13, ClearSaveSlot for the slot in $0D94, wait 30 ticks (WaitByte #1D), rescan the slots, clear the text and return to the Erase list. The vanilla remap-restore stub at the top is stripped from the plain extraction by transforms.json."
+    }
+  },
+  "system/title_screen/sFC_title_intro.asm": {
+    "comments": {
+      "772446": {
+        "text": "WaitByte #B3 = 180 ticks (~3 sec)",
+        "expect": "WaitByte"
+      },
+      "772454": {
+        "text": "WaitByte #77 = 120 ticks (~2 sec)",
+        "expect": "WaitByte"
+      },
+      "772462": {
+        "text": "WaitWord #$09D3 = 2516 ticks (~42 sec idle)",
+        "expect": "WaitWord"
+      },
+      "772504": {
+        "text": "WaitByte #3B = 60 ticks (~1 sec) after the sweep",
+        "expect": "WaitByte"
+      }
+    },
+    "partNotes": {
+      "TitleCometSpriteActor": "Title comet sprite actor (spawned by TitleIntroInit at ($80,$50)). Runs animation #00 for 240 loop cycles in place, then 64 loop cycles with X speed 2 (StageSpriteLoopMoveX), waits 60 ticks (WaitByte #3B), switches TM to $16 and parks on SetEntryHere. Its frames come from spm_title_actors."
+    },
+    "blockNote": "Title scene $FC intro actor (Bank 0B, 772391-772487, plus the comet actor and an unreferenced palette-fade stub below it). Spawned with sFC_title_start_handler by scene_event_0CE56D, the title scene's actor list.\n\nLoads the title palette, spawns TitleCometSpriteActor, shows two BG3 text strings on a timer and, after a ~42-second idle period (WaitWord $09D3 = 2516 ticks), sets event flag $F4 and queues scene $8C (the prologue). Flag $F4 is tested by pr8C_prologue1 (BranchOnFlagByte, branch when clear) and pr8C_prologue5 (branch when set) and cleared again in pr8C_prologue1, so it marks 'the prologue was started by the title's idle timeout'.\n\n=== DISPLAY LAYERS ===\n\nTM starts at $10 (OBJ only: the comet sprites are the first thing on screen; the title picture is not on a main-screen layer yet). TitleCometSpriteActor later writes TM = $16 (BG2 + BG3 + OBJ) after its sprite animation, which brings in the title picture and the BG3 text layer.\n\n=== TEXT TIMING ===\n\nTwo BG3 text scripts are shown in sequence:\n- consolestring_01DA5E after WaitByte $B3 (180 ticks, ~3 seconds)\n- consolestring_01DA47 after WaitByte $77 more (120 ticks, ~2 seconds)"
+  },
+  "system/title_screen/sFC_title_start_handler.asm": {
+    "comments": {
+      "772535": {
+        "text": "WaitWord #$021B = 540 ticks (~9 sec) before accepting input",
+        "expect": "WaitWord"
+      }
+    },
+    "partNotes": {
+      "TitleStartDelayedInit": "Title-scene variant: suppress the buttons, wait 540 ticks (WaitWord #$021B), then join the shared poll loop."
+    },
+    "blockNote": "Title / prologue Start handler (Bank 0B, 772529-772609): waits for Start, then sends the game to the diary menu (scene $FA).\n\nTwo actor-defs share one poll loop. sFC_title_start_handler is spawned with sFC_title_intro by scene_event_0CE56D (the title scene $FC list) and first waits WaitWord $021B = 540 ticks (~9 s) so the intro's opening seconds cannot be skipped. sFC_actor_0BC9BD polls at once; it is spawned in the actor lists of the four prologue scenes ($8C-$8F, next to pr8C_prologue1/5, pr8D_prologue2, pr8E_prologue3 and pr8F_prologue4), so Start skips the prologue slides as well.\n\nBoth variants first mask nearly every button out of joypadCurrent (joypadMaskStd |= $FFFC; vanilla $FFF0, widened by transforms.json) and then poll with COP BranchIfPressed #$1001. In that mask word bit 0 is not a button: it makes the handler test joypadRaw instead of joypadCurrent (see docs/cop/families/input.md, BranchIfPressed), which is how Start ($1000) still gets through the mask. R is not tested.\n\nOn Start, TitleToDiaryTransition sets transitionBrightness = 0 and the transition parameters (gfxCacheIdxB = 0: speed 0; gfxCacheIdxA = 1: exit type 1 = instant blank, enter type 0 = graduated fade), queues scene $FA at ($0100,$0370) with COP QueueMapChange, yields one frame, runs one VBlankWaitAndJoypad with DP forced to $0000, and then holds INIDISP = $00 (force blank) every frame until the scene change replaces the actor."
+  },
+  "system/world_map/WorldMapController.asm": {
+    "comments": {
+      "238464": {
+        "text": "Add this tick's TickGravity delta (moveScratch2) to $B8 below",
+        "expect": "LDA $moveScratch2"
+      },
+      "238484": {
+        "text": "WaitByte #0F = 16 ticks before the HDMA effect starts",
+        "expect": "WaitByte"
+      },
+      "239146": {
+        "text": "WaitByte #3B = 60 ticks to show the destination name",
+        "expect": "WaitByte"
+      },
+      "239158": {
+        "text": "$B6 would go negative: the map is flat again, landing complete",
+        "expect": "BMI"
+      }
+    },
+    "partNotes": {
+      "ArrivalAndTravelSetup": "Child actor (flags $3800, script-driven). Phases: 44-tick zoom-out ($B8 falls), for a menu trip a 16-tick wait + HdmaWindowEffect + wait for the player's route, the 93-tick tilt phase with the start name ($B6 grows), then the companion dots. It finally becomes the leader's dot through the shared loop in CompanionDotMovement and dies when the route ends.",
+      "RouteEndHandler": "Route byte $FF. A pending subroutine return (nonzero $0D5C) continues the caller. A true end: clear route and choice ids (the dots notice and die), show the destination name (scene $0D6E) for 60 ticks (WaitByte #3B), then lower $B6 by $10 per frame until it would go negative (the map is flat again; Start skips to the scene change). Landing: $B6 := 0, transition speeds gfxCacheIdxB := $0406, restore the deferred scene change, clear the state block, and from then on add the TickGravity delta to $B8 every frame (zoom-in dive) until the scene changes."
+    },
+    "blockNote": "World map controller (scene $FE actor, Bank 03, 238321-239290). The scene is a Mode 7 map; this file runs the arrival zoom, the destination menu, the companion dots, the route playback and the dive into the destination scene.\n\n=== HOW A TRIP STARTS ===\n\nBoth kinds of trip arrive through CheckSceneTransition / ExecuteSceneTransition, which see a nonzero $0D52/$0D53 and then move $0D52 -> $0D54 (worldMapPlayerX), $0652 -> $0D6C, sceneNext -> $0D6E and sceneCurrent -> $0D6F, and switch to scene $FE:\n- Menu trip: the exit actor in a town or dungeon entrance (overworld_exit) writes $0D60 := 0 and runs COP StageWorldMapChoice (start X, start Y, choice id). The choice id in $0D58 selects a menu in world_map_options.\n- Scripted trip: an NPC departure script (13 of them, e.g. ec0A_kara, wa79_neil, daC8_neil) fills the party array, runs COP StageWorldMapMove (start X, start Y, 0, route id) and has already queued the destination with QueueMapChange. StageWorldMapMove clears $0D58, so there is no menu.\n\n=== STATE BLOCK $0D52-$0D6F ===\n\n| Address | Meaning |\n|---------|---------|\n| $0D52 | staged start X; nonzero = a world-map entry is pending (moved to $0D54 and cleared on arrival) |\n| $0D54 / $0D56 | worldMapPlayerX / Y: start position on the 1024 x 1024 map |\n| $0D58 | choice id (0 = none). The low 5 bits index world_map_options |\n| $0D5A | route id (0 = none). Index into world_map_routes, set by COP #65 / #67 |\n| $0D5C | route subroutine return pointer (0 = none) |\n| $0D5E | written by COP #65 / #67 (always 0), never read |\n| $0D60-$0D6A | party array: six words of spm_overworld_sprites animation indices. $0D60 is the leader, $0D62-$0D6A are up to five companions, 0 = empty |\n| $0D6C | deferred $0652 (scroll parameters of the queued scene change) |\n| $0D6E | destination scene (low byte); a scripted trip gets it from ExecuteSceneTransition, a menu trip from DeferSceneTransition |\n| $0D6F | scene being left (the start name is looked up with it) |\n\nClearWorldMapState zeroes $0D52-$0D6D (14 words, CPY #$001C), so $0D6E/$0D6F survive the trip.\n\n=== MODE 7 PARAMETERS THE CONTROLLER DRIVES ===\n\nMode7PerspectiveInit (scene thinker, see mode7_perspective) sets the global words $B8 := $0400, $B6 := 0, $BC := 0 and the centre $CA/$CC := ($0D54, $0D56). Per frame it turns them into the M7A-M7D HDMA tables:\n- $B8 is the divisor at the top scanline: smaller = zoomed out, larger = zoomed in ($80 is about 1:1).\n- $B6 is how much the divisor grows per scanline: 0 = flat map, larger = stronger perspective.\n- $BC is the rotation index (512 steps per turn). Route steps change it, so the map turns during a trip. The old comments called it elevation.\n- $CA/$CC are the world X/Y (map centre). cameraTargetX/Y follow as centre - ($80, $70).\n\n=== TIMELINE ===\n\n1. WorldMapController (code_03A2F4): characterForm := 0, two palette-reset thinkers (bundle $0B: Will's normal sprite colours, CGRAM $81-$8F), ClearAllWramFlags, mask the buttons, spawn ArrivalAndTravelSetup as a child (flags $3800). With no choice id it dies here; otherwise it gives the child animScratch2 |= $0804, saves DeferSceneTransition with SetSavedPtr and runs world_map_options[choice & $1F] (menu and handler).\n2. ArrivalAndTravelSetup, 44 ticks: places itself (the leader's dot) at the start position, centres the camera, then each tick adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8. The divisor falls from $0400 to about $34 (hand-computed), a zoom-out from 8x in to a wide view.\n3. Menu trips only: wait 16 ticks (WaitByte #0F), spawn HdmaWindowEffect, then poll $0D5A every frame (RTL = try again next frame) while the menu is open. Choosing Quit leaves it at 0: the handler has already queued the scene you came from and DeferSceneTransition just dies, so this actor idles until the scene changes.\n4. Tilt phase (loc_03A3A4), 93 ticks: shows the start-area name (see world_map_names), adds the TickGravity delta ((t * (t >> 1)) >> 7, growing) to $B6 and 1 to $B8. $B6 ends at about $03F0, so the flat map tilts into a strong perspective view. Then the name is cleared ($00DA := 0).\n5. Companion dots: the party array is scanned from $0D62, N companions pick entry N of companion_position_tables, and one CompanionDotMovement actor per companion is spawned. RouteAnimationEngine is spawned and this actor becomes the leader's dot.\n6. RouteAnimationEngine plays the route bytes (see world_map_routes): X, Y and rotation steps change $CA/$CC/$BC.\n7. RouteEndHandler: dots die, the destination name shows for 60 ticks (WaitByte #3B), $B6 falls by $10 per frame until the map is flat again (Start skips everything), then the deferred sceneNext/$0652 are restored and the controller dives: $B8 grows by an increasing delta, a zoom-in while the scene exit transition runs.\n\n=== SPRITES (spm_overworld_sprites.sprite.asm, not annotatable with the merge tool) ===\n\nThe spritemap (scene_meta_00FE, $1238 bytes, gfx_overworld_actors, palette pal_overworld_sprites at colour $90) has 14 animations. The leader and companion dots use the animation index from the party array as actor field $28.\n- 0-5: 4-frame cycles (hold 7), one per party slot value (art identity not checked). 6: three 1-part frames.\n- 7-A: four 5-frame sets. wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg (menu handlers set only $0D60 := 7), so these look like the pieces of one vehicle (not checked at runtime).\n- B: 3 frames of 24-28 parts, used as the leader by daC8_neil (Dao to Over Babel). C: same shape, no writer found. D: 4 frames, used as the leader by wa78_men (Watermia to South Cape).\n\n=== KEY ROUTINES ===\n\n- DeferSceneTransition: callback after the menu handler; keeps the queued scene out of the way while the route plays.\n- ArrivalAndTravelSetup: arrival zoom, menu wait, tilt phase, dot formation, route launch; then runs as the leader's dot.\n- CompanionDotMovement: one companion dot (also the shared dot loop).\n- RouteAnimationEngine: interpreter for the world_map_routes bytes. RouteEndHandler: end-of-route name, untilt and dive.\n- LookupMapName: scene id -> name string pointer."
+  },
+  "system/world_map/world_map_options.asm": {
+    "partNotes": {
+      "dialogstring_03B928": "Blank [TPL:11] string, like dialogstring_03B92B. Nothing references it (R-I060-3)."
+    }
+  }
+}

@@ -1,0 +1,9 @@
+[
+    {
+        "address": 697198,
+        "old": "SetPlayerGameOverFlag",
+        "new": "SetPlayerIgnoreContactFlag",
+        "row": "MESEN-A-1",
+        "note": "Sets actor $10 bit $0200 on the player, which makes the player ignore enemy contact (A3 X4/X4c, A2 OQ-I023-3). The old name was already flagged as misleading in its own block note: game over is playerFlags $0200, a different word. Apply AFTER edits/mesen2-A_notes.json, which still uses the old file name."
+    }
+]

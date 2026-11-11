@@ -1,0 +1,151 @@
+[
+  {
+    "id": "FL14-EXPOSE-AQUEDUCT",
+    "flag": 1025,
+    "scope": { "scenes": [12, 13, 14, 15, 18, 29, 32, 33, 34, 35, 37, 38, 39, 40, 41] },
+    "priority": "P1",
+    "claim": "A kill bit set in the Edward's Castle aqueduct (scenes $0C-$12, numbers $01-$45) is still set when the Inca Ruins load, because the story chain from the aqueduct exit to the Inca Ruins has no ClearAllWramFlags: the aqueduct exit $13 warps to $0A (edward_castle), ec0A_kara.asm:195 queues $06 (wills_house), sc06_kara_return.asm:153 queues $15 (itory_village), the warp $15 -> $17, it17_lily.asm:35 queues $1A, it1A_lily.asm:124 queues $1C (incan_ruins_entrance), warp $1C -> $1D. InitActorFromSceneData then frees every Inca Ruins spawn record whose number matches (ir1D_mudpit rows #06-#0A carry $01-$05, ir1D_four_way $06-$0F, and so on) and the enemy is missing from the scene.",
+    "start": { "scene": 12, "flags": [], "form": "Will", "state": "kill bits $0A80-$0A9F zero (new game or just after a world-map visit); player in the aqueduct entrance scene $0C" },
+    "trial": {
+      "control": "kill the first bat of scene $0C (row #02, number $01) and read $0A80 (bit 1 must be set); play the story chain without opening the world map until scene $1D loads",
+      "forced": "poke $0A80 := $01 in scene $1D before the load (or after a warp into $1D) and compare enemiesRemaining ($0AEC) and the actor list with a run where the byte is zero: row #06 (ir1D_mudpit, number $01) must be absent when the bit is set",
+      "observe": ["$0A80-$0A82 on entering $1D", "$0AEC and the visible enemies of scene $1D", "whether any ClearAllWramFlags / game-over clear ran between the scenes (breakpoint on 46284 / 54988)"]
+    },
+    "confirms": "the bit is still set on entering $1D and the matching Inca Ruins enemy does not spawn",
+    "refutes": "the byte is zero when $1D loads (an unseen reset), or the enemy spawns despite the bit",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-EXPOSE-PYRAMID-BABEL",
+    "flag": 1025,
+    "scope": { "scenes": [204, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 219, 242, 243, 244, 245, 246] },
+    "priority": "P1",
+    "claim": "Kill bits set in the Pyramid (numbers $01-$FE, notably $01-$05 of pyramid_main and the first rooms) are still set when the Babel dark-lair scenes $F2-$F6 load: the chain pyramid puzzle_room $CD -> $C8 (pyCD_kara.asm:122), warp $C8 -> $C3 (dao), daC3_babel_travel_spirit.asm:62 -> $E3, warps $E3 -> $E2 -> $E0 -> $F2-$F5 and $E3 -> $F6 has no ClearAllWramFlags. The dark-lair boss rows carry the numbers $01-$05 (btF2_neo_castoth $01, btF3_neo_viper $02, btF4 male and female vampire $03, btF5_neo_fanger $04, btF6_neo_queen $05); a stale bit frees the boss record at the load.",
+    "start": { "scene": 204, "flags": [], "form": "Will", "state": "kill bits zero on Pyramid entry; kill the pyramid_main mystic balls (rows #04, #05, numbers $01 and $02) and a first-room enemy with number $03-$05" },
+    "trial": {
+      "control": "after the kills read $0A80; follow the story to the Babel dark lairs without the world map; read $0A80 before each lair loads",
+      "forced": "poke $0A80 bits 1-5 before entering scene $F2 and check which boss rows spawn (F2 row #03, F3 #03, F4 #03 and #04, F5 #03, F6 #07)",
+      "observe": ["$0A80 on loading each dark lair", "whether the boss actor exists", "any clear of the block between the pyramid and Babel"]
+    },
+    "confirms": "the bits are still set in the lairs and the matching boss rows are skipped",
+    "refutes": "the byte is zero on load or the boss spawns with the bit set (an unseen guard)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-EXPOSE-SKYGARDEN-MU",
+    "flag": 1025,
+    "scope": { "scenes": [77, 78, 79, 80, 81, 82, 83, 84, 95, 96, 97, 98, 100, 101] },
+    "priority": "P2",
+    "claim": "On the sp58 path with $0AA6 = 1 the Sky Garden kill bits survive into Mu: sp58_monologue (sp58_monologue.asm, QueueMapChange #5A at {426974}) leaves scene $58 for $5A without a reset, while the reset in sp58_red_eye (ClearAllWramFlags {426502}) runs only when $0AA6 = 2 ({426392}-{426398}). Warp $5A -> $5E -> $5F then loads Mu; 57 enemy numbers occur in both the Sky Garden scenes ($4D-$54) and the Mu scenes ($5F-$65).",
+    "start": { "scene": 88, "flags": [], "form": "Will", "state": "Sky Garden finished with $0AA6 = 1; kill bits of the garden set" },
+    "trial": {
+      "control": "read $0AA6 when scene $58 loads, kill-bit bytes before and after leaving $58, and again when Mu ($5F) loads",
+      "forced": "poke $0AA6 := 2 in scene $58 to see the reset run (control for the other branch)",
+      "observe": ["$0AA6", "$0A80-$0A8F after $58 and on $5F", "which Mu enemies are missing"]
+    },
+    "confirms": "the bytes are unchanged between $58 and $5F on the $0AA6 = 1 path and the matching Mu enemies are absent",
+    "refutes": "the bytes are zero on $5F, or $0AA6 is always 2 at this point",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-WALLWALKER",
+    "flag": 1043,
+    "flags": [1043, 1044, 1045, 1046, 1047, 1048, 1049, 1050, 1051, 1052, 1053, 1054, 1074, 1075, 1076, 1077, 1078, 1079, 1089, 1090, 1091, 1092, 1093, 1094, 1104, 1108, 1109, 1120, 1121, 1122, 1123, 1124, 1187, 1188, 1189, 1190, 1191, 1192, 1193, 1194, 1195, 1202, 1203, 1204, 1205, 1210, 1211, 1214, 1215, 1228, 1229, 1234, 1235, 1236, 1237, 1238, 1251, 1252, 1253, 1254, 1255, 1264, 1265, 1266, 1267, 1268],
+    "scope": { "scenes": [177, 178, 179, 180, 181, 183, 184, 185, 187, 188, 189, 190] },
+    "priority": "P2",
+    "claim": "awB1_wall_walker rows (66 numbers) may never write their kill bit: the actor ORs the boss bit $0080 into extendedFlags at {769087} and {769211}, and StandardEnemyDefeatHandler skips SetDungeonKillFlag when that bit is set ({56301}); the own death routine code_0BC11B sets the bit ({770381}) for every non-last kill, and the last kill (enemiesRemaining = 1) goes through the standard handler. Which kills reach which branch is not traced.",
+    "start": { "scene": 177, "flags": [], "form": "Will", "state": "Angkor Wat scene $B1 freshly entered; $0A80-$0A9F zero" },
+    "trial": {
+      "control": "kill a wall walker that is not the last enemy and read the bit of its number (row #05 of $B1 is number $13: byte $0A82 bit 3)",
+      "forced": "kill the last enemy of the scene as a wall walker and read the bit again",
+      "observe": ["bit of the number after each kill", "extendedFlags ($7F002A + slot) at death", "enemiesRemaining"]
+    },
+    "confirms": "non-last kills set the bit, the last kill sets it only without the boss bit",
+    "refutes": "no bit is set, or every kill sets it",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-HAUNT",
+    "flag": 1096,
+    "flags": [1096, 1097, 1098, 1099, 1100, 1101, 1102, 1103, 1104, 1105, 1106, 1120, 1121, 1122, 1123, 1124, 1125, 1126, 1127, 1128, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179, 1180, 1181, 1232, 1233, 1234, 1235, 1236, 1237, 1238, 1239, 1240, 1241, 1242, 1243, 1256, 1257, 1258, 1259, 1277],
+    "scope": { "scenes": [210, 211, 213, 216, 217] },
+    "priority": "P2",
+    "claim": "pyD2_haunt rows may never write their kill bit: OrExtraFlags #$0090 ({770788}) includes the boss bit, so StandardEnemyDefeatHandler (which the actor reaches by JumpFar) skips SetDungeonKillFlag; when the OrExtraFlags runs relative to the death is not traced.",
+    "start": { "scene": 210, "flags": [], "form": "Will", "state": "Pyramid haunt room freshly entered, $0A80-$0A9F zero" },
+    "trial": {
+      "control": "kill a haunt and read the bit of its number",
+      "forced": "none beyond the control",
+      "observe": ["bit of the number", "extendedFlags at death", "enemiesRemaining"]
+    },
+    "confirms": "the bit stays clear",
+    "refutes": "the bit is set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-ZOMBIE",
+    "flag": 1033,
+    "flags": [1033, 1034, 1035, 1036, 1037, 1038, 1039, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174, 1217, 1218, 1219, 1220],
+    "scope": { "scenes": [176, 182, 186] },
+    "priority": "P2",
+    "claim": "awB0_zombie rows never write their kill bit: SetDeathCallback code_0BB800 ({767902}, body {768000}-{768022}) stores 1 at offset $26 of the actor addressed by DP $26, plays the sound and spawns EnemyDeathFlash, and the file has no SetDungeonKillFlag, StandardEnemyDefeatHandler, EnemyDefeatDispatch or Die; what the callback's return leads to (and whether enemiesRemaining is ever decremented) is not resolved.",
+    "start": { "scene": 176, "flags": [], "form": "Will", "state": "Angkor Wat scene $B0 freshly entered, $0A80-$0A9F zero" },
+    "trial": {
+      "control": "defeat a zombie (row of number $09) and read $0A81 bit 1, enemiesRemaining and whether the actor stays",
+      "forced": "none beyond the control",
+      "observe": ["$0A81 bit 1", "$0AEC", "actor list after the death"]
+    },
+    "confirms": "no bit is set and the counter does not change",
+    "refutes": "the bit is set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-SKULL",
+    "flag": 1092,
+    "flags": [1092, 1093],
+    "scope": { "scenes": [18] },
+    "priority": "P3",
+    "claim": "ec12_skull_chaser (numbers $44 and $45) sets its kill bit on the second death only: the first death runs the callback code_0A853E ({689282}), which resets the stats and clears the callback ({689513}); the second death takes the default routing.",
+    "start": { "scene": 18, "flags": [], "form": "Will", "state": "Aqueduct back scene $12 freshly entered" },
+    "trial": {
+      "control": "kill a skull chaser once and read $0A88 bits 4 and 5; kill it again and read them again",
+      "forced": "none",
+      "observe": ["$0A88", "the actor state between the deaths"]
+    },
+    "confirms": "the bit is clear after the first death and set after the second",
+    "refutes": "the bit is set after the first death",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-SANDFANGER",
+    "flag": 1028,
+    "scope": { "scenes": [245] },
+    "priority": "P3",
+    "claim": "The dark-lair fanger (scene $F5 row #03, number $04) never writes its kill bit: gw8A_sand_fanger ORs the boss bit at {756183}, so StandardEnemyDefeatHandler skips SetDungeonKillFlag; the actor files of the neighbouring boss rows (ir29_castoth, sg55_viper, mu67_vampires, pyDD_mummy_queen) contain no OrExtraFlags #$0080, so their rows reach the write.",
+    "start": { "scene": 245, "flags": [], "form": "Will", "state": "dark fanger lair entered, bit 4 of $0A80 clear" },
+    "trial": {
+      "control": "defeat the fanger and read $0A80 bit 4",
+      "forced": "none",
+      "observe": ["$0A80 bit 4", "extendedFlags at death"]
+    },
+    "confirms": "the bit stays clear",
+    "refutes": "the bit is set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL14-TOMB",
+    "flag": 1272,
+    "flags": [1272, 1273, 1274, 1275, 1276, 1277, 1278],
+    "scope": { "scenes": [136] },
+    "priority": "P2",
+    "claim": "The Great Wall tomb Dark Space actor (gw88_tomb_dark_space.asm:18 {507380}) fires its background change and sets event flag $0174 when the six stone archers of scene $88 (rows #0C-#11, numbers $F8-$FD) are all dead: LDA $0A9F, AND #$00FF, CMP #$003F means bits 0-5 set ($F8-$FD) and bits 6-7 clear ($FE, $FF).",
+    "start": { "scene": 136, "flags": [], "form": "Will", "state": "scene $88 freshly entered from the world map (kill bits zero); event flag $0174 clear" },
+    "trial": {
+      "control": "kill the six stone archers one by one and read $0A9F after each; watch for the background change",
+      "forced": "poke $0A9F := $3F in the scene and check that the change fires; poke $0A9F := $7F (bit of $FE set) and check that it does not",
+      "observe": ["$0A9F", "event flag $0174 (byte $0A2E bit 4)", "the background change"]
+    },
+    "confirms": "the change fires exactly when the low byte of $0A9F reads $3F",
+    "refutes": "the change fires with another value, or never fires",
+    "needs": ["FR00"]
+  }
+]

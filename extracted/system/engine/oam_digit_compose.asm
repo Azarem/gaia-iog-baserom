@@ -40,7 +40,7 @@
 
 ; Second entry that skips the actor-position setup and the $F000 guard.
 ; 
-; The caller supplies the digit X cursor ($0018), Y ($001C) and attribute ($0002) itself; the diary counter does this from the BG1 scroll position. The routine copies $0018 to $001A (not read anywhere in this file), moves the cursor left by 6px, and joins ComposeDigitSprites at its hundreds-digit step (loc_03BB0D). Purpose of the 6px shift: not documented (inferred as a fixed alignment offset for the diary counter, the only user).
+; The caller supplies the digit X cursor ($0018), Y ($001C) and attribute ($0002) itself; the diary counter does this from the BG1 scroll position. The routine copies $0018 to $001A (not read anywhere in this file), moves the cursor left by 6px, and joins ComposeDigitSprites at its hundreds-digit step (loc_03BB0D). Purpose of the 6px shift: not documented (the only caller, DiaryDigitDisplay_noref, has no reference and did not run in a diary-menu session, so the shift is dead code and its purpose cannot be observed).
 
 ComposeDigitSprites_AtCursor {
     PHX 

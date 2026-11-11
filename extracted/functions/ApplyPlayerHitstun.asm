@@ -6,7 +6,7 @@
 ; 2. playerHp := max(0, playerHp - damage). D and X become the player actor.
 ; 3. Player flags $10 |= $0080 (hit reaction); the iframe counter ($7F0028) := $0002 if nonzero, else $003C. A positive counter is hit-stun, a negative one is recovery / invincibility (see actor_execution).
 ; 4. If playerFlags bit $0800 (script / ability lock) is set, no stagger is spawned: only the D-pad bits $0F00 of joypadMaskStd are cleared. Otherwise HitStaggerMain is spawned with COP SpawnListAppend ( entry, 0, 0, #$2400 ): $2400 is the child's FLAGS word ($2000 script-driven, $0400 player victim). Y = the child slot afterwards.
-; 5. Y = $1FC0 means the actor pool was full and the spawn failed: the D-pad bits $0F00 are cleared (some callers hide them first; the child that would have restored them does not exist). The code still falls through to the child-setup stores below with Y = $1FC0, unlike ApplyInteractionDamage, which skips them. The stores are indexed by that Y; what they hit at $1FC0 plus the field offset is not traced.
+; 5. Y = $1FC0 means the actor pool was full and the spawn failed: the D-pad bits $0F00 are cleared (some callers hide them first; the child that would have restored them does not exist). The code still falls through to the child-setup stores below with Y = $1FC0, unlike ApplyInteractionDamage, which skips them. The stores are indexed by that Y and land in the unused sentinel slot at $1FC0-$1FEF (words at $1FE8 and $1FEC, $1FEE and the extended word $7F1FEA): the actor list and the free list stay intact. With no stagger child nothing replaces the counter and the D-pad bits stay shown: the counter $003C counts down to 0 over 60 ticks while the player stands in place (measured with the free list emptied at the entry of this function).
 ; 6. Child setup: extendedFlags bit $0020 of the player is copied to the child, the direction code from $0000 goes into the child's $28, and its $2C / $2E are zeroed. Hit sound: PlaySoundCh2 #07 (always the Will sound; combat_collision picks #08 for Freedan and Shadow).
 ; 
 ; The function never HIDES the D-pad: it only reveals it on the two no-stagger paths. Callers such as gw82_archer and ir1F_stone_guard hide it themselves (TSB #$0F00) before the JSL, and HitStaggerReleasePlayer reveals it when the stagger ends.
@@ -23,7 +23,7 @@
 ; 
 ; $0B02 is the difficulty level (ram_map.txt), so the stone guard's two strongest hits add it to a base of 2. Combat hits from the player's own attacks and from contact use combat_collision's inline code instead.
 ; 
-; Everything here is UNVERIFIED-RUNTIME (no emulator trace); read from the code.
+; Measured at runtime for Will, Freedan and Shadow through the Great Wall archer (hit sound #07 for every form, stagger child, counter $003C then $FFE2) and with the actor pool full. Everything else is read from the code.
 ---------------------------------------------
 
 ?INCLUDE 'hit_stagger_controller'

@@ -1,0 +1,2026 @@
+[
+ {
+  "old": "visual_effect_pipeline",
+  "new": "layer1_scroll_actors",
+  "row": "R-I051-1"
+ },
+ {
+  "old": "effect_velocity_init",
+  "new": "Layer1DriftUnbounded",
+  "row": "R-I051-1"
+ },
+ {
+  "old": "effect_position_update",
+  "new": "Layer1DriftWrapped",
+  "row": "R-I051-1"
+ },
+ {
+  "old": "effect_subpixel_math",
+  "new": "Layer1ParallaxRatio",
+  "row": "R-I051-1"
+ },
+ {
+  "old": "EffectUpdateCameraDeltaY",
+  "new": "Layer1ParallaxRatioY",
+  "row": "R-I051-1"
+ },
+ {
+  "old": "loc_00C2C7",
+  "new": "BossRewardFindScene",
+  "row": "R-I051-3",
+  "addr": 49863
+ },
+ {
+  "old": "loc_00C2D3",
+  "new": "BossRewardCheckClaimed",
+  "row": "R-I051-3",
+  "addr": 49875
+ },
+ {
+  "old": "loc_00C2EC",
+  "new": "BossRewardGrant",
+  "row": "R-I051-3",
+  "addr": 49900
+ },
+ {
+  "old": "loc_00C30C",
+  "new": "BossRewardIdle",
+  "row": "R-I051-3",
+  "addr": 49932
+ },
+ {
+  "old": "code_00C350",
+  "new": "BossRewardNextScene",
+  "row": "R-I051-3",
+  "addr": 50000
+ },
+ {
+  "old": "loc_00C353",
+  "new": "BossRewardReadTier",
+  "row": "R-I051-3",
+  "addr": 50003
+ },
+ {
+  "old": "loc_00C360",
+  "new": "BossRewardClaimScene",
+  "row": "R-I051-3",
+  "addr": 50016
+ },
+ {
+  "old": "loc_00C385",
+  "new": "BossRewardTryStr",
+  "row": "R-I051-3",
+  "addr": 50053
+ },
+ {
+  "old": "loc_00C38C",
+  "new": "BossRewardTryDef",
+  "row": "R-I051-3",
+  "addr": 50060
+ },
+ {
+  "old": "loc_00C390",
+  "new": "BossRewardAddDef",
+  "row": "R-I051-3",
+  "addr": 50064
+ },
+ {
+  "old": "loc_00C394",
+  "new": "BossRewardDone",
+  "row": "R-I051-3",
+  "addr": 50068
+ },
+ {
+  "old": "boss_reward_range_00C312",
+  "new": "boss_reward_range_table",
+  "row": "R-I051-3",
+  "addr": 49938
+ },
+ {
+  "old": "FieldRevealHiddenSpriteA",
+  "new": "FieldRevealStatItemHp",
+  "row": "R-I051-4"
+ },
+ {
+  "old": "FieldRevealHiddenSpriteB",
+  "new": "FieldRevealStatItemStr",
+  "row": "R-I051-4"
+ },
+ {
+  "old": "FieldRevealHiddenSpriteC",
+  "new": "FieldRevealStatItemDef",
+  "row": "R-I051-4"
+ },
+ {
+  "old": "FieldRevealCollectSpriteA",
+  "new": "FieldRevealGem1",
+  "row": "R-I051-4"
+ },
+ {
+  "old": "FieldRevealCollectSpriteB",
+  "new": "FieldRevealGem2",
+  "row": "R-I051-4"
+ },
+ {
+  "old": "FieldRevealCollectSpriteC",
+  "new": "FieldRevealGem5",
+  "row": "R-I051-4"
+ },
+ {
+  "old": "code_list_00DAA4",
+  "new": "field_reveal_tier_cases",
+  "row": "R-I051-4",
+  "addr": 55972
+ },
+ {
+  "old": "code_list_00DAED",
+  "new": "field_reveal_gem_cases",
+  "row": "R-I051-4",
+  "addr": 56045
+ },
+ {
+  "old": "loc_00DB0B",
+  "new": "FieldRevealDrop",
+  "row": "R-I051-4",
+  "addr": 56075
+ },
+ {
+  "old": "code_00DB21",
+  "new": "FieldRevealDropStep",
+  "row": "R-I051-4",
+  "addr": 56097
+ },
+ {
+  "old": "loc_00DB2C",
+  "new": "FieldRevealDropCheckType",
+  "row": "R-I051-4",
+  "addr": 56108
+ },
+ {
+  "old": "loc_00DB43",
+  "new": "FieldRevealDropProbe",
+  "row": "R-I051-4",
+  "addr": 56131
+ },
+ {
+  "old": "loc_00DB47",
+  "new": "FieldRevealLaunch",
+  "row": "R-I051-4",
+  "addr": 56135
+ },
+ {
+  "old": "loc_00DB69",
+  "new": "FieldRevealLifeLoop",
+  "row": "R-I051-4",
+  "addr": 56169
+ },
+ {
+  "old": "PlayerItemRevealSpawn",
+  "new": "ImpactSparkEffect",
+  "row": "R-I052-1"
+ },
+ {
+  "old": "PlayerFreedanRevealIdle",
+  "new": "PlayerPoseHold",
+  "row": "R-I052-2"
+ },
+ {
+  "old": "PlayerFreedanRevealExit",
+  "new": "PlayerPoseHoldExit",
+  "row": "R-I052-2"
+ },
+ {
+  "old": "loc_00DECC",
+  "new": "FieldRevealScatterXTier2",
+  "row": "R-I052-4",
+  "addr": 57036
+ },
+ {
+  "old": "loc_00DED2",
+  "new": "FieldRevealScatterXTier0",
+  "row": "R-I052-4",
+  "addr": 57042
+ },
+ {
+  "old": "loc_00DED6",
+  "new": "FieldRevealScatterXSet",
+  "row": "R-I052-4",
+  "addr": 57046
+ },
+ {
+  "old": "loc_00DEDC",
+  "new": "FieldRevealScatterYStart",
+  "row": "R-I052-4",
+  "addr": 57052
+ },
+ {
+  "old": "loc_00DEF5",
+  "new": "FieldRevealScatterYTier2",
+  "row": "R-I052-4",
+  "addr": 57077
+ },
+ {
+  "old": "loc_00DEFB",
+  "new": "FieldRevealScatterYTier0",
+  "row": "R-I052-4",
+  "addr": 57083
+ },
+ {
+  "old": "loc_00DEFF",
+  "new": "FieldRevealScatterYSet",
+  "row": "R-I052-4",
+  "addr": 57087
+ },
+ {
+  "old": "loc_00DF05",
+  "new": "FieldRevealScatterDone",
+  "row": "R-I052-4",
+  "addr": 57093
+ },
+ {
+  "old": "loc_00C810",
+  "new": "EscortTrackerFetchFacing",
+  "row": "R-I052-5",
+  "addr": 51216
+ },
+ {
+  "old": "loc_00C814",
+  "new": "EscortTrackerSeedKnown",
+  "row": "R-I052-5",
+  "addr": 51220
+ },
+ {
+  "old": "loc_00C830",
+  "new": "EscortTrackerFillTrail",
+  "row": "R-I052-5",
+  "addr": 51248
+ },
+ {
+  "old": "loc_00C89F",
+  "new": "EscortTrackerPlayerMoved",
+  "row": "R-I052-5",
+  "addr": 51359
+ },
+ {
+  "old": "loc_00C8F7",
+  "new": "EscortTrackerPlayerIdle",
+  "row": "R-I052-5",
+  "addr": 51447
+ },
+ {
+  "old": "loc_00C924",
+  "new": "EscortTrackerAdvanceHead",
+  "row": "R-I052-5",
+  "addr": 51492
+ },
+ {
+  "old": "SmoothFollowApplyEastPrimary",
+  "new": "SmoothFollowApplySSE",
+  "row": "R-I053-1"
+ },
+ {
+  "old": "SmoothFollowApplyEastSecondary",
+  "new": "SmoothFollowApplySSW",
+  "row": "R-I053-1"
+ },
+ {
+  "old": "SmoothFollowApplyWestPrimary",
+  "new": "SmoothFollowApplyWSW",
+  "row": "R-I053-1"
+ },
+ {
+  "old": "SmoothFollowApplyWestSecondary",
+  "new": "SmoothFollowApplyWNW",
+  "row": "R-I053-1"
+ },
+ {
+  "old": "SmoothFollowApplySouthPrimary",
+  "new": "SmoothFollowApplyNNW",
+  "row": "R-I053-1"
+ },
+ {
+  "old": "loc_00E570",
+  "new": "SmoothFollowApplyNNE",
+  "row": "R-I053-1",
+  "addr": 58736
+ },
+ {
+  "old": "loc_00E58B",
+  "new": "SmoothFollowApplyENE",
+  "row": "R-I053-1",
+  "addr": 58763
+ },
+ {
+  "old": "loc_00E5A6",
+  "new": "SmoothFollowApplyESE",
+  "row": "R-I053-1",
+  "addr": 58790
+ },
+ {
+  "old": "loc_00E4EF",
+  "new": "SmoothFollowChildBodyLoop",
+  "row": "R-I053-2",
+  "addr": 58607
+ },
+ {
+  "old": "loc_00E52D",
+  "new": "SmoothFollowTickGoESE",
+  "row": "R-I053-2",
+  "addr": 58669
+ },
+ {
+  "old": "loc_00E52F",
+  "new": "SmoothFollowTickTargetNorth",
+  "row": "R-I053-2",
+  "addr": 58671
+ },
+ {
+  "old": "loc_00E53D",
+  "new": "SmoothFollowTickTargetWest",
+  "row": "R-I053-2",
+  "addr": 58685
+ },
+ {
+  "old": "loc_00E55B",
+  "new": "SmoothFollowTickGoWSW",
+  "row": "R-I053-2",
+  "addr": 58715
+ },
+ {
+  "old": "loc_00E55E",
+  "new": "SmoothFollowTickTargetNorthWest",
+  "row": "R-I053-2",
+  "addr": 58718
+ },
+ {
+  "old": "loc_00E56D",
+  "new": "SmoothFollowTickGoWNW",
+  "row": "R-I053-2",
+  "addr": 58733
+ },
+ {
+  "old": "code_08D69E",
+  "new": "DarkSpaceDaoEntry",
+  "row": "R-I053-3",
+  "addr": 579230
+ },
+ {
+  "old": "code_08D6AC",
+  "new": "DarkSpaceStandardEntry",
+  "row": "R-I053-3",
+  "addr": 579244
+ },
+ {
+  "old": "loc_08D6DE",
+  "new": "DarkSpacePortalClosed",
+  "row": "R-I053-3",
+  "addr": 579294
+ },
+ {
+  "old": "loc_08D6E1",
+  "new": "DarkSpacePortalClosedLoop",
+  "row": "R-I053-3",
+  "addr": 579297
+ },
+ {
+  "old": "loc_08D6F5",
+  "new": "DarkSpacePortalOpenAnim",
+  "row": "R-I053-3",
+  "addr": 579317
+ },
+ {
+  "old": "loc_08D6FD",
+  "new": "DarkSpacePortalOpenLoop",
+  "row": "R-I053-3",
+  "addr": 579325
+ },
+ {
+  "old": "loc_08D70C",
+  "new": "DarkSpacePortalClose",
+  "row": "R-I053-3",
+  "addr": 579340
+ },
+ {
+  "old": "loc_08D720",
+  "new": "DarkSpaceMonitorEntryTest",
+  "row": "R-I053-3",
+  "addr": 579360
+ },
+ {
+  "old": "DarkSpaceEnterWarp",
+  "new": "DarkSpaceMonitorStartWarp",
+  "row": "R-I053-4"
+ },
+ {
+  "old": "GameOverSparkleDriftA",
+  "new": "GameOverSparkleOrbitA",
+  "row": "R-I053-6"
+ },
+ {
+  "old": "GameOverSparkleDriftB",
+  "new": "GameOverSparkleOrbitB",
+  "row": "R-I053-6"
+ },
+ {
+  "old": "loc_00D664",
+  "new": "GameOverFadeLoop",
+  "row": "R-I053-6",
+  "addr": 54884
+ },
+ {
+  "old": "loc_00D67B",
+  "new": "GameOverChooseRespawn",
+  "row": "R-I053-6",
+  "addr": 54907
+ },
+ {
+  "old": "loc_00D6AD",
+  "new": "GameOverRealDeath",
+  "row": "R-I053-6",
+  "addr": 54957
+ },
+ {
+  "old": "loc_00D6C3",
+  "new": "GameOverFormWill",
+  "row": "R-I053-6",
+  "addr": 54979
+ },
+ {
+  "old": "loc_00D6C6",
+  "new": "GameOverFullHp",
+  "row": "R-I053-6",
+  "addr": 54982
+ },
+ {
+  "old": "loc_00D6D2",
+  "new": "GameOverClearFlagsLoop",
+  "row": "R-I053-6",
+  "addr": 54994
+ },
+ {
+  "old": "loc_00D6E6",
+  "new": "GameOverRespawnTail",
+  "row": "R-I053-6",
+  "addr": 55014
+ },
+ {
+  "old": "loc_00D7AD",
+  "new": "DeathWakeupNotWill",
+  "row": "R-I053-6",
+  "addr": 55213
+ },
+ {
+  "old": "loc_00D7B6",
+  "new": "DeathWakeupShadowLine",
+  "row": "R-I053-6",
+  "addr": 55222
+ },
+ {
+  "old": "loc_00D7BA",
+  "new": "DeathWakeupUnmask",
+  "row": "R-I053-6",
+  "addr": 55226
+ },
+ {
+  "old": "loc_00DB96",
+  "new": "DefeatCountKill",
+  "row": "R-I054-1",
+  "addr": 56214
+ },
+ {
+  "old": "loc_00DBE9",
+  "new": "DefeatKillFlagAndGem",
+  "row": "R-I054-1",
+  "addr": 56297
+ },
+ {
+  "old": "loc_00DC03",
+  "new": "DefeatGemPath",
+  "row": "R-I054-1",
+  "addr": 56323
+ },
+ {
+  "old": "code_00DC13",
+  "new": "DefeatHideAndRelease",
+  "row": "R-I054-1",
+  "addr": 56339
+ },
+ {
+  "old": "loc_00DC23",
+  "new": "DefeatFieldReveal",
+  "row": "R-I054-1",
+  "addr": 56355
+ },
+ {
+  "old": "loc_00DC54",
+  "new": "DefeatDieOrReward",
+  "row": "R-I054-1",
+  "addr": 56404
+ },
+ {
+  "old": "loc_00DC5D",
+  "new": "DefeatDieNotLast",
+  "row": "R-I054-1",
+  "addr": 56413
+ },
+ {
+  "old": "loc_00DC72",
+  "new": "DefeatBossFinalWait",
+  "row": "R-I054-1",
+  "addr": 56434
+ },
+ {
+  "old": "loc_00DD63",
+  "new": "GemDropType1",
+  "row": "R-I054-1",
+  "addr": 56675
+ },
+ {
+  "old": "loc_00DD6F",
+  "new": "GemDropType2",
+  "row": "R-I054-1",
+  "addr": 56687
+ },
+ {
+  "old": "loc_00DD7B",
+  "new": "GemDropTypeOther",
+  "row": "R-I054-1",
+  "addr": 56699
+ },
+ {
+  "old": "loc_00DDB3",
+  "new": "RewardNone",
+  "row": "R-I054-1",
+  "addr": 56755
+ },
+ {
+  "old": "loc_00DDB6",
+  "new": "RewardHpPickup",
+  "row": "R-I054-1",
+  "addr": 56758
+ },
+ {
+  "old": "loc_00DDCA",
+  "new": "RewardStrPickup",
+  "row": "R-I054-1",
+  "addr": 56778
+ },
+ {
+  "old": "loc_00DDDE",
+  "new": "RewardDefPickup",
+  "row": "R-I054-1",
+  "addr": 56798
+ },
+ {
+  "old": "boot_logo_palette_enix",
+  "new": "boot_logo_enix_palette_obj0",
+  "row": "R-I055-1"
+ },
+ {
+  "old": "boot_logo_palette_quintet",
+  "new": "boot_logo_enix_palette_obj1",
+  "row": "R-I055-1"
+ },
+ {
+  "old": "boot_logo_palette_third",
+  "new": "boot_logo_enix_palette_obj2",
+  "row": "R-I055-1"
+ },
+ {
+  "old": "code_00B841",
+  "new": "BootLogoEnixObj0Entry",
+  "row": "R-I055-1",
+  "addr": 47169
+ },
+ {
+  "old": "code_00B855",
+  "new": "BootLogoEnixObj1Entry",
+  "row": "R-I055-1",
+  "addr": 47189
+ },
+ {
+  "old": "code_00B869",
+  "new": "BootLogoEnixObj2Entry",
+  "row": "R-I055-1",
+  "addr": 47209
+ },
+ {
+  "old": "palette_bundle_16B52E",
+  "new": "palette_bundle_enix_obj0_reveal",
+  "row": "R-I055-2",
+  "addr": 1488174
+ },
+ {
+  "old": "palette_bundle_16B770",
+  "new": "palette_bundle_enix_obj0_whiten",
+  "row": "R-I055-2",
+  "addr": 1488752
+ },
+ {
+  "old": "palette_bundle_16B9B2",
+  "new": "palette_bundle_enix_obj0_settle",
+  "row": "R-I055-2",
+  "addr": 1489330
+ },
+ {
+  "old": "palette_bundle_16B64F",
+  "new": "palette_bundle_enix_obj1_reveal",
+  "row": "R-I055-2",
+  "addr": 1488463
+ },
+ {
+  "old": "palette_bundle_16B891",
+  "new": "palette_bundle_enix_obj1_whiten",
+  "row": "R-I055-2",
+  "addr": 1489041
+ },
+ {
+  "old": "palette_bundle_16BAD3",
+  "new": "palette_bundle_enix_obj1_settle",
+  "row": "R-I055-2",
+  "addr": 1489619
+ },
+ {
+  "old": "palette_bundle_16BBF4",
+  "new": "palette_bundle_enix_obj2_fill_a",
+  "row": "R-I055-2",
+  "addr": 1489908
+ },
+ {
+  "old": "palette_bundle_16BD15",
+  "new": "palette_bundle_enix_obj2_fill_b",
+  "row": "R-I055-2",
+  "addr": 1490197
+ },
+ {
+  "old": "palette_bundle_16BE36",
+  "new": "palette_bundle_enix_obj2_dip",
+  "row": "R-I055-2",
+  "addr": 1490486
+ },
+ {
+  "old": "BootLogoPalTextFallback",
+  "new": "BootLogoPalLockout",
+  "row": "R-I055-3"
+ },
+ {
+  "old": "loc_0BC8EA",
+  "new": "BootLogoNtsc",
+  "row": "R-I055-3",
+  "addr": 772330
+ },
+ {
+  "old": "GaiaDontRecord",
+  "new": "GaiaThenGo",
+  "row": "R-I056-1"
+ },
+ {
+  "old": "GaiaContinueJourney",
+  "new": "GaiaThenRest",
+  "row": "R-I056-1"
+ },
+ {
+  "old": "LookupStatueType",
+  "new": "LookupAbilityForm",
+  "row": "R-I056-2"
+ },
+ {
+  "old": "GaiaHint_00",
+  "new": "GaiaHint_SouthCape01",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_04",
+  "new": "GaiaHint_IncanRuins26",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_05",
+  "new": "GaiaHint_IncanRuins28",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_06",
+  "new": "GaiaHint_Freejia34",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_07",
+  "new": "GaiaHint_DiamondMine3D",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_08",
+  "new": "GaiaHint_DiamondMine40",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_0A",
+  "new": "GaiaHint_SkyGarden4C",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_0B",
+  "new": "GaiaHint_SkyGarden51",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_0C",
+  "new": "GaiaHint_SkyGarden54",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_0D",
+  "new": "GaiaHint_SkyGarden56",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_0E",
+  "new": "GaiaHint_SeasidePalace5A",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_11",
+  "new": "GaiaHint_AngelVillage6C",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_12",
+  "new": "GaiaHint_Watermia7C",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_13",
+  "new": "GaiaHint_GreatWall85",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_15",
+  "new": "GaiaHint_Euro99",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_16",
+  "new": "GaiaHint_MtTempleA1",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_17",
+  "new": "GaiaHint_MtTempleA3",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_19",
+  "new": "GaiaHint_NativesVillageAC",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_1A",
+  "new": "GaiaHint_GardenB6",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_1D",
+  "new": "GaiaHint_DaoVillageC3",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "GaiaHint_1F",
+  "new": "GaiaHint_BabelTowerE0",
+  "row": "R-I056-3"
+ },
+ {
+  "old": "diary_entry_0BF906",
+  "new": "diary_entry_default",
+  "row": "R-I056-7",
+  "addr": 784646
+ },
+ {
+  "old": "diary_entry_0BF91C",
+  "new": "diary_entry_south_cape",
+  "row": "R-I056-7",
+  "addr": 784668
+ },
+ {
+  "old": "diary_entry_0BF927",
+  "new": "diary_entry_edward_prison",
+  "row": "R-I056-7",
+  "addr": 784679
+ },
+ {
+  "old": "diary_entry_0BF934",
+  "new": "diary_entry_underground_tunnel",
+  "row": "R-I056-7",
+  "addr": 784692
+ },
+ {
+  "old": "diary_entry_0BF94B",
+  "new": "diary_entry_itory_village",
+  "row": "R-I056-7",
+  "addr": 784715
+ },
+ {
+  "old": "diary_entry_0BF95E",
+  "new": "diary_entry_larai_cliff",
+  "row": "R-I056-7",
+  "addr": 784734
+ },
+ {
+  "old": "diary_entry_0BF96A",
+  "new": "diary_entry_incan_ruins",
+  "row": "R-I056-7",
+  "addr": 784746
+ },
+ {
+  "old": "diary_entry_0BF97A",
+  "new": "diary_entry_freejia",
+  "row": "R-I056-7",
+  "addr": 784762
+ },
+ {
+  "old": "diary_entry_0BF986",
+  "new": "diary_entry_diamond_mine",
+  "row": "R-I056-7",
+  "addr": 784774
+ },
+ {
+  "old": "diary_entry_0BF991",
+  "new": "diary_entry_sky_garden",
+  "row": "R-I056-7",
+  "addr": 784785
+ },
+ {
+  "old": "diary_entry_0BF9A0",
+  "new": "diary_entry_seaside_palace",
+  "row": "R-I056-7",
+  "addr": 784800
+ },
+ {
+  "old": "diary_entry_0BF9AD",
+  "new": "diary_entry_mu",
+  "row": "R-I056-7",
+  "addr": 784813
+ },
+ {
+  "old": "diary_entry_0BF9B4",
+  "new": "diary_entry_angel_village",
+  "row": "R-I056-7",
+  "addr": 784820
+ },
+ {
+  "old": "diary_entry_0BF9C6",
+  "new": "diary_entry_watermia",
+  "row": "R-I056-7",
+  "addr": 784838
+ },
+ {
+  "old": "diary_entry_0BF9D3",
+  "new": "diary_entry_great_wall",
+  "row": "R-I056-7",
+  "addr": 784851
+ },
+ {
+  "old": "diary_entry_0BF9DE",
+  "new": "diary_entry_euro",
+  "row": "R-I056-7",
+  "addr": 784862
+ },
+ {
+  "old": "diary_entry_0BF9ED",
+  "new": "diary_entry_mt_temple",
+  "row": "R-I056-7",
+  "addr": 784877
+ },
+ {
+  "old": "diary_entry_0BF9FC",
+  "new": "diary_entry_natives_village",
+  "row": "R-I056-7",
+  "addr": 784892
+ },
+ {
+  "old": "diary_entry_0BFA12",
+  "new": "diary_entry_garden",
+  "row": "R-I056-7",
+  "addr": 784914
+ },
+ {
+  "old": "diary_entry_0BFA1D",
+  "new": "diary_entry_ankor_wat",
+  "row": "R-I056-7",
+  "addr": 784925
+ },
+ {
+  "old": "diary_entry_0BFA2B",
+  "new": "diary_entry_dao_village",
+  "row": "R-I056-7",
+  "addr": 784939
+ },
+ {
+  "old": "diary_entry_0BFA3B",
+  "new": "diary_entry_pyramid",
+  "row": "R-I056-7",
+  "addr": 784955
+ },
+ {
+  "old": "diary_entry_0BFA47",
+  "new": "diary_entry_babel_tower",
+  "row": "R-I056-7",
+  "addr": 784967
+ },
+ {
+  "old": "code_list_0BE34C",
+  "new": "diary_tab_dispatch_table",
+  "row": "R-I057-2",
+  "addr": 779084
+ },
+ {
+  "old": "code_list_0BEB46",
+  "new": "diary_erase_confirm_table",
+  "row": "R-I057-2",
+  "addr": 781126
+ },
+ {
+  "old": "table_0BED3C",
+  "new": "diary_cursor_menu_table",
+  "row": "R-I057-2",
+  "addr": 781628
+ },
+ {
+  "old": "table_0BF63B",
+  "new": "diary_button_legend_table",
+  "row": "R-I057-2",
+  "addr": 783931
+ },
+ {
+  "old": "table_0BF667",
+  "new": "diary_sound_value_table",
+  "row": "R-I057-2",
+  "addr": 783975
+ },
+ {
+  "old": "table_0BF6AD",
+  "new": "diary_erase_stat_line_table",
+  "row": "R-I057-2",
+  "addr": 784045
+ },
+ {
+  "old": "table_0BF6D9",
+  "new": "diary_erase_slot_name_table",
+  "row": "R-I057-2",
+  "addr": 784089
+ },
+ {
+  "old": "dma_channel_00BC4C",
+  "new": "diary_band_empty",
+  "row": "R-I057-3",
+  "addr": 48204
+ },
+ {
+  "old": "dma_channel_00BC4D",
+  "new": "diary_band_slot1",
+  "row": "R-I057-3",
+  "addr": 48205
+ },
+ {
+  "old": "dma_channel_00BC57",
+  "new": "diary_band_slot2",
+  "row": "R-I057-3",
+  "addr": 48215
+ },
+ {
+  "old": "dma_channel_00BC61",
+  "new": "diary_band_slot3",
+  "row": "R-I057-3",
+  "addr": 48225
+ },
+ {
+  "old": "dma_channel_00BC6E",
+  "new": "diary_band_tab_empty",
+  "row": "R-I057-3",
+  "addr": 48238
+ },
+ {
+  "old": "dma_channel_00BC6F",
+  "new": "diary_band_tab0",
+  "row": "R-I057-3",
+  "addr": 48239
+ },
+ {
+  "old": "dma_channel_00BC79",
+  "new": "diary_band_tab1",
+  "row": "R-I057-3",
+  "addr": 48249
+ },
+ {
+  "old": "dma_channel_00BC83",
+  "new": "diary_band_tab2",
+  "row": "R-I057-3",
+  "addr": 48259
+ },
+ {
+  "old": "dma_channel_00BC8D",
+  "new": "diary_band_tab3",
+  "row": "R-I057-3",
+  "addr": 48269
+ },
+ {
+  "old": "TitlePaletteFadeStep",
+  "new": "TitlePaletteStep_noref",
+  "row": "R-I057-5"
+ },
+ {
+  "old": "HdmaWindowEffect",
+  "new": "WorldMapSplitEffect",
+  "row": "R-I058-1"
+ },
+ {
+  "old": "QueueHdmaSineBuffers",
+  "new": "QueueSplitTables",
+  "row": "R-I058-1"
+ },
+ {
+  "old": "UpdateHdmaWindowParams",
+  "new": "BuildSplitTables",
+  "row": "R-I058-1"
+ },
+ {
+  "old": "InitSineTableBuffers",
+  "new": "InitSplitFill",
+  "row": "R-I058-1"
+ },
+ {
+  "old": "loc_03A85B",
+  "new": "SplitOpeningSequence",
+  "row": "R-I058-1",
+  "addr": 239707
+ },
+ {
+  "old": "loc_03A899",
+  "new": "QueueSplitTablesOdd",
+  "row": "R-I058-1",
+  "addr": 239769
+ },
+ {
+  "old": "loc_03A8BA",
+  "new": "BuildSplitTablesOdd",
+  "row": "R-I058-1",
+  "addr": 239802
+ },
+ {
+  "old": "loc_03A8BD",
+  "new": "BuildSplitTablesCopy",
+  "row": "R-I058-1",
+  "addr": 239805
+ },
+ {
+  "old": "loc_03A91A",
+  "new": "InitSplitFillLoop",
+  "row": "R-I058-1",
+  "addr": 239898
+ },
+ {
+  "old": "binary_03A932",
+  "new": "split_bgmode_template",
+  "row": "R-I058-1",
+  "addr": 239922
+ },
+ {
+  "old": "binary_03A939",
+  "new": "split_coldata_template",
+  "row": "R-I058-1",
+  "addr": 239929
+ },
+ {
+  "old": "sFC_actor_0BC9BD",
+  "new": "sFC_title_start_poll",
+  "row": "R-I058-1",
+  "addr": 772541
+ },
+ {
+  "old": "loc_0BC9C6",
+  "new": "TitleStartPollLoop",
+  "row": "R-I058-1",
+  "addr": 772550
+ },
+ {
+  "old": "code_03A2F4",
+  "new": "WorldMapControllerEntry",
+  "row": "R-I059-1",
+  "addr": 238324
+ },
+ {
+  "old": "loc_03A35C",
+  "new": "WorldMapControllerDie",
+  "row": "R-I059-1",
+  "addr": 238428
+ },
+ {
+  "old": "loc_03A3A4",
+  "new": "TiltPhaseStart",
+  "row": "R-I059-1",
+  "addr": 238500
+ },
+ {
+  "old": "loc_03A3E6",
+  "new": "ScanPartyArray",
+  "row": "R-I059-1",
+  "addr": 238566
+ },
+ {
+  "old": "loc_03A3F2",
+  "new": "SelectFormation",
+  "row": "R-I059-1",
+  "addr": 238578
+ },
+ {
+  "old": "loc_03A426",
+  "new": "SpawnDotLoop",
+  "row": "R-I059-1",
+  "addr": 238630
+ },
+ {
+  "old": "loc_03A450",
+  "new": "FormationDone",
+  "row": "R-I059-1",
+  "addr": 238672
+ },
+ {
+  "old": "loc_03A497",
+  "new": "DotAnimationLoop",
+  "row": "R-I059-2",
+  "addr": 238743
+ },
+ {
+  "old": "loc_03A4C4",
+  "new": "DotNextCycle",
+  "row": "R-I059-2",
+  "addr": 238788
+ },
+ {
+  "old": "loc_03A4C6",
+  "new": "DotRouteEnded",
+  "row": "R-I059-2",
+  "addr": 238790
+ },
+ {
+  "old": "loc_03A4EE",
+  "new": "DotMoveHome",
+  "row": "R-I059-2",
+  "addr": 238830
+ },
+ {
+  "old": "loc_03A54E",
+  "new": "RouteNotEnd",
+  "row": "R-I059-2",
+  "addr": 238926
+ },
+ {
+  "old": "loc_03A558",
+  "new": "RouteDeltaTables",
+  "row": "R-I059-2",
+  "addr": 238936
+ },
+ {
+  "old": "loc_03A5A2",
+  "new": "RouteAxisY",
+  "row": "R-I059-2",
+  "addr": 239010
+ },
+ {
+  "old": "loc_03A5BE",
+  "new": "RouteAxisRotation",
+  "row": "R-I059-2",
+  "addr": 239038
+ },
+ {
+  "old": "loc_03A5D3",
+  "new": "RouteCountTick",
+  "row": "R-I059-2",
+  "addr": 239059
+ },
+ {
+  "old": "loc_03A5D8",
+  "new": "RouteNextStep",
+  "row": "R-I059-2",
+  "addr": 239064
+ },
+ {
+  "old": "loc_03A60B",
+  "new": "RouteTrulyEnded",
+  "row": "R-I059-2",
+  "addr": 239115
+ },
+ {
+  "old": "loc_03A644",
+  "new": "RouteEndLanding",
+  "row": "R-I059-2",
+  "addr": 239172
+ },
+ {
+  "old": "loc_03A687",
+  "new": "ClearStateLoop",
+  "row": "R-I059-2",
+  "addr": 239239
+ },
+ {
+  "old": "loc_03A69E",
+  "new": "LookupMapNameLoop",
+  "row": "R-I059-2",
+  "addr": 239262
+ },
+ {
+  "old": "loc_03A6AD",
+  "new": "LookupMapNameFound",
+  "row": "R-I059-2",
+  "addr": 239277
+ },
+ {
+  "old": "loc_03A6B6",
+  "new": "LookupMapNameMiss",
+  "row": "R-I059-2",
+  "addr": 239286
+ },
+ {
+  "old": "companion_position_tables",
+  "new": "companion_formation_tables",
+  "row": "R-I059-4"
+ },
+ {
+  "old": "binary_03A511",
+  "new": "formation_leader_plus_5",
+  "row": "R-I059-4",
+  "addr": 238865
+ },
+ {
+  "old": "binary_03A521",
+  "new": "formation_leader_plus_1",
+  "row": "R-I059-4",
+  "addr": 238881
+ },
+ {
+  "old": "binary_03A525",
+  "new": "formation_leader_plus_4",
+  "row": "R-I059-4",
+  "addr": 238885
+ },
+ {
+  "old": "world_map_names",
+  "new": "world_map_scene_names",
+  "row": "R-I059-4"
+ },
+ {
+  "old": "palette_bundle_1685F7",
+  "new": "palette_bundle_will_normal",
+  "row": "R-I060-4",
+  "addr": 1476087
+ },
+ {
+  "old": "palette_bundle_16861C",
+  "new": "palette_bundle_freedan_normal",
+  "row": "R-I060-4",
+  "addr": 1476124
+ },
+ {
+  "old": "palette_bundle_16D209",
+  "new": "palette_bundle_strip8_77",
+  "row": "R-I060-4",
+  "addr": 1495561
+ },
+ {
+  "old": "palette_bundle_16D310",
+  "new": "palette_bundle_strip8_78",
+  "row": "R-I060-4",
+  "addr": 1495824
+ },
+ {
+  "old": "palette_bundle_16D210",
+  "new": "palette_padding_16D210",
+  "row": "R-I060-4",
+  "addr": 1495568
+ },
+ {
+  "old": "palette_bundle_16D211",
+  "new": "palette_padding_16D211",
+  "row": "R-I060-4",
+  "addr": 1495569
+ },
+ {
+  "old": "palette_bundle_16D317",
+  "new": "palette_padding_16D317",
+  "row": "R-I060-4",
+  "addr": 1495831
+ },
+ {
+  "old": "palette_bundle_16D318",
+  "new": "palette_padding_16D318",
+  "row": "R-I060-4",
+  "addr": 1495832
+ },
+ {
+  "old": "code_03B44F",
+  "new": "WorldMapMenu_00",
+  "row": "R-I060-1",
+  "addr": 242767
+ },
+ {
+  "old": "code_03B451",
+  "new": "WorldMapMenu_01",
+  "row": "R-I060-1",
+  "addr": 242769
+ },
+ {
+  "old": "code_03B47D",
+  "new": "WorldMapMenu_02",
+  "row": "R-I060-1",
+  "addr": 242813
+ },
+ {
+  "old": "code_03B4A8",
+  "new": "WorldMapMenu_03",
+  "row": "R-I060-1",
+  "addr": 242856
+ },
+ {
+  "old": "code_03B4CC",
+  "new": "WorldMapMenu_04",
+  "row": "R-I060-1",
+  "addr": 242892
+ },
+ {
+  "old": "code_03B4F0",
+  "new": "WorldMapMenu_05",
+  "row": "R-I060-1",
+  "addr": 242928
+ },
+ {
+  "old": "code_03B51A",
+  "new": "WorldMapMenu_06",
+  "row": "R-I060-1",
+  "addr": 242970
+ },
+ {
+  "old": "code_03B53F",
+  "new": "WorldMapMenu_07",
+  "row": "R-I060-1",
+  "addr": 243007
+ },
+ {
+  "old": "code_03B563",
+  "new": "WorldMapMenu_08",
+  "row": "R-I060-1",
+  "addr": 243043
+ },
+ {
+  "old": "code_03B587",
+  "new": "WorldMapMenu_09",
+  "row": "R-I060-1",
+  "addr": 243079
+ },
+ {
+  "old": "code_03B5A1",
+  "new": "WorldMapMenu_0A",
+  "row": "R-I060-1",
+  "addr": 243105
+ },
+ {
+  "old": "code_03B5C7",
+  "new": "WorldMapMenu_0B",
+  "row": "R-I060-1",
+  "addr": 243143
+ },
+ {
+  "old": "code_03B5F2",
+  "new": "WorldMapMenu_0C",
+  "row": "R-I060-1",
+  "addr": 243186
+ },
+ {
+  "old": "code_03B62A",
+  "new": "WorldMapMenu_0D",
+  "row": "R-I060-1",
+  "addr": 243242
+ },
+ {
+  "old": "code_03B650",
+  "new": "WorldMapMenu_0E",
+  "row": "R-I060-1",
+  "addr": 243280
+ },
+ {
+  "old": "code_03B697",
+  "new": "WorldMapMenu_0F",
+  "row": "R-I060-1",
+  "addr": 243351
+ },
+ {
+  "old": "code_03B6BD",
+  "new": "WorldMapMenu_10",
+  "row": "R-I060-1",
+  "addr": 243389
+ },
+ {
+  "old": "code_03B6F3",
+  "new": "WorldMapMenu_11",
+  "row": "R-I060-1",
+  "addr": 243443
+ },
+ {
+  "old": "code_03B719",
+  "new": "WorldMapMenu_12",
+  "row": "R-I060-1",
+  "addr": 243481
+ },
+ {
+  "old": "code_03B73F",
+  "new": "WorldMapMenu_13",
+  "row": "R-I060-1",
+  "addr": 243519
+ },
+ {
+  "old": "code_03B778",
+  "new": "WorldMapMenu_14",
+  "row": "R-I060-1",
+  "addr": 243576
+ },
+ {
+  "old": "code_03B7A5",
+  "new": "WorldMapMenu_15",
+  "row": "R-I060-1",
+  "addr": 243621
+ },
+ {
+  "old": "code_03B7B5",
+  "new": "WorldMapMenu_16",
+  "row": "R-I060-1",
+  "addr": 243637
+ },
+ {
+  "old": "code_03B7E2",
+  "new": "WorldMapMenu_17",
+  "row": "R-I060-1",
+  "addr": 243682
+ },
+ {
+  "old": "code_03B81A",
+  "new": "WorldMapMenu_18",
+  "row": "R-I060-1",
+  "addr": 243738
+ },
+ {
+  "old": "code_03B843",
+  "new": "WorldMapMenu_19",
+  "row": "R-I060-1",
+  "addr": 243779
+ },
+ {
+  "old": "code_03B88C",
+  "new": "WorldMapMenu_1A",
+  "row": "R-I060-1",
+  "addr": 243852
+ },
+ {
+  "old": "code_03B8D6",
+  "new": "WorldMapMenu_1B",
+  "row": "R-I060-1",
+  "addr": 243926
+ },
+ {
+  "old": "code_03B8E6",
+  "new": "WorldMapMenu_Empty1C",
+  "row": "R-I060-1",
+  "addr": 243942
+ },
+ {
+  "old": "code_03B8EC",
+  "new": "WorldMapMenu_Empty1D",
+  "row": "R-I060-1",
+  "addr": 243948
+ },
+ {
+  "old": "code_03B8F2",
+  "new": "WorldMapMenu_Empty1E",
+  "row": "R-I060-1",
+  "addr": 243954
+ },
+ {
+  "old": "code_03B8F8",
+  "new": "WorldMapMenu_Empty1F",
+  "row": "R-I060-1",
+  "addr": 243960
+ },
+ {
+  "old": "code_03B8FE",
+  "new": "WorldMapMenu_Empty20",
+  "row": "R-I060-1",
+  "addr": 243966
+ },
+ {
+  "old": "code_03B904",
+  "new": "WorldMapMenu_Empty21",
+  "row": "R-I060-1",
+  "addr": 243972
+ },
+ {
+  "old": "code_03B90A",
+  "new": "WorldMapMenu_Empty22",
+  "row": "R-I060-1",
+  "addr": 243978
+ },
+ {
+  "old": "code_03B910",
+  "new": "WorldMapMenu_Empty23",
+  "row": "R-I060-1",
+  "addr": 243984
+ },
+ {
+  "old": "code_03B916",
+  "new": "WorldMapMenu_Empty24",
+  "row": "R-I060-1",
+  "addr": 243990
+ },
+ {
+  "old": "code_03B91C",
+  "new": "WorldMapMenu_Empty25",
+  "row": "R-I060-1",
+  "addr": 243996
+ },
+ {
+  "old": "code_03B922",
+  "new": "WorldMapMenu_Nothing26",
+  "row": "R-I060-1",
+  "addr": 244002
+ },
+ {
+  "old": "code_03B955",
+  "new": "WorldMapGo_EdwardCastle_SouthCape",
+  "row": "R-I060-2",
+  "addr": 244053
+ },
+ {
+  "old": "code_03B959",
+  "new": "WorldMapQuit_SouthCape",
+  "row": "R-I060-2",
+  "addr": 244057
+ },
+ {
+  "old": "code_03B965",
+  "new": "WorldMapGo_SouthCape_EdwardCastle",
+  "row": "R-I060-2",
+  "addr": 244069
+ },
+ {
+  "old": "code_03B969",
+  "new": "WorldMapQuit_EdwardCastle",
+  "row": "R-I060-2",
+  "addr": 244073
+ },
+ {
+  "old": "code_03B975",
+  "new": "WorldMapGo_SouthCape_Itory",
+  "row": "R-I060-2",
+  "addr": 244085
+ },
+ {
+  "old": "code_03B979",
+  "new": "WorldMapQuit_Itory",
+  "row": "R-I060-2",
+  "addr": 244089
+ },
+ {
+  "old": "code_03B985",
+  "new": "WorldMapGo_Itory_SouthCape",
+  "row": "R-I060-2",
+  "addr": 244101
+ },
+ {
+  "old": "code_03B995",
+  "new": "WorldMapGo_IncaRuins_Itory",
+  "row": "R-I060-2",
+  "addr": 244117
+ },
+ {
+  "old": "code_03B999",
+  "new": "WorldMapQuit_Itory_IncaMenu",
+  "row": "R-I060-2",
+  "addr": 244121
+ },
+ {
+  "old": "code_03B9A5",
+  "new": "WorldMapGo_Itory_IncaRuins",
+  "row": "R-I060-2",
+  "addr": 244133
+ },
+ {
+  "old": "code_03B9A9",
+  "new": "WorldMapQuit_IncaRuins",
+  "row": "R-I060-2",
+  "addr": 244137
+ },
+ {
+  "old": "code_03B9B5",
+  "new": "WorldMapGo_Freejia_DiamondMine",
+  "row": "R-I060-2",
+  "addr": 244149
+ },
+ {
+  "old": "code_03B9B9",
+  "new": "WorldMapQuit_DiamondMine",
+  "row": "R-I060-2",
+  "addr": 244153
+ },
+ {
+  "old": "code_03B9C5",
+  "new": "WorldMapGo_DiamondMine_Freejia",
+  "row": "R-I060-2",
+  "addr": 244165
+ },
+ {
+  "old": "code_03B9C9",
+  "new": "WorldMapQuit_Freejia",
+  "row": "R-I060-2",
+  "addr": 244169
+ },
+ {
+  "old": "code_03B9D5",
+  "new": "WorldMapGo_AngelVillage_Watermia",
+  "row": "R-I060-2",
+  "addr": 244181
+ },
+ {
+  "old": "code_03B9D9",
+  "new": "WorldMapQuit_Watermia_AngelMenu",
+  "row": "R-I060-2",
+  "addr": 244185
+ },
+ {
+  "old": "code_03B9E5",
+  "new": "WorldMapGo_Watermia_AngelVillage",
+  "row": "R-I060-2",
+  "addr": 244197
+ },
+ {
+  "old": "code_03B9E9",
+  "new": "WorldMapQuit_AngelVillage",
+  "row": "R-I060-2",
+  "addr": 244201
+ },
+ {
+  "old": "code_03B9F5",
+  "new": "WorldMapGo_Watermia_GreatWall",
+  "row": "R-I060-2",
+  "addr": 244213
+ },
+ {
+  "old": "code_03B9F9",
+  "new": "WorldMapQuit_GreatWall",
+  "row": "R-I060-2",
+  "addr": 244217
+ },
+ {
+  "old": "code_03BA05",
+  "new": "WorldMapGo_GreatWall_Watermia",
+  "row": "R-I060-2",
+  "addr": 244229
+ },
+ {
+  "old": "code_03BA09",
+  "new": "WorldMapQuit_Watermia",
+  "row": "R-I060-2",
+  "addr": 244233
+ },
+ {
+  "old": "code_03BA15",
+  "new": "WorldMapGo_Watermia_Euro",
+  "row": "R-I060-2",
+  "addr": 244245
+ },
+ {
+  "old": "code_03BA1F",
+  "new": "WorldMapQuit_Euro",
+  "row": "R-I060-2",
+  "addr": 244255
+ },
+ {
+  "old": "code_03BA2B",
+  "new": "WorldMapGo_Euro_Watermia",
+  "row": "R-I060-2",
+  "addr": 244267
+ },
+ {
+  "old": "code_03BA41",
+  "new": "WorldMapGo_Euro_MtTemple",
+  "row": "R-I060-2",
+  "addr": 244289
+ },
+ {
+  "old": "code_03BA45",
+  "new": "WorldMapQuit_MtTemple",
+  "row": "R-I060-2",
+  "addr": 244293
+ },
+ {
+  "old": "code_03BA51",
+  "new": "WorldMapGo_MtTemple_Euro",
+  "row": "R-I060-2",
+  "addr": 244305
+ },
+ {
+  "old": "code_03BA61",
+  "new": "WorldMapGo_Euro_NativesVillage",
+  "row": "R-I060-2",
+  "addr": 244321
+ },
+ {
+  "old": "code_03BA65",
+  "new": "WorldMapQuit_NativesVillage",
+  "row": "R-I060-2",
+  "addr": 244325
+ },
+ {
+  "old": "code_03BA71",
+  "new": "WorldMapGo_NativesVillage_Euro",
+  "row": "R-I060-2",
+  "addr": 244337
+ },
+ {
+  "old": "code_03BA81",
+  "new": "WorldMapGo_NativesVillage_AngkorWat",
+  "row": "R-I060-2",
+  "addr": 244353
+ },
+ {
+  "old": "code_03BA85",
+  "new": "WorldMapQuit_AngkorWat",
+  "row": "R-I060-2",
+  "addr": 244357
+ },
+ {
+  "old": "code_03BA91",
+  "new": "WorldMapGo_AngkorWat_NativesVillage",
+  "row": "R-I060-2",
+  "addr": 244369
+ },
+ {
+  "old": "code_03BAA1",
+  "new": "WorldMapGo_Dao_NativesVillage",
+  "row": "R-I060-2",
+  "addr": 244385
+ },
+ {
+  "old": "code_03BAB1",
+  "new": "WorldMapGo_Dao_Pyramid",
+  "row": "R-I060-2",
+  "addr": 244401
+ },
+ {
+  "old": "code_03BAB5",
+  "new": "WorldMapQuit_Pyramid",
+  "row": "R-I060-2",
+  "addr": 244405
+ },
+ {
+  "old": "code_03BAC1",
+  "new": "WorldMapGo_NativesVillage_Dao",
+  "row": "R-I060-2",
+  "addr": 244417
+ },
+ {
+  "old": "code_03BAC5",
+  "new": "WorldMapQuit_Dao",
+  "row": "R-I060-2",
+  "addr": 244421
+ },
+ {
+  "old": "code_03BAD1",
+  "new": "WorldMapGo_Pyramid_Dao",
+  "row": "R-I060-2",
+  "addr": 244433
+ },
+ {
+  "old": "world_map_routes",
+  "new": "world_map_route_table",
+  "row": "R-I060-6"
+ },
+ {
+  "old": "route_step_03AF42",
+  "new": "route_unused_10",
+  "row": "R-I060-6",
+  "addr": 241474
+ },
+ {
+  "old": "route_step_03AF5F",
+  "new": "route_11_angel_village_to_watermia",
+  "row": "R-I060-6",
+  "addr": 241503
+ },
+ {
+  "old": "route_step_03AF9C",
+  "new": "route_12_watermia_to_angel_village",
+  "row": "R-I060-6",
+  "addr": 241564
+ },
+ {
+  "old": "route_step_03AFBD",
+  "new": "route_13_watermia_to_great_wall",
+  "row": "R-I060-6",
+  "addr": 241597
+ },
+ {
+  "old": "route_step_03AFCE",
+  "new": "route_14_great_wall_to_watermia",
+  "row": "R-I060-6",
+  "addr": 241614
+ },
+ {
+  "old": "route_step_03AFEB",
+  "new": "route_15_watermia_to_euro",
+  "row": "R-I060-6",
+  "addr": 241643
+ },
+ {
+  "old": "route_step_03B00C",
+  "new": "route_16_euro_to_watermia",
+  "row": "R-I060-6",
+  "addr": 241676
+ },
+ {
+  "old": "route_step_03B02D",
+  "new": "route_17_euro_to_mt_temple",
+  "row": "R-I060-6",
+  "addr": 241709
+ },
+ {
+  "old": "route_step_03B046",
+  "new": "route_18_mt_temple_to_euro",
+  "row": "R-I060-6",
+  "addr": 241734
+ },
+ {
+  "old": "route_step_03B063",
+  "new": "route_19_euro_to_natives_village",
+  "row": "R-I060-6",
+  "addr": 241763
+ },
+ {
+  "old": "route_step_03B10E",
+  "new": "route_20_dao_to_natives_village",
+  "row": "R-I060-6",
+  "addr": 241934
+ },
+ {
+  "old": "route_step_03B12F",
+  "new": "route_21_dao_to_over_babel",
+  "row": "R-I060-6",
+  "addr": 241967
+ },
+ {
+  "old": "route_step_03B154",
+  "new": "route_22_watermia_to_south_cape",
+  "row": "R-I060-6",
+  "addr": 242004
+ },
+ {
+  "old": "route_step_03B17D",
+  "new": "route_unused_23",
+  "row": "R-I060-6",
+  "addr": 242045
+ },
+ {
+  "old": "route_step_03B19E",
+  "new": "route_unused_24",
+  "row": "R-I060-6",
+  "addr": 242078
+ },
+ {
+  "old": "route_step_03B1BF",
+  "new": "route_unused_25",
+  "row": "R-I060-6",
+  "addr": 242111
+ },
+ {
+  "old": "route_step_03ADC3",
+  "new": "route_01_south_cape_to_edward_castle",
+  "row": "R-I060-6",
+  "addr": 241091
+ },
+ {
+  "old": "route_step_03ADD8",
+  "new": "route_02_edward_castle_to_south_cape",
+  "row": "R-I060-6",
+  "addr": 241112
+ },
+ {
+  "old": "route_step_03ADF1",
+  "new": "route_03_south_cape_to_itory",
+  "row": "R-I060-6",
+  "addr": 241137
+ },
+ {
+  "old": "route_step_03AE06",
+  "new": "route_04_itory_to_south_cape",
+  "row": "R-I060-6",
+  "addr": 241158
+ },
+ {
+  "old": "route_step_03AE23",
+  "new": "route_05_itory_to_moon_tribe_camp",
+  "row": "R-I060-6",
+  "addr": 241187
+ },
+ {
+  "old": "route_step_03AE38",
+  "new": "route_06_moon_tribe_camp_to_inca_ruins",
+  "row": "R-I060-6",
+  "addr": 241208
+ },
+ {
+  "old": "route_step_03AE5D",
+  "new": "route_07_itory_to_inca_ruins",
+  "row": "R-I060-6",
+  "addr": 241245
+ },
+ {
+  "old": "route_step_03AE76",
+  "new": "route_08_inca_ruins_to_itory",
+  "row": "R-I060-6",
+  "addr": 241270
+ },
+ {
+  "old": "route_step_03AE9B",
+  "new": "route_09_diamond_coast_to_freejia",
+  "row": "R-I060-6",
+  "addr": 241307
+ },
+ {
+  "old": "route_step_03AEA0",
+  "new": "route_0A_freejia_to_diamond_mine",
+  "row": "R-I060-6",
+  "addr": 241312
+ },
+ {
+  "old": "route_step_03AEBD",
+  "new": "route_0B_diamond_mine_to_freejia",
+  "row": "R-I060-6",
+  "addr": 241341
+ },
+ {
+  "old": "route_step_03AEDA",
+  "new": "route_0C_freejia_hotel_to_neil_cottage",
+  "row": "R-I060-6",
+  "addr": 241370
+ },
+ {
+  "old": "route_step_03AEEB",
+  "new": "route_0D_neil_cottage_to_nazca_painting",
+  "row": "R-I060-6",
+  "addr": 241387
+ },
+ {
+  "old": "route_step_03AF10",
+  "new": "route_unused_0E",
+  "row": "R-I060-6",
+  "addr": 241424
+ },
+ {
+  "old": "route_step_03AF2D",
+  "new": "route_unused_0F",
+  "row": "R-I060-6",
+  "addr": 241453
+ },
+ {
+  "old": "route_step_03B080",
+  "new": "route_1A_natives_village_to_euro",
+  "row": "R-I060-6",
+  "addr": 241792
+ },
+ {
+  "old": "route_step_03B09D",
+  "new": "route_1B_natives_village_to_angkor_wat",
+  "row": "R-I060-6",
+  "addr": 241821
+ },
+ {
+  "old": "route_step_03B0AE",
+  "new": "route_1C_angkor_wat_to_natives_village",
+  "row": "R-I060-6",
+  "addr": 241838
+ },
+ {
+  "old": "route_step_03B0C7",
+  "new": "route_1D_natives_village_to_dao",
+  "row": "R-I060-6",
+  "addr": 241863
+ },
+ {
+  "old": "route_step_03B0E0",
+  "new": "route_1E_dao_to_pyramid",
+  "row": "R-I060-6",
+  "addr": 241888
+ },
+ {
+  "old": "route_step_03B0F5",
+  "new": "route_1F_pyramid_to_dao",
+  "row": "R-I060-6",
+  "addr": 241909
+ }
+]

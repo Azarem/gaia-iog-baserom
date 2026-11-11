@@ -1,0 +1,374 @@
+{
+    "system/engine/radar_map_screen.asm": {
+        "blockNote": [
+            "Radar map screen overlay — the Start-button map of the current area (229567–230416, Bank 03).",
+            "",
+            "Draws a 17×17-cell view centered on the player. One cell = 4×4 map tiles (64×64 px) = one BG3 tilemap word. Contents: an icon for every unopened treasure chest, a dot for every actor flagged extendedFlags bit 8 (the stat-bearing enemies counted in enemiesRemainingBcd), a second dot type for actors flagged bit 9 (only dark_space.asm sets that bit, so these are probably Dark Space entrances: OQ-63), and a legend with the unopened-chest count and the remaining-enemy count. When the scene still offers an unclaimed clear reward (enemy_clear_reward_table, flag $0300 + scene), a framed 2×2 reward icon and a BG3 label are added. GlobalInputHandler calls RadarScreenSetup once when Start opens the map and RadarBorderAnimate every frame of its display loop.",
+            "",
+            "=== RENDERING PIPELINE (RadarScreenSetup) ===",
+            "",
+            "1. Wait until no adhoc VRAM DMA is pending, then queue 512 bytes of radar icon graphics (radar_icons_001C00) for VRAM $7700 and wait for that transfer to finish.",
+            "2. Clear the BG3 staging buffer and block-copy the radar layout (radar_layout_001E00, $0580 bytes) to $7F0380.",
+            "3. Compute the 68×68-tile viewport (player tile aligned down to a multiple of 4, minus 32 on each axis). Left/right/top/bottom are kept in WRAM scratch $0018/$001A/$001C/$001E.",
+            "4. RadarPlotSceneMarkers draws the unopened chests inside the viewport and returns the count of all unopened chests of the scene (BCD, in scratch $0002); the count is shown as digits at $7F07CC/$7F07CE next to the chest icon $2EE6.",
+            "5. The viewport bounds are converted from tiles to pixels (×16) and RadarPlotActors plots the dots.",
+            "6. The remaining-enemy count (enemiesRemainingBcd, BCD) is shown as digits at $7F060C/$7F060E next to the dot icon $2AE7.",
+            "7. If flag $0300 + sceneCurrent is clear and enemy_clear_reward_table[scene] is non-zero, the reward frame is drawn and the BG3 script system_strings.consolestring_01EAD1 runs for the text.",
+            "8. Sets displayModeFlags bit 0, which requests a full BG3 staging upload.",
+            "",
+            "=== RADAR RESOLUTION ===",
+            "",
+            "Map tiles are 16 px, so a 4-tile cell is 64 px. Chest records hold tile coordinates: cell column byte offset = ((tileX − left) >> 1) AND $FE, row = (((tileY − top) >> 1) AND $FE) << 5 (64 bytes per tilemap row). Actors hold pixel coordinates: column = ((x − left) >> 5) AND $FFFE, row = (y − top) AND $FFC0. Both give the same cell grid; $0216 is added as the byte offset of the radar interior inside the $7F0200 buffer.",
+            "",
+            "=== BORDER ANIMATION ===",
+            "",
+            "RadarBorderAnimate runs on odd frames only. It steps an index (kept in a word on the caller's stack, $03,S) through the 29-entry RadarBorderTileTable and writes the entry to $7F0A24, which is cgramPalette color 18. The table values are BGR555 colors (a blue → yellow → blue cycle), so the border shimmers by palette cycling, not by changing tiles."
+        ],
+        "partNotes": {
+            "RadarScreenSetup": [
+                "Build the radar screen (JSR from GlobalInputHandler when Start opens the map).",
+                "",
+                "Waits for any pending adhoc VRAM DMA, queues the icon graphics DMA (512 bytes to VRAM $7700) and waits for it, clears the staging buffer, block-copies the radar layout, computes the viewport and then plots chests, actors, legend counts and the optional clear-reward frame. See the file header for the full pipeline and cell geometry.",
+                "",
+                "Reward block: when flag $0300 + sceneCurrent is clear and enemy_clear_reward_table[scene] is non-zero it draws a 4×4-cell frame (corner tile $2EE1 with H/V flips, edges $2EE2/$2EE3 with flips) around a 2×2 icon of sequential tiles $32E8–$32EB and runs the BG3 label script. The table value (1=HP, 2=STR, 3=DEF per boss_clear_reward_handler) is only tested for non-zero here; what the icon shows is unverified (OQ-63)."
+            ],
+            "RadarBorderAnimate": [
+                "Animate the radar border color on odd frames (JSR from GlobalInputHandler's display loop).",
+                "",
+                "Returns at once when bit 0 of frameCounter ($0036) is clear. Otherwise it increments the animation index stored in the caller's stack word ($03,S), wraps it at 29, and writes RadarBorderTileTable[index] to $7F0A24 (cgramPalette color 18). The values are BGR555 colors, not tilemap words, so the border pulses through a blue → yellow → blue palette cycle."
+            ],
+            "RadarPlotSceneMarkers": [
+                "Plot the unopened treasure chests of the current scene and count them in BCD (scratch $0002).",
+                "",
+                "sceneTableIndex ($0646) is a byte index into the pointer list at the head of scene_barrier_chest_table; the word found there is the address of this scene's record list. Each 4-byte record: byte 0 = X tile (bit 7 set = end of list), byte 1 = Y tile of the chest's bottom row, byte 2 = contents (0 = flag only), byte 3 = event flag (AND $7F; bit 7 = fanfare). A set event flag (TestEventFlag_0200) means the chest is already opened, so it is skipped and not counted.",
+                "",
+                "Every unopened chest is counted, whether or not it lies inside the viewport. Those inside get the tile $2EE6 written at the cell offset (+$0216 radar interior base into $7F0200)."
+            ],
+            "RadarPlotActors": [
+                "Walk the actor list (head $56, next at $0006,X) and plot dots by extendedFlags.",
+                "",
+                "Bit 8 ($0100) routes to RadarPlotFriendlyActor and bit 9 ($0200) to RadarPlotEnemyActor; both names are historical. Bit 8 is set by actor_execution for stat-bearing enemies (they are counted in enemiesRemaining), so that dot marks the enemies still alive. Bit 9 is set only by dark_space.asm (COP OrExtraFlags #$0200), so that dot is probably a Dark Space entrance (OQ-63). Actors with neither bit are not plotted."
+            ],
+            "RadarPlotFriendlyActor": [
+                "Plot one bit-8 actor (a stat-bearing enemy; the name is historical) as dot tile word $2AE7.",
+                "",
+                "Skips actors whose pixel position ($0014,X/$0016,X) is outside the viewport ($0018/$001A × $001C/$001E). Cell offset: column = ((x − left) >> 5) AND $FFFE, row = (y − top) AND $FFC0, plus $0216, written into $7F0200. $2AE7 is tile $2E7 with palette 2 and is also the legend icon beside the remaining-enemy count. Always returns with carry set."
+            ],
+            "RadarPlotEnemyActor": [
+                "Plot one bit-9 actor (probably a Dark Space entrance, OQ-63; the name is historical) as dot tile word $280D.",
+                "",
+                "Same cell math as RadarPlotFriendlyActor, after one extra test against cameraOffsetX/Y..cameraBoundsX/Y. Those four words are the scene's scroll limits, not the current view, so the extra test only rejects positions outside the scene. $280D is tile $00D with palette 2 (not palette 0)."
+            ],
+            "RadarBorderTileTable": [
+                "29 BGR555 colors for the radar border animation (name is historical: these are colors, not tile words).",
+                "",
+                "RadarBorderAnimate writes one entry per odd frame to cgramPalette color 18 ($7F0A24). Decoded values run from blue ($5C82: R2 G4 B23) through yellow ($4BBF: R31 G29 B18) and back to blue ($58E5)."
+            ]
+        },
+        "comments": {
+            "229608": { "text": "Writing the destination arms the adhoc DMA; the size is written next (ordering hazard, OQ-64)", "expect": "STA $adhocVramDmaDest" },
+            "229707": { "text": "Tens digit of the unopened-chest count (BCD from RadarPlotSceneMarkers); a zero tens digit is not drawn", "expect": "AND #$00F0" },
+            "229736": { "text": "Chest legend icon $2EE6 (same tile as the chest markers) beside the unopened-chest count", "expect": "LDA #$2EE6" },
+            "229786": { "text": "Remaining-enemy count (BCD): tens digit first", "expect": "LDA $enemiesRemainingBcd" },
+            "229818": { "text": "Legend icon $2AE7 (same tile as the bit-8 actor dots) beside the remaining-enemy count", "expect": "LDA #$2AE7" },
+            "229828": { "text": "Flag $0300 + scene set = this scene's clear reward already claimed → skip the reward frame", "expect": "TestFlag_0300" },
+            "229837": { "text": "enemy_clear_reward_table[scene]: 0 = no reward (1=HP, 2=STR, 3=DEF per boss_clear_reward_handler)", "expect": "enemy_clear_reward_table" },
+            "229846": { "text": "Reward frame corner $2EE1; the four corners are its H/V-flip variants ($2EE1/$6EE1/$AEE1/$EEE1)", "expect": "LDA #$2EE1" },
+            "229930": { "text": "2×2 reward icon in the frame interior: tiles $32E8-$32EB (INC between stores); meaning unverified, OQ-63", "expect": "LDA #$32E8" },
+            "229960": { "text": "Tile $32E5 at $7F0626 (purpose unverified, OQ-63)", "expect": "LDA #$32E5" },
+            "229970": { "text": "Request a full BG3 staging upload (displayModeFlags bit 0)", "expect": "TSB $displayModeFlags" },
+            "230001": { "text": "BGR555 border color for this animation step", "expect": "RadarBorderTileTable" },
+            "230005": { "text": "Write the color to cgramPalette+$24 = palette color 18 (the radar border color)", "expect": "STA $7F0A24" },
+            "230016": { "text": "sceneTableIndex = byte index into the per-scene pointer list at the head of scene_barrier_chest_table", "expect": "LDX $sceneTableIndex" },
+            "230024": { "text": "Pointer − table base = byte offset of this scene's first 4-byte chest record", "expect": "SBC #$&scene_barrier_chest_table" },
+            "230034": { "text": "Byte 0 bit 7 = end of this scene's chest list", "expect": "BMI loc_03830A" },
+            "230036": { "text": "Byte 3 = event flag (bit 7 = fanfare, masked off below); flag set = chest opened", "expect": "scene_barrier_chest_table+3" },
+            "230051": { "text": "Flag set = chest already opened: skip it (not drawn, not counted)", "expect": "BCS loc_038304" },
+            "230060": { "text": "X tile left of the viewport → not drawn, but still counted at loc_0382F9", "expect": "BMI loc_0382F9" },
+            "230127": { "text": "Tile word $2EE6 = unopened-chest marker", "expect": "LDA #$2EE6" },
+            "230137": { "text": "SED: count this chest in BCD (every unopened chest, drawn or not)", "expect": "SED" },
+            "230167": { "text": "Bit 8 = stat-bearing enemy (set by actor_execution, counted in enemiesRemaining) → dot $2AE7", "expect": "BIT #$0100" },
+            "230177": { "text": "Bit 9 = set only by dark_space.asm (OrExtraFlags #$0200) → dot $280D, probably Dark Space (OQ-63)", "expect": "BIT #$0200" },
+            "230255": { "text": "Tile word $2AE7 = enemy dot (tile $2E7, palette 2; same icon as the legend)", "expect": "LDA #$2AE7" },
+            "230268": { "text": "cameraOffsetX..cameraBoundsX are the scene scroll limits, not the current view", "expect": "CMP $cameraOffsetX" },
+            "230291": { "text": "cameraOffsetY..cameraBoundsY: scene scroll limits (Y)", "expect": "CMP $cameraOffsetY" },
+            "230349": { "text": "Tile word $280D = second dot type (tile $00D, palette 2)", "expect": "LDA #$280D" }
+        }
+    },
+    "system/engine/GlobalInputHandler.asm": {
+        "comments": {
+            "229531": { "text": "Animate the radar border color (BGR555 palette cycle on odd frames)", "expect": "RadarBorderAnimate" }
+        }
+    },
+    "system/engine/actor_pool.asm": {
+        "blockNote": [
+            "Actor pool infrastructure — slot allocation, linked-list management and state copying (Bank $00, 11 routines).",
+            "",
+            "ActorPoolAllocator (JSL; needs D = 0 because it reads the DP pointer ($4E)) pops the next free slot from a LIFO free list of slot addresses. The list lives in page $0E (InitActorPool builds it at $0E00, 84 entries of $30-byte slots from $1000). Carry clear + Y = new slot base ($1000 + index×$30), or carry set + Y = $1FC0 when exhausted (a negative entry marks the end). It increments activeActorCount.",
+            "",
+            "AllocateActorBefore/After allocate with D temporarily 0, splice the new slot into the doubly-linked actor list ($04 = prev, $06 = next, head/tail in $56/$58) before or after the current actor (X = D = current), then call CopyActorState. UnlinkActor removes the actor at X from the list and calls ReturnActorSlot, which pushes the slot back on the free list and decrements the counters. It must be entered with D = X (the actor being freed); Die, MarkDeath, KillPrev and KillNext all arrange that.",
+            "",
+            "CopyActorState (spawner X = D, new actor Y) copies $0E, $10, $12, the X/Y position, animation index and frame counter, the spriteset/metasprite/stats pointers and the spriteset bank. It forces $2000 on in $10 and clears $0803 there, clears $1000 in $12 (the display-filter flag), and stores the spawner's slot in $0024 (OQ-65). It zeroes parentId, the $2C/$2E movement chain pointers, moveScratch1/2, the $08 timer and chatPtr, and, except in scene $FF (inventory), also extendedFlags and the callback fields.",
+            "",
+            "MarkChildActor sets the new actor's parentId to the spawner's parentId, or to the spawner's own slot if it has none. SetActorBody applies the current characterForm's body_table entry (6 bytes per form) to the actor's spriteset pointer and bank and clears playerFlags bit $8000 (sprite override). AnimFrameLookup returns the word at movement_delta_table[A×2], the head pointer of a movement delta chain; its callers are the force-move COP handlers. AllocateSpecialActor appends a slot from the thinker pool to the thinker list (tail in $5C). PaletteResetAndKillThinker is a thinker script body: COP PaletteRestart, PaletteStep, KillThinker."
+        ],
+        "partNotes": {
+            "UnlinkActor": [
+                "Internal JSR helper that removes the actor at X from the scene's doubly-linked list ($04 previous, $06 next).",
+                "",
+                "Patches the neighbours and the head/tail pointers at $56/$58, then calls ReturnActorSlot. Must be entered with D = X: ReturnActorSlot zeroes D and then sets D = X again. Callers: Die and MarkDeath (the actor itself), KillPrev and KillNext (they switch D and X to the victim first). Removing a sole list entry leaves actorListLast ($58) stale (OQ-66)."
+            ],
+            "SetActorBody": [
+                "Apply the current characterForm's body_table entry to actor X (JSR helper).",
+                "",
+                "Index = form × 6 (each body_table entry is 6 bytes). Writes the spriteset pointer ($7F0006) and bank ($7F0008), then clears playerFlags bit $8000, the sprite-override flag (set by SetPlayerSpriteDirect, see GetPlayerFacingDirection)."
+            ],
+            "AnimFrameLookup": [
+                "Internal JSR helper: A = movement index → A = movement_delta_table[A×2].",
+                "",
+                "The returned word is the head pointer of a movement delta chain (a linked list of signed per-frame deltas), not a frame duration. Callers store it in $2C (X chain) or $2E (Y chain): StageMoveX/Y/XY, ForceDirSW/NE/Both and ReloadMoveDurations in cop_handlers_force_move."
+            ],
+            "AllocateActorBefore": [
+                "Allocate a slot and insert it before the current actor (X = D = current), then CopyActorState.",
+                "",
+                "Returns Y = new actor. If the pool is exhausted (carry set from the allocator) nothing is linked and the routine returns at once."
+            ],
+            "AllocateActorAfter": [
+                "Allocate a slot and insert it after the current actor (X = D = current), then CopyActorState.",
+                "",
+                "Returns Y = new actor; if the new actor has no next it becomes the list tail ($58). If the pool is exhausted nothing is linked."
+            ],
+            "ReturnActorSlot": [
+                "Push actor slot X back on the free list and decrement the counters (JSR; D must equal X).",
+                "",
+                "Zeroes D so the free-list pointer ($4E) can be used as [$4E], backs the pointer up by 2 with an 8-bit DEC (no borrow; safe because the whole list sits inside page $0E), decrements activeActorCount, stores X into the freed entry and finally sets D = X again, undoing its own TCD #0."
+            ],
+            "MarkChildActor": [
+                "Set the new actor's (Y) parentId: the spawner's (X) parentId if non-zero, otherwise the spawner's own slot (TDC).",
+                "",
+                "Returns with X = D = the spawner again."
+            ],
+            "CopyActorState": [
+                "Initialise the new actor Y from the spawner X (= D). See the file header for the field list.",
+                "",
+                "$10: ORA #$2000 forces that bit on and AND #$F7FC clears $0803 (bit meanings: OQ-60). $12: clears $1000 (runs in display-filter mode). $0024 receives the spawner's slot (OQ-65). Zeroes parentId, $2C/$2E, moveScratch1/2, $08 and chatPtr; extendedFlags and the callback block are zeroed only when sceneCurrent ≠ $FF."
+            ],
+            "AllocateSpecialActor": [
+                "Allocate a thinker slot (ThinkerPoolAlloc) and append it to the thinker list (tail in $5C); returns Y = new thinker.",
+                "",
+                "No CopyActorState: only prev/next are linked and $06/$08 are zeroed. Allocation failure (carry set) returns without linking."
+            ],
+            "PaletteResetAndKillThinker": [
+                "Thinker script body (spawned with COP SpawnThinkerParam, about a dozen callers): COP PaletteRestart, PaletteStep, then KillThinker.",
+                "",
+                "Resets the palette fade machinery for one frame and removes the thinker."
+            ]
+        },
+        "comments": {
+            "45499": { "text": "Back up the free list pointer by 2 (8-bit DEC; the list sits inside page $0E, so no borrow)", "expect": "DEC $004E" },
+            "45513": { "text": "D = X again: undo TCD #0 above (D was the freed actor on entry)", "expect": "TCD" },
+            "45538": { "text": "Force $2000 on (not 'preserve'); AND #$F7FC below clears $0803 (OQ-60)", "expect": "ORA #$2000" },
+            "45549": { "text": "Clear $1000 in $12: the new actor does not inherit the display-filter run flag", "expect": "AND #$EFFF" },
+            "45576": { "text": "$0024 = spawner's slot (scripts later use $24 as scratch; reader of the initial value unknown, OQ-65)", "expect": "STA $0024, Y" },
+            "45646": { "text": "Scene $FF (inventory): keep extendedFlags and callbacks (inferred, see InitActorPool note)", "expect": "LDA $sceneCurrent" },
+            "46337": { "text": "Next free entry; a negative word is the end sentinel (pool exhausted)", "expect": "LDA ($4E)" },
+            "46342": { "text": "Zero the popped entry (the slot is now taken)", "expect": "LDA #$0000" },
+            "46351": { "text": "One more active actor", "expect": "INC $activeActorCount" }
+        }
+    },
+    "system/engine/cop_handlers_script_control.asm": {
+        "blockNote": [
+            "COP script-control handlers (Bank $00): interaction handler, resume entry, jumps, calls and loops (COP #C0–#CB, #E1, #E2).",
+            "",
+            "An actor script resumes from the entry pointer in its DP: $00/$01 = offset, $02 = bank. SetEntryHere and SetEntryHereAndYield save the position after themselves; JumpAfterDelay, JumpNextFrame, SetEntryFar and JumpFar write a target. Yielding handlers pop the COP frame and RTL (the actor resumes next frame at $00/$02); the others RTI back into the stream. SetEntryFar only changes the entry and keeps running; JumpFar also jumps.",
+            "",
+            "Call/return uses a single slot, retPtr1 ($7F0004), so calls do not nest. SetSavedPtr stores an explicit &Code operand; CallNear and CallNearDeferred store the address after their own operand and jump to the target. RestoreSavedPtr and ReturnWithSignal jump back to the slot and clear it, or yield when it is empty (ReturnWithSignal also returns A = $FFFF).",
+            "",
+            "Loops: LoopStart saves the count and the loop-head PC, LoopEnd decrements the count and, until it reaches zero, sets $00 to the loop head and yields (so at least one frame per iteration). A count of 0 would wrap to 65536 iterations (no guard). Pooled actors (X ≥ $1000) keep the count and head in their own fields loopCounter ($7F0014) and retPtr2 ($7F001E). Thinkers (X < $1000) use the arrays loopCounterActor ($7F2102) and loopStartPcActor ($7F2100) indexed by X; those two mnemonic names say 'Actor' but they are the thinker variants (rename proposal 90).",
+            "",
+            "SetInteractHandler (#C0, 322 uses in scripts) stores a &Code pointer in chatPtr ($7F000A), the routine the interaction system runs when the player talks to or touches the actor."
+        ],
+        "partNotes": {
+            "SetInteractHandler": [
+                "COP #C0 with one &Code operand. Stores it in the actor's chatPtr ($7F000A), the routine the interaction system runs when the player talks to or touches the actor. Used by NPCs, chests and inspectable objects (322 uses). The copdef name is SetInteractHandler; 'SetOnInteract' is only a stale name in the docs."
+            ],
+            "SetEntryFar": [
+                "COP #E2 with one Address operand (word + bank). Writes the far entry pointer to $00/$02 and zeroes $08, then RTI-continues in the current stream without yielding. Unlike JumpFar it does not jump: the new entry only takes effect the next time the actor resumes."
+            ],
+            "LoopStart": [
+                "COP #CA with one byte operand (iteration count). Stores the count and the loop-head PC (the address after the operand) and sets $00 to the loop head.",
+                "",
+                "Pooled actors (X ≥ $1000) use loopCounter ($7F0014) and retPtr2 ($7F001E); thinkers (X < $1000) use loopCounterActor ($7F2102) and loopStartPcActor ($7F2100)."
+            ],
+            "LoopEnd": [
+                "COP #CB with no operands. Decrements the loop counter (pooled-actor or thinker variant). At zero it continues past the loop with RTI; otherwise it stores the count, sets $00 to the saved loop head and yields via RTL, so each iteration ends with a yield."
+            ]
+        },
+        "comments": {
+            "43518": { "text": "Entry bank → $02 (16-bit store: $03 also receives stack junk from $0D, OQ-69)", "expect": "STA $02" },
+            "43530": { "text": "Entry bank → $02 (16-bit store, see SetEntryHere)", "expect": "STA $02" },
+            "43737": { "text": "X ≥ $1000 = pooled actor (fields $7F0014/$7F001E); X < $1000 = thinker (arrays $7F2100/$7F2102)", "expect": "CPX #$1000" },
+            "43749": { "text": "Pooled actor: count in loopCounter ($7F0014)", "expect": "STA $loopCounter, X" },
+            "43755": { "text": "Pooled actor: loop-head PC in retPtr2 for LoopEnd", "expect": "STA $retPtr2, X" },
+            "43773": { "text": "Thinker: count in loopCounterActor ($7F2102)", "expect": "STA $loopCounterActor, X" },
+            "43779": { "text": "Thinker: loop-head PC in loopStartPcActor ($7F2100)", "expect": "STA $loopStartPcActor, X" },
+            "43791": { "text": "X ≥ $1000 = pooled actor (loopCounter/retPtr2); else thinker (loopCounterActor/loopStartPcActor)", "expect": "CPX #$1000" },
+            "43796": { "text": "Pooled actor: read loopCounter", "expect": "LDA $loopCounter, X" },
+            "43821": { "text": "Thinker: read loopCounterActor", "expect": "LDA $loopCounterActor, X" },
+            "43832": { "text": "Thinker: restore the loop-head PC from loopStartPcActor", "expect": "LDA $loopStartPcActor, X" }
+        }
+    },
+    "system/engine/cop_handlers_player_query.asm": {
+        "blockNote": [
+            "COP handlers that place an actor, stage map changes and compare the actor's position with the player's (Bank $00; COP #25–#31 and #35).",
+            "",
+            "SetTilePos puts the actor on a tile. QueueMapChange stages a scene change (sceneNext, spawn X/Y, facing/flags, scroll parameters at $0642–$0652) and can record a revive/save warp point. WaitWhileOffscreen polls the actor's off-screen flag. The query handlers compare the actor's pixel position ($14/$16) with the player's; all deltas are signed 16-bit (player − actor).",
+            "",
+            "- BranchIfPlayerAt / BranchIfActorAt: exact pixel match.",
+            "- BranchOnPlayerX / BranchOnPlayerY: three-way branch (zero delta or |Δ| below the threshold → centre; otherwise west/east or above/below).",
+            "- BranchNearerAxis: branch on whether |ΔX| or |ΔY| is larger.",
+            "- DirToPlayer / DirToPlayerFrom return the 0–7 direction from ComputeDirectionToPlayer in A; BranchIfDirToPlayer / ...From branch when it equals an operand.",
+            "- CardinalToPlayer returns 0–3 = N/E/S/W for the dominant axis (ties go to the vertical axis).",
+            "- BranchOnPlayerFacing branches on GetPlayerFacingDirection, whose order is 0 = down, 1 = up, 2 = left, 3 = right (not the N/E/S/W order of CardinalToPlayer).",
+            "",
+            "Every handler exits with RTI after storing the new script PC at $02,S."
+        ],
+        "partNotes": {
+            "QueueMapChange": [
+                "COP #26 with one byte (scene ID), two words (spawn X, Y), one byte (flags) and one word (scroll parameters). Writes sceneNext ($0642), warpDestX/Y ($064C/$064E), warpFacing ($0650, the flags byte) and warpScrollParams ($0652).",
+                "",
+                "If flags bit 7 is set it is cleared in warpFacing and the address of this operand block (PC − 8) and its bank are stored in sceneSaveData and reviveWarpPtr. The operand block has the layout of a warp record (entry+4 in the warp table), and game_over_sequence reloads from these pointers, so bit 7 marks the scene change as the new revive/save point; nothing resumes at that address as script code."
+            ],
+            "WaitWhileOffscreen": [
+                "COP #27 with one byte operand (delay in frames). If actor flag $4000 is set in $10 (off-screen), sets the entry ($00) to this COP instruction (PC − 2), stores the delay in $08 and yields, so the test repeats after the delay; otherwise it skips the operand and continues."
+            ],
+            "BranchNearerAxis": [
+                "COP #2C with two &Code operands. Compares |ΔX| and |ΔY| to the player: operand[0] when |ΔY| < |ΔX| (horizontal separation dominates), operand[1] when |ΔY| ≥ |ΔX| (vertical dominates or tie)."
+            ],
+            "CardinalToPlayer": [
+                "COP #35 with no operands. Returns Y/A = 0 north, 1 east, 2 south, 3 west, picking the axis with the larger |Δ|; ties go to north/south. This is not the order of GetPlayerFacingDirection.",
+                "",
+                "Uses an RTS trick: the handler pushes code_009230−1 and every exit path is an RTS into code_009230, which stores the script PC and returns Y in A."
+            ],
+            "code_009230": [
+                "Shared exit of CardinalToPlayer, reached by RTS: stores the script PC ($0A) as the return PC and returns the direction (Y) in A via RTI."
+            ],
+            "BranchOnPlayerFacing": [
+                "COP #31 with four &Code operands. Calls GetPlayerFacingDirection (0 = down, 1 = up, 2 = left, 3 = right) and branches to operand[facing]. If the player has no facing (carry set, value ≥ 4) the 8 operand bytes are skipped."
+            ]
+        },
+        "comments": {
+            "37014": { "text": "Flags byte (bit 7 = save/revive warp) → warpFacing ($0650)", "expect": "STA $warpFacing" },
+            "37029": { "text": "Bit 7 = save warp: record this operand block as the revive/save point", "expect": "BIT #$0080" },
+            "37039": { "text": "Bit 7 consumed: clear it so warpFacing holds only the facing value", "expect": "AND #$FF7F" },
+            "37051": { "text": "sceneSaveData/reviveWarpPtr = address of this operand block (warp-record layout); game over reloads from it", "expect": "STA $sceneSaveData" },
+            "37078": { "text": "Off-screen: entry ($00) = this COP instruction (PC − 2) so it re-runs after the delay", "expect": "LDA $0A" },
+            "37131": { "text": "Operand X vs target X (the player for BranchIfPlayerAt, the resolved actor for BranchIfActorAt)", "expect": "CMP $0014, Y" },
+            "37142": { "text": "Operand Y vs target Y", "expect": "CMP $0016, Y" },
+            "37205": { "text": "|ΔX| below the threshold → centre branch (Y=4)", "expect": "BCC loc_00915A" },
+            "37288": { "text": "|ΔY| < |ΔX| (horizontal separation dominates) → operand[0]", "expect": "BCC loc_0091AF" },
+            "37290": { "text": "|ΔY| ≥ |ΔX| (vertical dominates or tie) → operand[1] (Y=2)", "expect": "LDY #$0002" },
+            "37293": null,
+            "37609": { "text": "Player facing from GetPlayerFacingDirection: 0 = down, 1 = up, 2 = left, 3 = right", "expect": "GetPlayerFacingDirection" },
+            "37613": { "text": "Facing 0 (down) → operand[0] at Y=0", "expect": "BEQ loc_009300" },
+            "37616": { "text": "Facing 1 (up) → operand[1] at Y=2", "expect": "BEQ loc_009305" },
+            "37619": { "text": "Facing 2 (left) → operand[2] at Y=4", "expect": "BEQ loc_00930A" },
+            "37622": { "text": "Facing 3 (right) → operand[3] at Y=6", "expect": "BEQ loc_00930F" }
+        }
+    },
+    "system/engine/flag_helpers.asm": {
+        "blockNote": [
+            "Event-flag and WRAM-flag bit helpers (Bank $00).",
+            "",
+            "All flags live in one bit array starting at eventFlags ($0A00): flag N is bit (N AND 7) of byte $0A00 + N÷8 (masks from bitmasks_bit_position). Flag indices are 16-bit. The helper names carry the base that is added to the index in A:",
+            "  $0000 (…Raw: TestFlagRaw/SetFlagRaw/ClearFlagRaw) — bytes $0A00–$0A1F; the index is masked to a byte",
+            "  $0100 (…_0100) — bytes $0A20–$0A3F, event/trigger flags: StandardEnemyDefeatHandler, EnemyDefeatDispatch and some boss/puzzle actors; this is the 32-byte field that event_blocks.ApplyAllEventBlocks scans, so flag $0100+n triggers event block n",
+            "  $0200 (…_0200) — bytes $0A40–$0A5F, persistent world events: chests opened (byte 3 of scene_barrier_chest_table records) and hidden Red Jewels",
+            "  $0300 (…_0300) — bytes $0A60–$0A7F, one flag per scene ID: the scene's clear reward has been claimed (radar, StandardEnemyDefeatHandler, boss_clear_reward_handler)",
+            "  $0400 (SetWramFlag/TestWramFlag) — bytes $0A80–$0A9F = wramFlags, 256 flags indexed by enemy number (SetDungeonKillFlag, CheckEnemyDefeatedFlag); ClearAllWramFlags zero-fills exactly this block",
+            "  $0500 (TestWramFlag_Offset100/SetWramFlag_Offset100 with index 0–7, and TestFlag_0510) — bytes $0AA0 and up: boss reward flags $0500–$0507 and ability unlock flags $0510+ (TestAbilityFlag: characterForm×4 + slot)",
+            "",
+            "wramFlags is therefore just the $0400–$04FF slice of the event flag array, accessed with its own base. ClearAllWramFlags is called only by WorldMapController (on entering the world map) and by the scripts st68_kara and sp58_red_eye, and game_over_sequence clears the same block inline on a true death; no reset at ordinary scene changes was found, so these flags outlive a single scene (OQ-67). The _Offset100 variants add $0100 to the index and so land at $0AA0, outside the cleared block (OQ-68).",
+            "",
+            "Calling convention: the flag index is in A (16-bit); the core routines (SetEventFlag, ClearEventFlag, TestEventFlag, SetWramFlag, TestWramFlag) are JSR-only, preserve X, clobber Y and WRAM scratch $0000, and the Test routines return carry = flag set and A = the isolated bit. The JSL wrappers add the base and call the cores. TestWramFlag has no caller outside this file (CheckEnemyDefeatedFlag in actor_execution repeats the logic inline with its own BitMaskTable_Wram)."
+        ],
+        "partNotes": {
+            "TestWramFlag_Offset100": [
+                "JSL helper (not COP-dispatched) that tests wramFlags bit $0100 + (A AND 7) and returns carry set when the flag is set.",
+                "",
+                "Index $0100–$0107 gives byte index $20, so it reads $0A80 + $20 = $0AA0 (event flags $0500–$0507) — outside the $20-byte block that ClearAllWramFlags clears (OQ-68). Callers: boss_clear_reward_handler and the boss lair scripts (castoth, sand fanger, vampires, mummy queen, viper) to check a boss's reward/defeat flag."
+            ],
+            "SetWramFlag_Offset100": [
+                "JSL helper that sets wramFlags bit $0100 + (A AND 7) (byte $0AA0, event flags $0500–$0507). Pairs with TestWramFlag_Offset100; the only caller is boss_clear_reward_handler, which marks a boss as rewarded."
+            ],
+            "ClearAllWramFlags": [
+                "JSL helper that zero-fills the $20-byte wramFlags block ($0A80–$0A9F, event flags $0400–$04FF) with a word loop (16 iterations).",
+                "",
+                "Callers: WorldMapController (twice, when the world map is entered), st68_kara and sp58_red_eye; game_over_sequence clears the same $20 bytes inline on a true death. No call at ordinary scene changes was found (OQ-67)."
+            ],
+            "TestFlag_0300": [
+                "JSL helper that tests event flag $0300 + (A AND $FF), bytes $0A60–$0A7F. Most callers pass a scene ID: the flag means this scene's clear reward was already claimed."
+            ],
+            "SetFlag_0300": [
+                "JSL helper that sets event flag $0300 + (A AND $FF); used to mark a scene's clear reward as claimed (reward_actors, boss_clear_reward_handler)."
+            ],
+            "TestFlag_0510": [
+                "JSL helper that tests event flag $0510 + (A AND $FF). inventory_menu's TestAbilityFlag is the only caller: index = characterForm×4 + slot, so these are the ability unlock flags."
+            ],
+            "SetEventFlag_0200": [
+                "JSL helper that sets persistent event flag $0200 + A (bytes $0A40–$0A5F) via SetEventFlag. A is not masked, so callers must pass a 0–$FF index. Callers: warps_interaction (chest opened) and hidden_red_jewel."
+            ],
+            "SetFlag_0100": [
+                "JSL helper that sets event/trigger flag $0100 + (A AND $FF), bytes $0A20–$0A3F (callers: StandardEnemyDefeatHandler, EnemyDefeatDispatch, wall walker, mystic ball)."
+            ],
+            "ClearFlag_0100": [
+                "JSL helper that clears event/trigger flag $0100 + (A AND $FF). No caller was found in the extracted code."
+            ],
+            "TestFlag_0100": [
+                "JSL helper that tests event/trigger flag $0100 + (A AND $FF), bytes $0A20–$0A3F (callers include StandardEnemyDefeatHandler, EnemyDefeatDispatch, wall walker, mystic ball and the pyramid Dark Space portal)."
+            ]
+        },
+        "comments": {
+            "45154": { "text": "Index $0100+n → byte wramFlags+$20 = $0AA0 (flags $0500-$0507), outside the block ClearAllWramFlags clears (OQ-68)", "expect": "ADC #$0100" },
+            "45165": { "text": "Index $0100+n → byte $0AA0 (flags $0500-$0507), see TestWramFlag_Offset100", "expect": "ADC #$0100" },
+            "46234": { "text": "$0300 + scene ID → bytes $0A60-$0A7F (one flag per scene)", "expect": "ADC #$0300" },
+            "46245": { "text": "$0300 + scene ID → bytes $0A60-$0A7F", "expect": "ADC #$0300" },
+            "46256": { "text": "$0510+: ability unlock flags (characterForm×4 + slot)", "expect": "ADC #$0510" },
+            "46308": { "text": "$0100+n: event/trigger flags (bytes $0A20-$0A3F)", "expect": "ADC #$0100" },
+            "46319": { "text": "$0100+n: clear an event/trigger flag", "expect": "ADC #$0100" },
+            "46330": { "text": "$0100+n: test an event/trigger flag", "expect": "ADC #$0100" }
+        }
+    },
+    "system/engine/cop_dispatch.asm": {
+        "blockNote": [
+            "Central COP bytecode dispatch engine for IOG's actor and thinker scripting system (Bank $00).",
+            "",
+            "CopDispatch is a 24-byte native-mode entry reached from the COP interrupt vector (CopVector → JML CopDispatch). The byte after the COP opcode ($02) is the handler opcode (the pushed PC − 1). The dispatcher caches the bank in $0C and the operand pointer in $0A, doubles the opcode and jumps through cop_dispatch_table.",
+            "",
+            "The table has 227 word entries: 209 valid opcodes ($00–$6D and $80–$E2) pointing at short-address handler labels, and an 18-entry gap of #$0000 for $6E–$7F that would jump to address 0 (RAM) if executed. cop_table_sentinel follows the table; it is not a real guard (see its note). All 209 table ids match db-us/copdef.json ids, but 19 handler labels differ from the script-side copdef names (listed in the table note).",
+            "",
+            "Every actor and thinker script routes through this dispatcher. Handlers receive the actor slot in X and Y (and D), DBR = $81 and the operand pointer in $0A. They exit with RTI (continue or branch, new PC stored at $02,S) or RTL after popping the COP frame (yield or halt).",
+            "",
+            "Dispatch targets: the 30 cop_handlers_* blocks included below. Support blocks called by handlers but not dispatch targets: actor_pool and flag_helpers."
+        ],
+        "partNotes": {
+            "CopDispatch": [
+                "Central COP dispatcher reached from CopVector.",
+                "",
+                "Sets X = Y = actor ID (Y keeps it for handlers), $0C = bank byte from the COP stack frame and $0A = pushed PC − 1 (the COP signature byte, which is the opcode), reads the opcode, advances $0A past it, and jumps through cop_dispatch_table[opcode × 2]."
+            ],
+            "cop_dispatch_table": [
+                "227-entry handler pointer table: COP opcodes $00–$6D and $80–$E2 (209 valid, ids match copdef.json) to short-address handler labels in 30 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap.",
+                "",
+                "Handler labels that differ from the copdef script names: $1A–$1E BranchIfType* = BranchIfSolidType*; $80–$87 StageSpr* = StageSprite* (Frame, MoveX/Y/XY, Loop, LoopMoveX/Y/XY); $8F–$92 StagePlayerSpr/X/Y/XY = StagePlayerSprite and StagePlayerMoveX/Y/XY; $B6/$B7 SetOamPriority/SetOamPalette = SetSpritePriority/SetSpritePalette."
+            ],
+            "cop_table_sentinel": [
+                "NOP/BRA loop placed right after the table. It is not an effective guard: an opcode ≥ $E3 would index past the table and JMP (table,X) would read the sentinel's own code bytes as a pointer (opcode $E3 reads EA 80 = $80EA) instead of jumping to the loop. No script is known to use such opcodes."
+            ]
+        },
+        "comments": {
+            "33906": { "text": "$0C = PBR pushed by COP ($04,S); 16-bit load, so $0D gets an unrelated stack byte (unused)", "expect": "STA $0C" },
+            "33910": { "text": "Pushed PC = byte after the COP signature; −1 = the signature byte, which is the handler opcode", "expect": "DEC" }
+        }
+    }
+}

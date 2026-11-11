@@ -1,0 +1,65 @@
+{
+  "_note": "C4 (2026-10-30), see mesen2-results/C4_20261030.md. Two shipped statements are wrong (bit 13 'no reader'; DialogStringRenderer 'consumer not traced') and two are refined with measured behaviour (hudDisableFlag bit 7 gate, bits 4/5 partial upload). Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/C4_notes.json --dry-run. Comments go through expectOld because extracted/ carries no line-tracking tags; the apply pass may switch to expect after extract:lt. 'find' must occur exactly once in the stored note.",
+  "system/engine/cop_handlers_dialog.asm": {
+    "partNotes": {
+      "DialogueOptions": {
+        "edit": [
+          {
+            "find": "($2000; no reader of this bit was found)",
+            "with": "($2000, dialogue mode; the only reader is the bomb countdown actor in mu67_bomb, which skips its decrement while the bit is set)"
+          }
+        ]
+      },
+      "PrintDialogString": {
+        "edit": [
+          {
+            "find": "($2000; no reader found)",
+            "with": "($2000, dialogue mode; the only reader is the bomb countdown actor in mu67_bomb, which skips its decrement while the bit is set)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "43174": {
+        "text": "Set displayModeFlags bit 13 ($2000), dialogue mode; the only reader is the mu67_bomb countdown, which pauses while it is set",
+        "expectOld": "Set displayModeFlags bit 13 ($2000); no reader of this bit was found"
+      },
+      "43260": {
+        "text": "Set displayModeFlags bit 13 ($2000), dialogue mode (read only by the mu67_bomb countdown; HUD suppression is hudDisableFlag, not this bit)",
+        "expectOld": "Set displayModeFlags bit 13 ($2000); no reader found (HUD suppression is hudDisableFlag, not this bit)"
+      }
+    }
+  },
+  "system/engine/DialogStringRenderer.asm": {
+    "comments": {
+      "254630": {
+        "text": "Set displayModeFlags bit 0: Bg3TilemapVramDma uploads the whole BG3 staging buffer to VRAM $7800 in the next NMI and clears the bit",
+        "expectOld": "Set displayModeFlags bit 0 so the BG3 staging buffer is re-uploaded (consumer not traced)"
+      }
+    }
+  },
+  "system/inventory/inventory_overlay.asm": {
+    "comments": {
+      "191778": {
+        "text": "Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off). The scene display command (SceneCmd_ConfigDisplay) clears bit 14 again two frames later (measured)",
+        "expectOld": "Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off)"
+      }
+    }
+  },
+  "system/engine/camera_tilemap.asm": {
+    "partNotes": {
+      "Bg3TilemapVramDma": {
+        "edit": [
+          {
+            "find": "if set, the upload is suppressed (returns immediately).",
+            "with": "if set, the upload is suppressed (returns immediately): the request bits stay pending and the upload runs in the first NMI after the bit is cleared (measured). No instruction sets this bit; the PAUSE path of GlobalInputHandler clears it."
+          },
+          {
+            "find": "the common TRB below clears bits 0, 4 and 5 either way.",
+            "with": "the common TRB below clears bits 0, 4 and 5 either way. Measured: bit 0 gives the full upload and bit 4 or bit 5 gives the same partial upload (VRAM words $7840-$7983 = staging offsets $80-$1BF), each in the first NMI after the request, which also clears the bit. The ROM only ever requests bit 4 (UpdateHUD, three sites); no instruction sets bit 5."
+          }
+        ]
+      }
+    }
+  }
+}

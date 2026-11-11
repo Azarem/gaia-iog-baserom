@@ -8,7 +8,7 @@
 ;   - Byte 0: index into move_chain_table for the X velocity chain ($00CA); 0 = still
 ;   - Byte 1: index for the Y chain ($00CC); 0 = still
 ;   - Byte 2: index for the rotation chain ($00BC); 0 = still
-;   - Byte 3: tick count n; the step runs n + 1 ticks
+;   - Byte 3: tick count n; the step applies n + 1 deltas and spans n frames (its last delta and the next step first delta share one frame)
 ; Every array is 4n + 1 bytes: a hidden $FF ends it ($FE, subroutine, is never used). The indices used are 1 (+1 per tick), 2 (-1), $11 (alternating +1, 0) and $12 (alternating -1, 0) for X and Y, and 1 (+1) or 2 (-1) for rotation; a step never mixes rotation with movement, so a route turns the map and runs straight in one of eight directions.
 ---------------------------------------------
 

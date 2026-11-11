@@ -1,0 +1,8 @@
+{
+  "_note": "IT-13 follow-up: one id left in town_door.asm after IT13_spec.json was applied (missed in the first spec).",
+  "actors/town_door.asm": {
+    "blockNote": { "edit": [
+      { "find": "; not verified at runtime (OQ-I043-1).", "with": "; whether that case occurs is not traced." }
+    ] }
+  }
+}

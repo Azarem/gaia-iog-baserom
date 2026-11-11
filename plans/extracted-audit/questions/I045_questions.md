@@ -1,0 +1,11 @@
+# I045 open questions
+
+Mesen2 MCP was not available, so everything below is UNVERIFIED-RUNTIME.
+
+| ID | Iter | Question | Static evidence so far | Suggested check |
+|----|------|----------|------------------------|-----------------|
+| OQ-I045-1 | I045 | Are the `$AA` bits `$0800` and `$0400` (tested before the south and east vertical dispatches) ever set? | E2: `rg` finds only tests of these bits and a `TRB` in `player_move_west`; no `TSB` / `ORA` / `STA` writes them, so the gates should always pass | Write-breakpoint on `$AA` (player DP) while walking into walls on all four sides |
+| OQ-I045-2 | I045 | Does every rain drop survive its first death test (once per 21-tick animation pass) and how long does it live? | E1: the test is an unsigned compare against a limit; the numbers (start Y, step 2-5 px, 21 ticks) say a drop passes the first check; there is no reference to the spawner, so it cannot be observed in the game | Launch the block from a debugger (patch a scene to spawn it) and watch the child's `$16` |
+| OQ-I045-3 | I045 | Why does the tick publish the pixel position (`$22` / `$26` shifted right twice) between the horizontal and the vertical phase instead of once at the end? | E1: the vertical probes read `$14` / `$16`, so the position must be current after the horizontal pass; the controller later writes the same values again | Break on writes to the controller's `$14` / `$16` during one frame of diagonal movement |
+| OQ-I045-4 | I045 | Is `particle_rain_spawner` reachable through data that the extractor does not label (a scene table or a script operand built from bytes)? | E2: no `rg` hit for the name or for the address in `extracted/` and the `db-us` files; `docs/code/bank0B-late-bosses-system-cutscene-actors.md` already calls it a development remnant | Search the ROM for the 3-byte pointer to `$0BD2AB` |
+| OQ-I045-5 | I045 | Does angle `$40` really place the orbiting actor east and `$80` north (counter-clockwise on screen)? | E1: the tables are sine and signed cosine; the offset X comes from the sine table, offset Y from the signed cosine; the results follow from the headers, not from a captured frame | Call `ApplyOrbitalOffsetFromRef` with fixed angles from a debugger and read `$14` / `$16` |

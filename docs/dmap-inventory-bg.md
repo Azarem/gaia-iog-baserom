@@ -27,7 +27,7 @@ Evidence levels used below:
 - **Callers (2):** scene `$FF` (Inventory) loads it through scene command `$17` `char-tiles`; scene `$FD` (Statue Inventory) reaches the same command through `jump < #11 >`. The "only used once" claim in the brief is true of the *file* (one ROM copy, one command that names it) but it is *executed* from two scenes.
 - **Loader:** `SceneCmd_LoadCharTiles` (`scene_script.asm`, ROM `$02:8C30`-`$02:8CE6`, addresses 166960-167142). Stored LZ-compressed (QuintetLZ) in the original ROM (2328 bytes in ROM: 4-byte header + 2-byte size word + 2322-byte stream → 8192 bytes of body); stored **raw** in the rebuilt ROM, which needs `MenuBGLoad.patch.asm` because the vanilla loader can never take its raw path.
 - **gaia-mapper:** the mapper today ignores `char-tiles` entirely, so scenes `sy/inventory` and `sy/statue_inventory` render blank. The content *can* be mapped losslessly into the mapper's metatile model (each screen needs only 27–106 distinct aligned 2×2 patterns), but the faithful approach is a **direct VRAM-tilemap layer** (new asset type `chartiles`). §9 gives a phased plan.
-- **Documentation errors found** (§10): the VRAM-destination formula for flag bit 7 is documented as `× 4`; the code gives `× $400` words. Fixes must go through `npm run merge` (not edited here).
+- **Documentation errors found** (§10): the VRAM-destination formula for flag bit 7 is documented as `× 4`; the code gives `× $400` words. Fixed (§10).
 
 ---
 
@@ -432,11 +432,11 @@ Growing past 4 screens is **untested**: verify the WRAM span above `$9000` is fr
 
 ---
 
-## 10. Documentation errors found (to fix via `npm run merge`)
+## 10. Documentation errors found (FIXED)
 
-Do not edit by hand; use `npm run merge -- <spec.json>` (dry-run first, then `npm run extract:lt`).
+All items below were corrected with `npm run merge -- plans/extracted-audit/edits/doc-char-tiles-dmap.json` (notes and inline comments) plus direct edits of the plain docs (`docs/code/bank02/scene-script.md`, `docs/code/bank0D-scene-meta.md`, `docs/structs-reference.md`). The same spec also rewrote the `SceneCmd_LoadCharTiles` / `code_028CB0` part notes, eight inline comments in `scene_script.asm` (the loader called the size word a "compressed tile pointer" and the header a "width and height"), and added a part note for `scene_meta_00FD`.
 
-| Where | Current claim | Correct |
+| Where | Old claim | Now |
 |---|---|---|
 | `extracted/tables/scene_meta.asm` line 27 (opcode `$17` note) | flag bit 7 destination = `(flags & $7F) × 4` | `(flags & $7F) << 10` words (`× $400`), i.e. one tilemap screen per unit |
 | `scene_script.asm` `SceneCmd_LoadCharTiles` block note | same `× 4` | same correction; also note that the opcode loads **preformatted tilemaps**, not character data |
@@ -469,3 +469,32 @@ Do not edit by hand; use `npm run merge -- <spec.json>` (dry-run first, then `np
 | Animation | `parallax_scroll_table.asm`, `scanline_band_hdma_thinker.asm`, `palette_parent_child.asm`, `inventory_bg3_scroll_hdma.asm` |
 | gaia-core | `src/rom/rebuild/processor.ts`, `writer.ts`, `src/compression/QuintetLZ.ts`, `src/types/files.ts` |
 | gaia-mapper | `scripts/build-payload.ts`, `src/data/scene-loader.ts`, `src/core/vram.ts`, `src/core/compositor.ts`, `src/core/display.ts` |
+
+## 13. Conversion scripts (dmap <-> mapper tileset + tilemaps)
+
+Two scripts convert the dmap to and from gaia-mapper's standard assets (shared helpers in `scripts/lib/dmap-tilemaps.ts`). Plain Node (type stripping), run from the baserom root:
+
+```bash
+node scripts/dmap-to-tilemaps.ts [--in <file.dmp>] [--out <dir>]
+node scripts/tilemaps-to-dmap.ts [--dir <dir>] [--out <file.dmp>] [--verify <original.dmp>]
+```
+
+The default folder is `temp/dmap-inventory-bg/` (not `extracted/`, which `extract` wipes). Forward output:
+
+| File | Content |
+|---|---|
+| `set_inventory_bg.set` | one shared tileset for all four screens, 177 of 256 metatiles used (index 0 = empty) |
+| `map_inventory_bg_status.map` | screen 0, 51 distinct metatiles |
+| `map_inventory_bg_items.map` | screen 1, 106 |
+| `map_inventory_bg_statue.map` | screen 2, 101 |
+| `map_inventory_bg_water.map` | screen 3, 27 |
+| `dmap_inventory_bg.layout.json` | header bytes (`00020002`), screen order, VRAM word of each screen (read by the reverse script) |
+
+Each map is `[01][01]` + 256 metatile indices (one 256×256 px block = one screen). A metatile is the aligned 2×2 block of 8×8 entries `[TL, TR, BL, BR]`; entries are copied verbatim (tile, palette, priority and flips), because a dmap entry and a tileset entry differ only in bit 9 (tile bit vs block flag).
+
+Rules:
+
+- The forward script verifies itself: it rebuilds the dmap from the files it just wrote and fails unless the result is byte-identical.
+- The reverse script rejects a map that is not exactly 1×1 block, a header whose screen count differs from the number of maps, and any used metatile with bit 9 (block flag) set. Unused tileset entries are not checked.
+- Mapper view: the tileset's VRAM tiles are `gfx_inventory_bg` at page 0 (`useOffset = false`), BG1 palette 2, BG2 palette 7 (see §9.2). Screens 0-2 are BG1 variants; screen 3 is the BG2 layer shared by all of them.
+- The output `.dmp` is the extracted (uncompressed) form. Copy it over `extracted/system/inventory/dmap_inventory_bg.dmp` only deliberately; the next `extract` overwrites that file.

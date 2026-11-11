@@ -1,6 +1,6 @@
 ; Attack ability damage tables (Bank 01, 121255-121303): one table per player form, three abilities each. Each record is { word $0000, word pointer to the ability's upgrade-level word in WRAM, one damage byte per upgrade level }; the tables hold no animation, sprite-frame or hitbox data.
 ; 
-; LoadAbilityDamageA (Will, will_ability_damage_table) and LoadAbilityDamageB (Freedan, freedan_ability_damage_table) in attack_ability_system take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store record[4 + level] in abilityDamageBonus ($09E0 for Will) or rangedDamageBonus ($09E2 for Freedan). combat_collision adds that value to the hit strength.
+; LoadAbilityDamageA (Will, will_ability_damage_table) and LoadAbilityDamageB (Freedan, freedan_ability_damage_table) in attack_ability_system take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store record[4 + level] in abilityDamageBonus ($09E0 for Will) or rangedDamageBonus ($09E2 for Freedan). ApplyHitDamageToVictim (combat_collision) adds abilityDamageBonus to every hit and rangedDamageBonus only when the source is not the player actor. The Aura Barrier record (Freedan index 1) is never loaded, and a launched Spin Dash hits with the Psycho Slider record (attack_ability_system block note lists which record each ability loads).
 ; 
 ; | Table | Ability | Level word | Damage by level |
 ; |-------|---------|-----------|------------------|
@@ -37,7 +37,7 @@ ability_damage_psycho_dash #0000160B050A
 ability_damage_psycho_slider #0000180B0508
 
 ---------------------------------------------
-; Spin Dash: $0000, level word $0B1A, damage 4 / 7.
+; Spin Dash: $0000, level word $0B1A, damage 4 / 7, loaded when the charge ends; SpinDashLaunch then loads the Psycho Slider record, so the launched Spin Dash hits with 5 / 8 (measured: abilityDamageBonus 5 at level 0).
 
 ability_damage_spin_dash #00001A0B0407
 ---------------------------------------------
@@ -56,7 +56,7 @@ freedan_ability_damage_table [
 ability_damage_dark_friar #00001C0B05080C
 
 ---------------------------------------------
-; Aura Barrier: $0000, level word $0B1E, damage 5 / 9.
+; Aura Barrier: $0000, level word $0B1E, damage 5 / 9. No code loads this record: an Aura Barrier orbital hits with whatever rangedDamageBonus holds (0 in the measured run).
 
 ability_damage_aura_barrier #00001E0B0509
 

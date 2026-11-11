@@ -8,11 +8,13 @@
 ; | $01 | 4 frames, hold 7, 3 sub-sprites per frame (a 16x16 and two 8x8 in the first, three 8x8 in the others) | AnimOnce second, and first when the orbital shrinks |
 ; | $02 | 4 frames, hold 7, 2 sub-sprites of 16x16 (frames 0, 1 and 3) or 4 of 8x8 (frame 2) | the loop that runs until the spawner overwrites the actor's function pointer with AuraProjectileShrink |
 ; 
-; AuraProjectileChild stages $00 and $01 once (the orbital grows) and then loops $02; AuraProjectileShrink plays $01 and $00 once and hides the actor ($10 bit $2000). All 12 groups keep the default attack box $F8 $F0 $01 $01.
+; AuraProjectileChild stages $00 and $01 once (the orbital grows) and then loops $02; AuraProjectileShrink plays $01 and $00 once and hides the actor ($10 bit $2000). All 12 groups keep the default attack box $F8 $F0 $01 $01 (group bytes 4-7); nothing reads it for the orbitals (measured over a full cast that shows all 12 groups: no read of bytes 4-7, and PlayerAttackHitTest never runs for an orbital).
+; 
+; Hit rectangle: AuraOrbitalSpawner spawns each orbital with $10 = $0600 (the COP SpawnAfterMarked operand). $0400 makes the orbital a source of the second pass of CombatCollision: it builds the hit rectangle from the body box, group bytes 8-11 (X offset, width, Y offset, height in pixels, signed offsets; $FC $08 $F8 $16 for the first group = X -4 to +4, Y -8 to +14 around the actor position, mirrored for an H-flipped actor), and calls ApplyHitDamageToVictim for every actor of the render list whose own hitbox ($20-$23) overlaps it and whose $10 has none of the $76E0 bits; $0200 keeps the orbital itself out of that victim set. Measured: the rectangle in DP $00-$06 equals the header formula in all 538 orbital passes of a cast, an actor is hit when its left edge (X minus its west extent) is below the rectangle's right edge and its right edge is at least the rectangle's left edge (same rule on Y), and a bat took 2 HP per orbital hit (3 to 1, then 1 to 0). The body box is 1 to 6 pixels taller than the frame extents (bytes 0-3) in all 12 groups (first group: height 22 against 16); nothing in the code derives it from the sub-sprites.
 ; 
 ; === ART AND PALETTE ===
 ; 
-; Every tile word is in $0440-$046F: tile numbers $40-$6F with the palette bits (9-11) = 2, i.e. sprite palette 2 (CGRAM $A0-$AF). AuraVramDmaLoader uploads $0600 bytes (48 tiles) of misc_fx_1CC480 to VRAM $4400 with COP AdhocVramDma, and AuraBarrierMain copies 7 colours of fx_palette_198090 to CGRAM $A9-$AF; AuraBarrierPaletteFX cycles bundle #5B over colours $A1-$A8 of the same palette (the bundle writes only $A1-$A8). The statement that VRAM $4400 is tile $40 of the first sprite name table assumes the sprite name base is $4000 (OBSEL not traced).
+; Every tile word is in $0440-$046F: tile numbers $40-$6F with the palette bits (9-11) = 2, i.e. sprite palette 2 (CGRAM $A0-$AF). AuraVramDmaLoader uploads $0600 bytes (48 tiles) of misc_fx_1CC480 to VRAM $4400 with COP AdhocVramDma, and AuraBarrierMain copies 7 colours of fx_palette_198090 to CGRAM $A9-$AF; AuraBarrierPaletteFX cycles bundle #5B over colours $A1-$A8 of the same palette (the bundle writes only $A1-$A8). The Freedan Aura Barrier uploads misc_fx_1CC480 (48 tiles) to VRAM $4400 with the sprite name base at $4000 (measured: no $2101 write occurs during the cast, so $4400 is tile $40 of the first sprite name table); the Shadow Aura item neither writes OBSEL nor uploads to $4400.
 ; 
 ; Byte budget: 426 bytes = 6 (table) + 3 x 18 (lists of 4 records + the hidden $FFFF) + 12 x 13 (group headers) + 30 x 7 (sub-sprites).
 ---------------------------------------------
@@ -60,7 +62,7 @@ aura_anim_02_orbit [
 ]
 
 ---------------------------------------------
-; Example group: animation $00, frame 0. Header: extents X 4 / 4, Y 8 / 8, default attack box, body box $FC $08 $F8 $16, 2 sub-sprites (8x8, tile words $0460 and $0464, offsets (0,8) and (8,0)).
+; Example group: animation $00, frame 0. Header: extents X 4 / 4, Y 8 / 8, default attack box, body box $FC $08 $F8 $16 (the orbital's hit rectangle: X -4 to +4, Y -8 to +14 around the actor position), 2 sub-sprites (8x8, tile words $0460 and $0464, offsets (0,8) and (8,0)).
 
 sprite_group_17903C [
   sprite-group < #04, #04, #08, #08, #F8, #F0, #01, #01, #FC, #08, #F8, #16, #02, [

@@ -1,0 +1,86 @@
+{
+  "_note": "E3 draft (2026-11-08, ROM O, state S08 and S07). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/E3_notes.json --dry-run. Sources: mesen2-results/E3_20261108.md and raw/E3_*. No names spec: no label changes.",
+  "system/world_map/WorldMapController.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The divisor falls from $0400 to about $34 (hand-computed), a zoom-out from 8x in to a wide view.",
+          "with": "The divisor falls from $0400 to $54 (measured), a zoom-out from 8x in to a wide view. Only 43 passes count: the first pass runs in the tick in which Mode7PerspectiveInit stores $0400 into $B8, so its add (-$20) is overwritten; the other 43 deltas run from -$20 to -2 and sum to -940."
+        }
+      ]
+    },
+    "comments": {
+      "238454": {
+        "text": "v0 = $20, shift 5: delta of pass t = ((t * (t >> 1)) >> 5) - $20, negative in all 44 passes (sum -972, the first one is overwritten by Init)",
+        "expect": "InitGravity"
+      },
+      "238469": {
+        "text": "Mode 7 divisor $B8 += delta (negative): $0400 down to $54, the view zooms out",
+        "expect": "ADC"
+      }
+    }
+  },
+  "system/world_map/WorldMapSplitEffect.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What the strip below the boundary looks like on the world map (and whether it is the intended 'iris') is decoded from the tables, not observed.",
+          "with": "Measured on the world map: below the boundary row the screen is black with the BG3 text (the destination menu) on top. The screen is in Mode 1 there (BGMODE $09), BG1 and the backdrop are the colour-math layers, and the white fixed colour is subtracted from them; the FF / 01 alternation of the COLDATA fill keeps the fixed colour white on every line, because the $01 writes select no colour plane. Above the boundary row the map is Mode 7. The boundary row (151 + 2 x offset step) is off the bottom of the 224-line screen from the 37th step, so about 37 frames after the route starts the whole picture is Mode 7."
+        }
+      ]
+    }
+  },
+  "thinkers/mode7_perspective.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "{count 1, data word 0} plus a $00 terminator into $7E7000 (M7A), $7E7800 (M7B) and $7E8000 (M7C): 673 bytes each.",
+          "with": "{count 1, data word untouched} plus a $00 terminator into $7E7000 (M7A), $7E7800 (M7B) and $7E8000 (M7C): each table is 673 bytes long and the fill stores 225 of them (the 224 count bytes and the terminator). The data words are not cleared: the area is the scene loader's decompression scratch, so they hold stale bytes (measured right after the fill: 50, 54 and 38 of the 224 words are nonzero) until the first computation overwrites them (measured: the tables hold computed values within 4 frames of the fill)."
+        },
+        {
+          "find": "(0.703 degrees per step)",
+          "with": "(0.703 degrees per step; measured: increasing $BC turns the map clockwise on the screen)"
+        },
+        {
+          "find": "Not traced: whether any scene runs both.",
+          "with": "Measured in the four scenes that run Mode7PerspectiveUpdate ($FE world map, $8C prologue, $59 Sky Garden crash, $C0 Angkor Wat vision): after the first table fill nothing else writes $7E7000-$8FFF, and no DMA from this area runs while the scene is active. Before the fill the scene loader's decompressor (QuintetLzDecompress, the literal and back-reference stores) uses the area as scratch."
+        }
+      ]
+    },
+    "partNotes": {
+      "Mode7FillTableLoop": "Fill loop: one entry per scanline in all three tables (count byte 1; the data bytes are not written), 224 times, then $00 terminators."
+    },
+    "comments": {
+      "240020": {
+        "text": "Per entry: count byte 1 (one scanline, no repeat) in all three tables; the data word is not written and keeps its stale bytes until the first computation",
+        "expect": "LDA"
+      }
+    }
+  },
+  "system/diary_menu/diary_entry_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "to pan the Mode 7 camera.",
+          "with": "to pan the map picture (the diary scene is in Mode 1: cameraTargetX / cameraTargetY become the BG1 scroll; measured, the Mode 7 matrix is not used)."
+        },
+        {
+          "find": "is the diary menu's initial camera.",
+          "with": "is the diary menu's initial camera. The view centre (target + ($80, $70)) lies near the location's world-map start position: within 12 px on both axes for 11 of the 15 named locations that have one, 17-20 px off for Angel Village and Edward's Castle, and 40-44 px off for Diamond Mine and South Cape (measured: the camera of each of the 35 scenes settles at the table words)."
+        }
+      ]
+    }
+  },
+  "system/diary_menu/sFA_diary_menu.asm": {
+    "comments": {
+      "778896": {
+        "text": "Camera X = 128 (BG1 horizontal scroll target)",
+        "expect": "LDA"
+      },
+      "778905": {
+        "text": "Camera Y = 768 (BG1 vertical scroll target)",
+        "expect": "LDA"
+      }
+    }
+  }
+}

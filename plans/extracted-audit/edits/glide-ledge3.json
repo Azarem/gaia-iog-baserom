@@ -1,0 +1,11 @@
+{
+  "_note": "awB3_ledge_jump_trigger: replace the 'not watched' sentence with what Mesen2 showed (temp/awb3_probe.py, temp/bgdiff_probe.py).",
+  "angkor_wat/angkor_outer_north/awB3_ledge_jump_trigger.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "BG change #6E was not decoded or viewed. The earlier names and notes (awB3_vine_reveal, 'grows vines', 'draw the vine tiles', 'ladder trigger') were guesses; what the change draws and where the player lands was not watched.",
+        "with": "BG change #6E was not decoded. Mesen2 (scene $B3, player poked into the tile box): within 10 frames the player's entry word became LedgeJumpEntry (animation $18, playerFlags $0800) and the fall ended at x 1400, y 112 after starting from x 1736, y 204 (not traced further); a before / after diff of the collision map and the layer-0 tilemap showed no changed cell, so what the BG change draws is unknown. The earlier names and notes (awB3_vine_reveal, 'grows vines', 'draw the vine tiles', 'ladder trigger') were guesses."
+      }
+    ] }
+  }
+}

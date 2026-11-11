@@ -11,7 +11,7 @@
 ; === TARGET (skipped while playerFlags bit $0100, forced walk, is set) ===
 ; 
 ; Per axis, with P = the player actor's pixel position (not the adjusted one): t = P - $80. If t is negative or below cameraOffset, the target is cameraOffset (left / top limit). Otherwise e = t + $100; if e is at or beyond cameraBounds the target is cameraBounds - $100, else it is t. So cameraOffset is the left / top edge of the scene's window and cameraBounds the right / bottom edge. There is no dead zone.
-; Both axes use the constants $80 and $100. Horizontally that centres the player in the 256-pixel view; vertically the target puts the player 128 lines below the top of a 224-line screen, 16 lines below the middle. The result goes to cameraTargetX / cameraTargetY.
+; Both axes use the constants $80 and $100. Horizontally that centres the player in the 256-pixel view; vertically the target puts the player actor's Y 128 lines below the top of a 224-line screen, 16 lines below the middle (measured: the actor Y minus mapScrollV is 128 on every unclamped frame; the sprite is drawn above that point: its pieces span OAM Y 91 to 135 for Will and 80 to 130 for Freedan, so the body sits near the middle of the screen). The result goes to cameraTargetX / cameraTargetY.
 ; 
 ; === DELTAS ===
 ; 

@@ -1,0 +1,366 @@
+[
+  {
+    "id": "FL11-01",
+    "flag": 262,
+    "scope": null,
+    "claim": "Proposal ec_prison_door_unlocked: The prison door of Edward's Castle (scene $0B) was unlocked with the Prison Key; event block $06 (layer 1) is applied on later loads.",
+    "priority": "P2",
+    "start": {
+      "scene": 11,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $0B with flag $0106 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 2x2 metatiles at (0E,10)",
+      "forced": "set flag $0106 (byte $0A20 bit 6) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 2x2 metatiles at (0E,10)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (1E,2E) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-02",
+    "flag": 275,
+    "scope": null,
+    "claim": "Proposal ec_aqueduct_door_open: The aqueduct doorway of Edward's Castle (scene $11) was opened by the button puzzle; event block $13 is applied on later loads.",
+    "priority": "P2",
+    "start": {
+      "scene": 17,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $11 with flag $0113 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x4 metatiles at (0E,06)",
+      "forced": "set flag $0113 (byte $0A22 bit 3) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x4 metatiles at (0E,06)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (00,10) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-03",
+    "flag": 281,
+    "scope": null,
+    "claim": "Proposal sc_wills_house_ransacked: Event block $19 (scene $06, 16x32 whole-room copy) is applied on every load of Will's house while the flag is set.",
+    "priority": "P2",
+    "start": {
+      "scene": 6,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $06 with flag $0119 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 16x32 metatiles at (00,00)",
+      "forced": "set flag $0119 (byte $0A23 bit 1) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 16x32 metatiles at (00,00)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (00,30) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-04",
+    "flag": 288,
+    "scope": null,
+    "claim": "Reloading scene $2F with flag $0120 set applies the layer-1 block $20 (32x16 effect-layer copy); the next reload after $0120 is cleared shows the plain effect layer.",
+    "priority": "P3",
+    "start": {
+      "scene": 47,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "enter scene $2F with $0120 clear and screenshot the effect layer",
+      "forced": "set $0120 ($0A24 bit 0) and reload the scene, then clear it and reload again",
+      "observe": [
+        "effectLayerTilemap ($7EC000) rows 0-15",
+        "screenshot of both reloads"
+      ]
+    },
+    "confirms": "the first reload differs from the control in the effect layer and the second reload equals the control",
+    "refutes": "both reloads equal the control, or the swap leaves the effect layer untouched",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-05",
+    "flag": 312,
+    "scope": null,
+    "claim": "Proposal sp_palace_entrance_open: The Seaside Palace entrance in scene $5A was opened with the Seaside Palace Key; event block $38 is applied on later loads.",
+    "priority": "P2",
+    "start": {
+      "scene": 90,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $5A with flag $0138 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 3x4 metatiles at (08,03)",
+      "forced": "set flag $0138 (byte $0A27 bit 0) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 3x4 metatiles at (08,03)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (0D,21) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-06",
+    "flag": 345,
+    "scope": null,
+    "claim": "Applying block $59 alone (flag $0159 set, $0158 clear) on a reload of scene $A2 gives the same picture as the stepwise StageBgChange #58 + #59 sequence.",
+    "priority": "P3",
+    "start": {
+      "scene": 162,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "solve the crossroads gate in play, screenshot the opened gate",
+      "forced": "start from a state with the gate closed, set only $0159 ($0A2B bit 1) and load scene $A2",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 13x3 metatiles at (07,07)",
+        "screenshot"
+      ]
+    },
+    "confirms": "the loaded picture equals the played one",
+    "refutes": "the loaded picture differs (an earlier step block is needed)",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-07",
+    "flag": 351,
+    "scope": null,
+    "claim": "Applying block $5F alone on a reload of scene $A5 gives the same picture as the stepwise #5A-#5F sequence of gate A.",
+    "priority": "P3",
+    "start": {
+      "scene": 165,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "solve gate A in play, screenshot",
+      "forced": "closed state, set only $015F ($0A2B bit 7) and load scene $A5",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 13x3 metatiles at (21,11)",
+        "screenshot"
+      ]
+    },
+    "confirms": "identical pictures",
+    "refutes": "different pictures",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-08",
+    "flag": 359,
+    "scope": null,
+    "claim": "Applying block $67 alone on a reload of scene $A5 gives the same picture as the stepwise #60-#67 sequence of gate B.",
+    "priority": "P3",
+    "start": {
+      "scene": 165,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "solve gate B in play, screenshot",
+      "forced": "closed state, set only $0167 ($0A2C bit 7) and load scene $A5",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 13x3 metatiles at (29,23)",
+        "screenshot"
+      ]
+    },
+    "confirms": "identical pictures",
+    "refutes": "different pictures",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-09",
+    "flag": 373,
+    "scope": null,
+    "claim": "Proposal bt_crystal_gate_a_open: The first crystal gate of the Babel middle floors (scene $E0) is open: Castoth's Babel rematch was beaten.",
+    "priority": "P2",
+    "start": {
+      "scene": 224,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $E0 with flag $0175 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (3E,33)",
+      "forced": "set flag $0175 (byte $0A2E bit 5) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (3E,33)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (46,32) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-10",
+    "flag": 374,
+    "scope": null,
+    "claim": "Proposal bt_crystal_gate_b_open: The second crystal gate of the Babel middle floors (scene $E0) is open: the Viper rematch was beaten.",
+    "priority": "P2",
+    "start": {
+      "scene": 224,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $E0 with flag $0176 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (3E,23)",
+      "forced": "set flag $0176 (byte $0A2E bit 6) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (3E,23)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (46,32) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-11",
+    "flag": 375,
+    "scope": null,
+    "claim": "Proposal bt_crystal_gate_c_open: The third crystal gate of the Babel middle floors (scene $E0) is open: the Vampires rematch was beaten.",
+    "priority": "P2",
+    "start": {
+      "scene": 224,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $E0 with flag $0177 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (2E,13)",
+      "forced": "set flag $0177 (byte $0A2E bit 7) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (2E,13)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (46,32) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-12",
+    "flag": 376,
+    "scope": null,
+    "claim": "Proposal bt_crystal_gate_d_open: The fourth crystal gate of the Babel middle floors (scene $E0) is open: the Sand Fanger rematch was beaten.",
+    "priority": "P2",
+    "start": {
+      "scene": 224,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $E0 with flag $0178 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (2E,03)",
+      "forced": "set flag $0178 (byte $0A2F bit 0) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x7 metatiles at (2E,03)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (46,32) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-13",
+    "flag": 377,
+    "scope": null,
+    "claim": "Proposal bt_crystal_gate_e_open: The crystal gate of the Babel upper floors (scene $E3) is open: the Mummy Queen rematch was beaten.",
+    "priority": "P2",
+    "start": {
+      "scene": 227,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $E3 with flag $0179 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x6 metatiles at (1E,34)",
+      "forced": "set flag $0179 (byte $0A2F bit 1) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 4x6 metatiles at (1E,34)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (17,33) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL11-14",
+    "flag": 389,
+    "scope": null,
+    "claim": "Proposal gs_ship_departure_started: The Gold Ship departure sequence (scene $2C) has started; event block $85 (1x1 copy from (1A,12) to (19,11)) is applied on later loads of scene $1E.",
+    "priority": "P2",
+    "start": {
+      "scene": 30,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $1E with flag $0185 clear and record mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 1x1 metatiles at (19,11)",
+      "forced": "set flag $0185 (byte $0A30 bit 5) and load the same scene again",
+      "observe": [
+        "mapLayerTilemap ($7EA000) and collisionLayer ($7FC000) rectangle 1x1 metatiles at (19,11)",
+        "screenshot of the destination area"
+      ]
+    },
+    "confirms": "the rectangle shows the copy of the source rectangle (1A,12) only in the forced load; with the real setter played in the story the same picture appears",
+    "refutes": "the rectangle is unchanged in the forced load, or a second setter exists",
+    "needs": [
+      "FR00"
+    ]
+  }
+]

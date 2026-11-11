@@ -1,0 +1,86 @@
+{
+  "_note": "IT-05: retired nicknames (will_alt, ability_fx, freedan_fx, shadow_fx, shadow_mode) replaced by the live block names; body_table cleaned completely (block note and the row-table part note are full-text sets, so re-running them reports =unchanged); slider_glide, cop_handlers_player_sprite and GetPlayerFacingDirection use edit ops for block and part notes (re-running reports an error, not =unchanged). Comments carry expect guards.",
+
+  "tables/body_table.asm": {
+    "blockNote": [
+      "Player body table (Bank 01, 121201-121254): nine 6-byte body-entry rows that choose the sprite set and the tile graphics the player is drawn with. Row layout: { word spriteset pointer, byte spriteset bank, word tile-graphics source address, byte tile-graphics bank } - the extraction shows it as two long pointers, < @spriteset_X, @gfx >.",
+      "",
+      "Two ways to select a row:",
+      "- characterForm x 6: InitActorFromSceneData (scene entry) and actor_pool.SetActorBody copy the spriteset pointer and bank into the actor ($7F0006, $7F0008) and clear playerFlags bit 15. Only rows 0-3 are reached this way.",
+      "- SetPlayerSpriteDirect (COP #8E, operand 0-8): writes the same two fields, keeps the table offset in animScratch2 ($7F000E) and the row number in $0AC8, and sets playerFlags bit 15 (sprite override).",
+      "",
+      "DecomposePlayerSprites (sprite_composition) reads row +3 / +5, the tile-graphics source address and bank, for the player's tile DMA list ($06FC / $06FE) in both cases. playerFlags bit 15 only changes where the row offset comes from: animScratch2 when it is set, characterForm x 6 when it is clear. GetPlayerFacingDirection uses $0AC8 - 4 to choose a per-form facing table for rows 4-7."
+    ],
+    "partNotes": {
+      "body_table": [
+        "| Row | Spriteset (bank) | Tile graphics | Use |",
+        "|-----|------------------|---------------|-----|",
+        "| $00 | spriteset_will ($95) | will_sprites_1A8000 | Will, normal body (characterForm 0) |",
+        "| $01 | spriteset_freedan ($8E) | free_sprites_1AC000 | Freedan (characterForm 1) |",
+        "| $02 | spriteset_shadow ($94) | shad_sprites_1BC000 | Shadow (characterForm 2) |",
+        "| $03 | spriteset_shadow ($94) | shad_sprites_1BC000 | Identical to row $02 (characterForm 3; nothing found selects this row, see below) |",
+        "| $04 | spriteset_will_abilities ($8F) | will_sprites_1A8000 | Will's alternate poses: Psycho Dash, Psycho Slider and Spin Dash charge, the flute pose, the hold pose and the credits (all SetPlayerSpriteDirect #04); shares Will's tile graphics |",
+        "| $05 | spriteset_transform_poses ($8F) | abil_sprites_1B8000 | The transform poses: selected only by the seven Transform_* scripts of sE6_gaia (SetPlayerSpriteDirect #05) |",
+        "| $06 | spriteset_freedan_fx ($97) | free_fx_1C8000 | Freedan effect sprites |",
+        "| $07 | spriteset_shadow_fx ($97) | shad_fx_1CA000 | Shadow effect sprites; not selected by any SetPlayerSpriteDirect operand |",
+        "| $08 | spriteset_shadow_aura_body ($97) | shad_sprites_1BC000 | Shadow's Aura body (SetPlayerSpriteDirect #08 in PlayerAuraTransformEntry); shares Shadow's tile graphics |",
+        "",
+        "Rows 4-7 have a facing table each. FacingFormOffsetTable is indexed by $0AC8 - 4 and holds, in order, FacingData_WillAbilities (row 4, spriteset_will_abilities), FacingData_TransformPoses (row 5, spriteset_transform_poses), FacingData_FreedanFx (row 6, spriteset_freedan_fx) and FacingData_ShadowFx (row 7, spriteset_shadow_fx). With playerFlags bit 15 set, rows 0-3 fall back to FacingDirectionLookup. Row 8 is in neither group: $0AC8 = 8 gives index 8 - 4 = 4, which is not negative, so there is no fallback, and GetPlayerFacingDirection reads FacingFormOffsetTable + 8, past the 4-entry (8-byte) table; the word it reads there is the first two bytes of FacingData_WillAbilities, which follows the table directly. Not traced: whether GetPlayerFacingDirection runs while row 8 is active.",
+        "",
+        "Selection by number: the only SetPlayerSpriteDirect operands in the scripts are 04, 05, 06 and 08 (24 sites). Row $07 is not selected by any of them. sE6_gaia is the only user of row $05. Row $08 is selected by SetPlayerSpriteDirect #08 in player_transition_handlers.PlayerAuraTransformEntry (item_use_system.UseItem_Aura, Shadow standing still). Nothing found selects row $03 by number (no SetPlayerSpriteDirect #03, and characterForm 3 is not traced), so what makes row $03 reachable is not traced."
+      ]
+    }
+  },
+
+  "system/engine/slider_glide.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "$8F, the will_alt spriteset that SetPlayerSpriteDirect #04 selects at the start of every slide.", "with": "$8F (the bank of spriteset_will_abilities, which RunAttackNS / RunAttackEW select at the start of every slide with SetPlayerSpriteDirect #04)." },
+        { "find": "Slide animation indices (will_alt spriteset):", "with": "Slide animation indices (spriteset_will_abilities):" },
+        { "find": " The old comments called these 'walk frames' and the bank check a 'walking state'; neither is true.", "with": "" },
+        { "find": "; the old '+/-$20' wording is wrong.", "with": "." }
+      ]
+    },
+    "partNotes": {
+      "IsPlayerSliderSpriteBank": {
+        "edit": [
+          { "find": "$8F is the bank of the will_alt spriteset (body_table entries 4 and 5), which the Psycho Slider selects with SetPlayerSpriteDirect #04; the normal Will spriteset is bank $95. It is not a 'move state'.", "with": "$8F is the bank shared by body_table rows 4 (spriteset_will_abilities) and 5 (spriteset_transform_poses), so the test does not tell the two apart; the Psycho Slider selects row 4 with SetPlayerSpriteDirect #04, and only sE6_gaia selects row 5. The normal Will spriteset is bank $95." }
+        ]
+      }
+    },
+    "comments": {
+      "53493": { "text": "Player sprite bank must be $8F (body_table rows 4 and 5; the Psycho Slider uses row 4, spriteset_will_abilities); carry set rejects", "expect": "IsPlayerSliderSpriteBank" },
+      "53772": { "text": "$8F = bank of body_table row 4 (spriteset_will_abilities) and row 5 (spriteset_transform_poses, sE6_gaia only); normal Will is $95", "expect": "CMP" },
+      "53779": { "text": "Carry set = reject (bank is not $8F)", "expect": "SEC" },
+      "53821": { "text": "$14 = finish frame of the west Psycho Slide (spriteset_will_abilities)", "expect": "StageSpriteFrame" }
+    }
+  },
+
+  "system/engine/cop_handlers_player_sprite.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "4 will_alt ($8F), 5 ability_fx ($8F), 6 freedan_fx ($97), 7 shadow_fx ($97), 8 shadow_mode ($97).", "with": "4 spriteset_will_abilities ($8F), 5 spriteset_transform_poses ($8F), 6 spriteset_freedan_fx ($97), 7 spriteset_shadow_fx ($97), 8 spriteset_shadow_aura_body ($97)." }
+      ]
+    },
+    "partNotes": {
+      "SetPlayerSpriteDirect": {
+        "edit": [
+          { "find": "(the Psycho Slider code uses #04 = will_alt)", "with": "(the Psycho Slider code uses #04 = spriteset_will_abilities)" }
+        ]
+      }
+    },
+    "comments": {
+      "41017": { "text": "Operand: body_table index 0-8 (row names are listed in the block note, section Body table)", "expect": "LDA" },
+      "41050": { "text": "Bank byte ($7F0008): $8F rows 4-5 (spriteset_will_abilities, spriteset_transform_poses), $95 Will, $8E Freedan, $94 Shadow, $97 rows 6-8", "expect": "STA" }
+    }
+  },
+
+  "system/engine/GetPlayerFacingDirection.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "i.e. will_alt, ability_fx, freedan_fx, shadow_fx", "with": "i.e. spriteset_will_abilities, spriteset_transform_poses, spriteset_freedan_fx, spriteset_shadow_fx" },
+        { "find": "(WillAlt, AbilityFx, FreedanFx, ShadowFx)", "with": "(WillAbilities, TransformPoses, FreedanFx, ShadowFx)" }
+      ]
+    }
+  }
+}

@@ -1,0 +1,4 @@
+[
+    { "address": 192618, "old": "ClearVramBufferPartial", "new": "ClearBg3TilemapBuffer_PreserveHud", "note": "clears the BG3 tilemap staging buffer ($7F:0200) below the HUD rows; label bg3TilemapBuffer and Bg3TilemapVramDma already use the Bg3 spelling" },
+    { "address": 192630, "old": "ClearVramBufferFull", "new": "ClearBg3TilemapBuffer_Full", "note": "clears the whole BG3 tilemap staging buffer" }
+]

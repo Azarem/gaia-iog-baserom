@@ -2,7 +2,7 @@
 ; 
 ; === INIT ===
 ; 
-; actor-def <#00,#00,#01>. $24 := $0E (spawn type byte >> 1, the flag number), then $0E := $2000 (OAM attribute word, priority 2). statsPtr points at enemy_stats_table + $118 (the assembler's offset is hex), which is entry $46: HP $14, ATK $16, DEF $FF, type 0; the actor's currentHp is overwritten with $FF anyway. Metasprite spriteset_pickups_effects, frame $0F shown with AnimOnce, MarkSolidHere. $12 |= $0031: bit $0001 selects between the two post-hit invulnerability modes ($FFEF recovery vs $0011 invincibility in combat_collision; which one it picks was not traced), bit $0010 makes the victim stagger-immune, bit $0020 marks it as a boss so no damage digits are spawned (combat_collision).
+; actor-def <#00,#00,#01>. $24 := $0E (spawn type byte >> 1, the flag number), then $0E := $2000 (OAM attribute word, priority 2). statsPtr points at enemy_stats_table + $118 (the assembler's offset is hex), which is entry $46: HP $14, ATK $16, DEF $FF, type 0; the actor's currentHp is overwritten with $FF anyway. Metasprite spriteset_pickups_effects, frame $0F shown with AnimOnce, MarkSolidHere. $12 |= $0031: bit $0001 selects between the two post-hit invulnerability modes ($FFEF recovery vs $0011 invincibility in combat_collision; this actor has bit $0001 set, so ApplyHitDamageToVictim writes $FFEF to its iframeCounter: measured -17 after the first hit, counting up while the switch keeps ticking), bit $0010 makes the victim stagger-immune, bit $0020 marks it as a boss so no damage digits are spawned (combat_collision).
 ; HitSwitchRearm (re-arm): currentHp := $FF, COP SetHitCallback ( &HitSwitchTriggered ), SetEntryHere, RTL. The actor then idles.
 ; 
 ; === WHEN HIT ===

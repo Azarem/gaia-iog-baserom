@@ -1,0 +1,8 @@
+[
+  { "address": 187436, "old": "DiagLadderTile",      "new": "WestShimmyTile",    "row": "CT-1", "note": "type $07 is the wall-shimmy tile; the label redirects to ShimmyLeftEntry and never starts a ladder" },
+  { "address": 186236, "old": "EastLadderTile",      "new": "EastShimmyTile",    "row": "CT-2", "note": "type $07 east case; redirects to ShimmyRightEntry" },
+  { "address": 187465, "old": "DiagWallSouthFromDL", "new": "DiagWallSouthShim", "row": "CT-3", "note": "'DL' abbreviated DiagLadderTile, which this label used to follow; it is only the entry shim of the code_02DC4B wall handler" },
+  { "address": 185381, "old": "SouthStairsTile",     "new": "SouthVineTile",     "row": "CT-4", "note": "type $08 climb-down (vine) tile entered walking south; it enters ClimbVineEntry and has nothing to do with stairs" },
+  { "address": 185355, "old": "SouthInteractTile",   "new": "SouthLadderTile",   "row": "CT-5", "note": "type $02 ladder reached walking south; sets LadderClimbNorth" },
+  { "address": 184532, "old": "NorthInteractTile",   "new": "NorthLadderTile",   "row": "CT-6", "note": "type $02 ladder reached walking north; sets LadderClimbSouth" }
+]

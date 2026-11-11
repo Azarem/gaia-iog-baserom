@@ -1,0 +1,553 @@
+{
+  "_note": "FL30 registry fragment: engine-owned flags (system, actors, thinkers; 145 literal sites in 18 files). Owned flags get full records; spine flags (used by other groups) are proposals that agree with or refine the earlier iterations' names. Scratch flags $00-$0F are scene-scoped.",
+  "_crossref": [
+    "$01 scene 21 (it_village_intro_pan_active, FL22): reader extracted/actors/overworld_exit.asm:210 {52010}; setter and clearer are it15_lily (FL22).",
+    "$01 scene 116 (av_tunnel_rooms_magic_dust_used, FL26): setter extracted/system/inventory/item_use_system.asm:1206 {234433} (UseItem_MagicDust).",
+    "$01 / $02 scenes 162 and 165 (mt_crossroads_mushroom_drop_req, mt_circuit_stem_a_drop_req and _b_drop_req, FL24): setters extracted/system/inventory/item_use_system.asm:1348 {235734}, :1361 {235760} and :1367 {235768} (the mushroom handlers).",
+    "$01 scene 205 (py_melody_played_cue, FL29): setter extracted/system/inventory/item_use_system.asm:781 {232552} (code_038C68, reached from the Lola's Melody effect in scene $CD); $0D scene 205 (py_jackal_melody_heard) set at :711 {232426}; $0E scene 205 (py_melody_playable) tested at :710 {232420} and cleared at :782 {232555} (the same code_038C68 that sets $01, so a played melody ends the playable window); $0F scene 205 (py_jackal_scene_active) tested at :1475 {236210} by UseItem_HieroglyphPlate.",
+    "$01 / $02 scene 17 (ec_doorway_*, FL21): $02 tested at extracted/system/inventory/item_use_system.asm:701 {232398} and set at :775 {232543}; $0113 word (ec_aqueduct_door_open) tested at :700 {232391} and :774 {232536}.",
+    "$01 scene 21 / $40 (it_village_barrier_lifted, FL22): tested at extracted/system/inventory/item_use_system.asm:705 {232406} (start, refuses when set) and :768 {232521}, set at :769 {232527}.",
+    "$02 / $03 scene 47 (hungry-villagers cue, FL23): UseItem_SmokedMeat tests $02 at extracted/system/inventory/item_use_system.asm:808 {232815} and sets $03 at :811 {232828}.",
+    "$0E scene 93 (sp_fountain_stone_used_req, FL25): set at extracted/system/inventory/item_use_system.asm:1088 {234043}; $0F scene 57 (fr_hotel_memory_melody_played_req, FL23): set at :931 {233336}.",
+    "$0113 / 275 (ec_aqueduct_door_open, FL21) and $0138 / 312 (sp_mu_passage_door_open, FL25): FL30 only reads or sets them from item_use_system (extracted/system/inventory/item_use_system.asm:700 {232391}, :774 {232536}; :1052 {233821}, :1057 {233840}).",
+    "Statue rewards $F8-$FD (decimal 248-253): table rows 0-5 of statue_reward_table; triggers gs2E_crew2 (row 0, FL23), sg55_mystic_statue (row 1, FL24), mu66_rama_spirits (row 2, FL30 flag $FA), gw8A_sand_fanger (row 3, FL30 flag $FB), pyDD_mystic_statue (row 4, FL29 flag $FC), btDE_olman (row 5, FL29 flag $FD). The reward actor sets the flag with SetFlagRaw at extracted/system/statue_inventory/statue_inventory_reward.asm:114 {52689} after TestFlagRaw at :100 {52658}; the inventory statue slot tests it at extracted/system/inventory/inventory_statue_slot.asm:57 {53079}. These are helper calls with a table index, not literal COP sites.",
+    "Hit-switch flags (actors/hit_switch.asm): the flag number is the spawn byte >> 1 (kept in $24) and SetFlagRaw runs at extracted/actors/hit_switch.asm:72 {51759}; placements scene 131 (#03 -> $01), scene 133 (#03 $01, #05 $02, #05 $02, #07 $03, #09 $04) and scene 135 (#1F -> $0F); the scratch meanings are FL24's (gw_*_switch_struck_req).",
+    "$00 other writers (scene-local, outside this scope): extracted/south_cape/south_cape/sc01_fisherman.asm:59 {295903} and :63 {295907}; extracted/diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm:49 {382842}, :55 {382846}, :103 {382967}; extracted/angel_village/angel_tunnel_waterfall/av73_waterfall_sound.asm:51 {448302}, :58 {448317}, :63 {448321}; extracted/angel_village/angel_tunnel_test/av75_apprentice.asm:22 {449629}; extracted/euro/dark_chapel/eu9D_altar.asm:20 {517508}, :26 {517512}; extracted/babel_tower/babel_light_elevator/btE1_light_elevator.asm:32 {628139}; extracted/incan_ruins/larai_cliff_back/ir1E_cliff_slide_trigger.asm:24 {640191}, :28 {640196}, :33 {640211}; extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:43 {698922}, :49 {698926}, :64 {698955}. Each sets $00 on a position or event condition (see the report) and none of them tests it."
+  ],
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [1, 21, 26, 29, 30, 43, 44, 47, 48, 50, 61, 64, 67, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 109, 110, 111, 112, 113, 114, 115, 117, 120, 157, 225] },
+          "name": "sys_player_alt_idle_active",
+          "area": "system",
+          "summary": "Alternate-idle request: while the scratch flag is set the player stages the alternate idle animations of whatever form is current, and the shadow_shimmer actor stays in its fast-strip Active state.",
+          "kinds": ["engine"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "player_character stages anims $10-$13 (idle S/N/W/E), $2F / $2E (ladder idle south / north) and $35 / $34 (shimmy detach right / left); PlayerIdleAnimLoop stages $11; shadow_shimmer stays in ShadowShimmerActive while standing still.",
+            "clear": "The ordinary anims $00-$03, $2B / $2A, $31 / $30 and $01; shadow_shimmer returns to Idle when both speed words are zero."
+          },
+          "evidence": [
+            "extracted/actors/player/player_character.asm:232 {181375}",
+            "extracted/actors/player/player_character.asm:243 {181391}",
+            "extracted/actors/player/player_character.asm:254 {181407}",
+            "extracted/actors/player/player_character.asm:265 {181423}",
+            "extracted/actors/player/player_character.asm:806 {182357}",
+            "extracted/actors/player/player_character.asm:817 {182373}",
+            "extracted/actors/player/player_character.asm:992 {182714}",
+            "extracted/actors/player/player_character.asm:1004 {182733}",
+            "extracted/actors/player_transition_handlers.asm:48 {50226}",
+            "extracted/actors/player/shadow_shimmer.asm:47 {176698}",
+            "extracted/actors/player/shadow_shimmer.asm:68 {176733}",
+            "extracted/actors/scene_flag_init.asm:16 {50794}"
+          ],
+          "notes": "Every reader tests only this flag. None tests characterForm: StagePlayerSprite goes through SetActorBody, which picks the body from characterForm, and spriteset_will, spriteset_freedan and spriteset_shadow each hold real multi-frame animations at $10-$13, $2E / $2F and $34 / $35 (read in tables/spriteset_*.asm); ending_credits/sF7_credits_player stages the same animation indices. The shadow_shimmer actor does test the form (its guard dies when the form is not Shadow), which is probably where the name 'Shadow flag' came from. Writers: scene_flag_init (26 scenes, unconditional on the first tick) and the position or event triggers listed in _crossref. What the alternate pose depicts (a waiting or looking-around pose?) is not established: queue item FL30-01."
+        },
+        {
+          "scope": { "scenes": [255] },
+          "name": "sys_inventory_exit_req",
+          "area": "system",
+          "summary": "The inventory overlay (scene $FF) is asked to close: inventory_menu sets the flag on Tab cancel and the overlay's main loop polls it.",
+          "kinds": ["handshake", "engine"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "inventory_overlay leaves its UpdateFrameDialogue loop and runs the teardown (RestoreGameState).",
+            "clear": "The overlay keeps looping."
+          },
+          "evidence": [
+            "extracted/system/inventory/inventory_menu.asm:1486 {191678}",
+            "extracted/system/inventory/inventory_overlay.asm:204 {192033}"
+          ],
+          "notes": "The overlay pushes eventFlags (flags $00-$0F) when it opens and zeroes it (inventory_overlay.asm lines 120-122, offsets 191788 and 191792), so the flag starts clear in the overlay and the world's value, including the alternate-idle flag $00 of the world scene, is restored on close (line 225). The producer and the consumer are in this scene only."
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [253, 255] },
+          "name": "sys_palette_wave_req",
+          "area": "system",
+          "summary": "palette_parent_child polls the flag every frame: set spawns the child thinker that keeps stepping palette bundle #03 until the flag clears. No script of scenes $FD or $FF sets it.",
+          "kinds": ["handshake", "engine"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The parent spawns PaletteParentChildWaveLoop, waits for the flag to clear, kills the child and restarts bundle #03.",
+            "clear": "The parent only polls; bundle #03 is applied once at spawn."
+          },
+          "evidence": [
+            "extracted/thinkers/palette_parent_child.asm:20 {46597}",
+            "extracted/thinkers/palette_parent_child.asm:33 {46616}"
+          ],
+          "notes": "The thinker is spawned only in scenes $FD (statue ceremony, 253) and $FF (inventory overlay, 255). No actor of either scene sets $01 (inventory_menu and inventory_overlay use only $00; statue_inventory_reward uses SetFlagRaw with table indices $F8-$FD), scene setup clears $00-$0F, and the overlay zeroes eventFlags on open, so the spawn branch is not reachable in the shipped game: the child wave is dead code. Search: every inventory site with index $01 (184) and every file placed in those two scenes."
+        },
+        {
+          "scope": { "scenes": [36] },
+          "name": "ir_plate_room_wind_melody_played",
+          "area": "incan_ruins",
+          "summary": "The Wind Melody has been played in the Incan Ruins plate room (scene $24) during this visit: a second playing is refused.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "UseItem_WindFlute branches to the 'nothing happened' text instead of spawning another melody actor.",
+            "clear": "The melody can be played (scene $24 only; other scenes print 'nothing happened')."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:599 {231854}",
+            "extracted/system/inventory/item_use_system.asm:652 {231958}"
+          ],
+          "notes": "Setter: UseItem_WindFlute_Effect, triggered by FluteMusicActorController after playback. No actor of scene $24 reads $01 (the scene holds player_character, camera_scroll_controller, ir24_glowing_tile and the ambient thinkers; none of their files has an index-$01 site), so the flag only limits replays within the visit. The Wind Melody prints the prophecy text and spawns a palette thinker; its link to the glowing tile of ir24 is through the palette, not through a flag. Name from the scene and the handler."
+        }
+      ]
+    },
+    "46": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_couple_house_incan_melody_played",
+          "area": "itory",
+          "summary": "The Incan Melody was played in scene $18 (the Itory couple's house; 'The Mayor's expression changed!'). Nothing reads the flag.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "No observable effect: no actor, scene-meta gate or flag helper reads $2E.",
+            "clear": "Same."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:488 {231465}"
+          ],
+          "notes": "Write-only. Search: inventory index $2E (one site), word form #$002E, helper callers and direct $0A05 accesses (none). Name from the handler's dialog and FL22's scene reading; the story intent (the player was expected to see a reaction) is a guess."
+        }
+      ]
+    },
+    "142": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_lance_letter_read",
+          "area": "system",
+          "summary": "Lance's Letter was read from the inventory; the Watermia world-map exit then offers the Great Wall (menu $0C) instead of Angel Village only.",
+          "kinds": ["gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "overworld_exit in scene $78 stages choice id $0C (Angel Village / Great Wall) unless $94 is set (then $0E).",
+            "clear": "Choice id $0B (Angel Village only)."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:1267 {234764}",
+            "extracted/actors/overworld_exit.asm:349 {52222}"
+          ],
+          "notes": "One setter (UseItem_LanceLetter, display-only handler), one reader. Name from the item; the letter says 'I'm going to the Great Wall of China'."
+        }
+      ]
+    },
+    "220": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_gaia_intro_heard",
+          "area": "system",
+          "summary": "Gaia's first-encounter introduction ('I am Gaia...') was shown in a Dark Space; later encounters skip it and go straight to the heal and hints.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sE6_gaia branches to GaiaHealAndHints.",
+            "clear": "The intro dialog is printed and the flag set."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:589 {580359}",
+            "extracted/system/dark_space/sE6_gaia.asm:590 {580365}"
+          ],
+          "notes": "Only sE6_gaia (placed in scenes $09 and $E6) tests or sets it."
+        }
+      ]
+    },
+    "221": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_shadow_statue_first_used",
+          "area": "system",
+          "summary": "The Dark Space Shadow statue was used once: the first use prints the lore text and transforms without a prompt, later uses ask for confirmation.",
+          "kinds": ["once-latch", "form-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ShadowTransformDialogue branches to ShadowTransformPrompt.",
+            "clear": "dialogstring_08F4B1, then the transformation without a prompt."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:1877 {586759}",
+            "extracted/system/dark_space/sE6_gaia.asm:1878 {586765}"
+          ],
+          "notes": "Reached only when $B4 is set (da_neil_reunion_seen, see proposals) and the player is not already Shadow."
+        }
+      ]
+    },
+    "247": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_freedan_statue_first_used",
+          "area": "system",
+          "summary": "The Dark Space Freedan statue was used once: the first use prints the lore text and transforms without a prompt, later uses ask for confirmation.",
+          "kinds": ["once-latch", "form-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The Freedan transformation branches to FreedanTransformPrompt.",
+            "clear": "dialogstring_08F157, then Transform_WillToFreedan without a prompt."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:1566 {585887}",
+            "extracted/system/dark_space/sE6_gaia.asm:1567 {585893}"
+          ],
+          "notes": "Only sE6_gaia tests or sets it."
+        }
+      ]
+    },
+    "233": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_jeweler_herb_given",
+          "area": "system",
+          "summary": "Jeweler Gem has paid the 3-jewel reward (a Herb).",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "The tier is skipped; 'See your inventory' highlights the Herb line.", "clear": "The tier pays out when jewelsCollected >= 3 (the flag stays clear when the inventory is full)." },
+          "evidence": [
+            "extracted/actors/jeweler_gem.asm:73 {577238}",
+            "extracted/actors/jeweler_gem.asm:207 {577454}",
+            "extracted/actors/jeweler_gem.asm:271 {577572}"
+          ],
+          "notes": "Jeweler state machine: see the report, question 4. All six placements (scenes $01, $32, $6B, $7B, $9B, $C3, 1, 50, 107, 123, 155, 195 decimal) run the same code, so the flags are global."
+        }
+      ]
+    },
+    "234": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_jeweler_defense_given",
+          "area": "system",
+          "summary": "Jeweler Gem has paid the 5-jewel reward (DEF +1).",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "The tier is skipped; the inventory list highlights the DEF line.", "clear": "The tier pays out when jewelsCollected >= 5." },
+          "evidence": [
+            "extracted/actors/jeweler_gem.asm:81 {577255}",
+            "extracted/actors/jeweler_gem.asm:213 {577468}",
+            "extracted/actors/jeweler_gem.asm:280 {577581}"
+          ],
+          "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it."
+        }
+      ]
+    },
+    "235": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_jeweler_max_hp_given",
+          "area": "system",
+          "summary": "Jeweler Gem has paid the 8-jewel reward (max HP +1 and one HP healed).",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "The tier is skipped; the inventory list highlights the Life Power line.", "clear": "The tier pays out when jewelsCollected >= 8." },
+          "evidence": [
+            "extracted/actors/jeweler_gem.asm:89 {577272}",
+            "extracted/actors/jeweler_gem.asm:219 {577482}",
+            "extracted/actors/jeweler_gem.asm:292 {577600}"
+          ],
+          "notes": "The code raises playerMaxHp; the dialog text also says 'Your Strength is raised by one' (text inconsistency noted in the block note)."
+        }
+      ]
+    },
+    "236": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_jeweler_strength_given",
+          "area": "system",
+          "summary": "Jeweler Gem has paid the 12-jewel reward (STR +1).",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "The tier is skipped; the inventory list highlights the STR line.", "clear": "The tier pays out when jewelsCollected >= 12 (BCD $12)." },
+          "evidence": [
+            "extracted/actors/jeweler_gem.asm:97 {577289}",
+            "extracted/actors/jeweler_gem.asm:225 {577496}",
+            "extracted/actors/jeweler_gem.asm:302 {577613}"
+          ],
+          "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it."
+        }
+      ]
+    },
+    "237": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_jeweler_psycho_dash_given",
+          "area": "system",
+          "summary": "Jeweler Gem has paid the 20-jewel reward (Psycho Dash upgrade level $0B16 = 1).",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "The tier is skipped; the inventory list highlights the Psycho Dash line.", "clear": "The tier pays out when jewelsCollected >= 20 (BCD $20)." },
+          "evidence": [
+            "extracted/actors/jeweler_gem.asm:105 {577306}",
+            "extracted/actors/jeweler_gem.asm:231 {577510}",
+            "extracted/actors/jeweler_gem.asm:313 {577629}"
+          ],
+          "notes": "The upgrade level $0B16 is read by attack_ability_system (block note of jeweler_gem); the flag itself is read only by the jeweler."
+        }
+      ]
+    },
+    "238": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_jeweler_dark_friar_given",
+          "area": "system",
+          "summary": "Jeweler Gem has paid the 30-jewel reward (Dark Friar upgrade level $0B1C = 2).",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "The tier is skipped; the inventory list highlights the Dark Friar line.", "clear": "The tier pays out when jewelsCollected >= 30 (BCD $30)." },
+          "evidence": [
+            "extracted/actors/jeweler_gem.asm:113 {577323}",
+            "extracted/actors/jeweler_gem.asm:237 {577524}",
+            "extracted/actors/jeweler_gem.asm:324 {577645}"
+          ],
+          "notes": "The 50-jewel tier has no flag: every talk with 50 or more jewels warps to scene $E9 until Gem is gone ($E8)."
+        }
+      ]
+    },
+    "250": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mystic_statue_collected",
+          "area": "mu",
+          "summary": "The Mu Mystic Statue (statue_reward_table row 2) has been collected: the ceremony of scene $FD does not replay and the inventory shows the statue.",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "StatueRewardEntry takes StatueRewardAlreadyClaimed (display only); inventory_statue_slot shows the statue.",
+            "clear": "The ceremony runs when globalScriptIndex == 2 (written by mu66_rama_spirits at extracted/mu/mu_altar_room/mu66_rama_spirits.asm:67 {433900}), else the actor stays hidden."
+          },
+          "evidence": [
+            "extracted/system/statue_inventory/statue_inventory_reward.asm:100 {52658}",
+            "extracted/system/statue_inventory/statue_inventory_reward.asm:114 {52689}",
+            "extracted/system/inventory/inventory_statue_slot.asm:57 {53079}"
+          ],
+          "notes": "Dynamic trace statue_reward_flags: no literal COP site exists for $FA; the flag is only reached through the table index. Row to trigger mapping read from the six globalScriptIndex writers. Name from the trigger scene (Rama spirits at the Mu altar) and the table row."
+        }
+      ]
+    },
+    "251": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_mystic_statue_collected",
+          "area": "great_wall",
+          "summary": "The Great Wall Mystic Statue (statue_reward_table row 3) has been collected: the ceremony of scene $FD does not replay and the inventory shows the statue.",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "StatueRewardAlreadyClaimed; inventory_statue_slot shows the statue.",
+            "clear": "The ceremony runs when globalScriptIndex == 3 (written by gw8A_sand_fanger at extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:117 {753800}), else the actor stays hidden."
+          },
+          "evidence": [
+            "extracted/system/statue_inventory/statue_inventory_reward.asm:100 {52658}",
+            "extracted/system/statue_inventory/statue_inventory_reward.asm:114 {52689}",
+            "extracted/system/inventory/inventory_statue_slot.asm:57 {53079}"
+          ],
+          "notes": "Same mechanism as $FA. No literal COP site for $FB."
+        }
+      ]
+    },
+    "262": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_prison_cell_door_tiles_removed",
+          "area": "edward_castle",
+          "summary": "Word flag $0106: the prison cell door (door A of scene $0B) was opened with the Prison Key; event block row 6 re-applies BG change #06 (the door tiles removed) on every later load of scene $0B.",
+          "kinds": ["gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ApplyAllEventBlocks applies event_block_table row 6 when scene $0B loads.",
+            "clear": "The door tiles stay."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:302 {230891}"
+          ],
+          "notes": "Set together with byte flag $24 (ec_prison_cell_door_unlocked) by UseItem_PrisonKey; the two always agree, so the byte flag drives the actors and the word flag only the tile restoration. Only reader: event_block_table row 6 (applied through ApplyAllEventBlocks, not a literal COP site). FL11 proposed the name ec_prison_door_unlocked for the same index; FL31 chooses."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "16": [
+      {
+        "source": "FL30",
+        "scope": { "scenes": [251] },
+        "name": "sys_boot_logo_first_shown",
+        "summary": "Scene $FB (boot logos) has shown the first logo: the reload of scene $FB for the second logo sees the flag set and runs BootLogoSecondPhase.",
+        "kinds": ["once-latch", "engine"],
+        "roles": [
+          "test: extracted/system/boot_logos/sFB_boot_logo.asm:72 {772336} (set = second visit)",
+          "setter: sFB_boot_logo.asm:76 {772352}, after the first logo (animation #01, 2 passes) and just before QueueMapChange to scene $FB",
+          "clearer: sFB_boot_logo.asm:88 {772373} at the end of the second visit, before QueueMapChange to the title scene $FC"
+        ],
+        "confidence": "high",
+        "notes": "Index reuse: the same index is the South Cape church lesson flag (sc08_priest.asm:45 {297683}, FL20 name sc_school_lesson_done). The boot scenes run before any save is loaded and the clearer runs before the title, so the two uses cannot meet. The diary menu holds no flag logic: it copies $0A00-$0BFB wholesale into the save slot, so $10 would be saved only if set at save time (never during the logos). Resolved: harmless two-visit latch."
+      }
+    ],
+    "22": [
+      { "source": "FL30", "scope": null, "name": "sc_cave_kara_news_done", "summary": "Agrees with FL20. The evening palette thinker applies bundle #4C only when this flag is set (and $1C clear).", "kinds": ["cutscene-stage"], "roles": ["test: extracted/thinkers/flag_gated_palette_cool.asm:23 {46567} (clear = Kill, spawn-time gate, scenes $03-$08)", "test: extracted/thinkers/flag_gated_palette_warm.asm:24 {46536} (clear = Kill, scenes $01 and $30)"], "confidence": "high", "notes": "Gate evaluated once at spawn; the scene thinker lists are rebuilt on each scene change." }
+    ],
+    "28": [
+      { "source": "FL30", "scope": null, "name": "sc_dinner_night_passed", "summary": "Agrees with FL20. The evening palette thinkers die at spawn when it is set.", "kinds": ["cutscene-stage"], "roles": ["test: extracted/thinkers/flag_gated_palette_cool.asm:22 {46561} (set = Kill)", "test: extracted/thinkers/flag_gated_palette_warm.asm:23 {46530} (set = Kill)"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "36": [
+      { "source": "FL30", "scope": null, "name": "ec_prison_cell_door_unlocked", "summary": "Agrees with FL21 (door A of the prison, UseItem_PrisonKey).", "kinds": ["gate-open", "once-latch"], "roles": ["test: extracted/system/inventory/item_use_system.asm:298 {230876}", "setter: extracted/system/inventory/item_use_system.asm:303 {230895}, together with word $0106 ({230891})"], "confidence": "high", "notes": "The key use runs in scene $0B (checks sceneCurrent and the door-A tile rectangle)." }
+    ],
+    "37": [
+      { "source": "FL30", "scope": null, "name": "sc_lily_met_in_house", "summary": "Agrees with FL20 (medium). With $26 clear and $25 set the South Cape world-map exit stages choice id $1B (Quit only): the way out is closed until the Itory trip starts.", "kinds": ["cutscene-stage", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:161 {51931} (scene $01 exit zone, Y < $10)", "setter (outside scope): sc06_kara_return.asm:84 {304773}"], "confidence": "medium", "notes": "Q3: $25 is the earlier of the two South Cape flags (set at line 84, $26 at line 122 of the same script)." }
+    ],
+    "38": [
+      { "source": "FL30", "scope": null, "name": "sc_itory_trip_started", "summary": "Agrees with FL20 (medium). Set: the South Cape world-map exit stages choice id $02 (Itory Village); tested before $25.", "kinds": ["cutscene-stage", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:160 {51925}", "setter (outside scope): sc06_kara_return.asm:122 {304868}"], "confidence": "medium", "notes": "The same flag is tested by it15_kara.asm:25 {319627} and it15_lily.asm:33 {320185} in Itory (FL22)." }
+    ],
+    "47": [
+      { "source": "FL30", "scope": null, "name": "ir_entryway_block_placed", "summary": "Agrees with FL22: the Blue Block (item $07) was fitted into the block slot of scene $25 by UseItem_DiamondBlock_Place.", "kinds": ["puzzle-state"], "roles": ["setter: extracted/system/inventory/item_use_system.asm:573 {231800}"], "confidence": "high", "notes": "The shipped part note names the Diamond Mine for scene $25; scene $25 is the Incan Ruins entryway (see the report)." }
+    ],
+    "48": [
+      { "source": "FL30", "scope": null, "name": "ir_cliff_back_statue_a_placed", "summary": "Agrees with FL22: Incan Statue A placed on the mantel (UseItem_IncaStatueA).", "kinds": ["puzzle-state"], "roles": ["setter: extracted/system/inventory/item_use_system.asm:359 {231098}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "49": [
+      { "source": "FL30", "scope": null, "name": "ir_cliff_back_statue_b_placed", "summary": "Agrees with FL22: Incan Statue B placed on the mantel (UseItem_IncaStatueB).", "kinds": ["puzzle-state"], "roles": ["setter: extracted/system/inventory/item_use_system.asm:441 {231376}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "64": [
+      { "source": "FL30", "scope": null, "name": "it_village_barrier_lifted", "summary": "Agrees with FL22 (medium): Lola's Melody was played in the Itory village; the melody is refused while set.", "kinds": ["gate-open"], "roles": ["test: extracted/system/inventory/item_use_system.asm:705 {232406} (start handler, set = refuse)", "test: extracted/system/inventory/item_use_system.asm:768 {232521} (effect handler; unreachable while the start test refuses)", "setter: extracted/system/inventory/item_use_system.asm:769 {232527}"], "confidence": "medium", "notes": "The effect handler's set-branch to code_038C68 is dead given the start test." }
+    ],
+    "66": [
+      { "source": "FL30", "scope": null, "name": "ec_prison_door_b_unlocked", "summary": "Agrees with FL21 (door B of the prison, UseItem_PrisonKey).", "kinds": ["gate-open", "once-latch"], "roles": ["test: extracted/system/inventory/item_use_system.asm:311 {230911}", "setter: extracted/system/inventory/item_use_system.asm:313 {230921}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "68": [
+      { "source": "FL30", "scope": null, "name": "it_elder_legend_heard", "summary": "Agrees with FL22: both Incan statue handlers refuse (clear) until the elder's legend was heard.", "kinds": ["quest-guard"], "roles": ["test: extracted/system/inventory/item_use_system.asm:392 {231162} (UseItem_IncaStatueA, clear = refuse)", "test: extracted/system/inventory/item_use_system.asm:467 {231437} (UseItem_IncaStatueB, clear = refuse)"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "74": [
+      { "source": "FL30", "scope": null, "name": "it_moon_camp_ruins_trip_started", "summary": "Agrees with FL22: the Itory world-map exit offers the Inca Ruins (choice id $06).", "kinds": ["gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:225 {52025} (scene $15, tiles (2D,2E)-(2F,30))"], "confidence": "high", "notes": "Setter it1A_lily.asm:100 {324858} (FL22). Q3." }
+    ],
+    "77": [
+      { "source": "FL30", "scope": null, "name": "gs_wreck_palette_alt_set", "summary": "Agrees with FL23 (medium): at spawn the Gold Ship wreck palette thinker plays bundle #34 once and then the #33 loop.", "kinds": ["cutscene-stage"], "roles": ["test: extracted/thinkers/gold_ship_wreck_palette.asm:31 {46713} (tested once at spawn, scenes $2B $2C $2D $2E $2F)"], "confidence": "medium", "notes": "Evening vs night vs starvation phase of the adrift sequence not decoded (queue item)." }
+    ],
+    "82": [
+      { "source": "FL30", "scope": null, "name": "gs_adrift_final_palette_set", "summary": "Agrees with FL23 (medium): at spawn the thinker kills the first two scanline-band thinkers and flattens palette 2 to dark blue.", "kinds": ["cutscene-stage"], "roles": ["test: extracted/thinkers/gold_ship_wreck_palette.asm:30 {46707} (tested first, wins over $4D)"], "confidence": "medium", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "91": [
+      { "source": "FL30", "scope": null, "name": "dm_foyer_door_key_a_used", "summary": "Agrees with FL24: Mine Key A was used.", "kinds": ["gate-open"], "roles": ["setter: extracted/system/inventory/item_use_system.asm:844 {233013}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "92": [
+      { "source": "FL30", "scope": null, "name": "dm_foyer_door_key_b_used", "summary": "Agrees with FL24: Mine Key B was used.", "kinds": ["gate-open"], "roles": ["setter: extracted/system/inventory/item_use_system.asm:872 {233142}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "96": [
+      { "source": "FL30", "scope": null, "name": "sg_garden_pedestal_east_upper_crystal_set", "summary": "Agrees with FL24 (medium): crystal-ball pedestal flag $60 (UseItem_CrystalBall).", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:966 {233504}", "setter: extracted/system/inventory/item_use_system.asm:967 {233510}"], "confidence": "medium", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "97": [
+      { "source": "FL30", "scope": null, "name": "sg_garden_pedestal_east_lower_crystal_set", "summary": "Agrees with FL24 (medium): pedestal flag $61.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:972 {233515}", "setter: extracted/system/inventory/item_use_system.asm:973 {233521}"], "confidence": "medium", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "98": [
+      { "source": "FL30", "scope": null, "name": "sg_garden_pedestal_west_upper_crystal_set", "summary": "Agrees with FL24 (medium): pedestal flag $62.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:978 {233526}", "setter: extracted/system/inventory/item_use_system.asm:979 {233532}"], "confidence": "medium", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "99": [
+      { "source": "FL30", "scope": null, "name": "sg_garden_pedestal_west_lower_crystal_set", "summary": "Agrees with FL24 (medium): pedestal flag $63.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:984 {233537}", "setter: extracted/system/inventory/item_use_system.asm:985 {233543}"], "confidence": "medium", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "101": [
+      { "source": "FL30", "scope": null, "name": "fr_erik_rescued_done", "summary": "Agrees with FL23: Erik is freed; the Freejia world-map exit offers the Diamond Mine (choice id $07, else $09 Quit only).", "kinds": ["quest-done", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:272 {52097} (scene $32)"], "confidence": "high", "notes": "Setter fr33_erik.asm:42 {380338} (FL23). Q3." }
+    ],
+    "104": [
+      { "source": "FL30", "scope": null, "name": "fr_hotel_lance_memory_restored", "summary": "Agrees with FL23: tested by the Memory Melody handler.", "kinds": ["quest-guard"], "roles": ["test: extracted/system/inventory/item_use_system.asm:900 {233259}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "105": [
+      { "source": "FL30", "scope": null, "name": "dm_elevator_key_used", "summary": "Agrees with FL24: the Elevator Key was used.", "kinds": ["gate-open"], "roles": ["setter: extracted/system/inventory/item_use_system.asm:1024 {233710}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "123": [
+      { "source": "FL30", "scope": null, "name": "mu_hope_statue_west_placed", "summary": "Agrees with FL25.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1126 {234184}", "setter: extracted/system/inventory/item_use_system.asm:1129 {234197}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "126": [
+      { "source": "FL30", "scope": null, "name": "mu_hope_statue_east_placed", "summary": "Agrees with FL25.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1118 {234167}", "setter: extracted/system/inventory/item_use_system.asm:1121 {234180}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "128": [
+      { "source": "FL30", "scope": null, "name": "mu_rama_statue_first_placed", "summary": "Agrees with FL25.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1160 {234313}", "setter: extracted/system/inventory/item_use_system.asm:1163 {234326}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "129": [
+      { "source": "FL30", "scope": null, "name": "mu_rama_statue_second_placed", "summary": "Agrees with FL25.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1168 {234330}", "setter: extracted/system/inventory/item_use_system.asm:1171 {234343}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "141": [
+      { "source": "FL30", "scope": null, "name": "wa_arrival_cutscene_started", "summary": "Agrees with FL26/FL27: the Angel Village world-map exit offers Watermia (choice id $0A, else $15 Quit only).", "kinds": ["cutscene-stage", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:319 {52169} (scene $69)"], "confidence": "high", "notes": "Setter wa78_intro.asm:51 {491619}. Q3." }
+    ],
+    "148": [
+      { "source": "FL30", "scope": null, "name": "wa_party_left_for_euro", "summary": "Agrees with FL27: the Watermia world-map exit offers Euro (choice id $0E).", "kinds": ["cutscene-stage", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:348 {52216} (scene $78, tested before $8E)"], "confidence": "high", "notes": "Setter wa79_neil.asm:60 {500195}. Q3." }
+    ],
+    "159": [
+      { "source": "FL30", "scope": null, "name": "eu_mt_kress_marked_on_map", "summary": "Agrees with FL27: the Euro world-map exit offers Mt. Kress (choice id $10, or $1A with $AC).", "kinds": ["gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:407 {52316} (scene $91, tested after $AC)"], "confidence": "high", "notes": "Setter eu92_erasquez.asm:24 {513973}. Q3." }
+    ],
+    "168": [
+      { "source": "FL30", "scope": null, "name": "eu_teapot_used_in_mansion", "summary": "Agrees with FL27: set by UseItem_Teapot.", "kinds": ["gate-open"], "roles": ["setter: extracted/system/inventory/item_use_system.asm:1314 {235613}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "172": [
+      { "source": "FL30", "scope": null, "name": "nv_party_arrived_native_village", "summary": "Agrees with FL28: the Euro world-map exit offers the Native Village (choice id $1A).", "kinds": ["cutscene-stage", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:406 {52310} (scene $91, tested first)"], "confidence": "high", "notes": "Setter nvAC_kara.asm:37 {557213}. Q3." }
+    ],
+    "177": [
+      { "source": "FL30", "scope": null, "name": "nv_temple_drawn_on_map", "summary": "Agrees with FL28: the Native Village world-map exit offers Ankor Wat (choice id $13).", "kinds": ["gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:465 {52410} (scene $AC, tested after $B6)"], "confidence": "high", "notes": "Setter nvAC_map_kid.asm:59 {561117}. Q3." }
+    ],
+    "180": [
+      { "source": "FL30", "scope": null, "name": "da_neil_reunion_seen", "summary": "Agrees with FL28: Neil's reunion talk in the Dao dormitory was shown; the Dao world-map exit offers the Pyramid and the Dark Space Shadow statue unlocks.", "kinds": ["once-latch", "cutscene-stage", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:522 {52498} (scene $C3)", "test: extracted/system/dark_space/sE6_gaia.asm:209 {579736} (set = BG changes #8E, #8F before the Will input wait)", "test: extracted/system/dark_space/sE6_gaia.asm:276 {579844} (the same for the Freedan statue)", "test: extracted/system/dark_space/sE6_gaia.asm:1868 {586730} (clear = ShadowTransformLocked)"], "confidence": "high", "notes": "Setter daC8_neil.asm:22 {566723}. The Dark Space statue room therefore changes with the Dao story." }
+    ],
+    "182": [
+      { "source": "FL30", "scope": null, "name": "da_arrived_dao", "summary": "Agrees with FL28: the Native Village world-map exit offers Dao (choice id $19, tested first).", "kinds": ["cutscene-stage", "gate-open"], "roles": ["test: extracted/actors/overworld_exit.asm:464 {52404} (scene $AC)"], "confidence": "high", "notes": "Setter daC4_kara.asm:41 {566486}. Q3." }
+    ],
+    "187": [
+      { "source": "FL30", "scope": null, "name": "py_jackal_scene_done", "summary": "Agrees with FL29 (medium): the Pyramid Jackal sequence finished; Lola's Melody is refused in scene $CD once set.", "kinds": ["cutscene-stage"], "roles": ["test: extracted/system/inventory/item_use_system.asm:709 {232414} (start handler, set = refuse)"], "confidence": "medium", "notes": "Setter pyCD_jackal.asm (the end of the sequence, with the clear of scratch $0F)." }
+    ],
+    "191": [
+      { "source": "FL30", "scope": null, "name": "nv_statue1_petal_placed", "summary": "Agrees with FL28: first petal handler flag.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1416 {236018}, :1436 {236063}", "setter: extracted/system/inventory/item_use_system.asm:1417 {236024}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "192": [
+      { "source": "FL30", "scope": null, "name": "nv_statue2_petal_placed", "summary": "Agrees with FL28: second petal handler flag.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1423 {236033}, :1437 {236069}", "setter: extracted/system/inventory/item_use_system.asm:1424 {236039}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "193": [
+      { "source": "FL30", "scope": null, "name": "nv_statue3_petal_placed", "summary": "Agrees with FL28: third petal handler flag.", "kinds": ["puzzle-state"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1430 {236048}, :1438 {236075}", "setter: extracted/system/inventory/item_use_system.asm:1431 {236054}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "232": [
+      { "source": "FL30", "scope": null, "name": "ma_solid_arm_intro_heard", "summary": "Agrees with FL21: set at the start of the Solid Arm intro (sEA_solid_arm.asm:57 {587597}); Jeweler Gem dies at spawn once it is set.", "kinds": ["cutscene-stage"], "roles": ["test: extracted/actors/jeweler_gem.asm:41 {577187} (set = JewelerDie, scenes $01 $32 $6B $7B $9B $C3)"], "confidence": "high", "notes": "The shipped comment on the jeweler test says the flag is set after the Solid Arm fight; the setter runs at the intro (FL21 contradiction, spec FL21_notes.json)." }
+    ],
+    "244": [
+      { "source": "FL30", "scope": null, "name": "pr_prophecy_first_pass_active", "summary": "Agrees with FL20 (high): the title intro sets the flag after about 42 idle seconds and before QueueMapChange to scene $8C; pr8C_prologue1 clears it, and the scene-meta gate for $8C reads it.", "kinds": ["cutscene-stage"], "roles": ["setter: extracted/system/title_screen/sFC_title_intro.asm:49 {772466} (title idle timeout, WaitWord #$09D3 = 2516 ticks, then the transition to the prologue)"], "confidence": "high", "notes": "Q2: the only flag the title scene touches. The diary menu has no flag logic." }
+    ],
+    "255": [
+      { "source": "FL30", "scope": null, "name": "sys_scene_setup_done", "summary": "Agrees with the earlier iterations: scene-setup latch. ClearSceneState clears it at the top (scene_lifecycle.asm:~842, offsets 253418-253423) and sets it at the end; the inventory overlay clears it on open and sets it at the end of its teardown.", "kinds": ["engine", "handshake"], "roles": ["setter: extracted/system/engine/scene_lifecycle.asm:886 {253564}", "setter: extracted/system/inventory/inventory_overlay.asm:255 {192190}", "setter + waiter: extracted/thinkers/flag_gated_palette_cool.asm:30 {46578} / :31 {46581}", "setter + waiter: extracted/thinkers/flag_gated_palette_warm.asm:31 {46547} / :32 {46550}", "setter + test + waiter: extracted/thinkers/gold_ship_wreck_palette.asm:46 {46731}, :51 {46739}, :85 {46793}, :86 {46796}", "test (clear = init pass): extracted/thinkers/sine_hdma_slow_wave.asm:26 {48680} (scenes $32, $E9, $EA)"], "confidence": "high", "notes": "The palette thinkers set $FF themselves during the thinker pass of scene setup, before the engine does (RunThinkers_General runs at {253549}, the engine sets it at {253564}); this is harmless in these scenes because no FF-clear tester shares their thinker lists. Whether a thinker parked on WaitOnFlagByte(FF clear) wakes on an inventory open and replays its palette on close is not read: queue item." }
+    ],
+    "275": [
+      { "source": "FL30", "scope": null, "name": "ec_aqueduct_door_open", "summary": "Agrees with FL21 (word flag $0113): the Lola's Melody start handler refuses scene $11 once the doorway is open.", "kinds": ["gate-open"], "roles": ["test: extracted/system/inventory/item_use_system.asm:700 {232391}", "test: extracted/system/inventory/item_use_system.asm:774 {232536} (effect handler)"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ],
+    "312": [
+      { "source": "FL30", "scope": null, "name": "sp_mu_passage_door_open", "summary": "Agrees with FL25 (word flag $0138): set by UseItem_SeasidePalaceKey.", "kinds": ["gate-open"], "roles": ["test: extracted/system/inventory/item_use_system.asm:1052 {233821}", "setter: extracted/system/inventory/item_use_system.asm:1057 {233840}"], "confidence": "high", "notes": "Name and roles agree with the earlier iteration; nothing in this scope contradicts it." }
+    ]
+  }
+}

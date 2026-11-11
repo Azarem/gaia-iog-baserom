@@ -10,7 +10,7 @@
 ; 
 ; === STAT-UP ITEMS ===
 ; 
-; Each one clears displayModeFlags bit $0080 (leave the display-filter actor mode, in which RunActors_Normal runs only actors flagged $1000; the chest code in warps_interaction sets it around the call), plays SFX $25, adds 1 to the 8-bit stat and returns with Y = 0. The add is 8-bit signed: only when the old value is $7F does the overflow flag trigger and the stat is set to $55 (85) instead. That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded.
+; Each one clears displayModeFlags bit $0080 (leave the display-filter actor mode, in which RunActors_Normal runs only actors flagged $1000; the chest code in warps_interaction sets it around the call), plays SFX $25, adds 1 to the 8-bit stat and returns with Y = 0. The add is 8-bit signed: only when the old value is $7F does the overflow flag trigger and the stat is set to $55 (85) instead. That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded (measured through the pickup touch path: STR $7E gives $7F, $7F gives $55, $FF gives $00; DEF $7F gives $55, $20 gives $21). Max HP is clamped to 40 ($28) by the HP-bar renderer (ConsoleStringRenderer) whenever the bar is drawn, so the $7F reset is out of reach for it in play (measured: max HP poked to $7F reads $28 at the entry of the routine, and the item gives $29 with hpToHeal := $29 - HP = 9).
 ; HP Max Up also sets hpToHeal := new max HP - HP (an 8-bit difference), so UpdateHUD refills the bar to the new maximum at 1 HP every 8 frames. STR Up and DEF Up do not touch hpToHeal.
 ; 
 ; === OTHER SPECIAL ITEMS ===
@@ -93,7 +93,7 @@ GiveItemToPlayer {
     CLC 
     ADC $hpToHeal
     STA $hpToHeal
-    PHD                   ; D := X, the calling actor, so that the spawn below is placed at that actor
+    PHD                   ; D := X (the actor slot), so the spawn below is placed at that actor; the chest caller passes X = $AFA7
     TXA 
     TCD 
     COP [SpawnListAppend] ( @SpawnItemSparkleEffect, #00, #00, #$2F00 ) ; Spark effect (SpawnItemSparkleEffect) at the calling actor; flags word $2F00 becomes the child's $10
@@ -136,7 +136,7 @@ GiveItemToPlayer {
     COP [PlaySoundCh2] ( #22 ) ; SFX $22
     BRA GiveItem_Success
 
-; HP Max Up (item $80): display-filter clear, SFX $25, max HP + 1 with the $7F reset, hpToHeal := new max - HP, Y = 0.
+; HP Max Up (item $80): display-filter clear, SFX $25, max HP + 1 with the $7F reset (the HUD renderer in ConsoleStringRenderer clamps playerMaxHp to $28 every frame, so the reset is not visible for max HP), hpToHeal := new max - HP, Y = 0.
 
   loc_03F00C:
     REP #$20
@@ -148,7 +148,7 @@ GiveItemToPlayer {
     CLC 
     ADC #$01
     BVC loc_03F023        ; The 8-bit signed add overflows only when the old value was $7F
-    LDA #$55              ; Overflow: set $55 (a reset, not a cap; other values are unbounded)
+    LDA #$55              ; Overflow: set $55 (a reset, not a cap). Max HP never reaches $7F in play: ConsoleStringRenderer clamps playerMaxHp to $28 every frame
 
 ; Stores the new max HP and sets hpToHeal.
 

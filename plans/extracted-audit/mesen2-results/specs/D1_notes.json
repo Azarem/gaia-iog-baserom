@@ -1,0 +1,67 @@
+{
+  "_note": "D1 (2026-10-31), see mesen2-results/D1_20261031.md. (1) CameraShakeActor queues sound #15 on every tick (61 times), not once: shipped comment wrong. (2) The NMI sound drain moves the whole word $06F8/$06F9 to APUIO2/APUIO3, not only sfxQueueCh1 to APUIO2: shipped step 13 and two comments incomplete. (3) 'the scene's current music index' for $06F2 holds only right after a scene load (static: the writers of $06F2 are SpcMusicLoadCmd scene_script.asm:1298, pyCD_jackal.asm:118 and item_use_system.asm:921; the 71 StartMusic/FadeThenStartMusic sites never write it). Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/D1_notes.json --dry-run. Comments go through expectOld because extracted/ carries no line-tracking tags; the apply pass may switch to expect after extract:lt. 'find' must occur exactly once in the stored note.",
+  "actors/player/player_character.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "CameraShakeActor (about 60 frames of random camera-target offsets",
+          "with": "CameraShakeActor (61 ticks of random camera-target offsets, with sound #15 queued on every tick"
+        }
+      ]
+    },
+    "comments": {
+      "182097": {
+        "text": "Restarts here every tick (no SetEntryHere): queues sound #15 on each of the 61 ticks ($26 = $3C), shakes the camera, then dies",
+        "expectOld": "Camera shake actor: play sound #15, shake for $26 frames, then die"
+      }
+    }
+  },
+  "system/engine/music_actors.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "($06F2, the scene's current music index)",
+          "with": "($06F2: the BGM id stored by the scene's music record; StartMusic does not update it, and pyCD_jackal and the Memory Melody item overwrite it with $0F and $0E)"
+        }
+      ]
+    },
+    "partNotes": {
+      "MusicJingleActor": {
+        "edit": [
+          {
+            "find": "Saves musicParentActor (the scene's current music index) in orbitAngle",
+            "with": "Saves musicParentActor (the BGM id stored by the scene's music record; StartMusic does not update it) in orbitAngle"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "172096": {
+        "text": "Save musicParentActor ($06F2: the BGM id the scene's music record stored) in orbitAngle for the restore at step 5",
+        "expectOld": "Save musicParentActor ($06F2: the scene's current music index) in orbitAngle for the restore at step 5"
+      }
+    }
+  },
+  "system/engine/system_core.asm": {
+    "partNotes": {
+      "NmiHandler": {
+        "edit": [
+          {
+            "find": "13. Otherwise write APUIO2: 0 on odd frames, the dequeued sfxQueueCh1 byte on even frames",
+            "with": "13. Otherwise write the sound word (16-bit store to APUIO2, so the high byte lands in APUIO3): 0 on odd frames; on even frames the dequeued word sfxQueueCh1 (low byte, APUIO2) / sfxQueueCh2 (high byte, APUIO3), and both queue bytes are cleared. A musicTransitionState of $FFFF skips the write"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "33654": {
+        "text": "Dequeue the pending sound word: sfxQueueCh1 (low byte) and sfxQueueCh2 (high byte); the STZ below clears both",
+        "expectOld": "Dequeue pending sound effect for SPC transfer"
+      },
+      "33660": {
+        "text": "Write the sound word: low byte (Ch1) to APUIO2 ($2142), high byte (Ch2) to APUIO3 ($2143); 0 on odd frames",
+        "expectOld": "Write audio command to SPC I/O port 2 ($2142)"
+      }
+    }
+  }
+}

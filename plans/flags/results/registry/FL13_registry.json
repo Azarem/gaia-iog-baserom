@@ -1,0 +1,2742 @@
+{
+  "_note": "FL13 fragment. domains.D5 is the domain record; flags: one record per nonzero row of enemy_clear_reward_table (87 scenes). Every flag is read by the radar, StandardEnemyDefeatHandler and boss_clear_reward_handler and written by RewardActorVFX and BossClearApplyStatReward, so each gets a full record. No spine flags. The 169 zero-tier scenes have no writer and no reader of an effect (the helpers can still test them), so they get no record.",
+  "domains": {
+    "D5": {
+      "name": "scene clear reward",
+      "ranges": [
+        [
+          768,
+          1023
+        ]
+      ],
+      "indexed": true,
+      "persistence": "save",
+      "lifecycle": "Bytes $0A60-$0A7F of the save block; ClearSceneState zeroes only $0A00-$0A01 and ClearAllWramFlags only $0A80-$0A9F, and no clear wrapper exists for the _0300 base, so a set bit stays for the life of the save. Flag $0300 + scene id marks the stat reward of that scene as claimed. Only the 87 scenes with a nonzero enemy_clear_reward_table tier ever get the bit; the other 169 indices are never written.",
+      "access": "TestFlag_0300 (RadarScreenSetup, StandardEnemyDefeatHandler twice, field_reveal_object, BossClearApplyStatReward) and SetFlag_0300 (RewardActorVFX, BossClearApplyStatReward); no COP operand, no direct byte access and no other helper reaches $0300-$03FF."
+    }
+  },
+  "flags": {
+    "780": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_entrance_clear_reward_claimed",
+          "area": "edward_castle",
+          "summary": "The stat reward of scene $0C (aqueduct_entrance) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:34 {109290}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1081 {820858}"
+          ],
+          "notes": "Table row asm:34 (tier byte 1, checked against the ROM byte at 109290). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "781": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_main_clear_reward_claimed",
+          "area": "edward_castle",
+          "summary": "The stat reward of scene $0D (aqueduct_main) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:35 {109291}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1090 {820908}"
+          ],
+          "notes": "Table row asm:35 (tier byte 2, checked against the ROM byte at 109291). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "782": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_lockway_clear_reward_claimed",
+          "area": "edward_castle",
+          "summary": "The stat reward of scene $0E (aqueduct_lockway) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:36 {109292}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1111 {821084}"
+          ],
+          "notes": "Table row asm:36 (tier byte 3, checked against the ROM byte at 109292). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "783": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_hall_clear_reward_claimed",
+          "area": "edward_castle",
+          "summary": "The stat reward of scene $0F (aqueduct_hall) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:37 {109293}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1143 {821319}"
+          ],
+          "notes": "Table row asm:37 (tier byte 1, checked against the ROM byte at 109293). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "786": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_back_clear_reward_claimed",
+          "area": "edward_castle",
+          "summary": "The stat reward of scene $12 (aqueduct_back) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:40 {109296}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1193 {821638}"
+          ],
+          "notes": "Table row asm:40 (tier byte 3, checked against the ROM byte at 109296). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "797": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_larai_cliff_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $1D (larai_cliff) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:51 {109307}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1326 {822468}"
+          ],
+          "notes": "Table row asm:51 (tier byte 2, checked against the ROM byte at 109307). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "800": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_secret_hallway_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $20 (inca_secret_hallway) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:54 {109310}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1376 {822806}"
+          ],
+          "notes": "Table row asm:54 (tier byte 2, checked against the ROM byte at 109310). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "801": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_river_crossing_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $21 (inca_river_crossing) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:55 {109311}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1390 {822901}",
+            "extracted/tables/scene_actors.asm:1416 {823116}"
+          ],
+          "notes": "Table row asm:55 (tier byte 3, checked against the ROM byte at 109311). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The scene list holds 1 enemy-spawn row(s) whose actor script has no death path (ir21_frozen_whirligig); InitActorFromSceneData counts them at spawn (actor_execution.asm:1005 {249750}), so the last-enemy test may never reach 0 and the boss catch-up may be the only payer. Whether the player can kill them is not traced (runtime queue). The name is derived from the scene list and the table, not from dialog text.",
+          "queue": [
+            "FL13-PASSIVE-21"
+          ]
+        }
+      ]
+    },
+    "802": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_river_detour_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $22 (inca_river_detour) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:56 {109312}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1419 {823127}"
+          ],
+          "notes": "Table row asm:56 (tier byte 1, checked against the ROM byte at 109312). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "803": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_guarded_gap_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $23 (inca_guarded_gap) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:57 {109313}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1446 {823337}",
+            "extracted/tables/scene_actors.asm:1466 {823498}"
+          ],
+          "notes": "Table row asm:57 (tier byte 1, checked against the ROM byte at 109313). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The scene list holds 1 enemy-spawn row(s) whose actor script has no death path (ir21_frozen_whirligig); InitActorFromSceneData counts them at spawn (actor_execution.asm:1005 {249750}), so the last-enemy test may never reach 0 and the boss catch-up may be the only payer. Whether the player can kill them is not traced (runtime queue). The name is derived from the scene list and the table, not from dialog text.",
+          "queue": [
+            "FL13-PASSIVE-23"
+          ]
+        }
+      ]
+    },
+    "805": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_entryway_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $25 (inca_entryway) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:59 {109315}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1476 {823539}"
+          ],
+          "notes": "Table row asm:59 (tier byte 3, checked against the ROM byte at 109315). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "806": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_treasure_room_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $26 (inca_treasure_room) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:60 {109316}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1500 {823712}"
+          ],
+          "notes": "Table row asm:60 (tier byte 2, checked against the ROM byte at 109316). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "807": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_side_passage_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $27 (inca_side_passage) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:61 {109317}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1523 {823874}"
+          ],
+          "notes": "Table row asm:61 (tier byte 1, checked against the ROM byte at 109317). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "808": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_ceiling_trap_room_clear_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "The stat reward of scene $28 (ceiling_trap_room) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 0 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:62 {109318}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1546 {824050}"
+          ],
+          "notes": "Table row asm:62 (tier byte 3, checked against the ROM byte at 109318). Boss catch-up row 0 of boss_reward_range_table covers this scene (boss scene $29, range $0C-$28); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "829": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_promise_passage_clear_reward_claimed",
+          "area": "diamond_mine",
+          "summary": "The stat reward of scene $3D (mine_promise_passage) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:83 {109339}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1788 {825398}"
+          ],
+          "notes": "Table row asm:83 (tier byte 1, checked against the ROM byte at 109339). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "830": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_entrance_clear_reward_claimed",
+          "area": "diamond_mine",
+          "summary": "The stat reward of scene $3E (mine_entrance) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:84 {109340}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1806 {825527}"
+          ],
+          "notes": "Table row asm:84 (tier byte 1, checked against the ROM byte at 109340). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "831": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_main_clear_reward_claimed",
+          "area": "diamond_mine",
+          "summary": "The stat reward of scene $3F (mine_main) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:85 {109341}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1820 {825626}"
+          ],
+          "notes": "Table row asm:85 (tier byte 2, checked against the ROM byte at 109341). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "832": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_collapsed_tunnel_clear_reward_claimed",
+          "area": "diamond_mine",
+          "summary": "The stat reward of scene $40 (mine_collapsed_tunnel) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:86 {109342}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1858 {825921}"
+          ],
+          "notes": "Table row asm:86 (tier byte 3, checked against the ROM byte at 109342). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "833": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_zigzag_clear_reward_claimed",
+          "area": "diamond_mine",
+          "summary": "The stat reward of scene $41 (mine_zigzag) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:87 {109343}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1871 {826005}",
+            "extracted/tables/scene_actors.asm:1879 {826062}"
+          ],
+          "notes": "Table row asm:87 (tier byte 3, checked against the ROM byte at 109343). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The scene list holds 1 enemy-spawn row(s) whose actor script has no death path (dm41_bat_spawner); InitActorFromSceneData counts them at spawn (actor_execution.asm:1005 {249750}), so the last-enemy test may never reach 0 and the boss catch-up may be the only payer. Whether the player can kill them is not traced (runtime queue). The name is derived from the scene list and the table, not from dialog text.",
+          "queue": [
+            "FL13-PASSIVE-41"
+          ]
+        }
+      ]
+    },
+    "837": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_morgue_clear_reward_claimed",
+          "area": "diamond_mine",
+          "summary": "The stat reward of scene $45 (mine_morgue) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:91 {109347}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1917 {826273}"
+          ],
+          "notes": "Table row asm:91 (tier byte 2, checked against the ROM byte at 109347). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "838": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_nest_clear_reward_claimed",
+          "area": "diamond_mine",
+          "summary": "The stat reward of scene $46 (mine_nest) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:92 {109348}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:1929 {826356}"
+          ],
+          "notes": "Table row asm:92 (tier byte 1, checked against the ROM byte at 109348). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "845": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_east_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $4D (garden_east) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:99 {109355}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2002 {826803}"
+          ],
+          "notes": "Table row asm:99 (tier byte 1, checked against the ROM byte at 109355). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "846": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_east_underside_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $4E (garden_east_underside) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:100 {109356}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2030 {827026}"
+          ],
+          "notes": "Table row asm:100 (tier byte 3, checked against the ROM byte at 109356). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "847": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_southeast_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $4F (garden_southeast) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:101 {109357}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2055 {827219}"
+          ],
+          "notes": "Table row asm:101 (tier byte 2, checked against the ROM byte at 109357). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "848": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_southeast_underside_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $50 (garden_southeast_underside) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:102 {109358}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2081 {827418}"
+          ],
+          "notes": "Table row asm:102 (tier byte 1, checked against the ROM byte at 109358). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "849": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_southwest_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $51 (garden_southwest) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:103 {109359}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2104 {827595}"
+          ],
+          "notes": "Table row asm:103 (tier byte 3, checked against the ROM byte at 109359). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "850": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_southwest_underside_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $52 (garden_southwest_underside) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:104 {109360}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2130 {827794}"
+          ],
+          "notes": "Table row asm:104 (tier byte 2, checked against the ROM byte at 109360). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "851": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_west_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $53 (garden_west) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:105 {109361}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2155 {827975}"
+          ],
+          "notes": "Table row asm:105 (tier byte 1, checked against the ROM byte at 109361). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "852": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_west_underside_clear_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The stat reward of scene $54 (garden_west_underside) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 1 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:106 {109362}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2186 {828213}"
+          ],
+          "notes": "Table row asm:106 (tier byte 3, checked against the ROM byte at 109362). Boss catch-up row 1 of boss_reward_range_table covers this scene (boss scene $55, range $3D-$54); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "863": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_entrance_clear_reward_claimed",
+          "area": "mu",
+          "summary": "The stat reward of scene $5F (mu_entrance) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 2 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:117 {109373}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2345 {829211}"
+          ],
+          "notes": "Table row asm:117 (tier byte 1, checked against the ROM byte at 109373). Boss catch-up row 2 of boss_reward_range_table covers this scene (boss scene $67, range $5A-$66); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "864": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_east_clear_reward_claimed",
+          "area": "mu",
+          "summary": "The stat reward of scene $60 (mu_east) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 2 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:118 {109374}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2372 {829421}"
+          ],
+          "notes": "Table row asm:118 (tier byte 2, checked against the ROM byte at 109374). Boss catch-up row 2 of boss_reward_range_table covers this scene (boss scene $67, range $5A-$66); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "865": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_south_clear_reward_claimed",
+          "area": "mu",
+          "summary": "The stat reward of scene $61 (mu_south) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 2 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:119 {109375}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2414 {829748}"
+          ],
+          "notes": "Table row asm:119 (tier byte 3, checked against the ROM byte at 109375). Boss catch-up row 2 of boss_reward_range_table covers this scene (boss scene $67, range $5A-$66); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "866": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_west_clear_reward_claimed",
+          "area": "mu",
+          "summary": "The stat reward of scene $62 (mu_west) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 2 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:120 {109376}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2456 {830075}"
+          ],
+          "notes": "Table row asm:120 (tier byte 1, checked against the ROM byte at 109376). Boss catch-up row 2 of boss_reward_range_table covers this scene (boss scene $67, range $5A-$66); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "868": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_connector_clear_reward_claimed",
+          "area": "mu",
+          "summary": "The stat reward of scene $64 (mu_connector) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 2 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:122 {109378}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2486 {830283}"
+          ],
+          "notes": "Table row asm:122 (tier byte 3, checked against the ROM byte at 109378). Boss catch-up row 2 of boss_reward_range_table covers this scene (boss scene $67, range $5A-$66); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "869": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_maze_clear_reward_claimed",
+          "area": "mu",
+          "summary": "The stat reward of scene $65 (mu_maze) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 2 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:123 {109379}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2506 {830420}"
+          ],
+          "notes": "Table row asm:123 (tier byte 2, checked against the ROM byte at 109379). Boss catch-up row 2 of boss_reward_range_table covers this scene (boss scene $67, range $5A-$66); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "877": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_entrance_clear_reward_claimed",
+          "area": "angel_village",
+          "summary": "The stat reward of scene $6D (angel_tunnel_entrance) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:131 {109387}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2651 {831342}"
+          ],
+          "notes": "Table row asm:131 (tier byte 2, checked against the ROM byte at 109387). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "878": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_draco_clear_reward_claimed",
+          "area": "angel_village",
+          "summary": "The stat reward of scene $6E (angel_tunnel_draco) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:132 {109388}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2681 {831563}"
+          ],
+          "notes": "Table row asm:132 (tier byte 1, checked against the ROM byte at 109388). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "879": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_dark_clear_reward_claimed",
+          "area": "angel_village",
+          "summary": "The stat reward of scene $6F (angel_tunnel_dark) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:133 {109389}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2713 {831806}"
+          ],
+          "notes": "Table row asm:133 (tier byte 2, checked against the ROM byte at 109389). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "880": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_river_clear_reward_claimed",
+          "area": "angel_village",
+          "summary": "The stat reward of scene $70 (angel_tunnel_river) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:134 {109390}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2730 {831918}"
+          ],
+          "notes": "Table row asm:134 (tier byte 3, checked against the ROM byte at 109390). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "881": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_wind_clear_reward_claimed",
+          "area": "angel_village",
+          "summary": "The stat reward of scene $71 (angel_tunnel_wind) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:135 {109391}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2755 {832088}"
+          ],
+          "notes": "Table row asm:135 (tier byte 1, checked against the ROM byte at 109391). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "882": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_statue_clear_reward_claimed",
+          "area": "angel_village",
+          "summary": "The stat reward of scene $72 (angel_tunnel_statue) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:136 {109392}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2766 {832158}"
+          ],
+          "notes": "Table row asm:136 (tier byte 3, checked against the ROM byte at 109392). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "898": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_entrance_clear_reward_claimed",
+          "area": "great_wall",
+          "summary": "The stat reward of scene $82 (wall_entrance) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:152 {109408}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2943 {833217}"
+          ],
+          "notes": "Table row asm:152 (tier byte 3, checked against the ROM byte at 109408). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "899": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_dive_clear_reward_claimed",
+          "area": "great_wall",
+          "summary": "The stat reward of scene $83 (wall_dive) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:153 {109409}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:2990 {833605}"
+          ],
+          "notes": "Table row asm:153 (tier byte 1, checked against the ROM byte at 109409). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "900": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_scene_84_clear_reward_claimed",
+          "area": "great_wall",
+          "summary": "The stat reward of scene $84 (no scene record) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:154 {109410}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3028 {833894}"
+          ],
+          "notes": "Table row asm:154 (tier byte 2, checked against the ROM byte at 109410). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The scene list holds no enemy-spawn row, so the last-enemy route cannot fire here: only the boss catch-up pays this flag. No scene record or warp entry names the scene. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "901": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_rampway_clear_reward_claimed",
+          "area": "great_wall",
+          "summary": "The stat reward of scene $85 (wall_rampway) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:155 {109411}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3034 {833917}"
+          ],
+          "notes": "Table row asm:155 (tier byte 1, checked against the ROM byte at 109411). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "902": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_blind_pit_clear_reward_claimed",
+          "area": "great_wall",
+          "summary": "The stat reward of scene $86 (wall_blind_pit) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:156 {109412}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3088 {834328}"
+          ],
+          "notes": "Table row asm:156 (tier byte 3, checked against the ROM byte at 109412). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "903": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_switchback_clear_reward_claimed",
+          "area": "great_wall",
+          "summary": "The stat reward of scene $87 (wall_switchback) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:157 {109413}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3104 {834439}"
+          ],
+          "notes": "Table row asm:157 (tier byte 2, checked against the ROM byte at 109413). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "904": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_tomb_clear_reward_claimed",
+          "area": "great_wall",
+          "summary": "The stat reward of scene $88 (wall_tomb) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 3 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:158 {109414}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3129 {834619}"
+          ],
+          "notes": "Table row asm:158 (tier byte 1, checked against the ROM byte at 109414). Boss catch-up row 3 of boss_reward_range_table covers this scene (boss scene $8A, range $6D-$89); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "928": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_entrance_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A0 (kress_entrance) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:182 {109438}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3375 {835980}"
+          ],
+          "notes": "Table row asm:182 (tier byte 2, checked against the ROM byte at 109438). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "929": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_twisted_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A1 (kress_twisted) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:183 {109439}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3394 {836124}"
+          ],
+          "notes": "Table row asm:183 (tier byte 3, checked against the ROM byte at 109439). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "930": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_crossroads_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A2 (kress_crossroads) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:184 {109440}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3430 {836405}"
+          ],
+          "notes": "Table row asm:184 (tier byte 1, checked against the ROM byte at 109440). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "931": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_gauntlet_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A3 (kress_gauntlet) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:185 {109441}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3453 {836575}"
+          ],
+          "notes": "Table row asm:185 (tier byte 2, checked against the ROM byte at 109441). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "932": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_loop_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A4 (kress_loop) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:186 {109442}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3490 {836855}"
+          ],
+          "notes": "Table row asm:186 (tier byte 1, checked against the ROM byte at 109442). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "933": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_circuit_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A5 (kress_circuit) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:187 {109443}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3522 {837112}"
+          ],
+          "notes": "Table row asm:187 (tier byte 3, checked against the ROM byte at 109443). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "934": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_mushrooms_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A6 (kress_mushrooms) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:188 {109444}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3556 {837379}"
+          ],
+          "notes": "Table row asm:188 (tier byte 1, checked against the ROM byte at 109444). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "935": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_maze_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A7 (kress_maze) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:189 {109445}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3580 {837537}"
+          ],
+          "notes": "Table row asm:189 (tier byte 3, checked against the ROM byte at 109445). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "936": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_detour_clear_reward_claimed",
+          "area": "mountain_temple",
+          "summary": "The stat reward of scene $A8 (kress_detour) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:190 {109446}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3645 {838051}"
+          ],
+          "notes": "Table row asm:190 (tier byte 2, checked against the ROM byte at 109446). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "944": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_entrance_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B0 (angkor_entrance) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:198 {109454}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3710 {838427}"
+          ],
+          "notes": "Table row asm:198 (tier byte 1, checked against the ROM byte at 109454). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. 7 awB0_zombie rows are counted at spawn; the zombie death callback code_0BB800 (awB0_zombie.asm {768000}) does not decrement the counters in the code read, so the last-enemy route is unresolved (runtime queue). The name is derived from the scene list and the table, not from dialog text.",
+          "queue": [
+            "FL13-ZOMBIE-B0"
+          ]
+        }
+      ]
+    },
+    "945": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_outer_gate_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B1 (angkor_outer_gate) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:199 {109455}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3733 {838616}"
+          ],
+          "notes": "Table row asm:199 (tier byte 2, checked against the ROM byte at 109455). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "946": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_outer_east_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B2 (angkor_outer_east) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:200 {109456}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3757 {838821}"
+          ],
+          "notes": "Table row asm:200 (tier byte 3, checked against the ROM byte at 109456). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "947": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_outer_north_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B3 (angkor_outer_north) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:201 {109457}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3775 {838950}"
+          ],
+          "notes": "Table row asm:201 (tier byte 1, checked against the ROM byte at 109457). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "948": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_snake_pit_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B4 (snake_pit) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:202 {109458}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3789 {839043}"
+          ],
+          "notes": "Table row asm:202 (tier byte 3, checked against the ROM byte at 109458). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "949": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_outer_west_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B5 (angkor_outer_west) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:203 {109459}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3802 {839127}"
+          ],
+          "notes": "Table row asm:203 (tier byte 2, checked against the ROM byte at 109459). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "950": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_outer_courtyard_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B6 (angkor_outer_courtyard) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:204 {109460}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3825 {839291}"
+          ],
+          "notes": "Table row asm:204 (tier byte 1, checked against the ROM byte at 109460). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. 8 awB0_zombie rows are counted at spawn; the zombie death callback code_0BB800 (awB0_zombie.asm {768000}) does not decrement the counters in the code read, so the last-enemy route is unresolved (runtime queue). The name is derived from the scene list and the table, not from dialog text.",
+          "queue": [
+            "FL13-ZOMBIE-B6"
+          ]
+        }
+      ]
+    },
+    "951": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_inner_gate_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B7 (angkor_inner_gate) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:205 {109461}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3872 {839685}",
+            "extracted/tables/scene_actors.asm:3875 {839699}"
+          ],
+          "notes": "Table row asm:205 (tier byte 2, checked against the ROM byte at 109461). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The scene list holds 1 enemy-spawn row(s) whose actor script has no death path (awB7_sliding_gate); InitActorFromSceneData counts them at spawn (actor_execution.asm:1005 {249750}), so the last-enemy test may never reach 0 and the boss catch-up may be the only payer. Whether the player can kill them is not traced (runtime queue). The name is derived from the scene list and the table, not from dialog text.",
+          "queue": [
+            "FL13-PASSIVE-B7"
+          ]
+        }
+      ]
+    },
+    "952": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_inner_east_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B8 (angkor_inner_east) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:206 {109462}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3889 {839826}"
+          ],
+          "notes": "Table row asm:206 (tier byte 3, checked against the ROM byte at 109462). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "953": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_inner_west_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $B9 (angkor_inner_west) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:207 {109463}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3901 {839903}"
+          ],
+          "notes": "Table row asm:207 (tier byte 1, checked against the ROM byte at 109463). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "954": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_inner_courtyard_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $BA (angkor_inner_courtyard) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:208 {109464}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3914 {839991}"
+          ],
+          "notes": "Table row asm:208 (tier byte 3, checked against the ROM byte at 109464). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. 4 awB0_zombie rows are counted at spawn; the zombie death callback code_0BB800 (awB0_zombie.asm {768000}) does not decrement the counters in the code read, so the last-enemy route is unresolved (runtime queue). The name is derived from the scene list and the table, not from dialog text.",
+          "queue": [
+            "FL13-ZOMBIE-BA"
+          ]
+        }
+      ]
+    },
+    "955": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_shrine_main_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $BB (angkor_shrine_main) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:209 {109465}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3927 {840087}"
+          ],
+          "notes": "Table row asm:209 (tier byte 2, checked against the ROM byte at 109465). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "956": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_shrine_crystal_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $BC (angkor_shrine_crystal) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:210 {109466}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3940 {840180}"
+          ],
+          "notes": "Table row asm:210 (tier byte 1, checked against the ROM byte at 109466). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "957": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_shrine_dejavu_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $BD (angkor_shrine_dejavu) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:211 {109467}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3963 {840346}"
+          ],
+          "notes": "Table row asm:211 (tier byte 3, checked against the ROM byte at 109467). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "958": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_shrine_upper_clear_reward_claimed",
+          "area": "angkor_wat",
+          "summary": "The stat reward of scene $BE (angkor_shrine_upper) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:212 {109468}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:3984 {840505}"
+          ],
+          "notes": "Table row asm:212 (tier byte 1, checked against the ROM byte at 109468). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "972": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_main_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $CC (pyramid_main) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:226 {109482}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4079 {841017}"
+          ],
+          "notes": "Table row asm:226 (tier byte 3, checked against the ROM byte at 109482). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "973": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_puzzle_room_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $CD (puzzle_room) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:227 {109483}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4092 {841100}"
+          ],
+          "notes": "Table row asm:227 (tier byte 2, checked against the ROM byte at 109483). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The scene list holds no enemy-spawn row, so the last-enemy route cannot fire here: only the boss catch-up pays this flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "974": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_ramptastic_a_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $CE (pyramid_ramptastic_a) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:228 {109484}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4103 {841158}"
+          ],
+          "notes": "Table row asm:228 (tier byte 3, checked against the ROM byte at 109484). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "975": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_ramptastic_b_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $CF (pyramid_ramptastic_b) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:229 {109485}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4122 {841296}"
+          ],
+          "notes": "Table row asm:229 (tier byte 3, checked against the ROM byte at 109485). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "976": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_meltdown_a_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D0 (pyramid_meltdown_a) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:230 {109486}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4144 {841459}"
+          ],
+          "notes": "Table row asm:230 (tier byte 3, checked against the ROM byte at 109486). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "977": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_meltdown_b_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D1 (pyramid_meltdown_b) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:231 {109487}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4158 {841554}"
+          ],
+          "notes": "Table row asm:231 (tier byte 2, checked against the ROM byte at 109487). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "978": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_focus_a_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D2 (pyramid_focus_a) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:232 {109488}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4184 {841755}"
+          ],
+          "notes": "Table row asm:232 (tier byte 1, checked against the ROM byte at 109488). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "979": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_focus_b_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D3 (pyramid_focus_b) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:233 {109489}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4211 {841969}"
+          ],
+          "notes": "Table row asm:233 (tier byte 3, checked against the ROM byte at 109489). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "980": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_trickle_a_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D4 (pyramid_trickle_a) (Max HP +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_hp_increase (Max HP +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:234 {109490}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:227 {56758}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4234 {842145}"
+          ],
+          "notes": "Table row asm:234 (tier byte 1, checked against the ROM byte at 109490). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "981": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_trickle_b_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D5 (pyramid_trickle_b) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:235 {109491}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4264 {842368}"
+          ],
+          "notes": "Table row asm:235 (tier byte 2, checked against the ROM byte at 109491). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "982": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_vader_a_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D6 (pyramid_vader_a) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:236 {109492}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4290 {842571}"
+          ],
+          "notes": "Table row asm:236 (tier byte 3, checked against the ROM byte at 109492). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "983": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_vader_b_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D7 (pyramid_vader_b) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:237 {109493}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4318 {842782}"
+          ],
+          "notes": "Table row asm:237 (tier byte 2, checked against the ROM byte at 109493). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "984": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_dangerslide_a_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D8 (pyramid_dangerslide_a) (DEF +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_def_increase (DEF +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:238 {109494}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:245 {56798}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4348 {843005}"
+          ],
+          "notes": "Table row asm:238 (tier byte 3, checked against the ROM byte at 109494). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "985": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_dangerslide_b_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $D9 (pyramid_dangerslide_b) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:239 {109495}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4389 {843343}"
+          ],
+          "notes": "Table row asm:239 (tier byte 2, checked against the ROM byte at 109495). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    },
+    "987": {
+      "domain": "D5",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_dangerslide_c_clear_reward_claimed",
+          "area": "pyramid",
+          "summary": "The stat reward of scene $DB (pyramid_dangerslide_c) (STR +1) has been claimed.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The radar map draws no reward frame; EnemyStatBonusReward ends in Die without a pickup; every enemy of the scene takes the gem path (stats byte +3), the last one included; BossClearApplyStatReward skips the room.",
+            "clear": "The radar map shows the reward frame, icon and label while the scene is current; the last enemy spawns e_str_increase (STR +1) and drops no gem; the pickup sets the flag when it reaches the player; the boss catch-up of boss 4 pays the room if the flag is still clear at the boss's death."
+          },
+          "evidence": [
+            "extracted/tables/enemy_clear_reward_table.asm:241 {109497}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:204 {56727}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:236 {56778}",
+            "extracted/actors/reward_actors.asm:115 {57679}",
+            "extracted/actors/boss_clear_reward_handler.asm:154 {50026}",
+            "extracted/actors/boss_clear_reward_handler.asm:159 {50035}",
+            "extracted/system/engine/radar_map_screen.asm:175 {229828}",
+            "extracted/functions/StandardEnemyDefeatHandler.asm:89 {56311}",
+            "extracted/tables/scene_actors.asm:4430 {843638}"
+          ],
+          "notes": "Table row asm:241 (tier byte 2, checked against the ROM byte at 109497). Boss catch-up row 4 of boss_reward_range_table covers this scene (boss scene $DD, range $A0-$DC); that handler also sets the flag. The name is derived from the scene list and the table, not from dialog text."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1008 @@
+{
+  "_note": "FL22 fragment (Itory, Moon Tribe, Incan Ruins; scenes $15-$29): scratch records keyed by scene (scene ids are decimal: $15=21 ... $1C=28, $1D=29, $1E=30, $1F=31, $21=33, $22=34, $24=36, $28=40, $64=100), persistent records for the 14 owned story flags, spine flags under proposals. Evidence is file:line plus the decimal ROM offset in braces (inventory offset); table rows that carry no line tags are cited as file:line (offset: not available). The flags $0108 $0112 $011A $011B $011C $011D $011F ($0500 via FL15) already have FL11/FL15 records; the sites in this scope agree with them and are cited in the report, not repeated here. Not applied to db-us/flags.json.",
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [30] },
+          "name": "ir_cliff_back_player_north_strip_active",
+          "area": "incan_ruins",
+          "summary": "ir1E_cliff_slide_trigger copies 'player is north of Y $0110' into this scratch bit; once both statues are on the mantels it sets the bit for good.",
+          "kinds": ["puzzle-state"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "Set while playerYPos is below $0110 and, after $30 and $31 are both set, unconditionally. The player idle, ladder and shimmy-detach code branches on this bit (player_character.asm:232 {181375} and seven more rows) to pick an alternate sprite variant (the labels read IdleStand*Shadow; the sprite itself is not decoded).",
+            "clear": "Cleared by ir1E_cliff_slide_trigger on every frame in which playerYPos is $0110 or more and the statues are not both placed."
+          },
+          "evidence": [
+            "extracted/incan_ruins/larai_cliff_back/ir1E_cliff_slide_trigger.asm:24 {640191}",
+            "extracted/incan_ruins/larai_cliff_back/ir1E_cliff_slide_trigger.asm:28 {640196}",
+            "extracted/incan_ruins/larai_cliff_back/ir1E_cliff_slide_trigger.asm:33 {640211}",
+            "extracted/actors/player/player_character.asm:232 {181375}"
+          ],
+          "queue": ["FL22-02"],
+          "notes": "The writer side is VERIFIED-STATIC (three sites read in full). The reader is the same idle-sprite selector that FL20 records for scene $01 (sc_town_player_south_strip_active); the eight player_character rows and shadow_shimmer were not re-read here, so the visible effect stays INFERRED. scene_flag_init also sets $00 in scenes $15, $1A and $1D; that is FL31's open question."
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [21] },
+          "name": "it_village_intro_pan_active",
+          "area": "itory",
+          "summary": "Lily's reveal cutscene is scrolling the camera, Will and herself 16 steps north; Kara waits for it and the world-map exit is blocked meanwhile.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_kara leaves WaitOnFlagByte(#01, #01) and steps up 16 times; OverworldExitItoryVillage returns without staging the world-map exit.",
+            "clear": "it15_kara keeps waiting (or has finished); the exit rectangle (2D,2E)-(2F,30) works again."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_lily.asm:63 {320263}",
+            "extracted/itory/itory_village/it15_lily.asm:81 {320308}",
+            "extracted/itory/itory_village/it15_kara.asm:26 {319633}",
+            "extracted/actors/overworld_exit.asm:210 {52010}"
+          ],
+          "notes": "Set before the 16-iteration loop that subtracts $10 from cameraTargetY, the player's Y and Lily's Y, cleared right after the loop writes cameraBoundsY = $0300. The reason for the exit block is not stated in code (it is the only reader besides Kara)."
+        },
+        {
+          "scope": { "scenes": [23] },
+          "name": "it_lily_house_moon_tribe_yes",
+          "area": "itory",
+          "summary": "Will answered Yes to Lily's 'Moon Tribe?' question; Kara starts her walk.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it17_kara leaves WaitOnFlagByte(#01, #01), walks, prints 'I'm going, too!' and raises scratch $02.",
+            "clear": "it17_kara waits."
+          },
+          "evidence": [
+            "extracted/itory/lilys_house/it17_lily.asm:75 {321058}",
+            "extracted/itory/lilys_house/it17_kara.asm:16 {319938}"
+          ],
+          "notes": "Producer: the talk handler of it17_lily (also locks the joypad with $CFFC). Consumer: it17_kara main script. Pairs with scratch $02 and $03 of the same scene."
+        },
+        {
+          "scope": { "scenes": [28] },
+          "name": "ir_entrance_kara_arrived",
+          "area": "incan_ruins",
+          "summary": "Kara reached the trigger tiles (1A,0F)-(1B,11) and has locked the joypad; Lily ends her escort loop.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1C_lily leaves its BranchOnFlagByte loop, clears the solid tiles (06,19) and (07,19) and waits for $03.",
+            "clear": "ir1C_lily loops with the escort tracker child running."
+          },
+          "evidence": [
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_kara.asm:28 {642749}",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:54 {641613}"
+          ],
+          "notes": "Producer: ir1C_kara. Consumer: ir1C_lily. Only runs while $4B is clear."
+        },
+        {
+          "scope": { "scenes": [31] },
+          "name": "ir_gold_tile_1_occupied",
+          "area": "incan_ruins",
+          "summary": "The player or an actor of list slot 2-5 (the four stone lords) is within one tile of the gold tile at (08,0C).",
+          "kinds": ["puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_gold_tile (spawn byte 03, so actor $0E = 1) sets it with SetFlagRaw each frame it is occupied; bit 1 of byte $0A00 counts as one of the four plates in ir1F_plate_gate_opener.",
+            "clear": "ir1F_gold_tile clears it with ClearFlagRaw on every frame nothing stands within radius 1; the gate opener keeps polling."
+          },
+          "evidence": [
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:49 {640009}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:30 {639977}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:19 {640148}",
+            "extracted/tables/scene_actors.asm:1369 (offset: not available)"
+          ],
+          "notes": "Index = actor $0E = spawn byte2 >> 1 (odd byte2; InitActorFromSceneData, actor_execution.asm offsets 249656-249680). Dynamic trace gold_tile_flags of the inventory, row 1369 of 4. The four tiles at x = 08, 0C, 12, 16 (hex), y = 0C take flags 1-4 in that order."
+        },
+        {
+          "scope": { "scenes": [40] },
+          "name": "ir_ceiling_trap_zone_1_fired",
+          "area": "incan_ruins",
+          "summary": "The player entered trigger rectangle (1A,0C)-(1C,0E) in this visit; one falling-tile helper was spawned.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir28_ceiling_trap_trigger skips the zone and spawns nothing more for it.",
+            "clear": "Entering the rectangle spawns ec_proximity_door_toggle.code_09C2DB at pixel (01A8,0130), plays sound $2C2C and sets the flag."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:39 {640744}",
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:40 {640750}"
+          ],
+          "notes": "Producer and only consumer: ir28_ceiling_trap_trigger. The scratch flag is zeroed at every scene load, so each zone re-arms on every visit."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [21] },
+          "name": "it_village_intro_dialog_done",
+          "area": "itory",
+          "summary": "Lily printed her barrier dialog; Kara continues with her line.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_kara leaves WaitOnFlagByte(#02, #01), prints 'My feet hurt' and raises scratch $03.",
+            "clear": "it15_kara waits."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_lily.asm:87 {320329}",
+            "extracted/itory/itory_village/it15_kara.asm:33 {319650}"
+          ],
+          "notes": "Producer: it15_lily (after dialog 04E46F). Consumer: it15_kara. Never cleared (zeroed at scene load). Pairs with scratch $01, $03, $05."
+        },
+        {
+          "scope": { "scenes": [23] },
+          "name": "it_lily_house_kara_walk_req",
+          "area": "itory",
+          "summary": "Kara printed 'I'm going, too!' and asks Lily to continue; Lily acknowledges by clearing the bit.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it17_lily leaves WaitOnFlagByte(#02, #01), prints her dialog and clears the flag.",
+            "clear": "it17_kara (waiting with WaitOnFlagByte(#02, #00)) walks on and raises scratch $03."
+          },
+          "evidence": [
+            "extracted/itory/lilys_house/it17_kara.asm:23 {319960}",
+            "extracted/itory/lilys_house/it17_kara.asm:24 {319963}",
+            "extracted/itory/lilys_house/it17_lily.asm:20 {320944}",
+            "extracted/itory/lilys_house/it17_lily.asm:24 {320957}"
+          ],
+          "notes": "Request and acknowledge on one bit: Kara sets, Lily clears."
+        },
+        {
+          "scope": { "scenes": [28] },
+          "name": "ir_entrance_lily_dialog_req",
+          "area": "incan_ruins",
+          "summary": "Lily printed the 'Why are you in a place like this' dialog; Kara may continue after Lily clears the bit.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1C_kara leaves WaitOnFlagByte(#02, #01) and clears the flag.",
+            "clear": "ir1C_lily (waiting with WaitOnFlagByte(#02, #00)) continues with the Elder-quote walk and dialog."
+          },
+          "evidence": [
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:71 {641655}",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:72 {641658}",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_kara.asm:41 {642788}",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_kara.asm:46 {642803}"
+          ],
+          "notes": "Request and acknowledge on one bit: Lily sets, Kara clears."
+        },
+        {
+          "scope": { "scenes": [31] },
+          "name": "ir_gold_tile_2_occupied",
+          "area": "incan_ruins",
+          "summary": "The player or a stone lord is within one tile of the gold tile at (0C,0C).",
+          "kinds": ["puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_gold_tile (spawn byte 05, actor $0E = 2) sets it each frame it is occupied; bit 2 of $0A00 is the second plate of ir1F_plate_gate_opener.",
+            "clear": "Cleared each frame nothing stands within radius 1."
+          },
+          "evidence": [
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:49 {640009}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:30 {639977}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:19 {640148}",
+            "extracted/tables/scene_actors.asm:1370 (offset: not available)"
+          ],
+          "notes": "Dynamic trace gold_tile_flags, row 1370."
+        },
+        {
+          "scope": { "scenes": [40] },
+          "name": "ir_ceiling_trap_zone_2_fired",
+          "area": "incan_ruins",
+          "summary": "The player entered trigger rectangle (1A,16)-(1C,18) in this visit; one falling-tile helper was spawned.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The zone is skipped.",
+            "clear": "Entering the rectangle spawns ec_proximity_door_toggle.code_09C2DB at pixel (01C8,01C0), plays sound $2C2C and sets the flag."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:46 {640766}",
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:47 {640772}"
+          ],
+          "notes": "Same pattern as scratch $01 of this scene."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [21] },
+          "name": "it_village_kara_line_done",
+          "area": "itory",
+          "summary": "Kara printed her 'My feet hurt' line; Lily goes on.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_lily leaves WaitOnFlagByte(#03, #01), unlocks the joypad ($EFFC), sets persistent $2B and walks off.",
+            "clear": "it15_lily waits with the joypad locked."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_kara.asm:37 {319663}",
+            "extracted/itory/itory_village/it15_lily.asm:88 {320332}"
+          ],
+          "notes": "Producer: it15_kara. Consumer: it15_lily."
+        },
+        {
+          "scope": { "scenes": [23] },
+          "name": "it_lily_house_kara_walk_done",
+          "area": "itory",
+          "summary": "Kara finished her second walk; Lily prints the closing dialog and sets $37.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it17_lily leaves WaitOnFlagByte(#03, #01), prints dialog 04E869 and sets persistent $37.",
+            "clear": "it17_lily waits."
+          },
+          "evidence": [
+            "extracted/itory/lilys_house/it17_kara.asm:29 {319980}",
+            "extracted/itory/lilys_house/it17_lily.asm:25 {320960}"
+          ],
+          "notes": "Producer: it17_kara. Consumer: it17_lily."
+        },
+        {
+          "scope": { "scenes": [28] },
+          "name": "ir_entrance_kara_scold_done",
+          "area": "incan_ruins",
+          "summary": "Kara finished her scolding lines at the ruins entrance; Lily answers.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1C_lily leaves WaitOnFlagByte(#03, #01), faces the player, prints dialog 09CCD0 and raises scratch $02.",
+            "clear": "ir1C_lily waits."
+          },
+          "evidence": [
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_kara.asm:40 {642785}",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:65 {641635}"
+          ],
+          "notes": "Producer: ir1C_kara. Consumer: ir1C_lily."
+        },
+        {
+          "scope": { "scenes": [31] },
+          "name": "ir_gold_tile_3_occupied",
+          "area": "incan_ruins",
+          "summary": "The player or a stone lord is within one tile of the gold tile at (12,0C).",
+          "kinds": ["puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_gold_tile (spawn byte 07, actor $0E = 3) sets it each frame it is occupied; bit 3 of $0A00 is the third plate of ir1F_plate_gate_opener.",
+            "clear": "Cleared each frame nothing stands within radius 1."
+          },
+          "evidence": [
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:49 {640009}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:30 {639977}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:19 {640148}",
+            "extracted/tables/scene_actors.asm:1371 (offset: not available)"
+          ],
+          "notes": "Dynamic trace gold_tile_flags, row 1371."
+        },
+        {
+          "scope": { "scenes": [40] },
+          "name": "ir_ceiling_trap_zone_3_fired",
+          "area": "incan_ruins",
+          "summary": "The player entered trigger rectangle (12,24)-(14,26) in this visit; one falling-tile helper was spawned.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The zone is skipped.",
+            "clear": "Entering the rectangle spawns ec_proximity_door_toggle.code_09C2DB at pixel (00E8,0260), plays sound $2C2C and sets the flag."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:53 {640788}",
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:54 {640794}"
+          ],
+          "notes": "Same pattern as scratch $01 of this scene."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [21] },
+          "name": "it_village_lola_reunion_done",
+          "area": "itory",
+          "summary": "Lola finished the reunion dialog with Will, Bill and Lily; Lily may speak.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_lily (placed at tile (41,26) when $2B is set and $3B clear) leaves WaitOnFlagByte(#04, #01), faces the player and prints 'We didn't ask her to come along'.",
+            "clear": "it15_lily waits at the house door."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_lola.asm:57 {323845}",
+            "extracted/itory/itory_village/it15_lily.asm:119 {320418}"
+          ],
+          "notes": "Producer: it15_lola. Consumer: it15_lily. Lola then waits for scratch $05."
+        },
+        {
+          "scope": { "scenes": [31] },
+          "name": "ir_gold_tile_4_occupied",
+          "area": "incan_ruins",
+          "summary": "The player or a stone lord is within one tile of the gold tile at (16,0C).",
+          "kinds": ["puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_gold_tile (spawn byte 09, actor $0E = 4) sets it each frame it is occupied; bit 4 of $0A00 is the fourth plate of ir1F_plate_gate_opener.",
+            "clear": "Cleared each frame nothing stands within radius 1."
+          },
+          "evidence": [
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:49 {640009}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:30 {639977}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:19 {640148}",
+            "extracted/tables/scene_actors.asm:1372 (offset: not available)"
+          ],
+          "notes": "Dynamic trace gold_tile_flags, row 1372. The plate gate opener tests AND #$001E = bits 1-4 of byte $0A00 (flags $01-$04), all four of them."
+        },
+        {
+          "scope": { "scenes": [40] },
+          "name": "ir_ceiling_trap_zone_4_fired",
+          "area": "incan_ruins",
+          "summary": "The player entered trigger rectangle (08,24)-(0A,26) in this visit; two falling-tile helpers were spawned.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The zone is skipped.",
+            "clear": "Entering the rectangle spawns two ec_proximity_door_toggle.code_09C2E4 helpers at pixels (0088,0220) and (0088,0200), 14 ticks apart, plays sound $2C2C and sets the flag."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:60 {640810}",
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:61 {640816}"
+          ],
+          "notes": "Same pattern as scratch $01 of this scene; the helper variant code_09C2E4 clears collision where it lands, code_09C2DB (zones 1-3) marks it solid."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [21] },
+          "name": "it_village_lily_house_line_done",
+          "area": "itory",
+          "summary": "Lily printed 'This is my house. You can look around the village, but then come back here'; the village actors that waited for her continue.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_kara leaves WaitOnFlagByte(#05, #01) and prints 'Lilly, wait. I'll go, too.'; it15_bill leaves its wait and changes frame; it15_lola leaves its wait and returns to its idle frame.",
+            "clear": "The three actors wait."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_lily.asm:129 {320450}",
+            "extracted/itory/itory_village/it15_kara.asm:64 {319739}",
+            "extracted/itory/itory_village/it15_bill.asm:20 {323474}",
+            "extracted/itory/itory_village/it15_lola.asm:58 {323848}"
+          ],
+          "notes": "Producer: it15_lily (code_04E398). One producer, three consumers."
+        },
+        {
+          "scope": { "scenes": [40] },
+          "name": "ir_ceiling_trap_zone_5_fired",
+          "area": "incan_ruins",
+          "summary": "The player entered trigger rectangle (10,1C)-(12,1E) in this visit; two falling-tile helpers were spawned.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The zone is skipped.",
+            "clear": "Entering the rectangle spawns two ec_proximity_door_toggle.code_09C2E4 helpers at pixels (0088,01C0) and (0088,01A0), 14 ticks apart, plays sound $2C2C and sets the flag."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:69 {640846}",
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:70 {640852}"
+          ],
+          "notes": "Same pattern as scratch $01 of this scene."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [40] },
+          "name": "ir_ceiling_trap_zone_6_fired",
+          "area": "incan_ruins",
+          "summary": "The player entered trigger rectangle (12,16)-(14,18) in this visit; two falling-tile helpers were spawned.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The zone is skipped.",
+            "clear": "Entering the rectangle spawns two ec_proximity_door_toggle.code_09C2E4 helpers at pixels (0128,0160) and (0128,0140), 14 ticks apart, plays sound $2C2C and sets the flag."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:78 {640883}",
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:79 {640889}"
+          ],
+          "notes": "Same pattern as scratch $01 of this scene."
+        }
+      ]
+    },
+    "14": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [21] },
+          "name": "it_elder_go_declined",
+          "area": "itory",
+          "summary": "Will answered No (or cancelled) to the Elder's 'Do you plan to go?'.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The Elder's talk handler goes straight to the 'Do you plan to go?' question on the next talk (while $47 is clear).",
+            "clear": "The Elder runs the earlier branches (the 'summoned by your father?' question)."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_elder.asm:97 {322000}",
+            "extracted/itory/itory_village/it15_elder.asm:58 {321936}"
+          ],
+          "notes": "Set after dialog 04ECEC ('A disobedient son, unlike your father'). Zeroed at scene load, so the question chain restarts on every visit of scene $15. DialogueOptions index 0 (cancel) and 2 (No) share the same handler."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [21] },
+          "name": "it_elder_not_summoned_answer",
+          "area": "itory",
+          "summary": "Will answered No (or cancelled) to the Elder's 'Were you summoned by your father?'.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The Elder's talk handler goes straight to the 'Were you summoned by your father?' question again (while $0E, $47, $44 are clear and no statue item is held).",
+            "clear": "The Elder prints the long family dialog first, then asks the question."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_elder.asm:76 {321972}",
+            "extracted/itory/itory_village/it15_elder.asm:59 {321942}"
+          ],
+          "notes": "Set after dialog 04EC76 ('What? If you weren't....That's a bad sign'). Zeroed at scene load."
+        },
+        {
+          "scope": { "scenes": [31] },
+          "name": "ir_gold_tile_hint_shown",
+          "area": "incan_ruins",
+          "summary": "The gold-tile hint ('four gold tiles ... stand on each of the four tiles at the same time') has been printed in this visit.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_gold_tile skips the dialog and continues with its occupancy loop.",
+            "clear": "The first tile the player steps on prints the hint and sets the flag."
+          },
+          "evidence": [
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:36 {639982}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:38 {639992}"
+          ],
+          "notes": "All four gold-tile actors share it. In scene $1F the stone lords have spawn byte2 $00, so ir1F_stone_lord does NOT wait on $0F there (the wait at ir1F_stone_lord.asm:86 is reached only when the spawn parameter has bit $10 set): in this scene $0F is only the hint latch."
+        },
+        {
+          "scope": { "scenes": [33, 34] },
+          "name": "ir_wind_tunnel_switch_pressed",
+          "area": "incan_ruins",
+          "summary": "The wind tunnel switch (ir21_switch) was hit; the dormant stone lords and guards of the room wake up.",
+          "kinds": ["puzzle-state", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_stone_lord and ir1F_stone_guard rows with spawn byte2 $10 (scene $21 rows ;0B-;0E, scene $22 rows ;05-;08) leave WaitOnFlagByte(#0F, #01) and start their chase.",
+            "clear": "Those rows stay solid and idle; rows with byte2 $00 wake up when the player is within radius 2 instead."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ir21_switch.asm:44 {692313}",
+            "extracted/incan_ruins/ir1F_stone_lord.asm:86 {693781}",
+            "extracted/incan_ruins/ir1F_stone_guard.asm:98 {692419}",
+            "extracted/tables/scene_actors.asm:1402 (offset: not available)",
+            "extracted/tables/scene_actors.asm:1425 (offset: not available)"
+          ],
+          "notes": "Nobody clears it in these scenes (searched: ClearFlagByte #0F rows of the inventory: only mu64_switch_spikes, scene $64), so the monsters stay awake for the visit. Rows: scene $21 `scene_actors.asm:1402-1405`, scene $22 `:1425-1428`; the switches are rows ;04 of both scenes (`:1395`, `:1424`)."
+        },
+        {
+          "scope": { "scenes": [100] },
+          "level": "row",
+          "summary": "Mu scene $64 reuses ir21_switch as a hit switch (rows ;0D and ;0E); mu64_switch_spikes waits for the flag and clears it again (FL25 scope).",
+          "evidence": [
+            "extracted/incan_ruins/ir21_switch.asm:44 {692313}",
+            "extracted/mu/mu_connector/mu64_switch_spikes.asm:25 {433456}",
+            "extracted/mu/mu_connector/mu64_switch_spikes.asm:34 {433480}"
+          ],
+          "notes": "In scene $64 the bit is a handshake (set by the switch, cleared by the spikes), unlike scenes $21 and $22. FL25 owns the scene; scene_actors.asm:2500-2501 (offset: not available)."
+        }
+      ]
+    },
+    "42": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_moon_tribe_revealed",
+          "area": "itory",
+          "summary": "The Moon Tribe leader at the camp (scene $1A) has revealed himself after the 'Guess who?' dialog; the four other tribe members appear.",
+          "kinds": ["cutscene-stage", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it1A_moon_tribe (leader) starts in its post-dialog state at spawn (unhidden, solid, talk handler, grey palette fade-in thinker); the four other tribe actors leave WaitOnFlagByte(#2A, #01), unhide and get their talk handlers; the camp gate blocker of it1A_lily sets $49 and clears the solid tile (0C,18).",
+            "clear": "The leader zeroes palette colours $7F0BE0-$7F0BFE, waits for the player within radius 2 and runs the 'Guess who?' dialog (all three answers lead to the same reply, then it sets the flag); the other four stay hidden; (0C,18) stays solid and Lily's blocker prints 'Let's talk to the Moon Tribe'."
+          },
+          "evidence": [
+            "extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm:19 {643325}",
+            "extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm:57 {643388}",
+            "extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm:71 {643414}",
+            "extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm:89 {643446}",
+            "extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm:107 {643478}",
+            "extracted/itory/moon_tribe_camp/it1A_moon_tribe.asm:125 {643510}",
+            "extracted/itory/moon_tribe_camp/it1A_lily.asm:180 {325676}",
+            "extracted/itory/moon_tribe_camp/it1A_lily.asm:194 {325704}"
+          ],
+          "notes": "Name from the dialog ('Wrong! We are the Moon Tribe'). Never cleared in extracted/ (inventory rows of index 42: one setter, no clear)."
+        }
+      ]
+    },
+    "43": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_village_lily_intro_done",
+          "area": "itory",
+          "summary": "Lily's arrival cutscene in Itory village (barrier reveal, Kara's complaint) has finished.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_lily skips the arrival intro and (with $3B clear) is placed at tile (41,26), the house door, where she waits for scratch $04; it15_kara (with $3B clear) is placed at tile (41,27) and waits for scratch $05; itory_village_fog leaves WaitOnFlagByte(#2B, #01) and writes CGADSUB every frame ($50 while the player's X is below $01B0, $00 otherwise).",
+            "clear": "it15_lily runs the intro (needs $26 set, else she dies); itory_village_fog waits, so the fog is not applied; it15_kara takes the intro branch (also needs $26)."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_lily.asm:91 {320342}",
+            "extracted/itory/itory_village/it15_lily.asm:25 {320166}",
+            "extracted/itory/itory_village/it15_kara.asm:17 {319609}",
+            "extracted/itory/itory_village/itory_village_fog.asm:15 {47130}"
+          ],
+          "notes": "Set after Kara's line (scratch $03). Never cleared. The fog thinker runs only in scene $15 (thinker list 0CE843); scenes $1A and $1C use the list from +4 and have no fog."
+        }
+      ]
+    },
+    "45": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_cave_statue_a_item_given",
+          "area": "itory",
+          "summary": "Incan Statue A was added to the inventory in the Itory cave (scene $19).",
+          "kinds": ["reward-claimed", "handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The talk handler of it19_inca_statue_a sets it right after GiveItem #03 succeeds; the main script, waiting since spawn, then runs StageBgChange #1B, sets word $011B and dies. With the flag set at scene load the wait passes at once, so the pedestal is already empty.",
+            "clear": "The statue is on its pedestal with its talk handler; with the inventory full the handler prints the 'inventory is full' line and sets nothing."
+          },
+          "evidence": [
+            "extracted/itory/itory_cave/it19_inca_statue_a.asm:17 {324452}",
+            "extracted/itory/itory_cave/it19_inca_statue_a.asm:27 {324472}",
+            "extracted/itory/itory_cave/it19_inca_statue_a.asm:26 {324467}"
+          ],
+          "notes": "Persistent twin of the event-block flag $011B (FL11 it_cave_statue_a_taken); both record the same event. Elder and Lily test the item (BranchIfHasItem #03), not this flag."
+        }
+      ]
+    },
+    "50": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_wind_melody_given",
+          "area": "incan_ruins",
+          "summary": "Will heard the statue sing at Larai Cliff and received the Wind Melody item (item $08).",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1D_wind_melody dies at spawn.",
+            "clear": "The actor waits for the player at exactly pixel (0050,0170), locks the joypad ($EFFC), plays music #1B and sound #16, prints the statue-singing text, waits for APUIO1 = $FF, grants item #08 and then sets the flag; if the inventory is full it prints the 'full' text and dies without setting it, so the scene repeats it on the next visit."
+          },
+          "evidence": [
+            "extracted/incan_ruins/larai_cliff/ir1D_wind_melody.asm:20 {640380}",
+            "extracted/incan_ruins/larai_cliff/ir1D_wind_melody.asm:49 {640452}",
+            "extracted/incan_ruins/larai_cliff/ir1D_wind_melody.asm:47 {640443}"
+          ],
+          "notes": "Item id $08 = Wind Melody (system_strings.asm item list). Only reader: the same actor."
+        }
+      ]
+    },
+    "55": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_lily_house_departure_done",
+          "area": "itory",
+          "summary": "Lily and Kara have agreed to go to the Moon Tribe and left Lily's house (scene $17); the party moves to the camp.",
+          "kinds": ["cutscene-stage", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it17_lily and it17_kara die at spawn; it15_kara in the village is a solid talk NPC at tile (49,27) with the 'I know you don't need me.....' line.",
+            "clear": "it17_lily and it17_kara run their talk and departure scripts; it15_kara runs her arrival or catch-up branches."
+          },
+          "evidence": [
+            "extracted/itory/lilys_house/it17_lily.asm:27 {320968}",
+            "extracted/itory/lilys_house/it17_lily.asm:17 {320932}",
+            "extracted/itory/lilys_house/it17_kara.asm:13 {319926}",
+            "extracted/itory/itory_village/it15_kara.asm:16 {319603}"
+          ],
+          "notes": "Set after Lily prints dialog 04E869; the same actor then writes $0D60 = 0, $0D62 = 2, gfxCacheIdxB = $0404, stages the world-map move to (00C4,02B4) and queues scene $1A. Name from the actors' behavior."
+        }
+      ]
+    },
+    "59": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_lola_bill_reunion_done",
+          "area": "itory",
+          "summary": "Will met Lola and Bill at their house door in Itory village and heard their story.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_lily (with $2B set) and it15_kara die at spawn; it15_bill leaves WaitOnFlagByte(#3B, #01); it15_lola is a plain talk NPC.",
+            "clear": "it15_lola waits for the player in tiles (40,26)-(42,28), locks the joypad, runs the reunion dialog, raises scratch $04 and sets the flag; it15_bill waits."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_lola.asm:21 {323762}",
+            "extracted/itory/itory_village/it15_lola.asm:39 {323788}",
+            "extracted/itory/itory_village/it15_bill.asm:16 {323459}",
+            "extracted/itory/itory_village/it15_bill.asm:17 {323465}",
+            "extracted/itory/itory_village/it15_kara.asm:18 {319615}",
+            "extracted/itory/itory_village/it15_lily.asm:26 {320172}"
+          ],
+          "notes": "Set before the dialog (first instruction of the trigger code). Never cleared."
+        }
+      ]
+    },
+    "60": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_plate_puzzle_solved",
+          "area": "incan_ruins",
+          "summary": "The four-plate gate of the Inca stone lord room (scene $1F) has been opened.",
+          "kinds": ["puzzle-state", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1F_gold_tile (all four) and ir1F_plate_gate_opener die at spawn.",
+            "clear": "The gold tiles track occupancy and the opener polls bits 1-4 of byte $0A00."
+          },
+          "evidence": [
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:17 {640140}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:30 {640173}",
+            "extracted/incan_ruins/stone_lord_plates/ir1F_gold_tile.asm:19 {639934}"
+          ],
+          "notes": "Set together with word $0108 (FL11 ir_plate_gate_open, event block $08) at the moment the opener plays sound $0F0F and runs StageBgChange #08."
+        }
+      ]
+    },
+    "65": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_elder_voice_heard",
+          "area": "itory",
+          "summary": "The Elder's voice has called Will in the flowers of Itory village; the Elder is now a talk NPC.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it15_elder skips both triggers at spawn, gets its talk handler (code_04E97A) and spawns the solid sprite helper code_04E96A.",
+            "clear": "it15_elder waits for the player in tiles (04,1C)-(07,1E), prints 'Strange Voice: You've come, Will...' and sets the flag, then waits for tiles (08,19)-(0D,1A) and prints 'Elder: I'm here. In the flowers.'."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_elder.asm:17 {321841}",
+            "extracted/itory/itory_village/it15_elder.asm:26 {321862}"
+          ],
+          "notes": "Name from the dialog 'Strange Voice'. The flag is set at the first line, before the player reaches the second trigger."
+        }
+      ]
+    },
+    "71": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_elder_statue_entrusted",
+          "area": "itory",
+          "summary": "Will answered Yes to 'Do you plan to go?' and the Elder entrusted him with the quest for the Incan Statue (one lies in the cave below the village).",
+          "kinds": ["quest-guard", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The Elder repeats the entrust dialog (04ED19) on a later talk when no statue item and no $44 apply; it15_bill gets the silver-stone talk handler; it15_lola gets the Itory legend handler; it17_lily prints the cave hint (code_04E604) instead of 'go see the Elder'.",
+            "clear": "The Elder asks 'Were you summoned by your father?' and 'Do you plan to go?'; Bill and Lola keep their default handlers; Lily (house) sends Will to the Elder."
+          },
+          "evidence": [
+            "extracted/itory/itory_village/it15_elder.asm:103 {322008}",
+            "extracted/itory/itory_village/it15_elder.asm:57 {321930}",
+            "extracted/itory/itory_village/it15_bill.asm:15 {323453}",
+            "extracted/itory/itory_village/it15_lola.asm:20 {323756}",
+            "extracted/itory/lilys_house/it17_lily.asm:47 {321017}"
+          ],
+          "notes": "Name from the dialog ('I will entrust you with the Incan Statue handed down to the village')."
+        }
+      ]
+    },
+    "72": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_moon_cave_statue_b_item_given",
+          "area": "itory",
+          "summary": "Incan Statue B was added to the inventory in the Moon Tribe cave (scene $1B).",
+          "kinds": ["reward-claimed", "handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The talk handler of it1B_inca_statue_b sets it right after GiveItem #04 succeeds; the main script then runs StageBgChange #1D, sets word $011D and dies; with the flag set at scene load the wait passes at once.",
+            "clear": "The statue stays with its talk handler; with the inventory full the handler prints the 'full' line and sets nothing."
+          },
+          "evidence": [
+            "extracted/itory/moon_tribe_cave/it1B_inca_statue_b.asm:17 {326352}",
+            "extracted/itory/moon_tribe_cave/it1B_inca_statue_b.asm:27 {326372}",
+            "extracted/itory/moon_tribe_cave/it1B_inca_statue_b.asm:26 {326367}"
+          ],
+          "notes": "Mirror of $2D in scene $1B. The trial actor it1B_trial does not test this flag or the item."
+        }
+      ]
+    },
+    "73": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_moon_camp_gate_opened",
+          "area": "itory",
+          "summary": "The Moon Tribe have been met at the camp (scene $1A); Lily stops following and the camp gate tile (0C,18) is open.",
+          "kinds": ["gate-open", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "it1A_lily (main) kills its escort tracker, prints 'I'll wait here.' and gets a talk handler; on later loads she stands solid at tile (0D,1A) with the statue-B handler (code_04F4F0); the exit blocker (code_04F77B), on a press of button mask $0400 inside tiles (15,1B)-(17,1C), prints Will's 'I can't go without the Incan Statue...' instead of Lily's 'Wait! We came here for a reason!'.",
+            "clear": "Lily escorts the player; the gate blocker (code_04F828) keeps (0C,18) solid."
+          },
+          "evidence": [
+            "extracted/itory/moon_tribe_camp/it1A_lily.asm:200 {325719}",
+            "extracted/itory/moon_tribe_camp/it1A_lily.asm:24 {324696}",
+            "extracted/itory/moon_tribe_camp/it1A_lily.asm:52 {324773}",
+            "extracted/itory/moon_tribe_camp/it1A_lily.asm:158 {325535}"
+          ],
+          "notes": "Set by the gate blocker child of Lily when $2A is set. Name from the actors' behavior."
+        }
+      ]
+    },
+    "75": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_entrance_kara_catchup_done",
+          "area": "incan_ruins",
+          "summary": "Kara caught up with Will and Lily at the Incan ruins entrance (scene $1C) and Lily quoted the Elder's legend.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1C_kara and ir1C_lily start in their post state (Kara at tile (15,13), Lily at (16,13), solid with talk handlers; Lily repeats the Elder quote); a player in a form other than Will is run through Transform_FreedanToWill by ir1C_lily; it15_kara in Itory village dies.",
+            "clear": "Lily runs the entrance intro with the joypad locked; Kara waits for the player in tiles (1A,0F)-(1B,11)."
+          },
+          "evidence": [
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:85 {641697}",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:28 {641538}",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_kara.asm:18 {642726}",
+            "extracted/itory/itory_village/it15_kara.asm:15 {319597}"
+          ],
+          "notes": "Set after the Elder-quote dialog 09CE01. The Freedan-to-Will branch reads characterForm at ir1C_lily.asm:98 {641728}."
+        }
+      ]
+    },
+    "108": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_larai_monologue_seen",
+          "area": "incan_ruins",
+          "summary": "Will's monologue about the wind at Larai Cliff (scene $1D) has played once.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1D_monologue dies at spawn.",
+            "clear": "The actor sets the flag first, then locks the joypad, waits and prints the monologue, then unlocks."
+          },
+          "evidence": [
+            "extracted/incan_ruins/larai_cliff/ir1D_monologue.asm:17 {643118}",
+            "extracted/incan_ruins/larai_cliff/ir1D_monologue.asm:18 {643124}"
+          ],
+          "notes": "Set before the dialog, so leaving the scene mid-dialog does not replay it. Only reader: the same actor."
+        }
+      ]
+    },
+    "185": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_secret_hallway_statue_destroyed",
+          "area": "incan_ruins",
+          "summary": "The gold statue of the Inca secret hallway (scene $20) was destroyed.",
+          "kinds": ["gate-open", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir20_statue dies at spawn, so the passage stays open.",
+            "clear": "The statue is a solid enemy with HP $FF; a hit while playerFlags bit $0002 is set sets the flag and runs StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop; any other hit decrements actor word $24 and restores HP to $FF when it underflows."
+          },
+          "evidence": [
+            "extracted/incan_ruins/inca_secret_hallway/ir20_statue.asm:24 {690401}",
+            "extracted/incan_ruins/inca_secret_hallway/ir20_statue.asm:54 {690471}"
+          ],
+          "notes": "The meaning of playerFlags bit $0002 (charge/body-slam) comes from docs/wram-memory-map.md, a hint; the code that sets the bit was not traced in this iteration. The script has no position test; the statue is destroyed by the flagged hit. It also spawns interaction_handlers.push_handler_solid, which can move it (that handler is documented there and not re-read here)."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "38": [
+      {
+        "source": "FL22",
+        "name": "sc_itory_trip_started",
+        "summary": "Will, Kara and Lily have left Will's house for Itory village; in Itory village this flag lets Lily and Kara run their arrival cutscene.",
+        "kinds": ["cutscene-stage", "quest-guard"],
+        "roles": [
+          "test: it15_lily.asm:33 {320185} (dies when clear)",
+          "test: it15_kara.asm:25 {319627} (dies when clear)",
+          "test: actors/overworld_exit.asm:160 {51925} (South Cape exit menu)",
+          "setter: sc06_kara_return.asm:122 {304868} (FL20)"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with the FL20 proposal sc_itory_trip_started. In scene $15 both actors skip their intro and die when the flag is clear; they are only placed after the trip started."
+      }
+    ],
+    "46": [
+      {
+        "source": "FL22",
+        "name": "it_couple_house_incan_melody_played",
+        "summary": "The Incan Melody (item $05) was played in scene $18, the Itory couple's house; the item text says 'The Mayor's expression changed!'. No script reads the flag.",
+        "kinds": ["unknown"],
+        "roles": [
+          "setter: item_use_system.asm:488 {231465} (UseItem_IncanMelody, only when sceneCurrent == $0018)"
+        ],
+        "confidence": "low",
+        "notes": "Searched for readers: inventory COP sites of index 46 (one row: the setter), direct accesses of byte $0A05 (none in extracted/; the only text hit is $7F0A05 in inventory_overlay.asm), scene-meta gates (the 18 branch operands: none is $2E), dynamic helper inputs (traces: none lists 46). Scene $18 holds it18_warning_man and it18_warning_woman only, and neither tests a flag. The shipped comment calls the target 'the mayor in Itory Village'; no actor is named mayor. Set-only in extracted/."
+      }
+    ],
+    "47": [
+      {
+        "source": "FL22",
+        "name": "ir_entryway_block_placed",
+        "summary": "The Blue Block (item $07, 'diamond-shaped block') was fitted into the slot of the Incan Ruins entryway (scene $25); the six ceiling tiles fall and the slot actor shows the block.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: item_use_system.asm:573 {231800} (UseItem_DiamondBlock_Place: RemoveItem #07; the caller requires sceneCurrent == $25 and tiles (0E-0F, 19-1A))",
+          "wait/test: ir25_ceiling_tile.asm:20 {639810} and :21 {639816} (six placements): set at spawn -> tile shown at once, collision cleared, priority min; clear -> waits, then locks the joypad, shakes the camera and drops",
+          "wait/test: ir25_block_slot.asm:15 {639910} and :16 {639916}: set at spawn -> block shown; clear -> waits, then plays sound #2C and shows the block"
+        ],
+        "confidence": "high",
+        "notes": "The map effect of the fall (which tiles become walkable) is not decoded. Item $07 name from system_strings.asm ('Blue Block'). Never cleared in extracted/."
+      }
+    ],
+    "48": [
+      {
+        "source": "FL22",
+        "name": "ir_cliff_back_statue_a_placed",
+        "summary": "Incan Statue A is on its mantel at Larai Cliff back (scene $1E).",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: item_use_system.asm:359 {231098} (UseItem_IncaStatueA: RemoveItem #03; requires sceneCurrent == $1E and tiles (37-38, 12-13))",
+          "wait: ir1E_cliff_mantel_a.asm:15 {640343}: waits for the flag, then unhides the statue sprite",
+          "test: ir1E_cliff_slide_trigger.asm:31 {640199}: the slide starts only when $30 and $31 are both set"
+        ],
+        "confidence": "high",
+        "notes": "Never cleared in extracted/. The shipped header of ir1E_cliff_mantel_a is inverted (spec row in FL22_notes.json)."
+      }
+    ],
+    "49": [
+      {
+        "source": "FL22",
+        "name": "ir_cliff_back_statue_b_placed",
+        "summary": "Incan Statue B is on its mantel at Larai Cliff back (scene $1E).",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: item_use_system.asm:441 {231376} (UseItem_IncaStatueB: RemoveItem #04; requires sceneCurrent == $1E and tiles (26-27, 15-16))",
+          "wait: ir1E_cliff_mantel_b.asm:15 {640365}: waits for the flag, then unhides the statue sprite",
+          "test: ir1E_cliff_slide_trigger.asm:32 {640205}"
+        ],
+        "confidence": "high",
+        "notes": "Mirror of $30. Never cleared in extracted/."
+      }
+    ],
+    "64": [
+      {
+        "source": "FL22",
+        "name": "it_village_barrier_lifted",
+        "summary": "Lola's Melody was played in the Itory meadow (scene $15) and the village reveal cutscene may run; the item cannot trigger it twice.",
+        "kinds": ["cutscene-stage", "once-latch"],
+        "roles": [
+          "setter: item_use_system.asm:769 {232527} (UseItem_LolaMelody_Effect, scene $15; prints 'The melody, carried on the wind, spread over the meadow.')",
+          "test: item_use_system.asm:705 {232406} (before playing, scene $15): set -> prints 'He softly played the melody he had learned from Lola. But nothing happened.' and the melody actor is not spawned",
+          "test: item_use_system.asm:768 {232521} (UseItem_LolaMelody_Effect, scene $15): set -> jumps to code_038C68 (sets scratch $01, clears scratch $0E); behind the test at :705 this path is not reached in a normal play",
+          "test: it15_lily.asm:45 {320217}: set -> Lily starts the reveal (palette flash thinker 18, camera pan north, barrier dialog); clear -> she prints 'Play the melody here' when a button of mask $0F01 is pressed"
+        ],
+        "confidence": "medium",
+        "notes": "Name from Lily's dialog ('There's a barrier around this village') and the melody text, so the 'barrier lifted' reading is INFERRED; the reveal itself is a palette flash plus camera pan, no tile change was found in it15_lily."
+      }
+    ],
+    "68": [
+      {
+        "source": "FL22",
+        "name": "it_elder_legend_heard",
+        "summary": "The Elder told Will the Larai Cliff legend after Will showed Incan Statue A (item $03).",
+        "kinds": ["quest-guard", "cutscene-stage"],
+        "roles": [
+          "setter: it15_elder.asm:132 {322043} (answer Yes to 'Understand?', then 'Have Lilly guide you there')",
+          "test: it15_elder.asm:54 {321914}: set -> the talk handler repeats the legend dialog with the Yes/No loop",
+          "test: item_use_system.asm:392 {231162} and :467 {231437} (UseItem_IncaStatueA/B_CheckAlt fallbacks): set -> 'He said to dedicate the statues where the breath of the spirits can't reach', clear -> 'Is the Inca secret hidden in the statue?'"
+        ],
+        "confidence": "high",
+        "notes": "Never cleared. In it15_elder the test of $44 comes before BranchIfHasItem #04, so the 'Moon Tribe has one more' branch for item #04 (code_04E9DC) is reachable only with $44 clear (queue FL22-08)."
+      }
+    ],
+    "74": [
+      {
+        "source": "FL22",
+        "name": "it_moon_camp_ruins_trip_started",
+        "summary": "Lily saw Incan Statue B at the Moon Tribe camp (scene $1A); the party heads for the Incan ruins and the Itory exit menu offers the ruins.",
+        "kinds": ["quest-done", "gate-open"],
+        "roles": [
+          "setter: it1A_lily.asm:100 {324858} (talk handler, when item #04 is held; set before the 'Go to the Incan ruins?' question, so No also sets it)",
+          "wait/test: it1A_lily.asm:21 {324676} (dies at spawn), :74 {324815} (leaves her wait and walks off), :147 {325509} (exit blocker code_04F77B clears its solid tiles and dies)",
+          "test: actors/overworld_exit.asm:225 {52025}: OverworldExitItoryVillage stages world-map menu $06 (Quit / Inca Ruins) when set, menu $04 (Quit / South Cape) otherwise"
+        ],
+        "confidence": "high",
+        "notes": "Yes stages the world-map move to (0094,0254) and queues scene $1C. Name from the actors' behavior."
+      }
+    ],
+    "255": [
+      {
+        "source": "FL22",
+        "name": "sys_scene_setup_done",
+        "summary": "Scene-setup latch: larai_cliff_scroll_wave sets it after InitSineHdma and restarts when the engine clears it.",
+        "kinds": ["engine"],
+        "roles": [
+          "setter: larai_cliff_scroll_wave.asm:16 {48543}",
+          "test: larai_cliff_scroll_wave.asm:30 {48579} (BranchOnFlagByte clear -> restart)"
+        ],
+        "confidence": "high",
+        "notes": "Same name as FL10, FL21 and FL23."
+      }
+    ],
+    "373": [
+      {
+        "source": "FL22",
+        "name": "bt_crystal_gate_a_open",
+        "summary": "Castoth's Tower of Babel rematch (scene $F2, actor btF2_neo_castoth) was beaten; the first crystal gate of the Babel middle floors opens.",
+        "kinds": ["gate-open", "quest-done"],
+        "roles": [
+          "setter: ir29_castoth.asm:161 {695015}, in the helper code_0A9AB9 that btF2_neo_castoth spawns ({694870}); it waits for enemiesRemaining = 0, runs Transform_ShadowToWill on the player and, once the transform has cleared playerFlags bit $0800, sets the flag and queues scene $E0",
+          "not set in scene $29: ir29_castoth (scene $29) never reaches code_0A9AB9 (the label is referenced only at ir29_castoth.asm:93)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL11 proposal bt_crystal_gate_a_open. The inventory lists this site under scenes $29 and $F2 because both actors share the file; the placement of btF2_neo_castoth is scene $F2 only (scene_actors.asm:4662)."
+      }
+    ]
+  }
+}

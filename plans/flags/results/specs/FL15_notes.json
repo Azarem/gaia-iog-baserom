@@ -1,0 +1,10 @@
+{
+  "_note": "FL15 draft: the block note of gw85_spin_dash_gate says the gate 'can only be opened by using the Spin Dash ability', that it checks 'Freedan with Spin Dash', opens 'when the attack connects' and 'blocks non-Freedan access'. The code (offsets 518404-518438) tests the player's exact pixel position every frame (BranchIfPlayerAt #$0458, #$00D0); at that spot characterForm other than 0 returns, a Will with abilityBitmask bit $0004 returns, and only a Will without that bit gets X ($14 of the player actor) set to $03C0. Nothing reacts to an attack and nothing opens. Apply in the apply pass (plan section 7); re-run extract:lt first. Not a merge target (hand edit in the apply pass): docs/actor-organization-analysis.md:169 calls boss_clear_reward_handler a 'red jewel reward' handler; it pays the stat rewards (Max HP / STR / DEF) of the dungeon rooms.",
+  "great_wall/wall_rampway/gw85_spin_dash_gate.asm": {
+    "blockNote": [
+      "Spin Dash gate on the Great Wall rampway.",
+      "",
+      "Every frame the actor tests the player's exact pixel position (BranchIfPlayerAt X $0458, Y $00D0). At that spot a Freedan or Shadow player (characterForm other than 0) is left alone, and so is a Will player whose abilityBitmask has bit $0004 (Spin Dash, ability flag $0512) set. A Will player without Spin Dash gets X ($14 of the player actor) set to $03C0. Nothing reacts to an attack and nothing opens: the actor only moves a Will without Spin Dash away from that spot."
+    ]
+  }
+}

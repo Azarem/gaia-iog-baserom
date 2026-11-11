@@ -1,0 +1,67 @@
+[
+  {
+    "id": "FL41-01",
+    "flag": null,
+    "scope": null,
+    "bytes": "$0A00-$0AB3 (bits listed under 'unreferenced' in coverage.md section 4.9, plus D3 $019E-$01FF)",
+    "claim": "No bit of coverage.md section 4.9 (261 bits: D2 28, D4 194, D5 27 non-scene ids, D6 $0400 and $04F7, D7 $0506-$0507, byte $0AA1 and $0508-$050F) and no D3 bit of $019E-$01FF is ever written during play. The static proof is S1-S9 of coverage.md (no literal COP, no gate operand, no helper candidate, no direct access to the byte except the bits named there); only a write census can catch a store through an address the scanner cannot resolve (MVN block copies, save/load, dynamic indexing).",
+    "priority": "P2",
+    "start": { "scene": 140, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "write-callback census over $0A00-$0AB3 with a positive control: take the natural first chest or the scene $0A letter and expect exactly one write at the ROM offset of the known setter (flag $3F at ec0A_left_guard.asm:32 {311322})",
+      "forced": "run the census along the natural route of FR10 and along each preset replay of FR50; save and load once",
+      "observe": ["PC of every write to a bit of the listed ranges, mapped to a ROM offset", "bytes $0A33-$0A3F (D3 tail) and $0AA1 specifically", "changed bits per frame"]
+    },
+    "confirms": "no write to any listed bit except the save/load block copy of the whole array",
+    "refutes": "a write with a PC outside the 1,693 literal sites and the 57 helper call sites to a listed bit: the bit is used by code the scanner missed",
+    "needs": ["FR00", "FR10"]
+  },
+  {
+    "id": "FL41-02",
+    "flag": 414,
+    "scope": null,
+    "claim": "Hazard for presets and census harnesses: ApplyAllEventBlocks scans all 256 D3 bits (event_blocks.asm:81 {172529}) but event_block_table.asm has 158 rows ($00-$9D); LookupEventBlock has no bound check, so a set bit in $019E-$01FF reads 8 bytes past the table (ROM offset 119758 + 8 * 158 = 121022 and up) and applies a block when the junk scene byte equals sceneCurrent. No code sets those bits, so the claim is that a harness write of $019E ($0A33 bit 6) is the only way to reach it.",
+    "priority": "P2",
+    "start": { "scene": 11, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "positive control: set $0106 (byte $0A20 bit 6), reload scene $0B and expect the prison-cell tiles to change (event block $06)",
+      "forced": "clear $0106, set $019E (byte $0A33 bit 6), reload scene $0B; then repeat with $0A20-$0A3F all 0xFF in a scene whose id equals the first byte of the 8 junk bytes at offset 121022",
+      "observe": ["map RAM and tile VRAM diff after the reload", "the 8 bytes at ROM offset 121022", "whether CopyEventBlockTiles runs (breakpoint)"]
+    },
+    "confirms": "the reload with $019E set copies no tiles in a scene that differs from the junk scene byte; the junk byte is read",
+    "refutes": "the table is padded or the lookup stops at row 158",
+    "needs": ["FR00", "FR30"]
+  },
+  {
+    "id": "FL41-03",
+    "flag": 795,
+    "scope": { "scenes": [27] },
+    "claim": "TestFlag_0300(sceneCurrent) is called for every scene id (StandardEnemyDefeatHandler.asm:89 {56311}, :204 {56727}, radar_map_screen.asm:175 {229828}); for a tier-0 scene it reads a bit that nothing sets and the reward path ends without paying (tier 0). Scene $1B is such a scene (tier 0, has enemy-spawn rows): defeating its last enemy tests $031B and takes the no-reward branch without setting it.",
+    "priority": "P3",
+    "start": { "scene": 27, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "defeat the last enemy of a tier-1 scene (for example $0C) and expect $0300+scene to be set at 57679 or 50035",
+      "forced": "defeat the last enemy of scene $1B and read $0A63 bit 3 before and after",
+      "observe": ["byte $0A63 bit 3", "breakpoint on TestFlag_0300 at ROM offset 56311 (carry result)", "gem or stat pickup spawned"]
+    },
+    "confirms": "$031B stays clear, no stat pickup spawns, the helper is called with A = $001B",
+    "refutes": "the bit becomes set (another setter exists) or a pickup spawns",
+    "needs": ["FR00", "FR30"]
+  },
+  {
+    "id": "FL41-04",
+    "flag": 109,
+    "scope": { "scenes": [73] },
+    "claim": "Flag $6D (byte $0A0D bit 5) is set at na49_lance.asm:47 {385447} and has no reader: no literal COP, helper candidate, scene-meta gate or direct access to byte $0A0D exists (S1-S5, S8). Playing the Neil's cottage scene to the end changes nothing that depends on it.",
+    "priority": "P3",
+    "start": { "scene": 73, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "read breakpoint on $0A0D with a known reader: the Memory Melody handler tests flag $68 (fr_hotel_lance_memory_restored, same byte); use that item and expect a hit at its test site",
+      "forced": "finish the cottage scene so that na49_lance sets $6D, then reload the scene and leave and re-enter it",
+      "observe": ["reads of $0A0D (PC mapped to ROM offsets) after the set", "actor list and dialog of the cottage before and after"]
+    },
+    "confirms": "no read of bit 5 of $0A0D with a PC outside flag_helpers and the save block copy; no visible change",
+    "refutes": "a read at another PC (a reader the scanner missed) or a visible state change",
+    "needs": ["FR00", "FR23"]
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "_note": "Corrects the char-tiles ($17) documentation after the dmap_inventory_bg analysis (docs/dmap-inventory-bg.md): VRAM destination is (flags & $7F) << 10, the size word is not a pointer, the raw path is dead in the original ROM, the loaded data is four BG tilemap screens, and scene $FD runs the command too (jump #11).",
+  "system/engine/scene_script.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "| $17 | SceneCmd_LoadCharTiles | Load character/object tiles with flexible VRAM targeting |",
+          "with": "| $17 | SceneCmd_LoadCharTiles | Load preformatted screens straight to VRAM (the one file is four BG tilemaps): header [00 W 00 H], size word, LZ or raw data |"
+        }
+      ]
+    },
+    "partNotes": {
+      "SceneCmd_LoadCharTiles": [
+        "Opcode $17 (char-tiles < flags, @file >): DMAs a preformatted block to VRAM. Despite the name it loads whole BG tilemap screens: the only file, dmap_inventory_bg, is four 32x32 hardware tilemaps (see docs/dmap-inventory-bg.md).",
+        "",
+        "File layout: 4-byte header [00 W 00 H], a 2-byte size word, then the data. Columns = b0|b3 and rows = b1|b2 (the header is read as two words and merged with XBA+ORA); Multiply8x8Unsigned gives the screen count, and XBA + ASL x3 turns it into the DMA size in $0666 (screens x 2048 bytes).",
+        "",
+        "Size word: the decompressed length, stored in $78 for QuintetLzDecompress, which writes to $7E:7000. After the two INC $3E the BEQ tests the INC result, which is never zero, so in the original game the raw path is dead and the file is always decompressed. MenuBGLoad.patch.asm adds CMP #$0000 / BEQ / BMI, so a zero or negative size word (the rebuilt ROM stores $E000) skips the decompressor and DMAs the raw data from ROM.",
+        "",
+        "VRAM destination from flags ($066A): bit 7 set = (flags & $7F) << 10 words (one 32x32 tilemap screen is $400 words, so each unit is one screen; $80 = $0000). Otherwise bit 0 = $1000 and bit 1 = $1800; with both bits the same data is uploaded twice (PEA+RTS into code_028CB0), with neither bit nothing is uploaded. Transfer: general DMA channel 0, mode $01, B-bus $18 (VMDATAL), size $0666."
+      ],
+      "code_028CB0": [
+        "Second half of the flag-bit VRAM targeting of SceneCmd_LoadCharTiles, reached by the BEQ when bit 0 is clear or by the PEA+RTS after the $1000 upload. Bit 1 set: VRAM $1800 and the same data is uploaded again; bit 1 clear: PLP + RTS without a DMA. loc_028CC4 is the shared DMA setup (general DMA channel 0)."
+      ]
+    },
+    "comments": {
+      "166973": { "text": "Read the 4-byte header [00 W 00 H] as two words (W and H = screens of 256 pixels)", "expect": "REP" },
+      "166985": { "text": "Merge the words: low byte = b0|b3 (columns), high byte = b1|b2 (rows)", "expect": "XBA" },
+      "166994": { "text": "columns x rows = number of 32x32 tilemap screens", "expect": "JSL" },
+      "167003": { "text": "screens << 11 (2048 bytes per screen) = DMA byte count, stored in $0666", "expect": "ASL" },
+      "167009": { "text": "Read the size word after the header (decompressed byte count); the pointer steps past it", "expect": "LDA" },
+      "167015": { "text": "Dead branch: BEQ tests the INC result (never zero), so raw data is never used; MenuBGLoad.patch.asm adds CMP/BEQ/BMI", "expect": "BEQ" },
+      "167017": { "text": "Size word = output length: decompress to WRAM $7E:7000 and DMA from there", "expect": "STA" },
+      "167050": { "text": "Bit 7 set: VRAM word address = (flags & $7F) << 10 ($400 words per tilemap screen)", "expect": "BPL" }
+    }
+  },
+  "tables/scene_meta.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "| $17 | char-tiles < flags, @dmap > | SceneCmd_LoadCharTiles | tile art to VRAM; bit 7 = absolute word address (flags and $7F) x 4. One use: scene $FF (inventory), flags $80 = VRAM $0000 | 1 |",
+          "with": "| $17 | char-tiles < flags, @dmap > | SceneCmd_LoadCharTiles | preformatted data to VRAM (the one file is four 32x32 BG tilemap screens, not tile art); bit 7 = word address (flags and $7F) << 10, one tilemap screen ($400 words) per unit. One command, in scene $FF (inventory), flags $80 = VRAM $0000; scene $FD runs it too through jump #11 | 1 |"
+        }
+      ]
+    },
+    "partNotes": {
+      "scene_meta_00FF": [
+        "Scene $FF (inventory), loaded with SceneScriptNoMusic: display preset 0, sprite art and palette, then meta_label_11 in front of the background palette, BG bitmap and the only char-tiles command of the file (flags $80 = VRAM $0000). dmap_inventory_bg holds four 32x32 BG tilemaps: screen 0 = BG1 Status, 1 = BG1 Items, 2 = BG1 statue scene, 3 = BG2 water (docs/dmap-inventory-bg.md). Scene $FD reaches the same command through jump < #11 >."
+      ],
+      "scene_meta_00FD": [
+        "Scene $FD (statue inventory): display preset 0, silent music, inventory sprite art and palette, then jump < #11 > into scene $FF's meta_label_11, which loads the background palette, the BG bitmap and the dmap_inventory_bg tilemaps. The statue_inventory_reward actor then points BG1 at tilemap screen 2 (BG1SC = $08) and BG2 at screen 3."
+      ]
+    }
+  }
+}

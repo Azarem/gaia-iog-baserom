@@ -1,0 +1,112 @@
+{
+  "system/player/tile_collision.asm": {
+    "blockNote": [
+      "Tile collision primitives: corner probes, collision-byte reader, map-cell stepping and movement helpers for the player (188674–189334, Bank 02). Outputs to system/player/ next to its callers.",
+      "",
+      "Callers: every player_move_* block (main, ns, south, east, diag, ramps), the slope_ramp_physics actor (actors/player) and map_coords (ProbeRightTiles / ProbeLeftTiles, which borrow the probes and MapCell steps). Nothing outside the player/slope code uses them (the earlier note said only the player_move_* blocks do).",
+      "",
+      "=== COLLISION BYTE ===",
+      "",
+      "The collision layer ($7FC000, one byte per 16x16 tile) holds the terrain type in the low nibble and, in the high nibble, the solid mark that actors OR in with MarkSolidHere / MarkSolidOffset / MarkSolidAbs ($F0) and remove with the Clear ops. ReadCollisionNibble returns the high nibble shifted down when it is nonzero ($F0 becomes $0F, solid) and the terrain type otherwise. Types seen by callers: $05 west-facing slope, $0A east-facing slope, $07 ladder, $06 and $09 wall-like types (undecoded, audit OQ-16 in tile_collision_physics), $0E and above solid. The earlier 'layer-priority override' wording for the high nibble is wrong.",
+      "",
+      "=== CORNER PROBES ===",
+      "",
+      "Eight probes sample the corners of the 16x16 hitbox, whose reference point is the centre of the bottom edge: left = pixel - 8, right = pixel + 7, top = pixel - 16, bottom = pixel - 1 (ProbeCurrentTL/TR/BL/BR use $22/$26, ProbeFutureTL/TR/BL/BR use $22 + $20 and $26 + $24; sub-pixels are shifted down by 2 first). Each stores the probe pixel in $1A (X) and $1E (Y) and calls TileProbeMain. Return protocol: A = collision type; carry set when the type is NONZERO, which includes slopes, ladders and wall types as well as solid tiles (callers compare A with $0E for solid); carry clear for type 0. Out of bounds gives A = $0F, carry set.",
+      "",
+      "The INC $1A / INC $1E after the call in the TR, BL and BR probes move the stored right or bottom coordinate one pixel past the hitbox edge (+8, bottom + 1). That is what makes CheckSubTileAlignX/Y ($1A / $1E & $0F = 0) test 'is this edge flush with a tile boundary' for all four edges (TL needs no INC: its left and top edges are already the first covered pixel). It is not a shift 'inward for MapCell navigation': the MapCell steps start from the map index in $00.",
+      "",
+      "=== TILE PROBE ENGINE ===",
+      "",
+      "TileProbeMain checks $1A and $1E against the camera bounds (cameraOffsetX/Y up to cameraBoundsX / cameraLowerYBound; negative values are rejected too). Out of bounds: $00 = $4001, A = $0F, carry set. In bounds: tile column $18 = $1A >> 4, tile row $1C = $1E >> 4, CalcTileMapOffset (tile_collision_physics) returns the map index in Y, which is stored in $00 and passed in X to ReadCollisionNibble.",
+      "",
+      "=== MAP CELL STEPS ===",
+      "",
+      "The map index is page (high byte) and row/column nibbles (low byte): +$10 in the low byte is one row down, +1 one column right. MapCellDown / MapCellUp add or subtract $10 and, on carry or borrow, add or subtract mapRowStrideL0 in the high byte; MapCellRight / MapCellLeft step the low byte and, when the column nibble wraps, step the high byte (one page right or left) and undo the row step with + or - $F0, which lands on column 0 of the next page (right) or column 15 of the previous page (left), same row. Each returns the new index in X; none reads or writes $1A/$1E. Equivalent to the map_coords MapIndexMove* routines. Some callers (slope_ramp_physics) still describe MapCellDown as the 'right' cell.",
+      "",
+      "=== MOVEMENT HELPERS ===",
+      "",
+      "ApplyMovementDeltas: $22 += $20, $26 += $24, then both velocities are zeroed (standard epilogue of an unblocked step). ClearMovementDeltas zeroes $20 and $24. SetActorCollisionFlag ORs $0004 into the flags word at actor + $10 (solid contact this tick) for the actor slot in $000A. CheckTileBoundaryXor tests whether the X step crosses a 16-pixel column. CombinedProbe_Unused has no call site."
+    ],
+    "partNotes": {
+      "CheckTileBoundaryXor": [
+        "Does the X step $20 move the player into a different 16-pixel column?",
+        "",
+        "Computes (($22 >> 2) + ($20 >> 2)) XOR ($22 >> 2) (the XOR is with the PRE-step pixel, as the code comment says, not with the step) and tests bit 4 with BIT #$0010. The answer is in Z, not in carry: Z clear = a column boundary is crossed, Z set = no crossing; callers branch with BNE. The step is a logical shift, so a negative velocity becomes a large positive word, but it stays congruent to the signed step modulo $4000 and only bit 4 is used, so the result is still right."
+      ],
+      "SetActorCollisionFlag": [
+        "Mark the current actor as having touched a solid tile this tick (flag $0004).",
+        "",
+        "Y is loaded from $000A, the actor slot address that PlayerMovementTick stored there (the earlier note's 'actor ID x 2' is wrong: Y is used directly as the actor's base address). Bit $0004 of the flags word at actor + $10 is the per-tick solid-contact flag; PlayerMovementTick clears it before each collision pass."
+      ],
+      "ProbeCurrentBR": [
+        "Probe the bottom-right corner of the player's hitbox at the current position.",
+        "",
+        "X pixel = $22 >> 2 + 7 (right edge), Y pixel = $26 >> 2 - 1 (bottom edge); calls TileProbeMain; afterwards INC $1A (+8) and INC $1E (bottom + 1) place the stored coordinates one pixel past the right and bottom edges, so that CheckSubTileAlignX/Y report whether those edges are flush with a tile boundary (MapCell steps use the index in $00, not these pixels). Carry set when the type is nonzero."
+      ],
+      "TileProbeMain": [
+        "Core tile collision probe: converts pixel coordinates to a collision type.",
+        "",
+        "Entry: $1A = X pixel, $1E = Y pixel. Both must lie inside the camera bounds (cameraOffsetX <= $1A < cameraBoundsX, cameraOffsetY <= $1E < cameraLowerYBound; negative values are rejected). Out of bounds: $00 = X = $4001, A = $0F, carry set.",
+        "",
+        "In bounds: tile column $18 = $1A >> 4 and tile row $1C = $1E >> 4, CalcTileMapOffset (tile_collision_physics) returns the map index in Y, stored in $00 and passed in X to ReadCollisionNibble. Returns A = collision type with carry SET when it is nonzero (any slope, ladder, wall type or solid tile, not only blocking ones; solid is A >= $0E) and carry clear when it is zero."
+      ],
+      "ReadCollisionNibble": [
+        "Read the collision type at map index X (8-bit A).",
+        "",
+        "X >= $4000 (outside the map) returns $0F. Otherwise the byte at collisionLayer ($7FC000) + X is read: if its high nibble is nonzero (the solid mark that actors OR in with $F0) the high nibble is shifted down and returned ($F0 becomes $0F, solid); if it is zero the byte, i.e. the terrain type in the low nibble, is returned. BIT #$FF at the end sets Z when the type is 0."
+      ]
+    },
+    "comments": {
+      "188713": { "text": "Z from the AND #$000F saved by PHP: set = probe Y is on a 16-pixel boundary, so skip the row-above probe and report passable", "expect": "BEQ loc_02E13D" },
+      "188752": { "text": "BIT #$0010 sets Z, not carry: Z clear = a 16-pixel column boundary is crossed", "expect": "BIT #$0010" },
+      "188770": { "text": "Actor flags word at actor + $10; Y = $000A, the actor slot address stored by PlayerMovementTick", "expect": "LDA $0010, Y" },
+      "188829": { "text": "INC $1A / $1E: move the stored right and bottom coordinates one pixel past the hitbox edge for CheckSubTileAlignX/Y", "expect": "INC $1A" },
+      "188867": { "text": "INC $1A: right edge + 1, so CheckSubTileAlignX tests whether the edge is flush with a tile boundary", "expect": "INC $1A" },
+      "188903": { "text": "INC $1E: bottom edge + 1, so CheckSubTileAlignY tests whether the edge is flush with a tile boundary", "expect": "INC $1E" },
+      "188913": { "text": "ProbeCurrentTL: top-left corner; no INC afterwards (the left and top edges are already the first covered pixel)", "expect": "PHP" },
+      "188973": { "text": "INC $1A: right edge + 1 (CheckSubTileAlignX)", "expect": "INC $1A" },
+      "189015": { "text": "INC $1A / $1E: right and bottom edge + 1 (CheckSubTileAlignX/Y)", "expect": "INC $1A" },
+      "189027": { "text": "ProbeFutureTL: top-left corner at the future position; no INC afterwards", "expect": "PHP" },
+      "189093": { "text": "INC $1E: bottom edge + 1 (CheckSubTileAlignY)", "expect": "INC $1E" },
+      "189189": { "text": "High nibble nonzero = actor solid mark ($F0 from MarkSolidHere and friends): it overrides the terrain type", "expect": "BIT #$F0" },
+      "189193": { "text": "Shift the high nibble down: $F0 becomes $0F (solid)", "expect": "LSR" },
+      "189197": { "text": "High nibble zero: the low nibble, the terrain type, is returned; BIT #$FF sets Z for type 0", "expect": "BIT #$FF" },
+      "189272": { "text": "Page wrap right: the INC carried into the row nibble ($x0 of the next row), + $F0 undoes that row step: column 0 of the next page, same row", "expect": "ADC #$F0" }
+    }
+  },
+  "functions/SetPlayerGameOverFlag.asm": {
+    "blockNote": [
+      "Helper actor body that ORs $0200 into the PLAYER ACTOR's flags word ($10) (Bank 0A, 697198–697211).",
+      "",
+      "Y is the player actor's slot address (WRAM $09AA) and $0010,Y is the actor flags word. The name and the earlier note call bit $0200 'game over', but that is bit 9 of playerFlags ($09AE), a different word, which combat_collision sets when HP reaches zero (it also assigns GameOverSequence to the player). The bit set here is bit $0200 of the actor's own flags $10: the bit that the Psycho Slider, the lunge and PlayerStaticBodyPose set while the player must not be hit. combat_collision includes $0200 in the skip mask ($76E0) of its normal enemy-hits-player pass (the friendly pass uses $74E0, which allows it) and sends an actor with $0200 or $0080 to the friendly-only interaction pass. So the effect is most likely 'player cannot be hit during the boss-defeat sequence' (OQ-I030-2); nothing here flashes, and docs/code/bank0A-dungeon-enemy-actors.md calls it a 'boss kill invulnerability flash'.",
+      "",
+      "Spawned with SpawnListAppend (flags $2000) by boss-defeat sequences: ir29_castoth, sg55_viper, gw8A_sand_fanger, pyDD_mummy_queen, mu67_vampires (both death callbacks, each after setting playerFlags $0020, the boss-defeat latch), sE8_dark_gaia (after the buttons are hidden) and unused_mode7_boss.",
+      "",
+      "Like ToggleActorVisibilityFlag, the routine ends with RTL and never dies or changes its entry point, so the helper re-applies the bit every tick for as long as it exists; it is not a marked child."
+    ],
+    "partNotes": {},
+    "comments": {
+      "697198": { "text": "Y = player actor slot address (WRAM $09AA; the slot address is also the actor's DP base)", "expect": "LDY $playerActor" },
+      "697201": { "text": "Actor flags word ($10) of the player actor", "expect": "LDA $0010, Y" },
+      "697204": { "text": "Set actor-flag bit $0200 (not playerFlags bit 9, the real game-over bit; see OQ-I030-2)", "expect": "ORA #$0200" },
+      "697207": { "text": "Write the flags word back", "expect": "STA $0010, Y" },
+      "697210": { "text": "RTL without Die or a new entry point: the helper runs again next tick and re-applies the bit", "expect": "RTL" }
+    }
+  },
+  "actors/scene_flag_init.asm": {
+    "blockNote": [
+      "One-shot scene actor (Bank 00, 50791–50799) that SETS event flag #00 and dies.",
+      "",
+      "Its only code is COP SetFlagByte ( #00 ) followed by COP Die. SetFlagByte takes a flag INDEX and sets it: flag #00 is the first bit of the eventFlags bitfield ($0A00); the earlier note's 'clear event flag byte zero' is wrong on both counts (it sets, and it names a bit, not a byte). scene_lifecycle zeroes the first event-flag word (flags $00–$0F) whenever a scene is set up, so flag #00 starts every scene clear and this actor sets it again on its first tick.",
+      "",
+      "Placed by tables/scene_actors.asm as actor-spawn < #00, #01, #00, @scene_flag_init > in 26 scene actor lists: slot #02 four times, #03 thirteen times, #04 six times and #14, #1A, #1C once each (the earlier note said slot #03 or #04 only).",
+      "",
+      "What the set flag means is open (OQ-I030-1). Other users of flag #00: scripts that set and clear it around events (dm3D_breakable_wall, ir1E_cliff_slide_trigger, eu9D_altar, dm40_trapped_slave, av73_waterfall_sound, sc01_fisherman, and set-only in btE1_light_elevator and av75_apprentice), inventory_menu (sets it on Tab cancel) and inventory_overlay (loops until it is nonzero), and the player's idle / ladder / shimmy-detach sprite choice, player_transition_handlers and shadow_shimmer, whose comments call it the Shadow flag. The unconditional set in these 26 scenes does not fit a Shadow-form flag."
+    ],
+    "partNotes": {},
+    "comments": {
+      "50794": { "text": "Set event flag index #00 (first bit of eventFlags $0A00); SetFlagByte sets a flag, it does not clear a byte", "expect": "SetFlagByte" },
+      "50797": { "text": "One tick only: the actor removes itself", "expect": "Die" }
+    }
+  }
+}

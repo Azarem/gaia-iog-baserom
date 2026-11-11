@@ -1,0 +1,360 @@
+{
+  "actors/smooth_follow_child.asm": {
+    "blockNote": [
+      "Straight-line projectile mover (Bank 00, 58587-58964), shared by six enemy projectile scripts. smooth_follow_child is the visible projectile body; a hidden child (SmoothFollowChildTick) aims ONCE at a target actor and then moves along that fixed heading at a fixed speed, copying its position to the body every frame. It does not chase: after the first frame the target is ignored.",
+      "",
+      "=== CALLERS ===",
+      "",
+      "pyCC_blaster (two projectile actors), awB1_wall_walker (code_0BBD19), ec0C_ribber (code_0A843E) and the unused unused_follow_chain set $24 = playerActor, a speed in loopCounter ($7F0014: 1 in pyCC_blaster and ec0C_ribber, 2 in awB1 and gw8A) and then enter smooth_follow_child by a tail call (push of bank and entry minus 1, RTL). gw8A_sand_fanger (code_0B8979) and pyDD_mummy_queen (code_0BA782) skip the body and spawn SmoothFollowChildTick themselves with SpawnAfterMarked (flags $2000), storing playerActor in the child's $24; pyDD uses the speed 4 + $0B02. In every case the spawner is the projectile itself, so the tick moves the spawner.",
+      "combat_collision uses SmoothFollowChildDie as the default onCollideCallback: an actor with extendedFlags $0010 and no callback of its own is pointed at it when it touches the player, so these projectiles die after the hit is applied.",
+      "",
+      "=== HOW IT WORKS ===",
+      "",
+      "1. smooth_follow_child clears word $2A, spawns the tick as a hidden marked child (flags $2000) and gives it the target in $24. If the pool is full (Y = $1FC0) it dies at once. Then it plays AnimOnce every frame and dies when its own $10 bit $4000 is set. That bit is the off-screen flag SortActorsByDepth sets when the actor box is completely off the screen; it is not set by a parent. Die also kills the marked tick.",
+      "2. On its first frame the tick copies the body's loopCounter (the speed: pixels per frame on the dominant axis), forms dx = target.X - self.X and dy = target.Y - 8 - self.Y, stores |dx| in $0018 and |dy| in $001C (global scratch words, not actor fields) and picks one of 8 handlers from the signs and from which magnitude is larger.",
+      "3. The handler calls ComputeFollowAngle (Y-dominant) or ComputeFollowAngleAlt (X-dominant) once. That fills orbitAngle with a slope row of smooth_follow's dither table and clears the dither phase. COP SetEntryHere then saves the address of the next instruction, so every later frame resumes AFTER the aim: ComputeFollowStep gives $0000 = major-axis pixels (loopCounter) and $0002 = minor-axis pixels (0 or 1 per pixel from the slope row), the handler applies them to the tick's own X/Y with its fixed signs, and SmoothFollowWriteParentPos copies X/Y to the body (the tick's $04 prev-link). The heading never changes.",
+      "",
+      "=== HANDLER HEADINGS ===",
+      "",
+      "dx >= 0, dy >= 0 (target south-east): |dy| >= |dx| SmoothFollowApplyEastPrimary = SSE (Y += major, X += minor); |dy| < |dx| loc_00E5A6 = ESE (X += major, Y += minor).",
+      "dx >= 0, dy < 0 (north-east): |dy| >= |dx| loc_00E570 = NNE (Y -= major, X += minor); |dy| < |dx| loc_00E58B = ENE (X += major, Y -= minor).",
+      "dx < 0, dy >= 0 (south-west): |dy| >= |dx| SmoothFollowApplyEastSecondary = SSW (Y += major, X -= minor); |dy| < |dx| SmoothFollowApplyWestPrimary = WSW (X -= major, Y += minor).",
+      "dx < 0, dy < 0 (north-west): |dy| >= |dx| SmoothFollowApplySouthPrimary = NNW (Y -= major, X -= minor); |dy| < |dx| SmoothFollowApplyWestSecondary = WNW (X -= major, Y -= minor).",
+      "The East / West / South labels do not describe these moves (EastPrimary flies south-south-east, EastSecondary south-south-west, SouthPrimary north-north-west); see R-I053-1.",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header said the actor makes a child 'smoothly chase a reference actor', that it updates 'both actors' positions each frame' and that it dies 'when the parent actor sets flag $4000 or on special actor ID $1FC0'. The aim is taken once; only the tick moves and it writes the body's position; $4000 is the body's own off-screen flag and $1FC0 is the pool-exhausted result of the spawn."
+    ],
+    "partNotes": {
+      "smooth_follow_child": [
+        "Projectile body. Clears word $2A, spawns SmoothFollowChildTick as a hidden marked child (flags $2000) and hands it the target from $24 (set by the caller: the player). Y = $1FC0 (no free actor) kills the body. Otherwise it plays AnimOnce each frame and dies when its own $10 bit $4000 (off-screen flag) is set. The body never moves by itself: the tick writes its X/Y."
+      ],
+      "loc_00E4EF": [
+        "Idle loop of the body: SetEntryHere + AnimOnce (one frame per pass); leaves to SmoothFollowChildDie when the actor box is off-screen ($10 bit $4000)."
+      ],
+      "SmoothFollowChildDie": [
+        "COP Die. Also the default onCollideCallback: RunInteractionCollision points an actor with extendedFlags $0010 and no callback at this label when it touches the player, so a projectile that hits dies here (after the damage). Die also kills the marked tick child."
+      ],
+      "SmoothFollowChildTick": [
+        "Hidden aiming child (spawned by smooth_follow_child, gw8A_sand_fanger and pyDD_mummy_queen). On its first frame: copy the speed from the parent's loopCounter, form dx = target.X - self.X and dy = target.Y - 8 - self.Y (the 8 aims at the target's middle), store |dx| in $0018 and |dy| in $001C and branch to one of 8 handlers by the signs and the larger magnitude (heading table in the block note). The handlers call SetEntryHere after the aim, so this dispatch code runs only once."
+      ],
+      "loc_00E52D": [
+        "dx >= 0, dy >= 0, |dy| < |dx|: X-dominant, continue at loc_00E5A6 (ESE)."
+      ],
+      "loc_00E52F": [
+        "dx >= 0, dy < 0 (target north): negate dy, then |dy| >= |dx| goes to loc_00E570 (NNE) and |dy| < |dx| to loc_00E58B (ENE)."
+      ],
+      "loc_00E53D": [
+        "dx < 0 (target west): negate dx, recompute dy, then split into SW (dy >= 0) and NW (loc_00E55E)."
+      ],
+      "loc_00E55B": [
+        "SW with |dy| < |dx|: jump to SmoothFollowApplyWestPrimary (WSW)."
+      ],
+      "loc_00E55E": [
+        "dx < 0, dy < 0 (north-west): negate dy; |dy| >= |dx| jumps to SmoothFollowApplySouthPrimary (NNW), otherwise loc_00E56D."
+      ],
+      "loc_00E56D": [
+        "NW with |dy| < |dx|: jump to SmoothFollowApplyWestSecondary (WNW)."
+      ],
+      "loc_00E570": [
+        "Heading NNE (target north-east, |dy| >= |dx|). Aims once with ComputeFollowAngle, SetEntryHere, then each frame Y -= major ($0000) and X += minor ($0002); writes the position to the body."
+      ],
+      "loc_00E58B": [
+        "Heading ENE (target north-east, |dx| > |dy|). Aims once with ComputeFollowAngleAlt, then each frame X += major and Y -= minor."
+      ],
+      "loc_00E5A6": [
+        "Heading ESE (target south-east, |dx| > |dy|). Aims once with ComputeFollowAngleAlt, then each frame X += major and Y += minor."
+      ],
+      "SmoothFollowApplyEastPrimary": [
+        "Heading SSE: target south-east (dx >= 0, dy >= 0) with |dy| >= |dx|. ComputeFollowAngle once, then each frame Y += major ($0000) and X += minor ($0002). Despite the name the dominant axis is Y."
+      ],
+      "SmoothFollowApplyEastSecondary": [
+        "Heading SSW: target south-west (dx < 0, dy >= 0) with |dy| >= |dx|. ComputeFollowAngle once, then each frame Y += major and X -= minor. Reached from the west half of the tick although the name says East."
+      ],
+      "SmoothFollowApplyWestPrimary": [
+        "Heading WSW: target south-west with |dx| > |dy|. ComputeFollowAngleAlt once, then each frame X -= major and Y += minor."
+      ],
+      "SmoothFollowApplyWestSecondary": [
+        "Heading WNW: target north-west with |dx| > |dy|. ComputeFollowAngleAlt once, then each frame X -= major and Y -= minor."
+      ],
+      "SmoothFollowApplySouthPrimary": [
+        "Heading NNW: target north-west with |dy| >= |dx|. ComputeFollowAngle once, then each frame Y -= major and X -= minor. The name says South but the move is north."
+      ],
+      "SmoothFollowWriteParentPos": [
+        "Copy the tick's X/Y to the actor in its $04 prev-link (the spawner, i.e. the visible projectile) and return (RTL). This is the only way the body moves."
+      ]
+    },
+    "comments": {
+      "58587": { "text": "Clear actor word $2A (scratch; its use here was not traced)", "expect": "STZ" },
+      "58590": { "text": "Hidden marked child that moves this actor; Y = child, or $1FC0 when the pool is full", "expect": "SpawnAfterMarked" },
+      "58602": { "text": "Target actor slot (the caller stores playerActor in $24) becomes the tick's $24", "expect": "LDA $24" },
+      "58613": { "text": "Own $10 bit $4000 = actor box completely off-screen (set each frame by SortActorsByDepth)", "expect": "BIT #$4000" },
+      "58621": { "text": "X := tick's $04 prev-link = the actor that spawned it (the projectile body)", "expect": "LDX $0004" },
+      "58624": { "text": "Speed (pixels per frame on the dominant axis) from the body's loopCounter; copied only on the first frame", "expect": "loopCounter" },
+      "58664": { "text": "|dy| < |dx|: X-dominant, ESE", "expect": "BCC" },
+      "58666": { "text": "|dy| >= |dx|: Y-dominant, SSE", "expect": "SmoothFollowApplyEastPrimary" },
+      "58669": { "text": "To the ESE handler", "expect": "BRA" },
+      "58681": { "text": "|dy| >= |dx|: Y-dominant, NNE", "expect": "BCS" },
+      "58683": { "text": "|dy| < |dx|: X-dominant, ENE", "expect": "BRA" },
+      "58710": { "text": "|dy| < |dx|: X-dominant, WSW", "expect": "BCC" },
+      "58712": { "text": "|dy| >= |dx|: Y-dominant, SSW", "expect": "SmoothFollowApplyEastSecondary" },
+      "58728": { "text": "|dy| < |dx|: X-dominant, WNW", "expect": "BCC" },
+      "58730": { "text": "|dy| >= |dx|: Y-dominant, NNW", "expect": "SmoothFollowApplySouthPrimary" },
+      "58736": { "text": "Aim once: slope row for |dx|/|dy| into orbitAngle, dither phase 0 (Y-dominant)", "expect": "ComputeFollowAngle" },
+      "58739": { "text": "Later frames resume after this point: the aim above is never repeated", "expect": "SetEntryHere" },
+      "58741": { "text": "$0000 = major-axis pixels (loopCounter), $0002 = minor-axis pixels (dithered)", "expect": "ComputeFollowStep" },
+      "58744": { "text": "Y -= major (north)", "expect": "LDA $16" },
+      "58752": { "text": "X += minor (east)", "expect": "LDA $14" },
+      "58763": { "text": "Aim once (X-dominant)", "expect": "ComputeFollowAngleAlt" },
+      "58766": { "text": "Later frames resume here", "expect": "SetEntryHere" },
+      "58771": { "text": "X += major (east)", "expect": "LDA $14" },
+      "58779": { "text": "Y -= minor (north)", "expect": "LDA $16" },
+      "58790": { "text": "Aim once (X-dominant)", "expect": "ComputeFollowAngleAlt" },
+      "58793": { "text": "Later frames resume here", "expect": "SetEntryHere" },
+      "58798": { "text": "X += major (east)", "expect": "LDA $14" },
+      "58806": { "text": "Y += minor (south)", "expect": "LDA $16" },
+      "58817": { "text": "Aim once (Y-dominant)", "expect": "ComputeFollowAngle" },
+      "58844": { "text": "Aim once (Y-dominant)", "expect": "ComputeFollowAngle" },
+      "58870": { "text": "Aim once (X-dominant)", "expect": "ComputeFollowAngleAlt" },
+      "58896": { "text": "Aim once (X-dominant)", "expect": "ComputeFollowAngleAlt" },
+      "58922": { "text": "Aim once (Y-dominant)", "expect": "ComputeFollowAngle" },
+      "58948": { "text": "Body = the tick's prev-link", "expect": "LDA $0004" }
+    }
+  },
+  "actors/dark_space.asm": {
+    "blockNote": [
+      "Dark Space portal (Bank 08, 579230-579495): the glowing portal object that leads to the Gaia hub (scene $E6, system/dark_space/sE6_gaia). The actor is only a trigger and an effect: the scene change itself is done by the warp rectangle of the room (a scene-warp row to scene $E6) once the actor has moved the player onto it.",
+      "",
+      "=== PLACEMENT ===",
+      "",
+      "dark_space2 is spawned by 31 scene spawn rows, dark_space by one (Dao, scene_event_0CD3B2). pyCC_dark_space_portal, ec12_aqueduct_dark_space, gw88_tomb_dark_space and dm40_hidden_dark_space spawn DarkSpacePortalInit directly with $24 already set (1, or 3 in the pyramid when $0E is not $72). The scene spawn byte is odd in all 32 rows (12 x #01, 14 x #03, 6 x #05), so the engine leaves param >> 1 in $0E: variant 0, 1 or 2. The two init stubs move that into $24 and then replace $0E with the OAM attribute word: $3000 (sprite priority 3, Dao only) or $2000 (priority 2). The variant is the Gaia room layout: sE6_gaia accepts 0 to 3 (0 basic, 1 transformation statues, 2 ability, 3 special = layout 1 with the form-dependent logic).",
+      "",
+      "=== PORTAL ANIMATION ===",
+      "",
+      "DarkSpacePortalInit sets up the sprite (spriteset_enemies frame #24 closed), makes the tile solid (MarkSolidHere), sets Flags12 $0004 (pause-filter immunity), Flags10 $0B00, extendedFlags $0200 (radar dot) and spawns the monitor child. The portal then loops: closed while the player is not near; when the player is within 5 tiles (|dx| and |dy| both < 81 pixels) it plays the opening animation #1F once and holds the open frame #20 while the player stays near; when he leaves, the closing animation #21 plays and it returns to the closed frame.",
+      "",
+      "=== ENTRY (monitor child) ===",
+      "",
+      "DarkSpaceInteractionMonitor (hidden child, flags $2300, $24 = variant) runs every frame, but not while displayModeFlags bit $0080 (display-filter actor mode) is set. It tests BranchIfPlayerInRelTiles ( -1, 0, 1, 1 ): the player's tile offset from the portal must satisfy -1 < dx <= 1 and 0 < dy <= 1. Then BranchIfPressed $0801 (raw Up) leads to DarkSpaceEnterWarp, which runs in the MONITOR's context (Y = $04 is the portal):",
+      "1. joypadMaskStd |= $CFFC (every button except Select and Start; the ROM has $CFF0 and db-us/transforms.json widens it, as in the other scripts) and the PLAYER's $10 |= $2000: the player becomes hidden (SortActorsByDepth skips actors with bit $2000; this answers part of OQ-I025-2).",
+      "2. The monitor's own X/Y := the player's X/Y, SFX $0C on both channels, the monitor's own $2000 cleared (it becomes visible) and animation #1C of spriteset_enemies plays once at the player's spot, then 29 more frames.",
+      "3. The player's X/Y := the portal's X/Y; playerXPos = X - 8, playerYPos = Y - 16 and the tile words playerXTile/YTile (>> 4). That puts the player one tile north of the portal, which is where the room's E6 warp rectangle lies, so the normal warp check fires.",
+      "4. gfxCacheIdxB := $0101 (exit and enter speed 1), gfxCacheIdxA := $0200 (exit effect 0 = fade, enter effect 2 = mosaic), layerPriorityFlag |= $0200 (camera frozen / chests off while the warp runs) and globalScriptIndex := the variant for sE6_gaia's layout switch. The monitor then idles (SetEntryHere + RTL).",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header said the handler 'copies the player's position onto the portal' (it copies the portal's position onto the player), that the monitor 'triggers when the player is within 1 tile', that $3000 / $2000 are 'display mode bits' / 'display flags: variant 1 / 2' (they are the sprite priority bits of the OAM attribute word; the variant is the spawn parameter) and that $2000 on the player is a 'frozen flag' (it hides him). The $4000 test in DarkSpacePortalOpen is the off-screen flag and a no-op."
+    ],
+    "partNotes": {
+      "dark_space": [
+        "Dao variant of the portal (one spawn, scene_event_0CD3B2): saves the spawn variant and uses the OAM attribute word $3000 (sprite priority 3). The stub then branches into DarkSpacePortalInit."
+      ],
+      "code_08D69E": [
+        "dark_space entry stub: $24 := $0E (spawn parameter >> 1 = Gaia room variant 0 to 2), $0E := $3000 (OAM attribute word, priority 3), then BRA DarkSpacePortalInit."
+      ],
+      "dark_space2": [
+        "Standard portal (31 spawns): same as dark_space with the OAM attribute word $2000 (sprite priority 2). It has no branch: execution falls through into DarkSpacePortalInit."
+      ],
+      "code_08D6AC": [
+        "dark_space2 entry stub: $24 := $0E (spawn parameter >> 1), $0E := $2000, then falls through into DarkSpacePortalInit."
+      ],
+      "DarkSpacePortalInit": [
+        "Common init of both variants and of the four direct spawners (which set $24 first). Sets Flags12 $0004, the metasprite and the closed frame #24, makes the tile solid, clears the hidden bit $2000, sets Flags10 $0B00 and extendedFlags $0200 (radar dot) and spawns DarkSpaceInteractionMonitor (flags $2300), giving it the variant in its $24. Then runs the closed-state loop."
+      ],
+      "loc_08D6DE": [
+        "Closed state: stage the closed frame #24 (also the target when the portal has finished closing)."
+      ],
+      "loc_08D6E1": [
+        "Closed loop: one frame per pass while the player is not within 5 tiles; BranchIfPlayerNear ( #05 ) leaves to DarkSpacePortalOpen."
+      ],
+      "DarkSpacePortalOpen": [
+        "Player came near: play the opening animation #1F once (AnimOnce), then show the open frame #20 and enter the open loop. The first test (Flags10 bit $4000, the off-screen flag) branches to the very next instruction, so it has no effect."
+      ],
+      "loc_08D6F5": [
+        "Opening animation #1F (AnimOnce), then the open frame #20; continues into the open loop at loc_08D6FD."
+      ],
+      "loc_08D6FD": [
+        "Open loop test: still within 5 tiles continues in DarkSpacePortalOpenIdle, otherwise falls through to the closing animation (loc_08D70C). The opening animation is not interrupted: the test runs only after AnimOnce has ended."
+      ],
+      "DarkSpacePortalOpenIdle": [
+        "Open idle loop: one frame per pass, then back to the proximity test at loc_08D6FD."
+      ],
+      "loc_08D70C": [
+        "Player left: closing animation #21 once, then back to the closed frame (loc_08D6DE)."
+      ],
+      "DarkSpaceInteractionMonitor": [
+        "Hidden child (flags $2300) that watches for the entry. SetEntryHere is placed before two NOPs, so every frame it restarts at the NOPs. Does nothing while displayModeFlags bit $0080 (display-filter actor mode) is set; otherwise tests the player's tile offset from the portal and calls DarkSpaceButtonCheck when he is on the entry tiles."
+      ],
+      "loc_08D720": [
+        "Entry test: BranchIfPlayerInRelTiles ( minX -1, minY 0, maxX 1, maxY 1 ): the player is inside when -1 < dx <= 1 and 0 < dy <= 1 tiles relative to the portal; the branch goes to DarkSpaceButtonCheck."
+      ],
+      "DarkSpaceButtonCheck": [
+        "Needs Up ($0800) in the raw joypad word (BranchIfPressed with mask bit 0 set reads joypadRaw) to start the warp."
+      ],
+      "DarkSpaceEnterWarp": [
+        "Entry sequence, run by the monitor (see the block note): mask the joypad, hide the player, play the warp effect at the player's spot for 29 frames after animation #1C, snap the player onto the portal (one tile north in the warp-test position), set the transition words, layerPriorityFlag $0200 and the variant in globalScriptIndex. The scene change itself comes from the E6 warp rectangle. It never restores the mask or the player's hidden bit: the scene change resets them."
+      ]
+    },
+    "comments": {
+      "579230": { "text": "$0E = spawn parameter >> 1 (0, 1 or 2): the Gaia room variant", "expect": "LDA $0E" },
+      "579234": { "text": "OAM attribute word: sprite priority 3 (Dao)", "expect": "LDA #$3000" },
+      "579244": { "text": "$0E = spawn parameter >> 1 (0, 1 or 2)", "expect": "LDA $0E" },
+      "579248": { "text": "OAM attribute word: sprite priority 2", "expect": "LDA #$2000" },
+      "579253": { "text": "Flags12 $0004: pause-filter immunity (RunActors_PauseFiltered tests $1004)", "expect": "LDA #$0004" },
+      "579268": { "text": "Clear $2000 (hidden) so the portal is drawn", "expect": "LDA #$2000" },
+      "579273": { "text": "Flags10 $0B00 (bits $0800, $0200, $0100; meaning not traced)", "expect": "LDA #$0B00" },
+      "579278": { "text": "extendedFlags $0200: radar dot (OQ-63)", "expect": "OrExtraFlags" },
+      "579282": { "text": "Monitor child: flags $2300 = hidden ($2000) + $0300; Y = child", "expect": "SpawnAfterFlags" },
+      "579289": { "text": "Variant (0 to 3) for the monitor", "expect": "LDA $24" },
+      "579297": { "text": "|dx| and |dy| both < 81 px (5 tiles): open", "expect": "BranchIfPlayerNear" },
+      "579312": { "text": "Off-screen flag; the BNE goes to the next instruction, so this test is a no-op", "expect": "BIT #$4000" },
+      "579325": { "text": "Within 5 tiles: keep the portal open", "expect": "BranchIfPlayerNear" },
+      "579351": { "text": "displayModeFlags $0080 = display-filter actor mode (dialogue, chest, reward): wait", "expect": "LDA $displayModeFlags" },
+      "579360": { "text": "-1 < dx <= 1 and 0 < dy <= 1 tiles from the portal", "expect": "BranchIfPlayerInRelTiles" },
+      "579369": { "text": "Raw Up ($0800; mask bit 0 selects joypadRaw)", "expect": "BranchIfPressed" },
+      "579376": { "text": "Mask every button except Select and Start", "expect": "LDA #$CFFC" },
+      "579386": { "text": "Player $10 |= $2000: hides the player sprite", "expect": "LDA $0010" },
+      "579395": { "text": "Monitor X/Y := player X/Y: the warp effect plays on the player", "expect": "LDA $0014" },
+      "579400": { "text": null, "expect": "LDA $0016" },
+      "579410": { "text": "Monitor's own $10: clear hidden ($2000), the effect becomes visible", "expect": "LDA #$2000" },
+      "579415": { "text": "Animation #1C of spriteset_enemies (also played by GameOverSequence)", "expect": "StageSpriteFrame" },
+      "579420": { "text": "29 more frames after the animation list has ended", "expect": "WaitByte" },
+      "579427": { "text": "Y = the monitor's $04 prev-link = the portal", "expect": "LDY $04" },
+      "579470": { "text": "gfxCacheIdxB $0101: exit and enter speed 1", "expect": "LDA #$0101" },
+      "579476": { "text": "gfxCacheIdxA $0200: exit effect 0 (fade), enter effect 2 (mosaic)", "expect": "LDA #$0200" },
+      "579482": { "text": "layerPriorityFlag bit $0200: camera frozen / chests off during the warp", "expect": "LDA #$0200" },
+      "579488": { "text": "Variant (0 to 3) for the sE6_gaia layout switch", "expect": "LDA $24" },
+      "579493": { "text": "Idle for the rest of the scene visit; the warp rectangle takes over", "expect": "SetEntryHere" }
+    }
+  },
+  "functions/game_over_sequence.asm": {
+    "blockNote": [
+      "Player death sequence (Bank 00, 54831-55263) with its helper actors. combat_collision.CheckPlayerDeath sets playerFlags $0200 when playerHp is zero, replaces the player actor's entry point with GameOverSequence and calls StopPlayerOnDeath, so the player actor itself runs this script from the next tick. Entry points: GameOverSequence (player), GameOverCutsceneSprites (spawned by it), GameOverSparkleDriftA/B (spawned by that) and DeathWakeupMessage (spawned by player_character after the respawn).",
+      "",
+      "=== TIMELINE ===",
+      "",
+      "Frame 0: player $10 |= $0040 (dead; shadow_shimmer reads it) and joypadMaskStd |= $FFFC (every button and the D-pad, Start and Select included).",
+      "After 32 frames (WaitByte #20): spawn DeathPaletteFadeThinker (palette bundles $10, then $0E) and GameOverCutsceneSprites (the sparkles).",
+      "After 119 more frames (WaitByte #77): clear player $10 bit $8000 (the player stops using DecomposePlayerSprites), SFX $0C on both channels (the same SFX as the Dark Space warp) and play animation #1C of spriteset_enemies once (also used by the Dark Space warp).",
+      "Fade: orbitAngle starts at 15; every pass writes counter - 1 to INIDISP (brightness 14 down to 0) and waits 3 frames, about 45 frames. Forced blank is never set.",
+      "Then two one-frame palette thinkers (PaletteResetAndKillThinker with bundle IDs $0B and $0D: sub-entry 0 of each bundle is applied once), one yield and the respawn choice.",
+      "",
+      "=== RESPAWN CHOICE ===",
+      "",
+      "gemCount >= 100 (revive): gemCount -= 100, playerHp = playerMaxHp >> 1, and the respawn record is the one stored by the last warp the player took (reviveWarpPtr / reviveWarpBank, $0AF4 / $0AF6; ExecuteWarp writes a pointer to entry + 4 for every warp). Form and wramFlags are kept.",
+      "gemCount < 100 (real game over): gemCount = 0, characterForm = 0 (Will), or 2 (Shadow) when sceneCurrent is $E8 (the Dark Gaia arena in the comet lair; presumably because that fight is played as Shadow), playerHp = playerMaxHp, the 16 words of wramFlags ($0A80-$0A9F: dungeon kill and puzzle flags) are cleared, and the respawn record is sceneSaveData / sceneSaveDataBank ($0AF0 / $0AF2), which ExecuteWarp writes only for warps whose entry byte 9 has bit 7 set.",
+      "",
+      "=== SHARED RESPAWN TAIL ===",
+      "",
+      "Reads the warp record at DBR:Y: byte 0 = scene (sceneNext, 8-bit store), +1 and +3 = spawn X and Y (warpDestX / warpDestY), +5 = facing with bit 7 masked (warpFacing), +6 = packed camera window (warpScrollParams). Then gfxCacheIdxB := $0404, gameOverWakeupFlag += 1, worldReadyFlag := 0 (ExecuteSceneTransition then skips the exit transition, because the screen is already black, and runs the enter transition) and SetEntryHere + RTL; the scene change takes over.",
+      "",
+      "=== WAKE-UP MESSAGE ===",
+      "",
+      "player_character spawns DeathWakeupMessage (SpawnAfterFlags $2000) at the start of the next scene when gameOverWakeupFlag ($0AF8) is set. It masks the joypad with $CFFC (Select and Start stay live), clears the flag, waits 2 frames, prints one of three strings chosen by characterForm (0 Will, 1 Freedan, 2 Shadow), unmasks and dies. The message follows a revive as well as a real game over. After a real game over the form is Will (Shadow in $E8), so the Freedan line appears only after a revive as Freedan.",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The ROM masks the joypad with $FFF0 (and $CFF0 in DeathWakeupMessage); db-us/transforms.json (block game_over_sequence) widens both to $FFFC / $CFFC so the software-only buttons $0004 and $0008 are masked too, and the extracted asm shows the transformed values. The old comment credited the first block with spawning both helpers (it is a 32-frame wait first); 'sound #$0C' is the 16-bit pair $0C0C on both channels. The old header did not say that 100 gems are paid in the revive case, that the wramFlags are cleared only on a real game over, or that two different warp records are used."
+    ],
+    "partNotes": {
+      "GameOverSequence": [
+        "Run by the player actor after CheckPlayerDeath. Sets the dead flag and masks all input, runs the palette fade and the sparkles, turns the player into a plain metasprite playing animation #1C, fades the screen to brightness 0, resets the palette, chooses between the revive (100 gems) and the real game-over respawn and queues the scene change. See the block note for the timeline and the two respawn records."
+      ],
+      "loc_00D664": [
+        "Fade loop: 8-bit step of orbitAngle (15 down to 0) into INIDISP, 3 frames per step; the DEC that goes below 0 leaves the loop."
+      ],
+      "loc_00D67B": [
+        "After the fade: two PaletteResetAndKillThinker thinkers (bundle IDs $0B and $0D), a one-frame yield so they run, then the gem test (PHB saves the data bank for the record reads)."
+      ],
+      "loc_00D6AD": [
+        "Real game over (fewer than 100 gems): gems := 0, form := Will (Shadow in scene $E8), playerHp := playerMaxHp, wramFlags cleared, record := sceneSaveData."
+      ],
+      "loc_00D6C3": [
+        "Any scene other than $E8: characterForm := 0 (Will)."
+      ],
+      "loc_00D6C6": [
+        "Full HP, then clear the 16 words of wramFlags and load the save-point record pointer."
+      ],
+      "loc_00D6D2": [
+        "Loop clearing wramFlags ($0A80-$0A9F, 32 bytes)."
+      ],
+      "loc_00D6E6": [
+        "Shared respawn tail for both paths: copy the warp record at DBR:Y into the transition words, restore DBR, set the transition speeds, the wake-up flag and worldReadyFlag := 0, then idle."
+      ],
+      "GameOverCutsceneSprites": [
+        "Invisible spawner (spawned by GameOverSequence at the player's position) that creates three marked sparkle actors, 11, 13 and 17 frames after it starts, at (-25, -40), (+25, -24) and (-25, -8) from the player, then dies 98 frames later (115 in all), which also ends the sparkles. The $2000 write is already done by CopyActorState; SetMetasprite and SetSpritePalette #00 prepare the sprite data the sparkles inherit."
+      ],
+      "GameOverSparkleDriftA": [
+        "Sparkle that loops forever: Flags10 $0001 (depth override: drawn behind every other actor) while animation #15 plays once with the X ramp $2D and the Y ramp $2F of movement_delta_table, then $0002 (drawn in front of every actor) with animation #15 and the ramps $2E / $30. The ramps are $2D positive X, $2E negative X, $2F negative-then-positive Y and $30 positive-then-negative Y, so the sparkle swings out and back around the player, passing behind and in front (inferred from the signs; not run). Spawned twice."
+      ],
+      "GameOverSparkleDriftB": [
+        "Mirror of GameOverSparkleDriftA with the X ramps swapped ($2E behind, $2D in front) and the Y ramps $2F behind, $30 in front. Spawned once."
+      ],
+      "DeathWakeupMessage": [
+        "Actor spawned by player_character at the start of the scene after a death (gameOverWakeupFlag set). Masks the joypad except Select and Start, clears the flag, waits 2 frames, prints the line for characterForm (0 Will, 1 Freedan, 2 Shadow), unmasks and dies. The label sits inside the GameOverSparkleDriftB block but is a separate entry."
+      ],
+      "loc_00D7AD": [
+        "characterForm is not 0: decrement it; 1 prints the Freedan line, 2 the Shadow line (loc_00D7B6)."
+      ],
+      "loc_00D7B6": [
+        "characterForm 2: the Shadow line."
+      ],
+      "loc_00D7BA": [
+        "Unmask the joypad ($CFFC) and die."
+      ],
+      "dialogstring_00D7C2": [
+        "Wake-up line for Will (characterForm 0)."
+      ],
+      "dialogstring_00D818": [
+        "Wake-up line for Freedan (characterForm 1)."
+      ],
+      "dialogstring_00D848": [
+        "Wake-up line for Shadow (characterForm 2); the same sentence as the Freedan line."
+      ]
+    },
+    "comments": {
+      "54831": { "text": "Player $10 |= $0040: dead (read by shadow_shimmer)", "expect": "LDA #$0040" },
+      "54836": { "text": "Mask every button and the D-pad (Start and Select too)", "expect": "LDA #$FFFC" },
+      "54842": { "text": "32 frames", "expect": "WaitByte" },
+      "54845": { "text": "Palette bundles $10 then $0E (OQ-I026-4)", "expect": "SpawnThinker" },
+      "54850": { "text": "Sparkle spawner, placed at the player", "expect": "SpawnAfter" },
+      "54855": { "text": "119 frames", "expect": "WaitByte" },
+      "54858": { "text": "Clear bit 15 of the player's $10: it leaves DecomposePlayerSprites and is drawn as a plain metasprite", "expect": "LDA #$8000" },
+      "54863": { "text": "SFX $0C on both channels (same as the Dark Space warp)", "expect": "PlaySoundBoth" },
+      "54872": { "text": "Animation #1C of spriteset_enemies, played once (also the Dark Space warp effect)", "expect": "StageSpriteFrame" },
+      "54877": { "text": "Fade counter: brightness 15", "expect": "LDA #$000F" },
+      "54884": { "text": "8-bit: counter - 1 goes to INIDISP (14 down to 0), 3 frames per step; below 0 leaves the loop", "expect": "SEP #$20" },
+      "54907": { "text": null, "expect": "REP #$20" },
+      "54909": { "text": "Param = palette bundle ID: sub-entry 0 of bundle $0B applied once, then the thinker ends", "expect": "SpawnThinkerParam" },
+      "54915": { "text": "Same for bundle $0D", "expect": "SpawnThinkerParam" },
+      "54921": { "text": "Yield once so the thinkers run; resume at the PHB", "expect": "SetEntryHereAndYield" },
+      "54927": { "text": "100 gems or more: revive", "expect": "CMP #$0064" },
+      "54932": { "text": "Carry is set after the CMP: pay 100 gems", "expect": "SBC #$0064" },
+      "54938": { "text": "Revive HP = max HP / 2", "expect": "LDA $playerMaxHp" },
+      "54947": { "text": "Revive record: last warp taken (pointer $0AF4, bank $0AF6)", "expect": "LDA $reviveWarpBank" },
+      "54957": { "text": "Real game over: gems := 0", "expect": "STZ $gemCount" },
+      "54966": { "text": "Scene $E8 (Dark Gaia arena): respawn as Shadow, otherwise Will", "expect": "CMP #$00E8" },
+      "54982": { "text": "Full HP", "expect": "LDA $playerMaxHp" },
+      "54988": { "text": "Clear the 16 words of wramFlags ($0A80-$0A9F)", "expect": "LDY #$0000" },
+      "55006": { "text": "Save-point record: pointer $0AF0, bank $0AF2 (warps with bit 7 of entry byte 9)", "expect": "LDA $sceneSaveDataBank" },
+      "55014": { "text": "Warp record at DBR:Y: +0 scene, +1 X, +3 Y, +5 facing (bit 7 masked), +6 camera window", "expect": "LDA $0000" },
+      "55049": { "text": "gfxCacheIdxB $0404: transition speeds 4 and 4", "expect": "LDA #$0404" },
+      "55055": { "text": "Wake-up flag: player_character spawns DeathWakeupMessage in the next scene", "expect": "INC $gameOverWakeupFlag" },
+      "55058": { "text": "No exit transition (the screen is already black); the enter transition runs", "expect": "STZ $worldReadyFlag" },
+      "55064": { "text": "Hidden spawner (already set by CopyActorState)", "expect": "LDA #$2000" },
+      "55080": { "text": "Offsets -25, -40 from the player; flags $0700", "expect": "SpawnAfterOffsetMarked" },
+      "55092": { "text": "Offsets +25, -24", "expect": "SpawnAfterOffsetMarked" },
+      "55104": { "text": "Offsets -25, -8", "expect": "SpawnAfterOffsetMarked" },
+      "55113": { "text": "98 frames, then Die (marked sparkles die with it)", "expect": "WaitByte" },
+      "55123": { "text": "Animation #15, X ramp $2D, Y ramp $2F", "expect": "StageSpriteMoveXY" },
+      "55140": { "text": "X ramp $2E, Y ramp $30", "expect": "StageSpriteMoveXY" },
+      "55159": { "text": "X ramp $2E, Y ramp $2F", "expect": "StageSpriteMoveXY" },
+      "55176": { "text": "X ramp $2D, Y ramp $30", "expect": "StageSpriteMoveXY" },
+      "55190": { "text": "Mask every button except Select and Start", "expect": "LDA #$CFFC" },
+      "55196": { "text": "Consume the flag set by GameOverSequence", "expect": "STZ $gameOverWakeupFlag" },
+      "55202": { "text": "0 Will, 1 Freedan, 2 Shadow selects the line", "expect": "LDA $characterForm" },
+      "55226": { "text": "Unmask", "expect": "LDA #$CFFC" }
+    }
+  }
+}

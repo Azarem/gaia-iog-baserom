@@ -1,0 +1,226 @@
+[
+  {
+    "id": "FL28-01",
+    "flag": 172,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $AC (proposed nv_party_arrived_native_village, bit 4 of byte $0A15) is set by nvAC_kara after the arrival dialog; with it set at load Kara, Erik and Hamlet stand at tiles (0B,0E), (0B,11) and (0B,0F) until $AD is set; with it clear they run the arrival path.",
+    "start": { "scene": 172, "flags": [], "form": "Will", "state": "first arrival in the Native Village from the world map ($AC to $CF clear)" },
+    "trial": {
+      "control": "enter scene 172 with every Native Village flag clear and watch the dialog, the byte and the party walk",
+      "forced": "set bit 4 of byte $0A15 before loading scene 172: no dialog, the three actors stand at their tiles and Kara answers with 'Strange. Not a soul here...'",
+      "observe": ["bit 4 of byte $0A15", "joypad lock ($065A) during the dialog", "tile positions of the three party actors", "scratch $01 (set with it, never read in that load)"]
+    },
+    "confirms": "the flag is set by the arrival dialog and gates the standing state",
+    "refutes": "the party standing without the flag or the dialog replaying with it set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-02",
+    "flag": 177,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $B1 (proposed nv_temple_drawn_on_map, bit 1 of byte $0A16) is set by the map kid's Yes row; the Native Village world-map exit then offers Ankor Wat (menu selection when $B6 is clear).",
+    "start": { "scene": 172, "flags": ["$AC", "$AD", "$AE", "$B0", "$AF", "$B2"], "form": "Will", "state": "village after the Hamlet scene, $B1 clear" },
+    "trial": {
+      "control": "talk to the map kid, answer Yes, leave the village and open the world-map exit menu",
+      "forced": "set bit 1 of byte $0A16 before leaving the village",
+      "observe": ["bit 1 of byte $0A16", "world-map exit menu id", "text 'He drew a picture of the temple on the map!'"]
+    },
+    "confirms": "the menu offers Ankor Wat only with the flag set",
+    "refutes": "the destination being offered without the flag",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-03",
+    "flag": 179,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $B3 (proposed aw_entrance_intro_seen, bit 3 of byte $0A16) is set by awB0_intro on the first entry of scene 176; with it set Hamlet of scene 172 dies at spawn and the scene 172 music is bgm_blessing_of_nature instead of bgm_ominous_whispers.",
+    "start": { "scene": 176, "flags": [], "form": "Will", "state": "first entry of Angkor Wat ($B3 and $BE clear)" },
+    "trial": {
+      "control": "enter scene 176, read the narration, then load scene 172 (the village after the Hamlet scene)",
+      "forced": "set bit 3 of byte $0A16 and load scene 172 with $AF set, $B2 clear: Hamlet absent, music changes",
+      "observe": ["bit 3 of byte $0A16", "joypad lock during the narration", "actor list of scene 172", "BGM id after the load of scene 172"]
+    },
+    "confirms": "the narration latch, the Hamlet gate and the music gate all read the same bit",
+    "refutes": "any of the three effects missing",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-04",
+    "flag": 180,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $B4 (proposed da_neil_reunion_seen, bit 4 of byte $0A16) is set by daC8_neil on the first visit of scene 200 (with $D2 clear); the world-map exit then offers the Pyramid and the Dark Space Shadow transformation is no longer locked.",
+    "start": { "scene": 200, "flags": ["$B6"], "form": "Will", "state": "first visit of the Dao dormitory, $B4 and $D2 clear" },
+    "trial": {
+      "control": "enter scene 200 and watch the talk, the byte and the player lock",
+      "forced": "set bit 4 of byte $0A16 before loading scene 200 and before entering a Dark Space",
+      "observe": ["bit 4 of byte $0A16", "joypad lock ($065A)", "Neil's interact text", "world-map exit menu id", "the Dark Space transformation prompt"]
+    },
+    "confirms": "one bit gates the reunion, the exit menu and the Dark Space transformation",
+    "refutes": "the Dark Space transformation working with the flag clear",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-05",
+    "flag": 182,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $B6 (proposed da_arrived_dao, bit 6 of byte $0A16) is set by daC4_kara at the first load of scene 196; with it set the Kara and Erik of scenes 172 and 174 die at spawn and the world-map exit menu offers Dao.",
+    "start": { "scene": 196, "flags": ["$CF"], "form": "Will", "state": "Gorgon Hut Kara's 'Travel to the labor trader's village?' answered Yes, $B6 clear" },
+    "trial": {
+      "control": "travel from the Gorgon Hut to scene 196, watch the narration, then walk back to the Native Village",
+      "forced": "set bit 6 of byte $0A16 and load scenes 172 and 174",
+      "observe": ["bit 6 of byte $0A16", "actor lists of scenes 172 and 174", "world-map exit menu id"]
+    },
+    "confirms": "the flag gates the four actors and the exit menu",
+    "refutes": "Kara or Erik present in scene 172 or 174 with the flag set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-06",
+    "flag": 187,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $BB (proposed py_jackal_scene_done, bit 3 of byte $0A17) makes the Dao hotel Kara (scene 196) die at spawn unless $D0 is set; with $D0 set she stays.",
+    "start": { "scene": 196, "flags": ["$B6"], "form": "Will", "state": "Kara present in the hotel, $D2 clear" },
+    "trial": {
+      "control": "load scene 196 with $BB clear",
+      "forced": "set bit 3 of byte $0A17 (then also bit 0 of byte $0A1A) and reload",
+      "observe": ["bit 3 of byte $0A17", "actor list of scene 196 (daC4_kara)"]
+    },
+    "confirms": "$BB set and $D0 clear removes Kara, $BB and $D0 set keeps her",
+    "refutes": "Kara dying with $D0 set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-07",
+    "flag": 191,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $BF (proposed nv_statue1_petal_placed, bit 7 of byte $0A17) is set by UseItem_GorgonFlower when the player stands in tiles (06,06)-(07,08) of scene 174; nvAE_stone_girl1 then blinks and restores.",
+    "start": { "scene": 174, "flags": ["$AC", "$AD", "$AE", "$B0", "$AF", "$B2"], "form": "Will", "state": "Gorgon Hut with the Gorgon Flower (item $1D) in the inventory, $BF $C0 $C1 clear" },
+    "trial": {
+      "control": "stand in the tile box, use the Gorgon Flower from the inventory",
+      "forced": "set bit 7 of byte $0A17 before loading scene 174",
+      "observe": ["bit 7 of byte $0A17", "the 'He puts one petal...' text", "state of statue girl 1", "inventory slot of item $1D"]
+    },
+    "confirms": "the item handler sets the flag and the statue reads it",
+    "refutes": "the statue changing without the flag",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-08",
+    "flag": 192,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $C0 (proposed nv_statue2_petal_placed, bit 0 of byte $0A18) is set when the player stands in tiles (08,06)-(09,08); statue girl 2 restores and, once ($E6 clear), gives a Red Jewel.",
+    "start": { "scene": 174, "flags": ["$BF"], "form": "Will", "state": "Gorgon Hut with the Gorgon Flower" },
+    "trial": {
+      "control": "use the flower in the second tile box, then talk to girl 2",
+      "forced": "set bit 0 of byte $0A18 and bit 6 of byte $0A1C ($E6 clear) before loading scene 174",
+      "observe": ["bit 0 of byte $0A18", "bit 6 of byte $0A1C", "inventory (item $01) and jewelsCollected", "text of the restored girl"]
+    },
+    "confirms": "the reward is given once and gated by $E6",
+    "refutes": "a second Red Jewel from the same girl",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-09",
+    "flag": 193,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $C1 (proposed nv_statue3_petal_placed, bit 1 of byte $0A18) is set when the player stands in tiles (0A,06)-(0B,08); with all three flags set Kara and Erik walk in, Kara sets $CF and the item is removed.",
+    "start": { "scene": 174, "flags": ["$BF", "$C0"], "form": "Will", "state": "Gorgon Hut with the Gorgon Flower, two petals placed" },
+    "trial": {
+      "control": "use the flower in the third tile box and watch Kara and Erik",
+      "forced": "set bits 7 of $0A17, 0 and 1 of $0A18 before loading scene 174",
+      "observe": ["bit 1 of byte $0A18", "bit 7 of byte $0A19 ($CF)", "RemoveItem of $1D", "joypad lock during Kara's talk"]
+    },
+    "confirms": "the third petal triggers the arrival of Kara and Erik and removes the item",
+    "refutes": "the item staying in the inventory after the third petal",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-10",
+    "flag": 208,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $D0 (proposed py_kara_scene_done, bit 0 of byte $0A1A) switches Neil's handler in scene 200 from the pepper-import text to the Babel flight (stores $0D60 = $0B, world-map move, QueueMapChange to scene $DC) and keeps the Dao hotel Kara.",
+    "start": { "scene": 200, "flags": ["$B4", "$B6"], "form": "Will", "state": "Dao dormitory after the reunion, $D0 and $D2 clear" },
+    "trial": {
+      "control": "talk to Neil with $D0 clear",
+      "forced": "set bit 0 of byte $0A1A and talk to Neil again",
+      "observe": ["bit 0 of byte $0A1A", "Neil's text", "$0D60", "destination scene after the dialog"]
+    },
+    "confirms": "the flight is offered only with the flag set",
+    "refutes": "the flight with the flag clear",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-11",
+    "flag": 210,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $D2 (proposed bt_entrance_monologue_seen, bit 2 of byte $0A1A) creates the Babel travel spirit in scene 195 and removes Neil (scene 200) and Kara and Erik (scene 196).",
+    "start": { "scene": 195, "flags": ["$B4", "$B6"], "form": "Will", "state": "Dao town, $D2 clear" },
+    "trial": {
+      "control": "load scene 195 with $D2 clear and look for the spirit at tile (21,08)",
+      "forced": "set bit 2 of byte $0A1A and load scenes 195, 196 and 200",
+      "observe": ["bit 2 of byte $0A1A", "actor list of the three scenes", "destination of the spirit's Yes row (scene $E3 at (0280,01B0))"]
+    },
+    "confirms": "one bit creates the spirit and removes the three party actors",
+    "refutes": "the spirit present with the flag clear",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-12",
+    "flag": 255,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $FF (proposed sys_scene_setup_done, bit 7 of byte $0A1F) restarts the sine HDMA init of native_village_sine_hdma and dao_sine_hdma_slow while it is clear and lets them tick once it is set.",
+    "start": { "scene": 172, "flags": [], "form": "Will", "state": "any frame of scene 172 or 195" },
+    "trial": {
+      "control": "watch bit 7 of byte $0A1F and the HDMA table at $7E8C00 across a scene load and an inventory open",
+      "forced": "clear the bit while the scene runs",
+      "observe": ["bit 7 of byte $0A1F", "$7E8C00 table (sine phase restarts)", "$7F0008 of the thinker"]
+    },
+    "confirms": "clearing the bit restarts the init pass",
+    "refutes": "the thinker ignoring the bit",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-13",
+    "flag": 181,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $B5 (aw_snake_pit_fall_effect_played, bit 5 of byte $0A16) gates only the effect (TM $15, CGADSUB $A1, COLDATA $FF, FadeBackdropOut1C) the first time the player arrives at pixel (0578,0010) of scene 180; the fall animation runs every time.",
+    "start": { "scene": 180, "flags": [], "form": "Will", "state": "first arrival at pixel (0578,0010) after the ledge jump from scene 179" },
+    "trial": {
+      "control": "jump from the ledge of scene 179 into scene 180 and take a screenshot every 10 frames for 200 frames",
+      "forced": "set bit 5 of byte $0A16 and repeat the fall",
+      "observe": ["bit 5 of byte $0A16", "$212C, $2131, $2132 each frame", "screenshots (white flash or black fade?)", "player entry word and playerFlags $0800"]
+    },
+    "confirms": "the effect appears once and the fall animation always",
+    "refutes": "the effect appearing with the flag set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL28-14",
+    "flag": 190,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Edge case of $BE (aw_gorgon_flower_given, bit 6 of byte $0A17): with a full inventory, no Red Jewel and no herb, awBF_spirit_guide falls from code_089B27 into code_089B31, which removes item #01 without a check and adds 1 to $jewelsCollected (BCD) before the flower is given.",
+    "start": { "scene": 191, "flags": ["$BD"], "form": "Will", "state": "return from the vision with all 16 inventory slots used and neither item $01 nor item $06" },
+    "trial": {
+      "control": "load scene 191 with $BD set and a full inventory holding no Red Jewel and no herb",
+      "forced": "same with one Red Jewel and then one herb in the inventory (the explicit branches)",
+      "observe": ["$jewelsCollected ($0AB0)", "inventory slots ($0AB4-$0AC3)", "bit 6 of byte $0A17", "the 'Let me take care of one of your Red Jewels...' text"]
+    },
+    "confirms": "the fall-through branch runs without an item and still gives the flower",
+    "refutes": "the jewel count staying unchanged",
+    "needs": ["FR00"]
+  }
+]

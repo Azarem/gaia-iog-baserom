@@ -2,7 +2,7 @@
 ; 
 ; === FORMAT ===
 ; 
-; 37 map-label entries ($00-$24), 3 bytes each: a SCENE ID byte (a sceneCurrent / sceneNext value, not a map position index) and a word pointer to a sprite string. LookupMapName searches the table linearly for the scene id in $0000. There is no terminator entry: the strings follow the table directly, so an id that is not listed would run on into string bytes (no listed or staged scene does; OQ-I059-7).
+; 37 map-label entries ($00-$24), 3 bytes each: a SCENE ID byte (a sceneCurrent / sceneNext value, not a map position index) and a word pointer to a sprite string. LookupMapName searches the table linearly for the scene id in $0000. There is no terminator entry: the strings follow the table directly, so an id that is not listed runs on past the 37 entries into the string bytes (measured with the start scene set to $02: LookupMapName took the miss path after entry 37 and the world map then stopped running frames) (no listed or staged scene does; OQ-I059-7).
 ; 
 ; === WHICH SCENE IDS ARE LOOKED UP ===
 ; 

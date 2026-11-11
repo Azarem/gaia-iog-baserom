@@ -1,0 +1,163 @@
+[
+  {
+    "id": "FL12-01",
+    "flag": 513,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Set: scene $0E draws the Herb chest at (04,1A) open on load and the radar omits it. Clear: closed chest, one radar icon.",
+    "start": {
+      "scene": 14,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $0E with flag $0201 (byte $0A40 bit 1) clear; read mapLayerTilemap ($7EA000) at the 2x2 cell block (04,19)-(05,1A) and open the Start-button radar map",
+      "forced": "set byte $0A40 bit 1, load the same scene again; read the same cells and the radar map",
+      "observe": [
+        "mapLayerTilemap cells ($F8/$F9/$FA/$FB closed, $FC/$FD/$FE/$FF open)",
+        "radar icon count digit",
+        "screenshot"
+      ]
+    },
+    "confirms": "closed tiles in the control, $FE/$FF over $FC/$FD in the forced load, and the radar icon missing in the forced load",
+    "refutes": "the tiles or the radar do not change, or the map shows no chest at the record position (then the record has no chest tile in this scene)",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL12-02",
+    "flag": 520,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Fanfare chest of scene $2E (Mystic Statue, flag $0208): opening it plays the fanfare, gives item $38 and sets byte $0A41 bit 0; a full inventory leaves the flag clear.",
+    "start": {
+      "scene": 46,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "stand under the chest at (25,19) and push up with an empty inventory slot: record inventorySlots ($0AB4-$0AC3), byte $0A41, music transition state",
+      "forced": "repeat with all inventory slots full (write item ids into $0AB4-$0AC3 in a disposable state)",
+      "observe": [
+        "byte $0A41 bit 0",
+        "inventorySlots",
+        "dialogue text",
+        "musicTransitionState $FFFF seen"
+      ]
+    },
+    "confirms": "open run: flag set, item $38 in a slot, fanfare; full run: flag clear, chest drawn closed again",
+    "refutes": "the flag is set although the inventory was full, or the fanfare does not play",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL12-03",
+    "flag": 558,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Flag-only chest of scene $60 at (1E,18) (flag $022E, byte $0A45 bit 6) shows \"It is empty!\" and sets its flag without an item.",
+    "start": {
+      "scene": 96,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "before opening: read byte $0A45 bit 6 and inventorySlots",
+      "forced": "push up into the chest at (1E,18)",
+      "observe": [
+        "dialogue text",
+        "flag byte",
+        "inventorySlots unchanged"
+      ]
+    },
+    "confirms": "text \"It is empty!\", flag set, no new item",
+    "refutes": "an item appears or the flag stays clear",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL12-04",
+    "flag": 640,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Hidden jewel of scene $03 (attribute $01, $0E = 0): interacting gives a Red Jewel once and sets flag $0280.",
+    "start": {
+      "scene": 3,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "interact at the tile (07,18) with the flag clear: record item $01 in inventorySlots, byte $0A50 bit 0",
+      "forced": "interact a second time (flag set), then reload the scene and interact again",
+      "observe": [
+        "inventorySlots",
+        "byte $0A50 bit 0",
+        "dialogue text"
+      ]
+    },
+    "confirms": "first interaction: Red Jewel +1 and flag set; later interactions: no text and no item",
+    "refutes": "a second jewel is given, or a different byte/bit is set",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL12-05",
+    "flag": 641,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Second jewel parameter ($0E = 1, scene $01) maps to $0281 (byte $0A50 bit 1): checks that $0E = attribute >> 1 and not attribute.",
+    "start": {
+      "scene": 1,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "interact at (08,0C) with byte $0A50 = 0",
+      "forced": "record byte $0A50 afterwards",
+      "observe": [
+        "byte $0A50 (expect $02)",
+        "byte $0A51 unchanged"
+      ]
+    },
+    "confirms": "byte $0A50 = $02",
+    "refutes": "any other bit set",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL12-06",
+    "flag": 512,
+    "scope": null,
+    "priority": "P3",
+    "claim": "No path reaches $0200 and $022F-$027F, $0290-$02FF: record the write census of bytes $0A40-$0A5F over a full chest/jewel route to catch a path the static search missed (dynamic address writes, save/load, MVN block copies).",
+    "start": {
+      "scene": 14,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "write-callback census on $0A40-$0A5F with a positive control: open one chest and expect exactly one write at ROM offset 173994 or 173901",
+      "forced": "play through several chest scenes and save/load once",
+      "observe": [
+        "PC of every write to $0A40-$0A5F mapped to a ROM offset",
+        "changed bits"
+      ]
+    },
+    "confirms": "only bits of the 62 mapped indices change, only from the three set sites and the save load",
+    "refutes": "a write with another PC or an unmapped bit",
+    "needs": [
+      "FR00"
+    ]
+  }
+]

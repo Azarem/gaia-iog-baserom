@@ -1,0 +1,7 @@
+[
+ { "address": 181386, "old": "IdleStandSouthShadow", "new": "IdleStandSouthFlagged", "row": "W1-c-OQ-I030-1" },
+ { "address": 181402, "old": "IdleStandNorthShadow", "new": "IdleStandNorthFlagged", "row": "W1-c-OQ-I030-1" },
+ { "address": 181418, "old": "IdleStandWestShadow", "new": "IdleStandWestFlagged", "row": "W1-c-OQ-I030-1" },
+ { "address": 181434, "old": "IdleStandEastShadow", "new": "IdleStandEastFlagged", "row": "W1-c-OQ-I030-1" },
+ { "address": 50237, "old": "PlayerIdleUseShadowSprite", "new": "PlayerIdleFlaggedAnim", "row": "W1-c-OQ-I052-1" }
+]

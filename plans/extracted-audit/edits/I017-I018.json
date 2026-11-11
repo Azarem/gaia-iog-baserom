@@ -1,0 +1,335 @@
+{
+    "system/engine/event_blocks.asm": {
+        "blockNote": [
+            "Event block tile system — runtime map edits (doors, bridges, barriers) driven by event flags (172521–173533, Bank 02).",
+            "",
+            "An event block copies a rectangle of map tiles from a source position over a destination position, either instantly (SwapEventBlockTiles) or animated with VRAM updates (AnimateEventBlock). Despite its name SwapEventBlockTiles does not exchange the two rectangles: the source is left unchanged.",
+            "",
+            "=== EVENT FLAG INDEXING ===",
+            "",
+            "ApplyAllEventBlocks walks the 32-byte event flag bitfield at $0A20 (LSR per bit). For every set flag the event index ($04, 8-bit, wraps after 256 indices) goes through LookupEventBlock; when the scene matches, SwapEventBlockTiles runs. Callers: scene_lifecycle and inventory_overlay. Defeated-enemy blocks call LookupEventBlock + SwapEventBlockTiles from actor_execution; COP #32 StageBgChange calls LookupEventBlock and COP #33 ApplyBgChange loops AnimateEventBlock.",
+            "",
+            "=== EVENT BLOCK TABLE FORMAT ===",
+            "",
+            "LookupEventBlock reads 8-byte entries from event_block_table (index × 8) into WRAM $0096-$00A8 (absolute addresses, used as DP with D = 0):",
+            "  Byte 0: Scene ID — must match sceneCurrent or the entry is skipped (carry set = no match)",
+            "  Bytes 1-2: Source tile X/Y ($96/$98)",
+            "  Byte 3: Width ($A2, and $9E as the column counter); byte 4: height ($A0)",
+            "  Bytes 5-6: Destination tile X/Y ($9A/$9C)",
+            "  Byte 7: Layer flag ($A4) — 0 = layer 0 (mapLayerTilemap + collisionLayer), nonzero = layer 1 (effectLayerTilemap)",
+            "$A8 keeps the entry's byte offset so AdvanceEventRow can reload the start X coordinates.",
+            "",
+            "=== TILE COPY OPERATIONS ===",
+            "",
+            "1. SwapEventBlockTiles (instant): nested row/column loop using map_coords.MapIndexMoveRight/MapIndexMoveDown. Layer 0 copies the mapLayerTilemap and collisionLayer bytes. Layer 1 copies effectLayerTilemap and looks the collision byte up through the [$3E] pointer (base $06AC, low byte replaced by the tile ID, bank $7F); the collision byte is written only when the lookup is non-zero.",
+            "",
+            "2. AnimateEventBlock (animated): same copy, but each copied tile that is inside the camera window also queues a 2×2 metatile VRAM update. Layer 0 queues through QueueVisibleTileVram (BG1 nametable) and, when the queue is full, flushes inside the routine (UpdateFrameDialogue) and restarts; layer 1 has its own inline copy of the visibility and queue code (BG2 nametable, $0800 offset) and instead returns carry clear when the queue is full so the caller (COP #33) flushes a frame and calls again. Carry set = all tiles done.",
+            "",
+            "=== VRAM WRITE QUEUE ($0800-$08FF) ===",
+            "",
+            "A queue entry is a pair of words (VRAM word address, tile word); one 2×2 metatile is four entries = $10 bytes, so the queue holds 16 metatiles (Y = $0100 = full). The queue's first word is dmaSkipFlag ($0800): nonzero means entries are pending. A zero address word terminates the list; both animate paths write that terminator at $0800+Y.",
+            "FlushVramWriteQueue (called twice from system_core's frame update) has two modes:",
+            "- Queued mode (dmaSkipFlag nonzero): SP is pointed at $07FF so PLA pops address/tile pairs straight into VMADDL/VMDATAL until the zero terminator; dmaSkipFlag is cleared afterwards.",
+            "- Direct mode (dmaSkipFlag zero): if tileQueryResult ($0902, really the VRAM address of a pending 2×2 metatile update staged by cop_handlers_metatile) is nonzero, writes its two tile rows ($0904/$0906 at $0902, $090A/$090C at $0908), then clears it.",
+            "",
+            "=== VISIBILITY CHECK ===",
+            "",
+            "A tile is queued only when its pixel position is inside the camera window: (pixelX + 16 − scrollH) < $0111 and (pixelY − ((scrollV − 16) AND $FFF0)) in 0..$F0. Layer 0 and QueueVisibleTileVram use bg1ScrollH / mapScrollV; the layer 1 path uses effectScrollH / effectScrollV.",
+            "QueueVisibleTileVram contract: carry set = off-screen (nothing queued); carry clear and Z set = queue full (the LDX #0 exists only to force Z); carry clear on success, where Z is whatever the caller's flags were (PLP restores them, OQ-62). DrawChestTiles in warps_interaction is its other caller and ignores the result.",
+            "",
+            "=== HELPER ROUTINES ===",
+            "",
+            "AdvanceEventColumn: decrements the column counter ($9E); carry set when the row is done, otherwise pixel X += 16, source/destination tile X += 1 and both map indices step right.",
+            "AdvanceEventRow: decrements the row counter ($A0); carry set when all rows are done, otherwise pixel Y += 16, tile Y += 1 (both), source X and destination X are reloaded from the original table entry ($A8) and the column counter is reset from $A2."
+        ],
+        "partNotes": {
+            "ApplyAllEventBlocks": [
+                "Apply every active event block for the current scene.",
+                "",
+                "Walks the event flag bitfield at $0A20 in 8-bit chunks (LSR shifts each flag into carry). For each set flag the event index ($04) goes through LookupEventBlock; when the scene matches (carry clear), SwapEventBlockTiles copies the rectangle instantly. The outer loop ends when $04 wraps to zero (256 indices, 32 bytes).",
+                "",
+                "Saves and restores processor state (PHP/PLP). The bitfield loop is 8-bit; the lookup call switches to 16-bit."
+            ],
+            "SwapEventBlockTiles": [
+                "Copy a rectangle of tiles from the source position over the destination position (the source is not modified, so this is a copy, not a swap).",
+                "",
+                "Entry: parameters at WRAM $0096-$00A4 as loaded by LookupEventBlock, read through DP with D = 0: $96/$98 source X/Y tile, $9A/$9C destination X/Y tile, $9E columns remaining, $A0 rows remaining, $A2 original width, $A4 layer flag (0 = layer 0, nonzero = layer 1).",
+                "",
+                "Layer 0 path (loc_02A264): per tile, copies mapLayerTilemap and collisionLayer bytes from the source map index ($02) to the destination index ($00); MapIndexMoveRight/MapIndexMoveDown traverse the rectangle.",
+                "",
+                "Layer 1 path (loc_02A2B9): same traversal on effectLayerTilemap. The collision byte comes from an indirect lookup: $3E/$40 hold the collision flag table pointer ($06AC, bank $7F) and the tile ID replaces the low byte of $3E, so [$3E] returns the table entry for that tile. The collision byte is written only if the entry is non-zero (empty overlay tiles keep the existing collision)."
+            ],
+            "FlushVramWriteQueue": [
+                "Write queued tile updates to VRAM during VBlank.",
+                "",
+                "1. Queued mode (dmaSkipFlag nonzero): saves SP, sets SP = $07FF so the first PLA reads word $0800 (dmaSkipFlag itself, the first queued VRAM address). Pops address/tile pairs (PLA → VMADDL, PLA → VMDATAL) until a zero address word, then restores SP and clears dmaSkipFlag.",
+                "",
+                "2. Direct mode (dmaSkipFlag zero): VMAIN = $80 (word access, increment after the high byte). If $0902 (tileQueryResult) is nonzero it is the VRAM address of the top row of a 2×2 metatile: tile words $0904/$0906 go there, then $090A/$090C go to the address in $0908. $0902 is cleared afterwards (it is also cleared when it was already zero)."
+            ],
+            "AnimateEventBlock": [
+                "Animated event block copy: same rectangle copy as SwapEventBlockTiles, but every copied tile inside the camera window also queues a 2×2 metatile VRAM update so the change appears progressively.",
+                "",
+                "Layer 0 path (loc_02A3EF): copies mapLayerTilemap + collisionLayer, calls QueueVisibleTileVram with pixel positions $1A (X) / $1E (Y). Carry set (off-screen) advances to the next tile. Z set with carry clear (queue full) advances, writes the zero terminator at $0800+Y, calls UpdateFrameDialogue so the NMI flushes the queue, and restarts from the current tile with Y = 0.",
+                "",
+                "Layer 1 path (code_02A443): copies effectLayerTilemap, resolves collision through [$3E] like SwapEventBlockTiles, and has its own inline visibility test (effectScrollH / effectScrollV) and queue code (metatileEffectLayer, VRAM address + $0800). When its queue fills and tiles remain it writes the terminator and returns carry clear: the caller must flush a frame and call again.",
+                "",
+                "Returns carry set when every tile has been processed (terminator written), carry clear when interrupted by a full layer 1 queue. Uses DP = 0 and keeps all progress in $96-$A8, so a repeated call resumes where it stopped."
+            ],
+            "QueueVisibleTileVram": [
+                "Queue the 2×2 metatile VRAM update for the tile at pixel position ($1A, $1E) if it is inside the camera window. Layer 0 only: X = map index of the tile in mapLayerTilemap, Y = queue offset (JSR, same bank).",
+                "",
+                "Window test: (pixelX + 16 − bg1ScrollH) < $0111, and (pixelY − ((mapScrollV − 16) AND $FFF0)) in 0..$F0.",
+                "",
+                "On-screen: reads the mapLayerTilemap byte, ×8 indexes metatileMapLayer ($7E2000), copies its four tile words to $0802/$0806/$080A/$080E + Y, and stores PixelToVramAddress (BG1 nametable) and the +1 / +$20 / +$21 neighbours as the four address words ($0800/$0804/$0808/$080C + Y). Y advances by $10 per metatile.",
+                "",
+                "Returns: carry set = off-screen; carry clear + Z set = queue full (Y reached $0100, LDX #0 forces Z); carry clear otherwise (Z is inherited from the caller's flags, OQ-62). Also used by DrawChestTiles in warps_interaction."
+            ],
+            "AdvanceEventRow": [
+                "Advance to the next row of the event block rectangle.",
+                "",
+                "Decrements the row counter ($A0); carry set (SEC) when all rows are done. Otherwise: pixel Y ($1E) += 16, source ($98) and destination ($9C) tile Y += 1, source X ($96) and destination X ($9A) are reloaded from the original event_block_table entry (offset kept in $A8, bytes +1 and +5), and the column counter ($9E) is reset from the width ($A2). Returns carry clear (more rows)."
+            ]
+        },
+        "comments": {
+            "172644": { "text": "L0 row loop: copy mapLayerTilemap + collisionLayer from source ($02) to destination ($00)", "expect": "LDX $02" },
+            "172729": { "text": "L1 row loop: copy effectLayerTilemap source→dest; collision via [$3E] lookup", "expect": "LDX $02" },
+            "172824": { "text": "SP = $07FF: the first PLA reads word $0800 (dmaSkipFlag = first queued VRAM address)", "expect": "LDA #$07FF" },
+            "172855": { "text": "$0902 nonzero = a 2×2 metatile update is pending (VRAM address of its top row; staged by cop_handlers_metatile)", "expect": "LDA $tileQueryResult" },
+            "172860": { "text": "Top row: VRAM address = $0902, then two tile words ($0904, $0906) with auto-increment", "expect": "STA $VMADDL" },
+            "173066": { "text": "Carry set = tile off-screen, nothing queued: just advance to the next tile", "expect": "BCS loc_02A40E" },
+            "173068": { "text": "Z set (carry clear) = queue full after queuing this tile: advance, then flush and restart", "expect": "BEQ loc_02A41C" },
+            "173161": { "text": "L1 viewport X: (pixelX + 16 − effectScrollH) must be < $0111 (273 px)", "expect": "LDA $1A" },
+            "173176": { "text": "L1 viewport Y baseline: (effectScrollV − 16) AND $FFF0", "expect": "LDA $effectScrollV" },
+            "173247": { "text": "VRAM address into queue slot $0800+Y; the other three entries get +1, +$20, +$21 (2×2 on a 32-wide nametable)", "expect": "STA $dmaSkipFlag, Y" },
+            "173305": { "text": "L1 queue full, tiles remain: write the zero terminator and return CLC (caller flushes a frame and calls again)", "expect": "LDA #$0000" },
+            "173410": { "text": "VRAM address into queue slot $0800+Y; the other three entries get +1, +$20, +$21", "expect": "STA $dmaSkipFlag, Y" },
+            "173434": { "text": "Y reached $0100 = queue full (16 metatiles)", "expect": "CMP #$0100" },
+            "173443": { "text": "Queue full: LDX #0 forces Z=1 for the caller's BEQ (X is not used afterwards; restart recomputes map indices) (inferred)", "expect": "LDX #$0000" }
+        }
+    },
+    "system/engine/hardware_math.asm": {
+        "blockNote": [
+            "Hardware math utilities — SNES multiplication and division using the 5A22 math registers (163840–164464, Bank 02).",
+            "",
+            "Wrappers around the hardware multiplier ($4202/$4203 → $4216/$4217, unsigned 8×8) and divider ($4204/$4205/$4206 → $4214/$4216, unsigned 16÷8). Results need NOP delays (8 machine cycles after a multiply, 16 after a divide).",
+            "",
+            "=== ROUTINES ===",
+            "",
+            "MulDivide: (A low × Y) ÷ A high. A low = multiplier, A high = divisor, Y = 16-bit multiplicand. Two 8×8 multiplies (A low × Y low, A low × Y high) are combined into the 16-bit dividend: the product's low 16 bits only — anything above bit 15 is discarded, so the product must fit in 16 bits. A divisor of 0 gives $FFFF. Returns the 16-bit quotient. Users: camera_scroll, parallax_thinker, visual_effect_pipeline.",
+            "",
+            "SignedMultiply: 8×8 multiply with the operands in the two bytes of A (low = first, high = second), through long addresses ($80:4202/4203/4216/4217) so any data bank works. Returns the 16-bit product in A. The hardware multiplier is unsigned, so despite the name this is an unsigned multiply (see rename proposal 84). Used for index × $30 actor addressing, map index calculation, orbital offsets and others.",
+            "",
+            "UnsignedDivide: 16÷8 divide. Y = 16-bit dividend, A = 8-bit divisor. Returns the quotient's low byte in A low and the remainder in A high (the quotient's high byte is dropped).",
+            "",
+            "SoftDivide_Unused: software long division, no callers.",
+            "",
+            "IncrementCounter_Unused: standalone copy of the generator step that RngByte (cop_handlers_movement) runs inline; no callers."
+        ],
+        "partNotes": {
+            "MulDivide": [
+                "Multiply then divide with the hardware registers: (A low × Y) ÷ A high.",
+                "",
+                "Input: A = packed operand (low byte = multiplier, high byte = divisor), Y = 16-bit multiplicand.",
+                "Algorithm: P1 = A low × Y low and P2 = A low × Y high (two 8×8 multiplies). The dividend is the 16-bit value P1 + (P2 low byte << 8): the carry out and P2's high byte are discarded, so only the low 16 bits of A low × Y are divided. The divisor is A high; WRDIVB triggers the divide.",
+                "Output: 16-bit quotient in A (RDDIVL/RDDIVH). Divisor 0 returns $FFFF (hardware behaviour).",
+                "Timing: 3 NOPs after the multiplies (plus the instructions between), 8 NOPs (16 cycles) after the divide."
+            ],
+            "SignedMultiply": [
+                "8×8 multiply through long-address hardware registers (named SignedMultiply, but the $4202/$4203 multiplier is unsigned).",
+                "",
+                "Input: A low = first operand, A high = second operand (8-bit accumulator). STA $80:4202, XBA, STA $80:4203.",
+                "Output: 16-bit product in A (high byte from $80:4217 via XBA, low byte from $80:4216).",
+                "Long addresses make it independent of the current data bank."
+            ],
+            "UnsignedDivide": [
+                "16÷8 unsigned hardware divide.",
+                "",
+                "Input: Y = 16-bit dividend (WRDIVL/WRDIVH), A = 8-bit divisor (WRDIVB, which starts the divide).",
+                "Output: A low = quotient low byte (RDDIVL), A high = remainder (RDMPYL), assembled with XBA. The quotient's high byte is not returned.",
+                "8 NOPs (16 cycles) cover the divide latency."
+            ],
+            "SoftDivide_Unused": [
+                "Software long division (no callers). Uses DP = 0 scratch $00-$06. A = divisor, Y = dividend.",
+                "",
+                "The divisor is normalized by shifting left until its MSB is set (shift count in $00, normalized divisor in $02). The dividend then acts as a running remainder through two trial-subtraction loops: the first collects the integer quotient bits into $06 (shift count + 1 iterations, at most 16), the second 16 further bits into $04 (a 16.16 fixed-point quotient, inferred). Probably a development fallback before the hardware divider wrapper."
+            ],
+            "IncrementCounter_Unused": [
+                "Generator step (no callers); the same loops as the inline step in RngByte (cop_handlers_movement), without the output byte.",
+                "",
+                "For X = 15..1: byte[$040F+X] += byte[$0410+X] + carry (one carry chain, $041E first). Then a ripple counter at $041F is incremented, carrying toward lower addresses until a byte does not wrap. The state array is $0410-$041F; rngState ($040F) is only the base used for the X offset."
+            ]
+        },
+        "comments": {
+            "163852": { "text": "WRMPYB = Y low byte → P1 = A low × Y low", "expect": "STA $WRMPYB" },
+            "163859": { "text": "Y = P1 (16-bit read of RDMPYL/RDMPYH)", "expect": "LDY $RDMPYL" },
+            "163862": { "text": "WRMPYB = Y high byte (XBA moved it into A low) → P2 = A low × Y high", "expect": "STA $WRMPYB" },
+            "163870": { "text": "WRDIVL = P1 low byte", "expect": "STA $WRDIVL" },
+            "163875": { "text": "WRDIVH = P1 high + P2 low; the carry and P2 high are discarded (16-bit dividend)", "expect": "ADC $RDMPYL" },
+            "164305": { "text": "WRMPYA = A low byte (the hardware multiply is unsigned)", "expect": "STA $L_WRMPYA" },
+            "164310": { "text": "WRMPYB = second operand (A high byte, moved down by XBA)", "expect": "STA $L_WRMPYB" },
+            "164318": { "text": "Product high byte, XBA, then product low byte: A = 16-bit unsigned product", "expect": "LDA $L_RDMPYH" },
+            "164342": { "text": "Remainder (RDMPYL) → A high via XBA, then quotient low byte (RDDIVL) → A low", "expect": "LDA $RDMPYL" },
+            "164377": { "text": "Dividend (Y) becomes the running remainder in A; $02 holds the normalized divisor", "expect": "TYA" },
+            "164378": { "text": "Integer-part quotient bits → $06: shift count + 1 trial subtractions (at most 16)", "expect": "LDY #$0010" },
+            "164402": { "text": "Further 16 trial subtractions: fraction bits → $04 (16.16 fixed-point result, inferred)", "expect": "LDY #$0010" },
+            "164429": { "text": "Same step as RngByte: for X = 15..1, byte[$040F+X] += byte[$0410+X] + carry", "expect": "LDX #$000F" },
+            "164436": { "text": "state[X-1] += state[X] + carry (one carry chain; $041E is updated first)", "expect": "LDA $0410, X" },
+            "164448": { "text": "Ripple counter: INC from $041F downward until a byte does not wrap", "expect": "LDX #$0010" }
+        }
+    },
+    "system/engine/cop_handlers_actor_query.asm": {
+        "blockNote": [
+            "COP handlers that query the player or linked actors (Bank 00, COP #44-#49 in hex = copdef ids 68-73).",
+            "",
+            "#44 BranchIfPlayerInRelTiles and #45 BranchIfPlayerInAbsTiles test whether the player actor is inside a tile rectangle and branch (four bytes: minX, minY, maxX, maxY, then a &Code target). #46/#47 copy this actor's position to its previous/next linked actor. #48 GetPlayerFacing returns the player's facing in A. #49 BranchIfBodyNe branches when characterForm differs from a byte.",
+            "",
+            "Rectangle tests use unsigned compares with an exclusive lower bound and an inclusive upper bound (minX < player.X ≤ maxX, same for Y). Uses in extracted/: #44 44, #45 140, #48 6; #46, #47 and #49 have no users."
+        ],
+        "partNotes": {
+            "BranchIfPlayerInRelTiles": [
+                "COP #44 (copdef id 68): relative tile-rectangle branch. Operands: four signed bytes in the order minX, minY, maxX, maxY (tiles, relative to this actor) plus a &Code target.",
+                "",
+                "Each byte is sign-extended, multiplied by 16 (ASL ×4) and added to the actor's own X ($14) or Y ($16). The player is inside when minX < player.X ≤ maxX and minY < player.Y ≤ maxY (unsigned compares on the player actor's $14/$16). Inside → jump to the target; otherwise skip the six-byte operand block (4 bytes + &Code)."
+            ],
+            "BranchIfPlayerInAbsTiles": [
+                "COP #45 (copdef id 69): absolute tile-rectangle branch. Operands: four bytes in the order minX, minY, maxX, maxY (absolute tile coordinates) plus a &Code target.",
+                "",
+                "Each byte is multiplied by 16 and compared with the player actor's position. The tested point is (player.X, player.Y − 8): inside when minX×16 < X ≤ maxX×16 and minY×16 < Y−8 ≤ maxY×16. The adjusted Y is kept in scratch $0000. Inside → jump to the target; otherwise skip the six-byte operand block."
+            ],
+            "CopyPosToPrev": [
+                "COP #46 (id 70), no operands, no users. Copies this actor's pixel position ($14/$16) to its previous linked actor ($04). No null check: with no previous actor ($04 = 0) it would write to WRAM $0014/$0016."
+            ],
+            "CopyPosToNext": [
+                "COP #47 (id 71), no operands, no users. Copies this actor's pixel position ($14/$16) to its next linked actor ($06); shares the copy code with CopyPosToPrev. No null check."
+            ],
+            "BranchIfBodyNe": [
+                "COP #49 (id 73), no users. One byte (form ID) plus a &Code target: branches when characterForm ($0AD4) is not equal to the byte; when equal it skips the 2-byte target."
+            ]
+        },
+        "comments": {
+            "38279": { "text": "minX vs player X: BCS (minX ≥ player.X) = outside; inside needs player.X > minX", "expect": "CMP $0014, X" },
+            "38305": { "text": "minY vs player Y: BCS (minY ≥ player.Y) = outside; inside needs player.Y > minY", "expect": "CMP $0016, X" },
+            "38385": { "text": "Test point Y = player Y − 8 (kept in scratch $0000); X is compared unadjusted", "expect": "LDA $0016, X" },
+            "38388": null,
+            "38405": { "text": "minX×16 vs player X: BCS = outside (inside needs player.X > minX×16)", "expect": "CMP $0014, X" },
+            "38420": { "text": "minY×16 vs player Y−8: BCS = outside", "expect": "CMP $0000" }
+        }
+    },
+    "system/engine/cop_handlers_spawn.asm": {
+        "blockNote": [
+            "COP handlers for actor spawning — the SpawnBefore/After/Abs/Offset/Marked family plus list append (Bank $00, 14 COP handlers, ids $99-$A6).",
+            "",
+            "SpawnBefore*/SpawnAfter* call AllocateActorBefore/AllocateActorAfter, which link a new actor beside the spawner and CopyActorState (clones $0E, $10 with $2000 set, $12 without bit 12, position and more from the spawner). The handler then writes the entry address (word at $0000, bank at $0002) and any operands: position offsets are added to the inherited $14/$16, absolute positions replace them, a flags word replaces $0010.",
+            "",
+            "The Marked variants (SpawnBeforeMarked, SpawnAfterMarked, SpawnAfterAbsMarked, SpawnAfterOffsetMarked) set $0040 in the spawner's own $12 (Die cascades to marked children) and call MarkChildActor, which sets the new actor's parentId to the spawner's parentId, or to the spawner itself when it has none.",
+            "",
+            "SpawnListAppend/SpawnListAppendSpr use ActorPoolAllocator and append at the tail of the actor list ($0058); on pool exhaustion they skip all operand bytes without spawning. SpawnListAppendSpr also reads an animation index (stored at $0028).",
+            "",
+            "Uses in extracted/: SpawnListAppend 256, SpawnAfterFlags 231, SpawnAfterOffsetFlags 126, SpawnAfterAbsFlags 106, SpawnAfterMarked 101, SpawnAfterOffsetMarked 77; SpawnAfterOffset, SpawnAfterAbs and SpawnListAppendSpr have no users."
+        ],
+        "partNotes": {
+            "SpawnAfterOffset": [
+                "COP #9D with one Address plus two word operands (X/Y offset), no users. Spawns after the current actor and adds the 16-bit offset words to the new actor's $0014/$0016."
+            ],
+            "SpawnAfterAbs": [
+                "COP #9F with one Address plus two word operands (absolute X/Y), no users. Spawns after the current actor and assigns $0014/$0016 directly from the operand words."
+            ],
+            "SpawnListAppendSpr": [
+                "COP #A6 with one Address, one byte (animation index), two signed bytes (X/Y offset) and one word (flags), no users. Like SpawnListAppend but also stores the animation index in the spawned actor's $0028; the pool-exhaustion path skips one more operand byte (8 operand bytes in total)."
+            ]
+        },
+        "comments": {
+            "41930": { "text": "Set $0040 in the spawner's own $12 (DP = spawner), marking it as a parent", "expect": "TSB $12" },
+            "41975": { "text": "Set $0040 in the spawner's own $12 (it becomes a parent; Die cascades to its marked children)", "expect": "TSB $12" },
+            "42065": { "text": "Mask the entry bank byte", "expect": "AND #$00FF" },
+            "42353": { "text": "Store animation index to new actor $0028", "expect": "STA $0028, Y" }
+        }
+    },
+    "system/engine/cop_handlers_audio.asm": {
+        "blockNote": [
+            "COP handlers for SPC700 audio communication and music playback (Bank $00, 8 COP handlers).",
+            "",
+            "StartMusic (#04) allocates a thinker with AllocateActorAfter and sets its entry to SpcTransferMusicData for the asynchronous SPC upload. FadeThenStartMusic (#05) does the same but enters at SpcCheckMusicReady, an $F1/$01 handshake before the upload; no fade logic is in that routine (the name's 'fade' is unverified, OQ-61). Both OR $1000 into the thinker's $12 (it keeps running while the world is frozen, as in MusicPlaybackActor), clear $1000 in its $10 and store the track in chatPtr.",
+            "",
+            "PlaySoundCh2 (#06), PlaySoundCh1 (#07) and PlaySoundBoth (#08) write the sfx queue bytes sfxQueueCh1/Ch2 ($06F8/$06F9); WriteApuIo1 (#09) and WriteApuIo0 (#0A) write APUIO1/APUIO0 ($2141/$2140) directly.",
+            "",
+            "MusicAndText (#19) allocates a pooled actor with ActorPoolAllocator, appends it to the list tail, CopyActorState, sets it to MusicPlaybackActor and stores the three operands ($0026 track, $0020 text pointer, $0022 text bank). On pool exhaustion the track is dropped and only the text is shown inline through DialogStringRenderer, then displayModeFlags bit 7 is cleared.",
+            "",
+            "Uses in extracted/: PlaySoundCh1 244, PlaySoundCh2 92, PlaySoundBoth 72, StartMusic 57, MusicAndText 22, FadeThenStartMusic 14, WriteApuIo0 7, WriteApuIo1 4."
+        ],
+        "partNotes": {
+            "StartMusic": [
+                "COP #04 with one byte operand (music bundle ID). Allocates a thinker with AllocateActorAfter, sets its entry to SpcTransferMusicData, ORs $1000 into its $12 and clears $1000 in its $10 (the mask is $EFFF; it is not the $0800 render bit), and stores the music ID in chatPtr. The thinker runs the SPC handshake and upload asynchronously."
+            ],
+            "FadeThenStartMusic": [
+                "COP #05 with one byte operand (music bundle ID). Same allocation, $12/$10 flag handling and chatPtr as StartMusic, but the thinker's entry is SpcCheckMusicReady: it sends $F1 on APUIO0, waits for the echo, sends $01, and falls into SpcTransferMusicData when the SPC answers zero. That routine contains no fade step (OQ-61)."
+            ]
+        },
+        "comments": {
+            "34601": { "text": "Set $1000 in the child's $12 so it keeps running in display-filter mode (as MusicPlaybackActor does)", "expect": "ORA #$1000" },
+            "34610": { "text": "Clear $1000 in the child's $10 (mask $EFFF clears bit 12, not $0800); meaning of that bit: OQ-60", "expect": "AND #$EFFF" },
+            "34694": { "text": "8-bit store: sfxQueueCh2 is a one-byte WRAM queue slot, not an I/O register", "expect": "SEP #$20" },
+            "34714": { "text": "8-bit store: sfxQueueCh1 is a one-byte WRAM queue slot", "expect": "SEP #$20" },
+            "34830": { "text": "$12 = $1000 (overwrites): keeps running in display-filter mode", "expect": "LDA #$1000" },
+            "34923": { "text": "Leave display-filter mode (bit 7, set by the calling script); the track is not played on this path", "expect": "LDA #$0080" }
+        }
+    },
+    "system/engine/forced_walk.asm": {
+        "blockNote": [
+            "Cutscene auto-walk actors (Bank 00) spawned by warps_interaction.StartForcedWalk during extended warp transitions.",
+            "",
+            "StartForcedWalk decodes the direction from scrollStepTableBase (bit 5 = west, bit 4 = east, bit 7 = north, default south), sets playerFlags $0100 and spawns the matching ForcedWalkSouth/North/West/East on the player actor (SpawnBefore).",
+            "",
+            "The warp entry gives two things: the walk-step stream pointed to by warpFacing ($0650, a pointer to warp entry +7) and the walk sequence index in scrollStepTableBase. Stream layout, 6 bytes: [direction byte][X offset word][Y offset word][direction byte]. A direction byte indexes direction_velocity_table, whose entry is (animation index, index into movement_delta_table); movement_delta_table entries are delta-node lists, so ReadDirSprite_*Velocity leaves a velocity-curve pointer in $2E (Y) or $2C (X).",
+            "",
+            "Each ForcedWalk* actor: masks all joypad input, reads the first direction byte, stages the player sprite (StagePlayerSprFromDP, animation index from DP $0000), replaces scrollStepTableBase with the pointer to the word scroll-step list from forced_walk_sequence_table (read by CameraScrollStepLookup, ends at a zero word), pans the camera in the walk direction (CameraPan*), adds the stream's X/Y offset words to its own position (ApplyScrollOffset), reads the second direction byte, stages the final sprite, copies position and state to the player (SyncPlayerToCamera), unmasks the joypad and dies.",
+            "",
+            "The direction variants differ only in the ReadDirSprite helper (Y velocity for south/north, X for west/east) and the CameraPan* COP."
+        ],
+        "partNotes": {
+            "ForcedWalkSouth": [
+                "Cutscene auto-walk actor spawned on the player by StartForcedWalk during extended warp transitions (default direction when no west/east/north bit is set).",
+                "",
+                "Masks all joypad input, reads the first stream direction byte with ReadDirSprite_YVelocity, stages the player sprite, loads the walk sequence pointer from forced_walk_sequence_table into scrollStepTableBase, pans the camera down (CameraPanDown), applies the stream's position offset, reads the next direction byte, re-stages the sprite, syncs the player and dies. The North/West/East labels below follow the same sequence."
+            ],
+            "ForcedWalkNorth": [
+                "Same sequence as ForcedWalkSouth with ReadDirSprite_YVelocity and CameraPanUp."
+            ],
+            "ForcedWalkWest": [
+                "Same sequence as ForcedWalkSouth with ReadDirSprite_XVelocity and CameraPanLeft."
+            ],
+            "ForcedWalkEast": [
+                "Same sequence as ForcedWalkSouth with ReadDirSprite_XVelocity and CameraPanRight."
+            ],
+            "ReadDirSprite_YVelocity": [
+                "Read the next walk-step stream byte and set up the sprite and the Y velocity curve for it.",
+                "",
+                "Y = stream pointer (warpFacing, $0650), incremented by one. The byte indexes direction_velocity_table (word entries): the whole word goes to $0000 (low byte = animation index used by StagePlayerSprFromDP); its high byte indexes movement_delta_table, and that pointer (head of a delta-node velocity list) is stored in $2E. ReadDirSprite_XVelocity is identical but stores it in $2C."
+            ],
+            "ReadDirSprite_XVelocity": [
+                "Same as ReadDirSprite_YVelocity, but the velocity-curve pointer goes to $2C (X axis) instead of $2E."
+            ],
+            "ApplyScrollOffset": [
+                "Add the next stream record, an X word and a Y word, to this actor's position ($14/$16); the stream pointer ($0650) advances by 4."
+            ],
+            "SyncPlayerToCamera": [
+                "Copy this actor's final state to the player actor: position ($14/$16), animation index ($28), $10 with $0008 set and $0200 cleared (OQ-60), and zero the player's $08."
+            ]
+        },
+        "comments": {
+            "60331": { "text": "First stream byte → animation index ($0000) and Y velocity curve ($2E)", "expect": "JSR $&ReadDirSprite_YVelocity" },
+            "60334": { "text": "Clear $2008 in own $10 (bit meanings unverified, OQ-60)", "expect": "LDA #$2008" },
+            "60339": { "text": "Stage the player sprite: animation index = DP $0000 (set by ReadDirSprite_*)", "expect": "COP [StagePlayerSprFromDP]" },
+            "60362": { "text": "scrollStepTableBase now = pointer to the word scroll-step list used by CameraScrollStepLookup", "expect": "STA $scrollStepTableBase" },
+            "60373": { "text": "Add the stream's X/Y offset words to this actor's position (stream pointer += 4)", "expect": "JSR $&ApplyScrollOffset" },
+            "60712": { "text": "Y = walk-step stream pointer (warpFacing)", "expect": "LDY $warpFacing" },
+            "60726": { "text": "Entry = (animation index, movement_delta_table index)", "expect": "LDA $&direction_velocity_table" },
+            "60729": { "text": "$0000 = entry word; low byte = animation index for StagePlayerSprFromDP", "expect": "STA $0000" },
+            "60738": { "text": "Velocity-curve pointer from movement_delta_table (head of a delta-node list)", "expect": "LDA $&movement_delta_table" },
+            "60741": { "text": "$2E = Y velocity curve pointer (not a duration)", "expect": "STA $2E" },
+            "60773": { "text": "$2C = X velocity curve pointer", "expect": "STA $2C" },
+            "60804": { "text": "SyncPlayerToCamera: copy position and state to the player actor", "expect": "LDY $playerActor" },
+            "60819": { "text": "Set $0008 in the player's $10 (bit meaning: OQ-60)", "expect": "ORA #$0008" }
+        }
+    }
+}

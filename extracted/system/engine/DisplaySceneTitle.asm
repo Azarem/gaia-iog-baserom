@@ -10,7 +10,7 @@
 ; 
 ; 3. Empty title guard: if the count is zero the routine returns immediately (177 of the 241 scene records have an empty title, only $CA).
 ; 
-; 4. Centering: (18 - glyphCount), forced even by AND $FE, used as a byte offset into the VRAM write buffer, i.e. (18 - N) / 2 tile cells. 18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18).
+; 4. Centering: (18 - glyphCount), forced even by AND $FE, used as a byte offset into the VRAM write buffer, i.e. (18 - N) / 2 tile cells. The box interior is 20 tiles wide (10 columns of 2 tiles: the border sits at columns 6 and 27 and the text starts at column 7), so the title is centred in 18 of the 20 tiles: it sits one tile left of the true centre ('South Cape', 10 glyphs, starts 4 tiles in and leaves 6 free on the right) and an 18-glyph title leaves its last 2 tiles empty. There is no clamp for N > 18; the longest vanilla title is 18 glyphs, so none reaches the border.
 ; 
 ; 5. Box setup: sets $00B4 = $E0 (nonzero flag that makes ExecuteSceneTransition wait for a button press) and clears $00B5. Opens the box via scene_title_box_format ([DLG:7,7][SIZ:A,1]), i.e. a DialogStringRenderer OpenDialogueBox command with width $0A and height 1 at position (7, 7).
 ; 

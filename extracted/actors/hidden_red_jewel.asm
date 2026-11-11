@@ -33,7 +33,7 @@
 ; 
 ; gs2B_seth, nvAE_stone_girl2, wa79_lance, fr32_creep, eu95_ann, sc01_fisherman and ec0A_right_guard each end their gift script with JML @hidden_red_jewel.HiddenRedJewelInventoryFull when GiveItem reports a full inventory. They do not use the interact handler or the flag range above.
 ; 
-; Whether the jewel is visible and what the metasprite looks like was not checked.
+; The jewel is never drawn: the actor's Flags10 is $7000 on its first tick ($4000 off-screen, $2000 hidden, $1000 interactable) and $3000 on screen, before and after the pickup (scene $01: item $01 in the first inventory slot, flag $0281 set 9 ticks after the give), and SortActorsByDepth skips actors with bit $2000, so the metasprite is never visible and the pickup does not change it.
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'

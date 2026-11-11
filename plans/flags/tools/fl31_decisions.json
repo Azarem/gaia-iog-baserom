@@ -1,0 +1,117 @@
+{
+  "_note": "FL31 decisions: hand-authored overrides read by fl31_build.mjs. Keys are hex indices. A record is built from the group iterations' proposals; an entry here replaces the named fields. 'meanings' replaces the whole record (used for the scoped index $10).",
+  "names_checked_against": "all persistent names of every FL*_registry.json fragment (fl31_build.mjs refuses a clash)",
+  "10": {
+    "meanings": [
+      {
+        "scope": { "scenes": [8] },
+        "area": "south_cape",
+        "evidenceGroup": "south_cape",
+        "name": "sc_school_lesson_done",
+        "summary": "The opening lesson in the South Cape church is over: Lance, Seth and Erik are gone from the classroom on later loads and the priest stands as a plain NPC.",
+        "kinds": ["quest-done", "once-latch"],
+        "grade": "VERIFIED-STATIC",
+        "effects": {
+          "set": "Lance, Erik and Seth die at spawn (sc08_lance.asm:14 {298280}, sc08_erik.asm:15 {298392}, sc08_seth.asm:13 {298353}) and the priest skips the lesson (sc08_priest.asm:21 {297626}).",
+          "clear": "The priest locks the joypad ($CFFC) and runs the lesson; Lance is a solid NPC; Erik and Seth wait on the flag (sc08_erik.asm:16 {298398}, sc08_seth.asm:14 {298359}) and leave when the priest sets it."
+        },
+        "queue": ["FL20-01", "FL10-19"],
+        "queueNew": ["FL31-03"],
+        "notes": "Setter: sc08_priest.asm:45 {297683}, after dialogstring_048C01 and a $3B-tick wait; nothing in this scope clears it. Index reuse with scene $FB (second record): the two uses cannot meet in a normal run. The clearer of the boot logo (sFB_boot_logo.asm:88 {772373}) runs before the title scene, a reset zeroes the flag array (InitSystemVariables; the shipped boot-logo note records the measurement), and the only QueueMapChange calls to scenes $FB / $FC in extracted/ are sFB_boot_logo.asm:77 {772355}, :89 {772376} and pr8C_prologue5.asm:104 {773949} (the prophecy replay after the title idle, which runs with the flags of the boot). That the two meanings never meet is INFERRED: it rests on those literal QueueMapChange operands (indirect scene changes were not enumerated) and on New Game not zeroing the array (queue FL10-19, FL31-03)."
+      },
+      {
+        "scope": { "scenes": [251] },
+        "area": "system",
+        "evidenceGroup": "system",
+        "name": "sys_boot_logo_first_shown",
+        "summary": "Scene $FB (boot logos) has shown the first logo: the reload of scene $FB for the second logo sees the flag set and runs BootLogoSecondPhase.",
+        "kinds": ["once-latch", "engine"],
+        "grade": "VERIFIED-STATIC",
+        "effects": {
+          "set": "BootLogoSecondPhase plays the emblem logo (animation #00) for 120 ticks, clears the flag and queues scene $FC (title screen).",
+          "clear": "First visit: the first logo (animation #01) plays 2 passes of 60 ticks, the flag is set and scene $FB is queued again."
+        },
+        "queue": ["FL30-05", "FL30-07", "FL10-19"],
+        "queueNew": ["FL31-03"],
+        "notes": "Test sFB_boot_logo.asm:72 {772336}, set :76 {772352}, clear :88 {772373}. The flag is saved only if it is set when a save is written, which never happens during the logos. See the first record for the reuse by the South Cape church."
+      }
+    ]
+  },
+  "96": {
+    "name": "wa_festival_night_active",
+    "kinds": ["cutscene-stage", "quest-guard"],
+    "grade": "VERIFIED-STATIC",
+    "notesAppend": "Decision: the name wa_festival_night_active (Watermia group, the interval) is kept over gw_lance_lilly_reunion_done (the setter's event). The flag is cleared by the glass game (wa78_glass_game.asm:203 {496163}, the same block sets $97 at {496166}) so a 'done' name would be false after the game; nine of its ten tests are in Watermia (the tenth is the scene $78 gate, tables/scene_meta.asm:1683 {890774}: set loads pal_watermia_dark). The name comes from the dark palette, the festival palette thinker and the 'On full moon nights they play Russian Glass' text, not from a decoded dialog of the setter."
+  },
+  "F4": {
+    "name": "pr_prophecy_first_pass_active",
+    "grade": "VERIFIED-STATIC",
+    "notesAppend": "Decision: pr_prophecy_first_pass_active over pr_prophecy_second_page_active. Evidence: the title intro sets the flag before QueueMapChange to scene $8C (sFC_title_intro.asm:49 {772466}); pr8C_prologue1 dies when it is clear (:27 {772619}) and clears it in the routine that clears $017C-$017F and queues scene $8D (:122 {772898}); pr8C_prologue5, the second pass through scene $8C, dies when it is SET (pr8C_prologue5.asm:24 {773756}). The set state is therefore the first pass; the scene-meta gate for scene $8C (tables/scene_meta.asm:1901 {891790}) loads map_prologue_prophecy_2 in that pass, so the '_2' of the map name does not mean pass order.",
+    "pairsWith": [380, 381, 382, 383]
+  },
+  "40": {
+    "name": "it_meadow_lola_melody_played",
+    "grade": "INFERRED",
+    "notesAppend": "Decision: renamed from it_village_barrier_lifted. The earlier name asserts a lifted barrier that no tile change in it15_lily shows (the reveal is a palette flash thinker and a camera pan); the new name states only what the code establishes: the setter is UseItem_LolaMelody_Effect in scene $15 (item_use_system.asm:769 {232527}). INFERRED: the reveal's visible result and the dead set-branch at :768 {232521} (unreachable behind the refusing test at :705 {232406}) are not seen at runtime. Flag names live only in the registry, so no names spec is needed."
+  },
+  "FF": {
+    "name": "sys_scene_setup_done",
+    "area": "system",
+    "kinds": ["engine", "handshake"],
+    "grade": "VERIFIED-STATIC",
+    "summary": "The scene's palette buffer, PPU registers and HDMA tables are set up: ClearSceneState clears the flag before it rebuilds the scene, the scene-start sequence sets it after its two thinker passes, and the inventory overlay clears it at open and sets it after the first render frame of its close path. Thinkers that own palette or HDMA state re-apply it in every pass that finds the flag clear.",
+    "effects": {
+      "set": "The HDMA and PPU-register thinkers (sine_hdma_slow_wave, sine_hdma_ending_wave, sine_hdma_dual_channel, native_village_sine_hdma, dao_sine_hdma_slow, larai_cliff_scroll_wave, palace_coffin_hdma_table, mu_tint_and_wave, comet_lair_hdma_a/b/c_timed, sE8_comet_display_config) continue their per-frame tick; palace_fountain_palette keeps cycling; the palette loops that wait for a clear flag (edward_castle_alarm_palette, dream_palette_loop, flag_gated_palette_cool/warm, gold_ship_wreck_palette) stay parked.",
+      "clear": "The HDMA and PPU-register thinkers jump back to their init label and rewrite their tables or registers; palace_fountain_palette sets the flag again and rewrites CGADSUB; the parked palette loops resume, replay their bundle and set the flag again."
+    },
+    "extraEvidence": [
+      "extracted/system/engine/scene_lifecycle.asm:842 {253418} (read of $eventFlagsF8toFF)",
+      "extracted/system/engine/scene_lifecycle.asm:844 {253423} (write that clears bit 7: the direct clear at the top of ClearSceneState)",
+      "extracted/system/inventory/inventory_overlay.asm:131 {191814} (read of $eventFlagsF8toFF at open)",
+      "extracted/system/inventory/inventory_overlay.asm:133 {191819} (write that clears bit 7: the direct clear at open)"
+    ],
+    "queueNew": ["FL31-01", "FL31-02"],
+    "notes": "One flag with one meaning, not an idiom. The protocol: (1) only the engine clears it, at two sites that are direct writes, not COP clears (the inventory has 0 ClearFlagByte/ClearFlagWord sites with operand $FF, and its direct_accesses list writes of $0A00-$0A3F only at those two places, besides the flag helpers, which take a computed index, and save_system, which copies the whole array; ClearEventFlag is called only by the COP handlers, ClearFlagRaw only by ir1F_gold_tile with indices 1-4); (2) the engine sets it at {253564} (scene setup) and {192190} (overlay close); (3) thinkers that own state which the rebuild destroys test it: pattern A (12 placed thinker files and the unplaced native_village_dup_unused: init, SetEntryHereAndYield, branch back to init while the flag is clear) re-initialises HDMA tables or PPU registers; pattern B (5 placed palette loops and the unplaced palette_buffer_clear_unused: set the flag themselves, then WaitOnFlagByte(FF, clear)) replay their palette bundle; palace_fountain_palette is a hybrid (it sets the flag, cycles, and sets it again when it finds it clear). Pattern B cannot be woken by a scene setup: the scene's thinker list is built by SpawnSceneThinkers after the clear at {253418}, and the scene-start passes at {253549}/{253553} come before the set at {253564}. It wakes once per inventory close: RestoreGameState restores the saved thinker list, ResetThinkerWaitCounters (inventory_overlay.asm:295, called at {192179}) zeroes the wait counters, and the first UpdateFrameRender at {192186} runs RunThinkers_Hdma_Light and RunThinkers_General_Light while $FF is still clear (the overlay's eventFlags restore at {192094} covers flags $00-$0F only); the set at {192190} comes after that frame. The shipped thinker notes say 'next scene setup or inventory open': the first half is wrong, the second is the close path (specs/FL31_notes.json). Self-sets by thinkers (12 sites: 2 engine and 10 in thinker files, 9 of them placed) cannot hide a clear from a later thinker of the same pass: the only scenes in which one file sets and another file tests are $5C (palace_coffin_hdma_table sets, sine_hdma_dual_channel tests; thinker_spawn_0CE96F lists the coffin thinker first) and $E8 (testers only). The coffin thinker sets the flag one tick after its init (SetFlagByte at {48753} follows SetEntryHereAndYield), so in the pass that finds the flag clear it re-initialises without setting, and the engine's own set at {192190} (or {253564} at scene setup) comes before its next tick. Two thinkers in unused/ (native_village_dup_unused, palette_buffer_clear_unused) are referenced by no scene thinker list."
+  },
+  "119": { "kinds": ["cutscene-stage", "gate-open"] },
+  "179": {
+    "pairsWith": [373, 374, 375, 376],
+    "notesAppend": "Decision: the FL29 meaning (Neo Queen watcher, scene $F6) stands; the earlier proposal 'Mummy Queen rematch' is contradicted. The only setter (pyDD_mummy_queen.asm:109 {763546}) lies in code_0BA65F, spawned by btF6_neo_queen (pyDD_mummy_queen.asm:52 {763426}), which tables/scene_actors.asm:4695 places in the Babel boss lair; the Mummy Queen actor of the same file (placed at tables/scene_actors.asm:4450) does not reach it. The file sits in the pyramid folder only because of its position in the bank, which is why the inventory counts a second group for this flag."
+  },
+  "8E": {
+    "pairsWith": [148],
+    "notesAppend": "Relation: overworld_exit tests $94 first, then $8E (overworld_exit.asm:345 note), so $94 wins when both are set."
+  },
+  "4B": {
+    "queueNew": ["FL31-10"]
+  },
+  "A5": {
+    "queueNew": ["FL31-11"]
+  },
+  "25": { "requires": [33], "notesAppend": "Relation: sc06_kara_return dies unless $21 is set (sc06_kara_return.asm:21 {304574}) and sets $25 at :84 {304773}." },
+  "26": { "requires": [37], "notesAppend": "Relation: sc06_kara_return sets $25 at :84 {304773} and $26 later in the same script at :122 {304868}." },
+  "1C": { "pairsWith": [22], "notesAppend": "Relation: the evening palette thinkers live while $16 is set and $1C is clear (flag_gated_palette_*.asm gates {46530}/{46536}, {46561}/{46567})." },
+  "24": { "pairsWith": [262], "notesAppend": "Relation: UseItem_PrisonKey sets the word flag $0106 at {230891} and this flag at {230895} in one handler; they are two flags with two jobs ($0106 drives event block $06, this one gates the item's repeat message and the cell scripts), so both names stay: ec_prison_cell_door_unlocked here and a separate name for $0106." },
+  "5B": { "pairsWith": [92, 378] },
+  "5C": { "pairsWith": [91, 378] },
+  "60": { "pairsWith": [97, 98, 99] },
+  "61": { "pairsWith": [96, 98, 99] },
+  "62": { "pairsWith": [96, 97, 99] },
+  "63": { "pairsWith": [96, 97, 98] },
+  "30": { "pairsWith": [49] },
+  "31": { "pairsWith": [48] },
+  "7B": { "pairsWith": [126] },
+  "7E": { "pairsWith": [123] },
+  "80": { "pairsWith": [129] },
+  "81": { "pairsWith": [128] },
+  "BF": { "pairsWith": [192, 193] },
+  "C0": { "pairsWith": [191, 193] },
+  "C1": { "pairsWith": [191, 192] },
+  "BB": { "pairsWith": [208] },
+  "D0": { "requires": [187, 252], "notesAppend": "Relation: the setter in pyCD_kara runs only after $BB is set (pyCD_kara.asm:29 {572753}) and the statue-reward flag $FC (252) is set." },
+  "175": { "pairsWith": [374, 375, 376, 377] },
+  "176": { "pairsWith": [373, 375, 376, 377] },
+  "177": { "pairsWith": [373, 374, 376, 377] },
+  "178": { "pairsWith": [373, 374, 375, 377] },
+  "B3": { "notesAppend": "Index-reuse reading: one latch with three readers (Angkor Wat entrance narration, Native Village Hamlet NPC, scene $AC music gate); no second meaning." }
+}

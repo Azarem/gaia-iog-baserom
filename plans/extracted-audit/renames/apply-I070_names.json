@@ -1,0 +1,9 @@
+[
+{"address":1540110,"old":"sprite_set_17800E","new":"dark_friar_00_cast_flash","row":"R-I070-1"},
+{"address":1540148,"old":"sprite_set_178034","new":"dark_friar_01_trail1","row":"R-I070-1"},
+{"address":1540162,"old":"sprite_set_178042","new":"dark_friar_02_trail2","row":"R-I070-1"},
+{"address":1540176,"old":"sprite_set_178050","new":"dark_friar_03_trail3","row":"R-I070-1"},
+{"address":1540194,"old":"sprite_set_178062","new":"dark_friar_04_fragment","row":"R-I070-1"},
+{"address":1540212,"old":"sprite_set_178074","new":"dark_friar_05_follower_a","row":"R-I070-1"},
+{"address":1540230,"old":"sprite_set_178086","new":"dark_friar_06_follower_b","row":"R-I070-1"}
+]

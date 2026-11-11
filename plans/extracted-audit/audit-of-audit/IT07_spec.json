@@ -1,0 +1,102 @@
+{
+  "_note": "IT-07: actor and thinker factual defects (A03-01, -02, -04, -05, -06, -07, -08). Partial edits on existing block/part notes; comments carry an expect guard.",
+
+  "actors/debug_stat_setter.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The WRAM map describes hpToHeal as a heal request that the HUD plays out as the HP recovery animation; no reader of $0B22 was found in extracted/, so that is documentation only (see the questions file).",
+          "with": "hpToHeal ($0B22) is a heal request that UpdateHUD (UpdateHUD_Active in system_core) plays out: on every 8th frame, unless the game-over bit of playerStateByte is set, a nonzero hpToHeal is decremented by one and playerHp is incremented by one with sound $0D; when playerHp equals playerMaxHp the request is cleared instead. The $0040 written here is therefore a request for up to 64 points of HP, capped at playerMaxHp."
+        }
+      ]
+    }
+  },
+
+  "actors/interaction_handlers.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "loads operand slot +2 when the player is more than 15 px WEST of the actor, +6 when more than 15 px EAST and +4 when within 15 px (including 0).",
+          "with": "loads operand slot +2 when the player is 15 px or more WEST of the actor, +6 when 15 px or more EAST and +4 when |dx| is below 15 (including 0); the threshold test is CMP [$0A] / BCC, so |dx| = 15 already takes the outer slot."
+        },
+        {
+          "find": "\n   (docs/cop/families/player_query.md and the copdef label the three operands West / East / Here, but the handler's order is West / Here / East; see OQ-I037-3.)",
+          "with": "\n   The three operands are bare &Code addresses in the copdef; the handler's order is West / Here / East (BranchOnPlayerY: above / Here / below)."
+        },
+        {
+          "find": " These handlers therefore pull the object to the player; the 'push' in the old names and header was a guess.",
+          "with": " These handlers therefore pull the object to the player."
+        },
+        {
+          "find": "6. The label pairs are named after the wrong axis:",
+          "until": "\n\n=== HANDLERS ===",
+          "with": "6. The side word in the labels that contain Player<Side> (CollectGemAlignPlayerNorth, CollectGemNudgePlayerWestHalf, PushSolidMovePlayerSouth, PushForceballRestorePlayerEast ...) names the side of the object on which the player stands: North / South = the player is above / below (the same-column blocks, Y axis), West / East = the player is west / east (the same-row blocks, X axis). The object moves toward that side. In the North block and the West block of each handler the first BPL (d >= 0, to the South / East block) is followed by a second BPL to the label after the abs(); N is still set after the first BPL, so the second one is never taken and the abs() always runs for d < 0."
+        },
+        {
+          "find": " The old header said it nudges the player; it moves the parent (the gem) and only reads the player.",
+          "with": " It moves the parent (the gem) and only reads the player."
+        }
+      ]
+    },
+    "comments": {
+      "57704": { "text": "Slots: +2 player 15 px or more west, +4 less than 15 px (same column), +6 15 px or more east; slot +4 = vertical block", "expect": "BranchOnPlayerX" },
+      "57823": { "text": "Not in the same column: less than 15 px on Y (slot +4) takes the horizontal block, else idle", "expect": "BranchOnPlayerY" },
+      "57983": { "text": "Slot +4 (|dx| < $0F, same column) -> PushSolidMovePlayerNorth, which is the vertical block; +2 / +6 go to the Y test", "expect": "BranchOnPlayerX" },
+      "58124": { "text": "Less than 15 px on Y (slot +4): horizontal block, else idle", "expect": "BranchOnPlayerY" }
+    }
+  },
+
+  "actors/ramps.asm": {
+    "comments": {
+      "54026": { "text": "Dead branch: the BMI above was taken, so N is still set here and this BPL is never taken; the EOR / INC below always runs", "expect": "BPL" },
+      "54250": { "text": "Dead branch: the BMI above was taken, so N is still set here and this BPL is never taken; the EOR / INC below always runs", "expect": "BPL" }
+    }
+  },
+
+  "thinkers/hdma_circle_window_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "It clears the previous-parameter copies once (HdmaInitPrevState, so the first frame always builds), then each frame",
+          "with": "It clears the previous-parameter copies once (HdmaInitPrevState), so the first frame builds only if one of the current centre X, centre Y or radius ($F6, $FA, $FE) is non-zero; then each frame"
+        }
+      ]
+    },
+    "partNotes": {
+      "circle_window_thinker_v2": {
+        "edit": [
+          {
+            "find": "(so the first frame rebuilds)",
+            "with": "(so the first frame builds only if one of the current centre X, centre Y or radius is non-zero)"
+          }
+        ]
+      }
+    }
+  },
+
+  "functions/SpawnDebrisBurst.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Flags $0302: bit $0200 is part of the combat_collision skip masks (OQ-I030-2); $0100 and $0002 are undecoded.",
+          "with": "Flags $0302: bit $0200 is part of the combat_collision skip mask $76E0 (CombatCollision_InnerLoop); bit $0002 is the depth override SetPriorityMax, so SortActorsByDepth draws the particle in front of every other actor; bit $0100 is not traced."
+        },
+        {
+          "find": " The older header named only the first two. docs/code/bank00/functions-camera-motion.md describes the routine as an LDX #8 / JSR random / DEX loop with offsets of +-$10 .. +-$30 pixels; the code is a COP LoopStart / LoopEnd script and the offsets are -16 .. +15 px.",
+          "with": ""
+        }
+      ]
+    }
+  },
+
+  "functions/StopPlayerOnDeath.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "No code that reads the actor bit was found (the Psycho Slider sets and clears the same bit), so the old claim that it \"freezes movement\" is unverified. docs/wram-memory-map.md lists \"$0200 deathFlag, set by StopPlayerOnDeath\" as a WRAM address; that entry confuses a bit mask with an address.",
+          "with": "The Psycho Slider sets and clears the same actor bit. The routine writes only playerSpeedEw, playerSpeedNs and the actor's $08 and $10; it never writes playerFlags."
+        }
+      ]
+    }
+  }
+}

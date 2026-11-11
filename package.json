@@ -30,6 +30,7 @@
         "rebuild-jp": "node src/index.ts rebuild-jp",
         "merge": "node src/index.ts merge",
         "names": "node src/index.ts names",
+        "flags": "node src/index.ts flags",
         "export": "node src/index.ts export"
     },
     "dependencies": {

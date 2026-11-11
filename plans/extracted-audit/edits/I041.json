@@ -1,0 +1,1500 @@
+{
+  "thinkers/mode7_perspective.asm": {
+    "blockNote": [
+      "Mode 7 perspective thinker (Bank 03, 239936-240520). Every frame it rebuilds three 224-line HDMA tables that drive the Mode 7 matrix registers M7A-M7D, so the flat Mode 7 plane is rotated by an angle index and gets a perspective gradient (the zoom grows from the top scanline to the bottom one).",
+      "",
+      "=== ENTRY POINTS ===",
+      "",
+      "- Mode7PerspectiveInit is a thinker-def <#04,#08>: the two header bytes are the word $0804 that goes into animScratch2. Bit 2 puts the thinker into RunThinkers_TypeB, which runs after ResetHdmaState every frame; the four HDMA channels queued below are therefore re-armed each frame. Bit 11 is the lighter-frame flag. Only the scene thinker list of scene $FE (the world map, thinker_spawn_0CEB3D = Init + IrisCircleEffect) spawns it through the list.",
+      "- Init has no RTL: it falls straight into Mode7PerspectiveUpdate (the Update block starts at the byte after Init's last STA).",
+      "- Four actor scripts spawn Mode7PerspectiveUpdate directly with COP SpawnThinker and skip Init: pr8C_prologue1 and pr8C_prologue5 (prologue prophecy), garden_crash_cutscene (Sky Garden crash) and future_vision_cutscene (Angkor Wat). SpawnThinker does not read the thinker-def header, so each of them stores $0804 into the new thinker's animScratch2 itself, writes M7SEL = 0 (map repeats) and drives the three parameters below from a companion script.",
+      "",
+      "=== PARAMETERS (global low-RAM words, not actor fields) ===",
+      "",
+      "The thinker reads absolute low-RAM words (D is forced to 0), so every script writes them with STA $00B8 style absolute stores. They are not per-thinker fields.",
+      "",
+      "| Word | Role here | Written by |",
+      "|------|-----------|------------|",
+      "| $00B8 | Starting divisor ('scale'). The quotient is abs(cos) / divisor in 8.8 fixed point, so $80 is about 1:1 ($7FFF / $80 = $FF), a smaller divisor zooms out and a larger one zooms in. Init sets $0400 | Cutscene controllers (future vision $001C up to $0080, prologue $0020), WorldMapController (adds gravity deltas) |",
+      "| $00B6 | Divisor increment per scanline, 8.8 fixed point. 0 gives a flat plane without perspective. Init sets 0 | Prologue controllers ($0280 / $0200 counted down towards 0), future vision (INC), WorldMapController (descent loop subtracts $10 per frame) |",
+      "| $00BC | Rotation index. ($BC AND $01FF) x 2 indexes the 512-step sine and cosine tables (0.703 degrees per step). Init sets 0 | Cutscenes INC it; WorldMapController route steps add their third delta axis to it (its own comments call that axis elevation) |",
+      "| $00CA / $00CC | Mode 7 centre X / Y (copied to M7X / M7Y by the NMI). Init takes them from worldMapPlayerX / Y ($0D54 / $0D56) | Init, the cutscene controllers, WorldMapController |",
+      "",
+      "=== ONE-TIME TABLE FILL ===",
+      "",
+      "The first tick writes 224 entries of {count 1, data word 0} plus a $00 terminator into $7E7000 (M7A), $7E7800 (M7B) and $7E8000 (M7C): 673 bytes each. A count of 1 with bit 7 clear is a one-scanline, non-repeat entry. COP SetEntryHere follows, so only the data words are rewritten on later frames.",
+      "",
+      "=== PER-FRAME COMPUTATION ===",
+      "",
+      "1. D := 0. Scratch is absolute $00-$04, $0E, $18 and $1C. $00/$01 := 0 (this clears the fraction byte $01), $02 := $B8 (the divisor word $02/$03), $04 := $B6, $0E := 224.",
+      "2. Y = ($BC AND $1FF) x 2. cos is read from cosine_table_16bit[Y] and sin from sine_table_16bit[Y] ($7FFF = 1.0). Both tables are read past their nominal length on purpose (math_lookup_tables adjacency contract). The absolute values go to $18 (|cos|) and $1C (|sin|); the two signs choose one of four routines.",
+      "3. PEA QueueMode7HdmaTables-1 makes the routine's final RTS continue in the queue code (return-address trick).",
+      "4. NormalizeDivisor shifts $02, $18, $1C and $04 right together until the divisor word has no high byte. The quotients do not change; the 8-bit WRDIVB divisor input is satisfied.",
+      "5. For each of the 224 scanlines: divide |cos| by the divisor with the hardware 16/8 divider, divide |sin|, store the signed results into the three tables, then add $04 to the 16-bit word at $01/$02. $01 is the fraction byte and $02 the low byte of the divisor word, so this adds $B6 / 256 to the divisor: the divisor, and with it the zoom, grows down the screen.",
+      "6. If that add carries out of $02, the carry is added to $03 and |cos|, |sin|, the divisor word and $04 are all halved. Their ratios are kept and the divisor returns to 8 bits. The fraction byte $01 is not halved.",
+      "",
+      "| Case | M7A (table $7E7000) | M7B ($7E7800) | M7C ($7E8000) |",
+      "|------|---------------------|---------------|---------------|",
+      "| +cos, +sin | +cos/div | +sin/div | -sin/div |",
+      "| +cos, -sin | +cos/div | -abs(sin)/div | +abs(sin)/div |",
+      "| -cos, +sin | -abs(cos)/div | +sin/div | -sin/div |",
+      "| -cos, -sin | -abs(cos)/div | -abs(sin)/div | +abs(sin)/div |",
+      "",
+      "In every case A = D = cos/div, B = sin/div and C = -sin/div: the rotation matrix divided by the per-scanline divisor.",
+      "",
+      "=== HDMA QUEUE ===",
+      "",
+      "QueueMode7HdmaTables issues four COP QueueDma. The second operand is a B-bus register index (#1B..#1E = $211B..$211E), not a channel number. QueueDma sets up a DIRECT-table HDMA channel on the next free channel (cop_handlers_hdma_dma), so four channels are used per frame and released again by the next ResetHdmaState. Table A is queued twice, for M7A and for M7D.",
+      "",
+      "=== QUIRKS ===",
+      "",
+      "- M7SEL = $80 written by Init means: tilemap repeat off and non-tilemap fill = 0, i.e. the area outside the 1024x1024 map is transparent (nesdev PPU registers). The old notes said 'repeat'. The cutscene spawners write M7SEL = 0 instead, which repeats the map.",
+      "- $B6 is the per-scanline divisor increment, not a rotation angle; the rotation is $BC.",
+      "- STY $WRDIVB with 16-bit Y also writes $4207 (HTIMEL) with the divisor high byte, which is 0 here. No H-IRQ use was checked.",
+      "- Quadrants 3 and 4 use 4 NOPs where 1 and 2 use 6: the extra LDA #0 / SEC before the SBC fill the divider's 16-cycle delay (derived from cycle counts, not run).",
+      "- The three tables live at $7E7000, $7E7800 and $7E8000, the same addresses as tileStagingBuffer and as buffers of parallax_thinker. No check was made for scenes that use both (OQ-I041-3).",
+      "- Init writes $FFFF to the words $7F0B22 and $7F0B24. No reader was found in extracted/ (OQ-I041-1)."
+    ],
+    "partNotes": {
+      "Mode7PerspectiveInit": [
+        "Thinker entry for scene $FE only. M7SEL := $80; $7F0B22 and $7F0B24 := $FFFF; Mode 7 centre := world-map start position; camera := centre - ($80, $70) with the bit 15 scroll-override flag; $B6 := 0, $BC := 0, $B8 := $0400. Falls through into Mode7PerspectiveUpdate."
+      ],
+      "code_03A942": [
+        "Thinker code entry (after the 2-byte header $0804)."
+      ],
+      "Mode7PerspectiveUpdate": [
+        "Table fill (first tick only) followed by the per-frame matrix computation. Entered by fall-through from Init (scene $FE) or directly as the SpawnThinker target of the prologue, Sky Garden crash and Angkor Wat vision scripts. COP SetEntryHere separates the one-time fill from the per-frame part.",
+        "Per frame: scratch $02 := $B8 (divisor), $04 := $B6 (increment), index Y := ($BC AND $1FF) x 2, then cos and sin from the 16-bit tables, absolute values in $18 and $1C, jump to the matching quadrant routine with QueueMode7HdmaTables-1 on the stack."
+      ],
+      "loc_03A994": [
+        "Fill loop: one entry per scanline in all three tables (count byte 1, data bytes left 0), 224 times, then $00 terminators."
+      ],
+      "loc_03A9F0": [
+        "cos >= 0 and sin < 0: negate sin and enter the second quadrant routine."
+      ],
+      "loc_03A9F9": [
+        "cos < 0: negate cos, re-read sin and choose the third or fourth quadrant routine."
+      ],
+      "loc_03AA09": [
+        "cos < 0 and sin < 0: negate sin and enter the fourth quadrant routine."
+      ],
+      "QueueMode7HdmaTables": [
+        "RTS-trick return target. Restores D and the thinker slot, then queues four direct-table HDMA transfers: table A to M7A ($211B), B to M7B ($211C), C to M7C ($211D) and A again to M7D ($211E). Ends with RTL back to the thinker loop."
+      ],
+      "Mode7Quadrant_PosCosPosSin": [
+        "Quadrant 1 (+cos, +sin). NormalizeDivisor, then 224 scanlines: A := cos/div, B := sin/div, C := -(sin/div), divisor += $B6/256. Carry out of the accumulator halves everything (loc_03AA6F)."
+      ],
+      "loc_03AA30": [
+        "Scanline loop of quadrant 1: two divides, three table writes, divisor accumulation."
+      ],
+      "loc_03AA6F": [
+        "Quadrant 1 overflow: add the carry to the divisor high byte, halve |cos|, |sin|, the divisor word and the increment, and continue the loop."
+      ],
+      "Mode7Quadrant_PosCosNegSin": [
+        "Quadrant 2 (+cos, -sin). Same as quadrant 1 but the sin quotient goes to table C unchanged and its negation to table B, so B = sin/div (negative) and C = -sin/div (positive)."
+      ],
+      "loc_03AA81": [
+        "Scanline loop of quadrant 2."
+      ],
+      "loc_03AAC0": [
+        "Quadrant 2 overflow (halve and continue)."
+      ],
+      "Mode7Quadrant_NegCosPosSin": [
+        "Quadrant 3 (-cos, +sin). A := 0 - cos/div, B := sin/div, C := -(sin/div). Uses 4 NOPs because the LDA #0 / SEC / SBC read delays the RDDIVL access."
+      ],
+      "loc_03AAD2": [
+        "Scanline loop of quadrant 3."
+      ],
+      "loc_03AB13": [
+        "Quadrant 3 overflow (halve and continue)."
+      ],
+      "Mode7Quadrant_NegCosNegSin": [
+        "Quadrant 4 (-cos, -sin). A := 0 - cos/div, C := +|sin|/div, B := -|sin|/div."
+      ],
+      "loc_03AB25": [
+        "Scanline loop of quadrant 4."
+      ],
+      "loc_03AB66": [
+        "Quadrant 4 overflow (halve and continue)."
+      ],
+      "NormalizeDivisor": [
+        "Shift the divisor word, |cos|, |sin| and the increment right together until the divisor high byte is zero, so the divisor fits the 8-bit WRDIVB register. The ratios, and therefore the quotients, are unchanged."
+      ],
+      "loc_03AB7D": [
+        "Shift step of NormalizeDivisor: A = divisor >> 1, then $18, $1C and $04 shifted too, and test again."
+      ]
+    },
+    "comments": {
+      "239938": {
+        "text": "A to 8-bit for the M7SEL write",
+        "expect": "SEP #$20"
+      },
+      "239940": {
+        "text": "M7SEL value: bit 7 set, bit 6 clear = outside the 1024x1024 map is transparent (no repeat, no tile-0 fill), no flip",
+        "expect": "LDA #$80"
+      },
+      "239942": {
+        "text": "Write Mode 7 settings",
+        "expect": "STA $M7SEL"
+      },
+      "239945": {
+        "text": "A back to 16-bit",
+        "expect": "REP #$20"
+      },
+      "239947": {
+        "text": "Value $FFFF for the two words below",
+        "expect": "LDA #$FFFF"
+      },
+      "239950": {
+        "text": "Word $7F0B22 := $FFFF (no reader found in extracted/; purpose unknown)",
+        "expect": "STA $7F0B22"
+      },
+      "239954": {
+        "text": "Value $FFFF again",
+        "expect": "LDA #$FFFF"
+      },
+      "239957": {
+        "text": "Word $7F0B24 := $FFFF (no reader found in extracted/; purpose unknown)",
+        "expect": "STA $7F0B24"
+      },
+      "239961": {
+        "text": "World-map start X ($0D54)",
+        "expect": "LDA $worldMapPlayerX"
+      },
+      "239964": {
+        "text": "Mode 7 centre X ($00CA; the NMI copies it to M7X)",
+        "expect": "STA $00CA"
+      },
+      "239967": {
+        "text": "Prepare camera X",
+        "expect": "SEC"
+      },
+      "239968": {
+        "text": "Camera X = centre X - $80 (half of the 256-pixel screen)",
+        "expect": "SBC #$0080"
+      },
+      "239971": {
+        "text": "Bit 15 = scroll override: WriteBgScroll then uses this word instead of the map scroll",
+        "expect": "ORA #$8000"
+      },
+      "239974": {
+        "text": "Horizontal scroll override word",
+        "expect": "STA $scrollOverrideH"
+      },
+      "239977": {
+        "text": "World-map start Y ($0D56)",
+        "expect": "LDA $worldMapPlayerY"
+      },
+      "239980": {
+        "text": "Mode 7 centre Y ($00CC; the NMI copies it to M7Y)",
+        "expect": "STA $00CC"
+      },
+      "239983": {
+        "text": "Prepare camera Y",
+        "expect": "SEC"
+      },
+      "239984": {
+        "text": "Camera Y = centre Y - $70 (half of the 224-line screen)",
+        "expect": "SBC #$0070"
+      },
+      "239987": {
+        "text": "Bit 15 = scroll override flag",
+        "expect": "ORA #$8000"
+      },
+      "239990": {
+        "text": "Vertical scroll override word",
+        "expect": "STA $scrollOverrideV"
+      },
+      "239993": {
+        "text": "$B6 := 0: no per-scanline divisor increment (flat plane)",
+        "expect": "STZ $00B6"
+      },
+      "239996": {
+        "text": "$BC := 0: rotation index 0",
+        "expect": "STZ $00BC"
+      },
+      "239999": {
+        "text": "Initial divisor $0400",
+        "expect": "LDA #$0400"
+      },
+      "240002": {
+        "text": "$B8 := $0400; falls through into Mode7PerspectiveUpdate (no RTL)",
+        "expect": "STA $00B8"
+      },
+      "240005": {
+        "text": "Save the thinker slot",
+        "expect": "PHX"
+      },
+      "240006": {
+        "text": "and its direct page",
+        "expect": "PHD"
+      },
+      "240007": {
+        "text": "Zero for the direct page",
+        "expect": "LDA #$0000"
+      },
+      "240010": {
+        "text": "D := 0: the scratch below is absolute low RAM $00-$1C",
+        "expect": "TCD"
+      },
+      "240011": {
+        "text": "A to 8-bit for the byte fill",
+        "expect": "SEP #$20"
+      },
+      "240013": {
+        "text": "X := table byte offset",
+        "expect": "LDX #$0000"
+      },
+      "240016": {
+        "text": "224 entries, one per visible scanline",
+        "expect": "LDA #$E0"
+      },
+      "240018": {
+        "text": "Entry counter in $0E",
+        "expect": "STA $0E"
+      },
+      "240020": {
+        "text": "HDMA entry count byte: 1 scanline, non-repeat",
+        "expect": "LDA #$01"
+      },
+      "240022": {
+        "text": "Table A ($7E7000, M7A): count byte",
+        "expect": "STA $tileStagingBuffer, X"
+      },
+      "240026": {
+        "text": "Table B ($7E7800, M7B): count byte",
+        "expect": "STA $7E7800, X"
+      },
+      "240030": {
+        "text": "Table C ($7E8000, M7C): count byte",
+        "expect": "STA $7E8000, X"
+      },
+      "240034": {
+        "text": "Entries are 3 bytes: count + data word (data stays 0 until the first computation)",
+        "expect": "INX"
+      },
+      "240035": {
+        "text": "Entry offset += 3 (second step)",
+        "expect": "INX"
+      },
+      "240036": {
+        "text": "Entry offset += 3 (third step)",
+        "expect": "INX"
+      },
+      "240037": {
+        "text": "One entry done",
+        "expect": "DEC $0E"
+      },
+      "240039": {
+        "text": "Fill all 224 entries",
+        "expect": "BNE loc_03A994"
+      },
+      "240041": {
+        "text": "$00 count byte ends an HDMA table",
+        "expect": "LDA #$00"
+      },
+      "240043": {
+        "text": "Terminate table A",
+        "expect": "STA $tileStagingBuffer, X"
+      },
+      "240047": {
+        "text": "Terminate table B",
+        "expect": "STA $7E7800, X"
+      },
+      "240051": {
+        "text": "Terminate table C",
+        "expect": "STA $7E8000, X"
+      },
+      "240055": {
+        "text": "A back to 16-bit",
+        "expect": "REP #$20"
+      },
+      "240057": {
+        "text": "Restore the thinker's direct page",
+        "expect": "PLD"
+      },
+      "240058": {
+        "text": "Restore the thinker slot (needed by the COP instructions)",
+        "expect": "PLX"
+      },
+      "240059": {
+        "text": "Yield; the fill above runs only once, every later frame resumes below",
+        "expect": "COP [SetEntryHere]"
+      },
+      "240061": {
+        "text": "Per-frame entry: save the thinker slot",
+        "expect": "PHX"
+      },
+      "240062": {
+        "text": "and its direct page",
+        "expect": "PHD"
+      },
+      "240063": {
+        "text": "Zero for the direct page",
+        "expect": "LDA #$0000"
+      },
+      "240066": {
+        "text": "D := 0 so $00-$1C and $B6-$BC are absolute low RAM",
+        "expect": "TCD"
+      },
+      "240067": {
+        "text": "Starting divisor (scale) $B8",
+        "expect": "LDA $B8"
+      },
+      "240069": {
+        "text": "$00/$01 := 0: clears the accumulator fraction byte $01",
+        "expect": "STZ $00"
+      },
+      "240071": {
+        "text": "Divisor word $02/$03 (byte $02 doubles as the integer part of the accumulator)",
+        "expect": "STA $02"
+      },
+      "240073": {
+        "text": "$B6: per-scanline divisor increment (8.8 fixed point)",
+        "expect": "LDA $B6"
+      },
+      "240075": {
+        "text": "Increment into $04",
+        "expect": "STA $04"
+      },
+      "240077": {
+        "text": "224 scanlines to compute",
+        "expect": "LDA #$00E0"
+      },
+      "240080": {
+        "text": "Scanline counter $0E",
+        "expect": "STA $0E"
+      },
+      "240082": {
+        "text": "$BC: rotation index",
+        "expect": "LDA $BC"
+      },
+      "240084": {
+        "text": "Modulo 512",
+        "expect": "AND #$01FF"
+      },
+      "240087": {
+        "text": "Word offset into the sine and cosine tables",
+        "expect": "ASL"
+      },
+      "240088": {
+        "text": "Y := table offset",
+        "expect": "TAY"
+      },
+      "240089": {
+        "text": "X := HDMA table byte offset",
+        "expect": "LDX #$0000"
+      },
+      "240092": {
+        "text": "Push QueueMode7HdmaTables-1: the quadrant routine's RTS continues there",
+        "expect": "PEA $&QueueMode7HdmaTables-1"
+      },
+      "240095": {
+        "text": "cos from cosine_table_16bit (index runs past the table end by design)",
+        "expect": "LDA $&math_lookup_tables.cosine_table_16bit, Y"
+      },
+      "240098": {
+        "text": "Negative cos: quadrants 3/4",
+        "expect": "BMI loc_03A9F9"
+      },
+      "240100": {
+        "text": "$18 := |cos|",
+        "expect": "STA $18"
+      },
+      "240102": {
+        "text": "sin from sine_table_16bit",
+        "expect": "LDA $&math_lookup_tables.sine_table_16bit, Y"
+      },
+      "240105": {
+        "text": "Negative sin: quadrant 2",
+        "expect": "BMI loc_03A9F0"
+      },
+      "240107": {
+        "text": "$1C := |sin|",
+        "expect": "STA $1C"
+      },
+      "240109": {
+        "text": "Quadrant 1: +cos, +sin",
+        "expect": "JMP $&Mode7Quadrant_PosCosPosSin"
+      },
+      "240112": {
+        "text": "Negate sin ...",
+        "expect": "EOR #$FFFF"
+      },
+      "240115": {
+        "text": "... two's complement",
+        "expect": "INC"
+      },
+      "240116": {
+        "text": "$1C := |sin|",
+        "expect": "STA $1C"
+      },
+      "240118": {
+        "text": "Quadrant 2: +cos, -sin",
+        "expect": "JMP $&Mode7Quadrant_PosCosNegSin"
+      },
+      "240121": {
+        "text": "Negate cos ...",
+        "expect": "EOR #$FFFF"
+      },
+      "240124": {
+        "text": "... two's complement",
+        "expect": "INC"
+      },
+      "240125": {
+        "text": "$18 := |cos|",
+        "expect": "STA $18"
+      },
+      "240127": {
+        "text": "Re-read sin (cos was loaded last)",
+        "expect": "LDA $&math_lookup_tables.sine_table_16bit, Y"
+      },
+      "240130": {
+        "text": "Negative sin: quadrant 4",
+        "expect": "BMI loc_03AA09"
+      },
+      "240132": {
+        "text": "$1C := |sin|",
+        "expect": "STA $1C"
+      },
+      "240134": {
+        "text": "Quadrant 3: -cos, +sin",
+        "expect": "JMP $&Mode7Quadrant_NegCosPosSin"
+      },
+      "240137": {
+        "text": "Negate sin ...",
+        "expect": "EOR #$FFFF"
+      },
+      "240140": {
+        "text": "... two's complement",
+        "expect": "INC"
+      },
+      "240141": {
+        "text": "$1C := |sin|",
+        "expect": "STA $1C"
+      },
+      "240143": {
+        "text": "Quadrant 4: -cos, -sin",
+        "expect": "JMP $&Mode7Quadrant_NegCosNegSin"
+      },
+      "240146": {
+        "text": "Restore D (the quadrant routine's RTS arrived here)",
+        "expect": "PLD"
+      },
+      "240147": {
+        "text": "Restore the thinker slot for the COP instructions",
+        "expect": "PLX"
+      },
+      "240148": {
+        "text": "Direct HDMA table A ($7E7000) to B-bus register $1B = M7A",
+        "expect": "COP [QueueDma] ( $tileStagingBuffer, #1B )"
+      },
+      "240154": {
+        "text": "Table B ($7E7800) to register $1C = M7B",
+        "expect": "COP [QueueDma] ( $7E7800, #1C )"
+      },
+      "240160": {
+        "text": "Table C ($7E8000) to register $1D = M7C",
+        "expect": "COP [QueueDma] ( $7E8000, #1D )"
+      },
+      "240166": {
+        "text": "Table A again to register $1E = M7D (D = A)",
+        "expect": "COP [QueueDma] ( $tileStagingBuffer, #1E )"
+      },
+      "240172": {
+        "text": "Back to the thinker loop",
+        "expect": "RTL"
+      },
+      "240173": {
+        "text": "Normalise the divisor to 8 bits first (|cos|, |sin| and the increment are shifted with it)",
+        "expect": "JSR $&NormalizeDivisor"
+      },
+      "240176": {
+        "text": "Scanline loop head: Y := divisor word (8 bits after normalisation, high byte $03 is 0)",
+        "expect": "LDY $02"
+      },
+      "240178": {
+        "text": "Dividend 1 = |cos|",
+        "expect": "LDA $18"
+      },
+      "240180": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240183": {
+        "text": "Write the divisor: starts the 16/8 divide (the 16-bit store also writes $4207 = HTIMEL with $03)",
+        "expect": "STY $WRDIVB"
+      },
+      "240186": {
+        "text": "Divider delay (the divide needs 16 cycles)",
+        "expect": "NOP"
+      },
+      "240187": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240188": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240189": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240190": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240191": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240192": {
+        "text": "Table offset += 2: the data word of this entry starts at offset 1",
+        "expect": "INX"
+      },
+      "240193": {
+        "text": "(second step)",
+        "expect": "INX"
+      },
+      "240194": {
+        "text": "Quotient |cos|/divisor (8.8 fixed point)",
+        "expect": "LDA $RDDIVL"
+      },
+      "240197": {
+        "text": "M7A entry (table $7E7000) := +cos/divisor",
+        "expect": "STA $7E6FFF, X"
+      },
+      "240201": {
+        "text": "Dividend 2 = |sin|",
+        "expect": "LDA $1C"
+      },
+      "240203": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240206": {
+        "text": "Start the second divide (same divisor)",
+        "expect": "STY $WRDIVB"
+      },
+      "240209": {
+        "text": "Offset now points at the next entry (3 bytes per entry in total)",
+        "expect": "INX"
+      },
+      "240210": {
+        "text": "Per-scanline increment",
+        "expect": "LDA $04"
+      },
+      "240212": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "240213": {
+        "text": "Accumulator word $01/$02 (fraction, divisor low byte) += increment",
+        "expect": "ADC $01"
+      },
+      "240215": {
+        "text": "Divisor grows by $B6/256 per scanline; carry out of $02 is kept for the BCS below",
+        "expect": "STA $01"
+      },
+      "240217": {
+        "text": "Quotient |sin|/divisor",
+        "expect": "LDA $RDDIVL"
+      },
+      "240220": {
+        "text": "M7B entry (table $7E7800) := +sin/divisor",
+        "expect": "STA $7E77FE, X"
+      },
+      "240224": {
+        "text": "Negate the quotient ...",
+        "expect": "EOR #$FFFF"
+      },
+      "240227": {
+        "text": "... two's complement",
+        "expect": "INC"
+      },
+      "240228": {
+        "text": "M7C entry (table $7E8000) := -sin/divisor",
+        "expect": "STA $7E7FFE, X"
+      },
+      "240232": {
+        "text": "Carry from the accumulator add: the divisor overflowed into $03",
+        "expect": "BCS loc_03AA6F"
+      },
+      "240234": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240236": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AA30"
+      },
+      "240238": {
+        "text": "All 224 done: RTS continues in QueueMode7HdmaTables (return-address trick)",
+        "expect": "RTS"
+      },
+      "240239": {
+        "text": "Add the carry to the divisor high byte",
+        "expect": "INC $03"
+      },
+      "240241": {
+        "text": "Halve |cos| ...",
+        "expect": "LSR $18"
+      },
+      "240243": {
+        "text": "... |sin| ...",
+        "expect": "LSR $1C"
+      },
+      "240245": {
+        "text": "... the divisor word (the carry bit shifts into $02) ...",
+        "expect": "LSR $02"
+      },
+      "240247": {
+        "text": "... and the increment: ratios kept, divisor back to 8 bits",
+        "expect": "LSR $04"
+      },
+      "240249": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240251": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AA30"
+      },
+      "240253": {
+        "text": "All 224 done: RTS to QueueMode7HdmaTables",
+        "expect": "RTS"
+      },
+      "240254": {
+        "text": "Normalise the divisor to 8 bits first (|cos|, |sin| and the increment are shifted with it)",
+        "expect": "JSR $&NormalizeDivisor"
+      },
+      "240257": {
+        "text": "Scanline loop head: Y := divisor word (8 bits after normalisation, high byte $03 is 0)",
+        "expect": "LDY $02"
+      },
+      "240259": {
+        "text": "Dividend 1 = |cos|",
+        "expect": "LDA $18"
+      },
+      "240261": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240264": {
+        "text": "Write the divisor: starts the 16/8 divide (the 16-bit store also writes $4207 = HTIMEL with $03)",
+        "expect": "STY $WRDIVB"
+      },
+      "240267": {
+        "text": "Divider delay (the divide needs 16 cycles)",
+        "expect": "NOP"
+      },
+      "240268": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240269": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240270": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240271": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240272": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240273": {
+        "text": "Table offset += 2: the data word of this entry starts at offset 1",
+        "expect": "INX"
+      },
+      "240274": {
+        "text": "(second step)",
+        "expect": "INX"
+      },
+      "240275": {
+        "text": "Quotient |cos|/divisor (8.8 fixed point)",
+        "expect": "LDA $RDDIVL"
+      },
+      "240278": {
+        "text": "M7A entry (table $7E7000) := +cos/divisor",
+        "expect": "STA $7E6FFF, X"
+      },
+      "240282": {
+        "text": "Dividend 2 = |sin|",
+        "expect": "LDA $1C"
+      },
+      "240284": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240287": {
+        "text": "Start the second divide (same divisor)",
+        "expect": "STY $WRDIVB"
+      },
+      "240290": {
+        "text": "Offset now points at the next entry (3 bytes per entry in total)",
+        "expect": "INX"
+      },
+      "240291": {
+        "text": "Per-scanline increment",
+        "expect": "LDA $04"
+      },
+      "240293": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "240294": {
+        "text": "Accumulator word $01/$02 (fraction, divisor low byte) += increment",
+        "expect": "ADC $01"
+      },
+      "240296": {
+        "text": "Divisor grows by $B6/256 per scanline; carry out of $02 is kept for the BCS below",
+        "expect": "STA $01"
+      },
+      "240298": {
+        "text": "Quotient |sin|/divisor",
+        "expect": "LDA $RDDIVL"
+      },
+      "240301": {
+        "text": "M7C entry (table $7E8000) := +|sin|/divisor (= -sin/divisor, sin < 0)",
+        "expect": "STA $7E7FFE, X"
+      },
+      "240305": {
+        "text": "Negate the quotient ...",
+        "expect": "EOR #$FFFF"
+      },
+      "240308": {
+        "text": "... two's complement",
+        "expect": "INC"
+      },
+      "240309": {
+        "text": "M7B entry (table $7E7800) := -|sin|/divisor (= sin/divisor)",
+        "expect": "STA $7E77FE, X"
+      },
+      "240313": {
+        "text": "Carry from the accumulator add: the divisor overflowed into $03",
+        "expect": "BCS loc_03AAC0"
+      },
+      "240315": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240317": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AA81"
+      },
+      "240319": {
+        "text": "All 224 done: RTS continues in QueueMode7HdmaTables (return-address trick)",
+        "expect": "RTS"
+      },
+      "240320": {
+        "text": "Add the carry to the divisor high byte",
+        "expect": "INC $03"
+      },
+      "240322": {
+        "text": "Halve |cos| ...",
+        "expect": "LSR $18"
+      },
+      "240324": {
+        "text": "... |sin| ...",
+        "expect": "LSR $1C"
+      },
+      "240326": {
+        "text": "... the divisor word (the carry bit shifts into $02) ...",
+        "expect": "LSR $02"
+      },
+      "240328": {
+        "text": "... and the increment: ratios kept, divisor back to 8 bits",
+        "expect": "LSR $04"
+      },
+      "240330": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240332": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AA81"
+      },
+      "240334": {
+        "text": "All 224 done: RTS to QueueMode7HdmaTables",
+        "expect": "RTS"
+      },
+      "240335": {
+        "text": "Normalise the divisor to 8 bits first (|cos|, |sin| and the increment are shifted with it)",
+        "expect": "JSR $&NormalizeDivisor"
+      },
+      "240338": {
+        "text": "Scanline loop head: Y := divisor word (8 bits after normalisation, high byte $03 is 0)",
+        "expect": "LDY $02"
+      },
+      "240340": {
+        "text": "Dividend 1 = |cos|",
+        "expect": "LDA $18"
+      },
+      "240342": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240345": {
+        "text": "Write the divisor: starts the 16/8 divide (the 16-bit store also writes $4207 = HTIMEL with $03)",
+        "expect": "STY $WRDIVB"
+      },
+      "240348": {
+        "text": "Divider delay (the divide needs 16 cycles)",
+        "expect": "NOP"
+      },
+      "240349": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240350": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240351": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240352": {
+        "text": "Table offset += 2: the data word of this entry starts at offset 1",
+        "expect": "INX"
+      },
+      "240353": {
+        "text": "(second step)",
+        "expect": "INX"
+      },
+      "240354": {
+        "text": "Zero for the negation",
+        "expect": "LDA #$0000"
+      },
+      "240357": {
+        "text": "Prepare the subtraction",
+        "expect": "SEC"
+      },
+      "240358": {
+        "text": "0 - quotient |cos|/divisor (RDDIVL read after the delay)",
+        "expect": "SBC $RDDIVL"
+      },
+      "240361": {
+        "text": "M7A entry (table $7E7000) := -|cos|/divisor",
+        "expect": "STA $7E6FFF, X"
+      },
+      "240365": {
+        "text": "Dividend 2 = |sin|",
+        "expect": "LDA $1C"
+      },
+      "240367": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240370": {
+        "text": "Start the second divide (same divisor)",
+        "expect": "STY $WRDIVB"
+      },
+      "240373": {
+        "text": "Offset now points at the next entry (3 bytes per entry in total)",
+        "expect": "INX"
+      },
+      "240374": {
+        "text": "Per-scanline increment",
+        "expect": "LDA $04"
+      },
+      "240376": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "240377": {
+        "text": "Accumulator word $01/$02 (fraction, divisor low byte) += increment",
+        "expect": "ADC $01"
+      },
+      "240379": {
+        "text": "Divisor grows by $B6/256 per scanline; carry out of $02 is kept for the BCS below",
+        "expect": "STA $01"
+      },
+      "240381": {
+        "text": "Quotient |sin|/divisor",
+        "expect": "LDA $RDDIVL"
+      },
+      "240384": {
+        "text": "M7B entry (table $7E7800) := +sin/divisor",
+        "expect": "STA $7E77FE, X"
+      },
+      "240388": {
+        "text": "Negate the quotient ...",
+        "expect": "EOR #$FFFF"
+      },
+      "240391": {
+        "text": "... two's complement",
+        "expect": "INC"
+      },
+      "240392": {
+        "text": "M7C entry (table $7E8000) := -sin/divisor",
+        "expect": "STA $7E7FFE, X"
+      },
+      "240396": {
+        "text": "Carry from the accumulator add: the divisor overflowed into $03",
+        "expect": "BCS loc_03AB13"
+      },
+      "240398": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240400": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AAD2"
+      },
+      "240402": {
+        "text": "All 224 done: RTS continues in QueueMode7HdmaTables (return-address trick)",
+        "expect": "RTS"
+      },
+      "240403": {
+        "text": "Add the carry to the divisor high byte",
+        "expect": "INC $03"
+      },
+      "240405": {
+        "text": "Halve |cos| ...",
+        "expect": "LSR $18"
+      },
+      "240407": {
+        "text": "... |sin| ...",
+        "expect": "LSR $1C"
+      },
+      "240409": {
+        "text": "... the divisor word (the carry bit shifts into $02) ...",
+        "expect": "LSR $02"
+      },
+      "240411": {
+        "text": "... and the increment: ratios kept, divisor back to 8 bits",
+        "expect": "LSR $04"
+      },
+      "240413": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240415": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AAD2"
+      },
+      "240417": {
+        "text": "All 224 done: RTS to QueueMode7HdmaTables",
+        "expect": "RTS"
+      },
+      "240418": {
+        "text": "Normalise the divisor to 8 bits first (|cos|, |sin| and the increment are shifted with it)",
+        "expect": "JSR $&NormalizeDivisor"
+      },
+      "240421": {
+        "text": "Scanline loop head: Y := divisor word (8 bits after normalisation, high byte $03 is 0)",
+        "expect": "LDY $02"
+      },
+      "240423": {
+        "text": "Dividend 1 = |cos|",
+        "expect": "LDA $18"
+      },
+      "240425": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240428": {
+        "text": "Write the divisor: starts the 16/8 divide (the 16-bit store also writes $4207 = HTIMEL with $03)",
+        "expect": "STY $WRDIVB"
+      },
+      "240431": {
+        "text": "Divider delay (the divide needs 16 cycles)",
+        "expect": "NOP"
+      },
+      "240432": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240433": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240434": {
+        "text": "Divider delay",
+        "expect": "NOP"
+      },
+      "240435": {
+        "text": "Table offset += 2: the data word of this entry starts at offset 1",
+        "expect": "INX"
+      },
+      "240436": {
+        "text": "(second step)",
+        "expect": "INX"
+      },
+      "240437": {
+        "text": "Zero for the negation",
+        "expect": "LDA #$0000"
+      },
+      "240440": {
+        "text": "Prepare the subtraction",
+        "expect": "SEC"
+      },
+      "240441": {
+        "text": "0 - quotient |cos|/divisor (RDDIVL read after the delay)",
+        "expect": "SBC $RDDIVL"
+      },
+      "240444": {
+        "text": "M7A entry (table $7E7000) := -|cos|/divisor",
+        "expect": "STA $7E6FFF, X"
+      },
+      "240448": {
+        "text": "Dividend 2 = |sin|",
+        "expect": "LDA $1C"
+      },
+      "240450": {
+        "text": "Write the 16-bit dividend",
+        "expect": "STA $WRDIVL"
+      },
+      "240453": {
+        "text": "Start the second divide (same divisor)",
+        "expect": "STY $WRDIVB"
+      },
+      "240456": {
+        "text": "Offset now points at the next entry (3 bytes per entry in total)",
+        "expect": "INX"
+      },
+      "240457": {
+        "text": "Per-scanline increment",
+        "expect": "LDA $04"
+      },
+      "240459": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "240460": {
+        "text": "Accumulator word $01/$02 (fraction, divisor low byte) += increment",
+        "expect": "ADC $01"
+      },
+      "240462": {
+        "text": "Divisor grows by $B6/256 per scanline; carry out of $02 is kept for the BCS below",
+        "expect": "STA $01"
+      },
+      "240464": {
+        "text": "Quotient |sin|/divisor",
+        "expect": "LDA $RDDIVL"
+      },
+      "240467": {
+        "text": "M7C entry (table $7E8000) := +|sin|/divisor (= -sin/divisor, sin < 0)",
+        "expect": "STA $7E7FFE, X"
+      },
+      "240471": {
+        "text": "Negate the quotient ...",
+        "expect": "EOR #$FFFF"
+      },
+      "240474": {
+        "text": "... two's complement",
+        "expect": "INC"
+      },
+      "240475": {
+        "text": "M7B entry (table $7E7800) := -|sin|/divisor (= sin/divisor)",
+        "expect": "STA $7E77FE, X"
+      },
+      "240479": {
+        "text": "Carry from the accumulator add: the divisor overflowed into $03",
+        "expect": "BCS loc_03AB66"
+      },
+      "240481": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240483": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AB25"
+      },
+      "240485": {
+        "text": "All 224 done: RTS continues in QueueMode7HdmaTables (return-address trick)",
+        "expect": "RTS"
+      },
+      "240486": {
+        "text": "Add the carry to the divisor high byte",
+        "expect": "INC $03"
+      },
+      "240488": {
+        "text": "Halve |cos| ...",
+        "expect": "LSR $18"
+      },
+      "240490": {
+        "text": "... |sin| ...",
+        "expect": "LSR $1C"
+      },
+      "240492": {
+        "text": "... the divisor word (the carry bit shifts into $02) ...",
+        "expect": "LSR $02"
+      },
+      "240494": {
+        "text": "... and the increment: ratios kept, divisor back to 8 bits",
+        "expect": "LSR $04"
+      },
+      "240496": {
+        "text": "One scanline done",
+        "expect": "DEC $0E"
+      },
+      "240498": {
+        "text": "Next scanline",
+        "expect": "BNE loc_03AB25"
+      },
+      "240500": {
+        "text": "All 224 done: RTS to QueueMode7HdmaTables",
+        "expect": "RTS"
+      },
+      "240501": {
+        "text": "Divisor word",
+        "expect": "LDA $02"
+      },
+      "240503": {
+        "text": "High byte set? (does not fit WRDIVB)",
+        "expect": "BIT #$FF00"
+      },
+      "240506": {
+        "text": "Yes: shift everything",
+        "expect": "BNE loc_03AB7D"
+      },
+      "240508": {
+        "text": "Divisor fits in 8 bits",
+        "expect": "RTS"
+      },
+      "240509": {
+        "text": "Divisor >> 1",
+        "expect": "LSR"
+      },
+      "240510": {
+        "text": "Store the divisor",
+        "expect": "STA $02"
+      },
+      "240512": {
+        "text": "|cos| >> 1",
+        "expect": "LSR $18"
+      },
+      "240514": {
+        "text": "|sin| >> 1",
+        "expect": "LSR $1C"
+      },
+      "240516": {
+        "text": "Increment >> 1: all ratios stay the same",
+        "expect": "LSR $04"
+      },
+      "240518": {
+        "text": "Test again",
+        "expect": "BRA NormalizeDivisor"
+      }
+    }
+  },
+  "functions/SpawnAttackTrailEffect.asm": {
+    "blockNote": [
+      "Floating damage-number actor (Bank 00, 56500-56579). One spawn is one 16-frame effect: it draws the damage value as digit sprites above the victim and lets them rise one pixel per frame while following the victim's own movement. The name 'attack trail' and the old text ('ghost copies interpolated between the previous and current position', '16 frames at position then 16 drifting upward', 'when the player or enemies take damage') do not describe it: there is one 16-iteration loop and no ghost copies.",
+      "",
+      "=== SPAWN ===",
+      "",
+      "Two sites in combat_collision: COP SpawnListAppend ( @SpawnAttackTrailEffect, #00, #00, flags ) in PlayerAttackHitTest with flags $2F00, and in ApplyHitDamageToVictim_DamagePath with flags $2B00 (that path then ORs $1000 into the child's $12). The fourth operand is the flags word stored into the child's $10, not a priority. Both sites run with the victim as the current actor, so CopyActorState gives the child the victim's X and Y and stores the victim's slot in the child's $24. The caller then writes the packed BCD damage from FormatDamageDigits into the child's $28.",
+      "No child is spawned when the victim's $12 bit $0020 (boss) is set or when the damage is 1000 or more (FormatDamageDigits returns carry). No other spawn site exists in extracted/.",
+      "",
+      "=== BODY ===",
+      "",
+      "1. $0E := $3200: the attribute word ORed into every digit tile (OAM high byte $32 = priority 3, palette 1).",
+      "2. $16 -= $10: start 16 pixels above the victim.",
+      "3. Y := $24 (the victim); remember its X and Y in $20 and $22.",
+      "4. 16 iterations (LoopStart #10 = 16): add the victim's X movement since last frame to $14, add its Y movement minus 1 to $16 (so the digits rise one pixel per frame), refresh $20/$22, copy $28 to the absolute scratch word $0000 and call ComposeDigitSprites. ComposeDigitSprites puts the first digit at $14 - 12 and appends one 6-byte entry per digit to the compose buffer at $7F3100. LoopEnd yields every iteration, so the digits are re-emitted every frame; then Die.",
+      "",
+      "The scratch word is written with the absolute address $0000 on purpose: it is not the actor's own $00/$01 re-entry address.",
+      "",
+      "=== HAZARD ===",
+      "",
+      "The loop re-reads the victim's position through $24 every frame and never checks that the slot still holds the same actor. If the victim died and its slot were reused within the 16 frames, the number would follow whatever occupies the slot (analysis only, not run; OQ-I041-5).",
+      "",
+      "AttackTrailShort_unused is an unreferenced variant of this routine."
+    ],
+    "partNotes": {
+      "SpawnAttackTrailEffect": [
+        "Entry of the child actor created by SpawnListAppend. $24 = victim slot, $28 = packed BCD damage (written by the caller after the spawn), $14/$16 = victim position at spawn."
+      ]
+    },
+    "comments": {
+      "56500": {
+        "text": "Attribute word for the digit tiles: OAM high byte $32 = priority 3, palette 1",
+        "expect": "LDA #$3200"
+      },
+      "56503": {
+        "text": "ComposeDigitSprites reads the attribute from $0E",
+        "expect": "STA $0E"
+      },
+      "56505": {
+        "text": "Start Y (copied from the victim)",
+        "expect": "LDA $16"
+      },
+      "56507": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "56508": {
+        "text": "-16: start 16 pixels above the victim",
+        "expect": "ADC #$FFF0"
+      },
+      "56511": {
+        "text": "Digit Y",
+        "expect": "STA $16"
+      },
+      "56513": {
+        "text": "Y := victim slot ($24, set by CopyActorState)",
+        "expect": "LDY $24"
+      },
+      "56515": {
+        "text": "Victim X",
+        "expect": "LDA $0014, Y"
+      },
+      "56518": {
+        "text": "Remember it in $20 (previous X)",
+        "expect": "STA $20"
+      },
+      "56520": {
+        "text": "Victim Y",
+        "expect": "LDA $0016, Y"
+      },
+      "56523": {
+        "text": "Remember it in $22 (previous Y)",
+        "expect": "STA $22"
+      },
+      "56525": {
+        "text": "16 frames",
+        "expect": "COP [LoopStart] ( #10 )"
+      },
+      "56528": {
+        "text": "Victim slot again (re-read every frame)",
+        "expect": "LDY $24"
+      },
+      "56530": {
+        "text": "Victim X now",
+        "expect": "LDA $0014, Y"
+      },
+      "56533": {
+        "text": "Prepare the subtraction",
+        "expect": "SEC"
+      },
+      "56534": {
+        "text": "Minus previous X: the victim's movement this frame",
+        "expect": "SBC $20"
+      },
+      "56536": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "56537": {
+        "text": "Add the movement to our X: follow the victim horizontally",
+        "expect": "ADC $14"
+      },
+      "56539": {
+        "text": "Digit X (first digit is drawn 12 pixels left of it)",
+        "expect": "STA $14"
+      },
+      "56541": {
+        "text": "Victim Y now",
+        "expect": "LDA $0016, Y"
+      },
+      "56544": {
+        "text": "Prepare the subtraction",
+        "expect": "SEC"
+      },
+      "56545": {
+        "text": "Minus previous Y: the victim's vertical movement this frame",
+        "expect": "SBC $22"
+      },
+      "56547": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "56548": {
+        "text": "Add the movement to our Y",
+        "expect": "ADC $16"
+      },
+      "56550": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "56551": {
+        "text": "-1: the digits rise one pixel per frame",
+        "expect": "ADC #$FFFF"
+      },
+      "56554": {
+        "text": "Digit Y",
+        "expect": "STA $16"
+      },
+      "56556": {
+        "text": "Victim X",
+        "expect": "LDA $0014, Y"
+      },
+      "56559": {
+        "text": "Previous X for the next frame",
+        "expect": "STA $20"
+      },
+      "56561": {
+        "text": "Victim Y",
+        "expect": "LDA $0016, Y"
+      },
+      "56564": {
+        "text": "Previous Y for the next frame",
+        "expect": "STA $22"
+      },
+      "56566": {
+        "text": "Packed BCD damage (hundreds in the high byte, tens and ones as nibbles of the low byte)",
+        "expect": "LDA $28"
+      },
+      "56568": {
+        "text": "Absolute $0000: the scratch word ComposeDigitSprites reads (not the actor's $00 re-entry address)",
+        "expect": "STA $0000"
+      },
+      "56571": {
+        "text": "Append this frame's digit sprites to the compose buffer at $7F3100",
+        "expect": "JSL $@oam_digit_compose.ComposeDigitSprites"
+      },
+      "56575": {
+        "text": "Yield one frame; repeat until 16 frames are done",
+        "expect": "COP [LoopEnd]"
+      },
+      "56577": {
+        "text": "Effect over: remove the actor",
+        "expect": "COP [Die]"
+      }
+    }
+  },
+  "actors/hidden_red_jewel.asm": {
+    "blockNote": [
+      "Hidden Red Jewel pickup (Bank 00, 50802-50853 plus two dialog strings): a small interactable that gives item $01 (Red Jewel) once and remembers it in a persistent event flag. The same file also holds HiddenRedJewelInventoryFull, which seven NPC scripts jump into for their own 'jewel gift but inventory full' message.",
+      "",
+      "=== SPAWN AND FLAG ===",
+      "",
+      "actor-def <#00,#00,#30>. The spawn record's odd type byte is shifted right by one into $0E (the actor never overwrites it). Sixteen placements exist, one per scene, with $0E = 0..F, so the flag index $0E + $80 runs over $80..$8F on the event-flag base $0200 (flags $0280-$028F, bytes $0A50-$0A51; chests use the lower indices of the same base):",
+      "",
+      "| Scene | Area | Type byte | $0E |",
+      "|-------|------|-----------|-----|",
+      "| 03 | south_cape/lances_house | 01 | 0 |",
+      "| 01 | south_cape/south_cape | 03 | 1 |",
+      "| 13 | edward_castle/aqueduct_exit | 05 | 2 |",
+      "| 15 | itory/itory_village | 07 | 3 |",
+      "| 30 | freejia/oakton | 09 | 4 |",
+      "| 39 | freejia/freejia_hotel | 0B | 5 |",
+      "| 6C | angel_village/angel_rooms | 0D | 6 |",
+      "| 74 | angel_village/angel_tunnel_rooms | 0F | 7 |",
+      "| 78 | watermia/watermia | 11 | 8 |",
+      "| 7B | watermia/gambling_house | 13 | 9 |",
+      "| 91 | euro/euro | 15 | A |",
+      "| 9D | euro/dark_chapel | 17 | B |",
+      "| AE | native_village/gorgon_hut | 19 | C |",
+      "| C3 | dao/dao | 1B | D |",
+      "| CC | pyramid/pyramid_main | 1D | E |",
+      "| DF | babel_tower/babel_lower_floors | 1F | F |",
+      "",
+      "The flag is not tested at spawn time: the actor is always placed and simply does nothing once its flag is set.",
+      "",
+      "=== INTERACTION ===",
+      "",
+      "The init script sets the interact handler, the metasprite (spriteset_enemies), sprite and hitbox config #00 and idles with SetEntryHere + RTL. HiddenRedJewelInteract: A := $0E + $80, TestEventFlag_0200. Flag set: return silently. Flag clear: COP GiveItem ( #01, &HiddenRedJewelInventoryFull ); on success print dialogstring_00C6A6 ('You found a Red Jewel!') and set the flag; if the inventory is full GiveItem branches to HiddenRedJewelInventoryFull, which prints dialogstring_00C6BF and returns without setting the flag, so the jewel can be tried again later. GiveItem itself prints nothing; the dialog is this script's own.",
+      "",
+      "=== NPC JUMPS ===",
+      "",
+      "gs2B_seth, nvAE_stone_girl2, wa79_lance, fr32_creep, eu95_ann, sc01_fisherman and ec0A_right_guard each end their gift script with JML @hidden_red_jewel.HiddenRedJewelInventoryFull when GiveItem reports a full inventory. They do not use the interact handler or the flag range above.",
+      "",
+      "Whether the jewel is visible and what the metasprite looks like was not checked (OQ-I041-7)."
+    ],
+    "partNotes": {
+      "code_00C672": [
+        "Actor entry (after the 3-byte header): install the interact handler, set the metasprite and hitbox, then idle. $0E (spawn type >> 1) is left untouched for the flag index."
+      ],
+      "HiddenRedJewelInteract": [
+        "Interact handler. A = $0E + $80 is the event-flag index on base $0200. Flag set: return. Otherwise give item $01; on success show the found string and set the flag; on a full inventory GiveItem jumps to HiddenRedJewelInventoryFull and the flag stays clear."
+      ],
+      "HiddenRedJewelInventoryFull": [
+        "GiveItem overflow target and the shared jump target of seven NPC gift scripts: print the 'found a Jewel but your inventory is full' string, then fall into the RTL."
+      ],
+      "loc_00C6A5": [
+        "Shared RTL: also the exit taken when the flag is already set."
+      ],
+      "dialogstring_00C6A6": [
+        "Success text: 'You found a Red Jewel!'"
+      ],
+      "dialogstring_00C6BF": [
+        "Failure text: 'You found a Jewel but your inventory is full.'"
+      ]
+    },
+    "comments": {
+      "50802": {
+        "text": "Run HiddenRedJewelInteract when the player interacts",
+        "expect": "COP [SetInteractHandler] ( &HiddenRedJewelInteract )"
+      },
+      "50806": {
+        "text": "Metasprite set: spriteset_enemies",
+        "expect": "COP [SetMetasprite] ( @spriteset_enemies )"
+      },
+      "50811": {
+        "text": "Sprite and hitbox configuration #00",
+        "expect": "COP [StageSprAndHitbox] ( #00 )"
+      },
+      "50814": {
+        "text": "Re-enter here every frame; the actor only waits for the interact handler",
+        "expect": "COP [SetEntryHere]"
+      },
+      "50817": {
+        "text": "$0E = spawn type >> 1 (0..F)",
+        "expect": "LDA $0E"
+      },
+      "50819": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "50820": {
+        "text": "+$80: flag index $80..$8F",
+        "expect": "ADC #$0080"
+      },
+      "50823": {
+        "text": "Test the event flag on base $0200; carry set = already collected",
+        "expect": "JSL $@flag_helpers.TestEventFlag_0200"
+      },
+      "50827": {
+        "text": "Already collected: leave without a message",
+        "expect": "BCS loc_00C6A5"
+      },
+      "50829": {
+        "text": "Give item $01 (Red Jewel); a full inventory jumps to HiddenRedJewelInventoryFull",
+        "expect": "COP [GiveItem] ( #01, &HiddenRedJewelInventoryFull )"
+      },
+      "50834": {
+        "text": "Show 'You found a Red Jewel!'",
+        "expect": "COP [PrintDialogString] ( &dialogstring_00C6A6 )"
+      },
+      "50838": {
+        "text": "Same flag index again",
+        "expect": "LDA $0E"
+      },
+      "50840": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "50841": {
+        "text": "+$80",
+        "expect": "ADC #$0080"
+      },
+      "50844": {
+        "text": "Remember the pickup: set the event flag on base $0200",
+        "expect": "JSL $@flag_helpers.SetEventFlag_0200"
+      },
+      "50848": {
+        "text": "Done",
+        "expect": "RTL"
+      },
+      "50849": {
+        "text": "Inventory full: show the 'inventory is full' text (the flag stays clear)",
+        "expect": "COP [PrintDialogString] ( &dialogstring_00C6BF )"
+      },
+      "50853": {
+        "text": "Return to the engine",
+        "expect": "RTL"
+      }
+    }
+  }
+}

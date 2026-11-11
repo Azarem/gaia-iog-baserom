@@ -1,0 +1,107 @@
+[
+  {
+    "flag": null,
+    "domain": "D1",
+    "flagRange": [0, 15],
+    "scope": null,
+    "queueId": "FL10-01",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": null,
+      "clear": "ClearSceneState zeroes exactly the word $0A00-$0A01 (flags $0000-$000F) with STX $eventFlags (offset 253291) once per scene load; $0A02 and up, the kill block $0A80-$0A9F included, keep their values."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Observations (warp $15 / $24 / $08 control, forced and all-FF runs) and Verdicts row FL10-01. Domain lifecycle row: no flag record changes grade; the D1 domain text has no grade field."
+  },
+  {
+    "flag": null,
+    "domain": "D1",
+    "flagRange": [0, 15],
+    "scope": null,
+    "queueId": "FL10-01",
+    "verdict": "INCONCLUSIVE",
+    "grade": "VERIFIED-STATIC",
+    "effects": null,
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Verdicts row FL10-01 (call-site half): only quick warps were run; natural door exits and other scene-load callers were not traced."
+  },
+  {
+    "flag": 0,
+    "scope": { "scenes": [255] },
+    "queueId": "FL10-02",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "The inventory overlay leaves its loop and runs the teardown: with no button pressed, writing bit 0 of $0A00 inside the overlay (f=442) restored the saved flag word at f=444 and returned to scene $01; the menu's COP SetFlagByte #00 (offset 191678) sets it on cancel.",
+      "clear": "The overlay keeps looping: flag 0 stayed clear for the 60 observed frames inside the overlay (f=382 to f=442)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Observations (overlay control, overlay forced, overlay poke-exit) and Verdicts row FL10-02 flag 0."
+  },
+  {
+    "flag": null,
+    "domain": "D1",
+    "flagRange": [0, 15],
+    "scope": { "scenes": [255] },
+    "queueId": "FL10-02",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "On close the saved word is restored (offset 192094: $0001 becomes the saved $0004 or $0005) and flag $FF is set two frames later (COP at 192190).",
+      "clear": "On open the word is zeroed (STZ, offset 191792) and flag $FF is cleared (offset 191819)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Observations (overlay control and overlay forced) and Verdicts row FL10-02. Domain lifecycle row: no flag record changes grade."
+  },
+  {
+    "flag": null,
+    "domain": "D6",
+    "flagRange": [1024, 1279],
+    "scope": null,
+    "queueId": "FL10-03",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": null,
+      "clear": "Ordinary scene loads ($24 and $15 from $01) keep the kill block $0A80-$0A9F (every byte $FF before the load, $0A80 = $FFFF after)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Observations (warp $24 all FF, warp $15 all FF) and Verdicts row FL10-03 (control half). Domain lifecycle row: no flag record changes grade."
+  },
+  {
+    "flag": null,
+    "domain": "D6",
+    "flagRange": [1024, 1279],
+    "scope": null,
+    "queueId": "FL10-03",
+    "verdict": "INCONCLUSIVE",
+    "grade": "VERIFIED-STATIC",
+    "effects": null,
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Verdicts row FL10-03 (forced half): world-map entry, revive, game over and save/load were not run in FR00."
+  },
+  {
+    "flag": 255,
+    "scope": null,
+    "queueId": "FL10-04",
+    "verdict": "VERIFIED-RUNTIME",
+    "grade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "ClearSceneState sets the latch with COP SetFlagByte #FF (offset 253564) in the same frame as the helper store (f=563 in scenes $15 and $24, f=447 in scene $08); the inventory close sets it two frames after the restore (offset 192190).",
+      "clear": "ClearSceneState clears it at offset 253423 (f=395) and the inventory open at offset 191819; clear windows measured: 168 frames ($15, $24), 52 frames ($08), 65 frames (overlay)."
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Observations (marks, warps, overlay) and Verdicts row FL10-04 (latch protocol half). Grade stays VERIFIED-STATIC: the record also states the thinker and palette behaviour, which FR00 did not run."
+  },
+  {
+    "flag": 255,
+    "scope": null,
+    "queueId": "FL10-04",
+    "verdict": "INCONCLUSIVE",
+    "grade": "VERIFIED-STATIC",
+    "effects": null,
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "FR00_20261104.md, Verdicts row FL10-04 (thinker half): no gated palette or HDMA thinker was observed across a clear and a set."
+  }
+]

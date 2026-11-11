@@ -1,0 +1,720 @@
+{
+  "_note": "FL21 fragment (Edward's Castle and the mansion, groups edward_castle and mansion; scenes $0A-$13 = 10-19, $E9 = 233, $EA = 234, decimal in the scopes). Scratch records are keyed by scene; 12 persistent records for the owned story flags; spine flags under proposals. Not written here: $0104, $0114, $0115, $0116 (FL11 holds the records; the FL21 sites agree, see the report section 2). Evidence is file:line plus the decimal ROM offset in braces. Not applied to db-us/flags.json.",
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [11] },
+          "level": "row",
+          "summary": "Prison: ec0B_cell's VRAM helper (code_04DB00, spawned with SpawnListAppend) re-issues its AdhocVramDma every frame while scratch $00 is clear; nothing in scene $0B sets $00, so the helper runs for the scene's life (INFERRED: the only writer is the inventory overlay's exit path, see the report).",
+          "evidence": [
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:210 {318219}"
+          ],
+          "queue": ["FL21-10"]
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [10] },
+          "name": "ec_castle_kara_talk_req",
+          "area": "edward_castle",
+          "summary": "Will has just talked to the guard at Kara's door (before the throne scene) or to Kara herself (after it); Kara, the guard and the roast barrel wait on it.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Before the throne scene: ec0A_kara leaves WaitOnFlagByte(#01, #01), sets $1A and prints 'Who is it?'; ec0A_kara_guard has locked the joypad ($CFFC) in the same talk handler; ec0A_barrel_roast leaves its wait and becomes interactable. After the throne scene ($21 set): Will talked to Kara (code_04CC66 sets it); Kara leaves her wait at {314400}, clears her solid mark, becomes the escort and spawns EscortFollowPathTracker; the barrel becomes interactable; the cellar helper (code_04CF5C) stops printing the 'now's the time' hint and tests for the roast.",
+            "clear": "Kara, the Kara-door guard and the barrel keep waiting; the cellar helper prints the 'If you want to take her away, now's the time...' line when Will presses the button on the steps."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:74 {313819}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:25 {313709}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:27 {314232}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:133 {314474}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:93 {314400}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:170 {315272}",
+            "extracted/edward_castle/edward_castle/ec0A_barrel_roast.asm:19 {315616}"
+          ],
+          "queue": ["FL21-11"],
+          "notes": "One scratch bit, two phases (the scene reloads between them, so the bit starts clear in each). Because ec0A_barrel_roast waits on this bit and not on $21, the guard's talk in the pre-throne phase also arms the barrel; whether the player can reach the barrel then is queue item FL21-11."
+        },
+        {
+          "scope": { "scenes": [11] },
+          "name": "ec_prison_bread_tasted_ack",
+          "area": "edward_castle",
+          "summary": "Will tasted the bread dropped into the cell; ec0B_cell continues with the evening scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0B_cell leaves WaitOnFlagByte(#01, #01) at {316000}, waits #$0258 ticks, locks the joypad and runs the evening dialog (the flute and his father's voice).",
+            "clear": "ec0B_cell keeps waiting after printing the soldier's whisper about today's bread."
+          },
+          "evidence": [
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:165 {316275}",
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:52 {316000}"
+          ],
+          "notes": "Producer: the bread child (code_04D346, spawned at {315989}) in its interact handler code_04D36F, which then clears its solid mark and dies. Consumer: ec0B_cell main script."
+        },
+        {
+          "scope": { "scenes": [14] },
+          "name": "ec_lockway_switch_pressed",
+          "area": "edward_castle",
+          "summary": "The lockway switch has been hit an odd number of times: the four barriers slide out of the way.",
+          "kinds": ["puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The four ec0E_barrier actors leave WaitOnFlagByte(#01, #01), clear their solid mark and slide (two tiles for barrier2, four for the others).",
+            "clear": "The barriers wait on the clear sense, slide back and mark their tile solid again."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_lockway/ec0E_switch.asm:41 {690530}",
+            "extracted/edward_castle/aqueduct_lockway/ec0E_switch.asm:31 {690515}",
+            "extracted/edward_castle/aqueduct_lockway/ec0E_barrier.asm:14 {690659}",
+            "extracted/edward_castle/aqueduct_lockway/ec0E_barrier.asm:21 {690681}"
+          ],
+          "notes": "Toggle: ec0E_switch clears the bit at spawn and on every second hit and sets it on every other hit (HP $FF, so it never dies). Four barriers (ec0E_barrier, ec0E_barrier2-4) wait on it, 8 wait sites in total ({690659}-{690840})."
+        },
+        {
+          "scope": { "scenes": [17] },
+          "name": "ec_doorway_press_window_open",
+          "area": "edward_castle",
+          "summary": "The strange voice has counted to 3: a hit on the doorway switch now counts as on time.",
+          "kinds": ["puzzle-state", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec11_button_voice, when hit with $0113 clear and $02 set, takes the success path: clears $02, applies BG change #13, sets word $0113 and prints 'Stop! The door is open!!'.",
+            "clear": "A hit while $02 is set takes the 'Wait! I told you...' path (sets $03 so the count restarts)."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:69 {638530}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:78 {638560}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_button_voice.asm:47 {638225}"
+          ],
+          "notes": "ec11_countdown sets it after the spoken '1, 2' phases and holds it for #$28 ticks (the '3' digit is shown), then clears it and prints the 'Wait!' line again."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [10] },
+          "name": "ec_castle_kara_guest_ack",
+          "area": "edward_castle",
+          "summary": "Kara has answered through the door ('Who is it?', 'A guest?'); the guard at her door speaks and lets Will in.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_kara_guard leaves WaitOnFlagByte(#02, #01), shows frame #1C, waits #1D, prints the 'shabby boy ... let him in' dialog, clears his solid marks and releases the joypad lock ($CFFC TRB).",
+            "clear": "The guard stays solid and his interact handler is removed (SetInteractHandler #$0000)."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:41 {314279}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:27 {313717}"
+          ],
+          "notes": "Producer: ec0A_kara (first-meeting path, before the throne scene). Consumer: ec0A_kara_guard."
+        },
+        {
+          "scope": { "scenes": [11] },
+          "name": "ec_prison_door_check_ack",
+          "area": "edward_castle",
+          "summary": "Will has tried the cell door ('It's locked...'); one of the three things ec0B_cell waits for before the bread scene.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0B_cell passes WaitOnFlagByte(#02, #01) (it then waits for $03 and $04 in this order).",
+            "clear": "ec0B_cell keeps waiting."
+          },
+          "evidence": [
+            "extracted/edward_castle/castle_prison/ec0B_door.asm:22 {318248}",
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:38 {315956}"
+          ],
+          "notes": "Producer: the four ec0B_door actors (scene_actors rows 06-09; the first talked to prints the line, sets the bit and dies). Consumer: ec0B_cell."
+        },
+        {
+          "scope": { "scenes": [17] },
+          "name": "ec_doorway_melody_played_req",
+          "area": "edward_castle",
+          "summary": "Will played Lola's Melody at the aqueduct doorway; the strange voice's countdown can start.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec11_countdown passes WaitOnFlagByte(#02, #01) and, when Will is within #03 tiles, locks the joypad, prints the voice's instructions, starts music #1B and counts 1-2-3; ec11_button_voice may take its success path.",
+            "clear": "ec11_countdown waits; a hit on ec11_button_voice only plays its hit animation. ec11_button_voice clears it itself on success."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:775 {232543}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:23 {638399}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:72 {638539}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_button_voice.asm:46 {638219}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_button_voice.asm:68 {638265}"
+          ],
+          "notes": "Producer: UseItem_LolaMelody_Effect (system/inventory), scene $11 branch only, and only while $0113 is clear (the use gate at item_use_system.asm:700 {232391} also refuses the melody when $02 is already set). The inventory overlay saves, zeroes and restores the scratch word, so the effect runs after the overlay returns."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [10] },
+          "name": "ec_castle_kara_speech_req",
+          "area": "edward_castle",
+          "summary": "Kara has finished her long plea ('Terrible! It's terrible!'); the guard at her door walks in and says 'Princess, let's go.'",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_kara_guard leaves WaitOnFlagByte(#03, #01), moves in, prints the 'Princess, let's go' line and clears the bit.",
+            "clear": "The guard stands at his post; Kara waits (WaitOnFlagByte(#03, #00)) for him to clear it, then prints the 'I feel scared' dialog and sets $19."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:70 {314346}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:71 {314349}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:46 {313762}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:52 {313781}"
+          ],
+          "notes": "Two-way handshake in one bit: Kara sets it, the guard clears it, Kara waits for the clear."
+        },
+        {
+          "scope": { "scenes": [11] },
+          "name": "ec_prison_moss_ack",
+          "area": "edward_castle",
+          "summary": "Will has examined the moss on the cell wall; the second of the three things ec0B_cell waits for.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0B_cell passes WaitOnFlagByte(#03, #01).",
+            "clear": "ec0B_cell keeps waiting (after $02 is set)."
+          },
+          "evidence": [
+            "extracted/edward_castle/castle_prison/ec0B_moss.asm:23 {318301}",
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:39 {315960}"
+          ],
+          "notes": "Producer: the two ec0B_moss actors (rows 0A and 0B). Consumer: ec0B_cell."
+        },
+        {
+          "scope": { "scenes": [17] },
+          "name": "ec_doorway_early_press_req",
+          "area": "edward_castle",
+          "summary": "Will hit the doorway switch at the wrong time; the countdown restarts.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec11_countdown (in every count loop, {638446}-{638522}) jumps to code_09BE67, clears the bit and restarts the count from code_09BDE4.",
+            "clear": "The count runs on."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_doorway/ec11_button_voice.asm:51 {638240}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:45 {638446}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_countdown.asm:83 {638567}"
+          ],
+          "notes": "Producer: ec11_button_voice (hit while $02 is set and $01 is clear; it prints 'Wait! I told you ...'). Consumer and clearer: ec11_countdown."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [11] },
+          "name": "ec_prison_ball_ack",
+          "area": "edward_castle",
+          "summary": "Will has examined the ball and chain; the last of the three things ec0B_cell waits for.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0B_cell passes WaitOnFlagByte(#04, #01), then waits #$04B0 ticks and prints the soldier's whisper (today's bread).",
+            "clear": "ec0B_cell keeps waiting."
+          },
+          "evidence": [
+            "extracted/edward_castle/castle_prison/ec0B_ball.asm:22 {318444}",
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:40 {315964}"
+          ],
+          "notes": "Producer: ec0B_ball (one actor, row 0C). Consumer: ec0B_cell."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [10] },
+          "name": "ec_throne_audience_done_ack",
+          "area": "edward_castle",
+          "summary": "King Edward has finished the throne-room audience (Yes or No, 'Guards!! Throw this impudent weasel in prison!!').",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_edward (waiting on it after his own talk handler set it) locks the joypad ($CFFC), sets $0A and prints 'Soldier: Yes, sir!'.",
+            "clear": "Edward stands at his throne with the audience talk handler."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_edward.asm:51 {312330}",
+            "extracted/edward_castle/edward_castle/ec0A_edward.asm:20 {312280}"
+          ],
+          "notes": "Self-pulse inside one actor (the interact handler code_04C3EC sets it, the main script waits on it)."
+        }
+      ]
+    },
+    "10": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [10] },
+          "name": "ec_throne_guards_go_req",
+          "area": "edward_castle",
+          "summary": "King Edward has ordered the arrest; the two throne guards leave their posts.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_throne_guard1 and ec0A_throne_guard2 leave WaitOnFlagByte(#0A, #01), clear their solid mark and walk their routes; guard2 later prints 'Ma'am! Save me!!' and sets $0B.",
+            "clear": "Both guards stand solid beside the throne with the 'keep your wits about you' talk handler."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_edward.asm:23 {312290}",
+            "extracted/edward_castle/edward_castle/ec0A_throne_guards.asm:23 {312870}",
+            "extracted/edward_castle/edward_castle/ec0A_throne_guards.asm:62 {313003}"
+          ],
+          "notes": "Producer: ec0A_edward. Consumers: ec0A_throne_guards (both actors)."
+        }
+      ]
+    },
+    "11": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [10] },
+          "name": "ec_throne_queen_prompt_req",
+          "area": "edward_castle",
+          "summary": "Will has called the Queen 'Ma'am'; Queen Edwina reacts.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_edwina leaves WaitOnFlagByte(#0B, #01) and sets $0C immediately.",
+            "clear": "Edwina stays with her talk handler ('The King sent you the letter. Talk to him.')."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_throne_guards.asm:76 {313047}",
+            "extracted/edward_castle/edward_castle/ec0A_edwina.asm:16 {312702}"
+          ],
+          "notes": "Producer: ec0A_throne_guard2 after the 'Ma'am! Save me!!' dialog. Consumer: ec0A_edwina, which answers with $0C. The Queen's reaction line itself is part of the dialog string printed by guard2."
+        }
+      ]
+    },
+    "12": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [10] },
+          "name": "ec_throne_queen_done_ack",
+          "area": "edward_castle",
+          "summary": "Queen Edwina has reacted; the throne guards resume the arrest sequence.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_throne_guard1 walks away; ec0A_throne_guard2 waits #0B ticks and spawns the walk-Will-east helper (code_04C6F2), which ends in the fade-out helper (code_04C721) that sets $21 and queues scene $0B.",
+            "clear": "Both guards keep waiting after their first walk."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_edwina.asm:17 {312706}",
+            "extracted/edward_castle/edward_castle/ec0A_throne_guards.asm:38 {312917}",
+            "extracted/edward_castle/edward_castle/ec0A_throne_guards.asm:77 {313050}"
+          ],
+          "notes": "Producer: ec0A_edwina. Consumers: ec0A_throne_guards (both actors)."
+        }
+      ]
+    },
+    "25": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_castle_kara_meeting_done",
+          "area": "edward_castle",
+          "summary": "Will has met Kara in her room and heard her plea ('Please save me! Take me out of here!'); the stairs to the throne room open.",
+          "stage": "act1.edward_castle",
+          "kinds": ["cutscene-stage", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_stair_guard leaves WaitOnFlagByte(#19, #01), clears his solid mark, steps aside and says 'The interview room is before you. Climb the stairs to meet the king.'; ec0A_kara_guard throws Will out on talk ('Your business is finished. Get out!') and skips the blocking setup on re-entry; ec0A_kara only idles ('Please come back, Will').",
+            "clear": "The stair guard blocks the stairs ('King Edward is having breakfast. Wait a while, then enter.'); the Kara-door guard blocks Kara's door; Kara runs the meeting when Will is near."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:73 {314357}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:25 {314220}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:19 {313683}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:53 {313784}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:81 {313829}",
+            "extracted/edward_castle/edward_castle/ec0A_stair_guard.asm:16 {312077}",
+            "extracted/edward_castle/edward_castle/ec0A_stair_guard.asm:39 {312118}"
+          ],
+          "notes": "Seven sites, all in scene $0A; never cleared (no ClearFlag site anywhere in extracted/). It is the gate between the two halves of the pre-prison castle: you cannot climb the stairs before meeting Kara."
+        }
+      ]
+    },
+    "26": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_castle_kara_door_answered",
+          "area": "edward_castle",
+          "summary": "Kara has answered Will at her door ('Who is it?' / 'A guest?') for the first time.",
+          "stage": "act1.edward_castle",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "On a later load of scene $0A (without $19) ec0A_kara goes straight to code_04CBAA (stands at tile (0B,0C) and runs the meeting when Will is near) and ec0A_kara_guard skips the triple solid mark and the first-talk handler (code_04C991).",
+            "clear": "ec0A_kara waits for scratch $01 (the guard's talk) and then answers through the door; the guard blocks the door with three solid marks."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:28 {314236}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:26 {314226}",
+            "extracted/edward_castle/edward_castle/ec0A_kara_guard.asm:20 {313689}"
+          ],
+          "notes": "In the same visit the script falls straight through into the meeting (the actor-def body is contiguous with code_04CBAA), so the latch only matters when Will leaves the scene and returns before $19 is set. Never cleared."
+        }
+      ]
+    },
+    "34": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_castle_kara_escaped",
+          "area": "edward_castle",
+          "summary": "Will has left Edward's Castle with Kara (castle escape finished: scene $06, Will's house, is queued).",
+          "stage": "act1.edward_castle",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_kara and the cellar helper (code_04CF5C) die at spawn; edward_castle_alarm_palette kills itself at spawn (the red alert ends).",
+            "clear": "Kara is the escort (when $21 is set) and the cellar helper tests the roast; the alarm thinker keeps cycling the red palette while $21 is set."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:185 {315303}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:22 {314205}",
+            "extracted/edward_castle/edward_castle/ec0A_kara.asm:152 {315228}",
+            "extracted/edward_castle/edward_castle/edward_castle_alarm_palette.asm:14 {46643}"
+          ],
+          "notes": "Set together with word $0119 ({315306}) by the cellar helper when Will presses the button on the steps with the yak roast (item #0A) in the inventory; then 'At last, we leave. Let's go to your house.' and QueueMapChange to scene $06. The alarm thinker tests it once at spawn, not each frame."
+        }
+      ]
+    },
+    "35": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_prison_key_taken",
+          "area": "edward_castle",
+          "summary": "Will took the Prison Key (item #02) from the pig's tail in the cell; the pig and the cell script finish.",
+          "stage": "act1.edward_castle",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The pig child (code_04D310) dies at once (WaitOnFlagByte(#23, #01) then Die) so the key cannot be given twice; ec0B_cell leaves its wait and moves its sprite up (StageSpriteLoopMoveY #26) before dying.",
+            "clear": "The pig is solid with its talk handler: 'letter and a key tied to its tail', GiveItem #02, then the flag."
+          },
+          "evidence": [
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:134 {316210}",
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:111 {316163}",
+            "extracted/edward_castle/castle_prison/ec0B_cell.asm:127 {316195}"
+          ],
+          "notes": "The setter runs only when GiveItem succeeds (inventory full jumps to InventoryFullMessage and leaves the flag clear). The pig is named 'Hamlet' in the ec0A_kara dialog (dialogstring_04CE4A); the cell script only prints 'Oink oink'. Never cleared."
+        }
+      ]
+    },
+    "41": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ma_mansion_intro_seen",
+          "area": "mansion",
+          "summary": "The mansion's entrance narration ('When I awoke, I was standing in the entrance to a strange mansion.') has been shown.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sE9_mansion_intro skips the narration and goes straight to its per-frame exit-zone loop (code_08FC92).",
+            "clear": "sE9_mansion_intro writes CGADSUB = $21, sets the flag, locks the joypad ($EFFC), waits #1D, prints the narration, releases the lock and falls into the same loop."
+          },
+          "evidence": [
+            "extracted/mansion/mansion/sE9_mansion_intro.asm:25 {588924}",
+            "extracted/mansion/mansion/sE9_mansion_intro.asm:20 {588909}"
+          ],
+          "notes": "Two sites, both in scene $E9; nothing else reads it. Set before the lock and the dialog, so leaving during the narration still latches it."
+        }
+      ]
+    },
+    "58": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_exit_lilly_met",
+          "area": "edward_castle",
+          "summary": "Will met Lilly at the aqueduct exit (scene $13); she introduced herself and left.",
+          "stage": "act1.edward_castle",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec13_lily takes code_09C037 at spawn: no meeting; if Will is in Freedan form (characterForm not 0) she only shows the 'Will can return to his original shape' hint and starts Transform_FreedanToWill, then dies.",
+            "clear": "ec13_lily plays the meeting when Will comes within #03 tiles: joypad lock, 'Girl: I saw you!!' (Lilly, from Itory, protected by the Flower Spirit, sent by Lola), then 'The Elder is calling... I have to go.' and she walks away and dies."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_exit/ec13_lily.asm:52 {638945}",
+            "extracted/edward_castle/aqueduct_exit/ec13_lily.asm:21 {638867}"
+          ],
+          "notes": "Set when Will comes near, before the dialog, so leaving during the cutscene still latches it. Never cleared."
+        }
+      ]
+    },
+    "63": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_entrance_letter_shown",
+          "area": "edward_castle",
+          "summary": "Will has shown the letter to the entrance guard in Edward's Castle (scene $0A); the guard lets him pass.",
+          "stage": "act1.edward_castle",
+          "kinds": ["quest-guard", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_left_guard does not lock the joypad at spawn; he patrols (code_04BFFD, code_04C023) with the 'Go to the second floor' talk handler.",
+            "clear": "At spawn (with $21 clear) ec0A_left_guard sets the joypad lock ($CFFC, joypadMaskStd $065A), runs its first walk loop (StageSpriteLoopMoveX), prints 'I must report this intrusion' / 'Will shows the letter to the guard.' / 'A guest of the King? ... you may pass.', sets the flag and releases the lock ($CFFC TRB)."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_left_guard.asm:17 {311281}",
+            "extracted/edward_castle/edward_castle/ec0A_left_guard.asm:30 {311312}",
+            "extracted/edward_castle/edward_castle/ec0A_left_guard.asm:32 {311322}"
+          ],
+          "notes": "The guard sets this flag itself, after a fixed dialog: there is no BranchIfHasItem or letter check in the actor (the item sites of the scope show none for the letter). The joypad lock with the flag clear is therefore transient (it lasts until the guard's walk and dialog end), not permanent. The name says 'letter' from the dialog line; which item the letter is (Lance's letter, the King's letter) is not in the code. db-us/scene-flags.json scene 10 ($3F) agrees on the index; see the report section 7."
+        }
+      ]
+    },
+    "67": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_prison_door_c_open",
+          "area": "edward_castle",
+          "summary": "Tile (14,17) of the prison (scene $0B) has its terrain type cleared on every load, as the Prison Key door at (09,17) does with $42; no code sets the flag.",
+          "stage": "act1.edward_castle",
+          "kinds": ["unknown"],
+          "grade": "UNKNOWN",
+          "effects": {
+            "set": "ec0B_guard runs ClearTypeAbs(#14, #17) at spawn.",
+            "clear": "ec0B_guard leaves the tile alone."
+          },
+          "queue": ["FL21-08"],
+          "notes": "One site: ec0B_guard.asm:20 {318502} (branch, jumps when clear). Searched: no SetFlagByte/SetFlagWord for index 67 in extracted/**/*.asm, none of the 17 trace candidate sets in plans/flags/inventory.json contains index 67 (the dungeon_kill_wram_flags indices are WRAM-relative, +$0400, and are another domain), no direct access to $0A08 outside flag_helpers (inventory direct_accesses). UseItem_PrisonKey handles only two doors (A: $24, B: $42). The name is a guess from the symmetry with $42 and says so."
+        }
+      ]
+    },
+    "70": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_castle_barrel_roast_taken",
+          "area": "edward_castle",
+          "summary": "Will took the yak roast (item #0A) from the barrel in Edward's Castle (scene $0A).",
+          "stage": "act1.edward_castle",
+          "kinds": ["reward-claimed", "quest-guard"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "At the next spawn of ec0A_barrel_roast the branch at {315610} jumps into code_04D0FF, which sets the flag again, sets displayModeFlags bit $80, plays MusicAndText #17 ('You've found a large, yummy roast leg of yak!' and Kara's 'Everything's ready!') and dies: the pickup message appears to repeat on scene load.",
+            "clear": "The barrel waits for scratch $01, then its talk handler gives item #0A (GiveItem; inventory full prints the full message and leaves the flag clear)."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_barrel_roast.asm:38 {315647}",
+            "extracted/edward_castle/edward_castle/ec0A_barrel_roast.asm:18 {315610}"
+          ],
+          "queue": ["FL21-09"],
+          "notes": "Setter and branch read in full; INFERRED because the repeat of the message on scene load follows from the branch target (code_04D0FF includes the SetFlagByte and the message) and has not been watched. The escape itself does not read this flag: the cellar helper tests the item with BranchIfHasItem #0A ({315278})."
+        }
+      ]
+    },
+    "216": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_castle_right_guard_jewel_given",
+          "area": "edward_castle",
+          "summary": "The right entrance guard gave Will one Red Jewel for his manners.",
+          "stage": "act1.edward_castle",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The guard's talk handler (code_04C204, active after his one patrol loop) prints only 'Don't raise your voice. And mind your manners.'",
+            "clear": "The talk handler prints the manners line, calls GiveItem #01 (Red Jewel; inventory full jumps to hidden_red_jewel.HiddenRedJewelInventoryFull and leaves the flag clear), prints 'In exchange, I will give you one Red Jewel.' and sets the flag."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_right_guard.asm:53 {311831}",
+            "extracted/edward_castle/edward_castle/ec0A_right_guard.asm:49 {311812}"
+          ],
+          "notes": "Only reachable with $21 clear: with $21 set the guard is parked asleep at tile (38,29) with the 'Zzzzzz' handler. Never cleared."
+        }
+      ]
+    },
+    "222": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_lockway_lilly_seen",
+          "area": "edward_castle",
+          "summary": "Lilly appeared to Will in the aqueduct lockway (scene $0E) once.",
+          "stage": "act1.edward_castle",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0E_lily dies at spawn.",
+            "clear": "When Will comes within #01 tile the actor sets the flag, spawns an orbiting hittable orb (code_09A9A1, 'Hey! What are you doing!!' when hit), moves toward Will for #$04B0 ticks, prints 'Come here, or the demon will get you!' and moves away."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_lockway/ec0E_lily.asm:34 {633131}",
+            "extracted/edward_castle/aqueduct_lockway/ec0E_lily.asm:26 {633117}"
+          ],
+          "notes": "Set when Will comes near, before the movement and dialog. Never cleared."
+        }
+      ]
+    },
+    "223": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_doorway_orb_played",
+          "area": "edward_castle",
+          "summary": "The one-shot orb sprite of the aqueduct doorway (scene $11) has played once.",
+          "stage": "act1.edward_castle",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec11_aqueduct_gate_sprite dies at spawn.",
+            "clear": "The actor sets the flag, plays sprite frame #33 for #02 steps and then flies with StageMove/TickMove to the target (moveXAlt $0048, moveYAlt $0050)."
+          },
+          "evidence": [
+            "extracted/edward_castle/aqueduct_doorway/ec11_aqueduct_gate_sprite.asm:18 {633417}",
+            "extracted/edward_castle/aqueduct_doorway/ec11_aqueduct_gate_sprite.asm:17 {633411}"
+          ],
+          "notes": "Frame #33 of spriteset_pickups_effects is the same frame ec0E_lily's orb (code_09A9A1) uses, so the sprite is probably Lilly's orb (INFERRED, name 'orb' follows that); the script contains no gate state, open or closed, and no door effect: the doorway door is opened by $0113. Never cleared."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "33": [
+      {
+        "source": "FL21",
+        "name": "ec_throne_room_done",
+        "summary": "The throne-room audience of Edward's Castle (scene $0A) is over: the guards arrested Will and he is queued to the prison (scene $0B); the castle is in its post-prison state.",
+        "kinds": ["cutscene-stage", "quest-guard"],
+        "roles": [
+          "setter: ec0A_throne_guards.asm:126 {313156} (the fade-out helper code_04C721 of throne_guard2), directly before QueueMapChange #0B at {313171}",
+          "tests in scene $0A (11): ec0A_left_guard.asm:15 {311271} (set: parked at tile (06,27) and warns Will), ec0A_right_guard.asm:14 {311733} (set: parked asleep at (38,29)), ec0A_stair_guard.asm:14 {312067} (set: asleep), ec0A_stair_maid.asm:21 {313352} (talk line), ec0A_kara_guard.asm:18 {313677} (set: asleep), ec0A_kara.asm:24 {314214} (set: escort mode), ec0A_prison_guard.asm:12 {315808} (set: dies), ec0A_torch1.asm:14 {311187} and ec0A_torch2.asm:14 {311229} (CLEAR: die, so the torches exist only when set), edward_castle_alarm_palette.asm:15 {46649} (CLEAR: kills itself)",
+          "test in scene $0E: ec0E_statue.asm:17 {690237} (clear: solid push statue, set: inspection dialog)",
+          "tests outside the scope (8): south_cape sc01_house_intro:29 {310433}, sc02_erik:109 {309663}, sc06_bill:21 {299644}, sc06_lola:19 {301157}, sc06_kara_return:21 {304574}, sc06_lily:20 {305928}, sc08_priest:51 {297689}, and the scene_meta gate tables/scene_meta.asm:388 {885063} (scene $06)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL10 and FL20 proposals (same name). Never cleared (no ClearFlag site). The name is kept for the merge; it is set at the end of the audience, not when the scene is 'done' in the sense of leaving it."
+      }
+    ],
+    "36": [
+      {
+        "source": "FL21",
+        "name": "ec_prison_cell_door_unlocked",
+        "summary": "The cell door of the prison (scene $0B, door A at tiles (0E,10)-(10,11)) was opened with the Prison Key.",
+        "kinds": ["gate-open", "once-latch"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:303 {230895} (UseItem_PrisonKey, with Will inside the door-A rectangle), together with word $0106 ({230891}) and BG change #06",
+          "test: item_use_system.asm:298 {230876} (repeat use prints 'The door is open.')",
+          "in scope: ec0B_cell.asm:26 {315909} (the cell script dies at spawn when set, so the imprisonment scene never replays); ec0B_door.asm:15 {318238} (waits on it, then dies)"
+        ],
+        "confidence": "high",
+        "notes": "Paired with the FL11 proposal ec_prison_door_unlocked for $0106 (event block $06): the two are set by the same handler and have the same meaning; FL31 should decide whether both stay. Not cleared anywhere."
+      }
+    ],
+    "66": [
+      {
+        "source": "FL21",
+        "name": "ec_prison_door_b_unlocked",
+        "summary": "The second Prison Key door of the prison (scene $0B, door B at tiles (0A,17)-(0C,18)) was opened with the key.",
+        "kinds": ["gate-open", "once-latch"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:313 {230921} (UseItem_PrisonKey, Will inside the door-B rectangle), after which ClearTypeAbs(#09, #17) runs once",
+          "test: item_use_system.asm:311 {230911}",
+          "in scope: ec0B_guard.asm:14 {318492} (replays ClearTypeAbs(#09, #17) at every spawn while set)"
+        ],
+        "confidence": "high",
+        "notes": "The setter is outside the scene scripts (an item handler). Not cleared anywhere. Sibling: $43 (owned by FL21, UNKNOWN)."
+      }
+    ],
+    "232": [
+      {
+        "source": "FL21",
+        "name": "ma_solid_arm_intro_heard",
+        "summary": "Will has entered the Solid Arm lair (scene $EA) and the boss's introduction has begun; Jeweler Gem is gone from every scene that holds him.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: mansion/solid_arm_lair/sEA_solid_arm.asm:57 {587597}, after the music fade and WaitWord #$0120 and BEFORE the intro dialog and the fight (nothing sets it after the fight)",
+          "test: sEA_solid_arm.asm:54 {587582} (set: skips the music fade, the dialog and the flag write, goes to the fight at code_08F754)",
+          "test outside the scope: actors/jeweler_gem.asm:41 {577187} (set: JewelerDie), placed in scenes $01, $32, $6B, $7B, $9B, $C3"
+        ],
+        "confidence": "high",
+        "notes": "The shipped comment at jeweler_gem.asm:41 says the flag is set 'after the Solid Arm fight'; the code sets it at the start of the intro, so the Gem disappears even if the player dies in the fight or leaves. docs/code/bank08-native-dao-pyramid-actors.md:324 and :438 already say 'intro played'. Not cleared anywhere."
+      }
+    ],
+    "255": [
+      {
+        "source": "FL21",
+        "name": "sys_scene_setup_done",
+        "summary": "Scene-setup latch: edward_castle_alarm_palette sets it after each palette cycle and waits for the engine to clear it.",
+        "kinds": ["engine", "idiom"],
+        "roles": [
+          "set: edward_castle/edward_castle/edward_castle_alarm_palette.asm:26 {46674}, after PaletteStart #05 / PaletteStep and the two COLDATA writes ($24, $42)",
+          "wait (clear): edward_castle_alarm_palette.asm:27 {46677}, then BRA to restart the cycle"
+        ],
+        "confidence": "high",
+        "notes": "Same name as the FL10 and FL23 proposals; one more user of the idiom (the thinker for scene $0A, list 0CE821). The thinker only runs when $21 is set and $22 is clear at spawn."
+      }
+    ],
+    "275": [
+      {
+        "source": "FL21",
+        "name": "ec_aqueduct_door_open",
+        "summary": "The aqueduct doorway (scene $11) was opened by the switch puzzle: event block $13 (BG change #13) is applied on later loads and the voice and countdown actors park.",
+        "kinds": ["gate-open", "puzzle-state"],
+        "roles": [
+          "setter: edward_castle/aqueduct_doorway/ec11_button_voice.asm:73 {638278}, in the on-time branch (code_09BD39) after clearing scratch $02 and applying BG change #13",
+          "tests in scope: ec11_button_voice.asm:45 {638212} (set: plays the hit animation only), ec11_countdown.asm:22 {638392} (set: parks at code_09BE6D)",
+          "tests outside the scope: system/inventory/item_use_system.asm:700 {232391} (UseItem_LolaMelody gate) and :774 {232536} (effect): with the flag set the melody does nothing in scene $11 ('But nothing happened.')"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL11 proposal ec_aqueduct_door_open (same name). The FL11 note about event block $13 was not re-derived here. Not cleared anywhere."
+      }
+    ],
+    "281": [
+      {
+        "source": "FL21",
+        "name": "sc_wills_house_ransacked",
+        "summary": "Scene $06 (Will's house) shows the ransacked room (event block $19) after Will and Kara left the castle.",
+        "kinds": ["cutscene-stage", "gate-open"],
+        "roles": [
+          "setter: edward_castle/edward_castle/ec0A_kara.asm:186 {315306} (the cellar helper code_04CFA7), the instruction after SetFlagByte $22 and before the 'At last, we leave' dialog and QueueMapChange #06",
+          "clear outside the scope: south_cape/wills_house/sc06_kara_return.asm:85 {304776}"
+        ],
+        "confidence": "medium",
+        "notes": "Same name as the FL11 and FL20 proposals; the FL21 side is only the setter. The effect on scene $06 was not re-derived here."
+      }
+    ]
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "tables/spriteset_freedan_fx.asm": {
+    "blockNote": [
+      "Sprite set of two Freedan poses (Bank 17, 1548288-1549554, 1266 bytes): the Aura Barrier cast and the vine drop attack. The old note ('sword trails, charge flashes', 'attack trail sprites and Dark Friar launch effects overlaid on Freedan') was wrong: the groups are complete body poses of 9 to 14 sub-sprites each, and nothing here belongs to the Dark Friar (that is spriteset_dark_friar). It is body_table row $06 (tile graphics free_fx_1C8000), selected with SetPlayerSpriteDirect #06, which puts it in effect until the next body change.",
+      "",
+      "| Index | Set | Frames (hold) | Used by |",
+      "|-------|-----|---------------|---------|",
+      "| $00 | sprite_set_17A008 | 4 (2 each) | ClimbDropAttack (player_character): StageSprAndHitbox #00 while falling |",
+      "| $01 | sprite_set_17A01A | 6 (4, 4, 4, 4, 4, 9) | ClimbDropLand: StageSpriteMoveY #01, the landing |",
+      "| $02 | sprite_set_17A034 | 2 (4 each) | Aura Barrier cast (attack_ability_system): StageSpriteFrame #02, played once |",
+      "| $03 | sprite_set_17A03E | 1 (9) | Aura Barrier sustain: StageSpriteLoop #03, 2 passes and then 10 more while the barrier lasts |",
+      "",
+      "The vine drop attack is the Freedan-only drop from a climb (CheckClimbAttack, abilityBitmask bit 6); ClimbDropLand loads entry 2 of freedan_ability_anim_table. The format is documented once, in the spriteset_freedan block note. Each frame is its own group (13 groups, 147 sub-sprites): 8 B pointer table + 60 B frame lists + 1198 B groups = 1266 bytes. The appearance of the tiles was not viewed (OQ-I069-3)."
+    ],
+    "partNotes": {
+      "spriteset_freedan_fx": [
+        "4 pointers to the animation frame lists: $00 vine drop fall, $01 drop landing, $02 Aura Barrier cast, $03 Aura Barrier sustain pose."
+      ],
+      "sprite_set_17A008": [
+        "Animation $00, vine drop attack fall: 4 frames, hold 2. Staged by ClimbDropAttack with a hitbox."
+      ],
+      "sprite_set_17A01A": [
+        "Animation $01, vine drop landing: 6 frames, hold 4 for the first five and 9 for the last. Staged by ClimbDropLand."
+      ],
+      "sprite_set_17A034": [
+        "Animation $02, Aura Barrier cast: 2 frames, hold 4. Staged once at the start of the cast."
+      ],
+      "sprite_set_17A03E": [
+        "Animation $03, Aura Barrier sustain: 1 frame, hold 9, looped for the length of the barrier."
+      ]
+    }
+  },
+  "tables/spriteset_shadow_fx.asm": {
+    "blockNote": [
+      "Sprite set of body_table row $07 (Bank 17, 1552384-1553318, 934 bytes; tile graphics shad_fx_1CA000). The old note ('Shadow-specific visual effects', 'attack trail sprites and liquify transformation overlays') is not supported: no frame list of this set is staged by any extracted script, because nothing selects body row $07 (SetPlayerSpriteDirect #07 does not occur; the only rows picked by number are $04, $05, $06 and $08). The word 'liquify' appears only in the old header text; no code or table supports it. GetPlayerFacingDirection would index FacingFormOffsetTable with row - 4 = 3 if row $07 were ever selected (OQ-I069-1).",
+      "",
+      "Structure (format in the spriteset_freedan block note): 14 animations, 16 groups of about 5 sub-sprites each (82 in total). 28 B pointer table + 124 B frame lists + 782 B groups = 934 bytes.",
+      "",
+      "| Index | Set | Frames (hold) | Group |",
+      "|-------|-----|---------------|-------|",
+      "| $00 | sprite_set_17B01C | 4 (9, 9, 9, 1) | 17B098, 17B0CF, 17B0FF, 17B12F |",
+      "| $01-$03 | sprite_set_17B02E, 17B034, 17B03A | 1 (3) each | the same group 17B15F |",
+      "| $04 | sprite_set_17B040 | 8 (3, 3, 3, 6, 4, 3, 2, 0) | 17B18F ... 17B2D1 |",
+      "| $05, $07, $08, $0A, $0B, $0D | sprite_set_17B062, 17B06E, 17B074, 17B080, 17B086, 17B092 | 1 (31) each | the same group 17B098 (also frame 0 of $00) |",
+      "| $06, $09, $0C | sprite_set_17B068, 17B07A, 17B08C | 1 (7) each | 17B376, 17B308, 17B33F |",
+      "",
+      "Twelve of the 14 animations are a single frame, and six of those are the identical 32-tick hold of group 17B098 (hold 31 + 1), which looks like placeholder entries (OQ-I069-1). The art was not viewed."
+    ],
+    "partNotes": {
+      "spriteset_shadow_fx": [
+        "14 pointers to the animation frame lists ($00-$0D). Nothing stages any of them (see the block note)."
+      ],
+      "sprite_set_17B01C": [
+        "Animation $00: 4 frames (hold 9, 9, 9, 1)."
+      ],
+      "sprite_set_17B040": [
+        "Animation $04: 8 frames (hold 3, 3, 3, 6, 4, 3, 2, 0), the longest list of the set."
+      ],
+      "sprite_set_17B062": [
+        "Animation $05: one frame, hold 31, group 17B098 (same as $07, $08, $0A, $0B, $0D)."
+      ]
+    }
+  },
+  "tables/spriteset_enemies.asm": {
+    "blockNote": [
+      "Shared effects, pickups and props sprite set (Bank 0E, 974848-982479, 7631 bytes). The old note ('shared by all dungeon enemies, boss sub-sprites, dark gem animations and combat VFX', 'the largest spriteset file in the game') was too broad: 84 extracted actor files select it with SetMetasprite ( @spriteset_enemies ), and most of them are pickups, switches, effects and scene props; only a few enemies and bosses use it (sE8_dark_gaia, ir29_castoth, sg55_viper, gw8A_sand_fanger, mu67_vampires, pyDD_mummy_queen, ec0D_canal_worm, sg4E_nitropede and others). It is not the largest: spriteset_will (17441 B), spriteset_shadow (12443 B) and spriteset_ability_fx (11653 B) are bigger.",
+      "",
+      "Structure (format in the spriteset_freedan block note): 63 animations ($00-$3E), 257 frame records, 144 printed groups (one hides a second, see sprite_group_0EEE5E), 640 printed sub-sprite rows. Byte budget: 126 B pointer table + 1154 B frame lists (257 x 4 + 63 x 2) + 6351 B of groups = 7631.",
+      "",
+      "Animations whose users were traced (E2):",
+      "",
+      "| Index | User |",
+      "|-------|------|",
+      "| $00 | hidden_red_jewel |",
+      "| $01 | EnemyDeathFlash and the DebrisBurstParticle of SpawnDebrisBurst (eight frames, 19 ticks) |",
+      "| $04, $05, $06 | the 1, 2 and 5 gem pickups of EnemyDropSystem; $06 is also the static frame of idle_sprite_display |",
+      "| $09, $0A, $0B | the blink phase of those three pickups |",
+      "| $0C, $0D, $0E | the HP, STR and DEF stat pickups (reward_actors, field_reveal_object) |",
+      "| $0F, $10 | hit_switch (resting frame $0F, struck frame $10) |",
+      "| $22, $35 | the 5 HP heal pickup of EnemyDropSystem |",
+      "| $25, $29 | SpawnFieldRevealEffect (flash and rise) |",
+      "",
+      "The other animations belong to the scene actors listed above; they were not mapped one by one (OQ-I069-2)."
+    ],
+    "partNotes": {
+      "spriteset_enemies": [
+        "63 pointers to the animation frame lists ($00-$3E). Roles of the traced indices: see the block note."
+      ],
+      "sprite_set_0EE07E": [
+        "Animation $00: the red jewel of hidden_red_jewel."
+      ],
+      "sprite_set_0EE084": [
+        "Animation $01: 8 frames, 19 ticks: the enemy death flash and the debris particle."
+      ],
+      "sprite_set_0EE0CE": [
+        "Animation $04: the 1-gem pickup (still frame plus shimmer)."
+      ],
+      "sprite_set_0EE0E8": [
+        "Animation $05: the 2-gem pickup."
+      ],
+      "sprite_set_0EE102": [
+        "Animation $06: the 5-gem pickup."
+      ],
+      "sprite_set_0EE144": [
+        "Animation $09: blink phase of the 1-gem pickup."
+      ],
+      "sprite_set_0EE14E": [
+        "Animation $0A: blink phase of the 2-gem pickup."
+      ],
+      "sprite_set_0EE158": [
+        "Animation $0B: blink phase of the 5-gem pickup."
+      ],
+      "sprite_set_0EE162": [
+        "Animation $0C: the Max HP + 1 stat pickup."
+      ],
+      "sprite_set_0EE174": [
+        "Animation $0D: the STR + 1 stat pickup."
+      ],
+      "sprite_set_0EE186": [
+        "Animation $0E: the DEF + 1 stat pickup."
+      ],
+      "sprite_set_0EE198": [
+        "Animation $0F: resting frame of hit_switch."
+      ],
+      "sprite_set_0EE19E": [
+        "Animation $10: struck frame of hit_switch (not viewed)."
+      ],
+      "sprite_set_0EE2CA": [
+        "Animation $22: first phase of the 5 HP heal pickup."
+      ],
+      "sprite_set_0EE458": [
+        "Animation $35: second phase of the 5 HP heal pickup."
+      ],
+      "sprite_group_0EEE5E": [
+        "Real group: header + 11 sub-sprites (90 bytes, rows ;00-;0A). Rows ;0B-;0D are NOT sub-sprites: the extractor ignored the count and printed the next, unreferenced group (13 B header + 1 sub-sprite = 20 bytes at 0EEEB8, no set points to it) as three rows of 7 bytes, so the last byte of row ;0D is the first byte of group 0EEECC, which is printed again below (OQ-I069-4)."
+      ]
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "_note": "N3 draft (2026-11-09, ROM O, states S01r / S15 and warps from them). Apply pass only; investigation sessions run --dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/N3_notes.json --dry-run. Sources: mesen2-results/N3_20261109.md and raw/N3_*. Corrects the FireflyParticle part note and four of its inline comments (the chains 6 and 10 cannot occur, direction down-left), fills the Dark Space statue pictures, the Dark Gaia projectile tile source, the hidden-bit clear, the Shadow ability transformation timing and the GaiaHint_AuraItem coverage. No names spec: no label changes.",
+  "system/dark_space/sE6_gaia.asm": {
+    "partNotes": {
+      "FireflyParticle": {
+        "edit": [
+          {
+            "find": "movement chains 4 / 6 / 8 / 10 on X and one less on Y, removed when Y reaches $FF. The loop would end at once for a negative Y step, so it must move down.",
+            "with": "movement chain 4 or 8 on X and 3 or 7 on Y (the speed bits come from RNG x 2, whose bit 0 is 0, so the chains 6 and 10 never occur), removed when Y reaches $FF. X and Y are screen coordinates: the sprite is drawn at the actor position without the camera offset. Every tick the firefly moves 2 px left and 2 px down (chains 4 / 3) or 4 px left and 4 px down (chains 8 / 7), a down-left diagonal. X = RNG x 2 reaches 510, so about half of the fireflies start off the right edge of the 256 px screen and drift in. The Y test runs once per animation pass of 21 ticks: a 2 px firefly lives 147 ticks (it dies at Y = 294), a 4 px firefly 84 ticks (Y = 336)."
+          }
+        ]
+      },
+      "Transform_FreedanToWill": {
+        "edit": [
+          {
+            "find": "frames 3, 2, 5, DarkSpaceRestoreControl. Entered from 6 other files.",
+            "with": "frames 3, 2, 5, DarkSpaceRestoreControl. Entered from 6 other files. Measured in the Will ability rooms (ticks after the 6-tick pause of the dispatch): frame 6 is shown for 320 ticks, 9 for 12, 8 for 32; characterForm = 0 is set when frame 8 ends, then 3 shows for 32, 2 for 76 and 5 for 70 before DarkSpaceRestoreControl runs."
+          }
+        ]
+      },
+      "loc_08EA78": {
+        "edit": [
+          {
+            "find": "(also used from the Shadow form) and set $0800.",
+            "with": "(also used from the Shadow form: Shadow plays the Freedan sequence, frame 6 drawn in the Shadow palette, the sphere frames 9 and 8, then the Will frames, and never the frames $0D, $10, $0F, $0E of Transform_ShadowToWill) and set $0800."
+          }
+        ]
+      },
+      "GaiaHint_AuraItem": {
+        "edit": [
+          {
+            "find": "With $0AAC = 0 it is just the save prompt.",
+            "with": "With $0AAC = 0 it is just the save prompt: the standard pyramid portal (room variant 1) leaves $0AAC at 0 here and only the hidden portal (variant 3, shown when event flag $173 is set) gives 1. The ability index that AbilityOrbActor stores in $0AAC never reaches this code, which runs only for source scene $CC; that scene is not in AbilitySceneTable."
+          }
+        ]
+      },
+      "DS_WillTransformRoom": {
+        "edit": [
+          {
+            "find": "What the BG changes draw was not decoded.",
+            "with": "BG change $88 draws the Freedan statue (an armoured knight with a sword) on the left pedestal, a 4x8 tile block at tile (2,2); $8E draws the Shadow statue (a twisted figure) on the right pedestal at (10,2); $8A and $8F draw the 2x1 tile strips at (3,10) and (11,10). Without flag $B4 the right pedestal stays empty."
+          }
+        ]
+      },
+      "DS_FreedanTransformRoom": {
+        "edit": [
+          {
+            "find": "Left statue = back to Will, right statue = Shadow.",
+            "with": "Left statue = back to Will, right statue = Shadow. $87 draws the Will statue (a small figure) on the left pedestal; $8E draws the Shadow statue on the right one."
+          }
+        ]
+      },
+      "DS_ShadowTransformRoom": {
+        "edit": [
+          {
+            "find": "(flag $B4 is necessarily set).",
+            "with": "(flag $B4 is necessarily set). $87 draws the Will statue (a small figure) on the left pedestal and $8D the Freedan statue (the armoured knight) on the right one."
+          }
+        ]
+      },
+      "DS_LayoutAbility": {
+        "edit": [
+          {
+            "find": "Not found: no orb.",
+            "with": "Not found: no orb. $86 draws the Will statue in a second pose on the left pedestal (the orb is drawn over it); $8B draws a tall Freedan-type statue there."
+          }
+        ]
+      },
+      "DS_AuraItemRoom": {
+        "edit": [
+          {
+            "find": "Layout 3 reaches the Aura item through GaiaHint_AuraItem instead.",
+            "with": "Layout 3 reaches the Aura item through GaiaHint_AuraItem instead. Of its BG changes $89 draws a twisted Shadow-like statue on the left pedestal. BG change $8C, the Will statue for the right pedestal (a small figure like $87), is staged by no code."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "587443": {
+        "text": "bit 1 of RNG x 2 (bit 0 is always 0): 0 or 2",
+        "expect": "AND"
+      },
+      "587446": {
+        "text": "x2: 0 or 4",
+        "expect": "ASL"
+      },
+      "587448": {
+        "text": "+4: 4 or 8",
+        "expect": "ADC"
+      },
+      "587451": {
+        "text": "X chain 4 or 8: 2 or 4 px left per tick",
+        "expect": "STA"
+      },
+      "587456": {
+        "text": "Y chain 3 or 7: 2 or 4 px down per tick",
+        "expect": "STA"
+      }
+    }
+  },
+  "actors/dark_space.asm": {
+    "partNotes": {
+      "DarkSpaceMonitorStartWarp": {
+        "edit": [
+          {
+            "find": "the scene change resets them.",
+            "with": "the hidden bit stays set through the dissolve and the fade-out, and the scene change clears it (InitActorPool zeroes the whole actor pool, the player's $10 included, and the player respawns with $10 = $8508 as the fade-in starts)."
+          }
+        ]
+      }
+    }
+  },
+  "tables/spriteset_darkgaia_projectile.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Not traced: the tile graphics these sub-sprites draw.",
+          "with": "The sub-sprites draw tiles $40-$6F of sprite name table 0 (VRAM word $4400-$46FF): LoadPlayerGraphics copies 1536 bytes (48 tiles) of misc_fx_1CCA80 there when sceneCurrent is $E8 and playerFlags bit 3 is clear. The art is a flame bird. The East and West groups (tile words $4440-$4464 and $0440-$0464) show it from the side with the 16x16 tiles $40, $42, $44, $46 and the 8x8 tiles $60-$64; the North and South groups (tile words $0448-$044E, $0468, $0469 and their flipped forms) show it from the front with the 16x16 tiles $48, $4A, $4C, $4E (the last one twice, mirrored) and the 8x8 tiles $68 and $69 (each twice, mirrored). The three frames of a launch animation use the same tiles; only the sub-sprite offsets grow. The palette is OBJ palette 2 (CGRAM colours $A0-$AF, loaded from palette_1E6273 by scene_meta_00E8); the tiles $65-$67 and $6A-$6F are loaded but drawn by no group. The art that scene_meta_00E8 loads into VRAM word $5000 (gfx_0D2D78, sprite name table 1) is not used by these sub-sprites."
+        }
+      ]
+    }
+  }
+}

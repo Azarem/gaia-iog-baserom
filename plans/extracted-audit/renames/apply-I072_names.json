@@ -1,0 +1,6 @@
+[
+{"address":121304,"old":"consolestring_01D9D8","new":"boot_title_strings","row":"R-I072-1","note":"the names entry boot_screen_strings sits on the same address and is renamed with it"},
+{"address":122398,"old":"item_menu_table","new":"item_name_line_table","row":"R-I072-2"},
+{"address":845797,"old":"thinker_spawn_0CE7E5","new":"thinker_spawn_dispatcher_only","row":"R-I072-3"},
+{"address":1015808,"old":"spriteset_will_alt","new":"spriteset_will_abilities","row":"R-I072-4"}
+]

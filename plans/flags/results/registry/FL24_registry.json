@@ -1,0 +1,900 @@
+{
+  "_note": "FL24 registry fragment: diamond_mine, great_wall, sky_garden, mountain_temple. Scratch flags are keyed by scene; spine flags are proposals only. The flags >= $0100 of the four groups (FL11/FL15 records) are not re-recorded; their sites are cross-referenced in _crossref so every inventory site of the scope is cited.",
+  "_crossref": [
+    "$0121 dm_mine_collapse_done (FL11): extracted/diamond_mine/mine_main/dm3F_mine_collapse_trigger.asm:17 {381033}, extracted/diamond_mine/mine_main/dm3F_mine_collapse_trigger.asm:26 {381054}",
+    "$0125-$012A sg_garden_sw_blocker_* (FL11): extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm:30 {390656}, :38 {390677}, :39 {390681}, :41 {390687}, :54 {390716}, :55 {390720}, :57 {390726}; extracted/sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm:25 {390761}, :33 {390780}, :34 {390784}, :35 {390788}, :36 {390792}, :56 {390827}, :57 {390831}, :58 {390835}, :59 {390839}",
+    "$012D/$012E sg_garden_sw_switch_* (FL11): extracted/sky_garden/garden_southwest_underside/sg52_switch.asm:14 {390867}, extracted/sky_garden/garden_southwest_underside/sg52_switch.asm:27 {390896}, extracted/sky_garden/garden_southwest_underside/sg52_switch.asm:28 {390900}",
+    "$012F sg_garden_west_underside_pressure_switch_done (FL11): extracted/sky_garden/garden_west_underside/sg54_pressure_switch.asm:14 {390988}, extracted/sky_garden/garden_west_underside/sg54_pressure_switch.asm:24 {391012}",
+    "$0132 dm_hidden_dark_space_open (FL11): extracted/diamond_mine/mine_collapsed_tunnel/dm40_hidden_dark_space.asm:18 {382497}, extracted/diamond_mine/mine_collapsed_tunnel/dm40_hidden_dark_space.asm:19 {382504}",
+    "$0133 dm_promise_passage_wall_broken (FL11): extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:25 {698863}, extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:65 {698958}",
+    "$0152 gw_dive_switch_hit (FL11): extracted/great_wall/wall_dive/gw83_switch.asm:20 {507303}, extracted/great_wall/wall_dive/gw83_switch.asm:36 {507362}",
+    "$0159 mt_crossroads_mushroom_gate_open (FL11): extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:16 {518131}, extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:39 {518199}",
+    "$015F mt_circuit_mushroom_gate_a_open (FL11): extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:16 {518214}, extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:39 {518282}",
+    "$0167 mt_circuit_mushroom_gate_b_open (FL11): extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:15 {518297}, extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:47 {518389}",
+    "$016A gw_sand_fanger_defeated (FL11): extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:111 {753779}",
+    "$0174 gw_tomb_dark_space_open (FL11): extracted/great_wall/wall_tomb/gw88_tomb_dark_space.asm:16 {507371}, extracted/great_wall/wall_tomb/gw88_tomb_dark_space.asm:27 {507397}",
+    "$017A dm_cell_door_open (FL11): extracted/diamond_mine/mine_foyer/dm44_cell_door.asm:25 {382277}; $017B dm_elevator_door_open (FL11): extracted/diamond_mine/mine_main/dm3F_elevator_door.asm:23 {382555}",
+    "$0501 sg_viper_reward_claimed (FL15): extracted/sky_garden/viper_lair/sg55_viper.asm:123 {708981}; $0503 gw_sand_fanger_reward_claimed (FL15): extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:189 {754027}",
+    "$0AA6 is a phase word, not a flag bit: written 0 at extracted/sky_garden/viper_lair/sg55_mystic_statue.asm:103 {708341} and 1 at extracted/sky_garden/garden_crash/garden_crash_cutscene.asm:193 {238002}"
+  ],
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [61] },
+          "name": "dm_promise_passage_player_near_wall",
+          "area": "diamond_mine",
+          "summary": "dm3D_breakable_wall tracks the player inside tiles (05,03)-(07,07) while the wall is intact and no hit is pending; the player idle code reads the same bit.",
+          "kinds": ["idiom"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character idle stages the second idle sprite set (#10-#13 instead of #00-#03) for the four idle directions.",
+            "clear": "player_character idle uses its normal idle sprites (#00-#03)."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:49 {698926}",
+            "extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:43 {698922}",
+            "extracted/diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm:64 {698955}",
+            "extracted/actors/player/player_character.asm:232 {181375}"
+          ],
+          "queue": ["FL24-02"],
+          "notes": "The wall actor writes the bit for its own proximity test and never reads it. The only reader is the shared idle selector (scratch $00 also set at spawn by scene_flag_init, FL30), so the visible effect on the player sprite is not confirmed. The wall clears the bit at :64 when it breaks."
+        },
+        {
+          "scope": { "scenes": [64] },
+          "name": "dm_collapsed_tunnel_player_near_slave",
+          "area": "diamond_mine",
+          "summary": "dm40_trapped_slave tracks the player inside tiles (08,14)-(0A,17) while the laborer has full HP; the player idle code reads the same bit.",
+          "kinds": ["idiom"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character idle stages the second idle sprite set (#10-#13) for the four idle directions.",
+            "clear": "player_character idle uses its normal idle sprites (#00-#03); the reward child also clears it after its #77-tick wait."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm:55 {382846}",
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm:49 {382842}",
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm:103 {382967}",
+            "extracted/actors/player/player_character.asm:232 {181375}"
+          ],
+          "queue": ["FL24-02"],
+          "notes": "Same pattern as scene 61. The set and clear sites are the actor's own proximity bookkeeping; no other actor of scene 64 reads bit $00."
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [131] },
+          "name": "gw_dive_switch_struck_req",
+          "area": "great_wall",
+          "summary": "The hit switch at tile (35,1B) of the dive entrance has been struck; gw83_switch runs its one-shot sequence.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw83_switch leaves WaitOnFlagByte(#01, #01), stages frame #29, moves toward pixel ($0278,$0190) (StageMove #04 per tick, TickMove), spawns SpawnDebrisBurst, applies BG change #52 and sets word flag $0152.",
+            "clear": "gw83_switch keeps waiting; the scene shows the unchanged wall."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_dive/gw83_switch.asm:21 {507310}",
+            "extracted/actors/hit_switch.asm:72 {51759}"
+          ],
+          "notes": "Producer: hit_switch placed at tile (35,1B) with type byte 03 (flag = type >> 1 = 1; scene_actors ;1D of scene 131). Nothing clears it in the scene; the flag is zeroed at scene load, and $0152 makes gw83_switch die at spawn once set. Pairs with the FL11 record $0152."
+        },
+        {
+          "scope": { "scenes": [133] },
+          "name": "gw_rampway_gate_switch_struck_req",
+          "area": "great_wall",
+          "summary": "The hit switch at tile (18,1A) of the rampway has been struck; gw85_retractable_gate retracts.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw85_retractable_gate leaves WaitOnFlagByte(#01, #01), clears the flag, clears its solid tiles, sets $10 bit $0100 for the retract frame #1E, waits #77 ticks and returns to frame #1D with its solid tiles marked again.",
+            "clear": "The gate stays at frame #1D with MarkSolidHere and MarkSolidOffset(#00, #03) active."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_rampway/gw85_retractable_gate.asm:18 {507126}",
+            "extracted/great_wall/wall_rampway/gw85_retractable_gate.asm:19 {507130}",
+            "extracted/actors/hit_switch.asm:72 {51759}"
+          ],
+          "notes": "The wait is a consumed one-shot trigger (WaitOnFlagByte then ClearFlagByte of the same index), so the gate closes again after the #77 ticks and every later hit re-opens it. Producer: hit_switch type byte 03 (scene_actors ;2C of scene 133)."
+        },
+        {
+          "scope": { "scenes": [139] },
+          "level": "row",
+          "summary": "Lilly (e_gw8B_lily) has finished her first scolding of Lance and installs her talk handler; no actor of the scene waits on it.",
+          "evidence": [
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:130 {506630}"
+          ],
+          "notes": "Searched gw8B_lance_lily.asm for BranchOnFlagByte, WaitOnFlagByte and TestFlagRaw of index 01: none. Scratch $02-$05 of the same scene carry the dialog handshake."
+        },
+        {
+          "scope": { "scenes": [88] },
+          "name": "sg_descent_neil_line_done",
+          "area": "sky_garden",
+          "summary": "A Neil line of the Sky Garden descent has finished; set by the child of sp58_missed_flight after 'I dropped a contact' and by the child of sp58_red_eye after its first line, read by three actors of the scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "sp58_missed_flight and sp58_descent_cutscene leave their wait loops (missed_flight then sets scratch $02); sp58_red_eye leaves its loop for code_0681F0 (Neil flies off, ClearAllWramFlags, QueueMapChange to scene $59).",
+            "clear": "sp58_missed_flight and sp58_descent_cutscene stay in their move loops; sp58_red_eye stays on frame #07."
+          },
+          "evidence": [
+            "extracted/sky_garden/garden_descent/sp58_missed_flight.asm:54 {426070}",
+            "extracted/sky_garden/garden_descent/sp58_red_eye.asm:80 {426532}",
+            "extracted/sky_garden/garden_descent/sp58_missed_flight.asm:27 {426022}",
+            "extracted/sky_garden/garden_descent/sp58_descent_cutscene.asm:39 {426310}",
+            "extracted/sky_garden/garden_descent/sp58_red_eye.asm:51 {426467}"
+          ],
+          "queue": ["FL24-12"],
+          "notes": "Two producers share the index and no code of the scene clears it, so whichever child finishes first releases all three readers. The order in which the three actors reach their tests is not traced; the runtime trial reads the flag byte frame by frame. ClearAllWramFlags at sp58_red_eye.asm:68 zeroes the scratch flags and the word flags before the scene change."
+        },
+        {
+          "scope": { "scenes": [89] },
+          "name": "sg_crash_approach_done",
+          "area": "sky_garden",
+          "summary": "The crash camera controller has finished its approach phase (the timer went negative); the main cutscene actor enters its exit phase.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "GardenCrashCutscene branches to GardenCrashExitPhase (its fade-out loop); the controller continues 60 more frames of camera scroll, then the gravity phase and the QueueMapChange to scene $58.",
+            "clear": "GardenCrashCutscene keeps animating and decrementing its timer; the controller keeps scrolling during the approach."
+          },
+          "evidence": [
+            "extracted/sky_garden/garden_crash/garden_crash_cutscene.asm:160 {237918}",
+            "extracted/sky_garden/garden_crash/garden_crash_cutscene.asm:75 {237820}"
+          ],
+          "notes": "The controller sets the flag when its own timer $24 goes negative (about 600 frames). The word $0AA6 is written 1 at the end of the gravity phase (garden_crash_cutscene.asm:193 {238002})."
+        },
+        {
+          "scope": { "scenes": [162] },
+          "name": "mt_crossroads_mushroom_drop_req",
+          "area": "mountain_temple",
+          "summary": "Will poured Mushroom Water on the stem at tiles (14,08)-(16,09) of the crossroads; mtA2_mushroom_drop_gate starts its reveal.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mtA2_mushroom_drop_gate leaves WaitOnFlagByte(#01, #01), locks the joypad, removes item #1A, runs the six BG changes #54-#59 with sound and sets word flag $0159.",
+            "clear": "The gate actor keeps waiting."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:1348 {235734}",
+            "extracted/mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:17 {518138}"
+          ],
+          "notes": "UseItem_MushroomWater sets the flag only in scene $A2 inside that tile box. The flag is zeroed at scene load; $0159 (FL11) keeps the result."
+        },
+        {
+          "scope": { "scenes": [165], "actors": ["mtA5_mushroom_drop_gate_a"] },
+          "name": "mt_circuit_stem_a_drop_req",
+          "area": "mountain_temple",
+          "summary": "Will poured Mushroom Water on stem A at tiles (2E,12)-(30,13) of the circuit; mtA5_mushroom_drop_gate_a starts its reveal.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mtA5_mushroom_drop_gate_a leaves WaitOnFlagByte(#01, #01) and runs its reveal, ending with word flag $015F.",
+            "clear": "The gate actor keeps waiting."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:1361 {235760}",
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:17 {518221}"
+          ],
+          "notes": "Stem B uses scratch $02 of the same scene."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [88] },
+          "name": "sg_descent_neil_handoff_req",
+          "area": "sky_garden",
+          "summary": "sp58_missed_flight hands the descent over to sp58_descent_cutscene: set by missed_flight, consumed by the cutscene actor.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp58_descent_cutscene leaves WaitOnFlagByte(#02, #01) and clears the flag, which releases sp58_missed_flight from WaitOnFlagByte(#02, #00).",
+            "clear": "sp58_descent_cutscene waits; sp58_missed_flight continues after the flag has been consumed."
+          },
+          "evidence": [
+            "extracted/sky_garden/garden_descent/sp58_missed_flight.asm:28 {426028}",
+            "extracted/sky_garden/garden_descent/sp58_missed_flight.asm:29 {426031}",
+            "extracted/sky_garden/garden_descent/sp58_descent_cutscene.asm:40 {426316}",
+            "extracted/sky_garden/garden_descent/sp58_descent_cutscene.asm:41 {426320}"
+          ],
+          "notes": "Two-way handshake in one actor pair: the producer waits for the consumer to clear the flag."
+        },
+        {
+          "scope": { "scenes": [133] },
+          "name": "gw_rampway_short_spear_switch_struck_req",
+          "area": "great_wall",
+          "summary": "A hit switch at tile (3B,29) or (29,2B) of the rampway has been struck; gw85_short_switch_spear retracts.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw85_short_switch_spear leaves WaitOnFlagByte(#02, #01), clears the flag, clears its solid tiles, shows the retract frame #1E, waits #77 ticks and returns to frame #1D.",
+            "clear": "The spear stays at frame #1D, solid."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_rampway/gw85_short_switch_spear.asm:18 {507173}",
+            "extracted/great_wall/wall_rampway/gw85_short_switch_spear.asm:19 {507177}",
+            "extracted/actors/hit_switch.asm:72 {51759}"
+          ],
+          "notes": "Two hit_switch placements (type byte 05, scene_actors ;2D and ;2E of scene 133) feed one flag; one spear placement (;28 at tile (2C,29)) consumes it."
+        },
+        {
+          "scope": { "scenes": [139] },
+          "name": "gw_inner_necklace_stones_handed_over",
+          "area": "great_wall",
+          "summary": "Will has handed the Necklace Stones (item #17) to Lance; Lance starts the reunion scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw8B_lance leaves WaitOnFlagByte(#02, #01) and waits for the player in tiles (12,17)-(14,1B) before the dialog; his talk handler repeats the tail of the hand-over dialog instead of taking the item again.",
+            "clear": "Lance waits; his talk handler removes item #17, prints the hand-over dialog and sets the flag."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:78 {505865}",
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:75 {505852}",
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:35 {505748}"
+          ],
+          "notes": "The talk handler removes item #17 before it tests nothing about the inventory; whether the scene can be reached without the item is outside this scope."
+        },
+        {
+          "scope": { "scenes": [165], "actors": ["mtA5_mushroom_drop_gate_b"] },
+          "name": "mt_circuit_stem_b_drop_req",
+          "area": "mountain_temple",
+          "summary": "Will poured Mushroom Water on stem B at tiles (28,24)-(2A,25) of the circuit; mtA5_mushroom_drop_gate_b starts its reveal.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mtA5_mushroom_drop_gate_b leaves WaitOnFlagByte(#02, #01) and runs its reveal, ending with word flag $0167.",
+            "clear": "The gate actor keeps waiting."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:1367 {235768}",
+            "extracted/mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm:16 {518304}"
+          ],
+          "notes": "Stem A uses scratch $01 of the same scene."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [133] },
+          "name": "gw_rampway_long_spear_switch_struck_req",
+          "area": "great_wall",
+          "summary": "The hit switch at tile (37,2C) of the rampway has been struck; gw85_long_switch_spear retracts.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw85_long_switch_spear leaves WaitOnFlagByte(#03, #01), clears the flag, clears its solid tiles, shows the retract frame #20, waits #77 ticks and returns to frame #1F.",
+            "clear": "The spear stays at frame #1F, solid."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_rampway/gw85_long_switch_spear.asm:18 {507220}",
+            "extracted/great_wall/wall_rampway/gw85_long_switch_spear.asm:19 {507224}",
+            "extracted/actors/hit_switch.asm:72 {51759}"
+          ],
+          "notes": "hit_switch type byte 07 (scene_actors ;2F of scene 133); one spear placement (;29 at tile (34,29))."
+        },
+        {
+          "scope": { "scenes": [139] },
+          "name": "gw_inner_lance_first_lines_done",
+          "area": "great_wall",
+          "summary": "Lance has finished his first reunion lines (the player stands in tiles (12,17)-(14,1B)); Lilly starts her answer.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "e_gw8B_lily leaves WaitOnFlagByte(#03, #01) and plays her two dialog lines.",
+            "clear": "Lilly waits after her talk handler is installed."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:54 {505801}",
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:134 {506643}"
+          ],
+          "notes": "Chain of the scene: $02 (Lance) -> $03 (this) -> $04 (Lilly) -> $05 (Lance), then Lance sets $96 and $C8 and queues scene $79."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [133] },
+          "name": "gw_rampway_multi_spear_switch_struck_req",
+          "area": "great_wall",
+          "summary": "The hit switch at tile (64,1D) of the rampway has been struck; the multi-switch spears retract.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The gw85_multi_switch_spear that runs first leaves WaitOnFlagByte(#04, #01), clears the flag, clears its solid tiles, shows the retract frame #1E, waits #77 ticks and returns to frame #1D.",
+            "clear": "Both spears stay at frame #1D, solid."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_rampway/gw85_multi_switch_spear.asm:18 {507267}",
+            "extracted/great_wall/wall_rampway/gw85_multi_switch_spear.asm:19 {507271}",
+            "extracted/actors/hit_switch.asm:72 {51759}"
+          ],
+          "queue": ["FL24-11"],
+          "notes": "Two spear placements (;2A at tile (64,19) and ;2B at tile (65,19)) wait on the same flag and each clears it, so after one hit the spear that is polled first consumes the trigger. Whether the second spear also retracts depends on the actor update order and is not traced."
+        },
+        {
+          "scope": { "scenes": [139] },
+          "name": "gw_inner_lilly_answer_done",
+          "area": "great_wall",
+          "summary": "Lilly has finished her answer lines; Lance continues with his reply.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw8B_lance leaves WaitOnFlagByte(#04, #01), prints his reply and sets scratch $05.",
+            "clear": "Lance waits."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:165 {506739}",
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:55 {505804}"
+          ],
+          "notes": "Pairs with scratch $03 and $05 of the same scene."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [139] },
+          "name": "gw_inner_lance_reply_done",
+          "area": "great_wall",
+          "summary": "Lance has finished his reply; Lilly's script ends and Lance closes the scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "e_gw8B_lily leaves WaitOnFlagByte(#05, #01) and ends its script.",
+            "clear": "Lilly waits after her answer."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:58 {505815}",
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:166 {506742}"
+          ],
+          "notes": "Lance sets $96 and $C8 right after this flag (gw8B_lance_lily.asm lines 61 and 62)."
+        }
+      ]
+    },
+    "8": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [63] },
+          "level": "row",
+          "summary": "Scratch bits $08-$0F are read as the single byte $0A01: a hit counter. Each of the four dm3F_switch placements zeroes it at spawn and adds 1 per hit; dm3F_mine_collapse_trigger fires when the byte equals 4.",
+          "evidence": [
+            "extracted/diamond_mine/mine_main/dm3F_switch.asm:31 {380989}",
+            "extracted/diamond_mine/mine_main/dm3F_switch.asm:45 {381015}",
+            "extracted/diamond_mine/mine_main/dm3F_mine_collapse_trigger.asm:19 {381042}"
+          ],
+          "queue": ["FL24-01"],
+          "notes": "The counter does not track freed laborers: hits on any of the four switches (scene_actors ;1D-;20 of scene 63) increase it, and each spawn of a switch resets it, so a later-spawned switch placement would restart the count. hit_switch with a type byte of 10 or more would also write these bits; no such placement exists in scene 63. The flag word $0121 latches the collapse."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [135] },
+          "name": "gw_switchback_switch_struck_req",
+          "area": "great_wall",
+          "summary": "The hit switch at tile (2F,28) of the switchback room has been struck; the six statue archers of the scene wake.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Each gw87_statue_archer (scene_actors ;08-;0D) sets $10 bit $0200, clears $12 bit $0020, switches its stats pointer to enemy_stats_table+CC with that entry's HP and continues in the live archer script (code_0B8F15).",
+            "clear": "The six statue archers stay solid props: each restores its own position and HP every frame."
+          },
+          "evidence": [
+            "extracted/great_wall/gw82_archer.asm:135 {757688}",
+            "extracted/actors/hit_switch.asm:72 {51759}"
+          ],
+          "notes": "Flag index $0F is hit_switch type byte 1F >> 1 (scene_actors ;0F of scene 135). Nothing clears it in the scene. The inventory lists six scenes for the site because gw82_archer.asm is shared; only scene 135 places gw87_statue_archer."
+        }
+      ]
+    },
+    "93": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_morgue_mine_key_taken",
+          "area": "diamond_mine",
+          "summary": "Will has taken the Mine Key A (item #0B) from the morgue room.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm45_key dies at spawn: the key sprite is gone for good, even if Will no longer owns the key.",
+            "clear": "dm45_key shows frame #02 and its interact handler gives item #0B with the fanfare and sets the flag."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_morgue/dm45_key.asm:20 {382130}",
+            "extracted/diamond_mine/mine_morgue/dm45_key.asm:36 {382165}"
+          ],
+          "notes": "The flag is set only after GiveItem succeeds; a full inventory prints the full message and leaves it clear. Nothing tests the inventory afterwards."
+        }
+      ]
+    },
+    "94": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_sam_memory_melody_given",
+          "area": "diamond_mine",
+          "summary": "Sam has given Will the Memory Melody (item #0D) in the mine inner room.",
+          "kinds": ["reward-claimed", "once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "In the same visit Sam leaves WaitOnFlagByte(#5E, #01), locks the joypad, plays music #1E, polls APUIO1 for $FF and removes the Prison Key (#02) and, when held, the Wind Melody (#08). On the next load of scene 71 Sam, Imas and Remus die at spawn.",
+            "clear": "Imas, Remus and Sam spawn as chained props; Sam's talk handler runs the melody scene once the chain is broken."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_inner/dm47_sam.asm:84 {381619}",
+            "extracted/diamond_mine/mine_inner/dm47_sam.asm:24 {381478}",
+            "extracted/diamond_mine/mine_inner/dm47_sam.asm:39 {381519}",
+            "extracted/diamond_mine/mine_inner/dm47_sam.asm:80 {381598}",
+            "extracted/diamond_mine/mine_inner/dm47_sam.asm:82 {381608}",
+            "extracted/diamond_mine/mine_inner/dm47_imas.asm:19 {381073}",
+            "extracted/diamond_mine/mine_inner/dm47_remus.asm:17 {381277}"
+          ],
+          "queue": ["FL24-13"],
+          "notes": "The flag is set after GiveItem succeeds, so a full inventory leaves it clear and the talk can be repeated. Imas and Remus test it only at spawn; neither waits on it. The setter is Sam's talk handler, not the freeing of the third laborer (the shipped dm47 notes say otherwise)."
+        }
+      ]
+    },
+    "107": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_arrival_narration_seen",
+          "area": "sky_garden",
+          "summary": "Will's 'strange garden floating in the sky over Nazca' narration at the Sky Garden entrance (scene 76) has played.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3E_intro dies at spawn in scene 76 without a dialog and without locking the joypad for longer than the spawn frame.",
+            "clear": "dm3E_intro locks the joypad ($CFFC), sets the flag, waits #1D ticks and prints the narration, then unlocks and dies."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_entrance/dm3E_intro.asm:40 {391628}",
+            "extracted/diamond_mine/mine_entrance/dm3E_intro.asm:41 {391634}"
+          ],
+          "notes": "Name from scene and dialog (the dialog says 'There's a strange garden floating in the sky over Nazca'). Scene 62 uses $6A. The flag is set before the dialog, never cleared, so the narration plays once per game."
+        }
+      ]
+    },
+    "147": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_dive_lilly_cutscene_started",
+          "area": "great_wall",
+          "summary": "Lilly's 'Wait! ... I'll go with you!' cutscene at the Great Wall dive entrance (scene 131) has started.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw83_lily dies at spawn; the cutscene does not run again.",
+            "clear": "gw83_lily watches for the player in tiles (3B,08)-(3D,0B); on entry it sets the flag, locks the joypad ($EFFC), prints 'Wait!', walks to the player, prints her lines and unlocks, then dies."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_dive/gw83_lily.asm:23 {505466}",
+            "extracted/great_wall/wall_dive/gw83_lily.asm:33 {505489}"
+          ],
+          "notes": "The flag is set at the start of the cutscene, before the dialog. No other actor reads it; Lilly does not become a party member here (the actor only dies at the end)."
+        }
+      ]
+    },
+    "200": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_inner_reunion_scene_done",
+          "area": "great_wall",
+          "summary": "The Lance and Lilly reunion inside the Great Wall (scene 139) has finished.",
+          "kinds": ["once-latch", "cutscene-stage", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw8B_lance dies at spawn, so Lilly's child is never spawned and the scene is empty.",
+            "clear": "gw8B_lance runs the necklace hand-over and the scene chain (scratch $02-$05) and, at the end, sets $96 and this flag before QueueMapChange to scene $79."
+          },
+          "evidence": [
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:62 {505828}",
+            "extracted/great_wall/wall_inner/gw8B_lance_lily.asm:24 {505718}"
+          ],
+          "notes": "Set together with $96 (see the proposal for $96); $96 is cleared elsewhere in Watermia, this flag is not."
+        }
+      ]
+    },
+    "217": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_collapsed_tunnel_slave_freed",
+          "area": "diamond_mine",
+          "summary": "The trapped laborer of the collapsed tunnel (scene 64) has been freed and the rubble cleared.",
+          "kinds": ["quest-done", "reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The trapped-slave actor sets the flag again, redraws six rubble metatiles, marks tiles (08,13) and (09,13) solid and dies at spawn; the reward child is not spawned. In the visit where it is set, the child (code_05D7CB) leaves its wait, adds 3 to jewelsCollected (BCD), prints the thank-you dialog and dies.",
+            "clear": "dm40_trapped_slave stays a solid enemy-sprite prop and spawns the reward child."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm:30 {382777}",
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm:71 {382870}",
+            "extracted/diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm:91 {382937}"
+          ],
+          "notes": "The break is a hit while playerFlags bit $0002 is set (RunAttackFlagSetup: Psycho Slider, Psycho Dash, run attack), which also spawns a debris burst; the shipped note names Freedan's Dark Friar, which does not set that bit. The jewels are paid whenever the child is alive when the flag is set; the reward is never repeated because the child is not spawned once the flag is set."
+        }
+      ]
+    },
+    "160": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_laborer_main_a_freed",
+          "area": "diamond_mine",
+          "summary": "The first chained laborer of the mine main chamber (scene 63, tile (07,27), type byte 01) has been freed and has walked off.",
+          "kinds": ["quest-done", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3F_laborer index 0 dies at spawn.",
+            "clear": "The laborer is a solid chain prop; after the chain breaks (status $0040) his talk handler tells of eight laborers forced to work and asks Will to save them; he then walks off and the flag is set."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:37 {698060}",
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:79 {698153}"
+          ],
+          "notes": "Index = type byte >> 1 selects byte_0AA72F entry $A0 (tables/scene_actors.asm:1847). The flag is not tied to the scratch counter $0A01 of scene 63."
+        }
+      ]
+    },
+    "161": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_laborer_main_b_freed",
+          "area": "diamond_mine",
+          "summary": "The second chained laborer of the mine main chamber (scene 63, tile (35,08), type byte 03) has been freed and has walked off.",
+          "kinds": ["quest-done", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3F_laborer index 1 dies at spawn.",
+            "clear": "After the chain breaks the talk handler reveals the secret room (wind through the wall cracks); he then walks off and the flag is set."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:37 {698060}",
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:79 {698153}"
+          ],
+          "notes": "Index 1 (tables/scene_actors.asm:1848)."
+        }
+      ]
+    },
+    "162": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_laborer_nest_freed",
+          "area": "diamond_mine",
+          "summary": "The chained laborer of the mine nest (scene 70, tile (04,0B), type byte 05) has been freed, gave Mine Key B (item #0C) and walked off.",
+          "kinds": ["quest-done", "reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3F_laborer index 2 dies at spawn.",
+            "clear": "After the chain breaks the talk handler gives item #0C with the music fanfare; the laborer then walks off and the flag is set."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:37 {698060}",
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:79 {698153}"
+          ],
+          "notes": "Index 2 (tables/scene_actors.asm:1941). The flag is set after the walk-off loop, so leaving the scene during the walk leaves it clear."
+        }
+      ]
+    },
+    "163": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_laborer_elevator_passage_freed",
+          "area": "diamond_mine",
+          "summary": "The chained laborer of the elevator passage (scene 66, tile (28,17), type byte 07) has been freed, gave the Elevator Key (item #0F) and walked off.",
+          "kinds": ["quest-done", "reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dm3F_laborer index 3 dies at spawn.",
+            "clear": "After the chain breaks the talk handler gives item #0F and asks Will to save the inner prisoners; the laborer then walks off and the flag is set."
+          },
+          "evidence": [
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:37 {698060}",
+            "extracted/diamond_mine/mine_main/dm3F_laborer.asm:79 {698153}"
+          ],
+          "notes": "Index 3 (tables/scene_actors.asm:1898)."
+        }
+      ]
+    },
+    "152": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_entrance_necklace_stone_taken",
+          "area": "great_wall",
+          "summary": "The necklace stone at tile (54,28) of the Great Wall entrance (scene 130, type byte 01) has been picked up.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw82_necklace_stone dies at spawn.",
+            "clear": "The stone sprite (frame #02) bobs; its interact handler prints the dialog, gives item #17 (Necklace Stones) unless Will already holds it, sets the flag and dies."
+          },
+          "evidence": [
+            "extracted/great_wall/gw82_necklace_stone.asm:28 {505268}",
+            "extracted/great_wall/gw82_necklace_stone.asm:55 {505323}",
+            "extracted/great_wall/gw82_necklace_stone.asm:45 {505302}",
+            "extracted/great_wall/gw82_necklace_stone.asm:46 {505307}"
+          ],
+          "notes": "Index = type byte >> 1 into byte_07B5F5 ($98 $99 $9A $9B $9C). Item #17 is one inventory entry shared by all stones. The flag is set only when GiveItem succeeded or the item was already owned."
+        }
+      ]
+    },
+    "153": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_dive_necklace_stone_taken",
+          "area": "great_wall",
+          "summary": "The necklace stone at tile (35,29) of the Great Wall dive entrance (scene 131, type byte 03) has been picked up.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw82_necklace_stone dies at spawn.",
+            "clear": "The stone is shown; its interact handler gives item #17 if absent, sets the flag and dies."
+          },
+          "evidence": [
+            "extracted/great_wall/gw82_necklace_stone.asm:28 {505268}",
+            "extracted/great_wall/gw82_necklace_stone.asm:55 {505323}"
+          ],
+          "notes": "Index 1 of byte_07B5F5. Entries $9A-$9C of the table are not placed by any scene actor list (searched tables/scene_actors.asm for gw82_necklace_stone: two placements)."
+        }
+      ]
+    },
+    "249": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_viper_mystic_statue_collected",
+          "area": "sky_garden",
+          "summary": "The Viper Mystic Statue (statue_reward_table row 1) has been collected.",
+          "kinds": ["reward-claimed", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sg55_mystic_statue takes its post-ceremony branch (code_0ACE81) instead of the pedestal ceremony; statue_inventory shows the statue.",
+            "clear": "After the Viper dies, sg55_mystic_statue locks the joypad, sets globalScriptIndex := 1 and queues scene $FD, where the reward actor of row 1 sets the flag."
+          },
+          "evidence": [
+            "extracted/sky_garden/viper_lair/sg55_mystic_statue.asm:37 {708159}",
+            "extracted/system/statue_inventory/statue_inventory_reward.asm:114 {52689}"
+          ],
+          "notes": "No literal SetFlagByte #F9 exists; the setter is the table-driven ceremony (statue_reward_table row 1, match value $01). Same pattern as $F8 (FL23)."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "91": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "dm_foyer_door_key_a_used",
+        "summary": "Mine Key A has been used on the cell door of the mine foyer (scene 68).",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:844 {233013} (UseItem_MineKeyA, scene $44 tile box) and diamond_mine/mine_foyer/dm44_cell_door.asm:70 {382348} (both keys, 'Put in the keys?' Yes)",
+          "waiter: diamond_mine/mine_foyer/dm44_cell_door.asm:21 {382264} (the door waits for $5B, then $5C, then applies BG change #7A and sets $017A)",
+          "test: diamond_mine/mine_foyer/dm44_cell_door.asm:39 {382295} (talk handler: 'Without both keys, the door won't open...' when exactly one key was used)"
+        ],
+        "confidence": "high",
+        "notes": "Never cleared. The door opens only when both $5B and $5C are set, in either order."
+      }
+    ],
+    "92": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "dm_foyer_door_key_b_used",
+        "summary": "Mine Key B has been used on the cell door of the mine foyer (scene 68).",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:872 {233142} (UseItem_MineKeyB) and diamond_mine/mine_foyer/dm44_cell_door.asm:71 {382351}",
+          "waiter: diamond_mine/mine_foyer/dm44_cell_door.asm:22 {382268}",
+          "test: diamond_mine/mine_foyer/dm44_cell_door.asm:40 {382301}"
+        ],
+        "confidence": "high",
+        "notes": "Pair of $5B."
+      }
+    ],
+    "96": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "sg_garden_pedestal_east_upper_crystal_set",
+        "summary": "A Crystal Ball has been placed on the east-upper pedestal of the Sky Garden main area (pedestal at tile (16,0E), scene 76); platform 1 is released.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:967 {233510} (UseItem_CrystalBall, tile box (16,0C)-(18,0F); tested at :966 {233504} to refuse a second ball)",
+          "readers: sky_garden/garden_main/sg4C_platforms.asm:16 {390418} (sg4C_platform1 branches to code_05F556 at spawn), :18 {390428} and :26 {390439} (waits)"
+        ],
+        "confidence": "medium",
+        "notes": "Never cleared. The platform motion after the flag is set was read from the script, not run."
+      }
+    ],
+    "97": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "sg_garden_pedestal_east_lower_crystal_set",
+        "summary": "A Crystal Ball has been placed on the east-lower pedestal (tile (16,12), scene 76); platform 2 is released.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:973 {233521} (tile box (16,10)-(18,13); test :972 {233515})",
+          "readers: sky_garden/garden_main/sg4C_platforms.asm:38 {390465}, :40 {390475}, :59 {390501}"
+        ],
+        "confidence": "medium",
+        "notes": "Pair of $60."
+      }
+    ],
+    "98": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "sg_garden_pedestal_west_upper_crystal_set",
+        "summary": "A Crystal Ball has been placed on the west-upper pedestal (tile (09,0C), scene 76); platform 3 is released.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:979 {233532} (tile box (08,0A)-(0B,0D); test :978 {233526})",
+          "readers: sky_garden/garden_main/sg4C_platforms.asm:71 {390527}, :73 {390537}, :81 {390548}"
+        ],
+        "confidence": "medium",
+        "notes": "Pair of $60."
+      }
+    ],
+    "99": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "sg_garden_pedestal_west_lower_crystal_set",
+        "summary": "A Crystal Ball has been placed on the west-lower pedestal (tile (09,10), scene 76); platform 4 is released.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:985 {233543} (tile box (08,0E)-(0B,11); test :984 {233537})",
+          "readers: sky_garden/garden_main/sg4C_platforms.asm:93 {390574}, :95 {390584}, :114 {390610}"
+        ],
+        "confidence": "medium",
+        "notes": "Pair of $60."
+      }
+    ],
+    "105": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "dm_elevator_key_used",
+        "summary": "The Elevator Key has been used on the elevator door of the mine main chamber (scene 63).",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:1024 {233710} (UseItem_ElevatorKey, tile box (18,34)-(1A,37)) and diamond_mine/mine_main/dm3F_elevator_door.asm:35 {382571} (door interact with the key equipped)",
+          "waiter: diamond_mine/mine_main/dm3F_elevator_door.asm:20 {382546} (the door applies BG change #7B, sets $017B and dies)"
+        ],
+        "confidence": "high",
+        "notes": "Never cleared."
+      }
+    ],
+    "106": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "dm_mine_entrance_intro_done",
+        "summary": "Will's 'Diamond Mine was as quiet as a tomb' narration at the mine entrance (scene 62) has played.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter and latch: diamond_mine/mine_entrance/dm3E_intro.asm:33 {391610} (test) and :34 {391616} (set); the narration plays once per game",
+          "tests outside scope: freejia/slave_market/fr3C_imas.asm:15 {376553}, fr3C_remus.asm:15 {376749}, fr3C_sam.asm:14 {376950} (Freejia slave market; see FL23)"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with the FL23 proposal; the shipped dm3E_intro note says each narration plays once per visit, which the persistent flag contradicts."
+      }
+    ],
+    "150": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "gw_lance_lilly_reunion_done",
+        "summary": "Lance and Lilly have been reunited inside the Great Wall; Watermia reads it as the festival phase.",
+        "kinds": ["cutscene-stage", "quest-done"],
+        "roles": [
+          "setter: great_wall/wall_inner/gw8B_lance_lily.asm:61 {505825} (just before $C8 and QueueMapChange to scene $79)",
+          "clear: watermia/watermia/wa78_glass_game.asm:203 {496163}",
+          "tests: watermia/watermia/wa78_glass_game.asm:23 {495562}, wa78_moving_woman.asm:45 {492572}, watermia_festival_palette.asm:16 {46934}, watermia/lukes_house/wa79_erik.asm:16 {500791}, wa79_kara.asm:19 {501062}, wa79_lance.asm:20 {502917}, wa79_lily.asm:17 {501878}, wa79_neil.asm:19 {500141}, watermia/glass_players_house/wa7D_glass_opponent.asm:19 {494976}, tables/scene_meta.asm:1683 {890774} (scene gate)"
+        ],
+        "confidence": "medium",
+        "notes": "Watermia clears it again, so 'done' only describes the setter; FL31 decides the final name. Nine of the ten tests sit in Watermia, the tenth is the scene_meta gate."
+      }
+    ],
+    "157": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "gw_trail_intro_seen",
+        "summary": "Will's 'I followed Lance's trail to the Great Wall' narration at the Great Wall entrance (scene 130) has played.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter and latch: great_wall/wall_entrance/gw82_trail_intro.asm:16 {505138} (test) and :17 {505144} (set)",
+          "test outside scope: watermia/watermia/wa78_men.asm:43 {492845}"
+        ],
+        "confidence": "medium",
+        "notes": "The Watermia reader is outside this scope; its meaning is for FL31."
+      }
+    ],
+    "167": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "mt_kress_intro_seen",
+        "summary": "Will's Mt. Kress summit narration (scene 160) has played.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter and latch: mountain_temple/kress_entrance/mtA0_intro.asm:17 {517984} (test) and :18 {517990} (set)",
+          "tests outside scope: euro/friezers_house/eu9A_friezer.asm:14 {517639}, eu9A_max.asm:13 {517785}, eu9A_rudy.asm:13 {517910}"
+        ],
+        "confidence": "medium",
+        "notes": "The three Euro actors read the same flag; their effect is for FL31."
+      }
+    ],
+    "374": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "bt_crystal_gate_b_open",
+        "summary": "The Neo Viper fight (scene $F3) is won; event block $76 opens the second crystal gate.",
+        "kinds": ["gate-open", "quest-done"],
+        "roles": [
+          "setter: sky_garden/viper_lair/sg55_viper.asm:109 {708947} (child of btF3_neo_viper after the Shadow-to-Will transform, then QueueMapChange to scene $E0)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with FL11. The block-equivalence trials FL11-06 to FL11-08 cover the event block."
+      }
+    ],
+    "376": [
+      {
+        "source": "FL24",
+        "scope": null,
+        "name": "bt_crystal_gate_d_open",
+        "summary": "The Neo Fanger fight (scene $F5) is won; event block $78 opens the fourth crystal gate.",
+        "kinds": ["gate-open", "quest-done"],
+        "roles": [
+          "setter: great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:157 {753950} (child code_0B80F0 of btF5_neo_fanger after the Shadow-to-Will transform, then QueueMapChange)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with FL11."
+      }
+    ]
+  }
+}

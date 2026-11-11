@@ -1,0 +1,217 @@
+{
+    "actors/player/player_character.asm": {
+        "blockNote": [
+            "Main player character actor definition and movement state machine (181132–184272).",
+            "",
+            "This is the largest player actor file — the actor-def that instantiates the player and contains the complete movement FSM, traversal systems (climbing, ladders, shimmy), combat (melee, run attack, lunge), and related helpers. The actor-def's init code spawns four companion actors: attack_ability_system (charged attacks), player_move_controller (per-frame physics), slope_ramp_physics (slope tile handling), and shadow_shimmer (Shadow's palette shimmer).",
+            "",
+            "=== BUTTON AND FLAG CONVENTIONS USED IN THIS FILE ===",
+            "Logical button masks (after the remap): attack $0080, use-item $0008, L $0020, R $0010 (L/R together $0030), D-pad $0F00 (R $0100, L $0200, Dn $0400, Up $0800). BranchIfPressed/BranchIfNotPressed take a mask word: bit 0 clear tests joypadCurrent (held buttons minus the ones consumed in joypadHeld or hidden by joypadMaskStd), bit 0 set tests joypadRaw (no consumption, no masking). TSB joypadHeld therefore CONSUMES a button (joypadCurrent stops reporting it); it does not inject one. TSB joypadMaskStd with $CFFC hides everything except Start/Select ($3000) and bits 0-1 from joypadCurrent, D-pad included; the ladder and shimmy code reads Up/Down through joypadRaw masks such as $0801 / $0401.",
+            "Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared while climbing, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 set while the Psycho Slider and the lunge run, $4000 off-screen (set by sprite_composition). The meaning of $0100 and $2000 for the player is open (OQ-I025-1, OQ-I025-2).",
+            "",
+            "1. CORE IDLE + WALKING (181132–181790)",
+            "   PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (8 directional × Shadow variants), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.",
+            "   The idle dispatch uses a facing × input matrix: GetPlayerFacing (0–3) × Multiply8x8Unsigned by 14 selects a row of 7 entries in PlayerIdleDispatchTable. Input priority: attack button > D-pad cardinal > L/R block > idle stand.",
+            "   Walk pieces stage the walk sprite (#08–#0B) and call SetAutoWalkTimer, which writes 13 to $040C (mnemonic invincibilityTimer; UpdateFrameCounters decrements it every frame, $FFFF = closed). A walk entered while the player already faces that way (PlayerIdleEntry leaves the facing index in $24) with the window still open ($040C >= 0) closes the window, sets the axis speed to ±3 and yields once before re-dispatching: a run start. docs/ram_map.txt describes $040C the same way (\"running-allowed timer\"); the invincibilityTimer name is stale (R-I025-1). Holding L/R during a walk enters the block stance unless playerFlags $1000 (on slope) is set.",
+            "",
+            "2. VINE CLIMBING (181790–182198)",
+            "   ClimbVineEntry, ClimbVineLand, CheckClimbFrame, CheckClimbAttack, ClimbDropAttack, ClimbDropLand, ImpactTerrainShake, CameraShakeActor, CameraShakeFrame.",
+            "   Freedan-only vine climbing with a 3-frame alternating sprite cycle. CheckClimbAttack gates drop attack to Freedan (form 1) with abilityBitmask bit 6 ($0040). ClimbDropLand spawns ImpactTerrainShake (sets playerFlags $0010 for 479 frames) and CameraShakeActor (about 60 frames of random camera-target offsets: (RNG & 3) - 1 on X and ((RNG >> 2) & 3) - 1 on Y, each -1..+2).",
+            "",
+            "3. LADDER SYSTEM (182198–182461)",
+            "   LadderClimbSouth/North, LadderMoveDown/Up, LadderIdleSouth/North (+ Shadow variants), LadderLandBottom, LadderReachTop.",
+            "   Bi-directional ladder traversal. Entry sets joypadMaskStd |= $CFFC (all of joypadCurrent hidden except Start/Select) and reads Up/Down through raw masks ($0801 / $0401); exit clears the same bits. LadderMoveDown/Up check solid tiles at 16-pixel boundaries for exit transitions. Idle poses have Shadow-specific sprites (flag byte #00 == $01).",
+            "",
+            "4. SHIMMY SYSTEM (182461–182818)",
+            "   ShimmyRightEntry, ShimmyRightCheckWall, ShimmyRightLoop, ShimmyRightUpCheck, ShimmyRightDownCheck, ShimmyLeftEntry, ShimmyLeftCheckWall, ShimmyLeftLoop, ShimmyLeftUpCheck, ShimmyLeftDownCheck, ShimmyDetachRight/Left (+ Shadow variants), ShimmyTopCorner.",
+            "   Horizontal wall shimmy with wall-contact detection at 8-pixel intervals. CheckWall verifies east/west solid tiles before allowing movement. Detach states listen for L/R to re-enter shimmy or up/down for corner transitions. ShimmyTopCorner restores normal movement and returns to idle.",
+            "",
+            "5. BLOCKING + INERTIAL MOVEMENT (182818–183186)",
+            "   BlockFromWalkSouth/North/West/East, BlockSouth/North/West/East, BlockStopToIdle, MovingEastWest, MovingNorthSouth.",
+            "   L/R shoulder triggers block stance (playerFlags $2000, actor flag $0020, actor flag $0100 cleared, $040C zeroed). BlockFromWalk* pieces consume the matching D-pad bit in joypadHeld (so the held direction no longer reads as a new walk) before falling into Block*. MovingEastWest/NorthSouth handle inertial deceleration animations — entered from PlayerIdleEntry when speed is nonzero but no matching D-pad is held.",
+            "",
+            "6. PSYCHO SLIDER / RUN ATTACK (183186–183514)",
+            "   CheckRunAttack, RunAttackSpeedCheck, SpeedThresholdEW, SpeedThresholdNS, RunAttackNS, RunAttackEW, DisableStatusForAttack, RunAttackFlagSetup, RestoreStatusDisplay, RunAttackCleanup.",
+            "   The Psycho Slider — Will's running slide attack (abilityBitmask bit 1, $0002). Acquired in Mu West (scene $62). While moving at |speed| >= 3, pressing attack ($0080) initiates a damaging slide that can pass through narrow passages. RunAttackSpeedCheck routes to EW or NS based on which axis has sufficient speed. Both directions use LoadAbilityAnimTableA entry 1, stage a looping sprite move, then clean up flags. DisableStatusForAttack / RestoreStatusDisplay are entered from attack_ability_system only; they set and clear layerPriorityFlag $0200, the bit that freezes camera_scroll_controller (R-I025-4).",
+            "",
+            "7. BASIC MELEE ATTACK (183514–184138)",
+            "   AttackSouth/North/West/East, AttackRedirect, AttackFinish, AttackInit.",
+            "   Directional melee for all character forms. AttackInit keeps only the D-pad bits of joypadCurrent, sets joypadHeld = D-pad | attack (both consumed) and plays form-specific SFX (Will=#01, Freedan/Shadow=#02); each Attack* then consumes its own direction bit. Freedan (form 1) checks for wall-adjacent push attack variants on the south/north sides (BranchIfSolid*, sprites #48/#49); the west/east push sprites (#42/#43) are used by Will and Freedan, not Shadow. Will (form 0) can redirect mid-attack with BranchIfPressed on every D-pad direction except the facing one (south $0B00, north $0700), and continue into the lunge by pressing the facing direction. Scene $00E8 (Dark Gaia fight) spawns a Projectile* actor alongside each melee swing.",
+            "",
+            "8. LUNGE + PROJECTILES (184138–184272)",
+            "   RangedAttackSouth/North/West/East, RangedSetForceX/Y, ProjectileSouth/North/West/East.",
+            "   The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, climbStateData = 1 (the Will ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_will_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set (OQ-I025-5)."
+        ],
+        "partNotes": {
+            "PlayerCharacterDef": [
+                "Player character actor definition table and initialization code.",
+                "",
+                "The actor-def header (#00, #08, #85) defines the actor type. The inline init code:",
+                "1. Sets $0100 in actor flags $10 and $0001 in $12 (meaning of both bits: OQ-I025-1)",
+                "2. Stores the current actor slot as playerActor ($09AA)",
+                "3. Sets the free101C marker to signal the player actor is active",
+                "4. Checks the game-over wakeup flag ($0AF8) — spawns DeathWakeupMessage if set",
+                "5. Spawns four companion actors: attack_ability_system (SpawnBefore), player_move_controller and slope_ramp_physics (SpawnAfter), shadow_shimmer (SpawnListAppend, flags $2800)",
+                "",
+                "These companions handle combat, physics, slope detection, and Shadow's palette shimmer respectively. The player character actor itself handles only the movement state machine."
+            ],
+            "PlayerIdleEntry": [
+                "Main idle state entry and input dispatch loop.",
+                "",
+                "Clears transient state: the D-pad bits of joypadHeld ($F0FF mask, so held directions are re-detected), playerFlags $2800 (block and script/ability lock), actor flag $0020 (the block marker) and climbStateData; sets actor flag $0100 again. Returns at once when bit $2000 of actor flags $10 is set (SortActorsByDepth treats that bit as hidden; who sets it on the player is OQ-I025-2).",
+                "",
+                "Saves itself as the return point via SetSavedPtr, clears force movement. Checks for residual speed — if nonzero, jumps to MovingEastWest or MovingNorthSouth for inertial deceleration.",
+                "",
+                "If no residual speed, computes a dispatch index: GetPlayerFacing (0=S, 1=N, 2=W, 3=E, also left in $24) × 14 via Multiply8x8Unsigned → row offset into PlayerIdleDispatchTable. Then scans joypadCurrent in priority order: attack button > D-pad cardinal (S/N/W/E) > L/R block > idle stand. The resulting 2-byte address is loaded from the table and executed via the DEC+PHA+RTS trick."
+            ],
+            "CheckAttackWhileWalking": [
+                "Check for attack or speed-zero conditions during walking.",
+                "",
+                "Called via JSR from WalkSouth/North/West/East per-frame loops. Checks:",
+                "1. Attack button (mask $0080) down → WalkAbortToIdle (pop return, restore saved ptr)",
+                "2. Both EW and NS speed zeroed (external stop) → WalkAbortToIdle",
+                "3. If neither: test playerFlags bit 12 ($1000, on-slope flag) and return the result in Z",
+                "",
+                "Returns: Z = 0 means the on-slope flag is set, and every caller then branches over its L/R block check (BNE); Z = 1 (not on a slope) lets the caller test L/R for the block stance."
+            ],
+            "ClimbVineEntry": [
+                "Vine climbing state machine — Freedan-only traversal system.",
+                "",
+                "Entry: clear actor flag $0008 (restored by ClimbVineLand), set actor flag $0200, hide the use-item button ($0008) via joypadMaskStd. Plays initial climb-on animation (sprites #18, #19).",
+                "",
+                "Main loop: 3-sprite alternating cycle (#1A, #1B, #19) with force Y movement (#07 = downward). Each frame checks for solid ground landing. CheckClimbFrame reads the $2A event flag for animation timing. CheckClimbAttack gates drop attack to Freedan (characterForm == 1) with abilityBitmask bit 6 ($0040)."
+            ],
+            "CameraShakeFrame": [
+                "Per-frame camera shake offset calculation.",
+                "",
+                "Two paths based on layerPriorityFlag bit 9 ($0200), the bit camera_scroll_controller treats as camera-frozen:",
+                "- Clear: zero the saved camera copies ($7F100C/E), then add random offsets to the camera targets using one RNG byte: (RNG & 3) - 1 to X, ((RNG >> 2) & 3) - 1 to Y. Each offset is -1, 0, +1 or +2.",
+                "- Set: save the original camera target in actor WRAM on the first call ($7F100C/E), restore it before applying the offsets each later call, so the shake stays centred on the frozen position."
+            ],
+            "CheckRunAttack": [
+                "Psycho Slider eligibility gate — Will-only (form 0) running slide attack.",
+                "",
+                "The Psycho Slider is Will's sliding attack ability (abilityBitmask bit 1, $0002), acquired in Mu West. When moving fast enough, pressing the attack button initiates a damaging slide that can pass through narrow passages.",
+                "",
+                "Conditions (all must be true): actor flag $0080 clear (no hit-reaction counter active), characterForm == 0 (Will), abilityBitmask bit 1 ($0002) set (Psycho Slider learned), playerFlags bit 12 ($1000) clear (not on a slope). If all pass and the attack button (mask $0080) is down, branches to RunAttackSpeedCheck."
+            ],
+            "AttackSouth": [
+                "South-facing melee attack for all character forms.",
+                "",
+                "AttackInit keeps only the D-pad bits of joypadCurrent, sets joypadHeld = D-pad | attack and plays the form-specific SFX; AttackSouth then consumes the south D-pad bit ($0400) in joypadHeld. Freedan (form 1) checks for wall-adjacent attack via BranchIfSolidSouth — if wall contact, uses push sprite #48 instead of normal #36. Also checks diagonal solid offset for X-axis alignment.",
+                "",
+                "Scene $00E8 (Dark Gaia fight): spawns ProjectileSouth alongside melee.",
+                "",
+                "Per-frame loop: Will (form 0) checks every D-pad direction except south ($0B00 = Up|Left|Right) for a redirect and the facing direction ($0400) for the lunge. Freedan/Shadow check redirect only. On animation end, checks for attack button re-press (combo) or finishes."
+            ],
+            "AttackRedirect": [
+                "Mid-attack direction change — allows Will to redirect attacks.",
+                "",
+                "Checks joypadCurrent for any D-pad direction ($0F00). If none is held it branches to AttackFinish. Otherwise it clears the attack bit ($0080) from joypadHeld (un-consuming the button) and falls into AttackFinish, which clears the D-pad bits of joypadHeld and returns to idle for a new dispatch."
+            ],
+            "AttackInit": [
+                "Shared melee attack initialization for all four directions.",
+                "",
+                "Keeps only the D-pad bits of joypadCurrent (AND #$0F00), then sets joypadHeld = D-pad | attack ($0080) so the attack button and the held directions read as consumed. Clears actor flag $0100. Plays character-form-specific SFX: Will = sound #01, Freedan/Shadow = sound #02."
+            ],
+            "RangedAttackSouth": [
+                "Will-only lunge follow-up — south direction.",
+                "",
+                "Reached from AttackSouth when Will (form 0) holds the facing direction during the swing. Calls RangedSetForceY (force move #46, playerFlags $0800, climbStateData = 1, actor flag $0200, extendedFlags $0040), shows sprite #44, animates once, then clears actor flag $0200 and extendedFlags $0040 (AndExtraFlags #$FFBF) and restores the saved ptr.",
+                "",
+                "North/West/East variants mirror this with sprites #45/#46/#47. North sets $2000 and west sets $4000 in $12, the direction-negate bits tile_collision_physics uses to flip the Y / X delta; the east and south variants need no flip. No projectile is spawned here (OQ-I025-5)."
+            ],
+            "ProjectileSouth": [
+                "Dark Gaia fight projectile actor — south direction.",
+                "",
+                "Spawned by AttackSouth only in scene $E8 (SpawnListAppend, flags $0602). Uses the spriteset_will_projectile metasprite. Two-phase animation: initial launch (sprite #00, MoveY #09), then looping travel (sprite #04, MoveY #0F). Dies when bit 14 ($4000) of its actor flags $10 is set — sprite_composition sets that bit for actors outside the screen bounds — so it flies until it leaves the screen.",
+                "",
+                "North/West/East variants use matching sprite pairs and MoveX/MoveY directions."
+            ]
+        },
+        "comments": {
+            "181135": { "text": "Init: set $0100 in actor flags $10 and $0001 in $12 (meaning of both bits: OQ-I025-1), then store the actor slot as playerActor", "expect": "LDA #$0100" },
+            "181209": { "text": "Set $0100 in actor flags $10 again: block, attack and run-attack code clear it (meaning: OQ-I025-1)", "expect": "LDA #$0100" },
+            "181214": { "text": "Clear $0020 in actor flags $10: the marker the block loop sets (the Psycho Slider marker is $0200, cleared by RunAttackCleanup)", "expect": "LDA #$0020" },
+            "181219": { "text": "Zero climbStateData ($09E0), the Will ability damage bonus that the lunge sets to 1 (R-I025-6)", "expect": "STZ $climbStateData" },
+            "181222": { "text": "Bit $2000 of $10: SortActorsByDepth skips actors with it set; idle then yields without acting (who sets it on the player: OQ-I025-2)", "expect": "LDA $10" },
+            "181456": { "text": "Attack ($0080), D-pad ($0F00) or L/R ($0030) down and not consumed (mask $0FB0, bit 0 clear = joypadCurrent) -> back to idle re-dispatch", "expect": "BranchIfPressed" },
+            "181469": { "text": "South walk: $24 = facing from PlayerIdleEntry (0 = south); a run start needs facing south already and the $040C window open (>= 0)", "expect": "LDA $24" },
+            "181478": { "text": "Close the $040C window (R-I025-1: a run window, not invincibility)", "expect": "STZ $invincibilityTimer" },
+            "181484": { "text": "Run start: NS speed +3 (RunAttackSpeedCheck accepts |speed| >= 3)", "expect": "STA $playerSpeedNs" },
+            "181487": { "text": "Reset the slope-step and decel-step counters, yield one tick, then RestoreSavedPtr re-dispatches idle with the speed set", "expect": "STZ $slopeStepCounter" },
+            "181497": { "text": "Plain south walk sprite #08 (the path taken when the run start is skipped)", "expect": "StagePlayerSprite" },
+            "181500": { "text": "Open the 13-frame $040C window (repeat the faced direction inside it to start a run)", "expect": "JSR $&SetAutoWalkTimer" },
+            "181540": { "text": "North walk: run start needs facing north already ($24 = 1) and the $040C window open; speed -3", "expect": "LDA $24" },
+            "181550": { "text": "Close the $040C window", "expect": "STZ $invincibilityTimer" },
+            "181556": { "text": "Run start: NS speed -3", "expect": "STA $playerSpeedNs" },
+            "181569": { "text": "Plain north walk sprite #09", "expect": "StagePlayerSprite" },
+            "181612": { "text": "West walk: run start needs facing west already ($24 = 2) and the $040C window open; EW speed -3", "expect": "LDA $24" },
+            "181623": { "text": "Close the $040C window", "expect": "STZ $invincibilityTimer" },
+            "181629": { "text": "Run start: EW speed -3", "expect": "STA $playerSpeedEw" },
+            "181642": { "text": "Plain west walk sprite #0A", "expect": "StagePlayerSprite" },
+            "181685": { "text": "East walk: run start needs facing east already ($24 = 3) and the $040C window open; EW speed +3", "expect": "LDA $24" },
+            "181697": { "text": "Close the $040C window", "expect": "STZ $invincibilityTimer" },
+            "181703": { "text": "Run start: EW speed +3", "expect": "STA $playerSpeedEw" },
+            "181716": { "text": "Plain east walk sprite #0B", "expect": "StagePlayerSprite" },
+            "181759": { "text": "Attack button down (mask $0080) -> abort the walk; zero speed on both axes below aborts it too", "expect": "BranchIfPressed" },
+            "181776": { "text": "Z = 0 when playerFlags $1000 (on slope) is set; every caller then skips its L/R block check", "expect": "BIT #$1000" },
+            "181783": { "text": "Open the $040C window for 13 frames: repeating the faced direction before it expires starts a run", "expect": "LDA #$000D" },
+            "181790": { "text": "Vine entry: clear $0008 in actor flags (ClimbVineLand restores it), set $0200, then hide the use-item button via joypadMaskStd", "expect": "LDA #$0008" },
+            "182110": { "text": "Camera shake tick: layerPriorityFlag $0200 set (camera frozen) saves/restores the original target; clear zeroes the saved copies", "expect": "LDA $layerPriorityFlag" },
+            "182148": { "text": "Y axis: ((RNG >> 2) & 3) - 1 = -1..+2, added to cameraTargetY (the X axis above uses (RNG & 3) - 1)", "expect": "LSR" },
+            "182198": { "text": "Ladder entry south: clear $0028 in actor flags, set $0100 and playerFlags $0800, then hide all buttons but Start/Select ($CFFC)", "expect": "LDA #$0028" },
+            "182217": { "text": "Mask $CFFC hides the D-pad too: Up/Down are read from joypadRaw with the bit-0 masks $0801 / $0401 below", "expect": "TSB $joypadMaskStd" },
+            "182242": { "text": "Ladder entry north: same flag and joypad setup, entry animation sprite #28", "expect": "LDA #$0028" },
+            "182423": { "text": "Ladder bottom landing: animate exit #29, unhide the buttons ($CFFC), restore $0008 in actor flags, return to the saved ptr", "expect": "StagePlayerMoveY" },
+            "182442": { "text": "Ladder top exit: animate exit #27, unhide the buttons ($CFFC), restore $0008 in actor flags, return to the saved ptr", "expect": "StagePlayerMoveY" },
+            "182461": { "text": "Shimmy right entry: clear $0028 in actor flags, set $0100 and playerFlags $0800, sprite #33 with force move #51 (rightward)", "expect": "LDA #$0028" },
+            "182587": { "text": "Shimmy left entry: same setup as right with sprite #32 and force move #52 (leftward)", "expect": "LDA #$0028" },
+            "182809": { "text": "Top corner: clear the X movement chain ($2C), restore $0008 in actor flags, return to the saved ptr", "expect": "STZ $2C" },
+            "182818": { "text": "Block-from-walk south: consume the south D-pad bit ($0400) in joypadHeld so joypadCurrent stops reporting it, then fall into BlockSouth", "expect": "LDA #$0400" },
+            "182824": { "text": "Block south: close the $040C window, sprite #3A, enter the shared block loop", "expect": "STZ $invincibilityTimer" },
+            "182832": { "text": "Block-from-walk north: consume the north D-pad bit ($0800) in joypadHeld", "expect": "LDA #$0800" },
+            "182846": { "text": "Block-from-walk west: consume the west D-pad bit ($0200) in joypadHeld", "expect": "LDA #$0200" },
+            "182860": { "text": "Block-from-walk east: consume the east D-pad bit ($0100) in joypadHeld", "expect": "LDA #$0100" },
+            "182875": { "text": "Shared block loop: set playerFlags $2000 and actor $0020, clear actor $0100 (idle restores it), animate until L/R is released", "expect": "TSB $playerFlags" },
+            "183186": { "text": "Psycho Slider gate: actor $0080 clear (no hit reaction), Will only, abilityBitmask $0002, playerFlags $1000 clear (not on a slope)", "expect": "LDA $10" },
+            "183209": { "text": "Skip on a slope (playerFlags $1000 set)", "expect": "BIT #$1000" },
+            "183214": { "text": "Attack button down (mask $0080) -> RunAttackSpeedCheck, which needs |speed| >= 3 on either axis", "expect": "BranchIfPressed" },
+            "183461": { "text": "Clear $0100 in actor flags and set layerPriorityFlag $0200 (freezes camera_scroll_controller); falls into RunAttackFlagSetup", "expect": "LDA #$0100" },
+            "183490": { "text": "Clear layerPriorityFlag $0200 (the camera scrolls again); falls into RunAttackCleanup", "expect": "LDA #$0200" },
+            "183514": { "text": "Attack south: AttackInit, consume the south D-pad bit in joypadHeld, Freedan wall-push test via BranchIfSolidSouth", "expect": "JSR $&AttackInit" },
+            "183576": { "text": "Per-frame loop: Will redirects on any D-pad direction but south ($0B00) or lunges on south ($0400); other forms only redirect", "expect": "SetEntryHere" },
+            "183643": { "text": "Attack north: AttackInit, consume the north D-pad bit, Freedan wall-push test (BranchIfSolidSouth: OQ-I025-4)", "expect": "JSR $&AttackInit" },
+            "183660": { "text": "Tests solid SOUTH although this is the north attack; AttackSouth uses the same op (OQ-I025-4)", "expect": "BranchIfSolidSouth" },
+            "184024": { "text": "Any D-pad direction held ($0F00)? If none go to AttackFinish; else un-consume the attack bit ($0080) in joypadHeld, then fall into AttackFinish", "expect": "LDA $joypadCurrent" },
+            "184046": { "text": "Keep only the D-pad bits of joypadCurrent, set joypadHeld = D-pad | attack (both consumed), clear actor $0100, play the form SFX", "expect": "LDA $joypadCurrent" },
+            "184079": { "text": "Lunge south: RangedSetForceY (force move #46), sprite #44, play once, then clear $0200 and extendedFlags $0040 and restore the saved ptr", "expect": "JSR $&RangedSetForceY" },
+            "184089": { "text": "Lunge north: RangedSetForceY, $2000 in $12 (the flip-Y direction bit tile_collision_physics reads), sprite #45", "expect": "JSR $&RangedSetForceY" },
+            "184104": { "text": "Lunge west: RangedSetForceX, $4000 in $12 (the flip-X direction bit), sprite #46", "expect": "JSR $&RangedSetForceX" },
+            "184138": { "text": "Force move curve #46: 6 frames of 0, 19 of 3, 4 of 1, then 0 (a delayed forward lunge; nothing is spawned here)", "expect": "COP [StageMoveX]" },
+            "184143": { "text": "The same curve #46 on the Y axis", "expect": "COP [StageMoveY]" },
+            "184149": { "text": "Set playerFlags $0800 (script/ability lock); PlayerIdleEntry clears it again", "expect": "TSB $playerFlags" },
+            "184155": { "text": "climbStateData = 1: the Will ability damage bonus ($09E0) that combat_collision adds; PlayerIdleEntry zeroes it", "expect": "STA $climbStateData" },
+            "184161": { "text": "Set $0200 in actor flags (the bit the Psycho Slider also sets); the lunge exit clears it", "expect": "TSB $10" },
+            "184163": { "text": "Set extendedFlags $0040, the bounce flag tile_collision_physics reads; the lunge exit clears it with AndExtraFlags #$FFBF", "expect": "COP [OrExtraFlags]" },
+            "184185": { "text": "Loop until bit $4000 of $10 is set (sprite_composition sets it when the actor is off-screen), then die", "expect": "LDA $10" }
+        }
+    },
+    "functions/NullActorScriptStub.asm": {
+        "blockNote": [
+            "Minimal actor script that executes COP Die on its first run.",
+            "",
+            "Its only user is combat_collision.InteractionDamage_NPCChat: after a successful item give or dialogue interaction it writes this stub's address into the NPC actor's entry point ($0000/$0002), zeroes the wait counter $08 and ORs $0700 into the actor flags $10. On its next tick the NPC runs COP Die and is removed from the actor list, so the stub is a one-tick despawn, not a long-lived inert actor (OQ-I025-6; the docs' 'default script for new actors' is wrong, R-I025-7)."
+        ]
+    },
+    "functions/f_inventory_full.asm": {
+        "blockNote": [
+            "Inventory-full dialog handler (InventoryFullMessage) that prints \"Your inventory is full. You can't carry more.\" via PrintDialogString.",
+            "",
+            "Entered with JML from eight actor scripts when GiveItemToPlayer fails (gw82_necklace_stone, ec0A_barrel_roast, ec0B_cell, awBA_glasses, eu91_merchant_counter, dm47_sam, sc06_lola, pyDA_lithograph1); its RTL returns to the actor runner that called the script. combat_collision.InteractionDamage_NPCChat has its own overflow path and does not use this handler."
+        ],
+        "comments": {
+            "51598": { "text": "Print the inventory-full message (dialogstring_00C993 below); the RTL ends the calling actor script's tick", "expect": "PrintDialogString" }
+        }
+    }
+}

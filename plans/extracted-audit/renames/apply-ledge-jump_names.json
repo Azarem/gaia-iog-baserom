@@ -1,0 +1,22 @@
+[
+  { "address": 181790, "old": "ClimbVineEntry",   "new": "LedgeJumpEntry",       "row": "LJ-1",  "note": "Mesen2 (S01r, scene $01, walking south onto a type $08 cell): the player steps off a mossy wall edge and falls to the roof below; no ladder, no vine" },
+  { "address": 181906, "old": "ClimbVineLand",    "new": "LedgeJumpLand",        "row": "LJ-2" },
+  { "address": 181934, "old": "CheckClimbFrame",  "new": "CheckLedgeJumpFrame",  "row": "LJ-3" },
+  { "address": 181948, "old": "CheckClimbAttack", "new": "CheckLedgeJumpAttack", "row": "LJ-4" },
+  { "address": 181973, "old": "ClimbDropAttack",  "new": "LedgeJumpDropAttack",  "row": "LJ-5" },
+  { "address": 182010, "old": "ClimbDropLand",    "new": "LedgeJumpDropLand",    "row": "LJ-6" },
+  { "address": 185381, "old": "SouthVineTile",    "new": "SouthLedgeTile",       "row": "LJ-7", "note": "type $08 cell: a gap in a ledge edge, enterable only walking south" },
+  { "address": 950760,  "old": "freedan_anim_18_vine_enter",   "new": "freedan_anim_18_ledge_jump_enter", "row": "LJ-8" },
+  { "address": 950774,  "old": "freedan_anim_19_vine_climb_3", "new": "freedan_anim_19_ledge_jump_fall_3", "row": "LJ-9" },
+  { "address": 950792,  "old": "freedan_anim_1A_vine_climb_1", "new": "freedan_anim_1A_ledge_jump_fall_1", "row": "LJ-10" },
+  { "address": 950810,  "old": "freedan_anim_1B_vine_climb_2", "new": "freedan_anim_1B_ledge_jump_fall_2", "row": "LJ-11" },
+  { "address": 1343944, "old": "shadow_anim_18_vine_enter",    "new": "shadow_anim_18_ledge_jump_enter", "row": "LJ-12" },
+  { "address": 1343962, "old": "shadow_anim_19_vine_climb_3",  "new": "shadow_anim_19_ledge_jump_fall_3", "row": "LJ-13" },
+  { "address": 1343968, "old": "shadow_anim_1A_vine_climb_1",  "new": "shadow_anim_1A_ledge_jump_fall_1", "row": "LJ-14" },
+  { "address": 1343974, "old": "shadow_anim_1B_vine_climb_2",  "new": "shadow_anim_1B_ledge_jump_fall_2", "row": "LJ-15" },
+  { "address": 1409568, "old": "will_anim_18_vine_enter",      "new": "will_anim_18_ledge_jump_enter", "row": "LJ-16" },
+  { "address": 1409610, "old": "will_anim_19_vine_climb_3",    "new": "will_anim_19_ledge_jump_fall_3", "row": "LJ-17" },
+  { "address": 1409620, "old": "will_anim_1A_vine_climb_1",    "new": "will_anim_1A_ledge_jump_fall_1", "row": "LJ-18" },
+  { "address": 1409630, "old": "will_anim_1B_vine_climb_2",    "new": "will_anim_1B_ledge_jump_fall_2", "row": "LJ-19" },
+  { "address": 563418,  "old": "awB3_vine_reveal", "new": "awB3_ledge_jump_trigger", "row": "LJ-20", "note": "one-shot trigger: BG change #6E, then writes LedgeJumpEntry into the player actor" }
+]

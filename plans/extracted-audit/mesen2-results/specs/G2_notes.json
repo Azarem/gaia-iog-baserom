@@ -1,0 +1,57 @@
+{
+  "_note": "G2 draft (2026-11-09, ROM O, states S10 / scene $22 / scene $6D / E8 / Castoth arena). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/G2_notes.json --dry-run. Source: mesen2-results/G2_20261109.md and raw/G2_*.txt. Entries: (1) boss_clear_reward_handler: its '$0004' / '$000E' are ABSOLUTE addresses (STA abs, opcode 8D) = engine WRAM $0004 / $000E, not the actor's $04 / $0E; the actor's prevActorLink is untouched; (2) EnemyDefeatDispatch edge case: the BCD word wraps to $9999; (3) inventory_mgmt stat-ups: measured values and the max-HP clamp; (4) game_over_sequence: measured form and records; (5) StandardEnemyDefeatHandler: effect of SetSpritePalette #00. No names spec: no label changes.",
+  "actors/boss_clear_reward_handler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "- The entry stores the range word in the actor's $04 and the apply routine uses $04 and $0E as scratch. wram-memory-map lists $04 as prevActorLink (the actor list predecessor); whether anything reads that link while the actor lives is not traced.",
+          "with": "- The range word, the tier being applied and the end scene are kept in the engine's low WRAM at the absolute addresses $0004 and $000E (STA $0004 / STA $000E assemble to the absolute form, not to the actor's direct-page $04 / $0E). The actor's own $04 (prevActorLink) and the actor list stay untouched (measured in the Castoth arena: list and links identical before and after the grant, and no access to the actor's $04 / $05 from this code)."
+        }
+      ]
+    },
+    "comments": {
+      "49907": {
+        "text": "Range word (first scene low, last scene high) into the engine's absolute $0004 (not the actor's $04)",
+        "expect": "STA $0004"
+      }
+    }
+  },
+  "functions/EnemyDefeatDispatch.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "If $0AEC were 0 the counters would wrap to $FFFF / $99 (BCD) and $26 would be nonzero. Not traced: whether any caller can reach this with $0AEC = 0.",
+          "with": "If $0AEC were 0 the counters would wrap to $FFFF (hex) and $9999 (the BCD word), and $26 would be nonzero, so the child would drop item $83 (measured with both counters poked to 0). Not traced: whether any caller can reach this with $0AEC = 0."
+        }
+      ]
+    }
+  },
+  "system/inventory/inventory_mgmt.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded.",
+          "with": "That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded (measured through the pickup touch path: STR $7E gives $7F, $7F gives $55, $FF gives $00; DEF $7F gives $55, $20 gives $21). Max HP is clamped to 40 ($28) by the HP-bar renderer (ConsoleStringRenderer) whenever the bar is drawn, so the $7F reset is out of reach for it in play (measured: max HP poked to $7F reads $28 at the entry of the routine, and the item gives $29 with hpToHeal := $29 - HP = 9)."
+        }
+      ]
+    }
+  },
+  "functions/game_over_sequence.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "; presumably because that fight is played as Shadow)",
+          "with": "; measured as Will in that arena: the form after the respawn is 2, while the same death in scene $0C gives form 0)"
+        }
+      ]
+    }
+  },
+  "functions/StandardEnemyDefeatHandler.asm": {
+    "comments": {
+      "56711": {
+        "text": "Palette 0 for this actor: clears the palette bits ($0E00) of the actor's $0E (measured: $2600 becomes $2000); the victim is already hidden ($10 bit $2000), so nothing changes on screen",
+        "expect": "SetSpritePalette"
+      }
+    }
+  }
+}

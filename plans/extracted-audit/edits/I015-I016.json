@@ -1,0 +1,499 @@
+{
+  "system/engine/system_core.asm": {
+    "blockNote": [
+      "Core system loop and CPU interrupt vectors.",
+      "",
+      "Contains the SNES reset vector (emulation → native mode switch), the COP/NMI/IRQ vectors, the hardware initialization and boot sequence (SystemInit), and the main game loop that runs the per-frame subsystems: VBlank sync, scene management, actor processing, sprite composition, camera scrolling, HUD update and the music-upload hook.",
+      "",
+      "Also provides three context-specific frame update variants (all re-entrant, callable from COP handlers and from the NMI):",
+      "- UpdateFrameDialogue: lightweight update during text/dialogue display",
+      "- UpdateFrameRender: render-only update (sprite sort/compose, HDMA reset, HUD, cutscene thinkers) for menus and transitions",
+      "- UpdateFrameFull: complete subsystem tick run from inside the NMI handler while the main loop is blocked in a music upload (musicTransitionState > 0)",
+      "",
+      "The NMI handler manages VRAM DMA (scroll registers, dirty tilemap strips, CGRAM, OAM, the partial BG3 upload, then either the player tiles or the normal queued writes), reads the joypad auto-read result and sends the queued SFX byte to the SPC.",
+      "",
+      "UpdateHUD runs the heads-up display: HP recovery animation (every 8th frame), stat dirty-checking (HP, max HP, gems) with a BG3 redraw, and the enemy health bar timer (a 60-frame hold, then the bar is cleared; the 25- and 30-frame values stored along the way are overwritten at once). UpdateFrameCounters maintains the invincibility timer and the capped global frame timer.",
+      "",
+      "Utility routines: scroll register upload with layer priority support and the one-shot VRAM DMA (ExecuteVramDma). FillWramBlock/WramFillConstant (an OAM fill) have no caller in extracted/."
+    ],
+    "partNotes": {
+      "SystemInit": [
+        "Full system boot sequence and main game loop.",
+        "",
+        "Boot phase:",
+        "1. Native 65816 mode, 16-bit registers",
+        "2. Direct page $0000, stack $01FF, data bank $81",
+        "3. FastROM access (MEMSEL = 1)",
+        "4. InitHardwareRegisters, InitSystemVariables, SpcLoadBuiltinEngine, EnterForcedBlank (the display stays off until the first scene transition)",
+        "5. Sets worldReadyFlag bit 7 (permits scene loading)",
+        "6. Reads the byte at $000100 and compares it with $83, but both outcomes leave Y = 0, so sceneNext = 0 for the first ExecuteSceneTransition: no scene is selected. No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).",
+        "7. Gameplay defaults: max speed 9 per axis, HP 8/8, Str 1, Def 0, slope curve pointers, the six hieroglyph plate slots ($0B28-$0B32) = $FFFF, abilityBitmask = 0",
+        "8. sceneNext = $FB (title screen), then falls into the main loop",
+        "",
+        "Main loop (infinite):",
+        "1. VBlankWaitAndJoypad, EnableNmiOnly",
+        "2. Type-A thinkers, scene transition check, warp/chest check, global input, UpdateFrameCounters",
+        "3. RunActors_Normal, OAM terminator, depth sort, combat/interaction collision, death check, dodge callbacks",
+        "4. CameraSmoothScroll for layer 0 (BG1), then layer 1 (BG2)",
+        "5. ResetHdmaState, type-B thinkers, ComposeAllSprites, UpdateHUD",
+        "6. LoadMusicFromTransitionState (blocking SPC upload when a track ID is staged)",
+        "7. EnableNmiAndJoypad and loop"
+      ],
+      "UpdateFrameDialogue": [
+        "Lightweight frame update called during dialogue and text display.",
+        "",
+        "Saves and restores the full register context (B, A, X, Y, D) so it can be called re-entrantly from COP script handlers. Runs RunActors_CutsceneOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the type-D thinkers and sprite composition, then clears displayModeFlags bit 3 (player-tile DMA pending) so the NMI of this frame does the normal VRAM path, waits for VBlank and runs the type-C thinkers. It skips the full actor AI pass and the warp/chest checks of the main loop."
+      ],
+      "UpdateFrameRender": [
+        "Minimal frame update for render-only contexts such as menus and screen transitions.",
+        "",
+        "Saves the full register context. Runs only SortActorsByDepth, ComposeAllSprites, ResetHdmaState, the type-D thinkers, UpdateHUD, the VBlank sync and the type-C thinkers. Does not run actor AI, camera scrolling or the OAM terminator; the caller is expected to have handled those."
+      ],
+      "UpdateFrameFull": [
+        "Complete single-frame update run from inside the NMI handler while the main loop is blocked in a music upload.",
+        "",
+        "NmiHandler calls it when musicTransitionState is positive, i.e. while LoadMusicFromTransitionState is running SpcBlockTransfer with NMI enabled. Runs the type-C thinkers, RunActors_OverlayOnly, the OAM terminator, depth sort, camera scroll for both layers, ResetHdmaState, the type-D thinkers and sprite composition, between EnableNmiOnly/VBlankPartial and EnableNmiAndJoypad, so the screen keeps animating during the transfer."
+      ],
+      "UpdateHUD": [
+        "Manages the in-game heads-up display for HP, gems and enemy health.",
+        "",
+        "Returns at once if $09ED bit 6 (HUD off) is set. displayModeFlags bit 0 (full BG3 upload request) is saved on entry and restored on exit, so the BG3 redraw scripts below do not leave a full upload pending; the HUD uses the partial upload (bit 4) instead.",
+        "",
+        "HP recovery animation:",
+        "- Skipped when playerStateByte bit 1 (game over, playerFlags bit 9) is set, off an 8-frame boundary, or when hpToHeal is 0",
+        "- Decrements hpToHeal and increments playerHp (the displayed HP) toward playerMaxHp, playing sound $0D on each tick; stops when HP equals max HP",
+        "",
+        "Stat display update:",
+        "- Compares HP, max HP and gem count with the cached previous values",
+        "- On any change: sets displayModeFlags bit 4 (partial BG3 upload), counts the hundreds digit of the gem count by repeated subtraction of 100, and redraws the counters with a BG3 console script",
+        "",
+        "Enemy health bar:",
+        "- When enemyHpPending is nonzero: draws the bar and sets enemyHealthTimer to 60 (the $19 stored first is overwritten)",
+        "- Otherwise the timer counts down; at 0 the displayed enemy HP is cleared and the bar redrawn at once (the $1E stored first is overwritten by the STZ, so there is no separate fadeout phase)",
+        "",
+        "Finally caches HP, max HP and gems for the next frame's change detection and restores displayModeFlags bit 0."
+      ],
+      "NmiHandler": [
+        "V-Blank interrupt handler — the per-frame DMA orchestration routine.",
+        "",
+        "Execution order:",
+        "1. Save registers, data bank = $81",
+        "2. Disable HDMA (HDMAEN = 0) to avoid bus conflicts",
+        "3. UploadScrollRegisters",
+        "4. FlushDirtyTilemapStrips (dirty column/row data)",
+        "5. UploadCgramPalette (512 bytes from $7F0A00)",
+        "6. UploadOamTable (544 bytes from $0422)",
+        "7. SpriteVramDma (misnamed): partial BG3 upload when displayModeFlags bit 4/5 is set",
+        "8. VMAIN = $80, BBAD0 = $18, DMAP0 = $01 (word writes to VRAM)",
+        "9. If displayModeFlags bit 3 is set: DmaPlayerTilesToVram only. Otherwise DmaAdhocVramBlock, FlushVramWriteQueue and ExecuteVramDma; with dmaSkipFlag set, only FlushVramWriteQueue",
+        "10. Re-enable the HDMA channels from the mask in $66",
+        "11. Spin until the joypad auto-read finishes, store JOY1L in joypadRaw",
+        "12. If musicTransitionState is positive (SPC music upload in progress in the main loop): run UpdateFrameFull",
+        "13. Otherwise write APUIO2: 0 on odd frames, the dequeued sfxQueueCh1 byte on even frames",
+        "14. Increment the frame parity counter ($36) and restore registers"
+      ],
+      "FillWramBlock": [
+        "Fills the OAM staging buffer at WRAM $0422 with the byte $E0 via DMA.",
+        "",
+        "Uses DMA fixed-source mode ($08) to repeat one byte across 512 bytes (128 OAM entries × 4 bytes) through the WRAM data port ($2180). $E0 puts every sprite Y at 224, below the visible area.",
+        "",
+        "Unreferenced: no caller of FillWramBlock was found in extracted/."
+      ],
+      "WramFillConstant": [
+        "Single-byte constant ($E0) used as the fixed DMA source by FillWramBlock (which has no caller). $E0 = 224 puts a sprite just below the 224-line display."
+      ]
+    },
+    "comments": {
+      "32830": { "text": "Read the byte at $000100 (the 'warmboot signature'); no writer of $83 there was found (OQ-50)", "expect": "LDA $000100" },
+      "32837": { "text": "Compare with $83: both outcomes leave Y = 0 (the second LDY #$0000 is identical), so no scene is selected", "expect": "CMP #$83" },
+      "32841": { "text": "Non-warmboot path: Y = 0 again, identical to the matching path", "expect": "LDY #$0000" },
+      "32845": { "text": "sceneNext = 0 (low byte of Y) for the first ExecuteSceneTransition", "expect": "STA $sceneNext" },
+      "32892": { "text": "Default slope acceleration curve pointer (the table label scene_flag_table is a misnomer)", "expect": "scene_flag_table" },
+      "32901": { "text": "Deceleration curve pointer = same table + $20 (the +20 operand is hexadecimal)", "expect": "scene_flag_table+20" },
+      "32904": { "text": "$09C0, $09BE, $09C4 get the same pointer; no other reference to them was found (OQ-52)", "expect": "STA $09C0" },
+      "32916": { "text": "$FFFF = empty: clear the six hieroglyph plate slots $0B28-$0B32", "expect": "LDA #$FFFF" },
+      "32937": null,
+      "32944": null,
+      "33013": { "text": "Scroll layer 0 (BG1); X is the layer index and each call handles both axes", "expect": "LDX #$0000" },
+      "33020": { "text": "Scroll layer 1 (BG2)", "expect": "LDX #$0002" },
+      "33043": { "text": "Start a pending music change: blocking SPC upload while musicTransitionState > 0 (NMI runs UpdateFrameFull meanwhile)", "expect": "LoadMusicFromTransitionState" },
+      "33120": { "text": "Clear bit 3 (player-tile DMA pending) so this frame's NMI does the normal VRAM path, not DmaPlayerTilesToVram", "expect": "LDA #$08" },
+      "33300": { "text": "Save displayModeFlags bit 0 (full BG3 upload request); restored at exit", "expect": "LDA $displayModeFlags" },
+      "33303": { "text": "Isolate bit 0; the HUD redraw scripts set it and it is put back below", "expect": "AND #$01" },
+      "33309": { "text": "playerStateByte bit 1 = playerFlags bit 9 ($0200, game over): no HP recovery animation", "expect": "BIT #$02" },
+      "33372": { "text": "Bit 4: request the partial BG3 upload ($0140 bytes to VRAM $7840, camera_tilemap.SpriteVramDma)", "expect": "LDA #$10" },
+      "33408": { "text": "Timer preset $19 (25); overwritten with $3C below, so it never takes effect (OQ-53)", "expect": "LDA #$0019" },
+      "33425": { "text": "Timer = 60 frames: the real hold time before the bar is cleared", "expect": "LDA #$003C" },
+      "33438": { "text": "Count the hold down; at 0 the bar is cleared at once (no fadeout phase)", "expect": "DEC $enemyHealthTimer" },
+      "33443": { "text": "$1E (30) is overwritten by the STZ enemyHealthTimer below: no 30-frame fadeout exists (OQ-53)", "expect": "LDA #$001E" },
+      "33449": { "text": "Clear the displayed enemy HP values (enemyHpCurrentDisplay, enemyHpDisplay)", "expect": "STZ $enemyHpCurrentDisplay" },
+      "33492": { "text": "Restore bit 0 as saved on entry (drops full-upload requests raised by the HUD scripts)", "expect": "AND #$FE" },
+      "33560": { "text": "SpriteVramDma (misnamed): partial BG3 upload when displayModeFlags bit 4/5 is set", "expect": "SpriteVramDma" },
+      "33582": { "text": "Bit 3 = player-tile DMA pending: do DmaPlayerTilesToVram instead of the normal VRAM path", "expect": "BIT #$08" },
+      "33586": { "text": "dmaSkipFlag nonzero: skip adhoc DMA and ExecuteVramDma, still flush the write queue", "expect": "LDA $dmaSkipFlag" },
+      "33633": { "text": "musicTransitionState: 0 idle, > 0 SPC upload in progress, $FFFF finished", "expect": "LDA $musicTransitionState" },
+      "33640": { "text": "SPC upload in progress in the main loop: run a full frame update from NMI so the game keeps animating", "expect": "UpdateFrameFull" },
+      "33648": { "text": "Frame parity bit: odd frames write 0 to APUIO2, even frames send the dequeued SFX ID", "expect": "LSR" }
+    }
+  },
+  "system/engine/hdma_dma_spc.asm": {
+    "partNotes": {
+      "SpcTransferMusicData": [
+        "Transfer music data to the SPC700 audio processor.",
+        "",
+        "Continues the handshake from SpcCheckMusicReady. Sends $F0 (transfer-start), yields, and verifies zero echo. Then sends $FF (ready-for-data) and copies the music ID from chatPtr into musicTransitionState ($06FA).",
+        "",
+        "Waits for musicTransitionState to become $FFFF, which the main loop's LoadMusicFromTransitionState writes after the blocking block transfer completes. Once confirmed, sends a final $01 acknowledgment, yields, clears sfxQueueCh1 and musicTransitionState, and terminates via COP Die.",
+        "",
+        "The actor yields between protocol steps, so only the block transfer itself blocks the main loop."
+      ],
+      "LoadMusicFromTransitionState": [
+        "Resolve a music ID and start the SPC block transfer.",
+        "",
+        "Called once per main-loop iteration from SystemInit's loop, after UpdateHUD. Returns at once if musicTransitionState is zero or negative (no pending music change).",
+        "",
+        "For a positive value (the track ID staged by SpcTransferMusicData) it computes the music_array index as ID × 3 (3-byte entries: 2-byte address + 1-byte bank) and loads the address and bank into direct page ($46/$47) and the shadow registers ($0687/$0688).",
+        "",
+        "Enables NMI and joypad, calls SpcBlockTransfer to send the music data to the SPC700, then re-enables NMI-only mode and sets musicTransitionState to $FFFF to signal completion to the waiting SpcTransferMusicData actor. The transfer blocks the main loop; during it the NMI runs UpdateFrameFull each frame (musicTransitionState is positive)."
+      ]
+    },
+    "comments": {
+      "254466": { "text": "Wait for $FFFF (written by the main loop's LoadMusicFromTransitionState after the SPC upload)", "expect": "CMP #$FFFF" }
+    }
+  },
+  "system/engine/cop_handlers_dialog.asm": {
+    "blockNote": [
+      "COP handlers for BG3 console scripts and dialogue text (Bank $00).",
+      "",
+      "RunBg3Script (COP #BD), DialogueOptions (COP #BE), PrintDialogString (COP #BF) and PrintDialogStringAlt (COP #6B). Each reads its operands through [$0A] and returns to the actor script by writing the advanced $0A into the return frame ($02,S) and executing RTI.",
+      "",
+      "The three dialogue handlers save and clear two pieces of state while the renderer runs and restore them afterwards: actor $10 bit 11 ($0800, cutscene-active; cleared so that RunActors_CutsceneOnly, run by the renderer's frame updates, does not re-run this actor — inferred) and joypadMaskStd (the buttons suppressed from joypadCurrent; cleared so the renderer sees every button)."
+    ],
+    "partNotes": {
+      "RunBg3Script": [
+        "COP #BD BG3 console-script runner taking one Address operand: a far pointer to a BG3 tilemap command stream.",
+        "",
+        "Switches the data bank, calls ConsoleStringRenderer with the direct page zeroed, then sets displayModeFlags bit 0 (full BG3 staging-buffer upload request). Used by the diary menu, title screen and boot-logo actors, and by UpdateHUD for the HUD counters."
+      ],
+      "DialogueOptions": [
+        "COP #BE with two byte operands (read together as one word and passed to MenuSelectionHandler as its menu parameters, e.g. the grid encoding; not a pointer) plus one word (branch table base).",
+        "",
+        "Requires worldReadyFlag == $000F (otherwise it rewinds the script pointer and yields). Sets displayModeFlags bit 13 ($2000; no reader of this bit was found), sets joypadMaskInv = $0F00 (the D-pad buttons are the auto-repeat ones while the menu is open), clears joypadMaskStd and actor $10 bit 11 for the duration, calls MenuSelectionHandler, and branches through the table entry for the chosen option (table base + choice × 2)."
+      ],
+      "PrintDialogString": [
+        "COP #BF with one word operand (text pointer).",
+        "",
+        "Sets displayModeFlags bit 13 ($2000; no reader found), calls UpdateFrameRender to sync the display, clears actor $10 bit 11 and joypadMaskStd, renders the text via DialogStringRenderer, then restores the mask, re-applies it to joypadCurrent (TRB) and clears the D-pad bits ($0F00) in joypadHeld."
+      ],
+      "PrintDialogStringAlt": [
+        "COP #6B with one word operand (text pointer).",
+        "",
+        "Like PrintDialogString but without the bit 13 set/clear and the UpdateFrameRender sync, and it does not re-apply the mask to joypadCurrent; it still clears actor $10 bit 11 and joypadMaskStd while rendering and clears the D-pad bits in joypadHeld afterwards."
+      ]
+    },
+    "comments": {
+      "43148": { "text": "Set displayModeFlags bit 0: request a full BG3 staging-buffer upload", "expect": "TSB $displayModeFlags" },
+      "43174": { "text": "Set displayModeFlags bit 13 ($2000); no reader of this bit was found (OQ-51)", "expect": "LDA #$2000" },
+      "43183": { "text": "joypadMaskInv = $0F00: D-pad directions are the auto-repeat buttons during menu navigation", "expect": "STA $joypadMaskInv" },
+      "43195": { "text": "Save joypadMaskStd (the buttons suppressed from joypadCurrent)", "expect": "LDA $joypadMaskStd" },
+      "43198": { "text": "Clear it so the menu handler sees every button", "expect": "STZ $joypadMaskStd" },
+      "43204": { "text": "Save actor $10 bit 11 ($0800, cutscene-active)", "expect": "AND #$0800" },
+      "43211": { "text": "Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (inferred, OQ-54)", "expect": "TRB $10" },
+      "43213": { "text": "Read the two byte operands as one word: menu parameters for MenuSelectionHandler (not a pointer)", "expect": "LDA [$0A]" },
+      "43237": { "text": "Restore the saved bit", "expect": "TSB $10" },
+      "43243": { "text": "Clear the auto-repeat mask", "expect": "STZ $joypadMaskInv" },
+      "43260": { "text": "Set displayModeFlags bit 13 ($2000); no reader found (HUD suppression is hudDisableFlag, not this bit)", "expect": "LDA #$2000" },
+      "43288": { "text": "Save actor $10 bit 11 ($0800, cutscene-active)", "expect": "AND #$0800" },
+      "43295": { "text": "Clear it for the duration of the text (inferred reason, OQ-54)", "expect": "TRB $10" },
+      "43297": { "text": "Save joypadMaskStd (suppressed buttons)", "expect": "LDA $joypadMaskStd" },
+      "43300": { "text": "Clear it so the text renderer sees every button (A/B to advance)", "expect": "STZ $joypadMaskStd" },
+      "43326": { "text": "Restore the suppress mask", "expect": "STA $joypadMaskStd" },
+      "43329": { "text": "A = restored mask: re-suppress those buttons in joypadCurrent so the dialogue's presses do not leak out", "expect": "TRB $joypadCurrent" },
+      "43335": { "text": "Clear the D-pad bits in joypadHeld", "expect": "TRB $joypadHeld" },
+      "43338": { "text": "Clear displayModeFlags bit 13", "expect": "LDA #$2000" },
+      "43355": { "text": "Save actor $10 bit 11 ($0800, cutscene-active)", "expect": "AND #$0800" },
+      "43362": { "text": "Clear it while the text renders", "expect": "TRB $10" },
+      "43364": { "text": "Save joypadMaskStd (suppressed buttons)", "expect": "LDA $joypadMaskStd" },
+      "43367": { "text": "Clear it so the text renderer sees every button", "expect": "STZ $joypadMaskStd" },
+      "43396": { "text": "Clear the D-pad bits in joypadHeld", "expect": "LDA #$0F00" }
+    }
+  },
+  "system/engine/save_system.asm": {
+    "blockNote": [
+      "SRAM save/load system — game-state persistence with dual-checksum validation (252182–252392, Bank 03).",
+      "",
+      "Provides the save slot infrastructure. Four save slots are supported, each occupying 512 bytes of SRAM at $306200 + (slot × 512): 508 bytes of data followed by two checksum words at +$1FC and +$1FE.",
+      "",
+      "=== SAVE/LOAD ===",
+      "",
+      "SaveGameState_Scene copies 508 bytes of WRAM ($0A00–$0BFB) to SRAM after storing the current scene ID at $0B06. LoadGameState_Scene reverses the process after verifying integrity. Both routines mask the slot number to 0–3 and compute the SRAM offset via XBA + ASL (slot × 256 × 2 = slot × 512).",
+      "",
+      "The saved range is named eventFlags ($0A00) but holds more than event flags: it also contains the player stats and inventory state the engine keeps in that page (e.g. abilityBitmask $0AA2, playerMaxHp $0ACA, playerHp $0ACE, gemCount $0AD6) and the hieroglyph plate slots ($0B28–$0B32).",
+      "",
+      "=== INTEGRITY VERIFICATION ===",
+      "",
+      "ComputeSaveChecksum generates two checksums over each slot's 508 bytes (254 words):",
+      "- Additive checksum ($0018): running sum of all data words",
+      "- XOR checksum ($001C): running XOR of all data words",
+      "",
+      "Both are seeded with the constant $3652, so a zeroed slot computes $3652/$3652 and never matches the stored zeros. Both are order-independent, so swapped words go undetected; the pair mainly guards against corrupted or missing data.",
+      "",
+      "=== SLOT MANAGEMENT ===",
+      "",
+      "ClearSaveSlot fills an entire 512-byte slot with zeros, erasing both the data and the stored checksums, so LoadGameState_Scene fails the checksum compare (carry set).",
+      "",
+      "Load returns carry CLEAR on success, carry SET on failure (corrupt or empty). ClearSaveSlot returns carry SET to match the empty-slot convention."
+    ],
+    "partNotes": {
+      "SaveGameState_Scene": [
+        "Save current game state (WRAM $0A00–$0BFB plus the scene ID) to an SRAM save slot.",
+        "",
+        "Slot number passed in A (masked to 0–3). Computes the SRAM offset as (slot & 3) × 512 via XBA + ASL.",
+        "",
+        "First stores the current scene number (sceneCurrent → $0B06) so it is part of the saved data. Then copies 508 bytes ($01FC) from $0A00 to SRAM at $306200 + offset.",
+        "",
+        "Calls ComputeSaveChecksum and stores the additive checksum at $3063FC and the XOR checksum at $3063FE (+ slot offset). Both are verified on load."
+      ],
+      "ComputeSaveChecksum": [
+        "Compute dual checksums over SRAM save data for integrity verification.",
+        "",
+        "Operates on $00FE words (254 entries = 508 bytes) starting at $306200,X where X is the pre-computed slot offset.",
+        "",
+        "Two running accumulators, both seeded with $3652 (non-zero, so a zeroed slot does not match its stored zero checksums):",
+        "- $0018: additive checksum — sum of all data words",
+        "- $001C: XOR checksum — running XOR of all data words",
+        "",
+        "Both are order-independent, so swapping two words is not detected. Uses DP $0018, $001C and $000E as scratch."
+      ]
+    },
+    "comments": {}
+  },
+  "system/engine/cop_handlers_movement.asm": {
+    "blockNote": [
+      "COP handlers for smooth interpolated movement, grid snapping, proximity testing and RNG (Bank $00, 9 COP handlers + 10 internal subroutines).",
+      "",
+      "BranchIfActorNear/BranchIfPlayerNear test a square box: both |ΔX| and |ΔY| must be ≤ radius × 16 px (the code compares against radius × 16 + 1). BranchIfActorNear has no call site in extracted/. ResolveActorIndex converts an 8-bit actor list index to a WRAM pointer ($1000 + index × $30).",
+      "",
+      "MoveToward is a yielding handler that moves the actor to the target in moveXAlt/moveYAlt (set up by the calling script) at a speed given in px/frame: frames = larger-axis distance ÷ speed (UnsignedDivide), stored +1 as the tick limit. Each tick it computes the offset travelled so far per axis (tick × distance ÷ frames), subtracts what was already applied, and hands the signed difference to ApplyMovement through moveScratch1/2. Distances are capped at $FE per axis, and when the distance is smaller than the speed the quotient is 0 and the actor does not move (OQ-56). InitSmoothMovement does the first-entry setup and sets extendedFlags bit 1; MoveTowardFinish clears it.",
+      "",
+      "The hardware math pipeline uses chained helpers: MultiplyThenDivide feeds WRMPYB → RDMPYL → WRDIVL → RDDIVL for the cumulative offset, with ReadMultiplyResult (1 NOP) and ReadDivideResult (5 NOPs) providing the hardware latency delays. MovementVelocityCompute wraps the same pipeline for TickMove's per-axis calculations.",
+      "",
+      "SnapToGrid yields to EnemyPositionSnap until the actor aligns to the 16×16 tile grid. ResumeAfterSnap restores the script pointer from snapResumePtr.",
+      "",
+      "StageMove/TickMove split the same interpolation into a setup COP and a per-frame COP. StageMove reads animation, speed and a duration-cap operand, stores |dx|, |dy|, the two sign bits (animScratch2 bits 14/15) and the frame count, and halves both distances via HalveMovementDistance until the larger fits in a byte; each halving adds one extra pass, handled by TickMoveComplete. A speed operand ≥ $80 is negated to |speed| and also triggers one more halving pass (the BCC after the divide tests the carry left by CMP #$80), roughly halving the speed (OQ-55).",
+      "",
+      "RngByte steps a 16-byte additive generator ($0410–$041F: each byte += the next byte + carry, then a ripple counter is incremented); it is not an LFSR. RngMod reduces the last RngByte output by repeated subtraction (a modulus of 0 would hang).",
+      "",
+      "CameraScrollStepLookup reads scroll speed entries from scrollStepTableBase for the four CameraPan COP handlers in cop_handlers_effects."
+    ],
+    "partNotes": {
+      "BranchIfActorNear": [
+        "COP #20 with one byte (actor list index), one byte (radius) and one &Code operand. Resolves the actor via ResolveActorIndex ($1000 + index × $30) and branches if both |ΔX| and |ΔY| are ≤ radius × 16 px (the code compares against radius × 16 + 1); otherwise skips the branch address.",
+        "",
+        "No script in extracted/ uses this COP."
+      ],
+      "BranchIfPlayerNear": [
+        "COP #21 with one byte (radius) and one &Code operand. Shares the square proximity test of BranchIfActorNear but compares against playerActor."
+      ],
+      "MoveToward": [
+        "COP #22 with two byte operands (animation index, speed in px/frame). The target is in moveXAlt/moveYAlt, set by the script beforehand.",
+        "",
+        "On first entry InitSmoothMovement computes the distances and the frame count and sets extendedFlags bit 1; each later call moves the actor by the next per-axis delta and yields RTL until the tick counter ($24) reaches the limit (frames + 1). Usage in extracted/: speeds 1, 2, 3, 4 and 8."
+      ],
+      "MultiplyThenDivide": [
+        "Chained hardware multiply→divide giving the offset travelled by this tick.",
+        "",
+        "WRMPYA holds the tick counter ($24, set by the caller). Writes the axis distance byte to WRMPYB (starting the multiply), copies the product from RDMPYL into WRDIVL as the dividend, divides by animScratch2−1 (the frame count) via WRDIVB and returns the quotient in A and $0000: the cumulative pixels moved by this tick. The caller subtracts the previous accumulator to get this frame's delta. When the divisor is zero (distance < speed) the divide is skipped and 0 is returned. Called twice per MoveToward tick (X and Y)."
+      ],
+      "InitSmoothMovement": [
+        "Computes the interpolation setup for MoveToward on first entry.",
+        "",
+        "Converts moveXAlt/moveYAlt from absolute target coordinates to distances from the current position ($14/$16), takes their absolute values, caps each at $00FE when the high byte is non-zero, and records the sign of each axis by ROR into $0004 (stored in animScratch2's high byte: bit 14 = X negative, bit 15 = Y negative). Selects the larger axis, divides it by the speed operand via UnsignedDivide to get the frame count, stores frames + 1 as the tick limit, zeroes the accumulators, tick counter and the override-chain pointers ($2C/$2E), and sets extendedFlags bit 1."
+      ],
+      "StageMove": [
+        "COP #52 with three byte operands (animation index, speed, duration cap). Computes absolute distances from moveXAlt/moveYAlt vs the current position, records the sign bits in animScratch2 (bit 14 = X negative, bit 15 = Y negative), halves both distances while the larger exceeds one byte (counting passes in chatPtr), divides the larger distance by |speed| for the frame count (+1, ORed into animScratch2) and initializes TickMove state before the RTI continuation.",
+        "",
+        "Speed ≥ $80 is negated and also adds one halving pass (see the file note). The third operand goes to animScratch+3 and is $FF in all 32 uses; TickMove skips its countdown when bit 7 is set, so $FF means no cap."
+      ],
+      "RngByte": [
+        "COP #23 with no operands. Steps a 16-byte additive generator over $0410–$041F and returns the new $0410 byte in A.",
+        "",
+        "For X = 15..1: byte[$040F+X] += byte[$0410+X] + carry (one carry chain, so $041E += $041F first and $0410 += $0411 last). Then a ripple counter at $041F is incremented, carrying toward lower addresses. rngState ($040F) is the index base; $040F itself is never touched."
+      ],
+      "RngMod": [
+        "COP #24 with one byte operand (modulus). Reduces the current RngByte output ($0410) by repeated subtraction and stores the remainder in rngModuloResult ($0420). Does not advance the generator.",
+        "",
+        "A modulus of 0 would loop forever (the subtraction never goes negative); extracted/ uses $50 and $60."
+      ]
+    },
+    "comments": {
+      "35889": { "text": "Radius × 16 + 1: near means |Δ| ≤ radius × 16 px on both axes (a square box, not Manhattan)", "expect": "ASL" },
+      "35894": { "text": "Store the threshold in WRAM $0000 (engine scratch, not the actor DP) for both axis compares", "expect": "STA $0000" },
+      "35991": { "text": "tick × distance ÷ frames = X offset travelled so far (cumulative, not per-frame)", "expect": "JSR $&MultiplyThenDivide" },
+      "36041": { "text": "Same for Y: cumulative Y offset at this tick", "expect": "JSR $&MultiplyThenDivide" },
+      "36169": { "text": "Store the quotient (cumulative offset for this tick) in $0000", "expect": "STA $0000" },
+      "36271": { "text": "Read the speed operand (px per frame)", "expect": "LDA [$0A], Y" },
+      "36279": { "text": "UnsignedDivide: larger distance ÷ speed = number of frames", "expect": "UnsignedDivide" },
+      "36284": { "text": "Store frames + 1 as the tick limit (animScratch2 low byte)", "expect": "STA $animScratch2, X" },
+      "36288": { "text": "Direction-sign flags from $0004/$0005: bit 6 = X negative, bit 7 = Y negative", "expect": "LDA $0005" },
+      "36291": { "text": "Store them in the high byte of animScratch2 (bits 14/15 of the word)", "expect": "STA $7F000F, X" },
+      "36297": { "text": "Zero the accumulators, tick counter and the override-chain pointers $2C/$2E", "expect": "LDA #$0000" },
+      "36327": { "text": "Clear the movement override-chain pointers ($2C/$2E, see ApplyMovement)", "expect": "STZ $2C" },
+      "36528": { "text": "Speed ≥ $80: use |speed| (sign discarded); the carry from this CMP stays set for the BCC after the divide", "expect": "CMP #$80" },
+      "36535": { "text": "|speed| as the divisor", "expect": "STA $WRDIVB" },
+      "36540": { "text": "Read the third operand (duration cap; all uses pass $FF)", "expect": "LDA [$0A]" },
+      "36547": { "text": "Move it to the high byte: animScratch+3, the TickMove cap counter (low byte 0)", "expect": "XBA" },
+      "36552": { "text": "RDDIVL: quotient = frames for the (halved) larger distance", "expect": "LDA $RDDIVL" },
+      "36555": { "text": "Frames + 1 = tick limit, ORed with the sign bits below", "expect": "INC" },
+      "36564": { "text": "Carry here is still the CMP #$80 result: set only for speeds ≥ $80, which get one more halving pass", "expect": "BCC loc_008ED9" },
+      "36569": { "text": "Zero the accumulator, tick counter and the override-chain pointers $2C/$2E", "expect": "LDA #$0000" },
+      "36647": { "text": "MovementVelocityCompute: cumulative Y offset at this tick (returns with 16-bit A)", "expect": "JSR $&MovementVelocityCompute" },
+      "36665": { "text": "Y negative: negate the delta (upward, Y decreasing)", "expect": "EOR #$FFFF" },
+      "36699": { "text": "MovementVelocityCompute: cumulative X offset at this tick", "expect": "JSR $&MovementVelocityCompute" },
+      "36748": { "text": "animScratch+3: duration cap; bit 7 set (all callers pass $FF) skips the countdown, else it ends the pass at 0", "expect": "LDA $animScratch+3, X" },
+      "36853": { "text": "RDDIVL: cumulative pixel offset after the divide latency", "expect": "LDA $RDDIVL" },
+      "36863": { "text": "X = 15: update $0410+X in the additive chain", "expect": "LDX #$000F" },
+      "36870": { "text": "Next state byte (state[X+1])", "expect": "LDA $0410, X" },
+      "36873": { "text": "Add this byte plus the carry from the previous step (one carry chain from $041E down)", "expect": "ADC $rngState, X" }
+    }
+  },
+  "system/engine/camera_scroll.asm": {
+    "blockNote": [
+      "Camera scroll actor definitions and shared subroutines (Bank 00).",
+      "",
+      "Defines four actor-based camera scroll behaviors used during gameplay and cutscenes. Each actor sets bit 12 ($1000) of its status word ($12; the meaning of that bit was not verified) and then computes per-frame scroll deltas with the hardware multiply/divide unit (MulDivide).",
+      "",
+      "Spawn parameters: the X/Y bytes of the actor-spawn entry are not positions. The spawner makes them pixel coordinates (tile × 16); TileAlignCoord then packs each into (page << 8 | tile) and ComputeScrollDeltas passes it to MulDivide as the packed operand: low byte = multiplier, high byte = divisor. Zero skips the axis. Spawn bytes seen in extracted/: #11 (most common), #21, #41, #00, #DF (Init only). The −8 px X offset makes the X multiplier one less than the Y one for the same spawn byte (OQ-57).",
+      "",
+      "The four scroll modes are:",
+      "- ScrollCameraInit: aligns both coordinates, runs the delta computation 3 times (identical inputs), copies the Y delta to effectScrollV, then computes once more and moves cameraDeltaX (bit 15 set) into forcedScrollOverride, zeroing cameraDeltaX. Used only with spawn #DF, #DF.",
+      "- ScrollCameraTrack: aligns once, then recomputes both deltas every frame.",
+      "- ScrollCameraVertical: aligns once, then recomputes only the Y delta every frame (X ignored).",
+      "- ScrollCameraAccumulate: recomputes both deltas every frame and adds the accumulators in DP $24/$26 (zeroed at start, writable by other actors).",
+      "",
+      "Shared subroutines:",
+      "- TileAlignCoord: packs a pixel coordinate into (page << 8 | tile): LSR ×4 in 8-bit mode shifts only the low byte, the high byte is kept, then AND #$0F0F. Result in Y.",
+      "- TileAlignPosition: applies TileAlignCoord to X ($14, after subtracting 8) and Y ($16).",
+      "- ComputeScrollDeltas: for each axis, MulDivide(A = packed ratio from $14/$16, Y = cameraTargetX/Y) → cameraDeltaX/Y; an axis whose packed value is 0 is skipped and keeps its previous delta."
+    ],
+    "partNotes": {
+      "ScrollCameraInit": [
+        "Camera initialization scroll actor (spawn #DF, #DF; Mt. Kress scenes).",
+        "",
+        "Sets bit 12 ($1000) in the actor status word, subtracts 8 px (X) and 16 px (Y) from the position parameters and packs both with TileAlignCoord into the multiplier/divisor words $14/$16.",
+        "",
+        "Runs COP LoopStart with count 3 around ComputeScrollDeltas; all three passes use the same inputs, so they give the same result. After the loop, copies cameraDeltaY to effectScrollV ($0690).",
+        "",
+        "Then sets the re-entry point (COP SetEntryHere), computes the deltas again each frame, ORs bit 15 into cameraDeltaX and stores it in forcedScrollOverride ($06C8), and zeroes cameraDeltaX. Outside visual_effect_pipeline no reader of $06C8 was found in extracted/ (OQ-57)."
+      ],
+      "ScrollCameraTrack": [
+        "Simple continuous camera tracking actor.",
+        "",
+        "Sets bit 12 of the status word, packs the spawn position via TileAlignPosition, then re-runs ComputeScrollDeltas every frame (after COP SetEntryHere) with the current camera targets.",
+        "",
+        "The default camera actor: about 100 scene spawns use it (87 of them with #11, #11)."
+      ],
+      "ScrollCameraVertical": [
+        "Vertical-only camera tracking actor-def referenced from scene_actors in Edward's Castle, Itory, Incan Ruins and Dao.",
+        "",
+        "Sets bit 12, packs the position via TileAlignPosition, then every frame computes only the Y delta through MulDivide when $16 is nonzero. cameraDeltaX is left unchanged and the X parameter ($14) is ignored. Three of its spawns use #21, #00, whose Y parameter is 0, so they compute nothing (OQ-57)."
+      ],
+      "ScrollCameraAccumulate": [
+        "Accumulative camera scroll actor-def used in Pyramid interior scenes.",
+        "",
+        "Zeroes the accumulators at DP $24 (X) and $26 (Y), packs the position via TileAlignPosition, then each frame calls ComputeScrollDeltas and adds the accumulators to cameraDeltaX and cameraDeltaY. Other actors can write $24/$26 to add drift on top of the standard tracking."
+      ],
+      "TileAlignCoord": [
+        "Packs a pixel coordinate into (page << 8 | tile).",
+        "",
+        "In 8-bit accumulator mode LSR ×4 shifts only the low byte (÷ 16, the tile index within a 256-px page); the hidden high byte (the page) is untouched. After returning to 16-bit mode, AND #$0F0F keeps the low nibble of each byte, and the result is transferred to Y for the caller to store."
+      ],
+      "TileAlignPosition": [
+        "Applies TileAlignCoord to both position parameters.",
+        "",
+        "Subtracts 8 px from X ($14) before packing; Y ($16) is packed as is. The packed words are stored back to $14/$16, where ComputeScrollDeltas uses them as the multiplier (low byte) and divisor (high byte) for MulDivide."
+      ],
+      "ComputeScrollDeltas": [
+        "Computes the scroll delta for both axes with the hardware multiply/divide unit.",
+        "",
+        "For each axis: A = the packed ratio in $14 (X) or $16 (Y), Y = cameraTargetX ($06BE) or cameraTargetY ($06C2); calls hardware_math.MulDivide via JSL, which returns (A low byte × Y) ÷ A high byte, and stores it in cameraDeltaX ($06C0) or cameraDeltaY ($06C4).",
+        "",
+        "If the packed value is 0 the MulDivide call and the store are skipped and that axis keeps its previous delta."
+      ]
+    },
+    "comments": {
+      "59747": { "text": "Subtract 16 px (Y offset) before packing", "expect": "SBC #$0010" },
+      "59755": { "text": "COP LoopStart(3): repeat the next block 3 times (same inputs each pass)", "expect": "LoopStart" },
+      "59761": { "text": "Copy the Y delta to effectScrollV ($0690, layer-1 vertical effect scroll)", "expect": "LDA $cameraDeltaY" },
+      "59769": { "text": "Set the re-entry point: later frames resume here", "expect": "SetEntryHere" },
+      "59777": { "text": "Set bit 15 on the X delta", "expect": "ORA #$8000" },
+      "59780": { "text": "Store in forcedScrollOverride ($06C8); no reader outside visual_effect_pipeline was found (OQ-57)", "expect": "STA $forcedScrollOverride" },
+      "59783": { "text": "Zero cameraDeltaX after moving its value into the override word", "expect": "STZ $cameraDeltaX" },
+      "60084": { "text": "$16 = packed Y ratio; zero means this actor computes no vertical delta", "expect": "LDA $16" },
+      "60091": { "text": "MulDivide: cameraDeltaY = cameraTargetY × multiplier ÷ divisor", "expect": "MulDivide" },
+      "60653": { "text": "LSR ×4 on the low byte only: ÷ 16 = tile index within the 256-px page", "expect": "LSR" },
+      "60657": { "text": "Back to 16-bit; the high byte (page) is unchanged", "expect": "REP #$20" },
+      "60659": { "text": "Keep the low nibble of each byte: (page << 8 | tile)", "expect": "AND #$0F0F" },
+      "60685": { "text": "$14 = packed X ratio; zero skips the X delta", "expect": "BEQ" },
+      "60690": { "text": "MulDivide: cameraDeltaX = cameraTargetX × multiplier ÷ divisor", "expect": "MulDivide" },
+      "60704": { "text": "MulDivide: cameraDeltaY = cameraTargetY × multiplier ÷ divisor", "expect": "MulDivide" }
+    }
+  },
+  "system/engine/DisplaySceneTitle.asm": {
+    "blockNote": [
+      "Scene title display system — centered area name overlay during scene transitions (172315–172521, Bank 02).",
+      "",
+      "Called from ClearSceneState after actor spawning and before thinker spawning and palette loading. Displays the current scene's area name (e.g. 'South Cape', 'Edward's Castle') in a one-row dialogue box, giving the player a visual cue of the new location.",
+      "",
+      "=== DISPLAY PIPELINE (DisplaySceneTitle) ===",
+      "",
+      "1. Scene change guard: compares $0D6E (the scene just left, recorded by ExecuteSceneTransition; for a world-map entry it is the deferred destination) against sceneCurrent ($0644). If they are equal (a reload of the same scene ID) the title is suppressed.",
+      "",
+      "2. Width measurement: CountTitleGlyphs walks the scene title wide-string at [$3E], counting visible characters while expanding dictionary references ($D6/$D7) and cursor advances ($CC). Returns the glyph count in $00.",
+      "",
+      "3. Empty title guard: if the count is zero the routine returns immediately.",
+      "",
+      "4. Centering: (18 − glyphCount), forced even by AND $FE, used as a byte offset into the VRAM write buffer, i.e. (18 − N) / 2 tile cells. 18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18, OQ-58).",
+      "",
+      "5. Box setup: sets $00B4 = $E0 (nonzero flag that makes ExecuteSceneTransition wait for a button press) and clears $00B5. Opens the box via scene_title_box_format ([DLG:7,7][SIZ:A,1]), i.e. a DialogStringRenderer OpenDialogueBox command with width $0A and height 1 at position (7, 7).",
+      "",
+      "6. Centered render: adds the padding to the VRAM write cursor ($0998), then calls DialogStringRenderer a second time with the title string pointer.",
+      "",
+      "=== GLYPH COUNTING (CountTitleGlyphs) ===",
+      "",
+      "A specialized wide-string character counter for the commands found in scene title strings:",
+      "- Literal tiles (< $C0): 1 glyph each",
+      "- $CA (Return): ends the count",
+      "- $CC (AdvanceCursor): adds the operand byte to the count",
+      "- $D6/$D7 (DictionaryA/B): looks up the word in dialog_dictionary_a/b and counts each expanded character up to its $CA terminator",
+      "- Other commands (≥ $C0): skips one operand byte without counting",
+      "",
+      "The scan starts at [$3E] + 1; the first string byte is skipped (assumed to be a type/length byte)."
+    ],
+    "partNotes": {
+      "DisplaySceneTitle": [
+        "Display the current scene's area name in a centered dialogue box overlay.",
+        "",
+        "Called from ClearSceneState after actor spawning. Compares $0D6E (scene just left) with sceneCurrent and returns when they are equal.",
+        "",
+        "Pipeline:",
+        "1. CountTitleGlyphs measures the title string at [$3E]",
+        "2. Returns if the count is zero (no title for this scene)",
+        "3. Centering offset: (18 − count) forced even, pushed for later",
+        "4. $00B4 = $E0 (wait-for-button flag for ExecuteSceneTransition), $00B5 = 0",
+        "5. Saves $40 and the title pointer $3E (in Y), sets DBR to this bank",
+        "6. DialogStringRenderer with scene_title_box_format opens the box",
+        "7. Restores the pointer, adds the offset to the VRAM cursor ($0998)",
+        "8. DialogStringRenderer again renders the title, then restores DBR and flags"
+      ]
+    },
+    "comments": {
+      "172315": { "text": "$0D6E = scene just left (set by ExecuteSceneTransition)", "expect": "LDA $0D6E" },
+      "172318": { "text": "Equal to the new scene ID: suppress the title", "expect": "CMP $sceneCurrent" },
+      "172334": { "text": "A = glyph count − 18; negated below to 18 − N, forced even: a byte offset = (18 − N) / 2 tile cells", "expect": "SEC" },
+      "172345": { "text": "Nonzero flag: ExecuteSceneTransition waits for a button while $00B4 is set", "expect": "STA $00B4" },
+      "172348": { "text": "Clear $00B5 (only ExecuteSceneTransition also clears it; no reader found)", "expect": "STZ $00B5" },
+      "172405": { "text": "Skip the first string byte (assumed type/length byte)", "expect": "INC $3E" }
+    }
+  }
+}

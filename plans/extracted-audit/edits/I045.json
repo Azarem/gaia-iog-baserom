@@ -1,0 +1,1297 @@
+{
+  "system/player/player_move_main.asm": {
+    "blockNote": [
+      "Player movement tick and collision helpers (184272-185206, Bank 02). PlayerMovementTick is the grounded-movement entry; the other routines are the shared helpers of the north / south / east / west handlers (player_move_ns, player_move_south, player_move_east, player_move_west).",
+      "",
+      "=== ENTRY CONTRACT ===",
+      "",
+      "PlayerMoveController (actors/player/player_move_controller) calls it with JSL once per frame when the player actor's flags word ($10) has bit $0008 set (grounded); airborne frames skip it and add the velocity to the position directly. X at entry is the CONTROLLER's own actor slot (the old note said the player actor): the tick saves it in the absolute scratch word $000A, and SetActorCollisionFlag later ORs bit $0004 (solid contact this tick) into that slot's $10; the controller copies the bit into the player's $10 when it writes the position back. The tick itself starts by clearing bit $0004 there.",
+      "",
+      "D is set to $0000 for the whole tick, so the 2-digit operands below are low-RAM scratch words: $20 / $22 = X velocity / position, $24 / $26 = Y velocity / position, all in sub-pixels (4 per pixel, Y grows downward; the controller scaled the position by 4 before the call and wrote them to $22 / $26), $1A / $1E = the last probe's pixel X / Y, $00 / $02 / $04 = scratch, $AA / $AB = per-tick flag words (cleared together). The reference point of the 16x16 hitbox is the centre of its bottom edge.",
+      "",
+      "=== TWO PHASES ===",
+      "",
+      "1. Horizontal: the vertical velocity $24 is parked on the stack and zeroed. $20 = 0 skips the phase. Otherwise $AA bit $0040 is set (see below) and DispatchWestMove (negative $20) or DispatchEastMove (positive $20) runs. The old comments called this bit a 'diagonal flag'; it only records that the horizontal phase ran this tick. Afterwards $22 >> 2 and $26 >> 2 are stored in the player actor's pixel position ($0014 / $0016: the values are POSITIONS, not deltas as the old comments said) and $20 is cleared.",
+      "2. Vertical: the parked velocity is popped back into $24. Wall-slide handlers of the horizontal phase can zero the parked word (CancelVerticalPhase in player_move_west), which then cancels this phase. Zero skips it, negative runs DispatchNorthMove, positive runs DispatchSouthMove. The controller commits the final $22 / $26 after the tick returns.",
+      "",
+      "$AA bits: $0040 = horizontal phase ran (read by AutoAlignEW here and AutoAlignEW_South, which refuse to nudge in that case). $0800 and $0400 are tested before the north and south dispatch (the old comments called them 'south wall' and 'east wall' contact), but nothing in extracted/ ever sets them; player_move_west only clears them (TRB #$0840 / #$0440). Those two gates therefore always pass (OQ-I045-1). $AB bit 1 is set by DispatchWestMove and read by player_move_ns.",
+      "",
+      "=== AutoAlignEW (north counterpart of AutoAlignEW_South) ===",
+      "",
+      "Called only from the blocked path of DispatchNorthMove. Returns carry CLEAR when X was nudged by 2 pixels toward the open column, carry SET when nothing was done. Gates (carry set): $AA bit $0040, an actor solid mark in the collision byte at the map index left in X by the last probe (high nibble), or n = 0. n = (($22 >> 2) - 8) AND $0F is the offset of the hitbox's LEFT edge (X - 8) inside its 16-pixel column. n >= 6 tries an east nudge first: it needs ProbeFutureTR to return a type below $0E and not $06. If that fails (or n < 6) and n < 9, a west nudge is tried: ProbeFutureTL below $0E and not $09. So n = 1..5 can only go west, 6..8 prefers east, 9..15 can only go east. The old text gave the east range as '6-8' and the west range as 'offset 1-8, via 9+ check'.",
+      "Each nudge temporarily subtracts $20 sub-pixels (8 px) from $22 so that the helper tests the left edge, calls NudgeToLowerGrid (+8) or NudgeToUpperGrid (-8), then adds $20 back; the 2-pixel nudge itself stays in $22.",
+      "",
+      "=== NUDGE HELPERS ===",
+      "",
+      "Both work on the word at [$00 + X] (X = $22 for the X position, X = $26 for the Y position in player_move_east / player_move_west). NudgeToLowerGrid adds 8 sub-pixels (toward larger coordinates: east or south); if that crosses a $40 line (16 px) the result is floored to the line (AND #$FFC0), so the edge ends exactly flush. NudgeToUpperGrid subtracts 8 and, on crossing a $40 line, clamps back up to that line ((value AND #$FFC0) + $40). The 'lower' and 'upper' in the names refer to coordinate order, not to a screen direction.",
+      "",
+      "=== ComputeYSnapOffset ===",
+      "",
+      "$02 = 16 - (probe pixel Y AND $0F): the number of pixels to the next row line below, 1..16 ($10 when the probe is already flush). The old header said an aligned probe gives $0000; the code (OR #$FFF0, EOR #$FFFF, INC) gives $10. $1E is a pixel Y, not a sub-pixel position. Called from player_move_ns only (2 sites).",
+      "",
+      "=== DiagSnapCompute_Unused ===",
+      "",
+      "No reference anywhere in extracted/. It probes the current TL cell and takes the 'wall path' when the type is $06, or when X straddles two columns and the cell to the right is $09 (the same wall-like types as the north handlers; the old text called $06 a 'slope / transition' type and mentioned a DispatchDiag* system that does not exist). On the wall path $02 starts at 0; a nonzero $24 is converted to a pixel step ((>>2) OR #$C000 sign-extends only a NEGATIVE value, so it assumes a north move), negated, added to the saved Y, and if that crosses a 16-px line ($1E bit 4 changes) $02 = $10. The ComputeYSnapOffset formula for the current $1E is then added to $02. The probe coordinates $1A / $1E are saved and restored around the probe.",
+      "",
+      "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code."
+    ],
+    "partNotes": {
+      "PlayerMovementTick": [
+        "Per-frame grounded movement, called by PlayerMoveController. Parks $24, runs the horizontal phase (West / East dispatch), publishes the horizontal result to the player actor's pixel position, un-parks $24 and runs the vertical phase (North / South dispatch). X = controller slot at entry; D = $0000 inside; P, D and X are restored."
+      ],
+      "loc_02CFFA": [
+        "East branch (positive $20): mark that the horizontal phase ran ($AA bit $0040) and run DispatchEastMove."
+      ],
+      "loc_02D002": [
+        "After the horizontal phase: publish the player's pixel X / Y ($22 >> 2, $26 >> 2), clear $20, un-park the vertical velocity into $24 and pick the vertical dispatch."
+      ],
+      "loc_02D02A": [
+        "South branch (positive $24): gate on $AA bit $0400 (never set), then DispatchSouthMove."
+      ],
+      "loc_02D034": [
+        "Tick exit: restore X, D and P and return to PlayerMoveController."
+      ],
+      "ComputeYSnapOffset": [
+        "$02 := 16 - (probe pixel Y AND $0F), 1..16: pixels down to the next row line. Used by the north wall handlers."
+      ],
+      "DiagSnapCompute_Unused": [
+        "Unreferenced experiment: a combined Y snap offset in $02 for a wall-like current cell, from the north step and the ComputeYSnapOffset formula. Saves and restores $1A / $1E."
+      ],
+      "loc_02D277": [
+        "Wall path of DiagSnapCompute_Unused: restore the probe coordinates, then estimate whether the north step crosses a 16-px line."
+      ],
+      "loc_02D28D": [
+        "Negate the pixel step, add it to the saved Y and XOR with the saved Y; bit 4 set means a row line is crossed."
+      ],
+      "loc_02D2A0": [
+        "Drop the saved Y and join the final ComputeYSnapOffset addition."
+      ],
+      "loc_02D2A3": [
+        "Non-wall path of DiagSnapCompute_Unused: restore the probe coordinates and start $02 at 0."
+      ],
+      "loc_02D2AD": [
+        "Final step of DiagSnapCompute_Unused: add 16 - ($1E AND $0F) to $02."
+      ],
+      "AutoAlignEW": [
+        "Corner assist for a blocked north step: nudge X by 2 px toward the open column. Carry CLEAR = nudged, carry SET = nothing done. Gates: horizontal phase ran, actor solid mark at X, n = 0. n >= 6 east first (FutureTR below $0E, not $06), n < 9 west (FutureTL below $0E, not $09)."
+      ],
+      "loc_02D30D": [
+        "West attempt: only for n < 9; FutureTL must be below $0E and not $09; then NudgeToUpperGrid on the left-edge reference."
+      ],
+      "loc_02D339": [
+        "No nudge applied: return carry SET."
+      ],
+      "NudgeToLowerGrid": [
+        "+8 sub-pixels (2 px toward larger coordinates) on the word at [$00 + X], floored to the $40 line when the step crosses one. Preserves A on the stack only."
+      ],
+      "loc_02D352": [
+        "Drop the saved old value and return."
+      ],
+      "NudgeToUpperGrid": [
+        "-8 sub-pixels (2 px toward smaller coordinates) on the word at [$00 + X]; when the step crosses a $40 line the value is clamped back up to that line."
+      ],
+      "loc_02D374": [
+        "Drop the saved old value and return."
+      ]
+    },
+    "comments": {
+      "184272": {
+        "text": "Save the caller's P (register widths)",
+        "expect": "PHP"
+      },
+      "184273": {
+        "text": "Save the caller's D (the controller's slot)",
+        "expect": "PHD"
+      },
+      "184274": {
+        "text": "Save X: the controller's actor slot",
+        "expect": "PHX"
+      },
+      "184275": {
+        "text": "$000A := controller slot; SetActorCollisionFlag reads it (absolute scratch word, not the DP)",
+        "expect": "STX $000A"
+      },
+      "184278": {
+        "text": "D := $0000: $20-$26, $AA/$AB and $1A/$1E now address the low-RAM scratch words",
+        "expect": "LDA #$0000"
+      },
+      "184281": {
+        "text": "Switch the direct page",
+        "expect": "TCD"
+      },
+      "184282": {
+        "text": "Park the vertical velocity so the horizontal phase sees no vertical motion",
+        "expect": "LDA $24"
+      },
+      "184284": {
+        "text": "$24 := 0 for the horizontal phase",
+        "expect": "STZ $24"
+      },
+      "184286": {
+        "text": "Clear $AA and $AB (word store): this tick's phase flags",
+        "expect": "STZ $AA"
+      },
+      "184288": {
+        "text": "Parked vertical velocity on the stack (a wall-slide handler may zero this word)",
+        "expect": "PHA"
+      },
+      "184289": {
+        "text": "Controller's flags word",
+        "expect": "LDA $0010, X"
+      },
+      "184292": {
+        "text": "Clear bit 2 ($0004): solid contact this tick",
+        "expect": "AND #$FFFB"
+      },
+      "184295": {
+        "text": "SetActorCollisionFlag sets it again when a move is blocked",
+        "expect": "STA $0010, X"
+      },
+      "184298": {
+        "text": "Horizontal velocity in sub-pixels per frame",
+        "expect": "LDA $20"
+      },
+      "184300": {
+        "text": "Zero: no horizontal phase",
+        "expect": "BEQ loc_02D002"
+      },
+      "184302": {
+        "text": "Positive: east",
+        "expect": "BPL loc_02CFFA"
+      },
+      "184304": {
+        "text": "Marker: the horizontal phase ran this tick",
+        "expect": "LDA #$0040"
+      },
+      "184307": {
+        "text": "Set $AA bit 6 (read by the AutoAlign routines)",
+        "expect": "TSB $AA"
+      },
+      "184309": {
+        "text": "West collision dispatch (negative $20)",
+        "expect": "JSR $&player_move_west.DispatchWestMove"
+      },
+      "184312": {
+        "text": "Continue after the horizontal phase",
+        "expect": "BRA loc_02D002"
+      },
+      "184314": {
+        "text": "Marker: the horizontal phase ran this tick",
+        "expect": "LDA #$0040"
+      },
+      "184317": {
+        "text": "Set $AA bit 6",
+        "expect": "TSB $AA"
+      },
+      "184319": {
+        "text": "East collision dispatch (positive $20)",
+        "expect": "JSR $&player_move_east.DispatchEastMove"
+      },
+      "184322": {
+        "text": "The dispatchers leave A 8-bit (probe mode)",
+        "expect": "REP #$20"
+      },
+      "184324": {
+        "text": "X := the player actor (not the controller)",
+        "expect": "LDX $playerActor"
+      },
+      "184327": {
+        "text": "X position in sub-pixels",
+        "expect": "LDA $22"
+      },
+      "184329": {
+        "text": "Sub-pixels to pixels (>> 2)",
+        "expect": "LSR"
+      },
+      "184331": {
+        "text": "Player pixel X",
+        "expect": "STA $0014, X"
+      },
+      "184334": {
+        "text": "Y position in sub-pixels",
+        "expect": "LDA $26"
+      },
+      "184336": {
+        "text": "Sub-pixels to pixels (>> 2)",
+        "expect": "LSR"
+      },
+      "184338": {
+        "text": "Player pixel Y",
+        "expect": "STA $0016, X"
+      },
+      "184341": {
+        "text": "Horizontal velocity consumed",
+        "expect": "STZ $20"
+      },
+      "184343": {
+        "text": "Un-park the vertical velocity (0 if CancelVerticalPhase zeroed it)",
+        "expect": "PLA"
+      },
+      "184344": {
+        "text": "Back into $24 for the vertical phase",
+        "expect": "STA $24"
+      },
+      "184346": {
+        "text": "Zero: no vertical phase",
+        "expect": "BEQ loc_02D034"
+      },
+      "184348": {
+        "text": "Positive: south",
+        "expect": "BPL loc_02D02A"
+      },
+      "184350": {
+        "text": "North step: gate on the $AA flags",
+        "expect": "LDA $AA"
+      },
+      "184352": {
+        "text": "Bit $0800: never set anywhere (OQ-I045-1), so the gate always passes",
+        "expect": "BIT #$0800"
+      },
+      "184355": {
+        "text": "Skip the dispatch when set",
+        "expect": "BNE loc_02D034"
+      },
+      "184357": {
+        "text": "North collision dispatch (negative $24)",
+        "expect": "JSR $&player_move_ns.DispatchNorthMove"
+      },
+      "184360": {
+        "text": "Done",
+        "expect": "BRA loc_02D034"
+      },
+      "184362": {
+        "text": "South step: gate on the $AA flags",
+        "expect": "LDA $AA"
+      },
+      "184364": {
+        "text": "Bit $0400: never set anywhere (OQ-I045-1), so the gate always passes",
+        "expect": "BIT #$0400"
+      },
+      "184367": {
+        "text": "Skip the dispatch when set",
+        "expect": "BNE loc_02D034"
+      },
+      "184369": {
+        "text": "South collision dispatch (positive $24)",
+        "expect": "JSR $&player_move_south.DispatchSouthMove"
+      },
+      "184372": {
+        "text": "Restore X (the controller's slot)",
+        "expect": "PLX"
+      },
+      "184373": {
+        "text": "Restore D",
+        "expect": "PLD"
+      },
+      "184374": {
+        "text": "Restore P",
+        "expect": "PLP"
+      },
+      "184375": {
+        "text": "Back to PlayerMoveController",
+        "expect": "RTL"
+      },
+      "184902": {
+        "text": "16-bit A",
+        "expect": "REP #$20"
+      },
+      "184904": {
+        "text": "Probe pixel Y",
+        "expect": "LDA $1E"
+      },
+      "184906": {
+        "text": "Low nibble: row offset 0-15",
+        "expect": "AND #$000F"
+      },
+      "184909": {
+        "text": "OR #$FFF0: n - 16",
+        "expect": "ORA #$FFF0"
+      },
+      "184912": {
+        "text": "EOR #$FFFF then INC negates it:",
+        "expect": "EOR #$FFFF"
+      },
+      "184915": {
+        "text": "16 - n, i.e. 1-16 (16 when flush)",
+        "expect": "INC"
+      },
+      "184916": {
+        "text": "$02 = pixels to the next row line below",
+        "expect": "STA $02"
+      },
+      "184918": {
+        "text": "Return",
+        "expect": "RTS"
+      },
+      "184919": {
+        "text": "Save the probe coordinates $1A and $1E (restored on both paths)",
+        "expect": "REP #$20"
+      },
+      "184921": {
+        "text": "Probe X",
+        "expect": "LDA $1A"
+      },
+      "184923": {
+        "text": "On the stack",
+        "expect": "PHA"
+      },
+      "184924": {
+        "text": "Probe Y",
+        "expect": "LDA $1E"
+      },
+      "184926": {
+        "text": "On the stack",
+        "expect": "PHA"
+      },
+      "184927": {
+        "text": "8-bit A for the probe routines",
+        "expect": "SEP #$20"
+      },
+      "184929": {
+        "text": "Current top-left cell type",
+        "expect": "JSR $&tile_collision.ProbeCurrentTL"
+      },
+      "184932": {
+        "text": "Type $06 (wall-like): take the wall path",
+        "expect": "CMP #$06"
+      },
+      "184934": {
+        "text": "Wall path",
+        "expect": "BEQ loc_02D277"
+      },
+      "184936": {
+        "text": "Is X straddling two columns? (carry set = yes)",
+        "expect": "JSR $&tile_collision.CheckSubTileAlignX"
+      },
+      "184939": {
+        "text": "Flush: non-wall path",
+        "expect": "BCC loc_02D2A3"
+      },
+      "184941": {
+        "text": "Cell to the right of the probed cell (index in X)",
+        "expect": "JSR $&tile_collision.MapCellRight"
+      },
+      "184944": {
+        "text": "Type of that cell",
+        "expect": "JSR $&tile_collision.ReadCollisionNibble"
+      },
+      "184947": {
+        "text": "Type $09 (wall-like)?",
+        "expect": "CMP #$09"
+      },
+      "184949": {
+        "text": "No: non-wall path",
+        "expect": "BNE loc_02D2A3"
+      },
+      "184951": {
+        "text": "Wall path: 16-bit A",
+        "expect": "REP #$20"
+      },
+      "184953": {
+        "text": "Restore the saved probe Y",
+        "expect": "PLA"
+      },
+      "184954": {
+        "text": "Into $1E",
+        "expect": "STA $1E"
+      },
+      "184956": {
+        "text": "Restore the saved probe X",
+        "expect": "PLA"
+      },
+      "184957": {
+        "text": "Into $1A",
+        "expect": "STA $1A"
+      },
+      "184959": {
+        "text": "Base offset 0",
+        "expect": "STZ $02"
+      },
+      "184961": {
+        "text": "Probe Y",
+        "expect": "LDA $1E"
+      },
+      "184963": {
+        "text": "Kept on the stack for the crossing test",
+        "expect": "PHA"
+      },
+      "184964": {
+        "text": "Vertical velocity",
+        "expect": "LDA $24"
+      },
+      "184966": {
+        "text": "Zero: no step contribution",
+        "expect": "BEQ loc_02D28D"
+      },
+      "184968": {
+        "text": "Sub-pixels to pixels",
+        "expect": "LSR"
+      },
+      "184969": {
+        "text": "(>> 2)",
+        "expect": "LSR"
+      },
+      "184970": {
+        "text": "Sign-extend: valid only for a NEGATIVE velocity (assumes a north move)",
+        "expect": "ORA #$C000"
+      },
+      "184973": {
+        "text": "Negate the pixel step (a north step becomes +|step|)...",
+        "expect": "EOR #$FFFF"
+      },
+      "184976": {
+        "text": "...two's complement",
+        "expect": "INC"
+      },
+      "184977": {
+        "text": "Add to the saved probe Y",
+        "expect": "CLC"
+      },
+      "184978": {
+        "text": "Saved probe Y plus the negated step",
+        "expect": "ADC $01, S"
+      },
+      "184980": {
+        "text": "XOR with the saved probe Y",
+        "expect": "EOR $01, S"
+      },
+      "184982": {
+        "text": "Bit 4 changed: a 16-px row line lies between",
+        "expect": "BIT #$0010"
+      },
+      "184985": {
+        "text": "No crossing",
+        "expect": "BEQ loc_02D2A0"
+      },
+      "184987": {
+        "text": "Crossing: one tile row (16 px)",
+        "expect": "LDA #$0010"
+      },
+      "184990": {
+        "text": "$02 := $10",
+        "expect": "STA $02"
+      },
+      "184992": {
+        "text": "Drop the saved probe Y",
+        "expect": "PLA"
+      },
+      "184993": {
+        "text": "To the final addition",
+        "expect": "BRA loc_02D2AD"
+      },
+      "184995": {
+        "text": "Non-wall path: 16-bit A",
+        "expect": "REP #$20"
+      },
+      "184997": {
+        "text": "Restore the saved probe Y",
+        "expect": "PLA"
+      },
+      "184998": {
+        "text": "Into $1E",
+        "expect": "STA $1E"
+      },
+      "185000": {
+        "text": "Restore the saved probe X",
+        "expect": "PLA"
+      },
+      "185001": {
+        "text": "Into $1A",
+        "expect": "STA $1A"
+      },
+      "185003": {
+        "text": "Base offset 0",
+        "expect": "STZ $02"
+      },
+      "185005": {
+        "text": "Probe Y",
+        "expect": "LDA $1E"
+      },
+      "185007": {
+        "text": "Low nibble",
+        "expect": "AND #$000F"
+      },
+      "185010": {
+        "text": "OR #$FFF0, EOR #$FFFF, INC: 16 - n (same formula as ComputeYSnapOffset)",
+        "expect": "ORA #$FFF0"
+      },
+      "185016": {
+        "text": "16 - n",
+        "expect": "INC"
+      },
+      "185017": {
+        "text": "Add the offset so far",
+        "expect": "CLC"
+      },
+      "185018": {
+        "text": "Accumulated offset",
+        "expect": "ADC $02"
+      },
+      "185020": {
+        "text": "$02 = result",
+        "expect": "STA $02"
+      },
+      "185022": {
+        "text": "Return",
+        "expect": "RTS"
+      },
+      "185023": {
+        "text": "16-bit A",
+        "expect": "REP #$20"
+      },
+      "185025": {
+        "text": "Phase flags",
+        "expect": "LDA $AA"
+      },
+      "185027": {
+        "text": "Bit $0040: the horizontal phase ran this tick",
+        "expect": "BIT #$0040"
+      },
+      "185030": {
+        "text": "Then no nudge",
+        "expect": "BNE loc_02D339"
+      },
+      "185032": {
+        "text": "Raw collision byte at the map index X left by the last probe",
+        "expect": "LDA $collisionLayer, X"
+      },
+      "185036": {
+        "text": "Byte only",
+        "expect": "AND #$00FF"
+      },
+      "185039": {
+        "text": "High nibble = actor solid mark (MarkSolid*)",
+        "expect": "BIT #$00F0"
+      },
+      "185042": {
+        "text": "An actor occupies the cell: no nudge",
+        "expect": "BNE loc_02D339"
+      },
+      "185044": {
+        "text": "X position in sub-pixels",
+        "expect": "LDA $22"
+      },
+      "185046": {
+        "text": "To pixels",
+        "expect": "LSR"
+      },
+      "185047": {
+        "text": "(>> 2)",
+        "expect": "LSR"
+      },
+      "185048": {
+        "text": "Left edge is X - 8",
+        "expect": "SEC"
+      },
+      "185049": {
+        "text": "n = pixel X - 8, then masked below",
+        "expect": "SBC #$0008"
+      },
+      "185052": {
+        "text": "n = left-edge offset inside its 16-px column",
+        "expect": "AND #$000F"
+      },
+      "185055": {
+        "text": "$04 = n for the range tests",
+        "expect": "STA $04"
+      },
+      "185057": {
+        "text": "n = 0: already on a column line, nothing to nudge",
+        "expect": "BEQ loc_02D339"
+      },
+      "185059": {
+        "text": "n >= 6: try the east nudge first",
+        "expect": "CMP #$0006"
+      },
+      "185062": {
+        "text": "n < 6: west attempt only",
+        "expect": "BCC loc_02D30D"
+      },
+      "185064": {
+        "text": "Top-right cell after the step",
+        "expect": "JSR $&tile_collision.ProbeFutureTR"
+      },
+      "185067": {
+        "text": "Passable means below $0E",
+        "expect": "CMP #$000E"
+      },
+      "185070": {
+        "text": "Solid: try the west nudge instead",
+        "expect": "BCS loc_02D30D"
+      },
+      "185072": {
+        "text": "Type $06 (wall-like) also blocks the east nudge",
+        "expect": "CMP #$0006"
+      },
+      "185075": {
+        "text": "Try the west nudge instead",
+        "expect": "BEQ loc_02D30D"
+      },
+      "185077": {
+        "text": "X := $22: the helpers work on the word at [$00 + X]",
+        "expect": "LDX #$0022"
+      },
+      "185080": {
+        "text": "X position",
+        "expect": "LDA $00, X"
+      },
+      "185082": {
+        "text": "Shift the reference 8 px west...",
+        "expect": "SEC"
+      },
+      "185083": {
+        "text": "...(-$20 sub-pixels) so the helper tests the LEFT edge",
+        "expect": "SBC #$0020"
+      },
+      "185086": {
+        "text": "Store it back",
+        "expect": "STA $00, X"
+      },
+      "185088": {
+        "text": "+8 sub-pixels (2 px east), floored to the $40 line it would cross",
+        "expect": "JSR $&NudgeToLowerGrid"
+      },
+      "185091": {
+        "text": "Position with the temporary shift",
+        "expect": "LDA $00, X"
+      },
+      "185093": {
+        "text": "Undo the shift...",
+        "expect": "CLC"
+      },
+      "185094": {
+        "text": "...(+$20); the 2-px nudge stays in $22",
+        "expect": "ADC #$0020"
+      },
+      "185097": {
+        "text": "Store it back",
+        "expect": "STA $00, X"
+      },
+      "185099": {
+        "text": "Carry clear: X was nudged east",
+        "expect": "CLC"
+      },
+      "185100": {
+        "text": "Return",
+        "expect": "RTS"
+      },
+      "185101": {
+        "text": "West attempt: n again",
+        "expect": "LDA $04"
+      },
+      "185103": {
+        "text": "Only n < 9 (1-8) may go west",
+        "expect": "CMP #$0009"
+      },
+      "185106": {
+        "text": "n >= 9: nothing to do",
+        "expect": "BCS loc_02D339"
+      },
+      "185108": {
+        "text": "Top-left cell after the step",
+        "expect": "JSR $&tile_collision.ProbeFutureTL"
+      },
+      "185111": {
+        "text": "Passable means below $0E",
+        "expect": "CMP #$000E"
+      },
+      "185114": {
+        "text": "Solid: give up",
+        "expect": "BCS loc_02D339"
+      },
+      "185116": {
+        "text": "Type $09 (wall-like) also blocks the west nudge",
+        "expect": "CMP #$0009"
+      },
+      "185119": {
+        "text": "Give up",
+        "expect": "BEQ loc_02D339"
+      },
+      "185121": {
+        "text": "X := $22 as above",
+        "expect": "LDX #$0022"
+      },
+      "185124": {
+        "text": "X position",
+        "expect": "LDA $00, X"
+      },
+      "185126": {
+        "text": "Shift the reference 8 px west",
+        "expect": "SEC"
+      },
+      "185127": {
+        "text": "(-$20 sub-pixels)",
+        "expect": "SBC #$0020"
+      },
+      "185130": {
+        "text": "Store it back",
+        "expect": "STA $00, X"
+      },
+      "185132": {
+        "text": "-8 sub-pixels (2 px west), clamped back up to the $40 line it would cross",
+        "expect": "JSR $&NudgeToUpperGrid"
+      },
+      "185135": {
+        "text": "Position with the temporary shift",
+        "expect": "LDA $00, X"
+      },
+      "185137": {
+        "text": "Undo the shift",
+        "expect": "CLC"
+      },
+      "185138": {
+        "text": "(+$20)",
+        "expect": "ADC #$0020"
+      },
+      "185141": {
+        "text": "Store it back",
+        "expect": "STA $00, X"
+      },
+      "185143": {
+        "text": "Carry clear: X was nudged west",
+        "expect": "CLC"
+      },
+      "185144": {
+        "text": "Return",
+        "expect": "RTS"
+      },
+      "185145": {
+        "text": "Carry set: nothing nudged, the caller does the hard Y snap",
+        "expect": "SEC"
+      },
+      "185146": {
+        "text": "Return",
+        "expect": "RTS"
+      },
+      "185147": {
+        "text": "Current position word",
+        "expect": "LDA $00, X"
+      },
+      "185149": {
+        "text": "Keep the old value for the crossing test",
+        "expect": "PHA"
+      },
+      "185150": {
+        "text": "Add 8 sub-pixels (2 px)",
+        "expect": "CLC"
+      },
+      "185151": {
+        "text": "toward larger coordinates",
+        "expect": "ADC #$0008"
+      },
+      "185154": {
+        "text": "Store the new position",
+        "expect": "STA $00, X"
+      },
+      "185156": {
+        "text": "Old XOR new",
+        "expect": "EOR $01, S"
+      },
+      "185158": {
+        "text": "Bit 6 changed: a $40 line (16 px) was crossed",
+        "expect": "BIT #$0040"
+      },
+      "185161": {
+        "text": "No crossing: keep the new value",
+        "expect": "BEQ loc_02D352"
+      },
+      "185163": {
+        "text": "Crossed: take the new value...",
+        "expect": "LDA $00, X"
+      },
+      "185165": {
+        "text": "...floored to the line, so the edge ends flush",
+        "expect": "AND #$FFC0"
+      },
+      "185168": {
+        "text": "Store it",
+        "expect": "STA $00, X"
+      },
+      "185170": {
+        "text": "Drop the old value",
+        "expect": "PLA"
+      },
+      "185171": {
+        "text": "Return",
+        "expect": "RTS"
+      },
+      "185172": {
+        "text": "Current position word",
+        "expect": "LDA $00, X"
+      },
+      "185174": {
+        "text": "Keep the old value for the crossing test",
+        "expect": "PHA"
+      },
+      "185175": {
+        "text": "Subtract 8 sub-pixels (2 px)",
+        "expect": "SEC"
+      },
+      "185176": {
+        "text": "toward smaller coordinates",
+        "expect": "SBC #$0008"
+      },
+      "185179": {
+        "text": "Store the new position",
+        "expect": "STA $00, X"
+      },
+      "185181": {
+        "text": "Old XOR new",
+        "expect": "EOR $01, S"
+      },
+      "185183": {
+        "text": "Bit 6 changed: a $40 line was crossed",
+        "expect": "BIT #$0040"
+      },
+      "185186": {
+        "text": "No crossing: keep the new value",
+        "expect": "BEQ loc_02D374"
+      },
+      "185188": {
+        "text": "Crossed: the new value",
+        "expect": "LDA $00, X"
+      },
+      "185190": {
+        "text": "Low six bits already zero (on the line)?",
+        "expect": "BIT #$003F"
+      },
+      "185193": {
+        "text": "Yes: nothing to clamp",
+        "expect": "BEQ loc_02D374"
+      },
+      "185195": {
+        "text": "Floor to the line below the new value...",
+        "expect": "AND #$FFC0"
+      },
+      "185198": {
+        "text": "...then add one line",
+        "expect": "CLC"
+      },
+      "185199": {
+        "text": "($40): the line that was crossed",
+        "expect": "ADC #$0040"
+      },
+      "185202": {
+        "text": "Store it: clamped flush to the line",
+        "expect": "STA $00, X"
+      },
+      "185204": {
+        "text": "Drop the old value",
+        "expect": "PLA"
+      },
+      "185205": {
+        "text": "Return",
+        "expect": "RTS"
+      }
+    }
+  },
+  "functions/ApplyOrbitalOffsetFromRef.asm": {
+    "blockNote": [
+      "Orbit placement helper (Bank 00, 62409-62503). It sets the calling actor's position to a base point plus a circular offset: X += sin(angle) * r, Y += cos(angle) * r with r = diameter / 2. Two entries:",
+      "- ApplyOrbitalOffsetFromRef: Y = a reference actor (slot address). Copies that actor's pixel X / Y ($0014 / $0016) into the caller's $14 / $16 first, then falls into the second entry.",
+      "- code_00F3D3: skips the copy and ADDS the offset to whatever $14 / $16 already hold, so the caller must have written the centre there (otherwise the offset accumulates). It is entered from 5 sites (mtA1_fire_sprite 2, attack_ability_system, pyDD_queen_spirit_attack, unused_mode7_boss).",
+      "",
+      "Inputs: X = the caller's actor slot, D = X (the DP $14 / $16 are the caller's), 16-bit A. orbitAngle ($7F0010,X) is read as a BYTE: 256 steps per turn, 1.40625 degrees each. orbitDiameter ($7F0012,X) is also read as a byte, so a diameter above 255 is not possible. The routine clobbers A, Y and the flags, keeps X and D, and returns with A 16-bit.",
+      "",
+      "Arithmetic: for each axis the table value (sine_table_8bit for X, signed_cosine_table_8bit for Y, both indexed by the angle byte; the sine table is only a quarter wave and entries 64-255 read on into the cosine table) is turned into a magnitude, the sign is kept in the carry flag, the magnitude times the diameter is formed with Multiply8x8Unsigned (which preserves carry and Y), the high byte of the 16-bit product is taken (>> 8) and negated when the carry says so. The table peak is $7F, so each offset is about +/- diameter / 2 (the name 'diameter' is right: it is the full width of the circle). Angle 0 puts the actor directly BELOW the centre (cosine peak, Y grows downward); $40 is east, $80 north, $C0 west, so increasing angles turn counter-clockwise on screen.",
+      "",
+      "Callers: 21 JSL sites in 11 files: attack_ability_system 2, btE4_kara, ec0E_lily, ir29_castoth, mtA1_fire_sprite 5, pyDD_queen_orb_shot, pyDD_queen_spirit_attack, cop_handlers_effects (SpiralStep, with the reference actor in $0000), item_use_system, statue_inventory_reward and unused_mode7_boss 6. 16 use the first entry and 5 the second. The elliptical variant with separate X / Y angles is ApplyOrbitalOffsetXY.",
+      "",
+      "The old header said 'multiplied by orbitDiameter ... result updates actor $14/$16' without the sign, byte-width and rotation direction facts above. UNVERIFIED-RUNTIME (read from the code and the table headers)."
+    ],
+    "partNotes": {
+      "ApplyOrbitalOffsetFromRef": [
+        "First entry: copy the reference actor's pixel position (Y = its slot) into the caller's $14 / $16, then add the orbit offset."
+      ],
+      "code_00F3D3": [
+        "Second entry: add the offset for the angle byte in orbitAngle and the diameter byte in orbitDiameter to the position already in $14 / $16 (no copy)."
+      ],
+      "loc_00F3E7": [
+        "X axis: multiply the sine magnitude by the diameter (carry = sign), keep the high byte, negate if needed."
+      ],
+      "loc_00F3FC": [
+        "Add the signed X offset to $14, then repeat the same steps with the cosine table for Y."
+      ],
+      "loc_00F40D": [
+        "Y axis: multiply the cosine magnitude by the diameter (carry = sign), keep the high byte, negate if needed."
+      ],
+      "loc_00F422": [
+        "Add the signed Y offset to $16 and return."
+      ]
+    },
+    "comments": {
+      "62409": {
+        "text": "Reference actor's pixel X (Y = its slot)",
+        "expect": "LDA $0014, Y"
+      },
+      "62412": {
+        "text": "Orbit centre X in the caller's $14",
+        "expect": "STA $14"
+      },
+      "62414": {
+        "text": "Reference actor's pixel Y",
+        "expect": "LDA $0016, Y"
+      },
+      "62417": {
+        "text": "Orbit centre Y in the caller's $16",
+        "expect": "STA $16"
+      },
+      "62419": {
+        "text": "Second entry: angle word (only the low byte is used)",
+        "expect": "LDA $orbitAngle, X"
+      },
+      "62423": {
+        "text": "Angle byte, 256 per turn",
+        "expect": "AND #$00FF"
+      },
+      "62426": {
+        "text": "Y := table index",
+        "expect": "TAY"
+      },
+      "62427": {
+        "text": "8-bit A for the table and the multiply",
+        "expect": "SEP #$20"
+      },
+      "62429": {
+        "text": "Carry clear = positive offset",
+        "expect": "CLC"
+      },
+      "62430": {
+        "text": "Sine table entry for the X offset",
+        "expect": "LDA $&math_lookup_tables.sine_table_8bit, Y"
+      },
+      "62433": {
+        "text": "Positive: keep it",
+        "expect": "BPL loc_00F3E7"
+      },
+      "62435": {
+        "text": "Negative: magnitude (EOR #$FF, INC)...",
+        "expect": "EOR #$FF"
+      },
+      "62437": {
+        "text": "...of the signed byte",
+        "expect": "INC"
+      },
+      "62438": {
+        "text": "Carry set = negate the product later",
+        "expect": "SEC"
+      },
+      "62439": {
+        "text": "Magnitude to the high byte (second multiplier operand)",
+        "expect": "XBA"
+      },
+      "62440": {
+        "text": "Diameter byte in A low",
+        "expect": "LDA $orbitDiameter, X"
+      },
+      "62444": {
+        "text": "Product = magnitude * diameter; carry and Y are preserved",
+        "expect": "JSL $@hardware_math.Multiply8x8Unsigned"
+      },
+      "62448": {
+        "text": "16-bit A: the whole product",
+        "expect": "REP #$20"
+      },
+      "62450": {
+        "text": "Swap: high byte of the product to the low byte",
+        "expect": "XBA"
+      },
+      "62451": {
+        "text": "Product >> 8: about diameter * sin / 2",
+        "expect": "AND #$00FF"
+      },
+      "62454": {
+        "text": "Carry clear: positive",
+        "expect": "BCC loc_00F3FC"
+      },
+      "62456": {
+        "text": "Negate the offset",
+        "expect": "EOR #$FFFF"
+      },
+      "62459": {
+        "text": "Two's complement",
+        "expect": "INC"
+      },
+      "62460": {
+        "text": "Add the offset to the centre X",
+        "expect": "CLC"
+      },
+      "62461": {
+        "text": "Centre X plus offset",
+        "expect": "ADC $14"
+      },
+      "62463": {
+        "text": "New X in $14",
+        "expect": "STA $14"
+      },
+      "62465": {
+        "text": "8-bit A again",
+        "expect": "SEP #$20"
+      },
+      "62467": {
+        "text": "Carry clear = positive",
+        "expect": "CLC"
+      },
+      "62468": {
+        "text": "Cosine table entry (same index Y) for the Y offset",
+        "expect": "LDA $&math_lookup_tables.signed_cosine_table_8bit, Y"
+      },
+      "62471": {
+        "text": "Positive: keep it",
+        "expect": "BPL loc_00F40D"
+      },
+      "62473": {
+        "text": "Negative: take the magnitude",
+        "expect": "EOR #$FF"
+      },
+      "62475": {
+        "text": "(EOR #$FF, INC)",
+        "expect": "INC"
+      },
+      "62476": {
+        "text": "Carry set = negate later",
+        "expect": "SEC"
+      },
+      "62477": {
+        "text": "Magnitude to the high byte",
+        "expect": "XBA"
+      },
+      "62478": {
+        "text": "Diameter byte in A low",
+        "expect": "LDA $orbitDiameter, X"
+      },
+      "62482": {
+        "text": "Product = magnitude * diameter",
+        "expect": "JSL $@hardware_math.Multiply8x8Unsigned"
+      },
+      "62486": {
+        "text": "16-bit A",
+        "expect": "REP #$20"
+      },
+      "62488": {
+        "text": "High byte of the product to the low byte",
+        "expect": "XBA"
+      },
+      "62489": {
+        "text": "Product >> 8: about diameter * cos / 2",
+        "expect": "AND #$00FF"
+      },
+      "62492": {
+        "text": "Carry clear: positive",
+        "expect": "BCC loc_00F422"
+      },
+      "62494": {
+        "text": "Negate the offset",
+        "expect": "EOR #$FFFF"
+      },
+      "62497": {
+        "text": "Two's complement",
+        "expect": "INC"
+      },
+      "62498": {
+        "text": "Add the offset to the centre Y",
+        "expect": "CLC"
+      },
+      "62499": {
+        "text": "Centre Y plus offset",
+        "expect": "ADC $16"
+      },
+      "62501": {
+        "text": "New Y in $16",
+        "expect": "STA $16"
+      },
+      "62503": {
+        "text": "Return (A and index registers 16-bit)",
+        "expect": "RTL"
+      }
+    }
+  },
+  "actors/particle_rain_spawner.asm": {
+    "blockNote": [
+      "Particle rain spawner (Bank 0B, 774827-774918): a looping actor that spawns falling particle children at an increasing rate, plus the child (ParticleRainChild). It is NOT used: no spawn table, script or thinker references particle_rain_spawner anywhere in extracted/ (the old header said 'used for the ending credits particle rain'; docs/code/bank0B... lists it as unreferenced). actor-def <#00,#00,#38>.",
+      "",
+      "=== SPAWNER ===",
+      "",
+      "$24 starts at $78. Each cycle: if $24 is not 4, decrement it; store $24 in the wait counter $08; SetEntryHereAndYield; spawn a child. The wait counter resumes the actor after N + 1 ticks (see WaitByte), so the intervals are 120, 119, 118 ... 5 ticks and then 5 ticks forever (the old note said the delay shrinks to 4 frames; the real minimum is 5). The spawn rate therefore RISES with time: the old part note called this 'decelerating'; only the delay decelerates. The ramp takes 7,250 ticks (about 2 minutes) to reach the steady rate. UNVERIFIED-RUNTIME.",
+      "COP SpawnAfterFlags ( @ParticleRainChild, #$1802 ) writes $1802 into the child's flags word $10; CopyActorState copies the spawner's position, anim index and pointers.",
+      "",
+      "=== CHILD ===",
+      "",
+      "SetMetasprite points the child at spriteset_enemies and StageSprAndHitbox #02 shows animation list 2 (sprite_set_0EE0A6: 7 frames, hold 2 each, so one pass is 21 ticks). Priority operand $30 sets OAM priority bits $3000 (frontmost). Start: Y = $FFE0 (-32), X = RNG * 2 + $C4, i.e. $C4-$2C2 in steps of 2. The same random byte also picks the speed: index = (RNG AND 3) * 2 + 4.",
+      "The values stored in moveXAlt / moveYAlt are MOVEMENT INDICES into movement_delta_table, not velocities (the old comments said 'X velocity 4, 6, 8, 10 / Y velocity 3, 5, 7, 9'). Odd indices are +n, even indices are -n pixels per frame (index 3 = +2, 4 = -2, 5 = +3, 6 = -3 ...). The child therefore moves X by -2, -3, -4 or -5 and Y by +2, +3, +4 or +5 per frame (index X = 4/6/8/10 pairs with Y = 3/5/7/9, equal magnitudes): it falls DIAGONALLY down and to the left at 45 degrees, not straight down.",
+      "ReloadMoveDurations re-arms the two delta chains; AnimOnce zeroes $2C / $2E when its list ends, which is why the loop reloads them after every pass. The death test (Y >= $0200, unsigned) runs only when an animation pass has ended, i.e. every 21 ticks, not every frame. A particle whose Y were still negative at that moment would be read as a huge unsigned value and die; at 21 ticks the slowest particle (+2 per frame from -32) is at +10, so by the numbers all of them survive the first check (UNVERIFIED-RUNTIME, OQ-I045-2).",
+      "",
+      "docs/code/bank0B-late-bosses-system-cutscene-actors.md also says the particles 'rise via ReloadForceMove' from 'screen top'; they start above the screen and FALL."
+    ],
+    "partNotes": {
+      "particle_rain_spawner": [
+        "Actor entry. Unreferenced. Loops forever spawning ParticleRainChild; the delay between spawns shrinks from 120 to 5 ticks."
+      ],
+      "ParticleRainSpawnerLoop": [
+        "Initial spawn delay: $24 := $78."
+      ],
+      "loc_0BD2B3": [
+        "Cycle start: shorten the delay by one tick unless it is already 4."
+      ],
+      "loc_0BD2BC": [
+        "Wait $24 + 1 ticks (SetEntryHereAndYield with $08 armed), then spawn one child and loop."
+      ],
+      "ParticleRainChild": [
+        "One raindrop: random X above the screen, random speed index; falls diagonally down-left and dies when Y reaches $0200 at the end of an animation pass."
+      ],
+      "loc_0BD2F7": [
+        "Per-pass loop: re-arm the movement chains, play the animation list once, then test Y."
+      ]
+    },
+    "comments": {
+      "774830": {
+        "text": "Initial delay: 120 ticks",
+        "expect": "LDA #$0078"
+      },
+      "774833": {
+        "text": "$24 = current delay",
+        "expect": "STA $24"
+      },
+      "774835": {
+        "text": "Current delay",
+        "expect": "LDA $24"
+      },
+      "774837": {
+        "text": "Floor of 4 reached?",
+        "expect": "CMP #$0004"
+      },
+      "774840": {
+        "text": "Yes: keep it",
+        "expect": "BEQ loc_0BD2BC"
+      },
+      "774842": {
+        "text": "No: one tick shorter each cycle",
+        "expect": "DEC $24"
+      },
+      "774844": {
+        "text": "Delay (the wait is this value + 1 ticks)",
+        "expect": "LDA $24"
+      },
+      "774846": {
+        "text": "Arm the wait counter",
+        "expect": "STA $08"
+      },
+      "774848": {
+        "text": "Yield; the actor resumes at the next instruction after the wait",
+        "expect": "COP [SetEntryHereAndYield]"
+      },
+      "774850": {
+        "text": "Spawn a raindrop child with flags word $1802",
+        "expect": "COP [SpawnAfterFlags] ( @ParticleRainChild, #$1802 )"
+      },
+      "774857": {
+        "text": "Next cycle",
+        "expect": "BRA loc_0BD2B3"
+      },
+      "774859": {
+        "text": "Metasprite set: spriteset_enemies",
+        "expect": "COP [SetMetasprite] ( @spriteset_enemies )"
+      },
+      "774864": {
+        "text": "Show animation list 2 (7 frames, hold 2)",
+        "expect": "COP [StageSprAndHitbox] ( #02 )"
+      },
+      "774867": {
+        "text": "OAM priority 3 (operand $30 = bits $3000)",
+        "expect": "COP [SetSpritePriority] ( #30 )"
+      },
+      "774870": {
+        "text": "Start 32 px above Y = 0",
+        "expect": "LDA #$FFE0"
+      },
+      "774873": {
+        "text": "Y position",
+        "expect": "STA $16"
+      },
+      "774875": {
+        "text": "Random byte 0-255",
+        "expect": "COP [RngByte]"
+      },
+      "774877": {
+        "text": "Keep it for the speed pick",
+        "expect": "PHA"
+      },
+      "774878": {
+        "text": "RNG * 2",
+        "expect": "ASL"
+      },
+      "774879": {
+        "text": "Add the base",
+        "expect": "CLC"
+      },
+      "774880": {
+        "text": "$C4",
+        "expect": "ADC #$00C4"
+      },
+      "774883": {
+        "text": "X position $C4-$2C2, steps of 2",
+        "expect": "STA $14"
+      },
+      "774885": {
+        "text": "Same random byte again",
+        "expect": "PLA"
+      },
+      "774886": {
+        "text": "Two bits: 0-3",
+        "expect": "AND #$0003"
+      },
+      "774889": {
+        "text": "Times 2",
+        "expect": "ASL"
+      },
+      "774890": {
+        "text": "Add the base",
+        "expect": "CLC"
+      },
+      "774891": {
+        "text": "Index 4, 6, 8 or 10 in movement_delta_table",
+        "expect": "ADC #$0004"
+      },
+      "774894": {
+        "text": "X movement index: -2, -3, -4 or -5 px per frame",
+        "expect": "STA $moveXAlt, X"
+      },
+      "774898": {
+        "text": "One less: 3, 5, 7 or 9",
+        "expect": "DEC"
+      },
+      "774899": {
+        "text": "Y movement index: +2, +3, +4 or +5 px per frame",
+        "expect": "STA $moveYAlt, X"
+      },
+      "774903": {
+        "text": "Load both delta chains from the saved indices",
+        "expect": "COP [ReloadMoveDurations]"
+      },
+      "774905": {
+        "text": "Re-enter here while the animation plays",
+        "expect": "COP [SetEntryHere]"
+      },
+      "774907": {
+        "text": "Play the list once (frame holds yield); zeroes $2C/$2E at the end",
+        "expect": "COP [AnimOnce]"
+      },
+      "774909": {
+        "text": "Y position",
+        "expect": "LDA $16"
+      },
+      "774911": {
+        "text": "$0200 (unsigned compare)",
+        "expect": "CMP #$0200"
+      },
+      "774914": {
+        "text": "Still above it: another pass",
+        "expect": "BCC loc_0BD2F7"
+      },
+      "774916": {
+        "text": "Past the bottom: remove the actor",
+        "expect": "COP [Die]"
+      }
+    }
+  }
+}

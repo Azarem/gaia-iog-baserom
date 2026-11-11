@@ -1,4 +1,4 @@
-; PPU display presets (Bank 01, 98304-98867): 47 word pointers ($00-$2E) and the 47 ten-byte records they point to. A scene script picks one with scene command $02 (SceneCmd_ConfigDisplay, scene_script). SceneCmd_ConfigDisplay documents what each byte does; this note adds what the 47 records contain.
+; PPU display presets (Bank 01, 98304-98867): 47 word pointers ($00-$2E) and the 47 ten-byte records they point to. A scene script picks one with scene command $02 (SceneCmd_ConfigDisplay, scene_script). SceneCmd_ConfigDisplay documents what each byte does; this note adds what the 47 records contain. The index is the operand byte of the scene's own command $02 (the operand read from the script equals the index in A in all 229 scenes whose script runs it); 44 of the 47 records are used and no scene names $09, $27 or $29. The scenes in BG mode 7 are $59, $C0 and $FE (preset $19) and $8C and $8D (preset $2D).
 ; 
 ; Record (in the order they are applied): +0 TM and TMW (main-screen layers), +1 TS and TSW (sub-screen layers), +2 CGWSEL, +3 CGADSUB, +4 layer flags, +5 layerPriorityFlag, +6 BGMODE, +7 scroll/HUD flags, +8 and +9 unused.
 ; 

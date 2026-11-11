@@ -1,0 +1,211 @@
+{
+  "system/player/player_move_diag.asm": {
+    "blockNote": [
+      "West-movement collision dispatcher with slope-ramp physics (187264–188674, Bank 02).",
+      "",
+      "Despite its historical names (DispatchDiagDownLeft, Diag*), this file is the WEST half of the horizontal (EW) movement phase and the mirror image of DispatchEastMove in player_move_east. PlayerMovementTick (player_move_main) runs two phases per tick: horizontal first, with the vertical velocity $24 parked on the stack and zeroed, then vertical. In the horizontal phase a negative $20 enters DispatchDiagDownLeft and a positive $20 enters DispatchEastMove, both after setting $AA bit $0040 (the horizontal-phase flag; 'diagonal' only means that the vertical phase may follow in the same tick). The leading corners probed here are the left ones (TL/BL); the east file probes TR/BR.",
+      "",
+      "=== VELOCITY AND DP CONVENTIONS ===",
+      "",
+      "$20 = X velocity and $22 = X position; $24 = Y velocity and $26 = Y position (sub-pixels, 4 per pixel; Y grows downward). ApplyMovementDeltas adds $24 to $26. Every store to $24 in this file (DiagRampEdgeUL/DR, DiagPushLeft/Right) is therefore a Y adjustment, not an X snap. $1A/$1E = X/Y probe pixel, $00 = map index of the last probe (used by the MapCell* steps), $02 = push offset, $AA = per-tick movement flags (only $0040 is ever set in the extracted code; the $0800/$0400 guards in PlayerMovementTick have no setter), $AB = direction/wall bits (bit 1 is read by player_move_ns SouthWallNudge; bits 2/3/7 have no reader).",
+      "",
+      "=== STACK CONTRACT WITH PlayerMovementTick ===",
+      "",
+      "These routines are entered with JSR/JMP from PlayerMovementTick's frame still on the stack: the return address, then the parked vertical velocity word. DiagClearReturnFlags writes it ($05,S), DiagAutoAlignNS reads it ($06,S, one byte deeper because of its PHP) and DiagPushLeft/Right read it ($03,S). Zeroing it (also done by player_move_east and player_move_ramps through DiagClearReturnFlags) cancels the vertical phase for this tick: the ramp code moves Y itself, and the ladder redirect leaves the movement state. Derived by stack-depth counting, not observed at run time.",
+      "",
+      "=== TILE TYPES ===",
+      "",
+      "$05 west-facing slope and $0A east-facing slope (DiagRampUpLeft / DiagRampDownRight), $07 ladder tile (DiagLadderTile), $0E and above solid. Types $06 and $09 are wall-like types whose meaning is undecoded (audit OQ-16 in tile_collision_physics); this file routes TL $06 and BL $09 to the code_02DC4B / code_02DC9F handlers while the east file routes TR $09 and BR $06, and the two files label them 'north' and 'south' in opposite ways. Read those words as handler names, not directions.",
+      "",
+      "=== SLOPE RAMPS ===",
+      "",
+      "Both ramp handlers move Y in proportion to X: while walking west on a $05 slope the code adds the negated X velocity to $26 (Y grows, so the player goes DOWN-left), while on a $0A slope it adds $20, which is negative (Y shrinks, so the player goes UP-left). The names DiagRampUpLeft / DiagRampDownRight say the opposite (R-I029-1). The slope search probes the hitbox's centre column: after ProbeCurrentTL/ProbeFutureTL the code adds 8 to $1A, the X pixel, not to a Y coordinate. Both set playerFlags $1000 (on a slope) and finish with a post-ramp wall check (future TL and BL, $0E and above solid), with a dual-wall X snap when both are blocked.",
+      "",
+      "=== WALL SLIDE ===",
+      "",
+      "The code_02DC4B / code_02DC77 and code_02DC9F / code_02DCCB handlers decide whether the player may slide along a wall, then ComputeDiagSnapOffset turns the X sub-tile position into a push distance and DiagPushRight / DiagPushLeft store it in $24 (positive: Y grows, down; negative: up) before ApplyMovementDeltas. player_move_east reuses both push routines. DiagAutoAlignNS first tries to nudge Y onto the 16-pixel grid when no vertical movement is pending.",
+      "",
+      "Wall collision path (loc_02DC03): SetActorCollisionFlag, DiagAutoAlignNS, then SnapXDiagCollision (X snap and zero playerSpeedEw) when no nudge was possible, or the same X snap without zeroing the speed when Y was nudged."
+    ],
+    "partNotes": {
+      "DispatchDiagDownLeft": [
+        "Entry of the west (negative $20) horizontal-phase dispatcher; called once per tick by PlayerMovementTick.",
+        "",
+        "Sets $AB bit 1 (SouthWallNudge in player_move_ns reads it as 'the west dispatcher ran this tick'), then probes in this order:",
+        "1. map_coords.ProbeRightTiles: slope search at the hitbox's centre column. Z clear = no slope; Z set with carry set = type $05 (DiagRampUpLeft), carry clear = type $0A (DiagRampDownRight).",
+        "2. ProbeCurrentTL: type $06 goes to code_02DC4B. ProbeCurrentBL: type $09 goes to code_02DC9F.",
+        "3. ProbeFutureTL: $0E and above is a wall collision, $06 goes to code_02DC77 (the variant entry of the same handler).",
+        "4. CheckSubTileAlignY (carry clear = Y on a 16-pixel boundary): aligned, future-TL type $09 goes to code_02DCCB. Off the boundary: $09 is a wall collision, then the cell below (MapCellDown) is read: $0E and above blocks, $09 goes to code_02DCCB, $06 blocks.",
+        "5. Type $07 goes to DiagLadderTile. ProbeCurrentTR: $05 goes to DiagRampEdgeUL, $0A to DiagRampEdgeDR.",
+        "6. Otherwise $22 += $20.",
+        "",
+        "Wall collision path: SetActorCollisionFlag, DiagAutoAlignNS, SnapXDiagCollision."
+      ],
+      "SnapXDiagCollision": [
+        "Snap X to the nearest tile centre after a wall hit during west movement.",
+        "",
+        "Computes X = (((X + $20) - $0020) & $FFC0) + $0060 (the first $20 is the velocity at DP $20, the second the immediate constant 32 sub-pixels), then zeroes $20. Coordinates are in sub-pixels, 4 per pixel: $FFC0 rounds to a 16-pixel tile boundary and the + $60 / - $20 pair lands on the centre of the nearest tile. The SnapXDiagCollision entry also zeroes playerSpeedEw; the loc_02DC16 entry (used after a successful Y nudge) keeps the speed."
+      ],
+      "DiagRampUpLeft": [
+        "Handler for a west-facing slope ($05) while walking west.",
+        "",
+        "Four probes look for a $05 tile: the current TL probe moved to X + 8 (the centre column), the cell below it (MapCellDown), the future TL at X + 8, and the cell below that. None found goes to DiagRedirectToSouth. Found: if the move does not cross a 16-pixel column (CheckTileBoundaryXor) the movement is applied unchanged; otherwise Y += (16 - sub-tile) << 2 with sub-tile = (($22 + $20) >> 2) & $0F, plus one more pixel when bit 2 of ($26 + $20 + $22) is set. The full-tile entry code_02DD82 adds the negated X velocity to $26 instead. Y grows, so the player descends to the left; the name says 'up' (R-I029-1).",
+        "",
+        "Then sets playerFlags $1000 and runs the post-ramp wall check: future TL and BL both below $0E apply the movement, only BL blocked goes to code_02DDF2 (SnapYSouthCollision), only TL blocked goes to code_02DDFA (SnapYNorthCollision), both blocked snaps X to a tile centre and compensates Y."
+      ],
+      "DiagRampEdgeUL": [
+        "Slope-edge handler reached from ProbeCurrentTR finding a $05 tile at the trailing corner.",
+        "",
+        "Probes at the TR point moved 9 pixels left in X (net X - 1, top row). If that tile is $05: no column crossing means the full-tile ramp (code_02DD82); otherwise an edge offset is computed from the X velocity and stored in $24 (a Y adjustment), then execution continues at code_02DD8D (set playerFlags $1000 and the post-ramp wall check). Not a slope: the movement is applied unchanged."
+      ],
+      "DiagRedirectToSouth": [
+        "Fallback of DiagRampUpLeft when no $05 tile was found.",
+        "",
+        "ProbeFutureTL: type $06 enters DiagWallSouthFromDL, which falls into the code_02DC4B wall handler. Anything else applies the movement unchanged."
+      ],
+      "DiagRampDownRight": [
+        "Handler for an east-facing slope ($0A) while walking west. Mirror of DiagRampUpLeft.",
+        "",
+        "Four probes look for a $0A tile: the current BL probe moved to X + 8, the cell above it (MapCellUp), the future TL at X + 8, and the cell below that (MapCellDown). None found goes to DiagRedirectToNorth. The Y step is the negation of the west ramp's: Y -= (16 - sub-tile) << 2 and one pixel less when bit 2 of the sum is set; the full-tile entry code_02DEE4 adds $20 (negative) to $26. Y shrinks, so the player climbs to the left; the name says 'down' (R-I029-1). Post-ramp wall check as in DiagRampUpLeft (code_02DF4C / code_02DF54)."
+      ],
+      "DiagRampEdgeDR": [
+        "Slope-edge handler reached from ProbeCurrentTR finding a $0A tile. Mirror of DiagRampEdgeUL.",
+        "",
+        "Probes at the TR point moved 9 pixels left in X; if that tile is $0A, a column crossing computes the edge offset into $24 (Y adjustment) and continues at code_02DEEB, otherwise the full-tile ramp (code_02DEE4) runs."
+      ],
+      "DiagRedirectToNorth": [
+        "Fallback of DiagRampDownRight when no $0A tile was found.",
+        "",
+        "ProbeFutureBL: type $09 enters DiagWallNorthFromDL, which falls into the code_02DC9F wall handler. Anything else applies the movement unchanged."
+      ],
+      "DiagAutoAlignNS": [
+        "Try to nudge the player's Y position onto the 16-pixel grid before the X snap of a wall collision.",
+        "",
+        "Gives up (carry set, no nudge) when:",
+        "1. the vertical velocity parked on PlayerMovementTick's stack ($06,S) is nonzero: the player is also moving vertically this tick;",
+        "2. the collision-layer byte at X (the map index left by the last probe or MapCell step) has a nonzero high nibble, i.e. an actor's solid mark ($F0 written by MarkSolidHere);",
+        "3. the Y sub-tile offset (($26 >> 2) & $0F) is 0.",
+        "",
+        "Otherwise: offset >= 4 and ProbeFutureBL below $0E calls NudgeToLowerGrid on $26; offset < $0B and ProbeFutureTL below $0E calls NudgeToUpperGrid on $26 (the two windows overlap for offsets 4 to 10). Returns carry clear when a nudge happened."
+      ],
+      "ComputeDiagSnapOffset": [
+        "Compute the push distance used by DiagPushLeft / DiagPushRight, left in $02.",
+        "",
+        "Saves $1A/$1E. If the current TL tile is $09, or the Y row is off the 16-pixel boundary (CheckSubTileAlignY carry set) and the cell below is $06, the probe X is restored and the X velocity (converted to pixels) is subtracted from it; when that moves it into a different 16-pixel column (bit $0010 of the XOR) $10 is added to $02. Final $02 = (16 - ($1A & $0F)) + the accumulated adjustment, so the push depends on how far the player is across the tile in X."
+      ],
+      "DiagPushLeft": [
+        "Y push of the south-side wall slide (code_02DC9F / code_02DCCB chain); also used by player_move_east.",
+        "",
+        "Adds the Y sub-tile position (($26 >> 2) & $0F, or $10 when zero) to the offset in $02. A total below $11 applies the movement unchanged. Otherwise $02 = total & $0F and the horizontal speed is compared with the vertical velocity parked on PlayerMovementTick's stack ($03,S): no vertical velocity or horizontal larger stores a NEGATIVE push (-$02 << 2) in $24, which ApplyMovementDeltas adds to Y (up); equal magnitudes cancel both velocities; smaller drops $20 and clears $AA bits $0840."
+      ],
+      "DiagPushRight": [
+        "Y push of the north-side wall slide (code_02DC4B / code_02DC77 chain); also used by player_move_east. Mirror of DiagPushLeft.",
+        "",
+        "Uses the complemented Y sub-tile nibble; the valid push is POSITIVE ($02 << 2 in $24, Y grows, down) and the overshoot case clears $AA bits $0440. player_move_east describes this push as sliding upward; the arithmetic here says downward (OQ-I029-4)."
+      ],
+      "DiagClearReturnFlags": [
+        "Cancel the vertical phase of the current movement tick.",
+        "",
+        "Zeroes the 16-bit word at $05,S. With the JSR return address on top, that word is the vertical velocity PlayerMovementTick parked on its stack (PHA of $24), so the NS phase finds zero and does nothing. Called by the ramp handlers (here and in player_move_ramps), the ladder redirect and player_move_east."
+      ]
+    },
+    "comments": {
+      "187264": { "text": "DispatchDiagDownLeft: west (negative $20) horizontal-phase collision entry, called by PlayerMovementTick (8-bit probe mode)", "expect": "SEP #$20" },
+      "187266": { "text": "Set $AB bit 1: the west dispatcher ran this tick (read by player_move_ns SouthWallNudge)", "expect": "LDA #$02" },
+      "187270": { "text": "ProbeRightTiles (map_coords): slope search at the centre column (TL probe + 8 px in X), not an east-adjacent row", "expect": "ProbeRightTiles" },
+      "187273": { "text": "Z clear = no slope: go on to the wall probes. Z set: carry set = $05 (DiagRampUpLeft), carry clear = $0A (DiagRampDownRight)", "expect": "BNE loc_02DB93" },
+      "187277": { "text": "Carry clear = east-facing slope $0A (DiagRampDownRight)", "expect": "JMP $&DiagRampDownRight" },
+      "187283": { "text": "ProbeCurrentTL: leading top-left corner (the west edge)", "expect": "ProbeCurrentTL" },
+      "187288": { "text": "Type $06 at the current TL goes to the code_02DC4B wall-slide handler (type meaning undecoded, audit OQ-16)", "expect": "CMP #$06" },
+      "187295": { "text": "ProbeCurrentBL: leading bottom-left corner (the west edge)", "expect": "ProbeCurrentBL" },
+      "187300": { "text": "Type $09 at the current BL goes to the code_02DC9F wall-slide handler (type meaning undecoded, audit OQ-16)", "expect": "CMP #$09" },
+      "187307": { "text": "ProbeFutureTL: top-left corner after the velocity step", "expect": "ProbeFutureTL" },
+      "187316": { "text": "Future TL type $06 goes to code_02DC77, the variant entry of the same handler (sets $AB bit 2)", "expect": "CMP #$06" },
+      "187323": { "text": "CheckSubTileAlignY: carry clear = probe Y on a 16-pixel boundary; A still holds the future-TL type", "expect": "CheckSubTileAlignY" },
+      "187328": { "text": "Aligned (carry clear): future-TL type $09 goes to code_02DCCB", "expect": "CMP #$09" },
+      "187337": { "text": "Off the boundary (carry set): type $09 is a wall collision", "expect": "CMP #$09" },
+      "187387": { "text": "Unblocked: $22 += $20 (the vertical velocity is parked on PlayerMovementTick's stack during this phase)", "expect": "LDA $22" },
+      "187395": { "text": "Wall collision: SetActorCollisionFlag sets actor flag $0004 (solid contact this tick)", "expect": "SetActorCollisionFlag" },
+      "187398": { "text": "DiagAutoAlignNS: try a Y nudge onto the 16-pixel grid first", "expect": "DiagAutoAlignNS" },
+      "187401": { "text": "Carry set (no nudge): SnapXDiagCollision snaps X and zeroes playerSpeedEw", "expect": "BCS SnapXDiagCollision" },
+      "187404": { "text": "Y was nudged: take the X snap without zeroing playerSpeedEw (joins at loc_02DC16)", "expect": "REP #$20" },
+      "187414": { "text": "Snap X to the nearest tile centre: (((X + $20) - $0020) & $FFC0) + $60, sub-pixels (64 = 16 pixels)", "expect": "LDA $20" },
+      "187432": { "text": "Clear the X velocity after the snap", "expect": "STZ $20" },
+      "187441": { "text": "DiagClearReturnFlags: cancel the vertical phase (zero the velocity parked on PlayerMovementTick's stack) before the state switch", "expect": "DiagClearReturnFlags" },
+      "187467": { "text": "Set $AB bit 7 ($80): wall-slide flag (no reader found)", "expect": "LDA #$80" },
+      "187511": { "text": "Variant entry: set $AB bit 2 ($04) (no reader found), then join the handler", "expect": "LDA #$04" },
+      "187551": { "text": "Set $AB bit 7 ($80): wall-slide flag (no reader found)", "expect": "LDA #$80" },
+      "187597": { "text": "Variant entry: set $AB bit 3 ($08) (no reader found), then join the handler", "expect": "LDA #$08" },
+      "187635": { "text": "DiagRampUpLeft: west-facing slope $05 while walking west; cancel the vertical phase (Y grows here, so this descends)", "expect": "DiagClearReturnFlags" },
+      "187638": { "text": "Position the probe with ProbeCurrentTL; the next three lines move its X pixel +8 (centre column)", "expect": "ProbeCurrentTL" },
+      "187655": { "text": "Probe at X + 8 reads $05: full-tile ramp (code_02DD82)", "expect": "CMP #$0005" },
+      "187681": { "text": "ProbeFutureTL, then X + 8 (centre column of the destination) for the slope continuation", "expect": "ProbeFutureTL" },
+      "187732": { "text": "Ramp fraction: sub-tile = (($22 + $20) >> 2) & $0F", "expect": "LDA $20" },
+      "187742": { "text": "Y step: (16 - sub-tile) << 2 added to $26 (Y grows: descending to the left)", "expect": "EOR #$FFFF" },
+      "187757": { "text": "Mix the X sub-pixels into the Y sum: the following bit-2 test adds one more pixel of Y (purpose unclear, OQ-I029-3)", "expect": "CLC" },
+      "187765": { "text": "Carry = bit 2 of ($26 + $20 + $22): extra +4 sub-pixels (1 pixel) of Y", "expect": "LSR" },
+      "187778": { "text": "Full-tile ramp: $26 += -$20; $20 is negative while walking west, so Y grows", "expect": "LDA $20" },
+      "187789": { "text": "Set playerFlags $1000 (on a slope/ramp)", "expect": "LDA #$1000" },
+      "187906": { "text": "DiagRampEdgeUL: cancel the vertical phase; the probe is the TR point moved 9 px left in X (net X - 1, top row)", "expect": "DiagClearReturnFlags" },
+      "187939": { "text": "Edge ramp: proportional offset from the X velocity, stored in $24 (a Y adjustment)", "expect": "LDA $20" },
+      "187985": { "text": "DiagRampDownRight: east-facing slope $0A while walking west; cancel the vertical phase (Y shrinks here, so this climbs)", "expect": "DiagClearReturnFlags" },
+      "187988": { "text": "Position the probe with ProbeCurrentBL; the next three lines move its X pixel +8 (centre column)", "expect": "ProbeCurrentBL" },
+      "188005": { "text": "Probe at X + 8 reads $0A: full-tile ramp (code_02DEE4)", "expect": "CMP #$000A" },
+      "188031": { "text": "ProbeFutureTL, then X + 8 (centre column of the destination) for the slope continuation", "expect": "ProbeFutureTL" },
+      "188092": { "text": "Y step: negated (16 - sub-tile) << 2 added to $26 (Y shrinks: climbing to the left)", "expect": "EOR #$FFFF" },
+      "188111": { "text": "Mix the X sub-pixels into the Y sum: the following bit-2 test removes one pixel of Y (purpose unclear, OQ-I029-3)", "expect": "CLC" },
+      "188119": { "text": "Carry = bit 2 of ($26 + $20 + $22): extra -4 sub-pixels (1 pixel) of Y", "expect": "LSR" },
+      "188132": { "text": "Full-tile ramp: $26 += $20; $20 is negative while walking west, so Y shrinks", "expect": "LDA $20" },
+      "188139": { "text": "Set playerFlags $1000 (on a slope/ramp)", "expect": "LDA #$1000" },
+      "188252": { "text": "DiagRampEdgeDR: cancel the vertical phase; the probe is the TR point moved 9 px left in X (net X - 1, top row)", "expect": "DiagClearReturnFlags" },
+      "188285": { "text": "Edge ramp: proportional offset from the X velocity, stored in $24 (a Y adjustment)", "expect": "LDA $20" },
+      "188327": { "text": "DiagAutoAlignNS: Y-axis auto-align before the X snap of a wall collision", "expect": "PHP" },
+      "188330": { "text": "Give up if the vertical velocity parked on PlayerMovementTick's stack ($06,S with this PHP) is nonzero", "expect": "LDA $06, S" },
+      "188334": { "text": "Give up if the cell at X carries an actor solid mark (collision-layer high nibble)", "expect": "LDA $collisionLayer, X" },
+      "188425": { "text": "Carry clear (aligned) skips the wall path; carry set reads the cell below the TL probe", "expect": "CheckSubTileAlignY" },
+      "188512": { "text": "DiagPushLeft: builds a negative Y push (up) in $24 from the Y sub-tile position and $02", "expect": "LDA $26" },
+      "188540": { "text": "Compare |$20| with the vertical velocity parked on PlayerMovementTick's stack ($03,S)", "expect": "LDA $03, S" },
+      "188560": { "text": "Horizontal speed smaller: $20 dropped, clear $AA bits $0840 (no setter for $0800 found; $0040 is the horizontal-phase flag)", "expect": "LDA #$0840" },
+      "188566": { "text": "Valid push: store the negated $02 << 2 in $24 (Y velocity, up) and apply the movement", "expect": "LDA $02" },
+      "188587": { "text": "DiagPushRight: builds a positive Y push (down) in $24 from the complemented Y sub-tile position and $02", "expect": "LDA $26" },
+      "188619": { "text": "Compare -|$20| with the vertical velocity parked on PlayerMovementTick's stack ($03,S)", "expect": "LDA $03, S" },
+      "188643": { "text": "Horizontal speed smaller: $20 dropped, clear $AA bits $0440 (no setter for $0400 found)", "expect": "LDA #$0440" },
+      "188649": { "text": "Valid push: store $02 << 2 in $24 (Y velocity, down) and apply the movement", "expect": "LDA $02" },
+      "188666": { "text": "DiagClearReturnFlags: zero the word at $05,S, the vertical velocity PlayerMovementTick parked on its stack", "expect": "REP #$20" }
+    }
+  },
+  "thinkers/oneshot_palette_flash_19.asm": {
+    "blockNote": [
+      "One-shot thinker that plays palette bundle #19 to its end and then dies (Bank 00).",
+      "",
+      "PaletteStart #19 applies the first frame and yields; the PaletteStep that follows re-runs every tick, copying one frame per step, and only lets the script continue when the bundle is finished, so this thinker lives for the whole bundle (not 'a single step'); KillThinker then removes it.",
+      "",
+      "Bundle #19 is one 32-frame strip of 3-byte backdrop triplets (destination backdropColors $7F0C00, which the NMI writes verbatim to COLDATA $2132, the fixed colour used by colour math), 3 extra ticks between frames. Decoded (R,G,B, 0-31): it starts at (27,27,31), shifts toward red ((31,16,16) around frames 15-16: green and blue fall, red rises) and then fades linearly to (0,0,0) on frame 31. It is the second half of the flash started by oneshot_palette_flash_18, whose last frame is (27,27,31). Whether the fixed colour is visible depends on the colour-math registers the spawner set up (CGWSEL/CGADSUB).",
+      "",
+      "Spawned by sE8_dark_gaia (Comet Lair), awBF_spirit_guide, awBC_blinding_light (only when the Black Crystal Glasses are equipped), mu66_rama_spirits, it15_lily and future_vision_cutscene (here without flash 18)."
+    ],
+    "partNotes": {},
+    "comments": {
+      "47064": { "text": "Start bundle #19 (32-frame COLDATA strip) and yield", "expect": "PaletteStart" },
+      "47067": { "text": "Re-runs every tick, one bundle frame per step, until the last frame is applied", "expect": "PaletteStep" },
+      "47069": { "text": "Bundle finished: remove this thinker", "expect": "KillThinker" }
+    }
+  },
+  "thinkers/oneshot_palette_flash_18.asm": {
+    "blockNote": [
+      "One-shot thinker that plays palette bundle #18 to its end and then dies (Bank 00).",
+      "",
+      "PaletteStart #18 applies the first frame and yields; the PaletteStep that follows re-runs every tick, copying one frame per step, and only lets the script continue when the bundle is finished, so this thinker lives for the whole bundle (not 'a single PaletteStep'); KillThinker then removes it.",
+      "",
+      "Bundle #18 is one 32-frame strip of 3-byte backdrop triplets (destination backdropColors $7F0C00, which the NMI writes verbatim to COLDATA $2132, the fixed colour used by colour math), 3 extra ticks between frames. Decoded (R,G,B, 0-31): it ramps from (0,0,0) up to (27,27,31); blue rises 2 per frame until it saturates at frame 15 while red and green keep rising by about 1 per frame, so the fixed colour is a bluish white at the end. Oneshot_palette_flash_19 starts at that colour and fades it out through red to black. Whether the fixed colour is visible depends on the colour-math registers the spawner set up: mu66_rama_spirits and it15_lily write CGWSEL/CGADSUB just before spawning it.",
+      "",
+      "Spawned by sE8_dark_gaia (Comet Lair, twice), awBF_spirit_guide, awBC_blinding_light, mu66_rama_spirits and it15_lily. In awBC_blinding_light it is spawned in a loop and the follow-up flash #19 only when the Black Crystal Glasses are equipped. No spawn in an Edward Castle script exists in the extracted code (the earlier note listed one)."
+    ],
+    "partNotes": {},
+    "comments": {
+      "47054": { "text": "Start bundle #18 (32-frame COLDATA strip) and yield", "expect": "PaletteStart" },
+      "47057": { "text": "Re-runs every tick, one bundle frame per step, until the last frame is applied", "expect": "PaletteStep" },
+      "47059": { "text": "Bundle finished: remove this thinker", "expect": "KillThinker" }
+    }
+  }
+}

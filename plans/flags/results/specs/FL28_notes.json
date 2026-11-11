@@ -1,0 +1,131 @@
+{
+  "_note": "Block notes of native_village, dao and angkor_wat actors whose shipped text is wrong or hides the flag logic the code runs. Each note describes the code as it is now; flags are named by index and scenes by id.",
+  "native_village/native_village/nvAC_kara.asm": {
+    "blockNote": [
+      "Kara of the Native Village (scene $AC): the cutscene driver of the village. One script, five states chosen by persistent flags in this order: $B6 or $CF set: dies. $B2 set: stands at tile (12,0C) with 'I learned a word from the children. It seems that (Ramapoe) means (Hello) in this region.'. $AF set: the Hamlet scene. $B0 set: the sleep scene. $AD set: dies. $AC set: stands at tile (0B,0E) with the handler 'Strange. Not a soul here, and skeletons scattered around... Should we go into the houses?' (it sets $AD) and walks away when $AD is set. All clear: the arrival.",
+      "",
+      "Arrival: locks the player ($CFFC), prints 'It's as hot as the tropics...' (Will: 'Let's stay in this village today.'), unlocks, sets $AC and scratch $01 and walks to the standing state.",
+      "",
+      "Sleep scene: locks the player and sets bit $2000 of the player's flags $10, plays music #1B and 'Exhausted from the trip, they fall into a deep sleep... A long time passes...', spawns three child actors (code_088A60, code_088A90, code_088AAF) and waits for scratch $01 (set by the first child at the end of its route), prints 'What... Hamlet... Let me sleep a while longer...' / 'AH! Who! Who are you?!', plays sound $0505 six times, queues scene $AC at (0080,00F0) and sets $AF.",
+      "",
+      "Hamlet scene: spawns nv_village_event_sprite at (0088,00FE), locks the player, prints 'They seem to be very hungry...' and drives the handshake with nvAC_hamlet through scratch $01, $02 and $03 (see that note); it waits for scratch $05 (the voice of Will's mother), spawns the event sprite code_0881AE and installs 'He just jumped into the fire... Hamlet, noble pig... I will miss you...'. The player is unlocked by nvAC_hamlet, which sets $B2."
+    ]
+  },
+  "native_village/native_village/nvAC_erik.asm": {
+    "blockNote": [
+      "Erik of the Native Village (scene $AC): follows the state order of nvAC_kara. $B6 or $CF set: dies. $B2 set: stands at tile (12,0B) with the fixed text below. $AF set (Hamlet scene): stands at tile (0A,10), waits for scratch $05, spawns the event sprite code_0881AE, changes frame and installs the fixed text. $AD set: dies. $AC set: stands at tile (0B,11) until $AD is set, then walks away. All clear: waits for $AC (set by Kara), waits 31 frames and walks to the standing state.",
+      "",
+      "Fixed text: 'This tribe is so small. They have lost so many to starvation. Brothers, sisters... husbands, wives... How do they cope?'."
+    ]
+  },
+  "native_village/native_village/nvAC_hamlet.asm": {
+    "blockNote": [
+      "Hamlet the pig in the Native Village (scene $AC) and the effect actors of the Hamlet scene. State by persistent flags: $B3 or $CF set: dies. $B2 set: the roasted-Hamlet frame at tile (08,13) with 'Sniff sniff. I'll never hear that snort again... The air is filled with the aroma of roasting Hamlet.'. $AF set: the Hamlet scene. $AD set: dies. $AC set: stands at tile (0B,0F) until $AD is set, then walks away. All clear: waits for $AC and walks to the standing state.",
+      "",
+      "Hamlet scene ($AF set, $B2 clear): Hamlet writes APU port 0, sets bit $0800 of its flags, stands at tile (0B,12) and waits for scratch $01 (set by Kara). He walks to Kara, sets scratch $02 and waits for it to clear (Kara's 'Hamlet... Why such a sad look?'), plays sound $2121 with sprite loops of frames $AB and $AC and sets scratch $03 (Kara's cry; seven of the native NPCs start moving), waits for it to clear, starts music #11, prints 'Poor Hamlet... To eat or not to eat...?', spawns the effect actor code_088755 and installs the 'Sniff sniff' text.",
+      "",
+      "Effect actor code_088755: plays sound $0F0F, shows its metasprite frames from spriteset_pickups_effects, sets scratch $04 (the natives settle) and spawns the narration child code_0887BA, which waits 89 frames, prints the voice of Will's mother ('It was Hamlet's wish to be food for these people... find the Mystic Statues and go to the Tower of Babel...') and sets scratch $05. The effect actor then moves, sets $B2, clears $CFFC from the joypad mask and dies."
+    ]
+  },
+  "native_village/native_village/nv_village_event_sprite.asm": {
+    "blockNote": [
+      "Prop sprite of the Hamlet scene in the Native Village (scene $AC), spawned by nvAC_kara at (0088,00FE). It shows frame $30, waits for scratch $05 (set by the narration child of nvAC_hamlet) and then falls into code_0881AE: SetMetasprite spriteset_pickups_effects, a nudge of -10 pixels in Y, frame $07 once and Die. nvAC_kara and nvAC_erik also spawn code_0881AE directly after the same wait."
+    ]
+  },
+  "native_village/native_village/nvAC_beckon_kid.asm": {
+    "blockNote": [
+      "Beckoning child of the Native Village (scene $AC). Dies at spawn while $AF is clear. With $AF set and $B2 clear (the Hamlet scene) he waits for scratch $03, walks, waits for scratch $04, takes one more step and becomes solid. With $B2 set he waits for scratch $06 (set by his own interact handler) and then walks to pixel (0148,0120) and (0188,0140), next to the bones actor at tile (19,14), and installs 'He faces the skeleton with tears in his eyes... Is this the skeleton of a relative? A friend?'.",
+      "",
+      "Interact handler: 'He tugs on Will's sleeve, as if he wants to take him somewhere. Go with him?' Yes: 'He beckons to him...' and sets scratch $06; No: 'He looks lonely...'. The child walks to the skeleton by himself; the player is not moved."
+    ]
+  },
+  "native_village/vacant_hut/nvAD_kara.asm": {
+    "blockNote": [
+      "Kara in the vacant hut (scene $AD). $B2 set or $AD clear: dies. $AE clear (first visit): adds 8 to the player's actor word $14, locks the player, prints 'No one here... The village looks abandoned.' / Erik: 'That's good. We can rest if we want.', unlocks, sets $AE, walks and stops at tile (07,08). $AE set: stands at tile (07,08), solid, with the handler 'Let's rest today.': the handler sets $B0 first and then queues scene $AC at (00B0,00A0), where nvAC_kara plays the sleep scene."
+    ]
+  },
+  "native_village/gorgon_hut/nvAE_stone_girl1.asm": {
+    "blockNote": [
+      "Statue of the girl on the left of the Gorgon Hut (scene $AE, tile (06,07)). Flag $BF set at load: frame $32 with the handler 'You don't understand...'. Clear: solid statue with 'The statue of a girl stands silently.'; it waits for $BF (set by UseItem_GorgonFlower when the player stands in tiles (06,06)-(07,08)), alternates frames $36 and $32 thirty times, clears bit $0200 of its flags $12 and falls into the restored state. The text 'Somehow the statue has become a human girl! A tear comes to the girl's eyes...' is defined in the file but no code references it."
+    ]
+  },
+  "native_village/gorgon_hut/nvAE_stone_girl2.asm": {
+    "blockNote": [
+      "Statue of the girl in the middle of the Gorgon Hut (scene $AE, tile (08,07)). Same script as nvAE_stone_girl1 with flag $C0 (tiles (08,06)-(09,08) of UseItem_GorgonFlower). The restored girl's handler gives a reward once: with $E6 clear it prints 'The girl silently offers a Red Jewel as a reward... Will gets a Red Jewel!', gives item $01 (a full inventory jumps to HiddenRedJewelInventoryFull and leaves $E6 clear) and sets $E6; with $E6 set it prints 'You don't understand...'. The text 'Somehow the statue has become a human girl! A tear comes to the girl's eyes...' is defined in the file but no code references it."
+    ]
+  },
+  "native_village/gorgon_hut/nvAE_stone_girl3.asm": {
+    "blockNote": [
+      "Statue of the girl on the right of the Gorgon Hut (scene $AE, tile (0A,07)). Same script as nvAE_stone_girl1 with flag $C1 (tiles (0A,06)-(0B,08) of UseItem_GorgonFlower); the restored girl says 'You don't understand...'. The text 'Somehow the statue has become a human girl! A tear comes to the girl's eyes...' is defined in the file but no code references it."
+    ]
+  },
+  "native_village/gorgon_hut/nvAE_kara.asm": {
+    "blockNote": [
+      "Kara in the Gorgon Hut (scene $AE). $B6 set: dies. $CF set: stands with the travel handler. Otherwise she waits for $BF, $C0 and $C1 (the three petals placed by UseItem_GorgonFlower), locks the player ($CFFC), waits 59 frames, clears bit $2000 of her flags $10, walks up three rows, becomes solid, prints 'I used sign language to talk to the villagers. The animals have returned to the forest. They no longer prey on each other.', sets $CF, unlocks and installs the handler. With $CF set at load she stands at tile (07,0A) with the same handler.",
+      "",
+      "Handler: 'Labor traders came from a town in the northwest. They took many villagers... Travel to the labor trader's village?' Yes: 'Let's get going!', stores $0D60 = 0, $0D62 = 1 and $0D64 = 4, stages a world-map move and queues scene $C4 at (0078,00A0). No: 'Then make preparations and come back.'."
+    ]
+  },
+  "dao/dao_hotel/daC4_kara.asm": {
+    "blockNote": [
+      "Kara at the Dao hotel (scene $C4). $D2 set: dies. $D0 set: stays. $BB set with $D0 clear: dies (she is with the party in the Pyramid). Otherwise she stands solid with 'This place is supposed to be famous for labor merchants. It doesn't look like it.'. When $B6 is clear (first visit) she sets $B6 at once, locks the player ($CFFC), prints 'A town shining in the desert. We went to Dao.' and unlocks."
+    ]
+  },
+  "dao/dao_hotel/daC4_erik.asm": {
+    "blockNote": [
+      "Erik at the Dao hotel (scene $C4): dies at spawn when $D2 is set; otherwise he stands solid with 'I can't go outside in a sandstorm like this.'."
+    ]
+  },
+  "dao/dao_dorm/daC8_neil.asm": {
+    "blockNote": [
+      "Neil in the Dao dormitory (scene $C8). $D2 set: dies. Otherwise he is solid with the interact handler. $B4 clear (first visit): sets $B4, locks the player ($CFFC), waits 15 frames, takes one step in Y, prints the reunion ('Will!! I never thought I'd meet you in a place like this! ... I tried replacing the labor trade with pepper imports...') and unlocks. Handler: $D0 clear: 'I came to Dao to replace the labor trade with pepper imports.'; $D0 set: 'Really.... Do you have to go? ... I'll take Will to the Tower of Babel, then take Kara and Erik to South Cape.', stores $000B in $0D60, stages a world-map move and queues scene $DC."
+    ]
+  },
+  "dao/dao/daC3_luggage_man.asm": {
+    "blockNote": [
+      "Hotel clerk in Dao (scene $C3, tile (05,0C)). With $B8 set the handler prints 'This is a hotel for travelling merchants.'. With $B8 clear it asks 'Would you happen to be Will?': No prints 'Hmmm. I hope he arrives soon. Very distressing...'; Yes prints 'Good! A letter and some luggage have arrived from someone named Bill and Lola.', counts the empty slots of inventorySlots ($0AB4, 16 bytes) and, with at least two, gives items $25 and $26, sets $B8 and shows 'You get a letter and your father's journal!'; with fewer it prints 'Somehow, your inventory is full. Reduce your possessions somewhere.'."
+    ]
+  },
+  "dao/dao/daC3_babel_travel_spirit.asm": {
+    "blockNote": [
+      "Travel spirit of Dao (scene $C3, tile (21,08)). The actor dies at spawn while $D2 is clear (set by the Tower of Babel entrance monologue). With $D2 set it stands solid and asks 'Go to Tower of Babel?' with two rows (labelled 'Quit' and 'Return'); rows 0 and 1 of the handler table only clear the dialog; row 2 clears the dialog, zeroes $066D and $0670, sets gfxCacheIdxA and gfxCacheIdxB and queues scene $E3 at (0280,01B0)."
+    ]
+  },
+  "dao/sweatshop/daC5_weaver.asm": {
+    "blockNote": [
+      "Carpet weaver of Dao (scene $C5, four instances with spawn parameters $21, $23, $05 and $07). The interact handler stores $24 in $0000 and runs a four-way SwitchCase whose four dialog strings are identical: 'She didn't understand. She just kept working.'. No flag is read or written."
+    ]
+  },
+  "dao/panic_room/daC6_snake_panic.asm": {
+    "blockNote": [
+      "Snake Panic whack-a-mole game of Dao (scene $C6): a parent actor, three pot actors (code_08B0D4) and a timer (code_08AFB4), coordinated through scratch $01-$04.",
+      "",
+      "Parent: asks 'Play the game with the snakes?'. Yes: shows the rules ('Hit as many snakes as you can in one minute. Hit whatever pot you like!'), sets scratch $01, zeroes the hit counter $0AAC and clears the combat lock bit $0008 of playerFlags. It then spawns the timer, clears scratch $03 and idles until scratch $04 is set, when it installs 'You've hit N snakes. Try again!' (the game is not offered again until the scene reloads). Pots: wait for $01, clear bit $0200 of their flags, set HP $FF and arm a hit callback; the first hit sets scratch $02 and the callback becomes a counter that adds 1 in BCD to $0AAC and plays sound ch1 $0D. Timer: waits for $02, counts $24 up to $0E10 frames, then ends the round: with $E7 clear and $0AAC of at least $51 it sets $E7, prints 'Wow N snakes. Very good! For your prize, I'll give you two Red Jewels. I'll send them to the Jeweler.' and adds 2 (BCD) to jewelsCollected; otherwise it prints 'OK! Stop! You've hit N snakes. Try again!'. It clears scratch $01 and $02, sets scratch $03, sets the combat lock again and dies."
+    ]
+  },
+  "angkor_wat/snake_pit/awB4_snake_pit_entry.asm": {
+    "blockNote": [
+      "Snake pit entry of Angkor Wat (scene $B4). Each time the player stands at pixel (0578,0010) the actor writes player_character.loc_02C63B into the player's entry word (the fall), sets bit $0200 and clears bit $0008 of the player's flags $10, zeroes the player's $08 and $2A and sets playerFlags $0800. The first time ($B5 clear) it also sets $B5, writes TM = $15, CGADSUB = $A1 and COLDATA = $FF, waits 179 frames and spawns oneshot_backdrop_fade_out_1C. Afterwards it polls the buttons of mask $0F01: inside tiles (3D,0C)-(43,1B) or (43,06)-(5D,1B) it plays sound ch2 $08 every 8 frames."
+    ]
+  },
+  "angkor_wat/angkor_shrine_crystal/awBC_blinding_light.asm": {
+    "blockNote": [
+      "Crystal shrine light of Angkor Wat (scene $BC). The first time ($B7 clear) the actor sets $B7, locks the player ($CFFC), waits 29 frames, prints 'Setting one foot inside, the floating crystal started to glow!' and unlocks. Whether or not the narration ran, it then tests the Black Crystal Glasses (item $1C): with the glasses equipped at that moment no flash runs. Otherwise it waits 19 frames, spawns oneshot_palette_flash_18, waits 179 frames and polls the equip test every frame; when the glasses are equipped it spawns oneshot_palette_flash_19 once and parks in a polling loop that spawns flash 18 again only if the glasses are unequipped later."
+    ]
+  },
+  "angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm": {
+    "blockNote": [
+      "Spirit guide on the pinnacle of Angkor Wat (scene $BF, tile (0F,0B)). $BE set: dies. Otherwise a solid prop with the interact handler. $BD clear: the handler prints 'Will.. I've been waiting for you to come for thousands of years...' (the vision dialog), sets $BD and queues scene $C0 (future_vision_cutscene, which returns to scene $BF at (00F8,00C0)). $BD set (after the return): locks the player ($FFFC), prints 'Huh? What was that? That is the new world...', writes CGADSUB = $15, spawns oneshot_palette_flash_18, clears the solid tiles (0F,0A) and (10,0A), spawns oneshot_palette_flash_19, prints 'When the blinding light stopped, I stood quietly, as if nothing had happened. Then I found the Gorgon flower held tightly within my hand...' and gives item $1D. On a full inventory it removes a Red Jewel (jewelsCollected +1 in BCD) or a herb first ('Let me take care of one of your Red Jewels...'); with neither item the branch code_089B27 falls into the Red Jewel exchange without a check. After the gift it shows 'You have the Gorgon Flower!', sets $BE, unlocks and dies."
+    ]
+  },
+  "angkor_wat/angkor_inner_gate/awB7_sliding_gate.asm": {
+    "blockNote": [
+      "Sliding gate of the Angkor Wat inner gate (scene $B7). The actor reads no flag: it follows the player's position. Each pass it clears bit $0010 of its flags; the player in tiles (08,12)-(0A,14) sets the bit again; the player in tiles (03,10)-(07,18) sets it, marks tiles (05,0F) and (06,0F) solid, spawns code_0899FB (a child that alternately clears bits $0E00 and sets bit $0200 of its parent's word $0E) and plays the gate frames $07 and $08."
+    ]
+  },
+  "angkor_wat/awBD_fall_trigger.asm": {
+    "blockNote": [
+      "Fall trigger of Angkor Wat (scenes $BB and $BD). The actor compares the player's X and Y pixel position with the five entries of spawn_trigger_0898A8 (scene, X, Y; scene $BB: (00A0,0120), (0110,0120), (0280,01A0), (00F0,0210); scene $BD: (0248,01F0)). On an exact match it writes player_transition_handlers.PlayerFallFromHeight into the player's entry word and zeroes the player's $08 and $2A, then dies. No flag and no floor change is involved."
+    ]
+  }
+}

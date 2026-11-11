@@ -1,0 +1,662 @@
+{
+  "thinkers/hdma_gradient_thinker.asm": {
+    "blockNote": [
+      "Circular HDMA window generator (spotlight / iris) and its two thinkers (391960-392913, Bank 05).",
+      "",
+      "It builds a per-scanline table of left and right edges for PPU window 1: QueueHdma uses hdma_channel_config entry #26 (WH0, $2126; transfer mode 1 = two registers, so every scanline writes WH0 = left edge and WH1 = right edge). The edges describe a filled circle, so the window is a circle that can move and grow or shrink. Lines outside the circle get the \"empty window\" value (left $FF, right $00: left > right, nothing is inside). The old description (diamond-shaped brightness gradient, intensity / radius / centre offset) was wrong: nothing here touches brightness or colour.",
+      "",
+      "=== PARAMETERS (direct page $F4-$FE, written by the scene scripts) ===",
+      "",
+      "  $F6 = circle centre X in screen pixels       ($F4 = the value used for the last build)",
+      "  $FA = circle centre Y in scanlines            ($F8 = the value used for the last build)",
+      "  $FE = radius in pixels                        ($FC = the value used for the last build)",
+      "",
+      "A negative radius switches the circle off: the builder leaves the default table (one line of empty window, then end of table). The \"previous\" copies are refreshed by HdmaParamChangeCheck. While HdmaGradientBuildV2 runs, $FC is reused as the circle decision variable; the V2 thinker restores it afterwards with HdmaCopyCurrentToPrev.",
+      "",
+      "Writers: sF7_credits sets centre ($80, $7F) with radius $FFFF (off) and later raises the radius from 0 to $3F; gs2A_shira sets centre ($40, $40) and radius $120 (the circle is larger than the screen), then dream_zoom_controller moves the centre to the screen position of world point ($88, $180) (X from bg1ScrollH, Y from mapScrollV) and shrinks the radius by 2 per frame from $A0 until it falls below $40; mu67_male_vampire sets radius $FFFF at its start and at its end, a 32-iteration loop in mu67_vampires (address 718387) raises it by 1 per frame while sub_0AF6D7 copies the vampire actor's screen position into the centre. sF7_credits and gs2A_shira also set W12SEL to $33 themselves (window 1 on BG1 and BG2); gs2A_shira writes WOBJSEL as well. The window setup of the Mu scene is not in the extracted actors (open question).",
+      "",
+      "=== THINKERS (scene_thinkers) ===",
+      "",
+      "crF7_thinker_05FB16 (variant 1): spawned only by scene F7 (credits). Every frame it calls HdmaGradientBuildV1, then queues whichever table the double buffer selects.",
+      "thinker_def_05FB32 (variant 2): spawned by scenes 2A (Gold Ship dream) and 67 (Mu vampire lair). It clears the previous-parameter copies once (HdmaInitPrevState, so the first frame always builds), then each frame compares current and previous parameters, rebuilds with HdmaGradientBuildV2 only when something changed, copies current to previous and queues the table.",
+      "",
+      "=== DOUBLE BUFFER AND MEMORY LAYOUT ===",
+      "",
+      "HdmaParamChangeCheck adds 1 to chatPtr ($7F000A,X) on every change; bit 0 chooses the buffer the builder writes and the thinker queues (odd = buffer A, even = buffer B), so a table that HDMA is still reading is never rebuilt in place.",
+      "  buffer A: HDMA table at $7E7000, row data centred on $7E7600 (the builder's $00 pointer)",
+      "  buffer B: HDMA table at $7E7100, row data centred on $7E7A00",
+      "  $7E7200: the shared \"empty window\" word ($00FF); the builder keeps its address in $04",
+      "The table is an indirect HDMA table of 3-byte entries (line count, data pointer). Entries with a count below $80 hold one data word for that many lines (used for the empty lines above the circle: HdmaSegmentSplitDown); entries with bit 7 set are repeat mode, so HDMA fetches a new data word on every scanline (the circle rows: HdmaSegmentSplitUp). Both splitters cap a segment at 127 lines.",
+      "",
+      "=== CIRCLE ALGORITHM (HdmaGradientBuildV2) ===",
+      "",
+      "A Bresenham-style integer circle. x starts at the radius (rounded down to even), y at 0 and the decision variable $FC at the radius. For each y it stores the word (left = centreX - x, right = centreX + x, each clamped to 0..255) on the rows centre + y and centre - y of the data area, then the transposed pair (row x with half-width y); then $FC = $FC - (2y - 1) and, when $FC goes negative, $FC = $FC + 2(x - 1) and x = x - 1. It stops when x < 0 or x < y. Rows beyond +-255 are skipped (the data area holds 256 words per side), so a radius over $FF is only drawn for its central rows. Rows near the top and bottom of the circle come out a few pixels wider than an ideal circle.",
+      "The table is laid out as: lines above the circle (hold entries), the circle rows (repeat entries, 2 data bytes per line), then a final one-line empty entry and the end marker. When the circle is cut off by the top of the screen the first visible row starts at the matching data row; a circle entirely above the screen emits only the final empty entry.",
+      "",
+      "HdmaGradientBuildV1 follows the same structure but with different row arithmetic (see its part note): it spans only radius + 1 lines vertically and stores the row words at a one-byte stride. What the credits window looks like was not verified (open question).",
+      "",
+      "=== HELPERS ===",
+      "  HdmaSegmentSplitDown - emit hold entries (count 1-127, data pointer $04 = the empty word) for a number of lines",
+      "  HdmaSegmentSplitUp - emit repeat-mode entries (count | $80) whose data pointer advances through the row data by 2 bytes per line",
+      "  HdmaParamChangeCheck - compare current and previous parameters; on change store them, toggle the buffer, set the write pointers and the empty word",
+      "  HdmaNoChange - return carry set",
+      "  HdmaInitPrevState - zero the previous centre X, centre Y and radius",
+      "  HdmaCompareParams - carry clear = something changed",
+      "  HdmaCopyCurrentToPrev - previous = current"
+    ],
+    "partNotes": {
+      "crF7_thinker_05FB16": [
+        "Variant 1 thinker for the ending credits (scene F7). Each frame: SetEntryHere re-entry, HdmaGradientBuildV1 (which rebuilds only when the parameters changed), then QueueHdma of the buffer selected by chatPtr bit 0 (odd = $7E7000, even = $7E7100) on channel config #26 (WH0/WH1). It never zeroes the previous-parameter copies and never restores them, so while the radius is not negative the builder's use of $FC as a decision variable makes the next frame see a change: the table is rebuilt every frame and the buffers alternate every frame."
+      ],
+      "thinker_def_05FB32": [
+        "Variant 2 thinker for the Gold Ship dream (scene 2A) and the Mu vampire lair (scene 67). HdmaInitPrevState clears the previous centre X, centre Y and radius once (so the first frame rebuilds); then every frame: HdmaCompareParams, and only on a change HdmaGradientBuildV2 and HdmaCopyCurrentToPrev (which also restores $FC from $FE); finally QueueHdma of the buffer chosen by chatPtr bit 0 on channel config #26. An unchanged circle keeps re-queueing the same buffer."
+      ],
+      "HdmaGradientBuildV1": [
+        "Variant 1 circle builder (credits only). Same flow as HdmaGradientBuildV2: HdmaParamChangeCheck (changed -> build, unchanged -> exit), default table (one empty line, end marker), negative radius exits, then the Bresenham loop with $18 = x, $1C = y and $FC = decision variable, filling words (left = centreX - half-width, right = centreX + half-width, clamped to a byte) into the row data and emitting hold / repeat segments.",
+        "Differences from V2, all in the row arithmetic: the line counts are computed in half resolution (hold lines = (2 x centre Y - radius) / 2, circle lines = radius + 1, so the vertical extent is half of V2's 2 x radius + 1); data rows are addressed with a one-byte stride (index = $00 +- y) and each row is stored as a word, so neighbouring rows overwrite each other's second byte, while the repeat-mode entries read one word per line and advance the data pointer by 2 bytes; the \"centre above the screen\" tests of V2 are missing; and x is decreased by 2 instead of 1 when the decision variable goes negative. V1 therefore does not produce the same table as V2 for the same parameters. Its visible result in the credits (centre $80, $7F, radius up to $3F) is unverified (open question).",
+        "On exit it restores DBR, D and X. It does not copy the parameters to the previous state; HdmaParamChangeCheck has already done that, apart from $FC, which stays at the final decision value."
+      ],
+      "HdmaGradientBuildV2": [
+        "Variant 2 circle builder (Gold Ship dream, Mu vampire lair). Runs with D = 0 and DBR = $7E. Steps: (1) HdmaParamChangeCheck stores the previous parameters, toggles the buffer and sets $00 (data centre), $02 (table write pointer) and $04 (empty word address). (2) A default table is written first: one line of empty window and the end marker, so a switched-off circle (negative radius) leaves a valid table. (3) The radius is rounded to even and becomes $18 (x), $FC (decision variable) and $1A (x as a clamped byte). (4) Empty lines above the circle: centre Y - radius lines go out through HdmaSegmentSplitDown; if the circle is cut off by the top of the screen (or the centre is above it) the data pointer starts at the first visible row instead, and a circle that ends above the screen emits nothing. (5) HdmaSegmentSplitUp emits 2 x radius + 1 repeat lines over the row data. (6) A final one-line empty entry and the end marker follow. (7) The Bresenham loop fills the row data: $1C = y, $1E = y clamped to a byte, rows centre + y and centre - y, then the transposed octant; each word is (left, right) = centreX -/+ half-width clamped to 0 / 255, written with the right edge in the high byte for WH1.",
+        "Row data uses 2 bytes per scanline (ASL of the row offset); rows with an offset of $100 or more are skipped."
+      ],
+      "HdmaSegmentSplitDown": [
+        "Emit hold entries for the lines above the circle. In: A = line count, Z set when A is zero; $04 = data pointer; Y = table write pointer. Each loop writes one 3-byte entry (count 1-127, pointer = $04, the shared empty-window word), subtracts the count from the remainder (kept on the stack) and repeats until nothing is left; the Z flag of the final PLA ends the loop. Count bit 7 stays clear, so HDMA holds the one word for the whole segment. \"Down\" in the name does not mean a direction: these are the lines before the circle."
+      ],
+      "HdmaSegmentSplitUp": [
+        "Emit the circle's repeat-mode entries. In: A = line count (Z set when zero); $02 = pointer to the first row-data word of the first segment; Y = table write pointer. Each loop writes a 3-byte entry whose count byte is (count | $80), so HDMA reads a new data word on every scanline of the segment, with the data pointer in $02; $02 then advances by count x 2 bytes (one word per line). Segments are capped at 127 lines. Bit 7 is HDMA's repeat flag, not a direction flag: the old comment (\"direction bit, upward\") was wrong."
+      ],
+      "HdmaParamChangeCheck": [
+        "Compare the current parameters with the ones used for the last build: radius $FE against $FC, centre X $F6 against $F4, centre Y $FA against $F8. All equal -> HdmaNoChange (carry set, nothing else happens). Any difference -> all three previous copies are updated, chatPtr,X is incremented and the table state is set for the buffer that bit 0 selects: odd = buffer A (row data centre $7600 in $00, table $7000 in $02), even = buffer B ($7A00 and $7100); in both cases $7E7200 receives the empty-window word $00FF and $04 = $7200. Returns carry clear = rebuild. The comparison order is radius, centre X, centre Y, and the stores use the entry point of the first field that differs, so every later field is refreshed too."
+      ],
+      "HdmaNoChange": [
+        "Return with carry set: the parameters did not change."
+      ],
+      "HdmaInitPrevState": [
+        "Zero the previous centre X ($F4), centre Y ($F8) and radius ($FC) so that the first HdmaCompareParams of thinker_def_05FB32 reports a change whenever the scene has set any non-zero parameter."
+      ],
+      "HdmaCompareParams": [
+        "Compare the previous parameters ($F4/$F8/$FC) with the current ones ($F6/$FA/$FE): centre X, centre Y, radius. All equal -> RTS with the carry that the last CMP left set; any difference -> CLC. The caller (thinker_def_05FB32) branches on carry set = unchanged."
+      ],
+      "HdmaCopyCurrentToPrev": [
+        "Previous parameters = current parameters (centre X $F6 -> $F4, centre Y $FA -> $F8, radius $FE -> $FC). This also restores $FC, which HdmaGradientBuildV2 used as its decision variable."
+      ]
+    },
+    "comments": {
+      "391962": {
+        "text": "Rebuild the circle table if the parameters changed since the last build",
+        "expect": "JSR $&HdmaGradientBuildV1"
+      },
+      "391965": {
+        "text": "chatPtr bit 0 = the buffer the builder wrote (it toggles only on a change); odd = buffer A",
+        "expect": "LDA $chatPtr, X"
+      },
+      "391972": {
+        "text": "Queue buffer A (table at $7E7000) for config #26: WH0/WH1, the window 1 edges",
+        "expect": "COP [QueueHdma] ( $tileStagingBuffer, #26 )"
+      },
+      "391979": {
+        "text": "Queue buffer B (table at $7E7100) for config #26",
+        "expect": "COP [QueueHdma] ( $7E7100, #26 )"
+      },
+      "391988": {
+        "text": "First run: previous centre X, centre Y and radius = 0",
+        "expect": "JSR $&HdmaInitPrevState"
+      },
+      "391993": {
+        "text": "Carry set = parameters unchanged since the last build",
+        "expect": "JSR $&HdmaCompareParams"
+      },
+      "391996": {
+        "text": "Unchanged: keep the table that is already built",
+        "expect": "BCS loc_05FB44"
+      },
+      "391998": {
+        "text": "Rebuild the circle table in the next buffer",
+        "expect": "JSR $&HdmaGradientBuildV2"
+      },
+      "392001": {
+        "text": "previous = current (also restores $FC, the builder's decision variable)",
+        "expect": "JSR $&HdmaCopyCurrentToPrev"
+      },
+      "392004": {
+        "text": "chatPtr bit 0 selects the buffer: odd = A, even = B",
+        "expect": "LDA $chatPtr, X"
+      },
+      "392011": {
+        "text": "Queue buffer A (table at $7E7000) for config #26: WH0/WH1, the window 1 edges",
+        "expect": "COP [QueueHdma] ( $tileStagingBuffer, #26 )"
+      },
+      "392018": {
+        "text": "Queue buffer B (table at $7E7100) for config #26",
+        "expect": "COP [QueueHdma] ( $7E7100, #26 )"
+      },
+      "392040": {
+        "text": "Carry clear = parameters changed (buffer toggled, pointers set up); set = unchanged",
+        "expect": "JSR $&HdmaParamChangeCheck"
+      },
+      "392043": {
+        "text": "Changed: rebuild",
+        "expect": "BCC loc_05FB70"
+      },
+      "392048": {
+        "text": "Y = write pointer into this frame's HDMA table ($02)",
+        "expect": "LDY $02"
+      },
+      "392053": {
+        "text": "Default entry: one line ...",
+        "expect": "STA $0000, Y"
+      },
+      "392058": {
+        "text": "... whose data pointer is $04, the empty-window word at $7E7200",
+        "expect": "STA $0001, Y"
+      },
+      "392064": {
+        "text": "End of table (count 0) after that single entry",
+        "expect": "STA $0003, Y"
+      },
+      "392067": {
+        "text": "Radius: negative = circle off, keep the default table",
+        "expect": "LDA $FE"
+      },
+      "392077": {
+        "text": "$FC = decision variable, starts at the (even) radius",
+        "expect": "STA $FC"
+      },
+      "392079": {
+        "text": "$18 = x, starts at the radius",
+        "expect": "STA $18"
+      },
+      "392081": {
+        "text": "$1A = x as a half-width byte (limited to $FE below)",
+        "expect": "STA $1A"
+      },
+      "392093": {
+        "text": "Centre Y",
+        "expect": "LDA $F8"
+      },
+      "392097": {
+        "text": "2 x centre Y - radius ...",
+        "expect": "SBC $18"
+      },
+      "392101": {
+        "text": "... halved: hold lines before the shape (V1 draws radius + 1 lines, V2 2 x radius + 1)",
+        "expect": "LSR"
+      },
+      "392102": {
+        "text": "Emit hold entries (empty window) for those lines",
+        "expect": "JSR $&HdmaSegmentSplitDown"
+      },
+      "392112": {
+        "text": "$02 = $00 - radius: first data row (one-byte stride in V1)",
+        "expect": "ADC $00"
+      },
+      "392116": {
+        "text": "Line count of the circle rows = radius (V1), +1 below",
+        "expect": "LDA $18"
+      },
+      "392138": {
+        "text": "+1 for the centre row",
+        "expect": "INC"
+      },
+      "392139": {
+        "text": "Emit repeat-mode entries for the circle rows",
+        "expect": "JSR $&HdmaSegmentSplitUp"
+      },
+      "392142": {
+        "text": "Final entry: one line of empty window ...",
+        "expect": "LDA #$0001"
+      },
+      "392150": {
+        "text": "... pointer $04 (the empty word) ...",
+        "expect": "STA $0001, Y"
+      },
+      "392156": {
+        "text": "... and the end marker",
+        "expect": "STA $0003, Y"
+      },
+      "392169": {
+        "text": "$1C = y (row offset from the centre)",
+        "expect": "STA $1C"
+      },
+      "392171": {
+        "text": "$1E = y as a half-width byte (limited to $FE below)",
+        "expect": "STA $1E"
+      },
+      "392185": {
+        "text": "Skip the octant 1 rows once y reaches $200",
+        "expect": "BIT #$FE00"
+      },
+      "392225": {
+        "text": "Store the (left, right) word on the row below the centre (word store, 1-byte stride in V1)",
+        "expect": "STA $0000, X"
+      },
+      "392228": {
+        "text": "Same word on the mirrored row above the centre",
+        "expect": "STA $0000, Y"
+      },
+      "392279": {
+        "text": "Decision: $FC = $FC - (2y - 1)",
+        "expect": "LDA $1C"
+      },
+      "392292": {
+        "text": "Negative: step x inward",
+        "expect": "BMI loc_05FC75"
+      },
+      "392309": {
+        "text": "$FC = $FC + 2(x - 1) ...",
+        "expect": "LDA $18"
+      },
+      "392318": {
+        "text": "... and x = x - 2 (V2 steps by 1)",
+        "expect": "LDA $18"
+      },
+      "392353": {
+        "text": "Store the previous parameters, toggle the buffer, set $00 / $02 / $04; carry is clear here",
+        "expect": "JSR $&HdmaParamChangeCheck"
+      },
+      "392361": {
+        "text": "Y = write pointer into this frame's HDMA table ($02)",
+        "expect": "LDY $02"
+      },
+      "392366": {
+        "text": "Default entry: one line ...",
+        "expect": "STA $0000, Y"
+      },
+      "392371": {
+        "text": "... whose data pointer is $04, the empty-window word at $7E7200",
+        "expect": "STA $0001, Y"
+      },
+      "392377": {
+        "text": "End of table (count 0) after that single entry",
+        "expect": "STA $0003, Y"
+      },
+      "392380": {
+        "text": "Radius: negative = circle off, keep the default table",
+        "expect": "LDA $FE"
+      },
+      "392387": {
+        "text": "Radius rounded down to an even number",
+        "expect": "AND #$FFFE"
+      },
+      "392390": {
+        "text": "$FC = decision variable, starts at the radius",
+        "expect": "STA $FC"
+      },
+      "392392": {
+        "text": "$18 = x, starts at the radius",
+        "expect": "STA $18"
+      },
+      "392394": {
+        "text": "$1A = x as a half-width byte (limited to $FE below)",
+        "expect": "STA $1A"
+      },
+      "392406": {
+        "text": "Centre Y (the previous copy, just refreshed)",
+        "expect": "LDA $F8"
+      },
+      "392408": {
+        "text": "Centre above the screen: skip the empty lines",
+        "expect": "BMI loc_05FCF3"
+      },
+      "392411": {
+        "text": "Centre Y - radius = empty lines before the circle",
+        "expect": "SBC $18"
+      },
+      "392413": {
+        "text": "Circle reaches the top edge: clipped path below",
+        "expect": "BCC loc_05FCF3"
+      },
+      "392415": {
+        "text": "Emit hold entries (empty window) for those lines",
+        "expect": "JSR $&HdmaSegmentSplitDown"
+      },
+      "392426": {
+        "text": "$02 = $00 - 2 x radius: data row of the circle's top line (2 bytes per row)",
+        "expect": "ADC $00"
+      },
+      "392430": {
+        "text": "Circle rows = 2 x radius + 1 (the INC below adds the +1)",
+        "expect": "LDA $18"
+      },
+      "392435": {
+        "text": "Clipped path: lines from the top of the screen to the circle's bottom",
+        "expect": "LDA $F8"
+      },
+      "392440": {
+        "text": "Circle ends above the screen: nothing to draw",
+        "expect": "BMI loc_05FD0F"
+      },
+      "392451": {
+        "text": "$02 = $00 - 2 x centre Y: data row that scanline 0 maps to",
+        "expect": "ADC $00"
+      },
+      "392457": {
+        "text": "+ radius = lines from the top of the screen to the circle's bottom",
+        "expect": "ADC $18"
+      },
+      "392459": {
+        "text": "+1 for the centre row",
+        "expect": "INC"
+      },
+      "392460": {
+        "text": "Emit repeat-mode entries over the row data",
+        "expect": "JSR $&HdmaSegmentSplitUp"
+      },
+      "392463": {
+        "text": "Final entry: one line of empty window ...",
+        "expect": "LDA #$0001"
+      },
+      "392471": {
+        "text": "... pointer $04 (the empty word) ...",
+        "expect": "STA $0001, Y"
+      },
+      "392477": {
+        "text": "... and the end marker",
+        "expect": "STA $0003, Y"
+      },
+      "392489": {
+        "text": "$1C = y (row offset from the centre)",
+        "expect": "STA $1C"
+      },
+      "392491": {
+        "text": "$1E = y as a half-width byte (limited to $FE below)",
+        "expect": "STA $1E"
+      },
+      "392505": {
+        "text": "Octant 1 row only while y < $100 (the data holds 256 rows per side)",
+        "expect": "BIT #$FF00"
+      },
+      "392515": {
+        "text": "X = $00 + 2y: row below the centre",
+        "expect": "ADC $00"
+      },
+      "392521": {
+        "text": "Y = $00 - 2y: row above the centre",
+        "expect": "SBC $01, S"
+      },
+      "392527": {
+        "text": "Half-width = x",
+        "expect": "LDA $1A"
+      },
+      "392530": {
+        "text": "Right edge = centre X + x ...",
+        "expect": "ADC $F4"
+      },
+      "392534": {
+        "text": "... clamped to 255",
+        "expect": "LDA #$FF"
+      },
+      "392536": {
+        "text": "Right edge into the high byte (it is WH1)",
+        "expect": "XBA"
+      },
+      "392537": {
+        "text": "Left edge = centre X - x ...",
+        "expect": "LDA $F4"
+      },
+      "392544": {
+        "text": "... clamped to 0",
+        "expect": "LDA #$00"
+      },
+      "392548": {
+        "text": "Store the (left = WH0, right = WH1) word on the row below the centre",
+        "expect": "STA $0000, X"
+      },
+      "392551": {
+        "text": "Same word on the mirrored row above the centre",
+        "expect": "STA $0000, Y"
+      },
+      "392556": {
+        "text": "Octant 2 row only while x < $100",
+        "expect": "BIT #$FF00"
+      },
+      "392561": {
+        "text": "Octant 2: row offset = x (limited to a byte), half-width = y",
+        "expect": "LDA $1A"
+      },
+      "392578": {
+        "text": "Half-width = y",
+        "expect": "LDA $1E"
+      },
+      "392605": {
+        "text": "Decision: $FC = $FC - (2y - 1)",
+        "expect": "LDA $1C"
+      },
+      "392618": {
+        "text": "Negative: step x inward",
+        "expect": "BMI loc_05FDBB"
+      },
+      "392620": {
+        "text": "Loop while x >= 0 and x >= y",
+        "expect": "LDA $18"
+      },
+      "392628": {
+        "text": "Next row: y = y + 1",
+        "expect": "JMP $&code_05FD26"
+      },
+      "392635": {
+        "text": "$FC = $FC + 2(x - 1) ...",
+        "expect": "LDA $18"
+      },
+      "392644": {
+        "text": "... and x = x - 1",
+        "expect": "LDA $18"
+      },
+      "392667": {
+        "text": "Segments are capped at 127 lines",
+        "expect": "CMP #$0080"
+      },
+      "392689": {
+        "text": "Data pointer = $04, the shared empty-window word",
+        "expect": "STA $0001, Y"
+      },
+      "392698": {
+        "text": "Z set from the caller's A / the last PLA: nothing left",
+        "expect": "BNE loc_05FDFD"
+      },
+      "392719": {
+        "text": "Bit 7 = HDMA repeat mode: a new data word on every line",
+        "expect": "ORA #$0080"
+      },
+      "392722": {
+        "text": "Count byte (count | $80)",
+        "expect": "STA $0000, Y"
+      },
+      "392727": {
+        "text": "Data pointer = $02: first row-data word of this segment",
+        "expect": "STA $0001, Y"
+      },
+      "392730": {
+        "text": "Advance the data pointer by count x 2 bytes (one word per line)",
+        "expect": "LDA $0000, Y"
+      },
+      "392748": {
+        "text": "Radius: current $FE against the last-built $FC",
+        "expect": "LDA $00FE"
+      },
+      "392756": {
+        "text": "Centre X: current $F6 against the last-built $F4",
+        "expect": "LDA $00F6"
+      },
+      "392764": {
+        "text": "Centre Y: current $FA against the last-built $F8",
+        "expect": "LDA $00FA"
+      },
+      "392777": {
+        "text": "Store the new radius",
+        "expect": "STA $00FC"
+      },
+      "392783": {
+        "text": "Store the new centre X",
+        "expect": "STA $00F4"
+      },
+      "392789": {
+        "text": "Store the new centre Y",
+        "expect": "STA $00F8"
+      },
+      "392792": {
+        "text": "chatPtr + 1 on every change: bit 0 picks the buffer to build",
+        "expect": "LDA $chatPtr, X"
+      },
+      "392802": {
+        "text": "Even: buffer B below",
+        "expect": "BCC loc_05FE7E"
+      },
+      "392804": {
+        "text": "Odd: buffer A, row data centred on $7E7600",
+        "expect": "LDA #$7600"
+      },
+      "392810": {
+        "text": "Buffer A table at $7E7000",
+        "expect": "LDA #$7000"
+      },
+      "392816": {
+        "text": "Empty-window word: left $FF, right $00 (left > right, so nothing is inside)",
+        "expect": "LDA #$00FF"
+      },
+      "392823": {
+        "text": "$04 = address of that word",
+        "expect": "LDA #$7200"
+      },
+      "392830": {
+        "text": "Buffer B, row data centred on $7E7A00",
+        "expect": "LDA #$7A00"
+      },
+      "392836": {
+        "text": "Buffer B table at $7E7100",
+        "expect": "LDA #$7100"
+      },
+      "392842": {
+        "text": "Empty-window word (same as buffer A)",
+        "expect": "LDA #$00FF"
+      },
+      "392858": {
+        "text": "Previous centre X = 0",
+        "expect": "STZ $00F4"
+      },
+      "392861": {
+        "text": "Previous centre Y = 0",
+        "expect": "STZ $00F8"
+      },
+      "392864": {
+        "text": "Previous radius = 0",
+        "expect": "STZ $00FC"
+      },
+      "392868": {
+        "text": "Previous centre X ...",
+        "expect": "LDA $00F4"
+      },
+      "392871": {
+        "text": "... against the current centre X",
+        "expect": "CMP $00F6"
+      },
+      "392876": {
+        "text": "Previous centre Y ...",
+        "expect": "LDA $00F8"
+      },
+      "392879": {
+        "text": "... against the current centre Y",
+        "expect": "CMP $00FA"
+      },
+      "392884": {
+        "text": "Previous radius ...",
+        "expect": "LDA $00FC"
+      },
+      "392887": {
+        "text": "... against the current radius",
+        "expect": "CMP $00FE"
+      },
+      "392892": {
+        "text": "All equal: the last CMP left carry set",
+        "expect": "RTS"
+      },
+      "392895": {
+        "text": "Current centre X -> previous",
+        "expect": "LDA $00F6"
+      },
+      "392901": {
+        "text": "Current centre Y -> previous",
+        "expect": "LDA $00FA"
+      },
+      "392907": {
+        "text": "Current radius -> previous (restores $FC)",
+        "expect": "LDA $00FE"
+      }
+    }
+  },
+  "thinkers/ambient_palette_cycler.asm": {
+    "blockNote": [
+      "Generic ambient palette animation thinker (Bank 00): 59 spawn entries in the scene spawn lists of tables/scene_thinkers.",
+      "",
+      "The script is an endless loop of two COP ops. PaletteRestart (re)starts the palette bundle whose ID is already in animScratch+2; for a thinker that value is the spawn parameter byte, so nothing is hardcoded here. PaletteStep then plays the bundle: its entry point stays on that op and it yields until the last strip frame has been shown, after which execution falls through to the BRA and the whole bundle starts again. One six-byte routine therefore repeats any palette bundle forever, and a scene attaches several instances with different bundle IDs to animate independent colour ranges at once. The thinker has no flag gating and no exit of its own; it lives as long as the scene's thinkers.",
+      "",
+      "Examples (bundles decoded from palette_bundles): bundle $30 (scenes 21-23) is six one-frame strips (wait value 5 each) that each rewrite a six-colour ramp starting at CGRAM colour $72, rotated by one colour per strip, i.e. a colour rotation; bundle $13 (scenes 1D and 27) is four frames of a 16-colour palette starting at colour $C0 with wait value 9 per frame. The bundle-ID list per scene is in scene_thinkers; what each bundle looks like on screen was not traced for all of them. The earlier \"torch flicker, water shimmer, sky gradient\" list was a guess."
+    ],
+    "partNotes": {
+      "PaletteCycleLoop": [
+        "Endless loop: PaletteRestart restarts the bundle (ID in animScratch+2 = the spawn parameter), PaletteStep plays it through, BRA restarts it."
+      ]
+    },
+    "comments": {
+      "46370": {
+        "text": "Apply strip 0 of bundle animScratch+2 (the spawn parameter) and yield",
+        "expect": "COP [PaletteRestart]"
+      },
+      "46372": {
+        "text": "Play the bundle: this op repeats each tick until the bundle has ended, then execution continues",
+        "expect": "COP [PaletteStep]"
+      },
+      "46374": {
+        "text": "Bundle finished: start it again",
+        "expect": "BRA PaletteCycleLoop"
+      }
+    }
+  },
+  "functions/EnemyDeathFlash.asm": {
+    "blockNote": [
+      "Short death effect actor (Bank 00): plays animation #01 of spriteset_enemies once, then removes itself.",
+      "",
+      "Spawned at the position of a defeated enemy by SpawnListAppend ( @EnemyDeathFlash, #00, #00 (#10 in gw8A_sand_fanger), #$0302 ) from StandardEnemyDefeatHandler (the standard field-enemy defeat), EnemyDefeatDispatch, awB0_zombie, awB1_wall_walker, gw8A_sand_fanger, sg4D_dynapede, sg4E_nitropede and sg4D_knight_armor (two sites); sg4D_dynapede also ends with JumpFar into it, so that actor turns into the effect itself.",
+      "",
+      "Sequence: SetMetasprite points the actor at spriteset_enemies, a table of frame lists with one list per animation index; SetSpritePalette #00 sets the actor's OAM palette field (bits $0E00 of $0E) to 0, which leaves every sprite on the palette stored in its sprite group; StageSpriteFrame #01 selects animation list #01 (sprite_set_0EE084), eight frames from the sprite groups 0EE514, 0EE53D, 0EE566, 0EECA9, 0EE58F, 0EECA9, 0EE5F0 and 0EE619 with hold values 2, 2, 2, 1, 0, 0, 2, 2 (a hold of n shows the frame for n + 1 ticks, 19 ticks in all); AnimOnce plays the list once and yields until it ends; then TSB $10 sets $2000 (hidden / script-only) and Die unlinks the actor in the same run, so no rendered frame ever sees the flag. Why it sets the flag is unknown.",
+      "",
+      "What the animation looks like (the old note said \"brief white flash\") was not verified: the sprite groups and their palette were not decoded."
+    ],
+    "partNotes": {
+      "EnemyDeathFlash": [
+        "Actor script: SetMetasprite, SetSpritePalette #00, StageSpriteFrame #01, AnimOnce, TSB $10 with $2000, Die. Runs for the 19 ticks of animation list #01."
+      ]
+    },
+    "comments": {
+      "57109": {
+        "text": "Frame lists: spriteset_enemies (one list per animation index)",
+        "expect": "COP [SetMetasprite] ( @spriteset_enemies )"
+      },
+      "57114": {
+        "text": "OAM palette field = 0: the sprite groups keep their own palette",
+        "expect": "COP [SetSpritePalette] ( #00 )"
+      },
+      "57117": {
+        "text": "Animation index #01 = sprite_set_0EE084 (eight frames, 19 ticks)",
+        "expect": "COP [StageSpriteFrame] ( #01 )"
+      },
+      "57120": {
+        "text": "Play the list once; the script continues after the last frame",
+        "expect": "COP [AnimOnce]"
+      },
+      "57122": {
+        "text": "$2000 = hidden / script-only in the actor flags",
+        "expect": "LDA #$2000"
+      },
+      "57125": {
+        "text": "Set it on this actor; Die below runs in the same frame, so it is never drawn with it",
+        "expect": "TSB $10"
+      },
+      "57127": {
+        "text": "Unlink this actor",
+        "expect": "COP [Die]"
+      }
+    }
+  }
+}

@@ -138,7 +138,7 @@ MusicLoadCleanup {
 ; One-shot actor that shows the MusicAndText string. Waits 73 ticks via COP [WaitByte] ( #48 ), clears its own $1000 flag, zeros joypadMaskStd to unmask input, sets DBR to the string bank ($22), then calls UpdateFrameRender and DialogStringRenderer (Y = string pointer from $20) and dies. It was given $20/$22 by MusicJingleActor.
 
 MusicRenderSync {
-    COP [WaitByte] ( #48 ) ; WaitByte #48 = 73 ticks before showing the text (inferred: the jingle plays meanwhile)
+    COP [WaitByte] ( #48 ) ; WaitByte #48 = 73 ticks (73 NMI frames measured) before the text opens; the SPC has not replied $FF by then (74 polls), so the jingle is still playing
     LDA #$1000            ; Clear $1000 from own actor flags after the wait
     TRB $12
     PHP 

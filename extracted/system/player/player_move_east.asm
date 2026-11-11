@@ -19,7 +19,7 @@
 ; 
 ; === WALL-SLIDE HANDLERS ===
 ; 
-; EastWallPushDown (current TR $09, or future TR $09 through EastWallNorthFlag) and EastWallPushUp (current BR $06, or future BR $06 through EastWallSouthFlag) mirror code_02DC4B and code_02DC9F of the west file. They set $AB bit 7 (the Flag entries set bit 2 / bit 3 instead); nothing reads those bits. The probe at the future corner plus CheckSubTileAlignX picks the path. X STRADDLING and the corner type matches ($09 / $06): gap chain. X flush, or another type: SnapYNorthCollision / SnapYSouthCollision first (with $24 = 0: the north snap moves the player DOWN to the next row line, 1..16 px; the south snap floors Y, up to 15 px north), then the corner is re-probed: clear or the same type -> the slide, anything else -> SnapXEastCollision + ApplyMovementDeltas.
+; EastWallPushDown (current TR $09, or future TR $09 through EastWallNorthFlag) and EastWallPushUp (current BR $06, or future BR $06 through EastWallSouthFlag) mirror code_02DC4B and code_02DC9F of the west file. They set $AB bit 7 (the Flag entries set bit 2 / bit 3 instead); bit 7 has no reader; bits 2 and 3 are the $0400 / $0800 gate bits that PlayerMovementTick tests before its south and north dispatch. The probe at the future corner plus CheckSubTileAlignX picks the path. X STRADDLING and the corner type matches ($09 / $06): gap chain. X flush, or another type: SnapYNorthCollision / SnapYSouthCollision first (with $24 = 0: the north snap moves the player DOWN to the next row line, 1..16 px; the south snap floors Y, up to 15 px north), then the corner is re-probed: clear or the same type -> the slide, anything else -> SnapXEastCollision + ApplyMovementDeltas.
 ; 
 ; Gap chains. North (loc_02D7AB): MapCellDown from the future TR cell must be empty or $0A, then MapCellLeft from that cell must be empty or $09. South (loc_02D7FF): MapCellUp from the future BR cell must be empty or $05, then MapCellLeft must be empty or $06. A failed test goes to ClearSpeedEW_5 / _6 (playerSpeedEw = 0, no position applied this tick). Both pass: ComputeEastSnapOffset, then WallSlidePushDown (north handler) or WallSlidePushUp (south handler).
 ; 
@@ -226,10 +226,10 @@ EastWallPushDown {
 }
 
 ---------------------------------------------
-; Compact entry used when the future TR is already known to be $09: sets $AB bit 2 (no reader) and joins the gap chain at loc_02D7AB, skipping the probe and the X alignment test. ClearSpeedEW_5 is the shared abort: playerSpeedEw = 0 and return.
+; Compact entry used when the future TR is already known to be $09: sets $AB bit 2 ($AA bit $0400, the south gate bit of PlayerMovementTick) and joins the gap chain at loc_02D7AB, skipping the probe and the X alignment test. ClearSpeedEW_5 is the shared abort: playerSpeedEw = 0 and return.
 
 EastWallNorthFlag {
-    LDA #$04              ; Compact entry: set $AB bit 2 (no reader found), then join the gap chain at loc_02D7AB
+    LDA #$04              ; Compact entry: set $AB bit 2 ($AA bit $0400, the south gate bit of PlayerMovementTick), then join the gap chain at loc_02D7AB
     TSB $AB
     BRA loc_02D7AB        ; Join shared north-wall adjacency probe chain at loc_02D7AB
 
@@ -278,10 +278,10 @@ EastWallPushUp {
 }
 
 ---------------------------------------------
-; Entry for a future TR / BR $06 (from DispatchEastMove): STX $00 (X still holds the map index of the last probe or MapCell step), sets $AB bit 3 (no reader) and joins the gap chain at loc_02D7FF. ClearSpeedEW_6 is the shared abort.
+; Entry for a future TR / BR $06 (from DispatchEastMove): STX $00 (X still holds the map index of the last probe or MapCell step), sets $AB bit 3 ($AA bit $0800, the north gate bit of PlayerMovementTick) and joins the gap chain at loc_02D7FF. ClearSpeedEW_6 is the shared abort.
 
 EastWallSouthFlag {
-    STX $00               ; $00 = X: the map index left by the last probe or MapCell step; then set $AB bit 3 (no reader) and join the chain
+    STX $00               ; $00 = X: the map index left by the last probe or MapCell step; then set $AB bit 3 (the $0800 north gate bit of PlayerMovementTick) and join the chain
     LDA #$08
     TSB $AB
     BRA loc_02D7FF

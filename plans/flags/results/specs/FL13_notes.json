@@ -1,0 +1,34 @@
+{
+  "_note": "FL13 draft: field_reveal_object is spawned only with a nonzero child $26 (all three spawners copy the remaining enemy count into it), so its room-tier stat-item path and its TestFlag_0300 read never run; the shipped notes say the two roundabout spawners pass $26 = 0 and list field_reveal_object as a reader that pays stat items. Apply in the apply pass (plan section 7); re-run extract:lt first. docs/code/bank00/actors-player-rewards.md lines 199-201 and 182 carry the same wrong claim and cannot go through merge: see the report, section 'Contradictions'.",
+  "actors/field_reveal_object.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "pyCC_mystic_ball (771837) and awB1_wall_walker (769369) (child $26 = 0).",
+          "with": "pyCC_mystic_ball (771837) and awB1_wall_walker (769369). All three copy the remaining enemy count (orbitAngle after the decrement; at least 1, because the kill that leaves no enemy goes to StandardEnemyDefeatHandler instead) into the child's $26, so $26 is nonzero in every shipped spawn and the room-tier stat-item path below never runs."
+        },
+        {
+          "find": "- Otherwise enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item:",
+          "with": "- Otherwise ($26 = 0, which no shipped spawn passes; the TestFlag_0300 read is reached only on this path) enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item:"
+        }
+      ]
+    },
+    "partNotes": {
+      "field_reveal_object": "Entry: metasprite spriteset_pickups_effects, palette 0, clear the ForceDir bits ($6000 of $12). Choose the pickup: $26 nonzero or scene flag $0300 set -> FieldRevealFromActorStats; else the room's tier selects a stat item (0 -> FieldRevealFromActorStats). Every shipped spawn passes $26 nonzero, so the flag test and the tier path are not reached. See the block note."
+    }
+  },
+  "tables/enemy_clear_reward_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Values above 3 do not occur; the readers treat 3 and above as DEF.",
+          "with": "Values above 3 do not occur; StandardEnemyDefeatHandler treats 3 and above as DEF, while BossClearApplyStatReward sets the flag and gives no stat for them."
+        },
+        {
+          "find": "(2) field_reveal_object: tier & 3 picks the hidden stat item (anim $0C / $0D / $0E, item $80 / $81 / $82).",
+          "with": "(2) field_reveal_object: its tier path (tier & 3 picks the stat item, anim $0C / $0D / $0E, item $80 / $81 / $82) runs only for a child $26 of 0, which none of its three spawners passes, so it never reads this table in the shipped game."
+        }
+      ]
+    }
+  }
+}

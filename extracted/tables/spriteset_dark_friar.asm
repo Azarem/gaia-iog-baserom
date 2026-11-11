@@ -10,7 +10,7 @@
 ; | $05 | dark_friar_05_follower_a | 4 (1 each; frames 0 1 2 1) | TrailFollowerSprA (StageSprAndHitbox #05) |
 ; | $06 | dark_friar_06_follower_b | 4 (1 each; frames 0 1 2 1) | TrailFollowerSprB (StageSprAndHitbox #06) |
 ; 
-; Structure (format in the spriteset_freedan block note): 7 animations, 23 groups. 14 B pointer table + 138 B frame lists + 901 B groups = 1053 bytes. Sets $01 and $06 use the same two groups (1783B1, 1783C5), and 178128 is both frame 3 of $00 and frame 2 of $01. Appearance not viewed.
+; Structure (format in the spriteset_freedan block note): 7 animations, 23 groups. 14 B pointer table + 138 B frame lists + 901 B groups = 1053 bytes. Sets $01 and $06 use the same two groups (1783B1, 1783C5), and 178128 is both frame 3 of $00 and frame 2 of $01. Appearance: two frames of a south cast were viewed (which group of this table each one is was not matched): the cast frame draws Freedan as a pale white silhouette with a small spiky white shape beside it, and the trail frame draws a white-blue starburst with a red centre in front of Freedan with a grey winged shape trailing it. The VRAM layout is the one the groups assume: VRAM byte $8800 (word $4400) holds the $0480 bytes of misc_fx_1CC000 byte for byte, and the tile words $0440-$044E and $0460 of the groups lie inside that range. Other groups use tiles $C4, $C5, $D5 and $E8, which are not part of this upload (what fills them was not traced). The other animations were not viewed one by one.
 ---------------------------------------------
 
 ?BANK 17

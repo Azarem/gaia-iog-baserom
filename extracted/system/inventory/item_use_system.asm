@@ -536,9 +536,9 @@ dialogstring_0388CA `[CLR]He stopped eating [N]the herb. [END]`
 dialogstring_0388E9 `[CLR]Eating the herb, he [N]regained his strength. [END]`
 
 ---------------------------------------------
-; Diamond Block — fit into a tile slot in the Diamond Mine (scene $25).
+; Diamond Block — fit into the floor slot of the Inca Ruins entryway (scene $25, the ir25_ceiling_tile / ir25_block_slot room).
 ; 
-; Checks tiles ($0E–$0F, $19–$1A). Falls through to UseItem_DiamondBlock_Place on match.
+; Places the block only when the player's tile Y is $19 or $1A and the tile X is exactly $0E. At X $0F the CMP #$000F test does not branch to UseItem_DiamondBlock_Place: BNE and the fall-through both reach the 'I can't find a space' text, so nothing is placed and the item stays (measured: item used at tile (0F,19) prints the failure text, flag $2F stays clear).
 
 UseItem_DiamondBlock {
     LDA $sceneCurrent
@@ -581,7 +581,7 @@ dialogstring_03897C `[DEF]He fit the block[N]into the tile![END]`
 ; 
 ; First of three melody item handlers sharing FluteMusicActorController. Requires Will (form 0) — Freedan/Shadow cannot play. Checks IsMusicPlaying to prevent concurrent melody actors.
 ; 
-; In scene $24 (Gold Ship), if flag $01 is not yet set: enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path. Otherwise hides the buttons via joypadMaskStd |= $CFFC.
+; In scene $24 (Gold Ship), if flag $01 is not yet set: enters display-filter mode (displayModeFlags $0080), spawns FluteMusicActorController at the player's position with flags $2000, and configures the spawned actor with music track $19 and melody index 0. If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path: the controller never runs, so no music plays, displayModeFlags keeps $0080 and nothing clears it, the buttons stay shown, and the player does not leave its idle entry when the D-pad is held (measured with the free list emptied at the use: displayModeFlags still $0080 after 1800 frames; with the right button held for 150 frames the player stays in entry PlayerIdleEntry, while without the use the same input moves it to the walk entry). The configure stores of the music actor land in the sentinel slot at $1FC0-$1FEF. Otherwise hides the buttons via joypadMaskStd |= $CFFC.
 ; 
 ; Outside scene $24, prints 'nothing happened.' If not Will, prints 'doesn't have the Flute.'
 
@@ -752,7 +752,7 @@ code_038C30 {
 ---------------------------------------------
 ; Lola's Melody success effects — dispatches per-scene results.
 ; 
-; Scene $15: sets flag $40, melody spreads over meadow; if flag $40 is already set it jumps to code_038C68 instead. Scene $11: sets flag $02, voice guides to wall switch. Scene $CD: jumps to code_038C68, which sets flag $01 and clears flag $0E without a message. Fallthrough prints 'nothing happened.'
+; Scene $15: sets flag $40, melody spreads over meadow; the flag $40 test at the start of the scene $15 path is never true here: UseItem_LolaMelody already prints 'But nothing happened' when flag $40 is set, so a replay never reaches this part (measured: the second use ran code_038C2B once, this part stayed at one run, flags $01 and $0E stayed clear). Scene $11: sets flag $02, voice guides to wall switch. Scene $CD: jumps to code_038C68, which sets flag $01 and clears flag $0E without a message. Fallthrough prints 'nothing happened.'
 
 UseItem_LolaMelody_Effect {
     LDA $sceneCurrent
@@ -765,7 +765,7 @@ UseItem_LolaMelody_Effect {
     BRA code_038C70
 
   loc_038C49:
-    COP [BranchOnFlagByte] ( #40, #01, &code_038C68 ) ; Flag $40 already set (melody played here before): jump to code_038C68, which sets flag $01 and clears $0E with no message
+    COP [BranchOnFlagByte] ( #40, #01, &code_038C68 ) ; Flag $40 set: jump to code_038C68 (not reachable: UseItem_LolaMelody already refuses while flag $40 is set)
     COP [SetFlagByte] ( #40 )
     COP [PrintDialogString] ( &dialogstring_038CA0 )
     COP [RestoreSavedPtr]

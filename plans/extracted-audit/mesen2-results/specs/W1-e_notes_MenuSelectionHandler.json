@@ -1,0 +1,24 @@
+{
+  "_note": "W1-e draft, BLOCKED: merge refuses MenuSelectionHandler.asm (transforms artifact), so this spec cannot be applied as it is; it records the corrected text for a later decision. Measured: 16 writes (8 cancels) of $090E / $0910 and no read of the four bytes in 54 sessions plus 11 displayModeFlags sessions.",
+  "system/engine/MenuSelectionHandler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "restores the original tiles and converts the cursor position to OAM-compatible sprite data at $090E/$0910.",
+          "with": "restores the original tiles and stores the graphics word address of the two cursor tiles in $090E/$0910 (nothing reads them)."
+        }
+      ]
+    },
+    "partNotes": {
+      "ReadMenuSelection": [
+        "Restore the tiles under the menu cursor and store their graphics addresses.",
+        "",
+        "Restores the saved tiles ($0990/$0992) to their original BG3 buffer positions. For each of the two tiles it computes (tile AND $03FF) x 8 + $6000 and stores the result in $090E (first tile) and $0910 (second tile). The result equals the VRAM word address of the tile's 2bpp graphics when the BG3 character base is $6000 (8 words per tile); it is not an OAM tile word. Measured: the world-map menu cancel stores $6D60 in $090E and $6DE0 in $0910. Nothing reads $090E or $0910: both stores are dead. Clears the saved tile state."
+      ]
+    },
+    "comments": {
+      "256565": { "text": "(tile AND $03FF) x 8 + $6000: graphics word address of the tile with a $6000 character base", "expectOld": "Convert tile to OAM format" },
+      "256574": { "text": "Store the first tile's address value in $090E; the second tile goes to $0910 (nothing reads either)", "expectOld": "Write OAM sprite data" }
+    }
+  }
+}

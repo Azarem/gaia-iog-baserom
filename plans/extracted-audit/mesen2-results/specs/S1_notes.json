@@ -1,0 +1,61 @@
+{
+  "_note": "S1 (2026-11-10), see mesen2-results/S1_20261110.md. Static checks only. (1) InitGravity: eight of the 25 shipped calls use a nonzero offset operand; none has bit 7 set. (2) BranchIfItemEquipped: the read with index $FFFF is bank $82 offset $0AB3 (16-bit index carry into the data bank), not an in-bank wrap. (3) dialog_dictionaries: the rebuild rule is now traced. (4) LoopEnd: the last pass does not yield. (5) combat_collision: two skip-mask comments omit bit $0200 and others. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/S1_notes.json --dry-run. Comments use expect (the mnemonic on the tagged line) because extracted/ currently carries the line-tracking tags. 'find' must occur exactly once in the stored note.",
+  "system/engine/cop_handlers_effects.asm": {
+    "partNotes": {
+      "InitGravity": {
+        "edit": [
+          {
+            "find": "Every observed call uses offset #00.",
+            "with": "Eight of the 25 shipped calls use a nonzero offset (#01 to #03 and #05, in pyDD_queen_debris, sg55_viper, sg4E_nitropede and sg4D_dynapede); none has bit 7 set, so the negating branch is never taken by shipped scripts."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/cop_handlers_inventory.asm": {
+    "partNotes": {
+      "BranchIfItemEquipped": {
+        "edit": [
+          {
+            "find": "the indexed read wraps to $0AB3 — the byte before the array — so the compare reads unrelated data (analysis only, unverified at runtime).",
+            "with": "the 16-bit index carries into the data-bank byte, so the read is bank $82 (DBR is $81) offset $0AB3, a mirror of WRAM $0AB3, the byte before the array. That byte is the high byte of the word $0AB2 that DarkSpaceMainInit stores (the room variant 0 to 3, so the high byte is 0); no other writer of $0AB3 was found, so none of the operand item ids ($0F, $1C, $27 at the five sites) matches and the branch is not taken (static reading, not run)."
+          }
+        ]
+      }
+    }
+  },
+  "tables/dialog_dictionaries.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "how the compressor decides which words to substitute was not traced (OQ-I070-1). Frequency of use of individual words was not measured.",
+          "with": "the rebuild recomputes the substitutions: it merges the 456 words of both tables, sorts them by length, longest first (words of equal length keep table order, table A first), and replaces every occurrence of each word anywhere in the string, with no word-boundary test, by the two bytes $D6 or $D7 followed by the word index. A string that is exactly one dictionary word is stored as plain characters, and strings marked raw are not substituted. Frequency of use of individual words was not measured."
+        }
+      ]
+    }
+  },
+  "system/engine/cop_handlers_script_control.asm": {
+    "partNotes": {
+      "LoopEnd": {
+        "edit": [
+          {
+            "find": "yields via RTL, so each iteration ends with a yield.",
+            "with": "yields via RTL: every pass except the last ends with a yield, and the last pass continues into the code after the loop in the same frame."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/combat_collision.asm": {
+    "comments": {
+      "244941": {
+        "text": "$76E0: skip dead/orb/COP/display/overlay/pause; the mask includes $0200 (ignore enemy contact) and $0080 (hit reaction)",
+        "expect": "BIT"
+      },
+      "245180": {
+        "text": "$36F0: skip friendly/dead/orb/COP/display; the mask also includes $0400, $0200 (ignore enemy contact) and $0080 (hit reaction)",
+        "expect": "BIT"
+      }
+    }
+  }
+}

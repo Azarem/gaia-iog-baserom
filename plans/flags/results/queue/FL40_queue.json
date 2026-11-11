@@ -1,0 +1,158 @@
+[
+  {
+    "id": "FL40-01", "flag": null, "scope": { "scenes": [47] }, "priority": "P2",
+    "claim": "BranchIfItemEquipped with no equipped item ($0AC4 = $FFFF) reads inventorySlots[$FFFF] (index wraps below the table) and does not take the equipped branch for any operand; dm3F_elevator_door must therefore stay closed with the Elevator Key held but not equipped.",
+    "start": { "scene": 63, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "warp to scene $3F (mine_main) with inventorySlots[0] = $0F and $0AC4 = $FFFF; talk to the elevator door",
+      "forced": "set $0AC4 = 0 (key equipped) and talk again",
+      "observe": ["door actor branch taken", "flag $69", "$0AC4", "screenshot"]
+    },
+    "confirms": "the equipped test is a slot-index test, so the preset must set $0AC4 as well as the slot",
+    "refutes": "the door opens with $0AC4 = $FFFF (the wrap reads a byte that equals $0F)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-02", "flag": null, "scope": { "scenes": [230, 204] }, "priority": "P1",
+    "claim": "The Aura item (id $24) is granted through the Dark Space hint path GaiaHint_AuraItem (sE6_gaia.asm:997 {580788}) only for the Dark Space layout in which globalScriptIndex ($0AAC) is nonzero and Aura is not held; AuraItemGrant (sE6_gaia.asm:1469 {585559}) is unreferenced.",
+    "start": { "scene": 230, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "enter Dark Space ($E6) with the layout variant of the Aura hint (sE6_gaia.asm:76 {579528}) and no Aura in the inventory",
+      "forced": "write the layout variant to $0AB2 / $0AAC before the scene load",
+      "observe": ["inventorySlots", "dialog text", "which hint branch runs", "screenshot"]
+    },
+    "confirms": "item $24 appears in inventorySlots and the hint text is the grant text",
+    "refutes": "no layout variant reaches GaiaHint_AuraItem (the grant is dead too)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-03", "flag": null, "scope": { "scenes": [18] }, "priority": "P3",
+    "claim": "ec12_aqueduct_enemy sets bit $0200 of its actor flags only when the player is Will (ec12_aqueduct_enemy.asm:19 {638738}); what bit $0200 of the actor flags changes is not established.",
+    "start": { "scene": 18, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "enter scene $12 as Will and watch the enemy actor",
+      "forced": "repeat with $0AD4 = 1 (Freedan)",
+      "observe": ["actor flags word", "enemy behavior", "screenshot"]
+    },
+    "confirms": "a visible difference in the enemy between forms",
+    "refutes": "no difference in actor behavior between forms",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-04", "flag": null, "scope": { "scenes": [212] }, "priority": "P2",
+    "claim": "pyD4_falling_orb reacts only to a Freedan player near the orb (pyD4_falling_orb.asm:52 {575278}); a Will or Shadow player at the same spot does not trigger the fall.",
+    "start": { "scene": 212, "flags": [], "form": "Freedan", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "enter scene $D4 as Freedan and stand near the orb",
+      "forced": "repeat as Will ($0AD4 = 0)",
+      "observe": ["orb actor state", "raw flag index $8E", "screenshot"]
+    },
+    "confirms": "the orb falls only for Freedan",
+    "refutes": "the orb falls for Will as well (the test is on something other than the form)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-05", "flag": null, "scope": { "scenes": [146] }, "priority": "P3",
+    "claim": "The Teapot tests in eu92_rofsky.asm:35 {513551} and eu92_erasquez.asm:22 {513962} only choose a dialog variant; no flag or item changes follow.",
+    "start": { "scene": 146, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "talk to both actors without the Teapot",
+      "forced": "talk with item $19 in inventorySlots",
+      "observe": ["dialog text", "flags $0A00-$0A1F diff", "inventorySlots"]
+    },
+    "confirms": "only the dialog text differs",
+    "refutes": "any flag or item change after the talk",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-06", "flag": null, "scope": null, "priority": "P3",
+    "claim": "$0B02 is never written in extracted code and 13 sites read it as an additive bias; its value at runtime (0 after a new game, other after a load) is not established.",
+    "start": { "scene": 1, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "read $7E0B02 at a new game, in scene $01 and after a save and load",
+      "forced": "write $0B02 = 1 and fight an enemy (ApplyPlayerHitstun) and enter scene $5F (mu5F_cyclops)",
+      "observe": ["$0B02", "damage taken", "hitstun length"]
+    },
+    "confirms": "the byte stays 0 and the sites use it as 0, or a value that changes damage",
+    "refutes": "a nonzero default set outside the extracted code (an SRAM or boot path)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-07", "flag": null, "scope": { "scenes": [51, 104] }, "priority": "P2",
+    "claim": "fr33_erik.asm:44 {380344} stores $0AA6 = 7, a value outside the three-entry case lists of the st68_* scripts of scene $68; the SwitchCase there falls through to the table end without a bounds check.",
+    "start": { "scene": 51, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "play scene $33 to the store, then enter scene $68",
+      "forced": "set $0AA6 = 7 and load scene $68 (the st68_* actors read it into $0000)",
+      "observe": ["$0AA6 at scene load", "the case taken in st68_erik / st68_kara", "actor list"]
+    },
+    "confirms": "the actors take a defined default case (or the 7 is cleared before scene $68)",
+    "refutes": "SwitchCase jumps through a table word beyond its list (the hazard is real)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-08", "flag": null, "scope": { "scenes": [24] }, "priority": "P3",
+    "claim": "Item $05 (Incan Melody) has no giver in extracted code; UseItem_IncanMelody (item_use_system.asm:483) can only run if the item is obtained by a path the searches did not see.",
+    "start": { "scene": 24, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "play the game through scene $18 and record inventorySlots after each item event",
+      "forced": "write $05 into inventorySlots and use it in scene $18",
+      "observe": ["inventorySlots", "flag $2E", "use-handler effect"]
+    },
+    "confirms": "no giver exists (the item is unobtainable) and the use handler sets flag $2E",
+    "refutes": "inventorySlots gets $05 without a GiveItem, chest, or GiveItemToPlayer call from the audited sites",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-09", "flag": null, "scope": null, "priority": "P3",
+    "claim": "Item $1B (Bag of Gold / Prize Money) has no giver in extracted code; UseItem_PrizeMoney exists but the item cannot be obtained.",
+    "start": { "scene": 120, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "watch inventorySlots through Watermia's glass game (wa78_glass_game) wins",
+      "forced": "write $1B into inventorySlots and use it",
+      "observe": ["inventorySlots", "gemCount", "dialog"]
+    },
+    "confirms": "no giver; the use handler only shows text",
+    "refutes": "an event adds $1B (for example from the glass game prize)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-10", "flag": 143, "scope": { "scenes": [122] }, "priority": "P2",
+    "claim": "fireplace_journal sets flag $8F before GiveItem $15 and the overflow target is a bare RTL, so a full inventory loses the Blue Journal for good.",
+    "start": { "scene": 122, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "fill all 16 slots, examine the fireplace",
+      "forced": "free a slot and examine again",
+      "observe": ["flag $8F", "inventorySlots", "dialog text"]
+    },
+    "confirms": "flag $8F stays set and the second examine gives nothing",
+    "refutes": "the item is given on the second try (a second give path exists)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-11", "flag": 180, "scope": null, "priority": "P2",
+    "claim": "Spine flag $B4: the Shadow statue in the Dark Space rooms is locked while the flag is clear and works for Will and Freedan once it is set.",
+    "start": { "scene": 230, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "enter Dark Space ($E6) with $B4 clear and talk to the Shadow statue",
+      "forced": "set $B4 (flag byte $0A16 bit 4) and talk again as Will, then as Freedan",
+      "observe": ["dialog", "$0AD4", "player actor entry point", "screenshot"]
+    },
+    "confirms": "ShadowTransformLocked text with $B4 clear; the transformation prompt with $B4 set",
+    "refutes": "the statue transforms with $B4 clear",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL40-12", "flag": null, "scope": { "scenes": [133] }, "priority": "P3",
+    "claim": "gw85_spin_dash_gate: Will without Spin Dash is pushed back (player field $14 := $03C0) at the gate position ($0458, $00D0); Freedan, Shadow and Will with abilityBitmask bit 2 pass.",
+    "start": { "scene": 133, "flags": [], "form": "Will", "state": "orig_S01r_south-cape-ready.mss" },
+    "trial": {
+      "control": "walk to the gate as Will with $0AA2 bit 2 clear",
+      "forced": "set $0AA2 bit 2, then repeat as Freedan ($0AD4 = 1)",
+      "observe": ["player X position", "actor branch", "screenshot"]
+    },
+    "confirms": "pushback without the ability only; passage otherwise",
+    "refutes": "the gate also reacts to an attack or only to Freedan",
+    "needs": ["FR00"]
+  }
+]

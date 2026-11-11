@@ -1,0 +1,146 @@
+{
+  "_note": "FL30 draft: shipped notes and comments that the code contradicts (scratch flag $00 is not a Shadow flag; overworld_exit flag $01; item_use_system scene names and flag readers). Apply after specs/FL30_names.json (the texts use the new Alt labels), and after a fresh extract:lt. Partial edits need the stored text to be unchanged; run with --dry-run first.",
+  "actors/player/player_character.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "IdleStand* (8 directional × Shadow variants)",
+          "with": "IdleStand* (4 directions, each with an alternate-idle branch: IdleStand*Alt)"
+        },
+        {
+          "find": "LadderIdleSouth/North (+ Shadow variants)",
+          "with": "LadderIdleSouth/North (+ Alt variants)"
+        },
+        {
+          "find": "ShimmyDetachRight/Left (+ Shadow variants)",
+          "with": "ShimmyDetachRight/Left (+ Alt variants)"
+        },
+        {
+          "find": "Idle poses have Shadow-specific sprites (flag byte #00 == $01).",
+          "with": "When scratch flag byte #00 is set the idle poses use the alternate animations (#10-#13 standing, #2F / #2E ladder idle south / north, #35 / #34 shimmy detach right / left). The test does not look at characterForm: Will, Freedan and Shadow each carry real multi-frame animations at those indices (spriteset_will, spriteset_freedan, spriteset_shadow). The scenes and scripts that set the flag are listed in the scene_flag_init block note; what the alternate pose depicts is not established."
+        }
+      ]
+    },
+    "comments": {
+      "181375": { "text": "South idle: flag byte #00 set stages the alternate idle animation #10 instead of #00 (any form)", "expect": "BranchOnFlagByte" },
+      "181386": { "text": "Alternate south idle animation (#10)", "expect": "StagePlayerSprite" },
+      "181391": { "text": "North idle: flag byte #00 set stages the alternate animation #11 instead of #01", "expect": "BranchOnFlagByte" },
+      "181402": { "text": "Alternate north idle animation (#11)", "expect": "StagePlayerSprite" },
+      "181407": { "text": "West idle: flag byte #00 set stages the alternate animation #12 instead of #02", "expect": "BranchOnFlagByte" },
+      "181418": { "text": "Alternate west idle animation (#12)", "expect": "StagePlayerSprite" },
+      "181423": { "text": "East idle: flag byte #00 set stages the alternate animation #13 instead of #03", "expect": "BranchOnFlagByte" },
+      "181434": { "text": "Alternate east idle animation (#13)", "expect": "StagePlayerSprite" },
+      "182357": { "text": "Ladder idle south: flag byte #00 set stages the alternate animation #2F instead of #2B", "expect": "BranchOnFlagByte" },
+      "182368": { "text": "Alternate ladder idle south animation (#2F)", "expect": "StagePlayerSprite" },
+      "182373": { "text": "Ladder idle north: flag byte #00 set stages the alternate animation #2E instead of #2A", "expect": "BranchOnFlagByte" },
+      "182711": "Detach right: stop X movement, stage #31 (alternate #35 when flag byte #00 is set), enter wall-hang idle",
+      "182725": { "text": "Alternate detach right animation (#35)", "expect": "StagePlayerSprite" },
+      "182730": "Detach left: stop X movement, stage #30 (alternate #34 when flag byte #00 is set)",
+      "182744": { "text": "Alternate detach left animation (#34)", "expect": "StagePlayerSprite" }
+    }
+  },
+  "actors/player_transition_handlers.asm": {
+    "partNotes": {
+      "PlayerIdleAnimLoop": "Entered as the player's script. When scratch flag #00 is set it stages anim $11 (the alternate north idle, PlayerIdleUseAltSprite), otherwise anim $01, then loops AnimOnce until the caller redirects the player. Flag #00 switches the player's idle animations to the alternate set of the current form (see the player_character block note); the branch does not test characterForm."
+    }
+  },
+  "actors/scene_flag_init.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What the set flag means is not traced. Other users of flag #00:",
+          "with": "Flag #00 selects the alternate idle animations of the player: player_character stages #10-#13 (idle), #2E / #2F (ladder idle) and #34 / #35 (shimmy detach) instead of #00-#03, #2A / #2B and #30 / #31 while it is set, and player_transition_handlers stages #11 instead of #01. No reader tests characterForm, and the three spritesets (Will, Freedan, Shadow) all carry those animations. In the 26 scenes the actor makes every visit start with the alternate idle. What that pose depicts is not established. Other users of flag #00:"
+        },
+        {
+          "find": "and the player's idle / ladder / shimmy-detach sprite choice, player_transition_handlers and shadow_shimmer, whose comments call it the Shadow flag. The unconditional set in these 26 scenes does not fit a Shadow-form flag.",
+          "with": "and the readers listed above: the player's idle / ladder / shimmy-detach animation choice (player_character), player_transition_handlers, and shadow_shimmer (its fast palette state). The name 'Shadow flag' in older comments is wrong. The setters of the other scripts are position or event triggers: sc01_fisherman (set while playerYPos >= $0250), dm3D_breakable_wall, dm40_trapped_slave, eu9D_altar and av73_waterfall_sound (set while the player is inside a tile box), ir1E_cliff_slide_trigger (set while playerYPos < $0110, then permanently once $30 and $31 are set), av75_apprentice (set when the player enters a tile box), btE1_light_elevator (set once, #$00EF ticks into the ride)."
+        }
+      ]
+    }
+  },
+  "actors/player/shadow_shimmer.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "that player_character also reads to pick Shadow's idle, ladder and shimmy-detach sprites; where it is set, this actor stays in Active. What the flag means is not traced.",
+          "with": "that player_character also reads to pick the alternate idle, ladder and shimmy-detach animations (that branch does not test characterForm, so the flag is not a Shadow flag); where it is set, this actor stays in Active (its guard still ends the actor when the form is not Shadow), so the fast strips play while the player stands still. What the flag depicts is not established."
+        }
+      ]
+    }
+  },
+  "actors/overworld_exit.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "- The Itory Village exit is disabled while flag $01 is set. $01 is set by unrelated scripts (angel_village, undersea_tunnel, great_wall floor buttons); whether it is cleared on scene load was not traced.",
+          "with": "- The Itory Village exit is disabled while scratch flag $01 is set. Scene setup clears flags $00-$0F (scene_lifecycle), so only a script of scene $15 itself can hold it: it15_lily sets it when the reveal cutscene starts the camera pan and clears it when the pan ends, and it15_kara waits on it. The scripts of other scenes that use $01 cannot reach this exit."
+        }
+      ]
+    }
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_WindFlute": {
+        "edit": [
+          {
+            "find": "Wind Melody — play for the Gold Ship effect (scene $24).",
+            "with": "Wind Melody — play in the Incan Ruins plate room (scene $24, ir24_glowing_tile)."
+          },
+          {
+            "find": "In scene $24 (Gold Ship), if flag $01 is not yet set:",
+            "with": "In scene $24, if scratch flag $01 is not yet set (no actor of the scene reads it; it only stops a second playing in the same visit):"
+          }
+        ]
+      },
+      "UseItem_LolaMelody": {
+        "edit": [
+          {
+            "find": "Lola's Melody — play in Edward's Castle/Itory/Tower of Babel.",
+            "with": "Lola's Melody — play in the Edward's Castle aqueduct doorway, the Itory village and the Pyramid puzzle room."
+          },
+          {
+            "find": "$CD (Tower of Babel, flags $BB/$0E/$0D)",
+            "with": "$CD (Pyramid puzzle room, flags $BB/$0E/$0D: the melody needs $0E set and $BB clear, and sets $0D, which the pyCD_jackal script tests)"
+          }
+        ]
+      },
+      "UseItem_LolaMelody_Effect": {
+        "edit": [
+          {
+            "find": "if flag $40 is already set it jumps to code_038C68 instead.",
+            "with": "the start handler already refuses the melody when $40 is set, so the jump to code_038C68 that the effect takes in that case cannot be reached from the handler."
+          }
+        ]
+      },
+      "UseItem_HieroglyphPlate": {
+        "edit": [
+          {
+            "find": "Scene $CD (Tower of Babel) only. If flag $0F is set (Memory Melody already played), shows a timing message.",
+            "with": "Scene $CD (Pyramid puzzle room) only. If scratch flag $0F is set (pyCD_jackal sets it once all six plate pickup flags $C2-$C7 are set and the Jackal scene has not run, and clears it at the end of the Jackal sequence), shows a timing message."
+          }
+        ]
+      },
+      "UseItem_HieroglyphPlate_Detail": "Hieroglyph Plate timing guard — prints 'not the time to fit the tile' when scratch flag $0F is set (the Jackal scene of the Pyramid puzzle room is running).",
+      "UseItem_IncanMelody": {
+        "edit": [
+          {
+            "find": "sets flag $2E (triggers mayor reaction) and prints the result.",
+            "with": "sets flag $2E and prints 'The Mayor's expression changed!'. No actor, scene-meta gate or helper reads $2E, so the flag changes nothing visible."
+          }
+        ]
+      },
+      "UseItem_DiamondBlock": {
+        "edit": [
+          {
+            "find": "Diamond Block — fit into a tile slot in the Diamond Mine (scene $25).",
+            "with": "Diamond Block (item $07, called Blue Block in the item table) — fit into the block slot of the Incan Ruins entryway (scene $25, ir25_block_slot)."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "231846": { "text": "Scene $24 = Incan Ruins plate room; flag $01 = the wind melody already played in this visit", "expect": "sceneCurrent" },
+      "231920": "Wind Melody fallback (not scene $24, or the flag $01 test branched here): prints 'But nothing happened'"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "_note": "FL10 draft: corrections to shipped notes that the code contradicts. Apply in the apply pass (plan section 7); re-run extract:lt first.",
+  "system/engine/flag_helpers.asm": {
+    "partNotes": {
+      "ClearAllWramFlags": [
+        "JSL helper that zero-fills the $20-byte wramFlags block ($0A80–$0A9F, event flags $0400–$04FF) with a word loop (16 iterations).",
+        "",
+        "Callers: WorldMapController (once, when the world map is entered), st68_kara and sp58_red_eye; game_over_sequence clears the same $20 bytes inline on a true death. No call at ordinary scene changes was found."
+      ]
+    }
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_StatueOfHope": [
+        "Statue of Hope — place in pedestals in the Mu prayer room (scene $63, actor mu63_spirits).",
+        "",
+        "Two positions: ($06,$06)–($0A,$08) sets flag $7B; ($16,$06)–($1A,$08) sets flag $7E. scene_meta reads both flags in the Mu scenes $5F–$65: flag $7B loads the half-drained effect tilemap, flag $7E (tested first) the drained one. Uses RemoveEquippedItem (JSR) since either pedestal consumes the statue."
+      ],
+      "UseItem_RamaStatue": [
+        "Rama Statue — place in pedestals in the Mu altar room (scene $66; mu66_altar1 and mu66_altar2 wait on the flags).",
+        "",
+        "Two positions: ($23,$08)–($26,$0A) sets flag $80; ($2A,$08)–($2D,$0A) sets flag $81. Same RemoveEquippedItem pattern as UseItem_StatueOfHope."
+      ]
+    }
+  },
+  "system/inventory/inventory_overlay.asm": {
+    "comments": {
+      "192033": {
+        "text": "Branch back to code_02EE17 while flag $0000 (bit 0 of $0A00) is clear; inventory_menu sets it to close",
+        "expect": "BranchOnFlagByte"
+      }
+    }
+  },
+  "system/engine/cop_handlers_scene_flags.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "operate on the 2048-bit eventFlags field at $0A00 through flag_helpers",
+          "with": "operate on the eventFlags bit array at $0A00 (flag N = bit N AND 7 of byte $0A00 + N÷8) through flag_helpers"
+        },
+        {
+          "find": "a Word form (index 0–$7FF, two operand bytes).",
+          "with": "a Word form (index 0–$7FF, two operand bytes). The largest index any script uses is $0185; the bytes from $0AA4 on hold state variables, not flags (see flag_helpers)."
+        }
+      ]
+    }
+  },
+  "system/engine/scene_script.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Skip remaining commands in current scene block",
+          "with": "Jump: continue at the $14 label whose id is the operand (the label can sit in another record)"
+        }
+      ]
+    },
+    "partNotes": {
+      "SceneCmd_Branch": [
+        "Scene command $13 <flag> <label>: a conditional jump. Reads the flag index and calls TestFlagRaw (the index is masked to a byte, so only flags $00–$FF can gate). If the flag is set it enters SkipScriptCommands with Y on the label operand, and the stream continues at the matching $14 label, which can sit in another scene's record. If the flag is clear, Y moves past the label operand and the next command runs."
+      ],
+      "SkipScriptCommands": [
+        "Jump to a label: the handler of command $15 (jump <label>) and the tail of a taken $13 branch. Reads the label id operand and keeps it on the stack, then scans the whole scene table from the start (Y = 0, stepping over each 2-byte scene id, with the operand sizes of FindCurrentScene) until it meets command $14 whose id equals the label id; Y then points just after that label and the scene loop continues there. Command $12 ends the scan at once. Every other command is skipped, so the label can lie in any record."
+      ]
+    },
+    "comments": {
+      "164948": { "text": "Flag set: jump to the label through SkipScriptCommands", "expect": "PLP" },
+      "167229": { "text": "Read the label id operand; it stays on the stack as the search key", "expect": "JSR" },
+      "167302": { "text": "Command $14 (label): compare its id with the stacked label id; a mismatch keeps scanning", "expect": "LDA" }
+    }
+  },
+  "tables/scene_meta.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "A branch tests a story flag and picks one of two sprite sets (scene_meta_0006) or one of two tracks (scene_meta_00AC).",
+          "with": "A branch tests a story flag and picks a variant: the sprite sets of scenes $06, $5A, $5C and $67, the effect tilemap of the Mu scenes $5F–$65, the palette of scene $78, the map of scene $8C or the track of scene $AC."
+        }
+      ]
+    }
+  }
+}

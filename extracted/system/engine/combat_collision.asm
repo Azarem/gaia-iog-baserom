@@ -14,9 +14,9 @@
 ; 
 ; Two-phase collision detection:
 ; 
-; Phase 1 (outer loop): For each enemy in the render list, for each actor WITHOUT $0400, requires $0080 set in $10 (hit-reaction active: ApplyHitDamageToVictim_DamagePath sets it on a victim, RunActors_Normal clears it), $0040 clear (not dead/orb) and $12 $0010 clear (not damage-immune). If eligible, calls PlayerAttackHitTest.
+; Phase 1 (outer loop): For each enemy in the render list, for each actor WITHOUT $0400, requires $0080 set in $10 (hit-reaction active: ApplyHitDamageToVictim_DamagePath sets it on a victim, RunActors_Normal clears it), $0040 clear (not dead/orb) and $12 $0010 clear (not damage-immune). If eligible and the actor's iframe counter is not negative, calls PlayerAttackHitTest. The actor tested here is a victim that was just hit (ApplyHitDamageToVictim sets $0080 and a positive counter, 17 frozen frames for a non-player actor), and the call is its chain reaction against the other actors it overlaps; no attack of the player is evaluated here (measured for melee, Psycho Dash, Psycho Slider, Spin Dash, Dark Friar and the Aura Barrier orbitals: all go through phase 2).
 ; 
-; Phase 2 (inner loop at CombatCollision_InnerLoop): After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision. Uses AABB overlap testing on hitbox fields ($20–$23). Two paths based on $20 flag: normal ($76E0 exclusion mask) or friendly ($74E0 mask + extendedFlags $0010 check).
+; Phase 2 (inner loop at CombatCollision_InnerLoop): After phase 1, builds the hit rectangle of the current actor when that actor has $0400 (the player while it attacks, Dark Friar projectiles and fragments, the Aura orbitals, an actor that died on the inline-lethal path) and has none of $0140, then checks every actor of the render list against it. Each overlapped actor is hit through ApplyHitDamageToVictim, with the current actor as the source. An enemy touching the player is not decided here: it goes through ApplyInteractionDamage. Uses AABB overlap testing on hitbox fields ($20–$23). Two paths based on $20 flag: normal ($76E0 exclusion mask) or friendly ($74E0 mask + extendedFlags $0010 check).
 ; 
 ; === HITBOX FORMAT ===
 ; 
@@ -30,10 +30,10 @@
 ; 
 ; === DAMAGE FORMULAS ===
 ; 
-; Player attacks enemy (PlayerAttackHitTest):
+; Chain reaction of a hit victim (PlayerAttackHitTest; no attack of the player uses it):
 ;   damage = chainDamage/2 + 1
 ;   enemyHP = max(0, enemyHP − damage)
-;   chainDamage stored at $7F101E,X accumulates across consecutive hits
+;   chainDamage ($7F101E,X) of the attacker is the net damage of the hit that stunned it (ApplyHitDamageToVictim stores it); the victim of the chain hit gets chainDamage / 2 as its own chainDamage, so the value halves per hop (measured: net damage 6 gives hop damage 4 and victim chainDamage 3; net damage 1 gives hop damage 1 and victim chainDamage 0)
 ; 
 ; Phase-2 hit (ApplyHitDamageToVictim: uses the PLAYER's strength and reduces the overlapped actor's HP):
 ;   totalStr = playerStr + rangedDamageBonus + abilityDamageBonus   (rangedDamageBonus = $09E2, 0 when the hitter is actor slot $1000)
@@ -208,14 +208,14 @@ RunCombatCollision {
 ; 
 ; Two-phase collision detection per enemy:
 ; 
-; Phase 1 (player attack test): For each actor Y in the render list, checks eligibility (actors without $0400 only): bit 7 ($0080) of $10 set (hit-reaction active), bit 6 ($0040) clear (not dead/orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.
+; Phase 1 (chain reaction of a hit victim): For each actor Y in the render list, checks eligibility (actors without $0400 only): bit 7 ($0080) of $10 set (hit-reaction active), bit 6 ($0040) clear (not dead/orb), and $12 bit 4 ($0010) clear (not damage-immune). If eligible and the actor's iframe counter is non-negative (the 17 frames of a positive counter counting down after a hit), calls PlayerAttackHitTest with that actor as the attacker.
 ; 
-; Phase 2 (enemy-hits-player test): After phase 1, constructs the current enemy's AABB from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at CombatCollision_InnerLoop), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
+; Phase 2 (source actor hits the actors it overlaps): After phase 1, constructs the AABB of the current actor (the source: it needs $0400 and none of $0140) from metasprite hitbox fields ($0004–$0007), accounting for H-mirror via the carry flag from ASL on $000E. Then iterates the render list again (inner loop at CombatCollision_InnerLoop), testing each actor's hitbox ($0020–$0023) for AABB overlap against the enemy's box.
 ; 
 ; The $20 DP flag distinguishes normal mode (exclusion mask $76E0) from friendly/interaction mode ($74E0 + extendedFlags $0010 check). On overlap, calls ApplyHitDamageToVictim.
 
 CombatCollision_EnemyLoop {
-    BIT #$0080            ; $0080 in the tested actor's $10 must be set (the bit a victim gets when hit, see iframeCounter); why this test requires it is not traced
+    BIT #$0080            ; $0080 in the tested actor's $10 must be set: the actor is in hit-stun (ApplyHitDamageToVictim sets it on a victim, ApplyInteractionDamage on the player, RunActors_Normal clears it when the iframe counter reaches zero), so this test is the chain reaction of a victim
     BEQ loc_03BC26
     BIT #$0040            ; $0040 = orb protection on this actor
     BNE loc_03BC26
@@ -331,7 +331,7 @@ CombatCollision_EnemyLoop {
     LDA $20
     BNE loc_03BCD4
     LDA $0010, Y
-    BIT #$76E0            ; $76E0: skip dead/orb/COP/display/overlay/pause
+    BIT #$76E0            ; $76E0: skip dead/orb/COP/display/overlay/pause; the mask includes $0200 (ignore enemy contact) and $0080 (hit reaction)
     BEQ loc_03BCEF
     BRA CombatCollision_InnerLoop
 
@@ -482,7 +482,7 @@ PlayerAttackHitTest {
     INX 
     INX 
     LDA $0010, Y
-    BIT #$36F0            ; $36F0: skip friendly/dead/orb/COP/display
+    BIT #$36F0            ; $36F0: skip friendly/dead/orb/COP/display; the mask also includes $0400, $0200 (ignore enemy contact) and $0080 (hit reaction)
     BNE code_03BDAF
     LDA $0020, Y          ; AABB overlap: same edge-comparison pattern as CombatCollision_InnerLoop
     AND #$00FF

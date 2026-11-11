@@ -1,0 +1,360 @@
+{
+    "system/engine/hdma_dma_spc.asm": {
+        "blockNote": [
+            "DMA, HDMA, and SPC audio utility routines (252033–252182 + 254128–254549 + 258512–258561, Bank 03).",
+            "",
+            "A mixed utility block spanning three non-contiguous address ranges, providing hardware transfer and audio infrastructure used by the scene lifecycle, NMI handler, and actor/thinker systems.",
+            "",
+            "=== PLAYER TILE DMA (252033–252182) ===",
+            "",
+            "DmaPlayerTilesToVram uploads the player's queued 16×16 sprite tiles from WRAM to VRAM. ClearSceneState calls it during scene loading and the NMI handler calls it whenever displayModeFlags bit 3 is set (in that NMI it replaces DmaAdhocVramBlock and the write-queue flush). The list at $06FE is one bank byte (playerTileDmaBank) followed by word pointers; each pointer addresses 64 bytes of upper-half tile rows and the lower half lies $0200 bytes further on. Four passes: upper halves of the first 8 pointers to VRAM $4000, upper halves of the pointers after the 8th (until a zero pointer) to $4200, lower halves to $4100, lower-half continuation to $4300.",
+            "",
+            "=== PALETTE-BUNDLE ANIMATION (254128–254278) ===",
+            "",
+            "LoadPaletteBundle and DecompressGfxToVram are the two halves of one palette-animation step. Only the five palette-bundle COP handlers (#36–#3A, cop_handlers_palette) call them. A bundle (palette_bundles table, ROM bank $96) is a list of 6-byte sub-entries, and each sub-entry is an animation STRIP of N frames: byte 0 = frame count N (0 ends the bundle), bytes 1–2 = address in bank $96 of the first frame's colors, byte 3 = first CGRAM color index (destination = $7F0A00 + 2 × index, the palette staging buffer), byte 4 = frame size − 1 in bytes ($0D = 7 colors, $03 = 2 colors, $02 = one 3-byte backdrop RGB triplet), byte 5 = extra ticks to wait between frames. The frames of a strip are stored back to back (a strip with N = 8 and byte 4 = 3 is followed by exactly 32 bytes of colors, then the next sub-entry's data), and every step overwrites the same destination with the next frame. LoadPaletteBundle fills the actor fields from the next sub-entry (N → spritesetPtr, source → chatPtr, destination → metaspritePtr, size − 1 → $7F0008, wait → DP $08 and animScratch); DecompressGfxToVram (misnamed: nothing is decompressed and VRAM is not touched) block-moves one frame with the RAM stub at $0402 (PHB / MVN $7F,$96 / PLB / RTS, written by system_init) and advances chatPtr to the next frame. The 14 shipped sub-entries with byte 4 = 2 write the backdrop triplet: LoadPaletteBundle then adds $0200 to the destination so $7F0A00 + $0200 = backdropColors ($7F0C00).",
+            "",
+            "=== HDMA CHANNEL MANAGEMENT (254278–254378) ===",
+            "",
+            "ResetHdmaState (called by every frame routine: the main loop, UpdateFrameDialogue, UpdateFrameRender, UpdateFrameFull and the scene-start sequence, always after the type-A/C thinkers and before the type-B/D ones) clears the allocation state: enable mask $66 = 0, next channel bit $68 = $02 (channel 1), register block offset $6A = $10. $6C is a one-shot lock: when negative the reset is skipped once; scene_lifecycle's wave transition calls ResetHdmaState explicitly, arms $6C = $FF and runs ApplyScrollWaveEffect, whose UpdateFrameDialogue call then skips its reset (and clears $6C) so the HDMA the wave just bound survives that frame.",
+            "",
+            "SetupHdmaChannel_Indirect and SetupHdmaChannel_Direct bind the next free channel (1–7): A = bank byte (low) | B-bus register number (high), Y = table address. The register number indexes hdma_channel_config to get the DMAP transfer mode (the indirect entry ORs $40 and also writes the table bank to DASB). Both finish in a shared tail that writes BBADx, A1Tx and A1Bx, sets the channel's bit in the enable mask and advances $68/$6A. The tail's ADC #$10 has no CLC: the carry is the carry-out of ASL $0068, which is clear for channels 1–6, so seven channels is the maximum (binding the 7th leaves $6A = $81).",
+            "",
+            "=== SPC MUSIC CHANGE (254378–254549) ===",
+            "",
+            "StartMusic and FadeThenStartMusic (cop_handlers_audio) spawn a thinker that enters at SpcTransferMusicData or SpcCheckMusicReady with the music ID in chatPtr. The thinker talks to the SPC sound engine through port commands on APUIO0 (docs/audio/spc-disassembly.md, ProcessPortCommand): $F1 = CmdFadeOut (sets the engine's fade counters $30/$31 to $FF), $F0 = CmdStop, $FF = jump into the engine's resident clone of the IPL loader (sub_0f89), which posts $BBAA and speaks the boot-ROM upload protocol; $01 enters the engine's ASL-to-$02 path (ClearAramTail, stream pointer from ARAM $0FFC). OQ-61 is answered here: SpcCheckMusicReady's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (whether the fade is audible before the following $01/$F0 commands is OQ-I021-2).",
+            "",
+            "Sequence: the thinker stages the ID in musicTransitionState; the main loop's LoadMusicFromTransitionState (once per pass, after UpdateHUD) turns it into a music_pointer_array entry, enables NMI and joypad and runs spc_transfer.SpcBlockTransfer (blocking; the NMI calls UpdateFrameFull each frame meanwhile), then stores $FFFF, which releases the thinker: it waits one frame (COP WaitByte #01 is a frame delay, not an SPC acknowledgment), sends $01, clears sfxQueueCh1 and musicTransitionState and dies.",
+            "",
+            "=== AD-HOC VRAM DMA (258512–258561) ===",
+            "",
+            "DmaAdhocVramBlock executes one-shot VRAM transfers queued at $7F0C03–$7F0C09 (source word, source bank, destination word = trigger, byte count). It only runs from the NMI handler, which has just programmed VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 for it, and it is skipped when dmaSkipFlag is set or when displayModeFlags bit 3 selected the player-tile path instead. Writers must store the size before the destination (the destination arms the transfer; OQ-64)."
+        ],
+        "partNotes": {
+            "DmaPlayerTiles_UpperHalf": "Transfer up to 8 upper-half tile rows to VRAM. Reads word pointers from the playerTileDmaBank list starting at Y (from $06FF), programs one 64-byte DMA per pointer (A1T0 = pointer, DAS0 = $40) and stops when Y reaches $11 (8 entries) or a pointer is zero. Y is not reset between the first and the continuation pass.",
+            "LoadPaletteBundle": [
+                "Load the next palette-bundle sub-entry into the actor's fields (called by the palette-bundle COP handlers with X = D = the thinker slot).",
+                "",
+                "Switches the data bank to $96 (ROM bank of palette_bundles), takes the bundle ID from animScratch+2, finds the sub-entry at palette_bundles[ID] + 6 × $0E and reads its six bytes:",
+                "- byte 0: frame count N of this strip (zero = end of bundle) → spritesetPtr ($7F0006); PaletteStep decrements it once per step;",
+                "- bytes 1–2: source address of the strip's first frame, in bank $96 → chatPtr ($7F000A);",
+                "- byte 3: first CGRAM color index; destination offset = $0A00 + 2 × index (the $7F0A00 palette staging buffer) → metaspritePtr ($7F000C);",
+                "- byte 4: frame size − 1 in bytes ($0D = 7 colors, $03 = 2 colors, $02 = one backdrop RGB triplet) → $7F0008;",
+                "- byte 5: extra ticks to wait between frames → DP $08 (the wait counter) and animScratch ($7F0000), so PaletteStep can re-seed $08.",
+                "",
+                "Then increments the sub-entry index $0E. When byte 4 is 2, the word at $7F000D (the high byte of metaspritePtr) gets +2, i.e. the destination moves by +$0200: index 0 then lands on backdropColors ($7F0C00); all 14 shipped length-2 sub-entries use color index 0.",
+                "",
+                "Returns carry clear when a sub-entry was loaded, carry set (and $0E reset to 0) when byte 0 was zero. The field names (spritesetPtr, chatPtr, metaspritePtr) are borrowed from the sprite actors; the thinkers use them as frames-left, source pointer and destination pointer."
+            ],
+            "DecompressGfxToVram": [
+                "Apply one palette-bundle frame: copy a block of colors from ROM into the palette staging buffer (not a decompression, and no VRAM is touched).",
+                "",
+                "Programs the RAM block-move stub at $0402 (PHB / MVN / PLB / RTS, written by system_init): one 16-bit store of $967F puts $7F in $0404 (MVN destination bank) and $96 in $0405 (source bank, the palette_bundles bank). Then A = $7F0008,X (frame size − 1), Y = metaspritePtr (destination offset in bank $7F), X = chatPtr (source offset in bank $96) and JSR $0402. MVN leaves X one past the last source byte; it is stored back to chatPtr, so the next call copies the following frame of the strip to the same destination. The caller's X is saved around the call.",
+                "",
+                "The NMI later uploads the $7F0A00 staging buffer to CGRAM (UploadCgramPalette) and the backdrop triplet at $7F0C00 to the fixed color; this routine only edits those RAM mirrors."
+            ],
+            "ResetHdmaState": [
+                "Reset the HDMA channel allocation state for fresh channel assignment (every frame routine calls this once per frame before the type-B/D thinkers).",
+                "",
+                "If $6C is negative (bit 7 set) the reset is skipped. $6C is a one-shot lock: scene_lifecycle's wave transition arms it ($FF) right after its own explicit reset so that the ApplyScrollWaveEffect → UpdateFrameDialogue call does not wipe the HDMA channels the wave just bound.",
+                "",
+                "Otherwise clears the HDMA enable mask ($66 = 0), resets the next channel bit to channel 1 ($68 = $02) and the DMA register block offset to channel 1 ($6A = $10). SetupHdmaChannel_Indirect/Direct consume these three bytes.",
+                "",
+                "Always clears the lock ($6C = 0) on exit, so the lock covers exactly one call."
+            ],
+            "SetupHdmaChannel_Indirect": [
+                "Bind the next free HDMA channel in indirect mode (JSL from the HDMA COP handlers and the thinker scripts).",
+                "",
+                "Entry: 16-bit A = table bank (low byte) | PPU B-bus register number (high byte, e.g. $0D = BG1HOFS), Y = HDMA table address. The routine pushes the bank, then the register number, uses the register number to index hdma_channel_config (DMAP transfer mode), ORs $40 (indirect) into it and writes DMAP of the channel whose register block offset is in $6A. The bank also goes to DASB (indirect data bank), so the table and the data it points to share one bank. It then branches into the shared tail inside SetupHdmaChannel_Direct (loc_03E186).",
+                "",
+                "Indirect HDMA: each table entry is a line count plus a pointer to the data, so the data can live elsewhere in the bank and be changed per frame without rewriting the table."
+            ],
+            "SetupHdmaChannel_Direct": [
+                "Bind the next free HDMA channel in direct mode. Same entry convention as SetupHdmaChannel_Indirect (A = bank | register << 8, Y = table address) but DMAP gets the plain hdma_channel_config mode.",
+                "",
+                "The shared tail (loc_03E186, also reached from the indirect entry) pops the register number into BBADx, stores Y into A1Tx and the bank into A1Bx, sets this channel's bit ($68) in the HDMA enable mask ($66), shifts $68 left and adds $10 to $6A. There is no CLC before that ADC: the carry is the carry-out of ASL $0068, clear for channels 1–6, so at most seven channels (1–7) can be bound per frame.",
+                "",
+                "Direct HDMA: each table entry is a line count followed by the register value(s) to write."
+            ],
+            "SpcCheckMusicReady": [
+                "Entry of the FadeThenStartMusic thinker: request the SPC engine's fade-out, then hand over to SpcTransferMusicData.",
+                "",
+                "1. Sends $F1 to APUIO0 (the engine's CmdFadeOut: fade counters $30/$31 = $FF; answers OQ-61) and yields one frame. If APUIO0 does not echo $F1 the routine returns and runs again next frame.",
+                "2. With the echo seen, sends $01 and yields again. If APUIO0 now reads zero, execution falls into SpcTransferMusicData; otherwise it returns and retries.",
+                "",
+                "Runs as a thinker script: each COP SetEntryHereAndYield suspends it until the next frame, so the handshake costs a few frames but never blocks the main loop. Whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later is OQ-I021-2."
+            ],
+            "SpcTransferMusicData": [
+                "Thinker script that requests the music upload and waits for the main loop to perform it (entry of StartMusic's thinker; also reached from SpcCheckMusicReady).",
+                "",
+                "Sends $F0 (the engine's CmdStop), yields and requires a zero echo; yields again, sends $FF (jump into the engine's resident IPL-clone loader, which then posts $BBAA) and copies the music ID from chatPtr into musicTransitionState ($06FA); this staged ID is what LoadMusicFromTransitionState picks up.",
+                "",
+                "Then waits (one yield per frame) for musicTransitionState = $FFFF, which LoadMusicFromTransitionState writes after the blocking SpcBlockTransfer. Once seen: COP WaitByte #01 (a one-frame delay, not an SPC acknowledgment), sends $01, yields once more, clears sfxQueueCh1 and musicTransitionState and ends with COP Die.",
+                "",
+                "Only the block transfer itself blocks the main loop; every protocol step here is spread over frames."
+            ],
+            "LoadMusicFromTransitionState": [
+                "Resolve a staged music ID and run the SPC block transfer.",
+                "",
+                "Called once per main-loop pass from MainLoop, after UpdateHUD. Returns at once if musicTransitionState is zero or negative (no pending music change or already done).",
+                "",
+                "For a positive ID it computes the music_pointer_array offset (ID − 1) × 3 (3-byte entries: address + bank) and loads the address into DP $46/$47 and into the shadow bytes $0687/$0688. It then enables NMI and joypad, calls SpcBlockTransfer (blocking; the NMI calls UpdateFrameFull every frame while musicTransitionState is positive), switches to EnableNmiOnly (NMITIMEN = $01: NMI off, joypad auto-read on; the main loop turns NMI on again at the end of the pass) and stores $FFFF into musicTransitionState to release the waiting SpcTransferMusicData thinker."
+            ],
+            "DmaAdhocVramBlock": [
+                "Execute a one-shot VRAM DMA from the queued parameters (called only from NmiHandler).",
+                "",
+                "Checks $7F0C07 for a pending VRAM destination. If zero, returns immediately. Otherwise:",
+                "1. Writes the destination to VMADDL and clears $7F0C07 (the trigger);",
+                "2. Loads the byte count from $7F0C09 into DAS0;",
+                "3. Loads the source address from adhocVramDma ($7F0C03) and the bank from $7F0C05;",
+                "4. Fires DMA channel 0.",
+                "",
+                "Channel 0 is not programmed here: NmiHandler has just written VMAIN = $80, DMAP0 = $01 and BBAD0 = $18 (word writes to VRAM data), so this routine is not safe to call from anywhere else. It is skipped when dmaSkipFlag is set, and the NMI uses the player-tile path instead when displayModeFlags bit 3 is set."
+            ]
+        },
+        "comments": {
+            "252090": { "text": "Second pass continues with the 9th pointer (Y is not reset) until a zero pointer; VRAM $4200", "expect": "JSR $&DmaPlayerTiles_UpperHalf" },
+            "252116": { "text": "Same continuation for the lower halves; VRAM $4300", "expect": "JSR $&DmaPlayerTiles_LowerHalf" },
+            "254160": { "text": "Sub-entry byte 0 = frame count of the strip (zero = end of bundle)", "expect": "LDA $0000, Y" },
+            "254168": { "text": "Frame count N → spritesetPtr; PaletteStep decrements it once per step", "expect": "STA $spritesetPtr, X" },
+            "254172": { "text": "Bytes 1-2: address of the strip's first frame, in bank $96", "expect": "LDA $0001, Y" },
+            "254175": { "text": "chatPtr = source pointer; DecompressGfxToVram advances it frame by frame", "expect": "STA $chatPtr, X" },
+            "254179": { "text": "Byte 3 = first CGRAM color index to overwrite", "expect": "LDA $0003, Y" },
+            "254187": { "text": "Destination offset in bank $7F: $0A00 + 2 × index (palette staging buffer)", "expect": "ADC #$0A00" },
+            "254190": { "text": "metaspritePtr is reused as the MVN destination offset", "expect": "STA $metaspritePtr, X" },
+            "254194": { "text": "Byte 4 = frame size - 1 in bytes ($0D = 7 colors, $02 = backdrop RGB triplet)", "expect": "LDA $0004, Y" },
+            "254200": { "text": "Frame size - 1 kept in $7F0008 for DecompressGfxToVram", "expect": "STA $7F0008, X" },
+            "254205": { "text": "Byte 5 = extra ticks to wait between frames", "expect": "LDA $0005, Y" },
+            "254211": { "text": "DP $08 is the wait counter: the next step runs after this many extra ticks", "expect": "STA $08" },
+            "254213": { "text": "Copy kept in animScratch so PaletteStep can re-seed $08 for the later frames", "expect": "STA $animScratch, X" },
+            "254220": { "text": "Frame size - 1 = 2: a 3-byte backdrop color triplet", "expect": "CMP #$0002" },
+            "254225": { "text": "Word at $7F000D covers the high byte of metaspritePtr; +2 moves the destination by +$0200", "expect": "LDA $7F000D, X" },
+            "254231": { "text": "$0A00 + $0200 = $0C00 = backdropColors (color index 0 in all 14 shipped sub-entries)", "expect": "STA $7F000D, X" },
+            "254246": { "text": "$0404 = $7F (MVN destination bank), $0405 = $96 (source bank); one 16-bit store", "expect": "LDA #$967F" },
+            "254252": { "text": "A = frame size - 1 (byte count for MVN)", "expect": "LDA $7F0008, X" },
+            "254257": { "text": "Y = destination offset (palette staging buffer, bank $7F)", "expect": "LDA $metaspritePtr, X" },
+            "254262": { "text": "X = source offset (bank $96)", "expect": "LDA $chatPtr, X" },
+            "254268": { "text": "RAM stub: PHB, MVN $7F,$96, PLB, return; copies A + 1 bytes (palette staging, no VRAM)", "expect": "JSR $0402" },
+            "254271": { "text": "MVN leaves X one past the last source byte", "expect": "TXA" },
+            "254273": { "text": "chatPtr now addresses the strip's next frame for the next call", "expect": "STA $chatPtr, X" },
+            "254278": { "text": "$6C is a one-shot lock: negative skips this reset only", "expect": "LDA $6C" },
+            "254280": { "text": "Locked: keep the channels bound since the last reset", "expect": "BMI loc_03E154" },
+            "254292": { "text": "Consume the lock (the wave transition re-arms it after its explicit reset)", "expect": "STZ $6C" },
+            "254299": { "text": "Push the bank byte (A low)", "expect": "PHA" },
+            "254302": { "text": "XBA brings the B-bus register number (A high) into A; it is pushed and used as the table index", "expect": "XBA" },
+            "254305": { "text": "hdma_channel_config[register]: DMAP transfer mode for this B-bus register", "expect": "LDA $&hdma_ramp_tables.hdma_channel_config, X" },
+            "254308": { "text": "X = DMA register block offset of the channel being bound ($10, $20, ...)", "expect": "LDX $006A" },
+            "254316": { "text": "Stack holds register number (S+1) and bank (S+2): the bank is also the indirect data bank", "expect": "LDA $02, S" },
+            "254333": { "text": "Same register lookup as the indirect entry, without the $40 flag", "expect": "LDA $&hdma_ramp_tables.hdma_channel_config, X" },
+            "254355": { "text": "Table bank (the byte pushed first)", "expect": "STA $A1B0, X" },
+            "254364": { "text": "Next channel bit; the carry-out feeds the ADC below", "expect": "ASL $0068" },
+            "254370": { "text": "No CLC: carry is the ASL out of bit 7 (set only after channel 7); next block offset = +$10", "expect": "ADC #$10" },
+            "254380": { "text": "Port command $F1 = SPC engine CmdFadeOut (fade counters $30/$31 = $FF); answers OQ-61", "expect": "LDA #$F1" },
+            "254403": { "text": "Port command $01: engine path ASL to $02 (ClearAramTail, stream pointer from ARAM $0FFC); not traced further", "expect": "LDA #$01" },
+            "254447": { "text": "Port command $FF = jump into the engine's resident IPL-clone loader, which posts $BBAA", "expect": "LDA #$FF" },
+            "254454": { "text": "chatPtr holds the music ID from StartMusic/FadeThenStartMusic (an ID, not a pointer)", "expect": "LDA $chatPtr, X" },
+            "254472": { "text": "WaitByte = frame delay: waits 1 frame, not an SPC acknowledgment", "expect": "COP [WaitByte]" },
+            "254528": { "text": "NMI on for the blocking transfer: the NMI runs UpdateFrameFull while the ID is positive", "expect": "JSL $@vblank_joypad.EnableNmiAndJoypad" },
+            "254536": { "text": "NMITIMEN = $01: NMI off again, joypad auto-read only; the main loop re-enables NMI at the end of the pass", "expect": "JSL $@vblank_joypad.EnableNmiOnly" },
+            "258556": { "text": "Channel 0 uses VMAIN/DMAP0/BBAD0 as NmiHandler programmed them just before; not callable elsewhere", "expect": "STA $MDMAEN" }
+        }
+    },
+    "system/engine/QuintetLzDecompress.asm": {
+        "blockNote": [
+            "QuintetLZ decompression engine (164464–164770, Bank 02).",
+            "",
+            "Implements the LZSS-variant compression algorithm used across Quintet (Enix) games — Illusion of Gaia, Soul Blazer, and Robotrek — for compressing graphics, tilemaps, and other data.",
+            "",
+            "=== ALGORITHM ===",
+            "Dictionary-based compression with a 256-byte sliding window. A bitstream control layer determines token types:",
+            "- Bit = 1 → Literal: read 8 bits via LzReadBitField, write byte to output and dictionary",
+            "- Bit = 0 → Back-reference: read 8-bit dictionary index via LzReadBitField, then 4-bit length via LzReadBackRef. Copy (length + 2) bytes from dictionary to both output and dictionary write position",
+            "",
+            "The dictionary is initialized to $20 (space character), providing good compression for text-heavy data. The starting write position is $EF (DICTIONARY_OFFSET), matching the Quintet standard across all three games.",
+            "",
+            "=== BITSTREAM FORMAT ===",
+            "Bits are read MSB-first within each source byte. DP $72 holds a one-hot mask of the NEXT unread bit, starting at $80 (bit 7). Each control bit consumed shifts the mask right via LSR. When the mask shifts out entirely (all 8 bits consumed), it resets to $80 via ROR and the source pointer [$3E] advances.",
+            "",
+            "LzReadBitField (8-bit read) and LzReadBackRef (4-bit read) use position cascades keyed on the mask. When the required bits straddle a byte boundary they read a 16-bit word from the source, XBA to swap byte order, and enter ASL (8-bit read) or LSR (4-bit read) fall-through cascades to align the result. In LzReadBackRef the one-hot mask itself sits in the low byte of the 16-bit word and acts as the shift counter: LSR runs until the mask's single set bit is shifted out into carry.",
+            "",
+            "=== WRAM LAYOUT ===",
+            "$3E/$3F/$40: 24-bit source pointer to compressed data (past the 2-byte size header). The routine advances $3E/$3F with 16-bit increments and never carries into the bank byte $40, so a stream must not cross a bank boundary; the pointer is left one past the last byte used.",
+            "$72: Bit mask — one-hot, MSB-first, resets to $80 on byte boundary",
+            "$74/$75: Dictionary write pointer (low byte = position within 256-byte page at $7E0200; the 8-bit INC wraps it inside the page)",
+            "$76/$77: Back-reference read pointer (same $02xx page; set per back-ref token)",
+            "$78/$79: Decompressed byte count (loaded into Y as countdown)",
+            "$7A/$7B: Output buffer address in bank $7E (loaded into X for STA $0000,X)",
+            "$7E0200–$7E02FF: 256-byte sliding dictionary. This page is also the first half of the depth-sort bucket array that sprite_composition's ClearActorRenderList zeroes ($0200–$03FE; mnemonic deathFlag = $0200), so every decompression leaves garbage there: callers must run ClearActorRenderList afterwards (the Decompress COP and the scene-load sequence do).",
+            "",
+            "=== ENTRY CONDITIONS ===",
+            "Caller sets: [$3E] = source pointer (past size header), $78 = decompressed size (must be non-zero: a zero count runs for 65,536 bytes; scene_script skips size 0, the Decompress COP does not test it), $7A = output address within bank $7E (the data bank is set to $7E internally, so $7F output is impossible). X, Y, P and DBR are preserved across the call; A is not.",
+            "",
+            "Reference: QuintetLZ class in @gaialabs/core (src/compression/QuintetLZ.ts)."
+        ],
+        "partNotes": {
+            "QuintetLzDecompress": [
+                "Main QuintetLZ decompression routine.",
+                "",
+                "Sets data bank to $7E, initializes the 256-byte dictionary ($7E0200–$02FF, shared with the depth-sort bucket array) with $20 (space), sets the dictionary write position to $EF, and enters the main decompression loop.",
+                "",
+                "Main loop reads one control bit per iteration:",
+                "- Bit = 1 (literal): reads 8-bit byte via LzReadBitField, writes to both the output buffer (STA $0000,X) and dictionary (STA ($74))",
+                "- Bit = 0 (back-reference): reads 8-bit dictionary index via LzReadBitField (stored to $76), then 4-bit copy length via LzReadBackRef (+2 minimum). Copies bytes from dictionary at the read position ($76) to both the output and dictionary write position ($74). Uses the XBA trick to stash the copy counter in the B register, freeing A for dictionary reads",
+                "",
+                "The output counter (Y) decrements per byte written. When Y reaches zero, decompression is complete (even in the middle of a back-reference copy).",
+                "",
+                "Preserves X, Y, P and the data bank via PHP/PHB/PHX/PHY at entry; A is not preserved."
+            ],
+            "LzReadBitField": [
+                "Read 8 bits from the compressed bitstream and return in A.",
+                "",
+                "Tests the current bit position ($72 mask) via a cascade of ASL+BMI checks; the cascade finds which bit of the mask is set, i.e. how many bits (k = 0–7) of the current source byte are already consumed.",
+                "",
+                "Fast path (mask $80, k = 0, byte-aligned): reads the source byte directly via LDA [$3E], advances the pointer, returns — no shifting.",
+                "",
+                "Slow path (k = 1–7): reads a 16-bit word from the source (two consecutive bytes), XBAs it to b0:b1 and ASLs it k times (the entry point into the fall-through cascade selects k: mask $40 = 1 shift ... mask $01 = 7 shifts). The high byte then holds the remaining bits of b0 followed by the top k bits of b1. Advances the source pointer by one byte, XBAs to extract that byte and returns in 8-bit mode. The mask is unchanged: 8 bits consumed leave the bit position where it was."
+            ],
+            "LzReadBackRef": [
+                "Read 4 bits (a nibble) from the compressed bitstream and return in A (the back-reference copy length before the +2).",
+                "",
+                "Two strategies keyed on the mask:",
+                "",
+                "High path (mask >= $10: at least 5 bits left in the current byte, so the nibble fits): LSR the mask 4 times to consume 4 positions and store it. The source byte and the new mask are packed into one 16-bit word (byte in the high half, mask in the low half) and LSR shifts that word right until the mask's one-hot bit falls into carry (1–4 shifts, the shift count the nibble needs); the nibble is the low 4 bits of the high byte after XBA and AND #$0F. The source pointer does not advance.",
+                "",
+                "Low path (mask < $10: 4 or fewer bits left): the nibble may straddle the byte boundary. Mask $08 = exactly 4 bits left: low nibble of the current byte, mask reset to $80, pointer advanced. Mask $04 = 3 bits left + 1 from the next byte (next mask $40, one ASL), mask $02 = 2 + 2 (next mask $20, two ASLs), mask $01 = 1 + 3 (next mask $10, three ASLs); the byte pair is read as a word, XBA'd, shifted left, and the pointer advances.",
+                "",
+                "All paths return the nibble in A with AND #$0F masking."
+            ]
+        },
+        "comments": {
+            "164474": { "text": "Dictionary = $7E:0200-02FF, which is also the depth-sort bucket array (callers clear it with ClearActorRenderList)", "expect": "LDX #$0200" },
+            "164497": { "text": "X = output offset in bank $7E (the data bank); Y = byte count below (0 would mean 65,536 bytes)", "expect": "LDX $7A" },
+            "164516": { "text": "16-bit pointer increment: no carry into the bank byte $40, so a stream cannot cross a bank boundary", "expect": "INC $3F" },
+            "164530": { "text": "8-bit INC: the write pointer wraps inside the $0200 page (256-entry ring)", "expect": "INC $74" },
+            "164550": { "text": "8-bit INC: the read pointer wraps inside the $0200 page as well", "expect": "INC $76" },
+            "164561": { "text": "Output full: stop at once, even in the middle of a copy", "expect": "BEQ loc_0282D9" },
+            "164596": { "text": "Mask $01 (7 bits already used): load the byte pair, XBA, enter the ASL cascade at the top (7 shifts)", "expect": "REP #$20" },
+            "164685": { "text": "Shift the byte+mask word right until the one-hot mask bit leaves through carry: 1-4 shifts", "expect": "LSR" },
+            "164725": { "text": "Mask $04: 3 bits left in this byte + 1 from the next; next mask $40, one ASL on the XBA'd pair", "expect": "LDA #$40" },
+            "164737": { "text": "Mask $02: 2 bits left + 2 from the next byte; next mask $20, two ASLs", "expect": "LDA #$20" },
+            "164750": { "text": "Mask $01: 1 bit left + 3 from the next byte; next mask $10, three ASLs", "expect": "LDA #$10" },
+            "164762": { "text": "The nibble used bits of the next byte: advance the source pointer", "expect": "INC $3E" }
+        }
+    },
+    "system/engine/thinker_execution.asm": {
+        "blockNote": [
+            "Thinker execution system — spawning, scheduling, and per-frame dispatch (250157–250357 + 251879–252010, Bank 03).",
+            "",
+            "Manages the lifecycle and per-frame execution of scene thinkers — lightweight script actors that run alongside the main actor system. Thinkers handle ambient effects, palette cycling, background animations, cutscene overlays, and HDMA-driven visual effects.",
+            "",
+            "=== THINKER DATA MODEL ===",
+            "",
+            "Thinkers use a separate memory pool from actors (16 slots of $10 bytes at $0F00, allocated via ThinkerPoolAlloc in actor_execution). Each thinker slot contains:",
+            "- $0000,X: Code entry point (word)",
+            "- $0002,X: Bank byte",
+            "- $0004,X: Previous link pointer (doubly-linked list)",
+            "- $0006,X: Next link pointer",
+            "- $0008,X: Wait counter (same semantics as actor $08: a stored n makes the thinker skip n passes)",
+            "- animScratch ($7F0000,X): Thinker-specific scratch fields",
+            "- animScratch2 ($7F000E,X): Thinker filter flags (first word of the thinker's code, i.e. the first two operands of its thinker-def)",
+            "",
+            "The thinker linked list is rooted at $005A (head) and $005C (tail).",
+            "",
+            "=== SPAWNING (SpawnSceneThinkers, 251879) ===",
+            "",
+            "SpawnSceneThinkers reads scene_thinkers[$0646] to find the current scene's thinker definition list. If the pointer is zero or bit 7 ($0080) is set in the first data byte, the scene has no active thinkers.",
+            "",
+            "For each thinker record (terminated by $FF byte):",
+            "1. Allocates a slot via actor_execution.ThinkerPoolAlloc",
+            "2. Links into a doubly-linked list ($0004 = prev, $0006 = next)",
+            "3. Calls InitThinkerFromSceneData to parse the binary record",
+            "",
+            "InitThinkerFromSceneData reads a variable-length record: type byte → animScratch+2 ($7F0002,X; the thinker's spawn parameter, e.g. a palette bundle ID), code pointer → $42, bank byte → $44. Dereferences the code pointer to read its first word as animScratch2 (thinker filter flags), then stores entry point (code + 2) and bank to slot fields $0000/$0002.",
+            "",
+            "=== EXECUTION TYPES (250157–250357) ===",
+            "",
+            "Four runners filter the list on animScratch2 ($7F000E,X):",
+            "",
+            "- RunThinkers_TypeA: bit 2 ($0004) CLEAR. Called by MainLoop right after the VBlank sync and at scene start.",
+            "- RunThinkers_TypeB: bit 2 SET — the complement of A. MainLoop and the scene-start sequence call it after ResetHdmaState, so the HDMA/window-DMA thinkers (the bit-2 ones: comet_lair_hdma_*, angel_tunnel_window_dma, ...) bind their channels after the per-frame reset.",
+            "- RunThinkers_TypeC: bit 11 ($0800) SET and bit 2 CLEAR. Called by the lighter frame routines of system_core (UpdateFrameDialogue, UpdateFrameRender, UpdateFrameFull) after their VBlank sync.",
+            "- RunThinkers_TypeD: bits 11 AND 2 both SET. The same routines call it after ResetHdmaState, before the sync.",
+            "",
+            "All 59 scene thinker-defs in extracted/ (32 with filter word $0804, 27 with $0800) have bit 11 set, so for scene thinkers C selects exactly A's set and D exactly B's. Runtime-spawned thinkers (SpawnThinker/SpawnThinkerParam, 77 sites) inherit the spawner's animScratch2 and some scripts store their own (future_vision_cutscene $0804, sE8_dark_gaia $0004, dc2F_adrift ORs in $0800), so there the bit does matter: a thinker without bit 11 runs only in the main loop (TypeA/B) and pauses while the lighter frame routines (dialogue, render, music upload) run. Bit 11 therefore reads as 'keep running in the lighter frame routines', not as a cutscene marker.",
+            "",
+            "All four runners share one dispatch pattern: walk the list from $5A with D = X = slot, test the filter, then DEC $08 / BPL _Next (a wait counter of n skips n passes; the pass where it was 0 runs the script and STZ $08), push PHK + PEA _Next−1, the thinker's bank and entry − 1, and RTL into the script. The script runs like an actor script (COP ops, SetEntryHereAndYield, ends with RTL back to _Next). _Next follows the $06 link or exits when the list is exhausted."
+        ],
+        "partNotes": {
+            "RunThinkers_TypeA": [
+                "Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) CLEAR (called by MainLoop after the VBlank sync, and by the scene-start sequence).",
+                "",
+                "Iterates the thinker linked list from $5A with D = X = slot. For each thinker: bit 2 set → next. Otherwise DEC $08 / BPL → next while the wait counter was positive; when it was 0 the script runs and $08 is cleared. There is no bit-11 test here.",
+                "",
+                "Typical type-A thinkers: palette cyclers (ambient_palette_cycler), boot-logo palettes, color-add effects."
+            ],
+            "RunThinkers_TypeB": [
+                "Execute thinkers with animScratch2 ($7F000E,X) bit 2 ($0004) SET — the complement of RunThinkers_TypeA.",
+                "",
+                "MainLoop and the scene-start sequence call it right after ResetHdmaState, so thinkers that bind HDMA channels (comet_lair_hdma_*, angel_tunnel_window_dma, dao_sine_hdma_slow, ...) get fresh channels every frame. Same wait-counter dispatch as TypeA."
+            ],
+            "RunThinkers_TypeC": [
+                "Execute thinkers with animScratch2 bit 11 ($0800) SET and bit 2 ($0004) CLEAR.",
+                "",
+                "Called by UpdateFrameDialogue, UpdateFrameRender and UpdateFrameFull after their VBlank sync. It is RunThinkers_TypeA plus a bit-11 requirement: the 59 scene thinker-defs all carry bit 11 and run here, but a runtime-spawned thinker without bit 11 is paused whenever one of these lighter frame routines runs."
+            ],
+            "RunThinkers_TypeD": [
+                "Execute thinkers with BOTH animScratch2 bits 11 ($0800) AND 2 ($0004) SET.",
+                "",
+                "Uses AND #$0804 / CMP #$0804 to verify both bits. Called by UpdateFrameDialogue, UpdateFrameRender and UpdateFrameFull after ResetHdmaState and before the VBlank sync — it is TypeB's counterpart in the lighter frame routines: scene thinkers (all with bit 11) run here, runtime-spawned thinkers only if they carry bit 11."
+            ]
+        },
+        "comments": {
+            "250176": { "text": "Wait counter: a stored n skips n passes; the pass where $08 was 0 gives $FFFF and runs the script", "expect": "DEC $08" },
+            "250180": { "text": "Clear the counter; the script sets a new wait if it wants one", "expect": "STZ $08" },
+            "250183": { "text": "Return address for the script's RTL: _Next (the script returns like a subroutine)", "expect": "PEA $&RunThinkers_TypeA_Next-1" },
+            "250195": { "text": "Entry address - 1: the RTL below jumps to [$02:$00]", "expect": "DEC" },
+            "250267": { "text": "Bit 11 = keep running in the lighter frame routines (set in all 59 scene thinker-defs; runtime-spawned thinkers may lack it)", "expect": "BIT #$0800" },
+            "250277": { "text": "Same wait-counter test as TypeA", "expect": "DEC $08" }
+        }
+    },
+    "system/engine/cop_handlers_audio.asm": {
+        "blockNote": [
+            "COP handlers for SPC700 audio communication and music playback (Bank $00, 8 COP handlers).",
+            "",
+            "StartMusic (#04) allocates a thinker with AllocateActorAfter and sets its entry to SpcTransferMusicData for the asynchronous SPC upload. FadeThenStartMusic (#05) does the same but enters at SpcCheckMusicReady, which first sends $F1 on APUIO0: the SPC engine's CmdFadeOut command (fade counters $30/$31 = $FF; docs/audio/spc-disassembly.md), so the 'fade' in the name is real but happens inside the SPC engine, not in 65816 code (answers OQ-61; whether it is audible before the following $01/$F0 commands is OQ-I021-2). Both OR $1000 into the thinker's $12 (it keeps running while the world is frozen, as in MusicJingleActor), clear $1000 in its $10 and store the track in chatPtr.",
+            "",
+            "PlaySoundCh2 (#06), PlaySoundCh1 (#07) and PlaySoundBoth (#08) write the sfx queue bytes sfxQueueCh1/Ch2 ($06F8/$06F9); WriteApuIo1 (#09) and WriteApuIo0 (#0A) write APUIO1/APUIO0 ($2141/$2140) directly.",
+            "",
+            "MusicAndText (#19) allocates a pooled actor with ActorPoolAllocator, appends it to the list tail, CopyActorState, sets it to MusicJingleActor and stores the three operands ($0026 track, $0020 text pointer, $0022 text bank). On pool exhaustion the track is dropped and only the text is shown inline through DialogStringRenderer, then displayModeFlags bit 7 is cleared.",
+            "",
+            "Uses in extracted/: PlaySoundCh1 244, PlaySoundCh2 92, PlaySoundBoth 72, StartMusic 57, MusicAndText 22, FadeThenStartMusic 14, WriteApuIo0 7, WriteApuIo1 4."
+        ],
+        "partNotes": {
+            "FadeThenStartMusic": "COP #05 with one byte operand (music bundle ID). Same allocation, $12/$10 flag handling and chatPtr as StartMusic, but the thinker's entry is SpcCheckMusicReady: it sends $F1 on APUIO0 (the SPC engine's CmdFadeOut, performed inside the SPC), waits for the echo, sends $01, and falls into SpcTransferMusicData when the SPC answers zero. OQ-61 answered in I021; audibility of the fade is OQ-I021-2."
+        }
+    },
+    "system/engine/cop_handlers_palette.asm": {
+        "blockNote": [
+            "Palette-bundle animation COP handlers (37729–37887, Bank 00): five ops, #36–#3A (177 script sites). The block holds only these five handlers; the BG event-block ops live in cop_handlers_bg_rearrange and the thinker spawn/kill ops in cop_handlers_thinker.",
+            "",
+            "A palette bundle (palette_bundles table, selected by a byte ID) is a list of 6-byte sub-entries; each sub-entry is an animation STRIP of N frames (byte 0), every frame being a block of consecutive colors copied to the same palette destination, and the frames of a strip are stored back to back. LoadPaletteBundle (hdma_dma_spc) loads the next sub-entry and DecompressGfxToVram copies one frame (an MVN block move) per step. Per-actor state: bundle ID in animScratch+2 ($7F0002), sub-entry index in DP $0E (reset to 0 when the bundle ends), frames left in the strip in spritesetPtr ($7F0006, loaded from byte 0 of the sub-entry), the source pointer of the next frame in chatPtr, the wait value (sub-entry byte 5) in animScratch ($7F0000) and DP $08, and the pass counter in retPtr1 ($7F0004) for the Loop variants.",
+            "",
+            "Start ops (#36–#38) load and apply sub-entry 0, store the address after the op in the actor entry point ($00) and YIELD (PLA, PLA, RTL), so on the next frame the script resumes right after the Start op. Step ops (#39, #3A) must therefore directly follow the Start op (the ambient thinkers do exactly this): each frame a Step either keeps yielding or, when the bundle (and, for #3A, every pass) is finished, continues the script with RTI.",
+            "",
+            "Typical use: ambient_palette_cycler (PaletteRestart + PaletteStep in a loop; the bundle ID is the thinker's spawn parameter), one-shot palette flash thinkers, boot logos, boss and ability palette effects. PaletteStartLoop/StepLoop have three sites (two attack_ability_system ability effects and one unused script)."
+        ],
+        "partNotes": {
+            "PaletteStep": "COP #39 with no operands (85 sites). Decrements the frames-left counter in spritesetPtr once per call. While it is still nonzero the counter is stored back, the strip's wait value (animScratch, sub-entry byte 5) is re-seeded into the wait counter $08 and DecompressGfxToVram copies the strip's next frame; then the actor yields (the entry point saved by PaletteStart makes the same Step op run next frame). When the counter reaches zero LoadPaletteBundle loads the next sub-entry: carry clear = another strip, whose first frame is applied before the actor yields; carry set = end of bundle, so the script continues past this op with RTI and the sub-entry index has been reset to 0."
+        },
+        "comments": {
+            "37744": { "text": "Sub-entry index <- 0 (first strip of the bundle)", "expect": "STZ $0E" },
+            "37803": { "text": "Frames left in the strip (byte 0 of the sub-entry, decremented once per step)", "expect": "LDA $spritesetPtr, X" },
+            "37825": { "text": "Sub-entry byte 5 (extra ticks between frames), kept in animScratch by LoadPaletteBundle", "expect": "LDA $animScratch, X" },
+            "37829": { "text": "DP $08 is the wait counter: the next step runs after this many extra ticks", "expect": "STA $08" },
+            "37831": { "text": "Copy the strip's next frame into the palette staging buffer", "expect": "JSL $@hdma_dma_spc.DecompressGfxToVram" },
+            "37839": { "text": "Frames left in the strip (decremented once per step)", "expect": "LDA $spritesetPtr, X" },
+            "37846": { "text": "Strip finished: load the next sub-entry (first frame of the next strip)", "expect": "JSL $@hdma_dma_spc.LoadPaletteBundle" },
+            "37874": { "text": "Sub-entry byte 5 (extra ticks between frames), kept in animScratch", "expect": "LDA $animScratch, X" },
+            "37878": { "text": "DP $08 of this slot (D = X): the wait counter", "expect": "STA $0008, X" }
+        }
+    }
+}

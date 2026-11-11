@@ -9,6 +9,7 @@ import { snes } from '@gaialabs/core';
 import { merge } from './merge.ts';
 import { applyNames, checkNames } from './names-merge.ts';
 import { exportLabels, exportScenes } from './export.ts';
+import { flagsCli } from './flags.ts';
 
 const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -293,6 +294,9 @@ if (isMainModule) {
                     if (!namesResult.ok) process.exit(1);
                     break;
                 }
+                case 'flags':
+                    if (!flagsCli(__pkgRoot, args, flags, values)) process.exit(1);
+                    break;
                 case 'export': {
                     const what = args[0];
                     if (what === 'labels') {
@@ -310,7 +314,7 @@ if (isMainModule) {
                         }
                         if (result.renamedForMesen > 0) console.log(`Names with characters Mesen2 does not accept (replaced by _): ${result.renamedForMesen}`);
                     } else if (what === 'scenes') {
-                        const result = exportScenes(__pkgRoot, { out: values['out'] });
+                        const result = exportScenes(__pkgRoot, { out: values['out'], dbDir: values['db-dir'] });
                         console.log(`Scenes: ${result.sceneCount} (${result.withFlags} with required event flags) -> ${result.path}`);
                         if (result.duplicateIds.length > 0) {
                             console.error('Duplicate scene ids: ' + result.duplicateIds.map(id => '$' + id.toString(16)).join(', '));
@@ -324,7 +328,7 @@ if (isMainModule) {
                 }
                 default:
                     console.error('Unknown command:', command);
-                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, merge, names, export');
+                    console.log('Available commands: extract, extract-jp, rebuild, rebuild-jp, merge, names, flags, export');
                     process.exit(1);
             }
         } catch (error) {

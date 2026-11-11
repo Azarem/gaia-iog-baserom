@@ -1,8 +1,8 @@
-; Sprite map of the title scene $FC: 1 animation, 1 frame, 1 sprite-group. scene_meta_00FC loads it ($0165 bytes) with gfx_title_actors and pal_title_actors (48 colours at CGRAM colour $A0). TitleCometSpriteActor (in sFC_title_intro) plays animation #00: 240 loop cycles in place, then 64 cycles while moving in X (the sweep).
+; Sprite map of the title scene $FC: 1 animation, 1 frame, 1 sprite-group. scene_meta_00FC loads it ($0165 bytes) with gfx_title_actors and pal_title_actors (48 colours at CGRAM colour $A0). TitleEarthSpriteActor (in sFC_title_intro) plays animation #00: 240 loop cycles in place, then 64 cycles while moving in X (the sweep).
 ; 
 ; === CONTENT ===
 ; 
-; Animation #00 (spm_title_actors_sprite_set_000002) is one frame with hold 0 (1 tick): spm_title_actors_sprite_group_000008 = the comet. Box 48 + 56 = 104 px wide, 72 + 72 = 144 px tall, 48 parts (45 of 16 x 16; parts 07, 0F and 2F are 8 x 8). The parts form a diagonal band: each row starts 16 px lower and 8 to 16 px further left than the one above. Every tile word is $09xx (name table 1); the engine XORs the actor's attribute word into it, so the final palette is set by the actor, not by this file.
+; Animation #00 (spm_title_actors_sprite_set_000002) is one frame with hold 0 (1 tick): spm_title_actors_sprite_group_000008 = the half-lit Earth (measured on screen: a globe lit from the right that stays at x 80-168, y 7-135 for the 240 in-place cycles, then moves 1 px to the left per frame for 64 frames and ends behind the title letters; OAM: all 48 parts on OBJ palette 4, priority 1). Box 48 + 56 = 104 px wide, 72 + 72 = 144 px tall, 48 parts (45 of 16 x 16; parts 07, 0F and 2F are 8 x 8). The parts form a diagonal band: each row starts 16 px lower and 8 to 16 px further left than the one above. Every tile word is $09xx (name table 1); the engine XORs the actor's attribute word into it, so the final palette is set by the actor, not by this file.
 ; Every group of this file carries the engine's default boxes ($F8 $F0 $01 $01 and $F8 $10 $F0 $10): the same eight bytes are in all 85 groups of spm_boot_logos, spm_title_actors, spm_darkspace_sprites and spm_overworld_sprites.
 ; 
 ; === FORMAT ===
@@ -16,7 +16,7 @@
 
 ---------------------------------------------
 
-; Animation table with one entry: #00, the comet.
+; Animation table with one entry: #00, the Earth.
 
 spm_title_actors [
   &spm_title_actors_sprite_set_000002

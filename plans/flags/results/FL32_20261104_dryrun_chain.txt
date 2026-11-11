@@ -1,0 +1,23 @@
+scratch registry: 683 indices, 4 proposals -> plans/flags/results/_scratch_db
+sanitised for the checker (meanings or entries changed): {"kinds":36,"refs":39,"scope":2,"area":1,"overlap":5}
+
+> @gaialabs/iog-baserom@0.2.7 flags
+> node src/index.ts flags --check --db-dir=plans/flags/results/_scratch_db
+
+  ! index 0 sc_town_player_south_strip_active: INFERRED without a runtime-queue id in 'queue'
+  ! index 0 bt_light_elevator_player_pose_cue: INFERRED without a runtime-queue id in 'queue'
+  ! index 2 end_epilogue_mother_voice_cue: name prefix 'end' differs from area 'ending' (ed)
+  ! index 3 end_epilogue_spirits_depart_cue: name prefix 'end' differs from area 'ending' (ed)
+  ! index 4 end_epilogue_kara_farewell_cue: name prefix 'end' differs from area 'ending' (ed)
+  ! index 5 end_epilogue_player_stand_cue: name prefix 'end' differs from area 'ending' (ed)
+  ! index 6 sc_cave_statue_moved_ack: INFERRED without a runtime-queue id in 'queue'
+  ! index 15 py_vader_barrier_busy: INFERRED without a runtime-queue id in 'queue'
+  ! index 15 pr_text_fade_out_done: INFERRED without a runtime-queue id in 'queue'
+  ! index 32 sc_cave_friends_idle: UNKNOWN without a runtime-queue id in 'queue'
+  ! index 219 end_epilogue_first_half_done: name prefix 'end' differs from area 'ending' (ed)
+  ! index 219 end_epilogue_first_half_done: INFERRED without a runtime-queue id in 'queue'
+  ! index 242 py_trickle_orbs_a_fallen: INFERRED without a runtime-queue id in 'queue'
+  ! index 243 py_trickle_orbs_b_fallen: INFERRED without a runtime-queue id in 'queue'
+  ! index 245 unused_mode7_boss_defeated: name prefix 'unused' differs from area 'system' (sy or sys)
+  X flags.json: not in the canonical form the tool writes (sorted, fixed field order, 2-space indent): re-run it through `npm run flags` or fix by hand
+Flags check: 1 error(s) (683 indices, 907 meanings, 1 scene entries, 0 presets)

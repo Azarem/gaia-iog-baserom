@@ -1,0 +1,333 @@
+[
+  {
+    "id": "FL22-01",
+    "flag": 46,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal it_couple_house_incan_melody_played ($2E, byte $0A05 bit 6): UseItem_IncanMelody sets it only in scene $18 and no actor, scene-meta gate or helper reads it; setting it changes nothing visible in scene $18.",
+    "start": {
+      "scene": 24,
+      "flags": [],
+      "form": "Will",
+      "state": "Incan Melody (item $05) in the inventory"
+    },
+    "trial": {
+      "control": "use the Incan Melody in scene $15 and read byte $0A05 bit 6: the text ends with 'But nothing happened.' and the bit stays clear",
+      "forced": "use the Incan Melody in scene $18 (it18_warning_man and it18_warning_woman in the room), read byte $0A05 bit 6, talk to both NPCs, leave and re-enter scene $18",
+      "observe": [
+        "byte $0A05 bit 6 before and after",
+        "dialog text printed by the Incan Melody item",
+        "dialog of it18_warning_man and it18_warning_woman before and after",
+        "screenshot of scene $18 before and after"
+      ]
+    },
+    "confirms": "bit 6 of $0A05 set only in scene $18, NPC dialog and scene unchanged afterwards (set-only flag)",
+    "refutes": "any NPC dialog, actor, tile or music differs after the bit is set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-02",
+    "flag": 0,
+    "scope": { "scenes": [30] },
+    "priority": "P2",
+    "claim": "Scratch $00 in scene $1E (ir_cliff_back_player_north_strip_active): ir1E_cliff_slide_trigger sets it while playerYPos < $0110 and the player idle code switches sprite variant on it; it is set permanently once $30 and $31 are both set.",
+    "start": {
+      "scene": 30,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "walk from the south part of the scene north across Y $0110 and read byte $0A00 bit 0 each frame",
+      "forced": "set $30 and $31 (byte $0A06 bits 0 and 1) and load scene $1E, then stand south of Y $0110",
+      "observe": [
+        "byte $0A00 bit 0 and playerYPos ($09A6 area)",
+        "player idle sprite frame while standing north and south of Y $0110",
+        "whether the slide sequence starts (joypadMaskStd $065A = $EFFC)"
+      ]
+    },
+    "confirms": "bit 0 follows Y < $0110, stays set with $30 and $31 set; idle sprite variant changes with it",
+    "refutes": "the bit does not follow playerYPos, or the idle sprite does not change",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-03",
+    "flag": 38,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal sc_itory_trip_started ($26, byte $0A04 bit 6): in scene $15 it15_lily and it15_kara die at spawn when the flag is clear and run the arrival cutscene when it is set (with $2B clear).",
+    "start": {
+      "scene": 21,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $15 with $26 clear and $2B clear and list the actors",
+      "forced": "set $26 (byte $0A04 bit 6), keep $2B clear and load scene $15",
+      "observe": [
+        "actor list of scene $15 (it15_lily, it15_kara present or dead)",
+        "joypadMaskStd $065A at scene start",
+        "byte $0A00 bit 1 during the camera pan"
+      ]
+    },
+    "confirms": "control: both NPCs die; forced: joypad locked with $CFFC, the dialog 'This is my village' appears and the camera pans north",
+    "refutes": "the NPCs are present with $26 clear, or absent with $26 set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-04",
+    "flag": 47,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal ir_entryway_block_placed ($2F, byte $0A05 bit 7): using the Blue Block (item $07) on tiles (0E-0F, 19-1A) of scene $25 sets it; the six ir25_ceiling_tile actors then drop and land and ir25_block_slot shows the block.",
+    "start": {
+      "scene": 37,
+      "flags": [],
+      "form": "Will",
+      "state": "Blue Block (item $07) in the inventory, player on tile (0E,19)"
+    },
+    "trial": {
+      "control": "load scene $25 with $2F clear, read byte $0A05 bit 7 and the collision of the tiles around (0E,19)",
+      "forced": "use the item on tile (0E,19), then watch the camera, the six tiles and the slot block for 600 frames; reload the scene and look at the landed state",
+      "observe": [
+        "byte $0A05 bit 7",
+        "joypadMaskStd $065A during the fall",
+        "sound id $2C when the slot block appears",
+        "screenshot before and after, collision map of the room"
+      ]
+    },
+    "confirms": "flag set by the item; tiles fall, collision changes, block visible; after reload the tiles and the block are in place at once",
+    "refutes": "no tile or block change, or the state does not survive a reload",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-05",
+    "flag": 48,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal ir_cliff_back_statue_a_placed ($30, byte $0A06 bit 0): using Incan Statue A on mantel tiles (37-38, 12-13) of scene $1E sets it; ir1E_cliff_mantel_a shows the statue; with $31 also set the slide sequence starts.",
+    "start": {
+      "scene": 30,
+      "flags": [],
+      "form": "Will",
+      "state": "Incan Statue A (item $03) in the inventory, player on tile (37,12)"
+    },
+    "trial": {
+      "control": "load scene $1E with $30 and $31 clear, observe the mantel actors (hidden)",
+      "forced": "use Incan Statue A on tile (37,12), read byte $0A06 bit 0 and screenshot the mantel; reload the scene",
+      "observe": [
+        "byte $0A06 bit 0",
+        "ir1E_cliff_mantel_a visibility",
+        "text 'He set Inca Statue A on the mantel.'",
+        "slide sequence not started (joypadMaskStd unchanged)"
+      ]
+    },
+    "confirms": "flag set, statue sprite appears and stays after reload, no slide with $31 clear",
+    "refutes": "the statue sprite is visible with the flag clear or hidden with it set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-06",
+    "flag": 49,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal ir_cliff_back_statue_b_placed ($31, byte $0A06 bit 1): using Incan Statue B on mantel tiles (26-27, 15-16) of scene $1E sets it; with $30 also set ir1E_cliff_slide_trigger runs the debris scene (40 debris helpers, playerSpeedEw = $FFF8, joypad locked $EFFC) when the player stands on pixel (01E8,0120) or (01E7,0120).",
+    "start": {
+      "scene": 30,
+      "flags": ["ir_cliff_back_statue_a_placed"],
+      "form": "Will",
+      "state": "Incan Statue B (item $04) in the inventory, player on tile (26,15)"
+    },
+    "trial": {
+      "control": "with $30 set and $31 clear stand on the slide trigger position (1E8,0120) and (1E7,0120) and watch for the slide",
+      "forced": "use Incan Statue B on tile (26,15), then walk to the trigger position",
+      "observe": [
+        "byte $0A06 bits 0 and 1",
+        "joypadMaskStd $065A",
+        "player X speed during the slide",
+        "screenshot of the slide and the landing scene"
+      ]
+    },
+    "confirms": "control: no slide; forced: slide starts when both statues are set",
+    "refutes": "the slide starts with $31 clear",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-07",
+    "flag": 64,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal it_village_barrier_lifted ($40, byte $0A08 bit 0): Lola's Melody in scene $15 sets it; it15_lily then runs the reveal (palette flash, 16-step camera pan, barrier dialog); with $40 set the melody prints 'But nothing happened.' and spawns no melody actor.",
+    "start": {
+      "scene": 21,
+      "flags": ["sc_itory_trip_started"],
+      "form": "Will",
+      "state": "Lola's Melody (item $09) in the inventory, Lily's arrival dialog finished"
+    },
+    "trial": {
+      "control": "play Lola's Melody in scene $15 with $40 clear and watch Lily, the palette and the camera",
+      "forced": "play it again with $40 set",
+      "observe": [
+        "byte $0A08 bit 0",
+        "byte $0A00 bit 1 during the pan",
+        "dialog text after the melody",
+        "whether FluteMusicActorController spawns on the second use"
+      ]
+    },
+    "confirms": "first use: flag set, reveal runs; second use: 'nothing happened', no actor",
+    "refutes": "the second use also plays and runs the reveal",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-08",
+    "flag": 68,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal it_elder_legend_heard ($44, byte $0A08 bit 4): the Elder sets it when Will answers Yes after the legend with item $03; with item $04 held and $44 clear the Elder prints 'It's said that the Moon Tribe has one more' without setting $44; item_use_system prints the 'spirits' hint with $44 set.",
+    "start": {
+      "scene": 21,
+      "flags": ["it_elder_statue_entrusted"],
+      "form": "Will",
+      "state": "Incan Statue A (item $03) in the inventory, next to the Elder"
+    },
+    "trial": {
+      "control": "give the Elder item $04 (Statue B) with $44 clear and talk to him",
+      "forced": "talk to him with item $03 and answer Yes to 'Understand?', then use Incan Statue A on the wrong tile in scene $1E",
+      "observe": [
+        "byte $0A08 bit 4 after each talk",
+        "dialog text of the Elder",
+        "text printed by the Incan Statue A item on the wrong tile"
+      ]
+    },
+    "confirms": "item $04 branch prints the Moon Tribe line and leaves $44 clear; item $03 branch sets $44; item text changes to 'dedicate the statues where the breath of the spirits can't reach'",
+    "refutes": "the item $04 branch is not reachable or sets $44",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-09",
+    "flag": 74,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal it_moon_camp_ruins_trip_started ($4A, byte $0A09 bit 2): Lily's talk handler in scene $1A sets it with item $04 held, before the 'Go to the Incan ruins?' question, so answering No leaves it set; with it set the Itory exit stages world-map menu $06 (Inca Ruins) and Lily dies on re-entry.",
+    "start": {
+      "scene": 26,
+      "flags": ["it_moon_camp_gate_opened"],
+      "form": "Will",
+      "state": "Incan Statue B (item $04) in the inventory, next to Lily"
+    },
+    "trial": {
+      "control": "talk to Lily, answer No, read byte $0A09 bit 2, walk to the Itory overworld exit in scene $15",
+      "forced": "talk to Lily and answer Yes, observe the world-map move and the arrival in scene $1C",
+      "observe": [
+        "byte $0A09 bit 2 after No and after Yes",
+        "world-map menu id staged at the exit in scene $15 ($04 or $06)",
+        "scene $1A actor list on re-entry"
+      ]
+    },
+    "confirms": "No still sets the flag; the exit offers the Inca Ruins menu; Lily is gone on re-entry",
+    "refutes": "the flag is clear after No, or the exit menu is $04 with the flag set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-10",
+    "flag": 255,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal sys_scene_setup_done ($FF, byte $0A1F bit 7): larai_cliff_scroll_wave sets it after InitSineHdma and re-initializes when the flag is clear.",
+    "start": {
+      "scene": 29,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $1D and read byte $0A1F bit 7 during the first 10 frames",
+      "forced": "clear the bit while the scene runs and watch the HDMA table",
+      "observe": [
+        "byte $0A1F bit 7",
+        "HDMA channel enable mask ($66)",
+        "BG scroll HDMA table before and after"
+      ]
+    },
+    "confirms": "bit set within the first frames; clearing it restarts the table setup",
+    "refutes": "the bit is never set, or clearing it has no effect",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-11",
+    "flag": 373,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal bt_crystal_gate_a_open ($0175, byte $0A2E bit 5): set by the helper that btF2_neo_castoth spawns after Castoth's Babel rematch (scene $F2), never by the scene $29 Castoth.",
+    "start": {
+      "scene": 242,
+      "flags": [],
+      "form": "Will",
+      "state": "Babel tower middle floors reachable"
+    },
+    "trial": {
+      "control": "defeat Castoth in scene $29 and read byte $0A2E bit 5",
+      "forced": "defeat the Castoth rematch in scene $F2 and read byte $0A2E bit 5 and the next scene",
+      "observe": [
+        "byte $0A2E bit 5 after each fight",
+        "scene id after the fight (expect $E0 after the rematch)",
+        "player form after the rematch"
+      ]
+    },
+    "confirms": "scene $29 leaves bit 5 clear; scene $F2 sets it and queues scene $E0",
+    "refutes": "scene $29 sets bit 5",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-12",
+    "flag": 274,
+    "scope": null,
+    "priority": "P2",
+    "claim": "$0112 in scene $24 (FL11 record ir_glowing_tile_done): ir24_glowing_tile counts 600 frames while the player stands in tiles (14,17)-(17,1A) and then opens the room; the count restarts when the player steps off; it does not read scratch $01, so the Wind Melody is not needed.",
+    "start": {
+      "scene": 36,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "stand on the tiles for 599 frames, step off for one frame, stand on again and count frames until the sound $0F0F",
+      "forced": "stand on the tiles without playing the Wind Melody for 600 frames",
+      "observe": [
+        "orbitAngle ($7F0010 of the actor) per frame",
+        "byte $0A22 bit 2",
+        "sound id $0F0F and the BG change"
+      ]
+    },
+    "confirms": "control: counter restarts at $0258 after stepping off; forced: event triggers at 600 frames with no melody",
+    "refutes": "the count survives stepping off, or nothing happens without the melody",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL22-13",
+    "flag": 185,
+    "scope": null,
+    "priority": "P2",
+    "claim": "$B9 (ir_secret_hallway_statue_destroyed): the statue in scene $20 is destroyed only by a hit while playerFlags bit $0002 is set; every other hit is undone by the HP reset.",
+    "start": {
+      "scene": 32,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "hit the statue with a normal sword attack and read byte $0A17 bit 1",
+      "forced": "hit it while playerFlags ($09AE) bit $0002 is set (set the bit by the charge/dash move or by hand)",
+      "observe": [
+        "byte $0A17 bit 1",
+        "statue actor HP ($7F0026)",
+        "playerFlags $09AE at the hit frame",
+        "statue present after reload"
+      ]
+    },
+    "confirms": "control: HP reset, no flag; forced: defeat flash, flag set, statue absent after reload",
+    "refutes": "a normal hit also destroys it, or bit $0002 is not what the statue tests",
+    "needs": ["FR00"]
+  }
+]

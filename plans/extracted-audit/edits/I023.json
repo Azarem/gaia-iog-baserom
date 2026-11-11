@@ -1,0 +1,253 @@
+{
+    "system/engine/stair_climb.asm": {
+        "blockNote": [
+            "Psycho Slider glide triggers (Bank 00): five trigger actor-defs (StairTriggerSouth/North/West/East/WestEntry; 29 actor-spawn records in scene_actors, one more through awB2_stair_climb, which JumpFar's to StairTriggerWestMain) plus the helpers LockPlayerForClimb, UnlockPlayerAfterClimb and RestorePlayerControl (the last is also called by three ramp exits in ramps.asm).",
+            "",
+            "=== What a trigger detects ===",
+            "A trigger runs every frame in its own slot (D = trigger: $14/$16 = its pixel position, $0E = glide length). Y = the player actor. It fires only while Will is Psycho Sliding (RunAttackNS/RunAttackEW in player_character) through its tile: the player's animation index ($28) must be one of the two looping frames of ONE slide direction, and CheckMoveState requires the player's sprite bank ($7F0008) to be $8F, the will_alt spriteset that SetPlayerSpriteDirect #04 selects at the start of every slide.",
+            "Slide animation indices (will_alt spriteset): south $0C start / $0D loop / $0E finish, north $0F/$10/$11, west $12/$13/$14, east $15/$16/$17 (positive speed = south or east, negative = north or west). The old comments called these 'walk frames' and the bank check a 'walking state'; neither is true.",
+            "The trigger names do not match the slide direction they react to: StairTriggerSouth = WEST slide ($12/$13, glide X -4 per frame), StairTriggerNorth = EAST slide ($15/$16, X +4), StairTriggerWest = NORTH slide ($0F/$10, Y -4), StairTriggerEast = SOUTH slide ($0C/$0D, Y +4). The ClimbX routines move the player the same way the slide was already moving.",
+            "",
+            "=== Geometry ===",
+            "Slide axis: exact pixel equality with the trigger (X for South/North, Y for West/East). Lateral axis: a 32-pixel window, trigger - 7 .. trigger + $18 inclusive (compare is trigger - 8 < player <= trigger - 8 + $20); the old '+/-$20' wording is wrong.",
+            "",
+            "=== The glide ===",
+            "On a hit the trigger overwrites the player's entry pointer ($00/$02 of the player actor) with ClimbX and calls LockPlayerForClimb: $0E (the spawn record's type byte >> 1, InitActorFromSceneData mode 1) x 4 is stored as a frame countdown in the PLAYER's statsPtr ($7F0020), the player's velocity words are zeroed, D-pad input is masked (joypadMaskStd $0F00) and playerFlags $0800 is set. The player actor then runs ClimbX: once, $10 |= $2200 ($2000 = script-driven actor path, $0200 = slide-active flag that RunAttackFlagSetup also sets; its reader is unknown) and $10 bit $0008 (collision-aware movement) is cleared; then every frame the player's X or Y is changed by 4 px directly (no collision test) until the countdown reaches 0: 4 x $0E frames = 16 px per $0E unit (a $0E of 0 would run 65,536 frames). There is no animation during the glide; the slide's looping frame stays on screen.",
+            "Landing: clear $2000, stage the FINISH frame of the same slide ($14 west, $17 east, $11 north, $0E south), AnimOnce, then UnlockPlayerAfterClimb. That routine does what RunAttackCleanup does (clear $0200, consume the attack bit in joypadHeld, clear playerFlags $0002) plus clearing climbStateData ($09E0, in fact the ability damage bonus that attack_ability_system sets for the slide), re-enabling collision-aware movement and un-masking joypadMaskStd, then RestorePlayerControl returns the player to PlayerIdleEntry.",
+            "",
+            "db-us/transforms.json (stair_climb) rewrites two vanilla constants: the attack-bit immediate (the vanilla ROM has a different bit, $0080 here after the button remap) and the joypadMaskStd consumption mask (ends in $FC here instead of the vanilla $F0). Comments here describe the post-transform values. Block is marked non-movable because of the tight $& coupling between triggers and climb handlers."
+        ],
+        "partNotes": {
+            "StairTriggerSouth": [
+                "Glide trigger for a WEST-moving Psycho Slide (player animation $12/$13). Needs player X == trigger X exactly and player Y inside the 32-px window trigger Y - 7 .. trigger Y + $18, sprite bank $8F. On success the player is sent to ClimbSouth (X -4 per frame) and locked by LockPlayerForClimb. 1 spawn site."
+            ],
+            "StairTriggerNorth": [
+                "Glide trigger for an EAST-moving Psycho Slide (player animation $15/$16). Needs player X == trigger X and player Y in the window trigger Y - 7 .. trigger Y + $18. On success the player is sent to ClimbNorth (X +4 per frame). 1 spawn site."
+            ],
+            "StairTriggerWestEntry": [
+                "Entry variant of StairTriggerWest: shifts the trigger itself by (-8, 0) pixels once (NudgePosition on the trigger's own slot), then continues into StairTriggerWestMain. 1 spawn site."
+            ],
+            "StairTriggerWest": [
+                "Glide trigger for a NORTH-moving Psycho Slide (player animation $0F/$10). Needs player Y == trigger Y exactly and player X in the window trigger X - 7 .. trigger X + $18. Starts with SetEntryHere so the check repeats every frame. On success the player is sent to ClimbWest (Y -4 per frame). 12 spawn sites (plus the awB2 JumpFar into StairTriggerWestMain)."
+            ],
+            "StairTriggerEast": [
+                "Glide trigger for a SOUTH-moving Psycho Slide (player animation $0C/$0D). Needs player Y == trigger Y exactly and player X in the window trigger X - 7 .. trigger X + $18. On success the player is sent to ClimbEast (Y +4 per frame). 14 spawn sites, the most used trigger."
+            ],
+            "CheckMoveState": [
+                "Helper for the triggers: Y = player actor; carry clear when the player's sprite bank byte ($7F0008) is $8F, carry set otherwise. $8F is the bank of the will_alt spriteset (body_table entries 4 and 5), which the Psycho Slider selects with SetPlayerSpriteDirect #04; the normal Will spriteset is bank $95. It is not a 'move state' and the name is misleading."
+            ],
+            "ClimbSouth": [
+                "Player-side glide for a west slide: entry flags once ($10 |= $2200, bit $0008 cleared), then X -4 per frame while the statsPtr countdown runs; at 0 it leaves script-driven mode, stages the west slide's finish frame $14 and calls UnlockPlayerAfterClimb."
+            ],
+            "ClimbNorth": [
+                "Player-side glide for an east slide: X +4 per frame; finish frame $17."
+            ],
+            "ClimbWest": [
+                "Player-side glide for a north slide: Y -4 per frame (up the screen); finish frame $11."
+            ],
+            "ClimbEast": [
+                "Player-side glide for a south slide: Y +4 per frame (down the screen); finish frame $0E."
+            ],
+            "LockPlayerForClimb": [
+                "Runs in the TRIGGER's context (D = trigger) right after a hit. Stores $0E x 4 (the glide length in frames; 4 px per frame, so 16 px per unit of $0E) in the PLAYER's statsPtr ($7F0020) as a countdown, zeroes the player's $2C/$2E/$08, masks the D-pad ($0F00 into joypadMaskStd) and sets playerFlags $0800 (script/ability lock). The countdown is left at 1 when the glide ends (the zero is never stored back)."
+            ],
+            "UnlockPlayerAfterClimb": [
+                "End of a glide, standing in for RunAttackCleanup (which the interrupted slide never reaches): zeroes climbStateData ($09E0, the ability damage bonus), clears the consumption bits from joypadMaskStd, sets $10 bit $0008 and clears $0200, consumes the attack press in joypadHeld, clears playerFlags $0002, then RestorePlayerControl."
+            ],
+            "RestorePlayerControl": [
+                "Returns the player to normal locomotion: entry pointer = PlayerIdleEntry, $2C/$2E/$08 zeroed, $10 = ($10 and $FDFF) or $0008, D-pad un-masked ($0F00 from joypadMaskStd), playerFlags $0800 cleared. Called from UnlockPlayerAfterClimb and from three ramp exits in ramps.asm."
+            ]
+        },
+        "comments": {
+            "53460": { "text": "Y = player actor. Fires for a WEST-moving Psycho Slide (anim $12/$13): X must match exactly, Y inside a 32-px window", "expect": "LDY $playerActor" },
+            "53469": { "text": "Passes only if trigger Y - 8 < player Y", "expect": "CMP $0016, Y" },
+            "53476": { "text": "Trigger Y - 8 + $20 = trigger Y + $18: upper edge of the window", "expect": "ADC #$0020" },
+            "53479": { "text": "Passes only if player Y <= trigger Y + $18 (window is 32 px wide, trigger Y - 7 .. + $18)", "expect": "CMP $0016, Y" },
+            "53485": { "text": "Slide axis: player X must equal trigger X exactly (pixel compare, not a tile column)", "expect": "LDA $0014, Y" },
+            "53488": { "text": "Exact pixel X match with the trigger", "expect": "CMP $14" },
+            "53493": { "text": "Player sprite bank must be $8F (will_alt spriteset used by the Psycho Slider); carry set rejects", "expect": "JSR $&CheckMoveState" },
+            "53499": { "text": "Player animation index: $12 = west slide start, $13 = west slide loop", "expect": "LDA $0028, Y" },
+            "53525": { "text": "Store glide length ($0E x 4 frames) in the player's statsPtr, zero its velocity, mask the D-pad", "expect": "JSR $&LockPlayerForClimb" },
+            "53538": { "text": "Fires for an EAST-moving Psycho Slide (anim $15/$16): X exact, Y inside the same 32-px window", "expect": "SBC #$0008" },
+            "53571": { "text": "Player animation index: $15 = east slide start, $16 = east slide loop", "expect": "LDA $0028, Y" },
+            "53574": { "text": "East slide frames: $15 or $16", "expect": "CMP #$0015" },
+            "53597": { "text": "Lock the player and arm the glide (ClimbNorth: X +4 per frame)", "expect": "JSR $&LockPlayerForClimb" },
+            "53604": { "text": "Shifts the trigger itself by (-8, 0) pixels once, then runs the normal West check", "expect": "COP [NudgePosition]" },
+            "53621": { "text": "Fires for a NORTH-moving Psycho Slide (anim $0F/$10): X inside a 32-px window (trigger X - 7 .. + $18), Y exact", "expect": "SBC #$0008" },
+            "53640": { "text": "Slide axis: player Y must equal trigger Y exactly", "expect": "LDA $0016, Y" },
+            "53655": { "text": "Player animation index: $0F = north slide start, $10 = north slide loop", "expect": "LDA $0028, Y" },
+            "53694": { "text": "Fires for a SOUTH-moving Psycho Slide (anim $0C/$0D): X inside a 32-px window (trigger X - 7 .. + $18), Y exact", "expect": "SBC #$0008" },
+            "53713": { "text": "Slide axis: player Y must equal trigger Y exactly", "expect": "LDA $0016, Y" },
+            "53734": { "text": "Player animation index: $0C = south slide start, $0D = south slide loop", "expect": "LDA $0028, Y" },
+            "53764": { "text": "Y = player actor (set by the trigger). Only the sprite BANK is tested, not a move state", "expect": "PHX" },
+            "53768": { "text": "$7F0008 = bank byte of the player's spriteset pointer ($7F0006)", "expect": "LDA $7F0008, X" },
+            "53772": { "text": "$8F = will_alt spriteset (body_table 4 = Psycho Slider poses, 5 = ability poses); normal Will is bank $95", "expect": "CMP #$8F" },
+            "53779": { "text": "Carry set = reject (not in the will_alt spriteset)", "expect": "SEC" },
+            "53782": { "text": "Carry clear = accept", "expect": "CLC" },
+            "53784": { "text": "Once on entry: $2000 = script-driven actor path, $0200 = slide-active flag (also set by RunAttackFlagSetup; reader unknown)", "expect": "LDA #$2200" },
+            "53789": { "text": "Clear $10 bit $0008 (collision-aware movement) for the glide; UnlockPlayerAfterClimb sets it again", "expect": "LDA #$0008" },
+            "53796": { "text": "West glide: player X -4 per frame, written directly (no collision test)", "expect": "LDA $14" },
+            "53804": { "text": "Frame countdown stored by LockPlayerForClimb (the player's statsPtr reused)", "expect": "LDA $statsPtr, X" },
+            "53816": { "text": "Glide finished: leave script-driven mode, then pose the finish frame of the west slide", "expect": "LDA #$2000" },
+            "53821": { "text": "$14 = finish frame of the west Psycho Slide (will_alt spriteset)", "expect": "COP [StageSpriteFrame]" },
+            "53830": { "text": "Once on entry: script-driven path + slide-active flags (same as ClimbSouth)", "expect": "LDA #$2200" },
+            "53842": { "text": "East glide: player X +4 per frame, written directly", "expect": "LDA $14" },
+            "53850": { "text": "Frame countdown stored by LockPlayerForClimb", "expect": "LDA $statsPtr, X" },
+            "53867": { "text": "$17 = finish frame of the east Psycho Slide", "expect": "COP [StageSpriteFrame]" },
+            "53876": { "text": "Once on entry: script-driven path + slide-active flags (same as ClimbSouth)", "expect": "LDA #$2200" },
+            "53888": { "text": "North glide: player Y -4 per frame (up the screen), written directly", "expect": "LDA $16" },
+            "53896": { "text": "Frame countdown stored by LockPlayerForClimb", "expect": "LDA $statsPtr, X" },
+            "53913": { "text": "$11 = finish frame of the north Psycho Slide", "expect": "COP [StageSpriteFrame]" },
+            "53922": { "text": "Once on entry: script-driven path + slide-active flags (same as ClimbSouth)", "expect": "LDA #$2200" },
+            "53934": { "text": "South glide: player Y +4 per frame (down the screen), written directly", "expect": "LDA $16" },
+            "53942": { "text": "Frame countdown stored by LockPlayerForClimb", "expect": "LDA $statsPtr, X" },
+            "53959": { "text": "$0E = finish frame of the south Psycho Slide", "expect": "COP [StageSpriteFrame]" },
+            "53384": { "text": "D = trigger: $0E = glide length in units of 16 px (spawn type byte >> 1 for odd type bytes)", "expect": "LDA $0E" },
+            "53392": { "text": "The PLAYER's statsPtr ($7F0020) is reused as the glide frame countdown", "expect": "STA $statsPtr, X" },
+            "53422": { "text": "$09E0 is the ability damage bonus set for the slide (named climbStateData); zero it because the slide's own cleanup is skipped", "expect": "STZ $climbStateData" },
+            "53425": { "text": "Clear the consumed-button bits from joypadMaskStd (the mask differs from the vanilla ROM after the button remap)", "expect": "LDA #$CFFC" },
+            "53431": { "text": "$10 bit $0008 = collision-aware movement back on", "expect": "LDA #$0008" },
+            "53436": { "text": "Clear $0200 (the slide-active flag set by RunAttackFlagSetup)", "expect": "LDA #$0200" },
+            "53441": { "text": "Consume the attack press in joypadHeld (the bit differs from the vanilla ROM after the button remap) so no new attack starts on exit", "expect": "LDA #$0080" },
+            "54697": { "text": "Clear $0200 (slide-active flag) from the player's status word", "expect": "AND #$FDFF" },
+            "54700": { "text": "Set $0008 (collision-aware movement) in the status word", "expect": "ORA #$0008" }
+        }
+    },
+    "system/engine/cop_handlers_player_sprite.asm": {
+        "blockNote": [
+            "COP handlers for the player's body spriteset and player-specific animation staging (Bank 00, 11 handlers, COP #8E-#98). The copdef names for #90-#92 are StagePlayerMoveX/Y/XY (the labels here are StagePlayerSpriteMoveX/Y/XY).",
+            "",
+            "Script sites: SetPlayerSpriteDirect 24, StagePlayerSprite 93, StagePlayerSpriteMoveX 2, MoveY 21, MoveXY 9, RunPlayerAnim 8, StagePlayerSprFromDP 8 (all in forced_walk). StagePlayerSprWall and WallAnimHere/North/South have no script sites.",
+            "",
+            "=== Body table ===",
+            "SetPlayerSpriteDirect takes an index into the 6-byte body_table entries (word spriteset pointer, bank byte, ...): 0 Will ($95), 1 Freedan ($8E), 2 and 3 Shadow ($94), 4 will_alt ($8F), 5 ability_fx ($8F), 6 freedan_fx ($97), 7 shadow_fx ($97), 8 shadow_mode ($97). It writes spritesetPtr ($7F0006), the bank byte ($7F0008), the table offset into animScratch2 ($7F000E, read by the sprite decomposer while playerFlags bit 15 is set) and the raw index into $0AC8, then sets playerFlags $8000. It does NOT stage an animation: no $28/$2A change. $7F0008 is polymorphic (sprite bank for sprite actors, amplitude for HDMA sine thinkers).",
+            "The StagePlayerSprite family calls SetActorBody instead, which picks the body from characterForm, so one script works for Will, Freedan and Shadow.",
+            "",
+            "=== Staging ===",
+            "These ops store the raw animation operand in $28 (no ProcessAnimFlag, so no mirror handling), clear $2A, and save the next-op address in $00 and the script bank in $02 (the lines LDA $0C / STA $02 before each store are inserted by db-us/transforms.json and have no address tag). The movement operands of MoveX/MoveY/MoveXY are movement indices, not distances or durations: AnimFrameLookup turns each into the head of a delta chain (movement_delta_table) stored in $2C (X) or $2E (Y); moveXAlt/moveYAlt ($7F0018/$7F001A) keep the raw index. StagePlayerSprFromDP takes the animation index from the actor's $00 word, which the forced_walk helpers ReadDirSprite_* park there just before; the handler then overwrites $00 with the new entry address. RunPlayerAnim behaves exactly like AnimOnce (#89).",
+            "",
+            "=== WallAnimHere/North/South (#96-#98, unused) ===",
+            "Take a joypad mask word and compare it with joypadCurrent for equality; on mismatch they continue without waiting. Only the Y alignment is checked (Y low nibble must be 0); when misaligned they animate without probing. The probe tile is at the actor (Here), Y - $10 (North) or Y + $10 (South). TileCollisionQuery already folds solid tiles and out-of-bounds into $000F, so the BIT #$00F0 test never fires and only the $000F compare detects a block (the actor flag $0004 is then set and the op continues). Otherwise, when the tile type equals playerWallType ($09B0) they run UpdateActorAnimation (yield while it runs, continue when it finishes); a different type continues without animating. $0018/$001C are the page-0 scratch pair read by TileCollisionQuery."
+        ],
+        "partNotes": {
+            "SetPlayerSpriteDirect": [
+                "COP #8E with one byte operand (body_table index 0-8). Writes spritesetPtr ($7F0006) and the bank byte ($7F0008) from the 6-byte body_table entry, caches index x 6 in animScratch2 ($7F000E) and the raw index in $0AC8, and sets playerFlags $8000. Does not touch the animation index or frame counter. 24 sites (the Psycho Slider code uses #04 = will_alt)."
+            ],
+            "StagePlayerSprite": [
+                "COP #8F with one byte operand (animation index). Stores it raw in $28, clears $2A, applies the characterForm body with SetActorBody, then saves the next-op address in $00 and the bank in $02. 93 sites."
+            ],
+            "StagePlayerSpriteMoveX": [
+                "COP #90 (copdef StagePlayerMoveX) with two byte operands: animation index and an X movement index. Same staging as StagePlayerSprite; the movement index is kept in moveXAlt ($7F0018) and AnimFrameLookup turns it into the X delta-chain head stored in $2C. 2 sites."
+            ],
+            "StagePlayerSpriteMoveY": [
+                "COP #91 (copdef StagePlayerMoveY) with two byte operands: animation index and a Y movement index; the Y delta-chain head goes to $2E, the index to moveYAlt ($7F001A). 21 sites."
+            ],
+            "StagePlayerSpriteMoveXY": [
+                "COP #92 (copdef StagePlayerMoveXY) with three byte operands: animation index, X movement index, Y movement index; delta-chain heads go to $2C and $2E. 9 sites."
+            ],
+            "RunPlayerAnim": [
+                "COP #93 with no operands, identical to AnimOnce (#89): one UpdateActorAnimation pass; yields (PLA PLA RTL) while the animation runs, and on completion zeroes $2C/$2E and continues. 8 sites."
+            ],
+            "StagePlayerSprWall": [
+                "COP #94 with four byte operands (animation index, X movement index, Y movement index, wall type). Same as StagePlayerSpriteMoveXY plus a fourth byte stored in playerWallType ($09B0) for the WallAnim ops. No script sites."
+            ],
+            "StagePlayerSprFromDP": [
+                "COP #95 with no operands. The animation index is the low byte of the actor's $00 word, which the forced_walk helpers ReadDirSprite_XVelocity/YVelocity store there before the op; afterwards the handler overwrites $00 with the next-op address like StagePlayerSprite. 8 sites, all in forced_walk."
+            ],
+            "WallAnimHere": [
+                "COP #96 with one word operand (joypad mask, compared for equality with joypadCurrent). If the masks differ the op continues at once. If Y is 16-aligned it probes the tile at the actor; a block (TileCollisionQuery returned $000F) sets actor flag $0004 and continues; a tile type different from playerWallType continues without animating; otherwise (or when Y is not aligned) it runs UpdateActorAnimation and yields until the animation finishes. No script sites."
+            ],
+            "WallAnimNorth": [
+                "COP #97, same as WallAnimHere but the probe pixel is Y - $10. No script sites."
+            ],
+            "WallAnimSouth": [
+                "COP #98, same as WallAnimHere but the probe pixel is Y + $10. No script sites."
+            ]
+        },
+        "comments": {
+            "41017": { "text": "Operand: body_table index (0 Will, 1 Freedan, 2-3 Shadow, 4 will_alt, 5 ability_fx, 6 freedan_fx, 7 shadow_fx, 8 shadow_mode)", "expect": "LDA [$0A]" },
+            "41032": { "text": "index x 6 into animScratch2: the sprite decomposer reads it while playerFlags bit 15 is set", "expect": "STA $animScratch2, X" },
+            "41050": { "text": "Bank byte ($7F0008): $8F will_alt / ability_fx, $95 Will, $8E Freedan, $94 Shadow, $97 effect bodies", "expect": "STA $7F0008, X" },
+            "41057": { "text": "playerFlags bit 15 = sprite override; SetActorBody (every StagePlayerSprite* op) clears it again. This op stages no animation", "expect": "TSB $playerFlags" },
+            "41075": { "text": "Raw animation index to $28 (no ProcessAnimFlag, so no mirror handling); $2A cleared next", "expect": "STA $28" },
+            "41111": { "text": "Movement index (not a distance); AnimFrameLookup converts it to a delta-chain head", "expect": "STA $moveXAlt, X" },
+            "41115": { "text": "A = movement index -> movement_delta_table chain head", "expect": "JSR $&actor_pool.AnimFrameLookup" },
+            "41118": { "text": "$2C = X delta-chain head (applied per frame by the actor runner), not a duration", "expect": "STA $2C" },
+            "41149": { "text": "Y movement index (not a distance), kept in moveYAlt", "expect": "STA $moveYAlt, X" },
+            "41153": { "text": "A = movement index -> movement_delta_table chain head", "expect": "JSR $&actor_pool.AnimFrameLookup" },
+            "41156": { "text": "$2E = Y delta-chain head, not a duration", "expect": "STA $2E" },
+            "41187": { "text": "X movement index, kept in moveXAlt", "expect": "STA $moveXAlt, X" },
+            "41194": { "text": "$2C = X delta-chain head", "expect": "STA $2C" },
+            "41203": { "text": "Y movement index, kept in moveYAlt", "expect": "STA $moveYAlt, X" },
+            "41210": { "text": "$2E = Y delta-chain head", "expect": "STA $2E" },
+            "41226": { "text": "Animation finished: stop the staged movement chains", "expect": "LDA #$0000" },
+            "41263": { "text": "X movement index, kept in moveXAlt", "expect": "STA $moveXAlt, X" },
+            "41270": { "text": "$2C = X delta-chain head", "expect": "STA $2C" },
+            "41279": { "text": "Y movement index, kept in moveYAlt", "expect": "STA $moveYAlt, X" },
+            "41286": { "text": "$2E = Y delta-chain head", "expect": "STA $2E" },
+            "41306": { "text": "Index parked in $00 by forced_walk's ReadDirSprite_* helpers; overwritten with the next-op address below", "expect": "LDA $0000" },
+            "41333": { "text": "Exact compare of joypadCurrent with the mask; on mismatch the op continues without waiting", "expect": "CMP $joypadCurrent" },
+            "41338": { "text": "Only Y is checked for alignment; if it is off-grid the op animates without probing", "expect": "LDA $16" },
+            "41345": { "text": "Page-0 scratch $1C = probe pixel Y (read by TileCollisionQuery)", "expect": "STA $001C" },
+            "41350": { "text": "Page-0 scratch $18 = probe pixel X", "expect": "STA $0018" },
+            "41353": { "text": "Returns the collision byte, or $000F for solid and out-of-bounds tiles", "expect": "JSR $&cop_handlers_collision.TileCollisionQuery" },
+            "41359": { "text": "Never taken: TileCollisionQuery already turned solid tiles into $000F", "expect": "BIT #$00F0" },
+            "41364": { "text": "$000F = blocked (solid or out of bounds)", "expect": "CMP #$000F" },
+            "41369": { "text": "Tile type must equal playerWallType ($09B0) for the animation to run; otherwise continue", "expect": "CMP $playerWallType" },
+            "41385": { "text": "Blocked: set actor flag $0004 (per-frame solid-contact flag) and continue", "expect": "LDA $10" },
+            "41420": { "text": "Probe pixel Y - $10 into page-0 scratch $1C", "expect": "STA $001C" },
+            "41495": { "text": "Probe pixel Y + $10 into page-0 scratch $1C", "expect": "STA $001C" }
+        }
+    },
+    "system/engine/cop_handlers_metatile.asm": {
+        "blockNote": [
+            "COP handlers that overwrite one metatile of LAYER 0 at run time (Bank 00, COP #4B-#4E) plus their helpers. Used by puzzle rooms, breakable walls and the item-use effects to swap floor/wall tiles.",
+            "",
+            "Script sites: DrawMetatileAbs (#4B) 24, DrawMetatileHere (#4C) 8 (2 in pyD0_breakable_wall, 6 in item_use_system). WorldMapStream3 (#4D) and WorldMapStream4 (#4E) have no script sites.",
+            "",
+            "All writes go to layer 0 only: collision flags come from $7F0000 + metatile ID (the layer-0 table; collisionFlagTableL1 sits at $7F0100 and is not used here), the map is $7EA000 + index (mapLayerTilemap), the collision map is $7FC000 + index, and the tile definitions are read from the hard-coded $7E2000 + ID x 8 (metatileDefBase is $2000 for layer 0, $2800 for layer 1). A tile is repainted on screen only when it lies in the visible window: horizontally (pixel X + 16 - bg1ScrollH) < $0111, vertically 0 <= pixel Y - ((mapScrollV - $10) and $FFF0) < $F1. Off-screen tiles only update the map and collision data.",
+            "The staged update is one 2x2 metatile: $0902 = VRAM word address of the top row (BG1 nametable at $1000 via PixelToVramAddress), $0908 = that + $20, tile words $0904/$0906 (top) and $090A/$090C (bottom). The NMI flush in event_blocks writes it and clears $0902; TileQueryGate makes the next draw wait until $0902 is zero again. The name tileQueryResult is a misnomer.",
+            "",
+            "Direct page: the handlers run with D = actor; the stores to $0018/$001A/$001C/$001E/$0000 are absolute (page-0 scratch) and become the DP $18/$1A/$1C/$1E/$00 seen by ResolveTileData after TCD zeroes D. The page-0 $00 here is NOT the actor's entry word. DrawMetatileHere takes the actor's $14/$16 as TILE coordinates (no divide by 16); pyD0_breakable_wall converts its pixel position first and saves the originals in orbitAngle/orbitDiameter ($7F0010/$7F0012).",
+            "WorldMapStream3/4 stream one 3- or 4-byte record per call (X tile, Y tile, metatile ID, and for #4E a delay byte stored in the actor's $08 wait counter), cache the pointer in $24, rewind the script pointer by 2 and yield between tiles, and an X byte with bit 7 set ends the stream. extendedFlags ($7F002A) bit 1 = pointer cached, bit 2 = queue orbitAngle as a sound effect (sfxQueueCh2) per tile; nothing in the extracted scripts uses them."
+        ],
+        "partNotes": {
+            "DrawMetatileAbs": [
+                "COP #4B with three byte operands: tile X, tile Y, metatile ID. Waits (rewinds the script pointer and yields) while TileQueryGate reports a pending update, otherwise converts the tile coordinates to pixels and calls ResolveTileData to update the layer-0 map and collision data and, when the tile is on screen, stage the 2x2 VRAM update. 24 sites."
+            ],
+            "DrawMetatileHere": [
+                "COP #4C with one byte operand (metatile ID). Uses the actor's $14/$16 as TILE X/Y (the callers, pyD0_breakable_wall and item_use_system, must have converted pixel coordinates first), then behaves like DrawMetatileAbs. 8 sites."
+            ],
+            "WorldMapStream3": [
+                "COP #4D with one word operand (stream pointer, cached in $24 on the first call). Each call paints one record (X, Y, tile ID) from the stream, optionally queues orbitAngle as a sound effect on channel 2 (extendedFlags bit 2), rewinds the script pointer by 2 and yields; a record whose X byte has bit 7 set ends the stream and the op continues past its 2-byte operand. No script sites."
+            ],
+            "WorldMapStream4": [
+                "COP #4E, like WorldMapStream3 with 4-byte records: the fourth byte is stored in the actor's $08 (the wait counter), so it is a per-record delay, not a tile attribute. No script sites."
+            ],
+            "ParseMapEntry": [
+                "Decodes the 3-byte record at stream address X: byte 0 = tile X (bit 7 set = end of stream, carry set), byte 1 = tile Y, byte 2 = metatile ID. Zero-extends (not sign-extends) the coordinates into DP $18/$1C, stores pixel positions (x16) in $1A/$1E and the metatile ID in $00, returns carry clear. Sets D = 0 itself."
+            ],
+            "ResolveTileData": [
+                "Writes one metatile of layer 0: map index from TileCoordsToMapIndex (layer selector 0), collision byte from $7F0000 + ID copied to $7FC000 + index, the ID to mapLayerTilemap ($7EA000 + index). If the tile is inside the visible window it then copies the four tile words of the definition at $7E2000 + ID x 8 to $0904/$0906/$090A/$090C and stores the VRAM word addresses of the two tile rows in $0902 and $0908 (PixelToVramAddress, BG1 nametable). Off-screen tiles stop after the map writes."
+            ],
+            "TileQueryGate": [
+                "Carry clear (proceed) when $0902 is zero, i.e. the previous 2x2 update has been flushed by the NMI. Otherwise rewinds the script pointer by 2 (back to the COP opcode, so the op runs again next time) and returns carry set; the callers then pop their return and yield."
+            ]
+        },
+        "comments": {
+            "38549": { "text": "Absolute store to page-0 scratch $18 (tile X); it becomes DP $18 after TCD zeroes D below", "expect": "STA $0018" },
+            "38583": { "text": "Page-0 scratch $00 = metatile ID (not the actor's entry word)", "expect": "STA $0000" },
+            "38627": { "text": "Actor X is used as a TILE X without dividing by 16: callers convert first (pyD0_breakable_wall does)", "expect": "LDA $0014, X" },
+            "38638": { "text": "Actor Y used as a TILE Y", "expect": "LDA $0016, X" },
+            "38826": { "text": "4th record byte: per-record delay for the actor's $08 wait counter", "expect": "LDA $0003, X" },
+            "38832": { "text": "$08 = wait counter; DBR is the script bank here, so this hits the LowRAM mirror of the actor's DP", "expect": "STA $0008, Y" },
+            "38925": { "text": "Zero-extended, not sign-extended (the end sentinel is bit 7 of the X byte, tested above)", "expect": "AND #$00FF" },
+            "38966": { "text": "$7F0000 + metatile ID = layer-0 collision byte of that metatile (layer 1's table is at $7F0100, unused here)", "expect": "LDA $animScratch, X" },
+            "38989": { "text": "Visible if pixel X + 16 - bg1ScrollH < $0111, i.e. X in scroll - 16 .. scroll + $100", "expect": "ADC #$0010" },
+            "39001": { "text": "Vertical window base = (mapScrollV - $10) rounded down to 16; pixel Y - base must be 0 .. $F0", "expect": "LDA $mapScrollV" },
+            "39036": { "text": "Definition read from hard-coded $7E2000 + ID x 8 (layer 0 definitions; four tile words TL, TR, BL, BR)", "expect": "LDA $metatileMapLayer, X" },
+            "39068": { "text": "$0902 = VRAM word address of the top tile row; the NMI flush writes the 2x2 update and clears it", "expect": "STA $tileQueryResult" },
+            "39075": { "text": "$0908 = VRAM word address of the bottom row", "expect": "STA $0908" }
+        }
+    }
+}

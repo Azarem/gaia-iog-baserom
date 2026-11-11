@@ -92,7 +92,7 @@ The `meta<>` type is a discriminated union — each command begins with a 1-byte
 | `$13` | `branch` | `[Byte, Byte]` | Conditional execution (flag test + label jump) |
 | `$14` | `label` | `[Byte]` | Named jump target within the command stream |
 | `$15` | `jump` | `[Byte]` | Unconditional jump to a label in another scene |
-| `$17` | `char-tiles` | `[Byte, @Binary]` | Character/object tile graphics |
+| `$17` | `char-tiles` | `[Byte, @Binary]` | Preformatted BG tilemap screens (`.dmp`) |
 
 ### Command Details
 
@@ -191,10 +191,10 @@ Unconditional jump to a label. The `SkipScriptCommands` routine uses the `meta_l
 #### `char-tiles` (opcode `$17`)
 
 ```
-$17 <vram_page:Byte> <source:@Binary(3 bytes)>
+$17 <flags:Byte> <source:@Binary(3 bytes)>
 ```
 
-Loads character or object tile graphics with flexible VRAM targeting. The VRAM page byte determines the destination: bit 7 set = absolute VRAM address `(page & $7F) × 4`, bit 0 = VRAM `$1000`, bit 1 = VRAM `$1800`.
+DMAs a preformatted block to VRAM. Despite the name, the only file (`dmap_inventory_bg`) is four 32×32 BG tilemap screens, not tile graphics. The flags byte determines the destination: bit 7 set = VRAM word address `(flags & $7F) << 10` (`$400` words, one tilemap screen, per unit), otherwise bit 0 = VRAM `$1000` and bit 1 = VRAM `$1800`. Scene `$FF` (inventory) holds the command; scene `$FD` runs it through `jump < #11 >`. Format and consumers: [dmap-inventory-bg](../dmap-inventory-bg.md).
 
 ---
 

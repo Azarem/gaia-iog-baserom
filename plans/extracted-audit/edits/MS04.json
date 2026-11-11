@@ -1,0 +1,1985 @@
+{
+  "_note": "MS04 (Z1 closure of E, F, G, M, N, P, R, S, T, V, W1 and FR results). Hand-merged union of the session drafts under mesen2-results/specs; entries that overlapped (same find or same key) are combined into one edit. Apply: npm run merge -- plans/extracted-audit/edits/MS04.json --dry-run, then without --dry-run; then npm run names -- plans/extracted-audit/renames/apply-MS04_names.json. extracted/ must carry line-tracking tags (npm run extract:lt) because comments use expect.",
+  "gold_ship/ship_gold/gs2C_crow_crew.asm": {
+    "blockNote": [
+      "Crow's nest lookout of the Gold Ship. The phases are keyed on two event flags: $4C (set by gs2C_descent when the ship leaves the cave) and $4F (set by this actor's first interaction).",
+      "",
+      "Flag $4F already set at spawn: no sequence runs; the actor clears bit $2000 of its flag word, sets musicRoomGroup to 2 and idles (SetEntryHere + RTL).",
+      "",
+      "Flag $4F clear: the actor waits for flag $4C, spawns the child code_05857A and clears bit $2000 of its flag word. The child writes TM $15, CGADSUB $A1 and COLDATA $E0 every frame (dark cave tint) until flag $4F is set, then dies. The interaction handler code_0584A9 prints the guard's \"the ship is coming out of the cave\" line on the first talk and sets flag $4F; later talks print the closing line.",
+      "",
+      "Flag $4F set while waiting: the lookout masks the joypad (joypadMaskStd), starts music $03, waits 2 ticks and a vblank, clears backdropColors, writes COLDATA $FF, TM $17 and CGADSUB $A2, waits 60 ticks, spawns oneshot_backdrop_fade_out_1C (the backdrop ramp), waits 192 ticks, writes CGADSUB $22, waits 120 ticks, prints the closing line and releases the joypad mask. vblank_joypad supplies the vblank wait."
+    ]
+  },
+  "thinkers/palette_parent_child.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "docs/code/bank0C-scene-spawn-tables-comet.md lists the thinker for 'World Map, Inventory'; only $FD and $FF appear in the records. Which scripts set and clear flag #01 in those scenes was not traced.",
+          "with": "docs/code/bank0C-scene-spawn-tables-comet.md lists the thinker for 'World Map, Inventory'; the records are for scene $FD (Statue Inventory) and scene $FF (Inventory), and scene $FE (World Map) does not start it (measured: no start of bundle #03 in $FE with flag #01 set). Bundle #03 is one strip of 8 frames of two colours at CGRAM $CE-$CF with 3 extra ticks per frame, 32 ticks per pass (measured): a grey pulse, $CE $5EF7 to $4210 and $CF $7FFF to $5EF7 and back. In these two scenes the only code that sets flag #01 is the item-use script of the inventory (item_use_system sets it at ROM offset 231958 in UseItem_WindFlute_Effect, and at 232552, 234433, 235734 and 235760); with the flag set the child restarts the bundle on every pass (measured: 9 starts of #03 in 240 ticks in each of $FD and $FF with the flag set at tick 5)."
+        }
+      ]
+    }
+  },
+  "thinkers/flag_gated_palette_warm.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "a single 1-frame step that writes 80 colours starting at colour index $30 (decoded from the bundle table, delay 0).",
+          "with": "a single 1-frame step that writes 80 colours starting at colour index $30 (decoded from the bundle table, delay 0). Measured in scene 01 with flag $16 set: 75 of the 80 colours change, towards darker values with red dominant (for example $31 $20C5 to $0003, $36 $4ADA to $2DF2)."
+        },
+        {
+          "find": "whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+          "with": "after an inventory open/close the loop plays the bundle once more (measured in scenes 01 and 30: one extra start of bundle $02 per open/close, after the overlay has closed, in the same scene)."
+        },
+        {
+          "find": "so there the gate kills the thinker at once - inferred, not run.",
+          "with": "so there the gate kills the thinker at once. The gate itself was measured (flags $16 and $1C both set: no start in scenes 01, 03 and 30; only $16 set: bundle $02 starts in scenes 01 and 30; neither set: no start); the flag state on a normal arrival at Oakton was not read."
+        }
+      ]
+    }
+  },
+  "thinkers/flag_gated_palette_cool.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "a single 1-frame step that writes 7 colours starting at colour index $19 (decoded from the bundle table, delay 0).",
+          "with": "a single 1-frame step that writes 7 colours starting at colour index $19 (decoded from the bundle table, delay 0). Measured in scene 03 with flag $16 set: the seven colours go from (near) black ($0000 for $19-$1C, $0002, $0400, $0020 for $1D-$1F) to $18ED, $192F, $1D91, $1DF4, $2236, $2298, $26FB, dark brown to red-orange tones with red the largest channel."
+        },
+        {
+          "find": "whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+          "with": "after an inventory open/close the loop plays the bundle once more (measured in scenes 03-07: one extra start of bundle $4C per open/close, after the overlay has closed, in the same scene; scene 08 masks the joypad on arrival, so no overlay was opened there)."
+        }
+      ]
+    }
+  },
+  "thinkers/ambient_palette_cycler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "bundle $13 (scenes 1D and 27)",
+          "with": "bundle $13 (scenes 1D, 20, 25, 26, 27 and 28)"
+        },
+        {
+          "find": "The bundle-ID list per scene is in scene_thinkers;",
+          "with": "The bundle-ID list per scene is in scene_thinkers (the 59 records use 33 distinct bundle IDs; a sweep of all 228 scenes saw 32 of them play, the exception is #47, whose record belongs to scene $84, a scene id that is not in the scene list);"
+        }
+      ]
+    }
+  },
+  "system/world_map/WorldMapController.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The divisor falls from $0400 to about $34 (hand-computed), a zoom-out from 8x in to a wide view.",
+          "with": "The divisor falls from $0400 to $54 (measured), a zoom-out from 8x in to a wide view. Only 43 passes count: the first pass runs in the tick in which Mode7PerspectiveInit stores $0400 into $B8, so its add (-$20) is overwritten; the other 43 deltas run from -$20 to -2 and sum to -940."
+        },
+        {
+          "find": "so these look like the pieces of one vehicle (not checked at runtime).",
+          "with": "so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow)."
+        }
+      ]
+    },
+    "partNotes": {
+      "RouteAnimationEngine": {
+        "edit": [
+          {
+            "find": "then a tick count n (the step runs n + 1 ticks)",
+            "with": "then a tick count n (the step applies n + 1 deltas and spans n frames)"
+          }
+        ]
+      },
+      "RouteDeltaTables": {
+        "edit": [
+          {
+            "find": "so the step applies its deltas n + 1 times, once per tick.",
+            "with": "so the step applies its deltas n + 1 times in n frames: the actor yields after every delta except the last, and the first delta of the next step is applied in the same frame (measured on 37 routes)."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "238454": {
+        "text": "v0 = $20, shift 5: delta of pass t = ((t * (t >> 1)) >> 5) - $20, negative in all 44 passes (sum -972, the first one is overwritten by Init)",
+        "expect": "InitGravity"
+      },
+      "238469": {
+        "text": "Mode 7 divisor $B8 += delta (negative): $0400 down to $54, the view zooms out",
+        "expect": "ADC"
+      }
+    }
+  },
+  "system/world_map/WorldMapSplitEffect.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What the strip below the boundary looks like on the world map (and whether it is the intended 'iris') is decoded from the tables, not observed.",
+          "with": "Measured on the world map: below the boundary row the screen is black with the BG3 text (the destination menu) on top. The screen is in Mode 1 there (BGMODE $09), BG1 and the backdrop are the colour-math layers, and the white fixed colour is subtracted from them; the FF / 01 alternation of the COLDATA fill keeps the fixed colour white on every line, because the $01 writes select no colour plane. Above the boundary row the map is Mode 7. The boundary row (151 + 2 x offset step) is off the bottom of the 224-line screen from the 37th step, so about 37 frames after the route starts the whole picture is Mode 7."
+        }
+      ]
+    }
+  },
+  "thinkers/mode7_perspective.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "{count 1, data word 0} plus a $00 terminator into $7E7000 (M7A), $7E7800 (M7B) and $7E8000 (M7C): 673 bytes each.",
+          "with": "{count 1, data word untouched} plus a $00 terminator into $7E7000 (M7A), $7E7800 (M7B) and $7E8000 (M7C): each table is 673 bytes long and the fill stores 225 of them (the 224 count bytes and the terminator). The data words are not cleared: the area is the scene loader's decompression scratch, so they hold stale bytes (measured right after the fill: 50, 54 and 38 of the 224 words are nonzero) until the first computation overwrites them (measured: the tables hold computed values within 4 frames of the fill)."
+        },
+        {
+          "find": "(0.703 degrees per step)",
+          "with": "(0.703 degrees per step; measured: increasing $BC turns the map clockwise on the screen)"
+        },
+        {
+          "find": "Not traced: whether any scene runs both.",
+          "with": "Measured in the four scenes that run Mode7PerspectiveUpdate ($FE world map, $8C prologue, $59 Sky Garden crash, $C0 Angkor Wat vision): after the first table fill nothing else writes $7E7000-$8FFF, and no DMA from this area runs while the scene is active. Before the fill the scene loader's decompressor (QuintetLzDecompress, the literal and back-reference stores) uses the area as scratch."
+        }
+      ]
+    },
+    "partNotes": {
+      "Mode7FillTableLoop": "Fill loop: one entry per scanline in all three tables (count byte 1; the data bytes are not written), 224 times, then $00 terminators."
+    },
+    "comments": {
+      "240020": {
+        "text": "Per entry: count byte 1 (one scanline, no repeat) in all three tables; the data word is not written and keeps its stale bytes until the first computation",
+        "expect": "LDA"
+      },
+      "239947": {
+        "text": "$7F0B22 and $7F0B24 := $FFFF: palette staging words for CGRAM colors $91 and $92 ($7F0A00 + 2 x color); UploadCgramPalette's DMA of the staging buffer reads them every frame",
+        "expect": "LDA #$FFFF"
+      }
+    }
+  },
+  "system/diary_menu/diary_entry_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "to pan the Mode 7 camera.",
+          "with": "to pan the map picture (the diary scene is in Mode 1: cameraTargetX / cameraTargetY become the BG1 scroll; measured, the Mode 7 matrix is not used)."
+        },
+        {
+          "find": "is the diary menu's initial camera.",
+          "with": "is the diary menu's initial camera. The view centre (target + ($80, $70)) lies near the location's world-map start position: within 12 px on both axes for 11 of the 15 named locations that have one, 17-20 px off for Angel Village and Edward's Castle, and 40-44 px off for Diamond Mine and South Cape (measured: the camera of each of the 35 scenes settles at the table words)."
+        }
+      ]
+    }
+  },
+  "system/diary_menu/sFA_diary_menu.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "| $0D94 | Slot being edited (Snd/Buttons editor, arrangement screen, erase prompt) |",
+          "with": "| $0D94 | Slot being edited (Snd/Buttons editor, erase prompt); the arrangement screen sets it to $FFFF |"
+        },
+        {
+          "find": "so what Type 2 does here is unverified.",
+          "with": "so the results differ from the vanilla ones above. Measured per physical button (logical word that button feeds): the OptionsMenu patch replaces both tails with JSL ApplyButtonMapping; with all six saved button-map bytes zero, Type 1 keeps the defaults (physical B $4008, A $8080, Y $0040, X $0004) and Type 2 gives B $8080, A $0040, Y $4008, X $0004. In the diary menu itself physical A confirms and physical B cancels with either type."
+        }
+      ]
+    },
+    "partNotes": {
+      "DiaryNewGameCancel": {
+        "edit": [
+          {
+            "find": "restore the slot cursor from $0D94 and show the slot list again",
+            "with": "copy $0D94 into the slot cursor (it is always $FFFF on this path) and show the slot list again; DiaryStartJourney then sets the cursor from $0D8C, the slot that was picked"
+          }
+        ]
+      },
+      "DiaryEraseExecute": {
+        "edit": [
+          {
+            "find": "clear the text and return to the Erase list.",
+            "with": "clear the text and return to the Erase list. The LDA $1C / STA $1A / STZ $1C trio acts on the diary actor (slot $1000): measured $1A $0048 -> $0038 and $1C $0038 -> $0000, once per erase; of the actor's extents only $18 and $1C are read afterwards (every frame by the sprite cull in SortActors) and the actor draws no sprite, so nothing visible changes. $0D94 keeps the erased slot until the next write; no read of the stale value happens before that write."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "778896": {
+        "text": "Camera X = 128 (BG1 horizontal scroll target)",
+        "expect": "LDA"
+      },
+      "778905": {
+        "text": "Camera Y = 768 (BG1 vertical scroll target)",
+        "expect": "LDA"
+      },
+      "779315": {
+        "text": "$0D92 is already $FFFF here (DiaryStartLoadConfirm stored the slot in $0D8C and cleared the cursor), so $0D94 becomes $FFFF",
+        "expect": "LDA $0D92"
+      },
+      "779407": {
+        "text": "Copy $0D94 ($FFFF on this path) into the cursor; DiaryStartJourney sets the real cursor from $0D8C",
+        "expect": "LDA $0D94"
+      }
+    }
+  },
+  "thinkers/hdma_circle_window_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What the credits window looks like was not verified (open question).",
+          "with": "Measured on the credits screen: the radius grows by 1 per frame from 0 to $3F and then stays there; the lit area is a filled oval centred on ($80, $7F), about 125 pixels wide (x = $42-$BE at radius $3F) and 63 scanlines tall (96-158), with the picture inside and black outside. It is not a set of thin slivers."
+        },
+        {
+          "find": "sF7_credits and gs2A_shira also set W12SEL to $33 themselves (window 1 on BG1 and BG2); gs2A_shira writes WOBJSEL as well.",
+          "with": "sF7_credits and gs2A_shira also set W12SEL to $33 themselves: window 1 enabled and inverted on BG1 and BG2, so with the display preset's TMW = $17 both layers show only inside the circle and are hidden outside it. gs2A_shira also writes WOBJSEL = $03 (window 1 enabled and inverted for sprites), so there the sprites are hidden outside the circle as well; the credits leave WOBJSEL at 0, so sprites stay visible everywhere."
+        },
+        {
+          "find": "The window setup of the Mu scene is not in the extracted actors (open question).",
+          "with": "The window setup of the Mu scene is in mu67_vampires (address 718141, code_0AF53D, spawned by mu67_male_vampire at its start, address 717306): it writes WOBJSEL = $30 (colour window 1, enabled and inverted), CGWSEL = $22 (colour math prevented inside the window area, which is the part outside the circle; the sub screen is the addend) and CGADSUB = $03 (add to BG1 and BG2); W12SEL stays 0. While the radius is $FFFF the table is empty, so the whole screen is inside the window area and no colour math runs; with a circle the colour math (the fixed colour added to BG1 and BG2) runs only inside it."
+        },
+        {
+          "find": "shrinks the radius by 2 per frame from $A0 until it falls below $40;",
+          "with": "shrinks the radius by 2 per frame from $A0 until it falls below $40 (measured in the dream scene: the centre is ($88, $160) on screen, below the last visible line, so the lit area is a cap at the bottom edge that has left the screen after about 18 frames; from then on every visible line has the empty window and BG1, BG2 and the sprites stay hidden while BG3, the HUD, stays);"
+        }
+      ]
+    }
+  },
+  "system/diary_menu/diary_menu_window_dma.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the band appearance is decoded from the registers, not observed.",
+          "with": "measured: inside a band the main screen is black and only the BG3 text shows (the sub screen is added by colour math); outside the band the map is unchanged."
+        },
+        {
+          "find": "so the source row flickers at 30 Hz.",
+          "with": "so the source row flickers at 30 Hz (measured: the band is drawn on every second frame; consecutive frames differ in the band's 31 lines and frames two apart are identical)."
+        },
+        {
+          "find": "so the three tables overlay each other on the same registers.",
+          "with": "so the three tables overlay each other on the same registers. The channels run in order on every scanline and the last write wins, so an empty entry of a later channel hides an earlier channel's band on its lines. Measured: with the tab cursor at 0 the slot-1 band is invisible (the tab-0 table covers lines 79-93 with its own band and then writes $FF / $00 for lines 94-189), while the slot-3 band is visible."
+        }
+      ]
+    }
+  },
+  "thinkers/scanline_band_hdma_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "- Runtime behaviour of the individual entries (what the screen looks like) was not checked.",
+          "with": "- Measured on screen: type $02 (scene $03) is a COLDATA gradient (a fixed colour that changes every few lines) that CGADSUB $A3 subtracts from BG1, BG2 and the backdrop; type $05 (scene $2B) scrolls the water bands through BG2HOFS and is combined with type $06, a COLDATA gradient that CGADSUB $22 adds to BG2 and the backdrop; scene $2D runs types $07 (CGADSUB bands $A1 / $22), $06, $08 and $05 together on four channels; type $24 (scene $E5) moves 33 BG1HOFS bands; type $20 (scene $C3) is the window rectangle: with W12SEL $02 (window 1 enabled, not inverted, on BG1) and TMW $17 it cuts BG1 out of the rectangle (x $60-$9F and 48 lines when the camera is at the position tested), and the gap lines carry $0000, a window one pixel wide at x = 0 that hides the BG1 column x = 0 wherever BG1 is opaque there. The thinker writes only its one register: TM, TMW, TS, TSW, CGWSEL and the base CGADSUB come from the scene's display preset (written once at the scene load), not from this thinker. Types not run on screen: $00, $01, $03, $0A, $0B, $0E, $1B-$1F, $21 and $23."
+        },
+        {
+          "find": "Types $04 and $22 (COLDATA bands) and all $FFFF entries are not spawned by any scene thinker list.",
+          "with": "Types $04 and $22 (COLDATA bands) and all $FFFF entries are not spawned by any scene thinker list; no SpawnThinker or SpawnThinkerParam site names the thinker, and the one record that names an $FFFF entry ($0F, in the unreferenced list thinker_spawn_0CE9EA) is never run. Measured in every loadable scene: exactly the 20 types of this table occur."
+        },
+        {
+          "find": "accounts for 53 of the 81 scenes with a parallax thinker;",
+          "with": "accounts for 53 of the 81 scenes with a parallax thinker in their lists (scene $84 has no script record and cannot load, so 80 scenes spawn one at run time);"
+        },
+        {
+          "find": "Those extra words are never cleared by this thinker.",
+          "with": "Those extra words are never cleared by this thinker: at spawn they still hold the values of the previous parallax scene, so a revisit starts the extra bands at the old phase."
+        }
+      ]
+    }
+  },
+  "thinkers/sine_hdma_slow_wave.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "#02 is a byte offset into the camera scroll words (cameraTargetX / cameraTargetY + 2) that the table builder uses.",
+          "with": "#02 is a byte offset into the camera scroll words (cameraTargetX / cameraTargetY + 2, $06C0 and $06C4) that the table builder uses. Measured in scenes $32, $E9 and $EA: the two words change every frame ($32: X +1, Y -1; $E9: X -1, Y +1; $EA: about X -3, Y +3 per frame); the table's base value follows the X word, and BG1VOFS ($210E) follows the Y word, while BG2 scrolls with $068A / $068E. Within one frame the BG1HOFS values written by the table span 8 consecutive values (7 pixels from the lowest to the highest) with a period of 64 scanlines."
+        }
+      ]
+    }
+  },
+  "mu/mu_vampire_lair/mu67_vampires.asm": {
+    "partNotes": {
+      "code_0AF53D": "Colour-window set-up of the Mu vampire lair, spawned by mu67_male_vampire at its start (address 717306) and run once: WOBJSEL = $30 (colour window 1 enabled and inverted), CGWSEL = $22 (colour math prevented inside the window area, the sub screen is the addend) and CGADSUB = $03 (add to BG1 and BG2). The window itself is the circle that circle_window_thinker_v2 builds from the parameters at $F6 / $FA / $FE: with the radius $FFFF the window is empty and no colour math runs; with a circle the fixed colour is added to BG1 and BG2 only inside it (measured with the parameters forced to centre ($80, $70) and radius $30: a 97 x 97 pixel round patch tinted by the fixed colour, nothing changed outside it)."
+    }
+  },
+  "tables/spriteset_will_abilities.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "which does not look like a body pose (OQ-I072-5)",
+          "with": "which draw the player lying on the ground (measured: two 16 x 16 sprites side by side, 32 x 16 px, OAM tiles 0 and 2 at the player's place, on sprite palette 0, so the colours follow the current form; all four frames show the same pose; seen as Will on the raft in dc2F_adrift after the entry was set the way code_059C7A sets it)"
+        },
+        {
+          "find": "where it only reaches this table while the override of SetPlayerSpriteDirect #04 is still active (OQ-I072-4)",
+          "with": "where StagePlayerSprite clears the body override (playerFlags bit 15 goes from set to clear) and restores the Will spriteset, so the pose is drawn from spriteset_will (95:8000) and these entries are not reached by this path (measured at the end of the dash in all four directions: playerFlags $8001 before the stage, $0001 and sprite set 95:8000 after it)"
+        }
+      ]
+    }
+  },
+  "tables/spriteset_shadow_aura_body.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The order of the calls is traced;",
+          "until": "=== CHECKS ===",
+          "with": "The order of the calls is traced and the frames were watched (Shadow form, script entered at PlayerAuraTransformEntry on open ground). $00 (86 ticks) shows the standing body, then a star-shaped splash, a flat puddle that shrinks and a few small droplet sprites. $01 (85 ticks on the abort path) plays the same pictures backwards: droplets, puddle, splash and the standing body again, which is held for $13 ticks. $02 (16 one-tick frames, Y +1 px per tick, staged once per pass of the landing slide) is a small blue water ball that alternates between its three groups on every frame while the player slides down. Every sub-sprite of $00 and $01 uses sprite palette 0, the palette of Shadow's normal body; in $02 the two 8 x 8 groups 17C3DE and 17C3F2 use palette 2 and the other two groups palette 0.\n\nThe abort path leaves through PlayerAuraTransformExit into PlayerIdleEntry, and the player shows Shadow's normal body set again from the next idle frame. When the sink finds floor, PlayerAuraLandComplete stages animation $1C through StagePlayerMoveY (30 ticks), which selects the actor's own body set (Shadow's, not row $08): a splash with rings and a puddle line, then a blob that grows into the standing body (spriteset_shadow $1C); the exit is the same PlayerAuraTransformExit. Nothing stages another body_table row afterwards: staging a player sprite clears playerFlags bit 15, and $0AC8 keeps the stale value 8 after the exit.\n\n"
+        }
+      ]
+    }
+  },
+  "tables/spriteset_shadow.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0), $1D-$25 are one frame each, $26-$29 are 4 frames.",
+          "with": "$1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0): a splash with rings (sprites on palette 1) and a puddle line, then a blob that grows into the standing body; it is the landing animation of PlayerFallFromHeight, PlayerSkyGardenJumpLanding and the Aura landing. $19, $1A and $1B all use the same group (sprite_group_148E5D, a spiky splash). $1D-$25 are one frame each; $1D, $1F, $20, $22, $23 and $25 all draw the same standing-body group (sprite_group_148D96, hold 31), while $1E, $21 and $24 have a group of their own (a crouched splash and two sideways streaks). $26-$29 are 4 frames. The body palette alternates between two colour sets (blue with gold sparks, cyan with green) while Shadow stands; both are sprite palette 0."
+        }
+      ]
+    }
+  },
+  "tables/spriteset_freedan.asm": {
+    "partNotes": {
+      "spriteset_freedan": {
+        "edit": [
+          {
+            "find": "$3E-$41, $4A and $4B: no player script stages them with an immediate operand.",
+            "with": "$3E-$41, $4A and $4B: no player script stages them with an immediate operand. Measured by forcing the first frame of each list on the player: $1C shows the body from the front with the sword out to its left; $1D-$1F and $26-$29 show it from behind with the cape spread; $20 and $23 show it facing left, $21 and $22 diving to the left, $24 and $25 diving to the right; $3E-$41 are sword poses (south, north, west, east) and $4A and $4B are one-frame poses."
+          },
+          {
+            "find": "| $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |",
+            "with": "| $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |\n| $4A, $4B | one-frame poses facing left, hold 0 (measured: $4A has the hand at the head, group $0EC177; $4B holds the sword low, group $0EC393 with 9 sub-sprites); $4B is the last list of the table, the first sprite group follows its list (list $0E86AE, 6 bytes, then group $0E86B4); no player script stages either with an immediate operand | 1 frame |"
+          }
+        ]
+      }
+    }
+  },
+  "tables/spriteset_aura.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The statement that VRAM $4400 is tile $40 of the first sprite name table assumes the sprite name base is $4000 (OBSEL not traced).",
+          "with": "The Freedan Aura Barrier uploads misc_fx_1CC480 (48 tiles) to VRAM $4400 with the sprite name base at $4000 (measured: no $2101 write occurs during the cast, so $4400 is tile $40 of the first sprite name table); the Shadow Aura item neither writes OBSEL nor uploads to $4400."
+        },
+        {
+          "find": "All 12 groups keep the default attack box $F8 $F0 $01 $01.",
+          "with": "All 12 groups keep the default attack box $F8 $F0 $01 $01 (group bytes 4-7); nothing reads it for the orbitals (measured over a full cast that shows all 12 groups: no read of bytes 4-7, and PlayerAttackHitTest never runs for an orbital).\n\nHit rectangle: AuraOrbitalSpawner spawns each orbital with $10 = $0600 (the COP SpawnAfterMarked operand). $0400 makes the orbital a source of the second pass of CombatCollision: it builds the hit rectangle from the body box, group bytes 8-11 (X offset, width, Y offset, height in pixels, signed offsets; $FC $08 $F8 $16 for the first group = X -4 to +4, Y -8 to +14 around the actor position, mirrored for an H-flipped actor), and calls ApplyHitDamageToVictim for every actor of the render list whose own hitbox ($20-$23) overlaps it and whose $10 has none of the $76E0 bits; $0200 keeps the orbital itself out of that victim set. Measured: the rectangle in DP $00-$06 equals the header formula in all 538 orbital passes of a cast, an actor is hit when its left edge (X minus its west extent) is below the rectangle's right edge and its right edge is at least the rectangle's left edge (same rule on Y), and a bat took 2 HP per orbital hit (3 to 1, then 1 to 0). The body box is 1 to 6 pixels taller than the frame extents (bytes 0-3) in all 12 groups (first group: height 22 against 16); nothing in the code derives it from the sub-sprites."
+        }
+      ]
+    },
+    "partNotes": {
+      "sprite_group_17903C": {
+        "edit": [
+          {
+            "find": "body box $FC $08 $F8 $16,",
+            "with": "body box $FC $08 $F8 $16 (the orbital's hit rectangle: X -4 to +4, Y -8 to +14 around the actor position),"
+          }
+        ]
+      }
+    }
+  },
+  "tables/spriteset_dark_friar.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Appearance not viewed.",
+          "with": "Appearance: two frames of a south cast were viewed (which group of this table each one is was not matched): the cast frame draws Freedan as a pale white silhouette with a small spiky white shape beside it, and the trail frame draws a white-blue starburst with a red centre in front of Freedan with a grey winged shape trailing it. The VRAM layout is the one the groups assume: VRAM byte $8800 (word $4400) holds the $0480 bytes of misc_fx_1CC000 byte for byte, and the tile words $0440-$044E and $0460 of the groups lie inside that range. Other groups use tiles $C4, $C5, $D5 and $E8, which are not part of this upload (what fills them was not traced). The other animations were not viewed one by one."
+        }
+      ]
+    }
+  },
+  "tables/spriteset_freedan_fx.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The appearance of the tiles was not viewed (OQ-I069-3).",
+          "with": "Viewed: animation $02 (the Aura Barrier cast) shows Freedan with the sword raised straight up and the arms at the sides; animation $03 (the sustain pose, $28 = 3 while the barrier lasts, body row $06) shows the same body with a blue flame above the head and two blue blades below the feet. The drop poses $00 and $01 were not viewed (no ledge-jump scene was run)."
+        }
+      ]
+    }
+  },
+  "actors/player/attack_ability_system.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.",
+          "with": "the bonus that ApplyHitDamageToVictim adds to the hit strength (abilityDamageBonus on every hit, rangedDamageBonus only when the source is not the player actor in slot $1000). The value in A is the record number in the table (0, 1 or 2), not an animation table entry. Word 0 of a record is not read: in every Will cast (Psycho Dash, Psycho Slider, Spin Dash, levels 0 and 1) the loader read exactly the table index word, record+2 and record+4+level. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7 (stored when the charge completes); Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7. Which record each ability loads: Psycho Dash loads Will index 0; the Psycho Slider loads index 1; Spin Dash loads index 2 when the charge ends and index 1 again in SpinDashLaunch, so the Spin Dash flight adds the Psycho Slider value (by the Slider level word $0B18; measured: abilityDamageBonus 4/7 at the charge end and 5/8 in flight, 5 at level 0), not 4/7; every Dark Friar projectile loads Freedan index 0 (the trail south, the trail east/west and the fragments call LoadAbilityDamageB with index 0); the Aura Barrier record (index 1, 5/9) is never loaded, so its orbitals (counted from $0B1E: 2 at level 0, 4 at level 1) hit with whatever rangedDamageBonus holds (0 in the measured run, no Dark Friar cast before); Earthquaker loads Freedan index 2 in LedgeJumpDropLand (read from the code, not run)."
+        },
+        {
+          "find": "LoopStart/LoopEnd yield once per iteration, so LoopStart(#n) is an n-frame loop.",
+          "with": "LoopEnd yields after every iteration except the last, so LoopStart(#n) runs its body in n consecutive frames."
+        }
+      ]
+    },
+    "partNotes": {
+      "ComputeParentOffset": {
+        "edit": [
+          {
+            "find": "stages movement index $36 (a delta chain, not a distance), then returns to idle.",
+            "with": "stages movement index $36 (a delta chain, see PsychoDashSouth: the player moves 52 px away in 7 ticks and the trail actor's replay brings it back to the start), then returns to idle."
+          },
+          {
+            "find": "record 8 position deltas during the dash and replay them in reverse as afterimage segments.",
+            "with": "record the position deltas during the dash and replay them in reverse, one per tick, onto the player: the dash ends where it started (net displacement 0; 52 px out and back in all four directions, at upgrade levels 0 and 1)."
+          }
+        ]
+      },
+      "AttackSystemEntry": {
+        "edit": [
+          {
+            "find": "DarkFriarFragmentLoop applies the reversed velocity every frame until the fragment leaves the screen (actor flag $4000), then it dies.",
+            "with": "DarkFriarFragmentLoop applies the negated stored velocity every frame. The spiral phase moves a fragment by minus the stored value, so after the negation it moves by the stored value and flies straight on along the direction it had at the end of the spiral (no U-turn), until it leaves the screen (actor flag $4000); then it dies."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "178745": {
+        "text": "Spawn standard orbital child (always present regardless of upgrade); operand $0600 = its $10: $0400 body box hits actors, $0200 not a victim",
+        "expect": "SpawnAfterMarked"
+      },
+      "179244": {
+        "text": "A = 0: Freedan ability record 0 (Dark Friar) for LoadAbilityDamageB",
+        "expect": "LDA"
+      },
+      "179485": {
+        "text": "A = 0: Freedan ability record 0 (Dark Friar) for LoadAbilityDamageB",
+        "expect": "LDA"
+      },
+      "179576": {
+        "text": "Diameter overflow (carry set): maximum range reached; the stored velocity is negated below and the fragment flies on in the same direction",
+        "expect": "BCS"
+      },
+      "179624": {
+        "text": "Maximum range: restore 16-bit mode for the velocity negation (the sign of the stored velocity flips, the fragment does not turn back)",
+        "expect": "REP #$20"
+      },
+      "179631": {
+        "text": "Negate the stored X velocity (EOR #$FFFF + INC = two's complement). The spiral moved the fragment by minus the stored value, so now it moves by the stored value and keeps its direction (measured: stored X -6 before the negation and 6 after it, the fragment moves +6 px per tick in X on both sides of the change)",
+        "expect": "LDA $7F100C, X"
+      },
+      "179643": {
+        "text": "Negate the stored Y velocity (same effect: the sign flips, the direction of travel stays)",
+        "expect": "LDA $7F100E, X"
+      },
+      "179657": {
+        "text": "Outward flight phase: animate and apply the negated velocity each frame; the fragment flies on in a straight line until it leaves the screen",
+        "expect": "AnimOneFrame"
+      },
+      "179872": {
+        "text": "A = 0: entry 0 of the Will damage table (the Psycho Dash record, level word $0B16): LoadAbilityDamageA stores 5 / 10 in abilityDamageBonus; no sprite configuration is loaded here",
+        "expect": "LDA #$0000"
+      },
+      "179911": {
+        "text": "Sprite #04, Y movement index $36 (delta chain 8×0, 4,4,7,7,9,9,12,12, 0,0, 8×−8). Measured on the player: 8 ticks of 0, then 4, 4, 7, 7, 9, 9 and 12 px per tick (52 px away; the eighth entry does not show), a hold of 5 ticks, then the trail actor replays the recorded deltas in reverse (12, 9, 9, 7, 7, 4, 4) and the player is back at its start (net 0); AnimOnce ends the movement with the animation",
+        "expect": "StageSpriteMoveY"
+      },
+      "180475": {
+        "text": "Charge complete or minimum reached; A = 2: Will ability record 2 (Spin Dash 4/7) for LoadAbilityDamageA, replaced by the Psycho Slider record in SpinDashLaunch — transition to projectile launch phase",
+        "expect": "LDA"
+      },
+      "180637": {
+        "text": "A = 1: entry 1 of the Will damage table, the Psycho Slider record (level word $0B18, 5 / 8); the Spin Dash flight adds 5 / 8 from here on, not the 4 / 7 stored at the charge end",
+        "expect": "LDA #$0001"
+      },
+      "181088": {
+        "text": "abilityDamageBonus ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7 at the charge end; the Spin Dash flight stores the Slider record again: 5/8)",
+        "expect": "STA $abilityDamageBonus"
+      },
+      "181127": {
+        "text": "rangedDamageBonus ($09E2) = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Earthquaker 0/7); the Aura Barrier record (index 1, 5/9) is never loaded",
+        "expect": "STA"
+      }
+    }
+  },
+  "system/engine/combat_collision.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "If eligible, calls PlayerAttackHitTest.",
+          "with": "If eligible and the actor's iframe counter is not negative, calls PlayerAttackHitTest. The actor tested here is a victim that was just hit (ApplyHitDamageToVictim sets $0080 and a positive counter, 17 frozen frames for a non-player actor), and the call is its chain reaction against the other actors it overlaps; no attack of the player is evaluated here (measured for melee, Psycho Dash, Psycho Slider, Spin Dash, Dark Friar and the Aura Barrier orbitals: all go through phase 2)."
+        },
+        {
+          "find": "After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision.",
+          "with": "After phase 1, builds the hit rectangle of the current actor when that actor has $0400 (the player while it attacks, Dark Friar projectiles and fragments, the Aura orbitals, an actor that died on the inline-lethal path) and has none of $0140, then checks every actor of the render list against it. Each overlapped actor is hit through ApplyHitDamageToVictim, with the current actor as the source. An enemy touching the player is not decided here: it goes through ApplyInteractionDamage."
+        },
+        {
+          "find": "Player attacks enemy (PlayerAttackHitTest):",
+          "with": "Chain reaction of a hit victim (PlayerAttackHitTest; no attack of the player uses it):"
+        },
+        {
+          "find": "chainDamage stored at $7F101E,X accumulates across consecutive hits",
+          "with": "chainDamage ($7F101E,X) of the attacker is the net damage of the hit that stunned it (ApplyHitDamageToVictim stores it); the victim of the chain hit gets chainDamage / 2 as its own chainDamage, so the value halves per hop (measured: net damage 6 gives hop damage 4 and victim chainDamage 3; net damage 1 gives hop damage 1 and victim chainDamage 0)"
+        }
+      ]
+    },
+    "partNotes": {
+      "CombatCollision_EnemyLoop": {
+        "edit": [
+          {
+            "find": "Phase 1 (player attack test):",
+            "with": "Phase 1 (chain reaction of a hit victim):"
+          },
+          {
+            "find": "If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.",
+            "with": "If eligible and the actor's iframe counter is non-negative (the 17 frames of a positive counter counting down after a hit), calls PlayerAttackHitTest with that actor as the attacker."
+          },
+          {
+            "find": "Phase 2 (enemy-hits-player test):",
+            "with": "Phase 2 (source actor hits the actors it overlaps):"
+          },
+          {
+            "find": "constructs the current enemy's AABB from metasprite hitbox fields",
+            "with": "constructs the AABB of the current actor (the source: it needs $0400 and none of $0140) from metasprite hitbox fields"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "244729": {
+        "text": "$0080 in the tested actor's $10 must be set: the actor is in hit-stun (ApplyHitDamageToVictim sets it on a victim, ApplyInteractionDamage on the player, RunActors_Normal clears it when the iframe counter reaches zero), so this test is the chain reaction of a victim",
+        "expect": "BIT"
+      },
+      "244941": {
+        "text": "$76E0: skip dead/orb/COP/display/overlay/pause; the mask includes $0200 (ignore enemy contact) and $0080 (hit reaction)",
+        "expect": "BIT"
+      },
+      "245180": {
+        "text": "$36F0: skip friendly/dead/orb/COP/display; the mask also includes $0400, $0200 (ignore enemy contact) and $0080 (hit reaction)",
+        "expect": "BIT"
+      }
+    }
+  },
+  "tables/enemy_stats_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "PlayerAttackHitTest (the player's attack box) does not read DEF: its damage is chainDamage / 2 + 1, with chainDamage accumulating over consecutive hits of one attack (formulas in the combat_collision header). Not traced: which attack of the game goes through which of the two routines.",
+          "with": "Every attack of the player (melee, Psycho Dash, Psycho Slider, Spin Dash, Dark Friar, Aura Barrier orbitals), the hit switch and the laborer go through ApplyHitDamageToVictim (measured; formula in the combat_collision header). PlayerAttackHitTest does not read DEF: it runs only for an actor that is in its own hit-stun (the chain reaction) and its damage is chainDamage / 2 + 1, where chainDamage is the net damage of the hit that stunned that actor, halved at every hop."
+        }
+      ]
+    }
+  },
+  "tables/ability_damage_tables.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "combat_collision adds that value to the hit strength.",
+          "with": "ApplyHitDamageToVictim (combat_collision) adds abilityDamageBonus to every hit and rangedDamageBonus only when the source is not the player actor. The Aura Barrier record (Freedan index 1) is never loaded, and a launched Spin Dash hits with the Psycho Slider record (attack_ability_system block note lists which record each ability loads)."
+        }
+      ]
+    },
+    "partNotes": {
+      "ability_damage_aura_barrier": {
+        "edit": [
+          {
+            "find": "damage 5 / 9.",
+            "with": "damage 5 / 9. No code loads this record: an Aura Barrier orbital hits with whatever rangedDamageBonus holds (0 in the measured run)."
+          }
+        ]
+      },
+      "ability_damage_spin_dash": {
+        "edit": [
+          {
+            "find": "damage 4 / 7.",
+            "with": "damage 4 / 7, loaded when the charge ends; SpinDashLaunch then loads the Psycho Slider record, so the launched Spin Dash hits with 5 / 8 (measured: abilityDamageBonus 5 at level 0)."
+          }
+        ]
+      }
+    }
+  },
+  "actors/player/player_character.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again.",
+          "with": "extendedFlags $0040 (the bounce flag tile_collision_physics reads: the first wall contact clears it, sets $6000 in $12 and the rest of the curve runs backwards, so the lunge rebounds; a south lunge from a wall-adjacent spot went 3 px per tick down, hit the wall and came back up the remaining 14 steps of 3 and 4 of 1); the exits clear $0200 and $0040 again. The bonus is real: a bat with defence 0 lost 1 HP to the swing and 2 HP to the lunge."
+        },
+        {
+          "find": "IdleStand* (8 directional × Shadow variants)",
+          "with": "IdleStand* (4 directions, each with a variant for flag byte #00 set: IdleStand*Flagged)"
+        }
+      ]
+    },
+    "partNotes": {
+      "RangedAttackSouth": {
+        "edit": [
+          {
+            "find": "when Will (form 0) holds the facing direction during the swing.",
+            "with": "when Will (form 0) presses the facing direction anew while the swing plays. Holding it from the attack press does not lunge: AttackInit consumes the held direction in joypadHeld, so only a fresh press reaches the BranchIfPressed #$0400 (the lunge started on the tick of that press, with the D-pad released for the first five ticks of the swing)."
+          }
+        ]
+      },
+      "CameraShakeFrame": {
+        "edit": [
+          {
+            "find": "Each offset is -1, 0, +1 or +2.",
+            "with": "Each offset is -1, 0, +1 or +2. The controller stores the target before the shake runs in the same frame, so the offsets do not accumulate: measured over a drop-attack landing (61 ticks, one per frame, layerPriorityFlag bit $0200 clear on every tick) the target differs from the player-derived value by exactly that frame's offset (mean +0.4 per axis) and is back on it the frame after the last tick."
+          },
+          {
+            "find": "so the shake stays centred on the frozen position.",
+            "with": "so the shake stays centred on the frozen position. The controller does not run while the camera is frozen, so the last tick leaves the target at the original plus that tick's offset (measured with the bit set from the landing: 61 ticks, final target = original + (+1, -1))."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "181375": {
+        "text": "South idle: flag byte #00 clear stages sprite #00, set stages #10 (either character form)",
+        "expect": "COP"
+      },
+      "181386": {
+        "text": "Flag #00 set: south idle sprite #10",
+        "expect": "COP"
+      },
+      "181391": {
+        "text": "North idle: flag byte #00 clear stages sprite #01, set stages #11",
+        "expect": "COP"
+      },
+      "181402": {
+        "text": "Flag #00 set: north idle sprite #11",
+        "expect": "COP"
+      },
+      "181407": {
+        "text": "West idle: flag byte #00 clear stages sprite #02, set stages #12",
+        "expect": "COP"
+      },
+      "181418": {
+        "text": "Flag #00 set: west idle sprite #12",
+        "expect": "COP"
+      },
+      "181423": {
+        "text": "East idle: flag byte #00 clear stages sprite #03, set stages #13",
+        "expect": "COP"
+      },
+      "181434": {
+        "text": "Flag #00 set: east idle sprite #13",
+        "expect": "COP"
+      },
+      "182010": {
+        "text": "Drop landing: A = 2, Freedan ability record 2 (Earthquaker) for LoadAbilityDamageB, check scene $DD skip, spawn terrain shake + camera shake",
+        "expect": "LDA"
+      },
+      "183295": {
+        "text": "Psycho Slider NS: Will damage table entry 1 (the Psycho Slider record, level word $0B18: 5 / 8 into abilityDamageBonus), then body sprite #04; south or north by speed sign",
+        "expect": "LDA #$0001"
+      },
+      "183378": {
+        "text": "Psycho Slider EW: the same damage table entry 1 (Psycho Slider record) for the horizontal axis",
+        "expect": "LDA #$0001"
+      },
+      "183543": {
+        "text": "Freedan wall-adjacent south: for an unaligned X the cell one column right in the actor's own row (x >> 4 + 1, y >> 4) also selects #48 (measured with x = 204; the cell two rows above gives #36)",
+        "expect": "BranchIfSolidOffset"
+      },
+      "183660": {
+        "text": "Tests the same cell as AttackSouth: BranchIfSolidSouth reads the collision cell (x >> 4, y >> 4) of the actor's own tile row, not a wall north of Freedan. Measured with one painted cell: a solid cell there gives #49, the cells one row above and one row below give #37",
+        "expect": "BranchIfSolidSouth"
+      },
+      "183672": {
+        "text": "Cell one column right and two rows above (x >> 4 + 1, y >> 4 - 2) of an unaligned X: solid gives #49 (measured with x = 204; the cell (x >> 4 + 1, y >> 4) gives #37)",
+        "expect": "BranchIfSolidOffset"
+      }
+    }
+  },
+  "actors/hit_switch.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "which one it picks was not traced",
+          "with": "this actor has bit $0001 set, so ApplyHitDamageToVictim writes $FFEF to its iframeCounter: measured -17 after the first hit, counting up while the switch keeps ticking"
+        }
+      ]
+    }
+  },
+  "functions/EnemyInitBasic.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Whether the damage code replaces the HP with a stats-table lookup on the first hit was not traced (UNVERIFIED-RUNTIME).",
+          "with": "The damage code does not replace the HP with a stats-table lookup on a hit: the laborer of scene $3F (HP set to 1 after the JSL) keeps HP 1 until its first hit and dies on it (1 to 0, inline-lethal path). The kidnapper (HP 5) was not reached at runtime."
+        }
+      ]
+    }
+  },
+  "actors/boss_clear_reward_handler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "- The entry stores the range word in the actor's $04 and the apply routine uses $04 and $0E as scratch. wram-memory-map lists $04 as prevActorLink (the actor list predecessor); whether anything reads that link while the actor lives is not traced.",
+          "with": "- The range word, the tier being applied and the end scene are kept in the engine's low WRAM at the absolute addresses $0004 and $000E (STA $0004 / STA $000E assemble to the absolute form, not to the actor's direct-page $04 / $0E). The actor's own $04 (prevActorLink) and the actor list stay untouched (measured in the Castoth arena: list and links identical before and after the grant, and no access to the actor's $04 / $05 from this code)."
+        }
+      ]
+    },
+    "comments": {
+      "49907": {
+        "text": "Range word (first scene low, last scene high) into the engine's absolute $0004 (not the actor's $04)",
+        "expect": "STA $0004"
+      }
+    }
+  },
+  "functions/EnemyDefeatDispatch.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "If $0AEC were 0 the counters would wrap to $FFFF / $99 (BCD) and $26 would be nonzero. Not traced: whether any caller can reach this with $0AEC = 0.",
+          "with": "If $0AEC were 0 the counters would wrap to $FFFF (hex) and $9999 (the BCD word), and $26 would be nonzero, so the child would drop item $83 (measured with both counters poked to 0). Not traced: whether any caller can reach this with $0AEC = 0."
+        }
+      ]
+    }
+  },
+  "system/inventory/inventory_mgmt.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded.",
+          "with": "That is a reset, not a cap: below $7F and above it (wrapping at $FF to 0) the stat is unbounded (measured through the pickup touch path: STR $7E gives $7F, $7F gives $55, $FF gives $00; DEF $7F gives $55, $20 gives $21). Max HP is clamped to 40 ($28) by the HP-bar renderer (ConsoleStringRenderer) whenever the bar is drawn, so the $7F reset is out of reach for it in play (measured: max HP poked to $7F reads $28 at the entry of the routine, and the item gives $29 with hpToHeal := $29 - HP = 9)."
+        }
+      ]
+    },
+    "partNotes": {
+      "loc_03F00C": {
+        "edit": [
+          {
+            "find": "max HP + 1 with the $7F reset",
+            "with": "max HP + 1 with the $7F reset (the HUD renderer in ConsoleStringRenderer clamps playerMaxHp to $28 every frame, so the reset is not visible for max HP)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "258081": {
+        "text": "Overflow: set $55 (a reset, not a cap). Max HP never reaches $7F in play: ConsoleStringRenderer clamps playerMaxHp to $28 every frame",
+        "expect": "LDA"
+      },
+      "258006": {
+        "text": "D := X (the actor slot), so the spawn below is placed at that actor; the chest caller passes X = $AFA7",
+        "expect": "PHD"
+      }
+    }
+  },
+  "functions/game_over_sequence.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "; presumably because that fight is played as Shadow)",
+          "with": "; measured: a game over in $E8 as Will with 0 gems respawns as form 2 at the saved warp (scene $1B in the test) with full HP and the flags cleared, while the same death in scene $0C gives form 0; the code does not say why)"
+        }
+      ]
+    },
+    "partNotes": {
+      "GameOverSparkleOrbitA": {
+        "edit": [
+          {
+            "find": "so the sparkle swings out and back around the player, passing behind and in front (inferred from the signs; not run).",
+            "with": "so each sparkle runs a closed ellipse about 51 px wide and 36 px tall with a period of 42 ticks (21 behind, 21 in front): behind the other actors on the upper half, in front on the lower half. The three sparkles run the same ellipse at three heights (centres 16 px apart) and none rises. In scene $E8 the three sparkle actors live 107, 104 and 99 ticks, and a sparkle sprite is on screen in 81 of the 107 ticks (it drops out for one or two ticks at every restart of the animation)."
+          }
+        ]
+      }
+    }
+  },
+  "functions/StandardEnemyDefeatHandler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "SetDungeonKillFlag (the enemyNum bit in wramFlags, so the enemy stays dead on re-entry)",
+          "with": "SetDungeonKillFlag (sets the enemyNum bit in wramFlags, so the enemy is skipped when the scene is set up again; an enemy whose enemyNum is 0 sets no bit and is spawned again on every entry)"
+        }
+      ]
+    },
+    "comments": {
+      "56306": {
+        "text": "Set this enemy's bit in wramFlags: skipped on re-entry (enemyNum 0 sets no bit)",
+        "expect": "COP"
+      },
+      "56711": {
+        "text": "Palette 0 for this actor: clears the palette bits ($0E00) of the actor's $0E (measured: $2600 becomes $2000); the victim is already hidden ($10 bit $2000), so nothing changes on screen",
+        "expect": "SetSpritePalette"
+      }
+    }
+  },
+  "functions/ApplyPlayerHitstun.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The stores are indexed by that Y; what they hit at $1FC0 plus the field offset is not traced.",
+          "with": "The stores are indexed by that Y and land in the unused sentinel slot at $1FC0-$1FEF (words at $1FE8 and $1FEC, $1FEE and the extended word $7F1FEA): the actor list and the free list stay intact. With no stagger child nothing replaces the counter and the D-pad bits stay shown: the counter $003C counts down to 0 over 60 ticks while the player stands in place (measured with the free list emptied at the entry of this function)."
+        },
+        {
+          "find": "Everything here is UNVERIFIED-RUNTIME (no emulator trace); read from the code.",
+          "with": "Measured at runtime for Will, Freedan and Shadow through the Great Wall archer (hit sound #07 for every form, stagger child, counter $003C then $FFE2) and with the actor pool full. Everything else is read from the code."
+        }
+      ]
+    }
+  },
+  "actors/hit_stagger_controller.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic and flow are read from the code and the move_chain_table nodes.",
+          "with": "Measured: the player's stagger child runs 16 slide frames and releases the player 16 frames after the spawn (the player controller is skipped for those 16 ticks, then the counter becomes $FFE2 and runs from -30 to 0). An enemy knocked north with tier 0 slides 48 px (181 to 133) and resolves with its chain pointer $2E and wait counter $08 unchanged; the same knockback against a wall (37 px, 133 to 96) takes the cut-short path: its $2E becomes 0, its $08 becomes 0 because $2C is 0, and the victim's script runs again on the next frame. The purpose of the wake-up is inferred. The rest is read from the code and the move_chain_table nodes."
+        },
+        {
+          "find": "the only writers in extracted/ are CopyActorState (zero), those three and this file (copy to the child).",
+          "with": "the writers in extracted/ are CopyActorState (zero), player_character, mu5F_cyclops, this file (copy to the child) and DiaryStartSlotLoop in sFA_diary_menu, which stores $0C in the diary menu actor's own free101C as a camera pan step budget (that actor is never a hit victim)."
+        },
+        {
+          "find": "and could never match (no actor uses them).",
+          "with": "and could never match (no hit victim has such a tier: the values stored in extracted/ for an actor that can be hit are 0 and 1)."
+        }
+      ]
+    }
+  },
+  "actors/ramps.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "if the actor pool were full the climb loop would never end. No evidence that this happens in practice.",
+          "with": "with the actor pool full no child exists: $06 is then the player's next link (another actor), which receives the exit speed in its orbitDiameter word, and the climb loop never restores the player (measured with the free list emptied at the climb entry: the player moves 8 px per frame with collision off, x 1008 to 2048 in 146 frames, then the scene exit at the map edge ends the loop). No evidence that this happens in practice."
+        }
+      ]
+    }
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_WindFlute": {
+        "edit": [
+          {
+            "find": "If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path.",
+            "with": "If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path: the controller never runs, so no music plays, displayModeFlags keeps $0080 and nothing clears it, the buttons stay shown, and the player does not leave its idle entry when the D-pad is held (measured with the free list emptied at the use: displayModeFlags still $0080 after 1800 frames; with the right button held for 150 frames the player stays in entry PlayerIdleEntry, while without the use the same input moves it to the walk entry). The configure stores of the music actor land in the sentinel slot at $1FC0-$1FEF."
+          }
+        ]
+      },
+      "UseItem_LolaMelody_Effect": {
+        "edit": [
+          {
+            "find": "if flag $40 is already set it jumps to code_038C68 instead.",
+            "with": "the flag $40 test at the start of the scene $15 path is never true here: UseItem_LolaMelody already prints 'But nothing happened' when flag $40 is set, so a replay never reaches this part (measured: the second use ran code_038C2B once, this part stayed at one run, flags $01 and $0E stayed clear)."
+          }
+        ]
+      },
+      "UseItem_DiamondBlock": {
+        "edit": [
+          {
+            "find": "fit into a tile slot in the Diamond Mine (scene $25).",
+            "with": "fit into the floor slot of the Inca Ruins entryway (scene $25, the ir25_ceiling_tile / ir25_block_slot room)."
+          },
+          {
+            "find": "Checks tiles ($0E–$0F, $19–$1A). Falls through to UseItem_DiamondBlock_Place on match.",
+            "with": "Places the block only when the player's tile Y is $19 or $1A and the tile X is exactly $0E. At X $0F the CMP #$000F test does not branch to UseItem_DiamondBlock_Place: BNE and the fall-through both reach the 'I can't find a space' text, so nothing is placed and the item stays (measured: item used at tile (0F,19) prints the failure text, flag $2F stays clear)."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "232521": {
+        "text": "Flag $40 set: jump to code_038C68 (not reachable: UseItem_LolaMelody already refuses while flag $40 is set)",
+        "expect": "BranchOnFlagByte"
+      }
+    }
+  },
+  "functions/SpawnDamageNumberEffect.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(analysis only, not run)",
+          "with": "(measured after a lethal hit: the victim's slot held another actor 4 ticks later, at the same position, for the rest of the number's 16 frames; the new occupant did not move, so following it was not observed)"
+        }
+      ]
+    }
+  },
+  "system/engine/cop_handlers_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(analysis only, unverified at runtime)",
+          "with": "(measured with the thinker free list emptied: the stores landed on the calling actor and its entry address was rewritten by the next yield)"
+        }
+      ]
+    }
+  },
+  "system/engine/actor_pool.asm": {
+    "partNotes": {
+      "UnlinkActor": {
+        "edit": [
+          {
+            "find": "Removing a sole list entry leaves actorListLast ($58) stale.",
+            "with": "Removing a sole list entry leaves actorListLast ($58) stale (measured in scene $FB: $56 = 0 and $58 = $1000 until the next scene load clears both)."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "45576": {
+        "text": "$0024 = spawner's slot: read as the parent reference by FlickerParentActor, hit_stagger_controller, SpawnDamageNumberEffect, StatueRewardOrbitalSparkle, camera_drift and eleven enemy, boss and prologue scripts; other actors reuse $24 as scratch (the player's walk and idle timers)",
+        "expect": "STA $0024, Y"
+      },
+      "45646": {
+        "text": "Scene $FF (inventory): the clear of extendedFlags and the callback block is skipped; in 42 measured spawns there both the spawner's and the new slot's extendedFlags and callbacks were already 0, so the skip changed nothing observable",
+        "expect": "LDA $sceneCurrent"
+      }
+    }
+  },
+  "system/boot_logos/sFB_boot_logo.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "a row of 11 parts 12 px apart on palette 4",
+          "with": "11 parts on palette 4 (measured on screen: the word 'AN' above the emblem, 1 part, and the ten letters of 'PRODUCTION' in a row 12 px apart under the 'ENIX' letters)"
+        },
+        {
+          "find": "which company the first logo belongs to was not checked against the tile art.",
+          "with": "the first logo is the Nintendo logo with the word 'PRESENTS' under it (measured on screen), so the two visits show 'Nintendo PRESENTS' and 'AN ENIX PRODUCTION'."
+        }
+      ]
+    }
+  },
+  "system/title_screen/spm_title_actors.sprite.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "spm_title_actors_sprite_group_000008 = the comet.",
+          "with": "spm_title_actors_sprite_group_000008 = the half-lit Earth (measured on screen: a globe lit from the right that stays at x 80-168, y 7-135 for the 240 in-place cycles, then moves 1 px to the left per frame for 64 frames and ends behind the title letters; OAM: all 48 parts on OBJ palette 4, priority 1)."
+        }
+      ]
+    },
+    "partNotes": {
+      "spm_title_actors": {
+        "edit": [
+          {
+            "find": "Animation table with one entry: #00, the comet.",
+            "with": "Animation table with one entry: #00, the Earth."
+          }
+        ]
+      }
+    }
+  },
+  "system/title_screen/sFC_title_intro.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the comet sprites are the first thing on screen",
+          "with": "the Earth sprites are the first thing on screen"
+        },
+        {
+          "find": "consolestring_01DA5E after WaitByte $B3 (180 ticks, ~3 seconds)",
+          "with": "consolestring_01DA5E after WaitByte $B3 (180 ticks; 313 NMI frames, about 5.2 seconds, because the title scene's 135-frame fade-in runs while the wait is armed and no actor tick happens during it)"
+        }
+      ]
+    },
+    "partNotes": {
+      "TitleIntroInit": {
+        "edit": [
+          {
+            "find": "spawn the comet, set TM = $10",
+            "with": "spawn the Earth sprite actor, set TM = $10"
+          }
+        ]
+      },
+      "TitleCometSpriteActor": {
+        "edit": [
+          {
+            "find": "Title comet sprite actor (spawned by TitleIntroInit at ($80,$50)).",
+            "with": "Title Earth sprite actor (spawned by TitleIntroInit at ($80,$50); the 48 parts draw a half-lit Earth, not a comet)."
+          }
+        ]
+      },
+      "TitlePaletteStep_noref": "Palette-animation stub: PaletteStart #2D (45 decimal), one PaletteStep, then Die. No spawn operand, table word or instruction operand anywhere in the ROM points to it, and the routine before it ends in RTL, so it never runs."
+    },
+    "comments": {
+      "772420": {
+        "text": "Spawn the Earth sprite actor at (128,80)",
+        "expect": "SpawnAfterAbsFlags"
+      },
+      "772433": {
+        "text": "TM = $10: OBJ only (the Earth sprites first)",
+        "expect": "LDA #$10"
+      },
+      "772446": {
+        "text": "WaitByte #B3 = 180 ticks (operand + 1); the 135-frame fade-in runs between two ticks, so the first string appears 313 NMI frames after this line",
+        "expect": "WaitByte"
+      }
+    }
+  },
+  "actors/overworld_exit.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "If the player can skip that row the exit never fires; not checked.",
+          "with": "Measured walking south from the castle gate: playerYPos ($09A4) stepped 2 px per frame from $2C0 to $2D0 and the compare fired on that frame; with the actor shifted one pixel (odd Y) the last step before the exit was +1 and playerYPos still stopped at $2D0, so the row is reached from either parity (the player does not move below it; the clamp that holds it there was not traced)."
+        },
+        {
+          "find": "5. OverworldExitFinalize sets gfxCacheIdxB := $0400, SetEntryHere and RTL: the actor then idles at the RTL until the scene changes.",
+          "with": "5. OverworldExitFinalize sets gfxCacheIdxB := $0400, SetEntryHere and RTL: the actor then idles at the RTL until the scene changes. The word is the transition speed: the low byte ($00, the fastest fade) is read by ScreenExitTransition (16 fade steps measured) and the high byte ($04, a delay of 4 between steps) by ScreenEnterTransition (15 reads measured), then the scene loader clears the word."
+        },
+        {
+          "find": "The Itory Village exit is disabled while flag $01 is set. $01 is set by unrelated scripts (angel_village, undersea_tunnel, great_wall floor buttons); whether it is cleared on scene load was not traced.",
+          "with": "The Itory Village exit is disabled while flag $01 is set. ClearSceneState zeroes flags $00-$0F at every scene setup, so $01 is clear when scene $15 starts, whatever other scenes set. Inside scene $15 only it15_lily sets it (after its palette flash and WaitByte #7F) and clears it again; it15_kara waits for it."
+        }
+      ]
+    },
+    "comments": {
+      "52010": {
+        "text": "Flag $01 set (by it15_lily inside this scene; clear at scene start): exit disabled",
+        "expect": "COP"
+      }
+    }
+  },
+  "system/world_map/world_map_scene_names.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "so an id that is not listed would run on into string bytes",
+          "with": "so an id that is not listed runs on past the 37 entries into the string bytes (measured with the start scene set to $02: LookupMapName took the miss path after entry 37 and the world map then stopped running frames)"
+        }
+      ]
+    }
+  },
+  "system/world_map/spm_overworld_sprites.sprite.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "so these four look like the pieces of one vehicle (not traced: what the four animations draw).",
+          "with": "so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow)."
+        }
+      ]
+    },
+    "partNotes": {
+      "spm_overworld_sprites": {
+        "edit": [
+          {
+            "find": "#07-#0A four pieces of one multi-part sprite",
+            "with": "#07-#0A four separate multi-part figures"
+          }
+        ]
+      }
+    }
+  },
+  "system/world_map/world_map_route_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Byte 3: tick count n; the step runs n + 1 ticks",
+          "with": "Byte 3: tick count n; the step applies n + 1 deltas and spans n frames (its last delta and the next step first delta share one frame)"
+        }
+      ]
+    }
+  },
+  "system/world_map/world_map_options.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "and a tick count n (the step runs n + 1 ticks)",
+          "with": "and a tick count n (the step applies n + 1 deltas and spans n frames)"
+        },
+        {
+          "find": "the engine applies n + 1 deltas per step (the step runs n + 1 ticks), one more per active axis than the sums.",
+          "with": "the engine applies n + 1 deltas per step (the step spans n frames; its last delta and the first delta of the next step share one frame), one more per active axis than the sums."
+        }
+      ]
+    }
+  },
+  "system/engine/ConsoleStringRenderer.asm": {
+    "partNotes": {
+      "ConsoleCmd_PrintBcdNumber": {
+        "edit": [
+          {
+            "find": "the project's string map names tile $20 '.', which is probably a blank in the actual font (unverified).",
+            "with": "the project's string map names tile $20 '.', and the font draws a period there (tile $20 of the BG3 font is a period glyph, not a blank), so a suppressed leading zero would show as a dot; no vanilla string runs that pass on a leading zero."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/DisplaySceneTitle.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18).",
+          "with": "The box interior is 20 tiles wide (10 columns of 2 tiles: the border sits at columns 6 and 27 and the text starts at column 7), so the title is centred in 18 of the 20 tiles: it sits one tile left of the true centre ('South Cape', 10 glyphs, starts 4 tiles in and leaves 6 free on the right) and an 18-glyph title leaves its last 2 tiles empty. There is no clamp for N > 18; the longest vanilla title is 18 glyphs, so none reaches the border."
+        }
+      ]
+    }
+  },
+  "system/engine/music_actors.asm": {
+    "comments": {
+      "172261": {
+        "text": "WaitByte #48 = 73 ticks (73 NMI frames measured) before the text opens; the SPC has not replied $FF by then (74 polls), so the jingle is still playing",
+        "expect": "WaitByte"
+      }
+    }
+  },
+  "tables/dialog_template_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Not traced: which of the two colour words is the glyph and which the outline.",
+          "with": "The dialog glyph tiles are 2bpp with pixel value 1 for the body of each stroke (colour word 1, CGRAM $11, the lighter word), pixel value 2 for the top and bottom rows of the strokes (colour word 2, CGRAM $12, the darker word) and pixel value 3 (CGRAM $13, black unless a scene sets it) around the letters."
+        }
+      ]
+    }
+  },
+  "system/engine/DialogStringRenderer.asm": {
+    "partNotes": {
+      "DialogCmd_PrintNumber": {
+        "edit": [
+          {
+            "find": "that prints a leading zero — E1 analysis, unverified at runtime)",
+            "with": "that prints a leading zero, and the printed zero ends the suppression, so every zero after it prints too: a count of 5 on the value 3 prints 00003 where a count of 2 prints 3)"
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/oam_digit_compose.asm": {
+    "partNotes": {
+      "ComposeDigitSprites_AtCursor": {
+        "edit": [
+          {
+            "find": "(inferred as a fixed alignment offset for the diary counter, the only user)",
+            "with": "(the only caller, DiaryDigitDisplay_noref, has no reference and did not run in a diary-menu session, so the shift is dead code and its purpose cannot be observed)"
+          }
+        ]
+      }
+    }
+  },
+  "sky_garden/garden_southwest/sg51_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Interactive statue that can be pushed by the player.",
+          "with": "Movable statue: push_handler_solid pulls it one tile (16 px) toward the player while the player holds L or R (the shoulder pair $0030) on the same row, at least 32 px away and facing it. Observed as Will with no ability item or form needed (from the west and the east side; pulling along the column did not move either statue in the tests)."
+        }
+      ]
+    }
+  },
+  "incan_ruins/inca_treasure_room/ir26_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "requires Freedan's power to move.",
+          "with": "is moved by the L / R pull of push_handler_solid, which tests only the shoulder buttons and the player's facing (no form test; the sg51 statue, which uses the same handler, was pulled as Will; this room was not run)."
+        }
+      ]
+    }
+  },
+  "actors/town_door.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "whether that case occurs is not traced.",
+          "with": "that case does not occur: the runtime door spawned by fr32_guide also has Flags10 $4000 set on its first tick (SpawnAfterAbsFlags #$1000 gives $5000), enters at AnimOnce, passes to WaitWhileOffscreen after 21 ticks and keeps it as the entry pointer after the flag clears on screen; standing beside it for about 120 ticks without Up did not open it, and holding Up opened it 8 ticks after the hold began (the entry pointer moved into the hold-Up loop, then to the open idle)."
+        }
+      ]
+    }
+  },
+  "actors/hidden_red_jewel.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Whether the jewel is visible and what the metasprite looks like was not checked.",
+          "with": "The jewel is never drawn: the actor's Flags10 is $7000 on its first tick ($4000 off-screen, $2000 hidden, $1000 interactable) and $3000 on screen, before and after the pickup (scene $01: item $01 in the first inventory slot, flag $0281 set 9 ticks after the give), and SortActorsByDepth skips actors with bit $2000, so the metasprite is never visible and the pickup does not change it."
+        }
+      ]
+    }
+  },
+  "actors/jeweler_gem.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the code raises max HP, so the second sentence is a text inconsistency.",
+          "with": "the code raises max HP (maxHp $0ACA 8 to 9 while the first page is on screen, hpToHeal $0B22 0 to 1 and HP 8 to 9 about 39 frames later) and leaves the strength and defence words ($0ADE, $0ADC) unchanged, so the second sentence is a text inconsistency (both pages observed on screen)."
+        },
+        {
+          "find": "sEA_solid_arm sets it, so after that optional fight Gem no longer appears (JewelerDie).",
+          "with": "sEA_solid_arm sets it before its intro dialog (after the scene's lock and the WaitWord #$0120 wait, with no fight needed), so from the first entry into scene $EA on, Gem no longer appears (JewelerDie) in the six scenes that spawn him ($01, $32, $6B, $7B, $9B, $C3)."
+        }
+      ]
+    },
+    "comments": {
+      "577187": {
+        "text": "Flag $E8 (set by sEA_solid_arm before its intro dialog, not after the fight): Gem is gone, die",
+        "expect": "BranchOnFlagByte"
+      }
+    }
+  },
+  "thinkers/gold_ship_wreck_palette.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What $4D and $52 mean in story terms (adrift day / night / starvation phase) and what the colours depict is not decoded.",
+          "with": "On screen in scene $2F: with neither flag the sea is daytime blue (the Day 2 state), with $4D it is a red-brown dusk (Day 4 and Day 21), with $52 it is a dark night (Day 12); the flags were set for each $0AA6 state as the static reading of dc2F_adrift gives them. Why the story picks those looks beyond that is not decoded."
+        }
+      ]
+    }
+  },
+  "system/statue_inventory/statue_inventory_reward.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "so only about one burst in four is visible.",
+          "with": "so exactly 15 of the 60 bursts show (the spawn ticks with $36 a multiple of 4: 252, 256, ... 308); a burst lives 21 ticks and at most 6 are on screen at once."
+        }
+      ]
+    }
+  },
+  "system/dark_space/sE6_gaia.asm": {
+    "partNotes": {
+      "FireflyParticle": {
+        "edit": [
+          {
+            "find": "movement chains 4 / 6 / 8 / 10 on X and one less on Y, removed when Y reaches $FF. The loop would end at once for a negative Y step, so it must move down.",
+            "with": "movement chain 4 or 8 on X and 3 or 7 on Y (the speed bits come from RNG x 2, whose bit 0 is 0, so the chains 6 and 10 never occur), removed when Y reaches $FF. X and Y are screen coordinates: the sprite is drawn at the actor position without the camera offset. Every tick the firefly moves 2 px left and 2 px down (chains 4 / 3) or 4 px left and 4 px down (chains 8 / 7), a down-left diagonal. X = RNG x 2 reaches 510, so about half of the fireflies start off the right edge of the 256 px screen and drift in. The Y test runs once per animation pass of 21 ticks: a 2 px firefly lives 147 ticks (it dies at Y = 294), a 4 px firefly 84 ticks (Y = 336)."
+          }
+        ]
+      },
+      "Transform_FreedanToWill": {
+        "edit": [
+          {
+            "find": "frames 3, 2, 5, DarkSpaceRestoreControl. Entered from 6 other files.",
+            "with": "frames 3, 2, 5, DarkSpaceRestoreControl. Entered from 6 other files. Measured in the Will ability rooms (ticks after the 6-tick pause of the dispatch): frame 6 is shown for 320 ticks, 9 for 12, 8 for 32; characterForm = 0 is set when frame 8 ends, then 3 shows for 32, 2 for 76 and 5 for 70 before DarkSpaceRestoreControl runs."
+          }
+        ]
+      },
+      "loc_08EA78": {
+        "edit": [
+          {
+            "find": "(also used from the Shadow form) and set $0800.",
+            "with": "(also used from the Shadow form: Shadow plays the Freedan sequence, frame 6 drawn in the Shadow palette, the sphere frames 9 and 8, then the Will frames, and never the frames $0D, $10, $0F, $0E of Transform_ShadowToWill) and set $0800."
+          }
+        ]
+      },
+      "GaiaHint_AuraItem": {
+        "edit": [
+          {
+            "find": "With $0AAC = 0 it is just the save prompt.",
+            "with": "With $0AAC = 0 it is just the save prompt: the standard pyramid portal (room variant 1) leaves $0AAC at 0 here and only the hidden portal (variant 3, shown when event flag $173 is set) gives 1. The ability index that AbilityOrbActor stores in $0AAC never reaches this code, which runs only for source scene $CC; that scene is not in AbilitySceneTable."
+          }
+        ]
+      },
+      "DS_WillTransformRoom": {
+        "edit": [
+          {
+            "find": "What the BG changes draw was not decoded.",
+            "with": "BG change $88 draws the Freedan statue (an armoured knight with a sword) on the left pedestal, a 4x8 tile block at tile (2,2); $8E draws the Shadow statue (a twisted figure) on the right pedestal at (10,2); $8A and $8F draw the 2x1 tile strips at (3,10) and (11,10). Without flag $B4 the right pedestal stays empty."
+          }
+        ]
+      },
+      "DS_FreedanTransformRoom": {
+        "edit": [
+          {
+            "find": "Left statue = back to Will, right statue = Shadow.",
+            "with": "Left statue = back to Will, right statue = Shadow. $87 draws the Will statue (a small figure) on the left pedestal; $8E draws the Shadow statue on the right one."
+          }
+        ]
+      },
+      "DS_ShadowTransformRoom": {
+        "edit": [
+          {
+            "find": "(flag $B4 is necessarily set).",
+            "with": "(flag $B4 is necessarily set). $87 draws the Will statue (a small figure) on the left pedestal and $8D the Freedan statue (the armoured knight) on the right one."
+          }
+        ]
+      },
+      "DS_LayoutAbility": {
+        "edit": [
+          {
+            "find": "Not found: no orb.",
+            "with": "Not found: no orb. $86 draws the Will statue in a second pose on the left pedestal (the orb is drawn over it); $8B draws a tall Freedan-type statue there."
+          }
+        ]
+      },
+      "DS_AuraItemRoom": {
+        "edit": [
+          {
+            "find": "Layout 3 reaches the Aura item through GaiaHint_AuraItem instead.",
+            "with": "Layout 3 reaches the Aura item through GaiaHint_AuraItem instead. Of its BG changes $89 draws a twisted Shadow-like statue on the left pedestal. BG change $8C, the Will statue for the right pedestal (a small figure like $87), is staged by no code."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "587443": {
+        "text": "bit 1 of RNG x 2 (bit 0 is always 0): 0 or 2",
+        "expect": "AND"
+      },
+      "587446": {
+        "text": "x2: 0 or 4",
+        "expect": "ASL"
+      },
+      "587448": {
+        "text": "+4: 4 or 8",
+        "expect": "ADC"
+      },
+      "587451": {
+        "text": "X chain 4 or 8: 2 or 4 px left per tick",
+        "expect": "STA"
+      },
+      "587456": {
+        "text": "Y chain 3 or 7: 2 or 4 px down per tick",
+        "expect": "STA"
+      }
+    }
+  },
+  "actors/dark_space.asm": {
+    "partNotes": {
+      "DarkSpaceMonitorStartWarp": {
+        "edit": [
+          {
+            "find": "the scene change resets them.",
+            "with": "the hidden bit stays set through the dissolve and the fade-out, and the scene change clears it (InitActorPool zeroes the whole actor pool, the player's $10 included, and the player respawns with $10 = $8508 as the fade-in starts)."
+          }
+        ]
+      }
+    }
+  },
+  "tables/spriteset_darkgaia_projectile.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Not traced: the tile graphics these sub-sprites draw.",
+          "with": "The sub-sprites draw tiles $40-$6F of sprite name table 0 (VRAM word $4400-$46FF): LoadPlayerGraphics copies 1536 bytes (48 tiles) of misc_fx_1CCA80 there when sceneCurrent is $E8 and playerFlags bit 3 is clear. The art is a flame bird. The East and West groups (tile words $4440-$4464 and $0440-$0464) show it from the side with the 16x16 tiles $40, $42, $44, $46 and the 8x8 tiles $60-$64; the North and South groups (tile words $0448-$044E, $0468, $0469 and their flipped forms) show it from the front with the 16x16 tiles $48, $4A, $4C, $4E (the last one twice, mirrored) and the 8x8 tiles $68 and $69 (each twice, mirrored). The three frames of a launch animation use the same tiles; only the sub-sprite offsets grow. The palette is OBJ palette 2 (CGRAM colours $A0-$AF, loaded from palette_1E6273 by scene_meta_00E8); the tiles $65-$67 and $6A-$6F are loaded but drawn by no group. The art that scene_meta_00E8 loads into VRAM word $5000 (gfx_0D2D78, sprite name table 1) is not used by these sub-sprites."
+        }
+      ]
+    }
+  },
+  "system/engine/cop_handlers_script_control.asm": {
+    "partNotes": {
+      "LoopEnd": {
+        "edit": [
+          {
+            "find": "yields via RTL, so each iteration ends with a yield.",
+            "with": "yields via RTL: every pass except the last ends with a yield, and the last pass continues into the code after the loop in the same frame. A LoopStart count of n runs the body in n consecutive frames and yields n - 1 times (observed with count 3: LoopEnd runs three times, yields twice and exits through the RTI on the third)."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/cop_handlers_effects.asm": {
+    "partNotes": {
+      "InitGravity": {
+        "edit": [
+          {
+            "find": "Every observed call uses offset #00.",
+            "with": "Eight of the 25 shipped calls use a nonzero offset (#01 to #03 and #05, in pyDD_queen_debris, sg55_viper, sg4E_nitropede and sg4D_dynapede); none has bit 7 set, so the negating branch is never taken by shipped scripts."
+          }
+        ]
+      },
+      "CameraPanUp": {
+        "edit": [
+          {
+            "find": "If the step would exceed the current cameraTargetY the script resumes without storing it.",
+            "with": "If the step would exceed the current cameraTargetY the script resumes without storing it: this is how a pan to cameraTargetY = 0 ends. The call that brings the target to 0 stores 0 and yields; the next call finds step 6 > 0 and resumes (observed in scene $6E on a north pan: target 18, 12, 6, 0, then the call with target 0 resumes and the target stays 0)."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/cop_handlers_inventory.asm": {
+    "partNotes": {
+      "BranchIfItemEquipped": {
+        "edit": [
+          {
+            "find": "the indexed read wraps to $0AB3 — the byte before the array — so the compare reads unrelated data (analysis only, unverified at runtime).",
+            "with": "the 16-bit index carries into the data-bank byte, so the read is bank $82 (DBR is $81) offset $0AB3, a mirror of WRAM $0AB3, the byte before the array. That byte is the high byte of the word $0AB2 that DarkSpaceMainInit stores (the room variant 0 to 3, so the high byte is 0); no other writer of $0AB3 was found, so none of the operand item ids ($0F, $1C, $27 at the five sites) matches and the branch is not taken (static reading, not run)."
+          }
+        ]
+      }
+    }
+  },
+  "tables/dialog_dictionaries.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "how the compressor decides which words to substitute was not traced (OQ-I070-1). Frequency of use of individual words was not measured.",
+          "with": "the rebuild recomputes the substitutions: it merges the 456 words of both tables, sorts them by length, longest first (words of equal length keep table order, table A first), and replaces every occurrence of each word anywhere in the string, with no word-boundary test, by the two bytes $D6 or $D7 followed by the word index. A string that is exactly one dictionary word is stored as plain characters, and strings marked raw are not substituted. Frequency of use of individual words was not measured."
+        }
+      ]
+    }
+  },
+  "tables/scene_warps.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Not traced: which warp uses which pan list.",
+          "with": "Use by list: $00 serves 143 entries in 31 scenes ($03 $04 $06 $0A $2A $2D $2E $36-$39 $5A $5C $6B $6D $6E $82 $83 $85-$88 $8B $94 $95 $99 $9D $D2 $DF $E0 $E3); $01 $5A $6E $D5; $02 $5C $D6-$D8; $03 $5C $CF $D6-$D8; $04 $5C $CE $D2; $05 $86 only; $06 $CE $CF $D0 $D8; $07 $CE $D2 $D3; $08 $CE $D0; $09 $D2 $D3; $0A $D8; $0B $D2; $0C $D5; $0D and $0E $86 $CE $D0 $D6 $D9; $0F $D8. The absolute Y offset of the walk stream equals the list total in 53 entries (the Pyramid rooms $CE-$D9 and entries of $5A $5C $86), is the total + 8 in 62 entries, the total - 16 in 62 entries and differs by -64 to +72 px in the other 23 (scenes $03 $0A $5A $5C $6B $6E $85 $86). Measured on 88 entries ($03 $04 $5A $5C $6E $86 $CE-$D0 $D2 $D3 $D5-$D9): $06E0 holds the list index of the entry, the player's Y changes by the Y offset of the stream (plus 6 px on 19 entries), and on the 20 entries whose camera was at rest the camera travels exactly the list total (lists $00 $01 $02 $04 $05 $06 $07 $09 $0B $0E); on $5A #3 and $5C #1 the camera stops at its bound (Y $00FC and $0002) after 196 and 206 px of the 256 and 240 px of the list."
+        },
+        {
+          "find": "The two forced-walk entries of warp_def_03 use unusual first stream bytes ($04, $05); not traced: what the walk does with them.",
+          "with": "The 200 forced-walk streams use these step codes (walk_step_table rows): first byte $00 x99 (north), $02 x99 (south), $04 x1 and $05 x1 (the two entries of warp_def_03); final byte $01 x100, $03 x75, $08 x25. Rows $04 and $05 equal rows $02 and $00 (animation 9; move chains $14 and $12), so the two warp_def_03 entries select the same animation and velocity chain as the standard south and north entries. Measured in scenes $03 and $04: all four entries stage the same step word ($1409 south, $1209 north) and pan the camera the same 256 px (list $00); the two warp_def_03 entries differ only in their longer Y offset (+328 / -304 px instead of +264 / -240). Observed on a south walk in scene $E3 (first code $02, final code $03): the ForcedWalk actor shows animation 9 (up) and its chain at $2E cycles four nodes, moving it 1 px north every 4 frames (643 to 638 by frame 25); the stream offset is then added, and after the final code $03 the animation is 8 (down)."
+        },
+        {
+          "find": "GameOverSequence reloads a warp from the entry+4 pointer stored in reviveWarpPtr ($0AF4; every warp) and sceneSaveData (save warps).",
+          "with": "GameOverSequence reloads a warp from the entry+4 pointer stored in reviveWarpPtr ($0AF4; every warp, measured on 32 entries) and sceneSaveData ($0AF0; the 23 save warps, which also store it in reviveWarpPtr; the 9 non-save warps tested leave $0AF0 and $0AF2 at 0). The 23 save warps lie in 14 scenes ($1A $1C $24 $4C x4 $5E $6B $88 $B1 $B7 $CC x7 $DF $E1 $E2 $E3) and lead into the Moon Tribe cave, Larai Cliff, the four Sky Garden wings, the Mu entrance, the Angel Village tunnel, the Great Wall Sand Fanger lair, the Angkor Wat courtyards, seven Pyramid rooms and the Babel Tower floors. With 0 gems a game over lands at the last save warp's record (measured: save warp $1A to $1B, then plain warp $24 to $22, game over: scene $1B); with 100 gems the respawn lands at the last warp's record ($22)."
+        }
+      ]
+    }
+  },
+  "functions/ActorMidpointCalc.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "whether callers guarantee a neighbour was not traced.",
+          "with": "AllocateActorAfter gives a child spawned by SpawnAfterMarked / SpawnAfterFlags $04 = its spawner and $06 = the spawner's old next link, which is 0 when the spawner was the list tail, so a child can start with $06 = 0. Not traced at run time: whether a caller ever runs in that state (none of the callers ran in the scenes tried)."
+        }
+      ]
+    }
+  },
+  "thinkers/global_ambient_dispatcher.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "In the vanilla layout it is the B button (remapB); in this build transforms.json rewrites the system_init defaults to remapA = $8080 and remapB = $4008, so the A button feeds it (together with the attack bit $0080).",
+          "with": "The button that feeds it follows the remap table ($0DA6-$0DB4): in the vanilla Type 1 map (the table after a new game or a slot load) physical A gives $8000 and physical B gives $4000; in the identity map (title screen, diary, Button Type 2) physical B gives $8000. In this build transforms.json rewrites the system_init defaults to remapA = $8080 and remapB = $4008, so physical A feeds the interact bit together with the attack bit $0080, and physical B never does (it gives cancel $4000 and item use $0008)."
+        }
+      ]
+    },
+    "comments": {
+      "49098": {
+        "text": "Interact bit: physical A in this build and in the vanilla Type 1 map, physical B only in the identity map (see the block note)",
+        "expect": "BIT #$8000"
+      }
+    }
+  },
+  "system/engine/GlobalInputHandler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the item-use button (Y $4000 in the vanilla game; this baserom's button-remap patch tests logical bit $0008 instead, applied through transforms.json)",
+          "with": "the item-use button (logical $4000 in the vanilla game: physical B in the Type 1 map, physical Y in the identity map; this baserom's button-remap patch tests logical bit $0008 instead, applied through transforms.json, and physical B gives it)"
+        },
+        {
+          "find": "Item use (vanilla Y $4000, logical $0008 here)",
+          "with": "Item use (logical $4000 in the vanilla game, $0008 here)"
+        },
+        {
+          "find": "and vanilla Y ($4000) as consumed on return",
+          "with": "and logical $4000 (the vanilla item-use bit) as consumed on return"
+        }
+      ]
+    },
+    "partNotes": {
+      "GlobalInputHandler": {
+        "edit": [
+          {
+            "find": "routes Start, Select, and Y buttons to map, inventory, and item use.",
+            "with": "routes the Start, Select and item-use buttons to map, inventory and item use."
+          },
+          {
+            "find": "(vanilla Y $4000, logical $0008 here) → item use.",
+            "with": "(logical $4000 in the vanilla game, $0008 here) → item use."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "229425": {
+        "text": "Item-use bit: logical $0008 here (physical B gives $4008), $4000 in the vanilla game (physical B in Type 1) → use equipped item",
+        "expect": "BIT #$0008"
+      },
+      "229453": {
+        "text": "$6000 = Select + logical $4000 (the vanilla item-use bit): consume both on return so neither re-triggers at once (logical $0008 is not included)",
+        "expect": "LDA #$6000"
+      }
+    }
+  },
+  "tables/body_table.asm": {
+    "partNotes": {
+      "body_table": {
+        "edit": [
+          {
+            "find": "the word it reads there is the first two bytes of FacingData_WillAbilities, which follows the table directly. Not traced: whether GetPlayerFacingDirection runs while row 8 is active.",
+            "with": "the word it reads there is the first two bytes of FacingData_WillAbilities ($0100), which follows the table directly. That word minus the table base plus the animation frame overflows the bank offset, so the facing byte is read from low WRAM ($84:0100 + frame, the stack page), not from ROM. GetPlayerFacingDirection does run while row 8 is active (the Aura transformation); the byte it read there was $DC (carry set, no facing), and it changes with whatever the stack page holds."
+          }
+        ]
+      }
+    }
+  },
+  "functions/EscortFollowPathTracker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The spawner sets orbitAngle = initial facing + 1 (Lily: 4, so facing 3) or 0",
+          "with": "The spawner sets orbitAngle = initial facing + 1 (Lily in it1A_lily and the clerk in eu97_clerk2: 4, so facing 3; Lily in ir1C_lily: 3, so facing 2) or 0"
+        },
+        {
+          "find": "No other code uses $7EDF00.",
+          "with": "At the first idle frame the NPC shows orbitDiameter + the facing word of the head entry: seed 4 gives facing word 2 (animation $1C for Lily in it1A_lily), seed 3 gives facing word 3 (animation $1D for Lily in ir1C_lily). The region $7EDF00-$7EDF7F is shared: QuintetLzDecompress, FillHorizTilemapSeg, FillVertTilemapSeg, InterleaveTilesPriority and RenderPaletteTiles (scene_script), the credits copy in sF7_credits and the boot memory fill also read or write it."
+        },
+        {
+          "find": "whether a caller can reach that case is not traced.",
+          "with": "FacingDirectionLookup holds 4 at the player animation frames $4A-$4F and $54-$57, and the Will ability table holds 4 at frames $18-$1A; the tracker tests neither the carry nor the range. The carry was clear in every measured move (1016 facing writes: Lily and the clerk), so no run reached that case."
+        }
+      ]
+    }
+  },
+  "actors/smooth_follow_child.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "($7F0014: 1 in pyCC_blaster and ec0C_ribber, 2 in awB1 and gw8A)",
+          "with": "($7F0014: 1 in ec0C_ribber and in the first pyCC_blaster projectile, 3 in the second pyCC_blaster projectile, 2 in awB1 and gw8A)"
+        },
+        {
+          "find": "pyDD uses the speed 4 + $0B02. In every case",
+          "with": "pyDD uses the speed 4 + $0B02 ($0B02 is the difficulty level, 0 in normal play, so the speed is 4; the dominant axis then moves exactly that many pixels per frame). In every case"
+        }
+      ]
+    }
+  },
+  "system/engine/camera_scroll.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "($12; the meaning of that bit was not verified)",
+          "with": "($12; the display / overlay-active qualifier: while displayModeFlags bit 7 is set only actors with this bit in $10 or $12 run, so the camera actor keeps running while the player stands still, measured over 40 frames)"
+        },
+        {
+          "find": "The −8 px X offset makes the X multiplier one less than the Y one for the same spawn byte.",
+          "with": "X and Y give the same packed word for the same spawn byte, so the −8 px X offset does not lower the X multiplier (measured: #11, #11 packs to $0101 on both axes, #21, #21 to $0201 on both; the delta equals the target x lo / hi on every call)."
+        }
+      ]
+    },
+    "partNotes": {
+      "ScrollCameraInit": {
+        "edit": [
+          {
+            "find": "Outside layer1_scroll_actors no reader of $06C8 was found in extracted/.",
+            "with": "WriteBgScroll reads $06C8 as the layer-1 horizontal scroll override while bit 15 is set (measured in scenes $A0 and $A1: BG2HOFS equals $06C8 & $03FF on all 759 override passes)."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "59731": {
+        "text": "Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes",
+        "expect": "TSB"
+      },
+      "59780": {
+        "text": "Store in forcedScrollOverride ($06C8); WriteBgScroll uses it as the layer-1 horizontal scroll while bit 15 is set",
+        "expect": "STA"
+      },
+      "60060": {
+        "text": "Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes",
+        "expect": "TSB"
+      }
+    }
+  },
+  "actors/camera_scroll_controller.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "vertically the target puts the player 128 lines below the top of a 224-line screen, 16 lines below the middle.",
+          "with": "vertically the target puts the player actor's Y 128 lines below the top of a 224-line screen, 16 lines below the middle (measured: the actor Y minus mapScrollV is 128 on every unclamped frame; the sprite is drawn above that point: its pieces span OAM Y 91 to 135 for Will and 80 to 130 for Freedan, so the body sits near the middle of the screen)."
+        }
+      ]
+    }
+  },
+  "functions/camera_drift.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "unless $24 = $FFFF, to cameraDeltaY (clamped to 0)",
+          "with": "unless $24 = $FFFF, to cameraDeltaY (clamped to 0; CopyActorState sets the new actor's $24 to the spawner's slot and none of the five shipped spawn sites changes it, so the skip is not taken there: $24 read $1090 in Danger Slide and $11E0 / $1210 in the Castoth room)"
+        },
+        {
+          "find": "Whether the offsets added here survive the recompute is not established statically.",
+          "with": "The drift actors run after camera_scroll_controller has stored the target in the same frame (CameraDriftLoopSimple and CameraDriftPatterned both ran after the controller's X and Y stores), so each offset is applied on top of the freshly recomputed target and cameraDeltaX / Y, and the scroll follows it (measured with CameraDriftPatterned in Danger Slide and in the Castoth room: mapScrollV equals the drifted target on that frame, BG1VOFS on the next). The offsets do not accumulate: the next frame the controller derives the target from the player again."
+        }
+      ]
+    }
+  },
+  "system/player/player_move_ns.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.",
+          "with": "Runtime check of the dead pair (five entries into NorthProbeRedirect, scene $01): the $00 word, the stack pointer, D and DBR are equal at the entry and at loc_02D208. MapCellDown only adds $10 to X, ReadCollisionNibble only sets A and the flags, and MapCellLeft overwrites X and A from $00, so the pair changes nothing the chain uses. The rest of the arithmetic is read from the code."
+        }
+      ]
+    }
+  },
+  "tables/scene_meta.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "15 of the 16 unused ids of scene_actors are in that list.",
+          "with": "15 of the 16 unused ids of scene_actors are in that list. No warp, QueueMapChange operand or script names any of the 25 ids, and none of them loads a room when it is written into sceneNext ($0642). In the original ROM FindCurrentScene scans the whole script block for the id: for 23 ids it finds no match and never returns (the NMI count stops after 17 frames; 18 ids stay in the scan loop, 5 run stray code), and $09 and $80 match a stray byte and run the bytes after it as a script (no SceneCmd_ConfigDisplay runs; $09 leaves a collision map of 3072 cells of type $0E, $80 keeps the previous scene's map). The rebuilt layout reads a $0000 pointer from scene_meta_list for these ids, so FindCurrentScene returns Y = $0000 - $3A, far from any record, and the interpreter runs whatever bytes lie there as commands: the game crashes for all 25 (the NMI stops after 19 frames with the stack pointer at $4212)."
+        }
+      ]
+    }
+  },
+  "tables/scene_actors.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "No scene-warp destination and no QueueMapChange operand names any of those ids.",
+          "with": "No scene-warp destination and no QueueMapChange operand names any of those ids. Writing one into sceneNext ($0642) of the original ROM does not show a TEST MAP: $48 $57 $76 $77 $81 $9E $AA $AB $AF $C1 $C2 $CA $CB $F8 have no scene script record and the load never finishes, $80 runs stray bytes as a script, and $F9 (which has a script record with display preset $00) never leaves the wait loop at ROM 166828 that reads APUIO0 until it is $00. The rebuilt ROM loads $F9 and crashes for the others."
+        }
+      ]
+    }
+  },
+  "system/engine/scene_script.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "bit 7 alone means \"tileset only\" (DmaLowVramTileset)",
+          "with": "bit 7 alone means \"tileset only\" (DmaLowVramTileset); no scene record uses it (the layer operands of command $06 are $01 x225 and $02 x158) and none of the 231 loadable scenes reaches DmaLowVramTileset"
+        }
+      ]
+    },
+    "partNotes": {
+      "SceneCmd_LoadBgTiles": {
+        "edit": [
+          {
+            "find": "3 = whole $4000-byte 4bpp page via Load4bppPage)",
+            "with": "3 = whole $4000-byte 4bpp page via Load4bppPage; no scene record has mode 3 (the operands of command $03 are 0 x255, 1 x62 and 2 x2) and no other code calls Load4bppPage)"
+          }
+        ]
+      }
+    }
+  },
+  "tables/display_preset_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "this note adds what the 47 records contain.",
+          "with": "this note adds what the 47 records contain. The index is the operand byte of the scene's own command $02 (the operand read from the script equals the index in A in all 229 scenes whose script runs it); 44 of the 47 records are used and no scene names $09, $27 or $29. The scenes in BG mode 7 are $59, $C0 and $FE (preset $19) and $8C and $8D (preset $2D)."
+        }
+      ]
+    }
+  },
+  "actors/camera_delta_oscillator.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(no spawn or entry reference found), so it is either unused or spawned from data.",
+          "with": "and the ROM holds no 16-bit or 24-bit pointer to its header or entry (no scene actor record, spawn operand, table word or instruction operand), so nothing spawns it."
+        }
+      ]
+    }
+  },
+  "system/player/player_move_main.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$0800 and $0400 are tested before the north and south dispatch, but nothing in extracted/ ever sets them; player_move_west only clears them (TRB #$0840 / #$0440). Those two gates therefore always pass.",
+          "with": "$0800 and $0400 are tested before the north and south dispatch. They are bits 3 and 2 of $AB: the wall-slide variant entries set them with TSB $AB (player_move_west code_02DCCB and code_02DC77, player_move_east EastWallSouthFlag and EastWallNorthFlag), and the horizontal-speed-smaller paths of player_move_west clear them (TRB #$0840 / #$0440). A set bit makes the matching gate skip that vertical dispatch for the tick. In the measured runs the setter ticks have $24 = 0 after the pop (the vertical phase is skipped anyway), so the gates never saw their own bit set."
+        }
+      ]
+    },
+    "partNotes": {
+      "PlayerMovementTick_SouthStep": {
+        "edit": [
+          {
+            "find": "gate on $AA bit $0400 (never set)",
+            "with": "gate on $AA bit $0400 ($AB bit 2, set by the wall-slide variant entries; set skips the south dispatch)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "184352": {
+        "text": "Bit $0800 = $AB bit 3, set by the wall-slide variant entries: set skips the north dispatch",
+        "expect": "BIT"
+      },
+      "184364": {
+        "text": "Bit $0400 = $AB bit 2, set by the wall-slide variant entries: set skips the south dispatch",
+        "expect": "BIT"
+      }
+    }
+  },
+  "system/player/player_move_west.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(only $0040 is ever set in the extracted code; the $0800/$0400 guards in PlayerMovementTick have no setter)",
+          "with": "($0040 = the horizontal phase ran; $0400 and $0800 = $AB bits 2 and 3, set by the wall-slide variant entries and tested by the south and north gates of PlayerMovementTick)"
+        },
+        {
+          "find": "(bit 1 is read by player_move_ns SouthWallNudge; bits 2/3/7 have no reader)",
+          "with": "(bit 1 is read by player_move_ns SouthWallNudge; bits 2 and 3 are the $0400 / $0800 gate bits tested in PlayerMovementTick; bit 7 is set by the wall-slide handlers and no instruction tests it)"
+        }
+      ]
+    },
+    "comments": {
+      "187511": {
+        "text": "Variant entry: set $AB bit 2 ($04 = $AA bit $0400, the south gate bit of PlayerMovementTick), then join the handler",
+        "expect": "LDA"
+      },
+      "187597": {
+        "text": "Variant entry: set $AB bit 3 ($08 = $AA bit $0800, the north gate bit of PlayerMovementTick), then join the handler",
+        "expect": "LDA"
+      },
+      "188560": {
+        "text": "Horizontal speed smaller: $20 dropped, clear $AA bits $0840 ($0800 is set by code_02DCCB and EastWallSouthFlag; $0040 is the horizontal-phase flag)",
+        "expect": "LDA"
+      },
+      "188643": {
+        "text": "Horizontal speed smaller: $20 dropped, clear $AA bits $0440 ($0400 is set by the variant entries code_02DC77 and EastWallNorthFlag)",
+        "expect": "LDA"
+      }
+    }
+  },
+  "system/player/player_move_east.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "nothing reads those bits.",
+          "with": "bit 7 has no reader; bits 2 and 3 are the $0400 / $0800 gate bits that PlayerMovementTick tests before its south and north dispatch."
+        }
+      ]
+    },
+    "partNotes": {
+      "EastWallNorthFlag": {
+        "edit": [
+          {
+            "find": "sets $AB bit 2 (no reader)",
+            "with": "sets $AB bit 2 ($AA bit $0400, the south gate bit of PlayerMovementTick)"
+          }
+        ]
+      },
+      "EastWallSouthFlag": {
+        "edit": [
+          {
+            "find": "sets $AB bit 3 (no reader)",
+            "with": "sets $AB bit 3 ($AA bit $0800, the north gate bit of PlayerMovementTick)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "186337": {
+        "text": "Compact entry: set $AB bit 2 ($AA bit $0400, the south gate bit of PlayerMovementTick), then join the gap chain at loc_02D7AB",
+        "expect": "LDA"
+      },
+      "186395": {
+        "text": "$00 = X: the map index left by the last probe or MapCell step; then set $AB bit 3 (the $0800 north gate bit of PlayerMovementTick) and join the chain",
+        "expect": "STX"
+      }
+    }
+  },
+  "system/player/player_move_south.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "unless $AA bit $0400 is set (nothing sets it)",
+          "with": "unless $AA bit $0400 ($AB bit 2, set by the wall-slide variant entries) is set"
+        }
+      ]
+    }
+  },
+  "system/engine/sprite_composition.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "It is called at scene setup (scene_lifecycle, inventory_overlay), not every frame:",
+          "with": "It is called at scene setup (ClearSceneState), by OpenInventoryScreen and after every Decompress COP (cop_handlers_vram), not every frame:"
+        }
+      ]
+    },
+    "partNotes": {
+      "RenderComposeBuffer": {
+        "edit": [
+          {
+            "find": "No setter for bit 12 of layerPriorityFlag was found in the extracted code, so what triggers this mode is unconfirmed.",
+            "with": "SceneCmd_ConfigDisplay sets the bit: the low 5 bits of display_preset_table record byte +7 go to scrollModeFlags ($06EF), and bit 4 of that byte is bit 12 of this word. The presets with it belong to scenes $59, $8C-$8F, $C0 and $FE; the preset write of every other scene clears it. The copy needs a nonzero $00DA: the prologue scenes $8C-$8F fill it and so does the destination-name display of the world map in $FE (measured: the copy runs there with $00DA = $24 and $38), while $59 and $C0 take this branch with $00DA = 0 in the measured frames and return at once."
+          }
+        ]
+      },
+      "ClearActorRenderList": {
+        "edit": [
+          {
+            "find": "Called only at scene setup (scene_lifecycle) and by inventory_overlay; during normal frames",
+            "with": "Called at scene setup (ClearSceneState), twice by OpenInventoryScreen and after every Decompress COP (the decompressor leaves its dictionary in the bucket page); during normal frames"
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/actor_execution.asm": {
+    "partNotes": {
+      "InitActorFromSceneData": {
+        "edit": [
+          {
+            "find": "(default actor properties; never written by extracted code)",
+            "with": "(default actor properties: the low byte $06F0 stays 0 and the high byte $06F1 is stored by SceneCmd_ConfigDisplay from display preset record byte +4, bits 4-5; measured $20 in most scenes and $10 in $59, $8C, $8D, $C0 and $FE)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "249447": {
+        "text": "Zero three thinker regions: $0F00 slots, $7F0E00 (no other reader or writer; the extended data page is $7F0F00), $7F3000 (= $7F2100 + thinker slot: loop start / counter at +0 / +2 and a per-thinker word at +4)",
+        "expect": "STA $0F00, X"
+      }
+    }
+  },
+  "actors/layer1_scroll_actors.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "forcedScrollOverride ($06C8): written here with bit 15 set, the same convention as ScrollCameraInit; no reader found.",
+          "with": "forcedScrollOverride ($06C8): written here with bit 15 set, the same convention as ScrollCameraInit; WriteBgScroll reads it as the layer-1 horizontal scroll override while bit 15 is set: the value (masked to $03FF) replaces the normal position in BG2HOFS, or in BG1HOFS when layerPriorityFlag is negative (scene $58)."
+        }
+      ]
+    },
+    "partNotes": {
+      "Layer1ParallaxRatio": {
+        "edit": [
+          {
+            "find": "forcedScrollOverride ($06C8, no reader found)",
+            "with": "forcedScrollOverride ($06C8, which WriteBgScroll reads as the layer-1 horizontal scroll override while bit 15 is set)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "59692": {
+        "text": "X position with bit 15 set goes to forcedScrollOverride; WriteBgScroll then uses it as the layer-1 horizontal scroll (measured in scenes $4E and $58)",
+        "expect": "STA"
+      }
+    }
+  },
+  "system/inventory/inventory_overlay.asm": {
+    "comments": {
+      "191950": {
+        "text": "BG2 slot of the vertical scroll override (scrollOverrideV + 2, flag bit 7 of $06CD); zeroed with the scroll state, never saved",
+        "expect": "STX"
+      }
+    }
+  },
+  "system/engine/scene_lifecycle.asm": {
+    "partNotes": {
+      "ClearSceneState": {
+        "edit": [
+          {
+            "find": "climb state, actor count, DMA skip flag.",
+            "with": "climb state, actor count, the enemy counters enemiesRemaining ($0AEC) and enemiesRemainingBcd ($0AEE) (InitActorFromSceneData counts the scene's enemies up again), DMA skip flag."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "253315": {
+        "text": "BG2 slot of the vertical scroll override (scrollOverrideV + 2)",
+        "expect": "STX"
+      },
+      "253564": {
+        "text": "Set event flag $FF (bit 7 of $0A1F, cleared at the top of this routine): scene-setup-complete signal that init-phase thinkers loop on (e.g. sE8_comet_display_config); measured: only thinkers test it",
+        "expect": "COP"
+      }
+    }
+  },
+  "actors/scene_flag_init.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What the set flag means is not traced. Other users of flag #00:",
+          "with": "With the flag set, the player's idle poses use sprite indexes #10-#13 (animation $11 in PlayerIdleAnimLoop) instead of #00-#03 (animation $01), for Will and for Shadow alike, and shadow_shimmer stays in its Active state for the whole scene. Other users of flag #00:"
+        },
+        {
+          "find": "whose comments call it the Shadow flag. The unconditional set in these 26 scenes does not fit a Shadow-form flag.",
+          "with": "all of which test it (measured for the idle poses and the shimmer; the ladder-idle and shimmy-detach variants are not traced). The flag does not follow the character form: Shadow with the flag clear takes the #00-#03 poses and Will with it set takes the #10-#13 ones."
+        }
+      ]
+    }
+  },
+  "functions/SetPlayerIdleFacing.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "branch on the Shadow flag byte #00)",
+          "with": "branch on flag byte #00)"
+        }
+      ]
+    }
+  },
+  "actors/player_transition_handlers.asm": {
+    "partNotes": {
+      "PlayerIdleAnimLoop": {
+        "edit": [
+          {
+            "find": "What flag #00 means is not traced.",
+            "with": "The choice depends only on the flag, not on the character form (measured: flag clear in scene $29 takes anim $01, flag set in scene $1D takes anim $11); scene_flag_init lists the scenes that set it."
+          }
+        ]
+      }
+    }
+  },
+  "incan_ruins/ir29_castoth.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Uses StandardEnemyDefeatHandler for the win sequence.",
+          "with": "Uses StandardEnemyDefeatHandler for the win sequence. The entry code of ir29_castoth tests boss flag $0500 (TestWramFlag_Offset100 with index 0: byte $0AA0 bit 0, set by boss_clear_reward_handler once the stat catch-up is done); when it is set the actor zeroes enemiesRemaining and enemiesRemainingBcd and dies at once, so a rewarded Castoth is not fought again."
+        }
+      ]
+    }
+  },
+  "actors/field_reveal_object.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "pyCC_mystic_ball (771837) and awB1_wall_walker (769369) (child $26 = 0).",
+          "with": "pyCC_mystic_ball (771837) and awB1_wall_walker (769369). All three spawners store the enemies remaining (the victim's orbitAngle) in the child's $26, so the child's $26 is nonzero (measured: $0001 and $000B for pyCC_mystic_ball, $0006 and $0012 for awB1_wall_walker)."
+        },
+        {
+          "find": "- Otherwise enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item:",
+          "with": "- Otherwise (only with $26 = 0, which none of the three spawners produces: the room-tier stores were never executed in the measured runs) enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item:"
+        }
+      ]
+    }
+  },
+  "edward_castle/aqueduct_lockway/ec0E_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Statue inspection actor in the aqueduct lockway.",
+          "with": "Statue actor in the aqueduct lockway: always a solid push block (MarkSolidHere, push_handler_solid child). With $21 set the first block also stores the inspect handler as chatPtr and then falls through into the same solid-and-push code, so the statue stays solid and pushable and can also be inspected."
+        }
+      ]
+    }
+  },
+  "incan_ruins/inca_secret_hallway/ir20_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Can be shoved by a body slam/charge attack (playerFlags bit $0002). Once pushed far\nenough (checked via position), sets flag $B9 and applies\nStandardEnemyDefeatHandler. Before being pushed, takes hits but\nresets HP each frame.",
+          "with": "Every frame the actor compares its HP with $FF. When the HP is still $FF it returns. When the HP differs (a hit landed since the previous frame) it reads playerFlags: with bit $0002 set it sets flag $B9 and jumps to StandardEnemyDefeatHandler (EnemyDefeatFlashAndDrop); with the bit clear it decrements its scratch word $24 and restores the HP to $FF. There is no position test. Measured with an HP poke: bit $0002 set destroys the statue and sets $B9; bit clear resets the HP and changes nothing else. What sets playerFlags bit $0002 during a real hit is not traced."
+        }
+      ]
+    }
+  },
+  "itory/moon_tribe_camp/it1A_lily.asm": {
+    "comments": {
+      "324877": {
+        "text": "Options 0 and 2 (the first and the cancel answer) print this line; the block has no RTL and falls through into code_04F511, so every answer ends in the move to the Inca ruins",
+        "expect": "PrintDialogString"
+      }
+    }
+  },
+  "euro/geezer_central/eu92_erasquez.asm": {
+    "blockNote": [
+      "Erasquez in the Euro geezer house (scene $92): the Teapot test and the hint that sets flag $9F.",
+      "",
+      "Solid and interactable. The interact handler tests the inventory first (BranchIfHasItem #19). With the Teapot (item $19) he prints 'Erasquez: I feel the presence of evil from somewhere in town...' and changes nothing (the item stays, $9F is not touched). Without the Teapot and $9F clear he sets $9F and prints 'Hey, you! I feel a strange power coming from you...' ending with 'At the right time, go to Mt.Kress and take a look at the Teapot.' and 'Rofsky marked Mt.Kress on Will's map!'. Without the Teapot and $9F set he prints 'The spirits' tears in the teapot reflect your true form.'. $9F is read by the Euro world-map exit (scene $91), which then stages menu $10 (Quit / Mt.Temple / Watermia) instead of menu $0F; flag $AC takes precedence with menu $1A."
+    ]
+  },
+  "euro/rolek_mansion/eu95_neils_father.asm": {
+    "blockNote": [
+      "Neil's father at the Rolek mansion (scene $95): a Moon Tribe reveal triggered by the Teapot.",
+      "",
+      "$A8 set: the actor dies at spawn. Otherwise it stands solid with 'You can't go wrong by taking over the Rolek Company.' and waits for $A8 (set by UseItem_Teapot when the Teapot is used in tiles (28,09)-(2D,0D) of this scene). Then it locks the player ($EFFC, joypadMaskStd reads $EFF0), waits 4 ticks (WaitByte #03), starts music #1B, waits (WaitByte #3B), clears its solidity, walks, prints 'Moon Tribe: Ku ku ku... Soon this world will be wrapped in darkness. The previous owner of this body is now a skeleton sleeping under the shrine...', walks toward (0268,0060), starts music #04, waits 120 ticks (WaitByte #77), unlocks the player and falls through into code_07E21A (COP Die). Neil's mother runs the same walk and dies earlier in the same visit."
+    ]
+  },
+  "euro/rolek_mansion/eu95_neils_mother.asm": {
+    "blockNote": [
+      "Neil's mother at the Rolek mansion (scene $95).",
+      "",
+      "$A8 set: the actor dies at spawn. Otherwise it stands solid with 'We've made money and wish to spend our remaining years enjoying life. Why don't you succeed us...' and waits for $A8 (the Teapot use); then it clears its solidity, walks off, moves toward (0268,0060), the same target as Neil's father, and dies when the walk ends (the actor definition falls through into code_07E314, COP Die)."
+    ]
+  },
+  "pyramid/pyramid_vader_a/pyD6_vader_barrier_upper.asm": {
+    "blockNote": [
+      "Upper Vader barrier of Pyramid scene $D6: the hit target that swaps the solid row pair y $2B-$2C (tiles $34-$39) for y $4B-$4C.",
+      "",
+      "Idle state: solid rows y $2B-$2C are marked, y $4B-$4C are open, a hit callback (code_08C36C) is armed and the counter word at slot $1060 + $26 is $FE00. A sword hit (physical B, Will form works) runs the callback: with scratch flag $0F clear it sets $0F, marks the lower row pair y $4B-$4C solid and counts the slot word up from $FE00; when it reaches 0 (513 frames) it clears the upper row pair y $2B-$2C, plays the sound, clears $0F and re-arms the callback (the hit callback is not armed while the counter runs, so further swings in that window do not reach it). A callback entered with $0F already set (set by a lower barrier, or forced) only jumps back to the idle state and nothing changes; the lower barriers share the same flag. The actor never tests characterForm or any other form state."
+    ]
+  },
+  "pyramid/pyramid_vader_a/pyD6_vader_barrier_lower.asm": {
+    "blockNote": [
+      "Lower Vader barrier of Pyramid scene $D6 (two copies): the hit target that swaps the solid row pair back.",
+      "",
+      "A sword hit (physical B, Will form works) runs the callback (code_08C456): with scratch flag $0F clear it sets $0F, marks the upper row pair y $2B-$2C solid and counts the slot word at $1060 + $26 down toward $FE00; at $FE00 it clears the lower row pair y $4B-$4C, plays the sound and clears $0F (about 26 frames when the word is already $FE00). While $0F is set (the upper barrier is still counting) the callback only jumps back to the idle state and the hit is ignored. The actor never tests characterForm or any other form state."
+    ]
+  }
+}

@@ -8,7 +8,7 @@
 ; - #02 spm_overworld_sprites_sprite_set_000040, #03 spm_overworld_sprites_sprite_set_000052, #04 spm_overworld_sprites_sprite_set_000064: frames A B A C, hold 7, 15-16 x 32-33 px, 5-8 parts.
 ; - #05 spm_overworld_sprites_sprite_set_000076: frames A B A C, hold 7, 15-16 x 40-41 px, 7-10 parts.
 ; - #06 spm_overworld_sprites_sprite_set_000088: frames A B A C, hold 7, one 16 x 16 part (tile words $083A, $085A, $083A, $485A: the last frame H-flipped).
-; - #07 spm_overworld_sprites_sprite_set_00009A, #08 spm_overworld_sprites_sprite_set_0000B0, #09 spm_overworld_sprites_sprite_set_0000C6, #0A spm_overworld_sprites_sprite_set_0000DC: 5 frames A B C D C, holds 7, 7, 7, 9, 7, 32 px wide, 48-75 px tall, 11-13 parts. WorldMapController's wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg, so these four look like the pieces of one vehicle (not traced: what the four animations draw).
+; - #07 spm_overworld_sprites_sprite_set_00009A, #08 spm_overworld_sprites_sprite_set_0000B0, #09 spm_overworld_sprites_sprite_set_0000C6, #0A spm_overworld_sprites_sprite_set_0000DC: 5 frames A B C D C, holds 7, 7, 7, 9, 7, 32 px wide, 48-75 px tall, 11-13 parts. WorldMapController's wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg, so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow).
 ; - #0B spm_overworld_sprites_sprite_set_0000F2: 3 frames, hold 1, box 79 x 48 px, 24 parts; the leader of the Dao to Over Babel trip (daC8_neil).
 ; - #0C spm_overworld_sprites_sprite_set_000100: 3 frames, hold 1, box 79 x 48 px, 27 parts; no writer found.
 ; - #0D spm_overworld_sprites_sprite_set_00010E: 4 frames, hold 9, 48-64 x 64 px, 14-22 parts; the leader of the Watermia to South Cape trip (wa78_men).
@@ -27,7 +27,7 @@
 
 ---------------------------------------------
 
-; Animation table (14 entries). The index is the party-array word WorldMapController writes to actor field $28: #00-#06 single figures, #07-#0A four pieces of one multi-part sprite, #0B-#0D scripted-trip leaders.
+; Animation table (14 entries). The index is the party-array word WorldMapController writes to actor field $28: #00-#06 single figures, #07-#0A four separate multi-part figures, #0B-#0D scripted-trip leaders.
 
 spm_overworld_sprites [
   &spm_overworld_sprites_sprite_set_00001C   ;00

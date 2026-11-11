@@ -1,0 +1,221 @@
+{
+  "_note": "IT-09: factual defects and timing I051-I060 (A05-01, A05-02, A05-03, A05-07, A05-10, A05-11, A05-12, A05-13, A05-14). Block and part notes by partial edit where the text stays, full text where a note is rewritten; comments by full text with an expect guard.",
+
+  "system/world_map/WorldMapController.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "2. ArrivalAndTravelSetup, 44 ticks: places itself (the leader's dot) at the start position, centres the camera, then each tick adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8.",
+        "with": "2. ArrivalAndTravelSetup, 44 passes of a loop that yields twice per pass (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks. It places itself (the leader's dot) at the start position, centres the camera, then each pass adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8."
+      }
+    ] },
+    "partNotes": {
+      "ArrivalAndTravelSetup": "Child actor (flags $3800, script-driven). Phases: a zoom-out of 44 passes at 2 ticks per pass (about 88 ticks; $B8 falls), for a menu trip a 16-tick wait + WorldMapSplitEffect + wait for the player's route, the 93-tick tilt phase with the start name ($B6 grows), then the companion dots. It finally becomes the leader's dot through the shared loop in CompanionDotMovement and dies when the route ends.",
+      "RouteDeltaTables": "Normal step: byte 0 (the X chain index, already read) and bytes 1 and 2 (the Y and rotation chain indices) select the delta chains in move_chain_table ($18, $1A, $1C), and byte 3, the tick count n, is stored in $24. SetEntryHere only saves the re-entry point (it does not yield); the actor adds the next delta of each active axis and yields at the RTL in RouteCountTick, so the step applies its deltas n + 1 times, once per tick."
+    },
+    "comments": {
+      "238454": {
+        "text": "v0 = $20, shift 5: delta of pass t = ((t * (t >> 1)) >> 5) - $20, negative for all 44 passes (sum about -970)",
+        "expect": "InitGravity"
+      },
+      "238459": {
+        "text": "44 passes of zoom-out; each pass yields twice (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks",
+        "expect": "LoopStart"
+      },
+      "238475": {
+        "text": "Yield 1 of 2 in each pass: the actor resumes after this COP on the next tick",
+        "expect": "SetEntryHereAndYield"
+      },
+      "238477": {
+        "text": "Yield 2 of 2: a non-final LoopEnd sets $00 to the loop head and yields; the 44th pass falls through into the next line in the same tick",
+        "expect": "LoopEnd"
+      },
+      "238913": {
+        "text": "Read byte 0 of the step from [$2C]: $FF = end of route, $FE = subroutine call, otherwise the X chain index",
+        "expect": "LDA"
+      },
+      "238926": {
+        "text": "Advance past byte 0",
+        "expect": "INC"
+      },
+      "238936": {
+        "text": "Byte 0 (X chain index) x 2 = word index into move_chain_table for the X delta source",
+        "expect": "ASL"
+      },
+      "238943": {
+        "text": "Read byte 1 (Y chain index)",
+        "expect": "LDA"
+      },
+      "238957": {
+        "text": "Read byte 2 (rotation chain index; the chain is added to $BC below)",
+        "expect": "LDA"
+      },
+      "238966": {
+        "text": "Look up rotation delta source pointer from move_chain_table",
+        "expect": "move_chain_table"
+      },
+      "238971": {
+        "text": "Read byte 3 (tick count n) -> $24: the step applies its deltas n + 1 times, one per tick",
+        "expect": "LDA"
+      },
+      "238980": {
+        "text": "Re-entry point for each tick of this step (SetEntryHere does not yield; the yield is the RTL in RouteCountTick)",
+        "expect": "SetEntryHere"
+      },
+      "239038": {
+        "text": "Rotation axis: check for null pointer",
+        "expect": "LDA"
+      },
+      "239042": {
+        "text": "Read rotation delta from indirect pointer",
+        "expect": "LDA"
+      },
+      "239055": {
+        "text": "Read next rotation pointer word",
+        "expect": "LDA"
+      },
+      "239059": {
+        "text": "Decrement the tick counter; negative = step complete -> next step",
+        "expect": "DEC"
+      },
+      "239063": {
+        "text": "Counter still non-negative: yield (RTL) until the next tick",
+        "expect": "RTL"
+      }
+    }
+  },
+
+  "system/world_map/world_map_options.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "Mt.Temple entrance, Angkor Wat, Pyramid",
+        "with": "Mt.Temple entrance, Ankor Wat, Pyramid"
+      },
+      {
+        "find": "(the choice id in hex; $1C-$25 are WorldMapMenu_Empty<id>, $26 is WorldMapMenu_Nothing26)",
+        "with": "(the choice id in hex; $1C-$25 are WorldMapMenu_Empty<id>, $26 is WorldMapMenu_Nothing26; the controller keeps only the low 5 bits of a choice id, so no id selects $20-$26)"
+      },
+      {
+        "find": "$14 | Angkor Wat: Quit / Natives' Village |",
+        "with": "$14 | Ankor Wat: Quit / Natives' Village |"
+      },
+      {
+        "find": "Entries $00 and $1C-$26 are never staged. $00 only returns (the controller dies before SwitchCase when the choice id is 0); $1C-$25 print an empty [TPL:11] and return; $26 prints Nothing!!.",
+        "with": "Staged ids are $01-$1B: each is written by one StageWorldMapChoice site in overworld_exit, and the only other writer of $0D58 is StageWorldMapMove, which clears it. Entry $00 only returns (the controller dies before SwitchCase when the choice id is 0). Ids $1C-$1F are never staged, but the controller keeps the low 5 bits (AND #$001F), so staging one would run its entry. Entries $20-$26 cannot be reached by any id, because the table index is at most $1F. $1C-$25 print an empty [TPL:11] and return; $26 prints Nothing!!."
+      },
+      {
+        "find": "and a tick count n. The extraction shows",
+        "with": "and a tick count n (the step runs n + 1 ticks). The extraction shows"
+      },
+      {
+        "find": "These match with n ticks per step; the engine code applies n + 1 deltas, which would add one pixel per axis step (OQ-I060-2).",
+        "with": "These sums match when each step counts n deltas; the engine applies n + 1 deltas per step (the step runs n + 1 ticks), one more per active axis than the sums (OQ-I060-2)."
+      }
+    ] },
+    "partNotes": {
+      "world_map_options": "39 pointers indexed by the choice id & $1F, so only entries $00-$1F can be selected: $01-$1B are the menus staged by overworld_exit, $00 and $1C-$1F are never run ($00 never reaches SwitchCase, no site stages $1C-$1F), and $20-$26 cannot be reached by any id. Several menus share handlers.",
+      "WorldMapMenu_Empty1C": "Choice $1C: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).",
+      "WorldMapMenu_Empty1D": "Choice $1D: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).",
+      "WorldMapMenu_Empty1E": "Choice $1E: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).",
+      "WorldMapMenu_Empty1F": "Choice $1F: prints an empty [TPL:11] and returns. No site stages this id; staging it would run this entry (the controller keeps the low 5 bits of the choice id).",
+      "WorldMapMenu_Empty20": "Choice $20: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.",
+      "WorldMapMenu_Empty21": "Choice $21: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.",
+      "WorldMapMenu_Empty22": "Choice $22: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.",
+      "WorldMapMenu_Empty23": "Choice $23: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.",
+      "WorldMapMenu_Empty24": "Choice $24: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.",
+      "WorldMapMenu_Empty25": "Choice $25: prints an empty [TPL:11] and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.",
+      "WorldMapMenu_Nothing26": "Choice $26: prints Nothing!! and returns. No id reaches this entry: the controller masks the choice id with AND #$001F, so the table index is at most $1F.",
+      "WorldMapMenu_14": { "edit": [
+        { "find": "(Angkor Wat entrance exit)", "with": "(Ankor Wat entrance exit)" },
+        { "find": "(back to Angkor Wat)", "with": "(back to Ankor Wat)" }
+      ] },
+      "WorldMapQuit_AngkorWat": { "edit": [
+        { "find": "Queue scene $B0 Angkor Wat at", "with": "Queue scene $B0 Ankor Wat at" },
+        { "find": "of the Angkor Wat menu.", "with": "of the Ankor Wat menu." }
+      ] }
+    }
+  },
+
+  "functions/StandardEnemyDefeatHandler.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "so that it keeps running in display-filter actor mode, then WaitByte 2.",
+        "with": "so that it keeps running in display-filter actor mode, then WaitByte #02 (3 ticks)."
+      },
+      {
+        "find": "EnemyDefeatBossCleanup: hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, WaitByte 5, Die.",
+        "with": "EnemyDefeatBossCleanup: WaitByte #02 (3 ticks), hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, WaitByte #05 (6 ticks), Die."
+      }
+    ] },
+    "partNotes": {
+      "EnemyDefeatFlashAndDrop": { "edit": [
+        { "find": "spawn EnemyDeathFlash, WaitByte 2, then boss", "with": "spawn EnemyDeathFlash, WaitByte #02 (3 ticks), then boss" }
+      ] }
+    }
+  },
+
+  "actors/layer1_scroll_actors.asm": {
+    "partNotes": {
+      "code_00E8DA": { "edit": [
+        { "find": "zero the offsets and the layer-1 scroll state, WaitByte 1, then", "with": "zero the offsets and the layer-1 scroll state, WaitByte #01 (2 ticks), then" }
+      ] }
+    }
+  },
+
+  "system/dark_space/sE6_gaia.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "and the unused hint strings dialogstring_08DEC6, 08E066, 08E0C7, 08E109, 08E19C, 08E261, 08E2B9 and 08E615.",
+        "with": "and the unused hint strings dialogstring_08DEC6, 08E066, 08E0C7, 08E109, 08E19C, 08E261, 08E2B9 and 08E615.\n\nFor the Aura cluster (DS_AuraItemRoom, AuraItemInteraction, AuraItemGrant, AuraItemInventoryFull, AuraItemReturnToWait, dialogstring_08EFEF / 08F003 / 08F060) 'no reference' means no reference in extracted code. baserom/patches/APUWaitFixes.patch.asm rewrites AuraItemGrant (AuraItemGrant!) and uses AuraItemInventoryFull and dialogstring_08EFEF."
+      }
+    ] },
+    "partNotes": {
+      "DS_AuraItemRoom": { "edit": [
+        { "find": "Not referenced: alternate room", "with": "No reference in extracted code: alternate room" }
+      ] },
+      "AuraItemInteraction": { "edit": [
+        { "find": "Not referenced (only spawned by DS_AuraItemRoom):", "with": "No reference in extracted code except its spawn in DS_AuraItemRoom (itself unreferenced):" }
+      ] },
+      "AuraItemGrant": "No reference in extracted code; baserom/patches/APUWaitFixes.patch.asm rewrites AuraItemGrant (AuraItemGrant!) and uses AuraItemInventoryFull and dialogstring_08EFEF. The extracted block gives item $24 (or branches to AuraItemInventoryFull), flies the item to the player, plays music track $17 and shows the 'You have the Aura!' text.",
+      "AuraItemInventoryFull": "No reference in extracted code; baserom/patches/APUWaitFixes.patch.asm uses this label in its rewrite of AuraItemGrant. 'Your inventory is full' text.",
+      "dialogstring_08EFEF": "Used by AuraItemGrant (unreferenced in extracted code) and by the rewrite of AuraItemGrant in baserom/patches/APUWaitFixes.patch.asm. Text: 'You have the Aura!'."
+    }
+  },
+
+  "system/boot_logos/sFB_boot_logo.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "The game cannot be started on a PAL console.",
+        "with": "In the unpatched ROM the game cannot be started on a PAL console. The shipped baserom patch baserom/fixes-tweaks/Utils.patch.asm rewrites BootLogoPalLockout! as one BRA BootLogoNtsc, so the JMP in BootLogoInit lands on the NTSC logo path and a PAL console skips the lockout screen (static reading of the patch)."
+      }
+    ] },
+    "partNotes": {
+      "BootLogoPalLockout": { "edit": [
+        {
+          "find": "belong to the title scene.",
+          "with": "belong to the title scene. The shipped baserom/fixes-tweaks/Utils.patch.asm replaces this block with one BRA BootLogoNtsc, so the shipped ROM skips this screen (static reading of the patch)."
+        }
+      ] }
+    },
+    "comments": {
+      "772327": {
+        "text": "PAL -> BootLogoPalLockout (text-only boot screen); the shipped patch makes that entry a BRA to BootLogoNtsc",
+        "expect": "JMP"
+      }
+    }
+  },
+
+  "tables/palette_bundles.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "128 in the table + 4 empty padding bundles, see below",
+        "with": "128 in the table + 4 empty one-byte blocks that no table entry refers to, see the palette_padding_* part notes"
+      }
+    ] },
+    "partNotes": {
+      "palette_padding_16D210": "Empty bundle (only the end byte $00) between the end byte of bundle $77 and its frame array word_16D212. Nothing references it: no table entry or frame pointer points at it. Not established: whether these bytes are padding.",
+      "palette_padding_16D211": "Empty bundle (only the end byte $00), the second such byte after the end byte of bundle $77 (see palette_padding_16D210). Nothing references it.",
+      "palette_padding_16D317": "Empty bundle (only the end byte $00) between the end byte of bundle $78 and its frame array word_16D319. Nothing references it: no table entry or frame pointer points at it. Not established: whether these bytes are padding.",
+      "palette_padding_16D318": "Empty bundle (only the end byte $00), the second such byte after the end byte of bundle $78 (see palette_padding_16D317). Nothing references it."
+    }
+  }
+}

@@ -1,0 +1,6 @@
+
+> @gaialabs/iog-baserom@0.2.7 flags
+> node src/index.ts flags --check
+
+  ! scene 10: flag 63 ($003F) is not in the registry yet
+Flags check: OK (0 indices, 0 meanings, 1 scene entries, 0 presets; 1 warning(s))

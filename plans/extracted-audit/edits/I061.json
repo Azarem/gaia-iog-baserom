@@ -1,0 +1,193 @@
+{
+  "tables/direction_velocity_table.asm": {
+    "blockNote": [
+      "Walk-step table (Bank 01, 109534-109551): nine 2-byte direction-velocity entries, indexed by a step code $00-$08. Each entry is { byte 0 = player animation index, byte 1 = movement_delta_table index (velocity chain) }. The two bytes are read together as one word, animation index in the low byte.",
+      "",
+      "Where the step code comes from and what reads it:",
+      "- Scene entry: InitActorFromSceneData indexes the table with the scene's facing value (warpFacing $0650) and stores only byte 0 as the player's initial animation index ($28). The velocity byte is not used there.",
+      "- In-scene forced walks (forced_walk): ReadDirSprite_YVelocity / ReadDirSprite_XVelocity fetch one step code per step from the warp's walk-step stream, hand byte 0 to StagePlayerSprFromDP through $0000, and use byte 1 to load the head of a delta-node chain from movement_delta_table into $2E (Y axis) or $2C (X axis).",
+      "",
+      "The old header called byte 0 a 'base sprite frame' and byte 1 a 'movement speed' with entries named S, N, E, W, SE, SW, NE, NW. Neither holds: the entries are step codes, not compass directions, and byte 1 is a table index, not a speed (see the part note for the decoded rows).",
+      "",
+      "Checked: all nine entries decoded against FacingDirectionLookup (GetPlayerFacingDirection) and movement_delta_table; both loaders and the scene-entry reader read in full. Not traced at runtime (UNVERIFIED-RUNTIME): what each step code looks like in game."
+    ],
+    "partNotes": {
+      "direction_velocity_table": [
+        "Step code -> (animation index, movement_delta_table index). FacingDirectionLookup maps animation index 8 = down, 9 = up, 2 = left, 3 = right; movement_delta_table index $11 / $12 / $13 / $14 = +1 / -1 / +1 / -1 on one frame in 2 / 2 / 4 / 4 (average +1/2, -1/2, +1/4, -1/4 pixel per frame, assuming one node per frame as ApplyMovement does).",
+        "",
+        "| Code | Anim | Facing | Velocity chain |",
+        "|------|------|--------|----------------|",
+        "| $00 | 9 | up | $12 (-1/2 px per frame) |",
+        "| $01 | 8 | down | $11 (+1/2) |",
+        "| $02 | 9 | up | $14 (-1/4) |",
+        "| $03 | 8 | down | $11 (+1/2) |",
+        "| $04 | 9 | up | $14 (-1/4) |",
+        "| $05 | 9 | up | $12 (-1/2) |",
+        "| $06 | 2 | left | none ($00) |",
+        "| $07 | 3 | right | none ($00) |",
+        "| $08 | 8 | down | $13 (+1/4) |",
+        "",
+        "Codes $00 = $05, $01 = $03 and $02 = $04 are identical rows (OQ-I061-2). Left and right steps carry no velocity chain: the east and west forced-walk actors move through the camera pan (CameraPanRight and its mirror), not through this table. The vertical sign of every chain agrees with the facing (up = negative, down = positive)."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/body_table.asm": {
+    "blockNote": [
+      "Player body table (Bank 01, 121201-121254): nine 6-byte body-entry rows that choose the sprite set and the tile graphics the player is drawn with. Row layout: { word spriteset pointer, byte spriteset bank, word tile-graphics source address, byte tile-graphics bank } - the extraction shows it as two long pointers, < @spriteset_X, @gfx >.",
+      "",
+      "Two ways to select a row:",
+      "- characterForm x 6: InitActorFromSceneData (scene entry) and actor_pool.SetActorBody copy the spriteset pointer and bank into the actor ($7F0006, $7F0008) and clear playerFlags bit 15. Only rows 0-3 are reached this way.",
+      "- SetPlayerSpriteDirect (COP #8E, operand 0-8): writes the same two fields, keeps the table offset in animScratch2 ($7F000E) and the row number in $0AC8, and sets playerFlags bit 15 (sprite override). While bit 15 is set, DecomposePlayerSprites (sprite_composition) reads row +3 / +5, the tile-graphics source address and bank, for the player's tile DMA list ($06FC / $06FE). GetPlayerFacingDirection uses $0AC8 - 4 to choose a per-form facing table for rows 4-7.",
+      "",
+      "The old header listed the rows as Will, Freedan, Shadow, Shadow alt, Will alt, Ability FX, Will FX, Shadow FX, Shadow mode. There is no 'Will FX' row and row 3 is not an alternate: it is a copy of row 2 (see the part note).",
+      "",
+      "Checked: rows decoded from the extraction, every body_table consumer read (sprite_composition, actor_execution, actor_pool, cop_handlers_player_sprite, GetPlayerFacingDirection, slider_glide). The spriteset banks come from cop_handlers_player_sprite and slider_glide ($95 Will, $8E Freedan, $94 Shadow, $8F rows 4-5, $97 rows 6-8). Not traced at runtime (UNVERIFIED-RUNTIME)."
+    ],
+    "partNotes": {
+      "body_table": [
+        "| Row | Spriteset (bank) | Tile graphics | Use |",
+        "|-----|------------------|---------------|-----|",
+        "| $00 | spriteset_will ($95) | will_sprites_1A8000 | Will, normal body (characterForm 0) |",
+        "| $01 | spriteset_freedan ($8E) | free_sprites_1AC000 | Freedan (characterForm 1) |",
+        "| $02 | spriteset_shadow ($94) | shad_sprites_1BC000 | Shadow (characterForm 2) |",
+        "| $03 | spriteset_shadow ($94) | shad_sprites_1BC000 | Identical to row $02 (characterForm 3, see OQ-I061-1) |",
+        "| $04 | spriteset_will_alt ($8F) | will_sprites_1A8000 | Will's alternate poses (the Psycho Slider code selects it with SetPlayerSpriteDirect #04); shares Will's tile graphics |",
+        "| $05 | spriteset_ability_fx ($8F) | abil_sprites_1B8000 | Ability poses and effects |",
+        "| $06 | spriteset_freedan_fx ($97) | free_fx_1C8000 | Freedan effect sprites |",
+        "| $07 | spriteset_shadow_fx ($97) | shad_fx_1CA000 | Shadow effect sprites |",
+        "| $08 | spriteset_shadow_mode ($97) | shad_sprites_1BC000 | Shadow mode body; shares Shadow's tile graphics |",
+        "",
+        "Rows 4-7 have a facing table each (FacingFormOffsetTable: will_alt, ability_fx, freedan_fx, shadow_fx); rows 0-3 and 8 use FacingDirectionLookup. Nothing found in the extraction selects row $03 or $08 by number (no SetPlayerSpriteDirect #03 / #08 and characterForm 3 is not traced), so what makes them reachable is open (OQ-I061-1)."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/scene_actors.asm": {
+    "blockNote": [
+      "Scene actor lists (bank $0C in the extraction = ROM bank $8C, 819200-845285): the spawn script of every scene. scene_actors is a 256-entry table of word pointers indexed by scene id; each pointer leads to one scene record = actor list + $FF terminator + title string. SpawnSceneActors (actor_execution) walks the list when a scene loads and leaves $3E on the terminator; DisplaySceneTitle (called right after it, scene_lifecycle) reads the title string that follows.",
+      "",
+      "=== ROM LAYOUT vs EXTRACTION ===",
+      "",
+      "The ROM holds the 512-byte pointer table (819200-819711) and then 241 scene records back to back. Each record is the list, the $FF that ends it and the title string ended by $CA. The extraction cuts every title out of its record (post-process Extract(1)): the list stays as scene_event_0CXXXX [ ... ] and the title becomes scene_event_0CXXXX_value, with a second pointer table scene_actors_extract_table at the end of the file. scene_actors_extract_table is generated by the extractor (a copy of the pointer table that points at the titles) and has no bytes of its own; in the ROM the first title byte is the byte right after the list's $FF. Labels carry the ROM address of the record (scene_event_0C8200 = 0C8200).",
+      "",
+      "=== RECORD FORMAT (actor list) ===",
+      "",
+      "Records of two kinds follow each other until a hidden $FF:",
+      "- actor-spawn, 7 bytes: tile X, tile Y, attribute byte, long pointer to an actor-def, and a hidden stats byte $00 (the discriminator; the extraction hides it).",
+      "- enemy-spawn, 9 bytes: the same first six bytes, then stats table index (nonzero, the discriminator), enemy number and event-block index.",
+      "InitActorFromSceneData reads them: tile X/Y x 16 = pixel position ($14/$16). Attribute byte, bit 0 clear: ((byte & $F6) << 8) | word at $06F0 goes into $0E (oamXorFlags: $30 = OAM priority 3, $02 = palette bit; inferred from the field name); bit 0 set: byte >> 1 is a spawn parameter (3 = parameter 1, $0B = 5, $21 = $10). Enemy number nonzero: CheckEnemyDefeatedFlag tests bit (number AND 7) of wramFlags byte number / 8 ($0A80..); a set bit skips the record, frees the slot and optionally swaps the event block. Stats index nonzero: the actor counts in enemiesRemaining and takes its HP from the enemy stats table.",
+      "",
+      "=== WHOLE-FILE COUNTS ===",
+      "",
+      "- 256 table entries -> 241 records: 240 scenes have their own record, and 16 unused scene ids ($48 $57 $76 $77 $80 $81 $9E $AA $AB $AF $C1 $C2 $CA $CB $F8 $F9) share the default record 0C8200 (player, camera controller, ScrollCameraTrack; title TEST MAP). No scene-warp destination and no QueueMapChange operand names any of those ids.",
+      "- 1,798 actor-spawn + 1,317 enemy-spawn = 3,115 spawn records. Longest lists: 0CC7A1 (scene $A7, 62 records, many ramps and speed zones) and 0CBDC4 (scene $91 Euro, 58).",
+      "- Enemy records: stats index $01-$63 (62 distinct values); enemy numbers $00-$FE (254 distinct, 70 records use 0 = no defeat tracking); 42 records name an event block.",
+      "- Titles: 241 strings, 64 non-empty (the town, house, dungeon and area names such as South Cape, Itory Village, Diamond Mine, Sky Garden, Mu, Pyramid, six Dark Space rooms, Demon Palace). The other 177 are the single byte $CA (count 0, DisplaySceneTitle shows nothing). Several rooms of one area carry the same title.",
+      "",
+      "=== CONVENTIONS CONFIRMED FROM THE DATA ===",
+      "",
+      "- 224 lists start with player_character.PlayerCharacterDef as record $00. This is what makes SpawnSceneActors' playerActorDp = $1000 (first actor slot) true. Player attribute byte: $00 / $30 combat scenes, $02 / $32 non-combat scenes (88 and 6 uses): bit $02 sets the combat lock, bit $30 the priority (see InitActorFromSceneData).",
+      "- 220 lists carry camera_scroll_controller, always as record $01 except in scene $89 (record $00, no player). The camera mode actor follows in most scenes (ScrollCameraTrack, ScrollCameraVertical, ScrollCameraInit or ScrollCameraAccumulate; a few scenes use layer1_scroll_actors instead).",
+      "- 16 lists do not start with the player: $00 and $9F are empty (only $FF + $CA); $59 garden_crash_cutscene, $89 camera + s89_new_babel, $8C / $8D / $8F pr8C-pr8F prologue scenes, $90 s90_changed_world, $C0 future_vision_cutscene, $F0 sF0_class_dismissed, $F7 credits (sF7_credits_player and five credits NPCs), $FA diary menu, $FB boot logo, $FC title intro, $FD statue_inventory_reward, $FE WorldMapController, $FF inventory menu.",
+      "",
+      "Checked: record format from InitActorFromSceneData, SpawnSceneActors, AdvanceSceneDataAndFree, CheckEnemyDefeatedFlag, DisplaySceneTitle / CountTitleGlyphs and the extraction post-processor (gaia-core postprocessor.ts Extract); counts by whole-file search; SAMPLED about 12% of the list body (the first ~300 lines plus nine 20-line windows from 11% to 95% of the body), plus the whole pointer table, the whole title list and whole-file counts by search. Spot-checked: 12 actor labels (ir1D_mudpit, fr36_mother, sg4F_knight_armor2, mu66_altar1, eu9A_friezer, awB1_goldcap, pyCC_mystic_ball3, sE5_epilogue, jeweler_gem, wa78_men, sc01_smoke, town_door) exist in the extraction. Not traced at runtime (UNVERIFIED-RUNTIME): the tile coordinates and what the unused ids do if entered."
+    ],
+    "partNotes": {
+      "scene_actors": [
+        "256 word pointers, indexed by scene id ($00-$FF, SpawnSceneActors uses sceneTableIndex as a byte offset). Each points to a scene record (actor list + $FF + title). 16 ids share scene_event_0C8200, the others are unique."
+      ],
+      "scene_event_0C8200": [
+        "Default record for the 16 unused scene ids: the player (tile 2,9, attribute $02), camera_scroll_controller and ScrollCameraTrack, title TEST MAP. Reached only if one of those ids is loaded; nothing found does (OQ-I061-3)."
+      ],
+      "scene_event_0C821F": [
+        "Scene $00: empty list ($FF) and empty title ($CA). No actors, so no player is spawned."
+      ],
+      "scene_event_0CC7A1": [
+        "Scene $A7: the longest list (62 records, $00-$3D): player, camera, ScrollCameraInit, a dark_space and many ramps and speed zones (movement_speed_zones)."
+      ],
+      "scene_event_0CE1AA": [
+        "Scene $F7 (credits): no PlayerCharacterDef; the first records are sF7_credits_player and five NPC actors (attribute $00, tile 18,1), then sF7_credits."
+      ],
+      "scene_event_0CE5B2": [
+        "Scene $FF (inventory menu): InventoryMenuDef at record $00 and three inventory_statue_slot actors (odd attribute bytes $21 / $03 / $05 = spawn parameters $10 / 1 / 2). No player and no camera."
+      ],
+      "scene_actors_extract_table": [
+        "Generated by the extractor (Extract(1)), not present in the ROM: 256 pointers to the title strings, same indexing as scene_actors. The titles themselves sit directly after each list's $FF in the ROM."
+      ],
+      "scene_event_0C8200_value": [
+        "Title of the default record. Visible only for the 16 unused ids; see scene_event_0C8200."
+      ]
+    },
+    "comments": {}
+  },
+  "system/engine/DisplaySceneTitle.asm": {
+    "blockNote": [
+      "Scene title display system - centered area name overlay during scene transitions (172315-172521, Bank 02).",
+      "",
+      "Called from ClearSceneState after actor spawning and before thinker spawning and palette loading. Displays the current scene's area name (e.g. 'South Cape', 'Edward's Castle') in a one-row dialogue box, giving the player a visual cue of the new location.",
+      "",
+      "=== DISPLAY PIPELINE (DisplaySceneTitle) ===",
+      "",
+      "1. Scene change guard: compares $0D6E (the scene just left, recorded by ExecuteSceneTransition; for a world-map entry it is the deferred destination) against sceneCurrent ($0644). If they are equal (a reload of the same scene ID) the title is suppressed.",
+      "",
+      "2. Width measurement: CountTitleGlyphs walks the scene title wide-string, counting visible characters while expanding dictionary references ($D6/$D7) and cursor advances ($CC). The string is the one stored right after the scene's actor list: SpawnSceneActors leaves $3E on the list's $FF terminator and CountTitleGlyphs moves it one byte on, to the first title byte. Returns the glyph count in $00.",
+      "",
+      "3. Empty title guard: if the count is zero the routine returns immediately (177 of the 241 scene records have an empty title, only $CA).",
+      "",
+      "4. Centering: (18 - glyphCount), forced even by AND $FE, used as a byte offset into the VRAM write buffer, i.e. (18 - N) / 2 tile cells. 18 is presumably the interior of the 10-column box if a column is 2 tiles wide (inferred; there is no clamp for N > 18, OQ-58).",
+      "",
+      "5. Box setup: sets $00B4 = $E0 (nonzero flag that makes ExecuteSceneTransition wait for a button press) and clears $00B5. Opens the box via scene_title_box_format ([DLG:7,7][SIZ:A,1]), i.e. a DialogStringRenderer OpenDialogueBox command with width $0A and height 1 at position (7, 7).",
+      "",
+      "6. Centered render: adds the padding to the VRAM write cursor ($0998), then calls DialogStringRenderer a second time with the title string pointer.",
+      "",
+      "=== GLYPH COUNTING (CountTitleGlyphs) ===",
+      "",
+      "A specialized wide-string character counter for the commands found in scene title strings:",
+      "- Literal tiles (< $C0): 1 glyph each",
+      "- $CA (Return): ends the count",
+      "- $CC (AdvanceCursor): adds the operand byte to the count",
+      "- $D6/$D7 (DictionaryA/B): looks up the word in dialog_dictionary_a/b and counts each expanded character up to its $CA terminator",
+      "- Other commands (>= $C0): skips one operand byte without counting",
+      "",
+      "The scan starts at [$3E] + 1. SpawnSceneActors ends with $3E pointing at the $FF that closes the scene's actor list (scene_lifecycle calls DisplaySceneTitle right after it), and the title string follows that terminator directly in the scene record (see scene_actors). INC $3E steps over the $FF; it is not a type or length byte, and the title's first byte is counted."
+    ],
+    "partNotes": {
+      "DisplaySceneTitle": [
+        "Display the current scene's area name in a centered dialogue box overlay.",
+        "",
+        "Called from ClearSceneState after actor spawning. Compares $0D6E (scene just left) with sceneCurrent and returns when they are equal.",
+        "",
+        "Pipeline:",
+        "1. CountTitleGlyphs measures the title string that follows the actor list ($3E = the list's $FF terminator on entry; CountTitleGlyphs advances it to the first title byte)",
+        "2. Returns if the count is zero (no title for this scene)",
+        "3. Centering offset: (18 - count) forced even, pushed for later",
+        "4. $00B4 = $E0 (wait-for-button flag for ExecuteSceneTransition), $00B5 = 0",
+        "5. Saves $40 and the title pointer $3E (in Y), sets DBR to this bank",
+        "6. DialogStringRenderer with scene_title_box_format opens the box",
+        "7. Restores the pointer, adds the offset to the VRAM cursor ($0998)",
+        "8. DialogStringRenderer again renders the title, then restores DBR and flags"
+      ],
+      "CountTitleGlyphs": [
+        "Count visible character width of a scene title wide-string.",
+        "",
+        "Walks the byte stream at [$3E] + 1 (INC $3E steps over the $FF actor-list terminator that SpawnSceneActors left in $3E; the title string starts right after it). Accumulates glyph count in $00. Handles the command subset used in scene title strings:",
+        "",
+        "- Bytes < $C0: literal tile characters - increments count by 1",
+        "- $CA (Return): end of string - returns with count in $00",
+        "- $CC (AdvanceCursor): reads 1-byte operand as additional glyph width, adds to count",
+        "- $D6 (DictionaryA): resolves compressed word from dictionary_01EBA8. Reads 1-byte index, looks up the word pointer (index x 2 + base), then counts each character until $CA terminator",
+        "- $D7 (DictionaryB): same as $D6 but uses dictionary_01F54D",
+        "- Other commands (>= $C0): skips one operand byte without counting",
+        "",
+        "The dictionary expansion switches DBR to the dictionary bank (PHA/PLB), saves/restores Y across the lookup, and returns to the main loop after counting all expanded characters."
+      ]
+    },
+    "comments": {
+      "172405": {
+        "text": "Step over the $FF actor-list terminator left in $3E by SpawnSceneActors; $3E now points at the first title byte",
+        "expect": "INC $3E"
+      }
+    }
+  }
+}

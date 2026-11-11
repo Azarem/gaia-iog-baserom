@@ -7,7 +7,7 @@
 ; | $02 | freedan_fx_02_aura_cast | 2 (4 each) | Aura Barrier cast (attack_ability_system): StageSpriteFrame #02, played once |
 ; | $03 | freedan_fx_03_aura_sustain | 1 (9) | Aura Barrier sustain: StageSpriteLoop #03, 2 passes and then 10 more while the barrier lasts |
 ; 
-; The ledge-jump drop attack is the Freedan-only drop during a ledge jump (CheckLedgeJumpAttack, abilityBitmask bit 6); LedgeJumpDropLand loads entry 2 of freedan_ability_damage_table. The format is documented once, in the spriteset_freedan block note. Each frame is its own group (13 groups, 147 sub-sprites): 8 B pointer table + 60 B frame lists + 1198 B groups = 1266 bytes. The appearance of the tiles was not viewed (OQ-I069-3).
+; The ledge-jump drop attack is the Freedan-only drop during a ledge jump (CheckLedgeJumpAttack, abilityBitmask bit 6); LedgeJumpDropLand loads entry 2 of freedan_ability_damage_table. The format is documented once, in the spriteset_freedan block note. Each frame is its own group (13 groups, 147 sub-sprites): 8 B pointer table + 60 B frame lists + 1198 B groups = 1266 bytes. Viewed: animation $02 (the Aura Barrier cast) shows Freedan with the sword raised straight up and the arms at the sides; animation $03 (the sustain pose, $28 = 3 while the barrier lasts, body row $06) shows the same body with a blue flame above the head and two blue blades below the feet. The drop poses $00 and $01 were not viewed (no ledge-jump scene was run).
 ---------------------------------------------
 
 ?BANK 17

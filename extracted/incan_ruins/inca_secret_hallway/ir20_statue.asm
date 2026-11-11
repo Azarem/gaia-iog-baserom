@@ -1,10 +1,7 @@
 ; Pushable gold statue in the Inca secret hallway — blocks passage.
 ; 
 ; Solid enemy-type actor with $FF HP and push_handler_solid interaction.
-; Can be shoved by a body slam/charge attack (playerFlags bit $0002). Once pushed far
-; enough (checked via position), sets flag $B9 and applies
-; StandardEnemyDefeatHandler. Before being pushed, takes hits but
-; resets HP each frame. Uses enemy_stats_table entry 0.
+; Every frame the actor compares its HP with $FF. When the HP is still $FF it returns. When the HP differs (a hit landed since the previous frame) it reads playerFlags: with bit $0002 set it sets flag $B9 and jumps to StandardEnemyDefeatHandler (EnemyDefeatFlashAndDrop); with the bit clear it decrements its scratch word $24 and restores the HP to $FF. There is no position test. Measured with an HP poke: bit $0002 set destroys the statue and sets $B9; bit clear resets the HP and changes nothing else. What sets playerFlags bit $0002 during a real hit is not traced. Uses enemy_stats_table entry 0.
 ---------------------------------------------
 
 ?INCLUDE 'enemy_stats_table'

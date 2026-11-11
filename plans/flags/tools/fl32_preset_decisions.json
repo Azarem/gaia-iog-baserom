@@ -1,0 +1,39 @@
+{
+  "_note": "FL32 preset decisions. Read by fl32_build.mjs. itemEvents: key items given/removed per milestone, in code order (ids hex; sources: FL40 registry _stateGates.items). Slots are simulated by the builder (GiveItemToPlayer fills the first empty slot of $0AB4-$0AC3). Everything is INFERRED until FR40/FR50.",
+  "abilityFlags": { "Psycho Dash": "510", "Psycho Slider": "511", "Spin Dash": "512", "Dark Friar": "514", "Aura Barrier": "515", "Earthquaker": "516" },
+  "itemEvents": {
+    "M03": { "give": ["09"] },
+    "M05": { "give": ["02"] },
+    "M07": { "give": ["03", "04"] },
+    "M08": { "remove": ["03", "04"], "give": ["08"] },
+    "M11": { "remove": ["02", "08"], "give": ["0D"] },
+    "M12": { "remove": ["0D"] },
+    "M18": { "give": ["15", "16"] },
+    "M20": { "give": ["18"] },
+    "M24": { "give": ["1C", "1D"] },
+    "M25": { "remove": ["1D"] },
+    "M26": { "give": ["25", "26"] },
+    "M28": { "give": ["27"] }
+  },
+  "presets": [
+    { "name": "new_game_start", "upTo": null, "verifyScene": "08", "expect": "Flag $10 clear: sc08_priest locks the joypad at spawn, the lesson text runs, the actor sets $10 and releases the lock. Inventory empty, Will form." },
+    { "name": "after_castle_letter", "after": "new_game_start", "upTo": "M04", "verifyScene": "0A", "expect": "Flag $3F set: ec0A_left_guard does not lock the joypad at spawn (joypadMaskStd $065A stays 0) and offers the second-floor talk." },
+    { "name": "before_incan_ruins", "after": "after_castle_letter", "upTo": "M07", "verifyScene": "1C", "expect": "ir1C_lily locks the joypad at spawn while the entrance flag is clear, the catch-up text runs and control returns. Incan Statue A and B are in the inventory." },
+    { "name": "before_castoth", "after": "before_incan_ruins", "upTo": "M08", "boss": true, "afterScenes": ["29"], "verifyScene": "29", "expect": "Flag $0500 clear: the Castoth actor locks the joypad, runs the intro and starts the fight; the player is changed to Shadow if not already (Transform_WillToShadow)." },
+    { "name": "before_diamond_mine", "after": "before_castoth", "upTo": "M10", "verifyScene": "3E", "expect": "dm3E_intro locks the joypad, prints the mine narration, sets its latch flag and unlocks." },
+    { "name": "before_sky_garden", "after": "before_diamond_mine", "upTo": "M13", "verifyScene": "58", "expect": "Scene $58 plays its descent cutscene (locks the joypad at spawn, releases it when the script ends); afterwards the player is free." },
+    { "name": "before_viper", "after": "before_sky_garden", "upTo": "M14", "boss": true, "afterScenes": ["55"], "verifyScene": "55", "expect": "Flag $0501 clear: the Viper actor locks the joypad at its intro and starts the fight." },
+    { "name": "before_seaside_palace", "after": "before_viper", "upTo": "M14", "verifyScene": "5A", "expect": "The palace monologue actor locks the joypad at spawn and releases it in the same pass when its latch flag is set." },
+    { "name": "before_mu", "after": "before_seaside_palace", "upTo": "M15", "verifyScene": "60", "expect": "Scene $60 arrives free: no placed actor of the scene writes the joypad lock." },
+    { "name": "before_vampires", "after": "before_mu", "upTo": "M16", "boss": true, "afterScenes": ["67"], "verifyScene": "67", "expect": "Flag $0502 clear: Erik's cry locks the joypad, the vampires' script releases it and the fight starts." },
+    { "name": "before_great_wall", "after": "before_vampires", "upTo": "M18", "verifyScene": "82", "expect": "gw82_trail_intro locks the joypad at spawn on the first visit, sets its latch flag and releases it." },
+    { "name": "before_sand_fanger", "after": "before_great_wall", "upTo": "M19", "boss": true, "afterScenes": ["8A"], "verifyScene": "8A", "expect": "Flag $0503 clear: the Sand Fanger actor locks the joypad at its intro and starts the fight." },
+    { "name": "before_mt_kress", "after": "before_sand_fanger", "upTo": "M21", "verifyScene": "A0", "expect": "mtA0_intro locks the joypad on the first visit and sets its latch flag." },
+    { "name": "before_angkor_wat", "after": "before_mt_kress", "upTo": "M23", "verifyScene": "B0", "expect": "awB0_intro locks the joypad on the first visit and sets its latch flag." },
+    { "name": "before_pyramid", "after": "before_angkor_wat", "upTo": "M26", "verifyScene": "CD", "expect": "Scene $CD arrives free: no placed actor of the scene writes the joypad lock." },
+    { "name": "before_mummy_queen", "after": "before_pyramid", "upTo": "M27", "boss": true, "afterScenes": ["DD"], "verifyScene": "DD", "expect": "Flag $0504 clear: the Mummy Queen actor locks the joypad at its intro and starts the fight." },
+    { "name": "before_babel_tower", "after": "before_mummy_queen", "upTo": "M27", "verifyScene": "DE", "expect": "btDE_monologue locks the joypad on the first visit and sets its latch flag." },
+    { "name": "before_final_area", "after": "before_babel_tower", "upTo": "M28", "verifyScene": "E7", "expect": "The space flight controller locks the player through playerFlags $0800 at spawn with no flag test; control returns when the flight ends." },
+    { "name": "before_dark_gaia", "after": "before_final_area", "upTo": "M28", "verifyScene": "E8", "expect": "Dark Gaia's lair intro locks the player (playerFlags $0800 and the joypad) at spawn and starts the fight; flag $DB clear." }
+  ]
+}

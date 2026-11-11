@@ -1,0 +1,984 @@
+{
+  "_note": "FL25 registry fragment: seaside_palace and mu (scenes $5A-$67 = decimal 90-103). Scratch flags are keyed by scene; spine flags ($7B $7E $80 $81 $FF $0177) and renames of FL11 records that the code contradicts are proposals only. Flags >= $0100 of the group (FL11/FL15 records) are cross-referenced in _crossref so that every inventory site of the scope is cited. Scene ids in scopes are decimal.",
+  "_crossref": [
+    "$0139 mu_rama_council_done (FL11): extracted/mu/mu_altar_room/mu66_rama_spirits.asm:28 {433727}, extracted/mu/mu_altar_room/mu66_rama_spirits.asm:63 {433885}",
+    "$013A sp_key_coffin_opened (FL11): extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:23 {430062}, extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:53 {430158}",
+    "$013B sp_stone_coffin_opened (FL11): extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:26 {430511}, extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:58 {430607}, extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:115 {430743}",
+    "$0502 mu_vampires_reward_claimed (FL15), helper TestWramFlag_Offset100 with A = #$0002 (global $0502): extracted/mu/mu_vampire_lair/mu67_vampires.asm:136 {717345}, extracted/mu/mu_vampire_lair/mu67_vampires.asm:308 {717790} (both literal; the inventory trace wram_offset_constant_callers rows were verified)",
+    "$0146/$0147: FL11 records mu_bomb_wire_cut_a/b, renamed in proposals below: extracted/mu/mu_vampire_lair/mu67_bomb.asm:64 {435312}, extracted/mu/mu_vampire_lair/mu67_bomb.asm:65 {435316}",
+    "Direct accesses of the scope that are not flag bits: mu66_rama_spirits.asm:89 {433951} reads the low byte of eventFlags (flag bits $00-$07, see flag 1 below); :67 {433900} writes globalScriptIndex $0AAC := 2; :69 {433906} writes sourceSceneId; :71-:77 write the ceremony parameters $0B08-$0B10; mu67_kara.asm:33 {436350} writes the phase word $0AA6 := 0; mu67_bomb.asm:40 {435254}, :42 {435259} and :173 {435959} read enemiesRemaining/characterForm; mu67_bomb.asm:180 {435978} writes playerHp := 0 (timer expiry with a vampire alive); mu67_vampires.asm:138 {717351}/:139 {717354} clear the enemy counters when the reward is already claimed; mu5F_cyclops.asm:216 {712476} reads $0B02 (state, not an event flag)",
+    "Table-driven flags of the 14 scenes (not in the literal sites; recorded by FL11-FL15): death-action event blocks $013D-$0142 (FL11), chest flags $0212-$0218 and $022E (FL12), clear-reward flags $035F-$0365 (FL13), enemy-number kill flags (FL14)"
+  ],
+  "flags": {
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [92] },
+          "name": "sp_key_coffin_talk_req",
+          "area": "seaside_palace",
+          "summary": "The key coffin's interact handler asks its main script to start Lilly's lid examination.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5C_key_coffin leaves its wait: it locks the joypad, moves a sprite (Lilly going in) from the player to the coffin, applies BG change #3A, sets $013A and prints 'Lilly: Strange... There's a key fastened inside this coffin.'",
+            "clear": "The main script keeps waiting. The handler prints 'Will: The coffins are lined up...' while $6F is clear; with $6F set it prints the 'Isn't there a hole in the coffin?' dialog and sets this byte."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:91 {430243}",
+            "extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:26 {430077}"
+          ],
+          "notes": "Producer: the interact handler code_069094 (talk). Consumer: the main script of the same actor. The handler tests $6F at sp5C_key_coffin.asm:84, so the scene cannot start before Lilly has joined."
+        },
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_first_talk_done",
+          "area": "mu",
+          "summary": "Rama's first conversation has happened; bit 1 of the low byte of eventFlags that the finale test compares with $FE.",
+          "kinds": ["cutscene-stage", "handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu66_rama_spirits spawns the six spirit actors (parameters 0-5); Rama's talk prints 'Hear the words of spirits awakened.' instead of the introduction; the byte counts toward the low-byte test against $FE.",
+            "clear": "No spirits exist; talking to Rama prints 'I am Rama, King of Mu...' and sets the byte."
+          },
+          "evidence": [
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:95 {433972}",
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:93 {433962}",
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:31 {433742}",
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:89 {433951}"
+          ],
+          "notes": "The direct read at :89 loads the byte $0A00 (flags $00-$07), masks it with $00FF and compares it with $00FE; bits 1-7 are the scratch flags $01-$07 of this scene (this flag plus the six spirit flags) and bit 0 is scratch $00, which must be clear. No actor of scene $66 sets $00 (no scene_flag_init row in scene_66_actors; the player idle code only reads $00)."
+        },
+        {
+          "scope": { "scenes": [103] },
+          "name": "mu_lair_bomb_wire_chosen",
+          "area": "mu",
+          "summary": "The player has answered the bomb's red-or-blue wire question; either answer sets it.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The countdown actor (code_06A69E) dies at its next test, which stops the timer. After the vampires are dead mu67_bomb runs the defusal scene (lock, music #1B, sound #2C, dialog 'Will: The bomb has been defused...') and sets scratch $03. Erik's talk handler stops saying 'First, defuse the bomb!'.",
+            "clear": "The countdown keeps running; after the vampires are dead mu67_bomb animates frame #24 in a loop; Erik says 'First, defuse the bomb! Hurry! Hurry!'."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:111 {435421}",
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:117 {435429}",
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:70 {435325}",
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:138 {435889}",
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:144 {435909}",
+            "extracted/mu/mu_vampire_lair/mu67_erik.asm:76 {435023}"
+          ],
+          "notes": "Both wires lead to the same result: the handler sets the byte for answer 'Red one' (list entries 0 and 1, line 111) and for 'Blue one' (line 117). The interact handler is installed at spawn, so the byte can be set while the vampires are alive; the defusal scene waits until enemiesRemaining is 0."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [92] },
+          "name": "sp_stone_coffin_talk_req",
+          "area": "seaside_palace",
+          "summary": "The stone coffin's interact handler asks its main script to start Lilly's coffin examination.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5C_stone_coffin leaves its wait, locks the joypad, moves a sprite (Lilly going in) to the coffin, applies BG change #3B, sets $013B and calls GiveItem #11 (Purification Stone).",
+            "clear": "The main script waits. The handler prints 'Will: The coffins are lined up...' while $6F is clear and sets the byte after the 'hole in the coffin' dialog when $6F is set."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:143 {430814}",
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:31 {430526}",
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:116 {430747}"
+          ],
+          "notes": "When GiveItem fails (inventory full) or music is playing, the main script clears the byte and $013B again (:115 and :116) and waits for the next talk, so the coffin can be opened again."
+        },
+        {
+          "scope": { "scenes": [99] },
+          "name": "mu_prayer_spirits_release_req",
+          "area": "mu",
+          "summary": "The prayer-room show has printed 'The Sun god... Rama... The ocean holds a power...': every helper sprite of the show may leave.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The ten helper sprites (code_069C14 and code_069BDA) leave their loops: after #1E ticks of flicker they die.",
+            "clear": "The helper sprites keep animating (frame loop on :145 and :163 tests)."
+          },
+          "evidence": [
+            "extracted/mu/mu_prayer_room/mu63_spirits.asm:56 {432789}",
+            "extracted/mu/mu_prayer_room/mu63_spirits.asm:112 {433028}",
+            "extracted/mu/mu_prayer_room/mu63_spirits.asm:145 {433147}",
+            "extracted/mu/mu_prayer_room/mu63_spirits.asm:163 {433186}"
+          ],
+          "notes": "Set once per show: line 56 by the west branch (flag $7B), line 112 by the east branch (flag $7E)."
+        },
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_spirit_a_talked",
+          "area": "mu",
+          "summary": "The spirit with parameter 0 has told its story ('Once a single ray of light came from the sky...'); bit 2 of the finale test.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Counts toward the low-byte test against $FE that unlocks Rama's finale.",
+            "clear": "The finale test fails."
+          },
+          "evidence": [
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:161 {434298}",
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:89 {433951}"
+          ],
+          "notes": "Parameter n of the six spirits (written to $24 right after each spawn, mu66_rama_spirits.asm:34-:49) selects the talk case: n sets scratch $02+n. Nothing reads the individual bits except the combined byte test."
+        },
+        {
+          "scope": { "scenes": [103] },
+          "name": "mu_lair_fight_started",
+          "area": "mu",
+          "summary": "The Vampire has finished the intro scene and the fight has begun (also used the same way in the rematch scene $F4).",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The Vampiress leaves her wait and joins the fight; the bomb's countdown actor starts the timer (digits from BCD $0140).",
+            "clear": "The Vampiress stays put (script parked at her wait); the countdown has not started."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:193 {717483}",
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:130 {435870}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:332 {717849}"
+          ],
+          "notes": "Producer: mu67_male_vampire after the intro (:155-:193), consumers: mu67_female_vampire and the bomb countdown (code_06A69E). The inventory also lists scene $F4 for these sites because btF4_neo_male_vampire jumps into the same code (code_0AF23E); the F4 actors were not read beyond that entry, so the F4 use of byte $02 is inferred from the shared code."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_spirit_b_talked",
+          "area": "mu",
+          "summary": "The spirit with parameter 1 has told its story ('One year after that our bodies began to change...'); bit 3 of the finale test.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "Counts toward the $FE test of Rama's finale.", "clear": "The finale test fails." },
+          "evidence": ["extracted/mu/mu_altar_room/mu66_rama_spirits.asm:167 {434306}"],
+          "notes": "Same pattern as mu_rama_spirit_a_talked."
+        },
+        {
+          "scope": { "scenes": [103] },
+          "name": "mu_lair_bomb_defused_ack",
+          "area": "mu",
+          "summary": "The defusal scene is over ('Will: The bomb has been defused...'): Neil and Lance may be approached.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu67_neil leaves its wait and arms the box trigger (tiles (01,19)-(0F,1B)).",
+            "clear": "mu67_neil waits."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_bomb.asm:89 {435385}",
+            "extracted/mu/mu_vampire_lair/mu67_neil_lily.asm:22 {436040}"
+          ],
+          "notes": "Producer: mu67_bomb after the defusal dialog; consumer: mu67_neil."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_spirit_c_talked",
+          "area": "mu",
+          "summary": "The spirit with parameter 2 has told its story ('Family and friends turned to monsters...'); bit 4 of the finale test.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "Counts toward the $FE test of Rama's finale.", "clear": "The finale test fails." },
+          "evidence": ["extracted/mu/mu_altar_room/mu66_rama_spirits.asm:173 {434314}"],
+          "notes": "Same pattern as mu_rama_spirit_a_talked."
+        },
+        {
+          "scope": { "scenes": [103] },
+          "name": "mu_lair_neil_arrived_req",
+          "area": "mu",
+          "summary": "The player has reached Neil's cell: Erik is told to step forward.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu67_erik leaves its wait, sets actor flag $2000 and waits for $88 before it frees himself.",
+            "clear": "Erik stays in the trapped pose."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_neil_lily.asm:33 {436064}",
+            "extracted/mu/mu_vampire_lair/mu67_erik.asm:48 {434949}"
+          ],
+          "notes": "Producer: mu67_neil right after it locks the joypad ($FFFC) and waits #1D ticks; consumer: mu67_erik."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_spirit_d_talked",
+          "area": "mu",
+          "summary": "The spirit with parameter 3 has told its story; bit 5 of the finale test.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "Counts toward the $FE test of Rama's finale.", "clear": "The finale test fails." },
+          "evidence": ["extracted/mu/mu_altar_room/mu66_rama_spirits.asm:179 {434322}"],
+          "notes": "Same pattern as mu_rama_spirit_a_talked."
+        },
+        {
+          "scope": { "scenes": [103] },
+          "name": "mu_lair_lilly_greeting_done",
+          "area": "mu",
+          "summary": "Lilly has said 'Sorry I worried you. Will was protecting me, so I was OK.'",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu67_kara leaves its wait and switches to frame #1C.",
+            "clear": "Kara keeps frame #1B."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_neil_lily.asm:88 {436796}",
+            "extracted/mu/mu_vampire_lair/mu67_kara.asm:24 {436321}"
+          ],
+          "notes": "Producer: the Lilly sprite actor e_mu67_lily (spawned by mu67_neil); consumer: mu67_kara."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_spirit_e_talked",
+          "area": "mu",
+          "summary": "The spirit with parameter 4 has told its story; bit 6 of the finale test.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "Counts toward the $FE test of Rama's finale.", "clear": "The finale test fails." },
+          "evidence": ["extracted/mu/mu_altar_room/mu66_rama_spirits.asm:185 {434330}"],
+          "notes": "Same pattern as mu_rama_spirit_a_talked."
+        },
+        {
+          "scope": { "scenes": [103] },
+          "name": "mu_lair_neil_remark_done",
+          "area": "mu",
+          "summary": "Neil has said 'Well, Will seems to have really grown up.' - the reunion dialog is finished.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu67_erik walks out of his cell (frame sequence from #0E/#11/#10 to #0B); mu67_kara waits #3B ticks, talks ('It doesn't matter! Let's think about how to leave Mu!') and queues the map change to scene $68.",
+            "clear": "Erik and Kara stay where they are."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_neil_lily.asm:91 {436806}",
+            "extracted/mu/mu_vampire_lair/mu67_erik.asm:56 {434972}",
+            "extracted/mu/mu_vampire_lair/mu67_kara.asm:27 {436330}"
+          ],
+          "notes": "The exit of the Mu chapter runs from mu67_kara: QueueMapChange #68 to pixel (0070,00C0) after it writes the phase word $0AA6 := 0."
+        }
+      ]
+    },
+    "7": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_spirit_f_talked",
+          "area": "mu",
+          "summary": "The spirit with parameter 5 has told its story; bit 7 of the finale test.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": { "set": "Counts toward the $FE test of Rama's finale.", "clear": "The finale test fails." },
+          "evidence": ["extracted/mu/mu_altar_room/mu66_rama_spirits.asm:191 {434338}"],
+          "notes": "Same pattern as mu_rama_spirit_a_talked."
+        }
+      ]
+    },
+    "14": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [93] },
+          "name": "sp_fountain_stone_used_req",
+          "area": "seaside_palace",
+          "summary": "The Purification Stone has been used on the fountain: UseItem_PurificationStone sets it and the fountain actor waits for it.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5D_fountain locks the joypad ($EFFC), runs the purification cutscene and sets $70 at its end.",
+            "clear": "sp5D_fountain waits after Lilly's 'strange fountain' dialog."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:41 {431141}",
+            "extracted/system/inventory/item_use_system.asm:1088 {234043}"
+          ],
+          "notes": "Producer: UseItem_PurificationStone (system group) after RemoveItem #11 and MarkSolidAbs (0D,0F), only inside tiles (0A,11)-(17,1A) of scene $5D. The waiting actor exists only if the player holds item #11 when the scene loads (sp5D_fountain.asm:29-:30)."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [93] },
+          "name": "sp_fountain_fade_active",
+          "area": "seaside_palace",
+          "summary": "The fountain cutscene is fading the backdrop; the fountain palette thinker parks while it is set.",
+          "kinds": ["handshake", "idiom"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "palace_fountain_palette stops stepping its palette (PalaceFountainPaletteRestore waits for the byte to clear).",
+            "clear": "palace_fountain_palette steps palette #25 ($70 clear) or #1A ($70 set) every frame."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:72 {431235}",
+            "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:77 {431256}",
+            "extracted/seaside_palace/palace_fountain/palace_fountain_palette.asm:22 {46892}",
+            "extracted/seaside_palace/palace_fountain/palace_fountain_palette.asm:41 {46926}"
+          ],
+          "notes": "Set by sp5D_fountain before the two FadeBackdropOutFast40 thinkers, cleared after the #$02B1-tick wait right before $70 is set."
+        },
+        {
+          "scope": { "scenes": [100] },
+          "name": "mu_connector_spikes_switch_hit",
+          "area": "mu",
+          "summary": "The switch of the Mu connector room has been hit; the spikes toggle once and the byte is cleared again.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu64_switch_spikes leaves its wait and toggles the spike state.",
+            "clear": "The spikes keep their state."
+          },
+          "evidence": [
+            "extracted/incan_ruins/ir21_switch.asm:44 {692313}",
+            "extracted/mu/mu_connector/mu64_switch_spikes.asm:25 {433456}",
+            "extracted/mu/mu_connector/mu64_switch_spikes.asm:34 {433480}"
+          ],
+          "notes": "Producer: ir21_switch (also placed in the Incan Ruins scenes $21 and $22; FL22 records those uses); the switch does not clear the byte, the spikes actor does."
+        },
+        {
+          "scope": { "scenes": [102] },
+          "name": "mu_rama_finale_req",
+          "area": "mu",
+          "summary": "All six spirits have spoken and the player talked to Rama again: he offers the Mystic Statue and the finale runs.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu66_rama_spirits locks the joypad ($EFFC), flashes the palette, applies BG change #39, sets $0139, flashes again and queues a map change to scene $FD (global script index 2, source scene $66).",
+            "clear": "Rama stays in his conversation loop."
+          },
+          "evidence": [
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:105 {433985}",
+            "extracted/mu/mu_altar_room/mu66_rama_spirits.asm:50 {433848}"
+          ],
+          "notes": "Set by Rama's talk handler after dialogstring_069FE3 ('The underwater tunnel dug by man is inside. Please take this Mystic Statue.') when the low byte of eventFlags equals $FE."
+        }
+      ]
+    },
+    "110": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_arrival_monologue_seen",
+          "area": "seaside_palace",
+          "summary": "Will's arrival narration in the Seaside Palace ('The next thing he knew, Will was standing in a huge palace.') has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5A_monologue (scene $5A) unlocks the joypad and dies without text.",
+            "clear": "It waits #1D ticks, prints the narration and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_monologue.asm:34 {427193}",
+            "extracted/seaside_palace/palace_main/sp5A_monologue.asm:35 {427199}"
+          ],
+          "notes": "The same actor file serves scenes $5F ($77) and $61 ($7C); the actor locks the joypad ($CFFC) at spawn in every scene and releases it before it dies."
+        }
+      ]
+    },
+    "111": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_lilly_pocket_scene_done",
+          "area": "seaside_palace",
+          "summary": "Lilly has met Will in the palace rooms and moved into his pocket ('I'll borrow Will's pocket for a while.').",
+          "kinds": ["once-latch", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5B_lily dies at spawn; both coffin actors print Lilly's 'hole in the coffin' dialog and request the cutscene; sp5D_fountain may start (needs item #11 and $70 clear).",
+            "clear": "sp5B_lily waits for the player to come near (BranchIfPlayerNear #02), then locks the joypad and runs the introduction; the coffins print only 'Will: The coffins are lined up...'; sp5D_fountain dies at spawn."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_rooms/sp5B_lily.asm:57 {427768}",
+            "extracted/seaside_palace/palace_rooms/sp5B_lily.asm:18 {427656}",
+            "extracted/seaside_palace/palace_coffins/sp5C_key_coffin.asm:84 {430228}",
+            "extracted/seaside_palace/palace_coffins/sp5C_stone_coffin.asm:136 {430799}",
+            "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:28 {431108}"
+          ],
+          "notes": "Set at the end of the Lilly scene (scene $5B) after Lilly's two lines about Erik's transparent body and the pocket. Name from the dialog 'I'll borrow Will's pocket for a while' (dialogstring_06882D). Later 'Lilly speaks from his pocket' dialogs in Mu rely on the same state, but no Mu actor tests this flag."
+        }
+      ]
+    },
+    "112": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_fountain_purified_done",
+          "area": "seaside_palace",
+          "summary": "The Purification Stone has purified the demon fountain: the demons are people again, the vampires' victims are freed and the palace changes.",
+          "kinds": ["quest-done", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene $5A: the villagers spawn (sp5A_villagers), the Phantom Ribber and the strange voice vanish, scene_meta loads the Freejia sprite set. Scene $5B: the four party-member spirits (Kara, Erik, Lance, Neil) vanish. Scene $5C: the villagers spawn, the slippers and ceiling skuddles die at spawn and scene_meta loads the Freejia sprites instead of the Mu enemy set. Scene $5D: sp5D_fountain dies and the fountain palette steps #1A instead of #25.",
+            "clear": "The demons (Phantom Ribber, slippers, skuddles) and the four trapped party members exist; the villagers do not; scene $5A and $5C use the enemy sprite set."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:78 {431259}",
+            "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:27 {431102}",
+            "extracted/seaside_palace/palace_fountain/palace_fountain_palette.asm:23 {46898}",
+            "extracted/seaside_palace/palace_main/sp5A_phantom_ribber.asm:21 {428454}",
+            "extracted/seaside_palace/palace_main/sp5A_villagers.asm:23 {428636}",
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:15 {431418}",
+            "extracted/seaside_palace/palace_rooms/sp5B_erik.asm:16 {428153}",
+            "extracted/seaside_palace/palace_rooms/sp5B_kara.asm:15 {427553}",
+            "extracted/seaside_palace/palace_rooms/sp5B_lance.asm:15 {428275}",
+            "extracted/seaside_palace/palace_rooms/sp5B_neil.asm:15 {428367}",
+            "extracted/seaside_palace/sp5C_skuddle.asm:54 {714505}",
+            "extracted/seaside_palace/sp5C_slipper.asm:21 {713835}",
+            "extracted/tables/scene_meta.asm:1319 {889167}",
+            "extracted/tables/scene_meta.asm:1348 {889314}"
+          ],
+          "notes": "Never cleared. The slipper test runs only in scene $5C and the skuddle test only in scenes $5C and $5D (they check sceneCurrent first), so the same actors in the Mu scenes are not affected. Villagers' placement: scene_5A_actors rows $07-$0E and scene_5C_actors rows $05-$0A. Set by sp5D_fountain at the end of the cutscene right after $0F is cleared and before it clears the fountain's solid tile (ClearSolidAbs (0D,0F))."
+        }
+      ]
+    },
+    "113": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_voice_palace_of_vampires_seen",
+          "area": "seaside_palace",
+          "summary": "The Strange Voice's first warning ('This is the Palace of Vampires... The fountain in this palace produces demons continuously...') has been heard.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The trigger box (37,28)-(38,29) of sp5A_voice does nothing.",
+            "clear": "Entering the box prints dialogstring_0695AF and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:30 {431471}",
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:29 {431465}"
+          ],
+          "notes": "Name from dialog dialogstring_0695AF. The actor ignores all five boxes once $70 is set."
+        }
+      ]
+    },
+    "114": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_voice_basement_fountain_seen",
+          "area": "seaside_palace",
+          "summary": "The Strange Voice's second message ('In the basement of the castle is a strange fountain. The stone is there... Hurry! Hurry!') has been heard.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The trigger box (0E,38)-(0F,39) of sp5A_voice does nothing.",
+            "clear": "Entering the box prints dialogstring_069612 and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:37 {431485}",
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:36 {431479}"
+          ],
+          "notes": "Name from dialog dialogstring_069612."
+        }
+      ]
+    },
+    "115": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_voice_purification_stone_seen",
+          "area": "seaside_palace",
+          "summary": "The Strange Voice's third message ('The Purification Stone... in the castle...') has been heard.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The trigger box (2B,59)-(2C,5A) of sp5A_voice does nothing.",
+            "clear": "Entering the box prints dialogstring_069672 and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:44 {431499}",
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:43 {431493}"
+          ],
+          "notes": "Name from dialog dialogstring_069672."
+        }
+      ]
+    },
+    "119": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_arrival_monologue_seen",
+          "area": "mu",
+          "summary": "Will's arrival narration in Mu ('Will: Lilly and I set foot on Mu.') has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5A_monologue (scene $5F) unlocks the joypad and dies without text.",
+            "clear": "It waits #1D ticks, prints the narration and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_monologue.asm:41 {427211}",
+            "extracted/seaside_palace/palace_main/sp5A_monologue.asm:42 {427217}"
+          ],
+          "notes": "The monologue actor of the Seaside Palace group is placed in the Mu entrance scene; the scene decides which flag it uses (cmp sceneCurrent)."
+        }
+      ]
+    },
+    "120": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_west_room_visited",
+          "area": "mu",
+          "summary": "The Mu west room (scene $62) has been loaded at least once: its Statue of Hope actor sets the flag the moment it spawns.",
+          "kinds": ["once-latch", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu61_hint (scene $61) may fire (together with $7A clear).",
+            "clear": "mu61_hint dies at spawn."
+          },
+          "evidence": [
+            "extracted/mu/mu_west/mu62_hope_statue.asm:19 {432293}",
+            "extracted/mu/mu_south/mu61_hint.asm:15 {432047}"
+          ],
+          "notes": "The flag is set unconditionally at the start of mu62_hope_statue, whether or not the statue is still there. No site clears it. Name chosen from what the writer does, not from dialog."
+        }
+      ]
+    },
+    "121": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_west_hope_statue_taken",
+          "area": "mu",
+          "summary": "Will has taken the first Statue of Hope (item #12) from the Mu west room.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu62_hope_statue dies at spawn: the statue is gone for good.",
+            "clear": "The statue stays and its interact handler gives item #12."
+          },
+          "evidence": [
+            "extracted/mu/mu_west/mu62_hope_statue.asm:30 {432317}",
+            "extracted/mu/mu_west/mu62_hope_statue.asm:21 {432300}"
+          ],
+          "notes": "Set only after GiveItem succeeds; a full inventory prints the 'inventory is full' message and leaves it clear. The handler also does nothing while music is playing."
+        }
+      ]
+    },
+    "122": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_south_statue_sightline_hint_seen",
+          "area": "mu",
+          "summary": "Lilly's hint about the treasure chest where the lines of sight of both statues cross has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu61_hint dies at spawn.",
+            "clear": "mu61_hint fires when the player enters tiles (0A,30)-(0C,37) (and $78 is set)."
+          },
+          "evidence": [
+            "extracted/mu/mu_south/mu61_hint.asm:23 {432064}",
+            "extracted/mu/mu_south/mu61_hint.asm:14 {432041}"
+          ],
+          "notes": "Name from the dialog 'the line of vision between both the statues cross' (dialogstring_0697C9)."
+        }
+      ]
+    },
+    "124": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_water_lowered_remark_seen",
+          "area": "mu",
+          "summary": "Lilly's remark in the Mu south room ('Ah! There's less water than before! It looks like we can now explore new areas.') has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5A_monologue (scene $61) unlocks and dies without text.",
+            "clear": "With $7B set the actor waits #1D ticks, prints the remark and sets the flag; with $7B clear it does nothing."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_monologue.asm:50 {427241}",
+            "extracted/seaside_palace/palace_main/sp5A_monologue.asm:48 {427229}"
+          ],
+          "notes": "The remark needs the half-drained state ($7B, proposal mu_hope_statue_west_placed). Name from dialogstring_0685D3."
+        }
+      ]
+    },
+    "125": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_passage_lilly_remark_seen",
+          "area": "seaside_palace",
+          "summary": "Lilly's remark in the palace passageway ('A passageway... I wonder if it goes clear to Mu?') has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sp5E_passageway dies at spawn.",
+            "clear": "Entering tiles (14,08)-(16,0C) of scene $5E prints the remark and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_passageway/sp5E_passageway.asm:22 {431946}",
+            "extracted/seaside_palace/palace_passageway/sp5E_passageway.asm:14 {431929}"
+          ],
+          "notes": "Name from dialogstring_069753."
+        }
+      ]
+    },
+    "127": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_maze_hope_statue_taken",
+          "area": "mu",
+          "summary": "Will has taken the second Statue of Hope (item #12) from the Mu maze.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu62_hope_statue2 dies at spawn.",
+            "clear": "The statue stays and its interact handler gives item #12 ('Was there another room with the same name...?')."
+          },
+          "evidence": [
+            "extracted/mu/mu_west/mu62_hope_statue.asm:62 {432485}",
+            "extracted/mu/mu_west/mu62_hope_statue.asm:53 {432468}"
+          ],
+          "notes": "The actor mu62_hope_statue2 is the second actor of mu62_hope_statue.asm; the inventory lists scenes $62 and $65 for the file, the maze placement is scene $65. Same full-inventory behavior as flag $79."
+        }
+      ]
+    },
+    "130": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_altar_burial_ground_seen",
+          "area": "mu",
+          "summary": "Will's remark on entering the altar room ('This looks like an ancient burial ground for the people of Mu.') has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu66_altar_dialog idles (SetEntryHere and RTL every frame) or dies when the player is inside tiles (20,00)-(30,10).",
+            "clear": "Outside that box the actor sets the flag, locks the joypad ($CFFC), waits #1D ticks, prints the remark and unlocks."
+          },
+          "evidence": [
+            "extracted/mu/mu_altar_room/mu66_altar_dialog.asm:19 {433302}",
+            "extracted/mu/mu_altar_room/mu66_altar_dialog.asm:18 {433296}"
+          ],
+          "notes": "Name from dialogstring_069CB7. When the player stands inside (20,00)-(30,10) at spawn the actor sets cameraBoundsY := $0100 and dies, without text."
+        }
+      ]
+    },
+    "131": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_hint_right_room_life_seen",
+          "area": "seaside_palace",
+          "summary": "Will's remark 'What? A sign of life from the right-hand room...' has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The trigger box (36,07)-(3B,0B) of sp5A_voice does nothing.",
+            "clear": "Entering the box prints dialogstring_0696A5 and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:51 {431513}",
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:50 {431507}"
+          ],
+          "notes": "Name from dialog dialogstring_0696A5; which room is meant (a door to scene $5B) is not traced."
+        }
+      ]
+    },
+    "132": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_hint_left_room_life_seen",
+          "area": "seaside_palace",
+          "summary": "Will's remark 'What? A sign of life from the left-hand room...' has been shown.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The trigger box (08,18)-(0B,1A) of sp5A_voice does nothing.",
+            "clear": "Entering the box prints dialogstring_0696D5 and sets the flag."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:58 {431527}",
+            "extracted/seaside_palace/palace_main/sp5A_voice.asm:57 {431521}"
+          ],
+          "notes": "Name from dialog dialogstring_0696D5."
+        }
+      ]
+    },
+    "133": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_villager_palace_key_given",
+          "area": "seaside_palace",
+          "summary": "The freed villager has given Will the key to the Seaside Palace (item #10).",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The key villager (variant $0A) repeats 'On the top floor of the palace is a passageway leading to Mu.' (the text of variant $0B).",
+            "clear": "The key villager says 'I stole a key from the vampire woman. Here, take it.', calls GiveItem #10 and sets the flag; a full inventory prints dialogstring_068F02."
+          },
+          "evidence": [
+            "extracted/seaside_palace/palace_main/sp5A_villagers.asm:127 {428794}",
+            "extracted/seaside_palace/palace_main/sp5A_villagers.asm:123 {428777}"
+          ],
+          "notes": "The variant is the low nibble of the spawn type byte shifted right once (ActorDisplayModeSwap stores ($0E & $000F) in $24, and the handler does SwitchCase on $24). Variant $0A comes from type byte #15: scene_5A_actors row $0A at tile (04,49). The villager exists only when $70 is set. Name from dialogstring_068ED4 ('You received the key to the Seaside Palace!')."
+        }
+      ]
+    },
+    "134": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_lair_erik_cry_seen",
+          "area": "mu",
+          "summary": "The player has walked into the lair and Erik has cried for help ('Heeeeelp!! Someone save me!!'): the vampire intro may start.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Erik skips his trigger; both vampires (male and female) leave their wait and start the intro walk.",
+            "clear": "Erik waits for the player to enter tiles (01,13)-(0F,15), then locks the joypad ($EFFC), plays music #1B and shouts; the vampires wait."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_erik.asm:44 {434946}",
+            "extracted/mu/mu_vampire_lair/mu67_erik.asm:30 {434910}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:162 {717401}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:325 {717825}"
+          ],
+          "notes": "The joypad lock that Erik sets is released by the male vampire (TRB $EFFC in code_0AF27E). If the vampires do not exist (flag $0502 set) the lock stays on: see the scene-entry table in the report. Name from dialogstring_06A36B."
+        }
+      ]
+    },
+    "135": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_lair_vampire_intro_seen",
+          "area": "mu",
+          "summary": "The vampires' intro scene ('You've found the Mystic Statue!...') has been shown.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Both vampires skip the intro walk and dialog and go straight to the fight setup (BG changes #92/#91, music #0F in scene $67 only) and then scratch $02.",
+            "clear": "The male vampire walks in, sets the flag and prints dialogstring_0AFB45 before the fight starts."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:170 {717431}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:155 {717384}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:169 {717425}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:318 {717808}"
+          ],
+          "notes": "The same code serves the rematch in scene $F4, where the flag is already set from the first fight, so the intro is skipped there (inferred: the F4 actors jump into code_0AF23E, which tests the flag at :155). Never cleared."
+        }
+      ]
+    },
+    "136": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_lair_reunion_started",
+          "area": "mu",
+          "summary": "Neil and Lance have appeared in the lair after the bomb was defused: the reunion scene has started and the lair's sprite set is the Nazca set.",
+          "kinds": ["cutscene-stage", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "scene_meta loads the Nazca sprite set instead of the vampire sprites in scene $67; Erik frees himself, Kara steps up and the curtain sprite moves.",
+            "clear": "Erik, Kara and the curtain wait; the vampire sprite set is loaded."
+          },
+          "evidence": [
+            "extracted/mu/mu_vampire_lair/mu67_neil_lily.asm:41 {436127}",
+            "extracted/mu/mu_vampire_lair/mu67_erik.asm:51 {434958}",
+            "extracted/mu/mu_vampire_lair/mu67_kara.asm:16 {436297}",
+            "extracted/mu/mu_vampire_lair/mu67_lair_curtain.asm:13 {436267}",
+            "extracted/tables/scene_meta.asm:1508 {889997}"
+          ],
+          "notes": "mu67_neil sets it after it decompresses gfx_nazca_sprites into VRAM by ADHOC DMA, so later visits to scene $67 load the same set from scene_meta. Never cleared. Name from the sequence (Neil's arrival), not from dialog."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "123": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "mu_hope_statue_west_placed",
+        "summary": "The Statue of Hope has been placed on the west pedestal of the Mu prayer room (scene $63): the Mu water level is half drained.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1129 {234197} (UseItem_StatueOfHope, player inside tiles (06,06)-(0A,08) of scene $63), after the test at extracted/system/inventory/item_use_system.asm:1126 {234184} (a second use prints 'But nothing happened!')",
+          "waiter/test: extracted/mu/mu_prayer_room/mu63_spirits.asm:23 {432594} and :24 {432600} (west branch of the prayer-room show: with the flag set the actor spawns only the placed-statue sprite; otherwise it waits and then runs the spirit show)",
+          "test: extracted/mu/mu_tint_and_wave.asm:17 {48591} (selects COLDATA #$28/#$41 when set, #$2A/#$44 when clear)",
+          "test: extracted/seaside_palace/palace_main/sp5A_monologue.asm:49 {427235} (Lilly's remark in scene $61 needs the flag)",
+          "scene_meta gates: extracted/tables/scene_meta.asm:1385 {889480} (scene $5F), :1408 {889580} ($60), :1425 {889649} ($61), :1442 {889718} ($62) load the half-drained effect tilemap (scene_meta labels 16/19/1A/1B) unless $7E is set (tested first)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL10 proposal. Which pedestal's show runs depends on which half of the room the player is in when mu63_spirits spawns (box (10,00)-(20,10) selects the east branch); the statue use itself is selected by the player's position box. Queue FL25-01."
+      }
+    ],
+    "126": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "mu_hope_statue_east_placed",
+        "summary": "The second Statue of Hope has been placed on the east pedestal of the Mu prayer room (scene $63): the Mu water level is drained.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1121 {234180} (UseItem_StatueOfHope, player inside tiles (16,06)-(1A,08) of scene $63), after the test at extracted/system/inventory/item_use_system.asm:1118 {234167}",
+          "waiter/test: extracted/mu/mu_prayer_room/mu63_spirits.asm:79 {432833} and :80 {432839} (east branch of the show)",
+          "scene_meta gates (tested before $7B): extracted/tables/scene_meta.asm:1384 {889477} ($5F), :1407 {889577} ($60), :1424 {889646} ($61), :1441 {889715} ($62), :1469 {889833} ($64), :1483 {889892} ($65) load map_mu_drained_effect (label 17)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL10 proposal. $7E set overrides $7B in the tilemap choice. Queue FL25-02."
+      }
+    ],
+    "128": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "mu_rama_statue_first_placed",
+        "summary": "The Rama Statue has been placed on the first pedestal (tiles (23,08)-(26,0A)) of the Mu altar room (scene $66).",
+        "kinds": ["puzzle-state"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1163 {234326} (UseItem_RamaStatue), after the test at extracted/system/inventory/item_use_system.asm:1160 {234313}",
+          "waiter: extracted/mu/mu_altar_room/mu66_altar1.asm:19 {433201} (the altar shows its statue frame #2D once the flag is set)"
+        ],
+        "confidence": "high",
+        "notes": "No actor sets the flag; mu66_altar1 waits on it and then on $81. Queue FL25-03."
+      }
+    ],
+    "129": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "mu_rama_statue_second_placed",
+        "summary": "The Rama Statue has been placed on the second pedestal (tiles (2A,08)-(2D,0A)) of the Mu altar room (scene $66).",
+        "kinds": ["puzzle-state"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1171 {234343} (UseItem_RamaStatue), after the test at extracted/system/inventory/item_use_system.asm:1168 {234330}",
+          "waiter: extracted/mu/mu_altar_room/mu66_altar1.asm:24 {433215} (after both statues are set the altar reloads scene $66 at pixel (00F8,01D8) when the player is outside tiles (00,00)-(20,20)) and extracted/mu/mu_altar_room/mu66_altar2.asm:14 {433268} (shows frame #2D)"
+        ],
+        "confidence": "high",
+        "notes": "Queue FL25-03."
+      }
+    ],
+    "255": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "sys_scene_setup_done",
+        "summary": "Scene setup has finished: the scene's thinkers switch from their init pass to their steady state.",
+        "kinds": ["engine", "idiom"],
+        "roles": [
+          "setter (engine): extracted/system/engine/scene_lifecycle.asm:886 {253564}",
+          "setter (thinkers, in this scope): extracted/seaside_palace/palace_fountain/palace_fountain_palette.asm:15 {46880} (scene $5D, first line of the thinker) and extracted/seaside_palace/palace_coffins/palace_coffin_hdma_table.asm:42 {48753} (scene $5C, after the first HDMA queue)",
+          "test: extracted/seaside_palace/palace_coffins/palace_coffin_hdma_table.asm:45 {48764} (re-queues the HDMA buffer while set, rebuilds while clear), extracted/seaside_palace/palace_coffins/sine_hdma_dual_channel.asm:17 {48787} (ticks the sine wave once set), extracted/seaside_palace/palace_fountain/palace_fountain_palette.asm:36 {46918} (loops the palette step while set), extracted/mu/mu_tint_and_wave.asm:41 {48641} (ticks the sine wave once set; rewrites COLDATA while clear)"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with FL10, FL21-FL23. The Mu thinker only reads it; the palace thinkers of scenes $5C and $5D also write it themselves, so the flag is set by a thinker before the engine setter in those scenes. FL31 settles the final record."
+      }
+    ],
+    "375": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "bt_crystal_gate_c_open",
+        "summary": "The Vampires rematch of scene $F4 has been won: the third crystal gate of the Babel middle floors (scene $E0) opens.",
+        "kinds": ["gate-open", "quest-done"],
+        "roles": [
+          "setter: extracted/mu/mu_vampire_lair/mu67_vampires.asm:115 {717275} (code_0AF1AD, after both rematch vampires are dead (enemiesRemaining = 0) and the Transform_ShadowToWill step, just before QueueMapChange to scene $E0 at pixel (02F8,01A0))",
+          "waiter: extracted/babel_tower/babel_middle_floors/btE0_crystal_gate_c.asm:18 {624537} (the gate waits for the flag)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL11 proposal; the setter lives in mu67_vampires.asm but runs only in scene $F4 (the scene's rematch actors, not the Mu lair). Queue FL25-05."
+      }
+    ],
+    "312": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "sp_mu_passage_door_open",
+        "summary": "The door on the top floor of the Seaside Palace (scene $5A) that blocks the way to the passageway to Mu is open; the Seaside Palace Key opened it.",
+        "kinds": ["gate-open", "quest-done"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1057 {233840} (UseItem_SeasidePalaceKey, player inside tiles (08,07)-(0A,08) of scene $5A), after the test at extracted/system/inventory/item_use_system.asm:1052 {233821}"
+        ],
+        "confidence": "high",
+        "notes": "Replaces the FL11 name sp_palace_entrance_open. Evidence: event block $38 copies a 3x4 metatile block onto tiles (08,03)-(0A,06) of scene $5A (FL11), which contain the trigger of warp #05 ((09,05) to scene $5E, the passageway to Mu in scene_warps.asm warp_def_5A row 05); the villager text 'On the top floor of the palace is a passageway leading to Mu.' (sp5A_villagers.asm dialogstring_068F53); Lilly's text after the key turns: 'The phantom land of Mu lies ahead.' (item_use_system.asm dialogstring_0391D9). Not an entrance of the palace: the key is given by a villager inside the palace. Queue FL25-08. FL11 owns the record, FL31 writes it."
+      }
+    ],
+    "326": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "mu_lair_gate_a_open",
+        "summary": "The first barrier strip of the vampire lair (event block $46, tiles around (07,13)) is opened when both vampires are dead, before the wire is cut.",
+        "kinds": ["gate-open"],
+        "roles": [
+          "setter: extracted/mu/mu_vampire_lair/mu67_bomb.asm:64 {435312} (after the wait for enemiesRemaining = 0 and the form change at :42-:56, before the wait for scratch $01 at :70)"
+        ],
+        "confidence": "medium",
+        "notes": "Replaces the FL11 name mu_bomb_wire_cut_a: the code sets the flag before the wire question is answered (the wire sets scratch $01, bomb:111/:117, which only the later wait tests). The effect text of the FL11 record is right (StageBgChange #46 and #47 then both flags). What the two copied strips are in the picture is not established. Queue FL25-06."
+      }
+    ],
+    "327": [
+      {
+        "source": "FL25",
+        "scope": null,
+        "name": "mu_lair_gate_b_open",
+        "summary": "The second barrier strip of the vampire lair (event block $47, tiles around (07,0E)) is opened together with the first.",
+        "kinds": ["gate-open"],
+        "roles": [
+          "setter: extracted/mu/mu_vampire_lair/mu67_bomb.asm:65 {435316} (same pass as $0146)"
+        ],
+        "confidence": "medium",
+        "notes": "Replaces the FL11 name mu_bomb_wire_cut_b; see $0146. Queue FL25-06."
+      }
+    ]
+  }
+}

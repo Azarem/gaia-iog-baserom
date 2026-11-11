@@ -5,4 +5,5 @@ package-lock.json
 extracted/**/*.bin
 extracted/**/*.bgm
 extracted/**/*.sfx
+**/mesen2-results/raw/**/*
 .env

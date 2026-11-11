@@ -6,10 +6,10 @@
 ; 
 ; === BODY ===
 ; 
-; PaletteStart #02 plus PaletteStep applies palette bundle $02: a single 1-frame step that writes 80 colours starting at colour index $30 (decoded from the bundle table, delay 0).
-; The thinker then sets event flag $FF itself and WaitOnFlagByte ( #FF, #00 ) parks until $FF is clear. $FF is the scene-setup-complete latch: scene_lifecycle clears it at the top of scene setup and again sets it at the end, and the inventory overlay clears it on open; both set it again when their setup finishes. The thinker list is rebuilt on every scene change, so within one scene visit the loop normally plays the bundle once; whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).
+; PaletteStart #02 plus PaletteStep applies palette bundle $02: a single 1-frame step that writes 80 colours starting at colour index $30 (decoded from the bundle table, delay 0). Measured in scene 01 with flag $16 set: 75 of the 80 colours change, towards darker values with red dominant (for example $31 $20C5 to $0003, $36 $4ADA to $2DF2).
+; The thinker then sets event flag $FF itself and WaitOnFlagByte ( #FF, #00 ) parks until $FF is clear. $FF is the scene-setup-complete latch: scene_lifecycle clears it at the top of scene setup and again sets it at the end, and the inventory overlay clears it on open; both set it again when their setup finishes. The thinker list is rebuilt on every scene change, so within one scene visit the loop normally plays the bundle once; after an inventory open/close the loop plays the bundle once more (measured in scenes 01 and 30: one extra start of bundle $02 per open/close, after the overlay has closed, in the same scene).
 ; The spawn-record parameter byte is ignored (the bundle id is an immediate). Setting $FF early is a side effect on a shared flag; no other flag-$FF watcher was found in the lists of these scenes.
-; In Oakton (scene 30) flag $1C is expected to be set already (it is never cleared in extracted/), so there the gate kills the thinker at once - inferred, not run.
+; In Oakton (scene 30) flag $1C is expected to be set already (it is never cleared in extracted/), so there the gate kills the thinker at once. The gate itself was measured (flags $16 and $1C both set: no start in scenes 01, 03 and 30; only $16 set: bundle $02 starts in scenes 01 and 30; neither set: no start); the flag state on a normal arrival at Oakton was not read.
 ; 
 ; The earlier notes ('kills itself when conditions flip', 'many interior and Dark Space scenes') were wrong: the gate is evaluated only at spawn and only the scenes listed above spawn this thinker.
 ---------------------------------------------

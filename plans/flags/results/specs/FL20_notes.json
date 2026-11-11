@@ -1,0 +1,83 @@
+{
+  "_note": "FL20 draft: shipped block notes that the code contradicts (prologue and South Cape). Every block note is a full-text replacement (the spec format has no partial edit). Apply in the apply pass (plan section 7) after a fresh extract:lt. All facts are read from the extracted actor code of the named file; flag values are hex, waits are in ticks.",
+  "south_cape/south_cape/sc01_fisherman.asm": {
+    "blockNote": [
+      "South Cape fisherman NPC on the south shore, with the strange pot.",
+      "",
+      "At spawn one RNG byte picks the layout: below $C8 he stands at tile (06,2F) and says 'Gosh. I can't pull it up...'; $C8-$EF puts him at tile (0B,33), mirrored, with 'Even if I move to another place I can't pull it up...'; $F0 and above puts him at tile (29,30) beside the pot actor e_sc01_pot ('He lifted the strange teapot.'), unless flag $D7 is set, in which case the second layout is used.",
+      "",
+      "The pot's interact handler gives item $01 (Red Jewel) once, prints 'You've found a Red Jewel!' and sets flag $D7. A full inventory jumps to hidden_red_jewel.HiddenRedJewelInventoryFull before the flag is set.",
+      "",
+      "Every pass the fisherman writes scratch flag $00: set while the player's Y position is $0250 or more, clear otherwise. The player idle-sprite code in player_character reads the same flag. Scratch flags $00-$0F are cleared at every scene load."
+    ]
+  },
+  "south_cape/south_cape/sc01_astronomer.asm": {
+    "blockNote": [
+      "South Cape NPC who mentions the approaching star.",
+      "",
+      "No flags. One interact handler prints one dialog ('a star is approaching the Earth'). The actor walks a fixed route in three legs with a wait of $EF ticks before each, then stays at the last stop."
+    ]
+  },
+  "south_cape/south_cape/sc01_salesman.asm": {
+    "blockNote": [
+      "South Cape traveling weapon salesman NPC.",
+      "",
+      "No flags. After a first wait of $EF ticks he walks a fixed route with four stops of $78 ticks each. The interact handler prints 'I won't sell a weapon to a child' (code_0482CD) until the walk ends; the actor then switches the handler to code_0482D2 ('Salesman: Hmmm...') and stands solid."
+    ]
+  },
+  "south_cape/south_cape/sc01_worried_woman.asm": {
+    "blockNote": [
+      "South Cape woman worried about strange merchants.",
+      "",
+      "No flags. One interact handler prints the worried line. The actor waits $B3 and $77 ticks, then after a delay of $053C ticks walks a route out and back, standing solid for $EF ticks at the far stop, and redraws the metatile at tiles (2C,0E) and (1C,0E) between $F8 and $F9 as she leaves and returns."
+    ]
+  },
+  "south_cape/south_cape/sc01_house_intro.asm": {
+    "blockNote": [
+      "South Cape house narration actor.",
+      "",
+      "Each frame the actor tests the player position with BranchIfPlayerAt (exact pixel match): Will's door at X $0208, Y $00E0 or $00DF; Lance's door at ($0128,$0258); Erik's doors at ($0228,$0218) and ($0218,$0178); the cave-exit tile at ($0298,$02C0). The house is chosen by that position; the flags are once-latches.",
+      "",
+      "Will's door: flag $12 clear prints 'This is my house' and sets $12; the door then queues scene $06 at ($0058,$01C0). With $21 set and $26 clear the narration is skipped and the scene change runs directly. Lance's door: $13 latch ('This is Lance's house'). Erik's doors: $14 latch ('My friend Erik lives here'). Cave-exit tile: with $16 set and $17 clear the actor sets $17, locks the joypad ($CFFC), waits $1D ticks, prints 'It was already dark by the time Will left the cave' and unlocks.",
+      "",
+      "The block code_04BCCA repeats Will's door test and has no reference."
+    ]
+  },
+  "south_cape/church/sc08_priest.asm": {
+    "blockNote": [
+      "South Cape school teacher (Priest) who gives the opening narration.",
+      "",
+      "At spawn the actor stands solid with the interact handler code_048AD9 (flag $21 clear: 'Please recite with me'; set: 'What is it, Will?'). With flag $10 clear it locks the joypad ($CFFC), waits $1D ticks, prints Will's monologue, waits $3B ticks, plays six sound pairs $1E ticks apart, prints the lesson ('That's all for today's lesson'), waits $3B ticks and sets $10. That is the only flag it sets; sc08_erik releases the joypad lock after its walk. With $10 set at load the lesson is skipped and the joypad stays free; Lance, Erik and Seth die at spawn."
+    ]
+  },
+  "south_cape/wills_house/sc06_main_soldier.asm": {
+    "blockNote": [
+      "Edward Castle soldier who arrests Kara in Will's house.",
+      "",
+      "Cutscene actor. At spawn flag $1B set kills it; otherwise it waits for scratch flag $04 (Lola's line), takes tile (0A,19) and watches for the player inside tiles (04,19)-(0E,1D). On entry it locks the joypad ($CFFC), waits $1D ticks, steps in, prints the soldier and Kara exchange, sets scratch $07 and waits for scratch $08 (Kara's reply), then walks off and dies. It sets no persistent flag: sc06_kara sets $1B, and sc06_bill releases the joypad lock."
+    ]
+  },
+  "south_cape/coastal_cave/sc02_card.asm": {
+    "blockNote": [
+      "Coastal cave card pickup (the Ace of Diamonds trick).",
+      "",
+      "The scene places one card at tile (07,0A); it runs the entry code_04AFB5 (sprite priority $30, a nudge of (8,0), then idles). Lance spawns four more cards at code_04AFBF (SpawnAfterOffsetFlags in sc02_lance). Each of those stages sprite and hitbox $38 and tests every frame whether the player's position (plus 8 in X and $0A in Y) is within 8 pixels of the card in both axes and the button mask $8001 is pressed. Pressing it prints 'Will picks up a card. It is the Ace of Diamonds, of course!', sets scratch flag $08, locks the joypad ($CFFC) and kills the card; sc02_lance releases the lock. A card out of reach switches to an idle entry once $08 is set. No item is given."
+    ]
+  },
+  "south_cape/coastal_cave/sc02_lance.asm": {
+    "blockNote": [
+      "Lance in the coastal cave -- card game and statue chain.",
+      "",
+      "At spawn flag $4C set kills the actor; flag $20 or $16 set selects an idle state with the interact handlers code_04B1A0 ($25 set: 'You look so gloomy'; $1C set: 'It's a day off from school'; otherwise 'One more game with Seth and I'm going home').",
+      "",
+      "Otherwise the first talk sets scratch $01 and prints 'What is it, Will? ... Wait a minute.' After Erik's news (scratch $03 set and cleared) Lance waits for scratch $05 (Seth's 'Everyone's here'; Lance then hints 'Draw it to you by spinning the Flute around like a baton'), scratch $06 (the statue moved) and scratch $07 (Will talks to Lance again). Then he locks the joypad ($CFFC), spawns four sc02_card actors, prints 'Pick the one you think is the Ace of Diamonds', unlocks and waits for scratch $08 (a card picked), prints 'Ahhh! Right!!', waits for scratch $0A (Seth's explanation), prints two lines, sets scratch $0B, clears scratch $04 (which frees the cave exit) and releases the joypad lock."
+    ]
+  },
+  "prologue/pr_thinkers.asm": {
+    "blockNote": [
+      "Prologue palette thinkers.",
+      "",
+      "Two palette-bundle thinkers: e_pr_thinker_0BD031 starts bundle $75, steps once and kills itself; e_pr_thinker_0BD039 starts bundle $76, steps once, sets scratch flag $0F and kills itself. e_pr_thinker_0BD039 is spawned in scenes $8C-$8F; no actor of those scenes reads $0F."
+    ]
+  }
+}

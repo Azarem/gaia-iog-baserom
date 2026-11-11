@@ -10,7 +10,7 @@
 ; 
 ; - The scene search has no end-of-table test; it relies on the actor existing only in the five boss arenas. Rows 5-10 are placeholders (scene $F8 and $29 with an empty range); the first $29 row is the real one.
 ; - The range end is compared only after a zero tier. In the shipped table the entry at the end index (the boss scene itself) is zero in all five ranges, which ends the walk, so a nonzero run past the end cannot happen.
-; - The entry stores the range word in the actor's $04 and the apply routine uses $04 and $0E as scratch. wram-memory-map lists $04 as prevActorLink (the actor list predecessor); whether anything reads that link while the actor lives is not traced.
+; - The range word, the tier being applied and the end scene are kept in the engine's low WRAM at the absolute addresses $0004 and $000E (STA $0004 / STA $000E assemble to the absolute form, not to the actor's direct-page $04 / $0E). The actor's own $04 (prevActorLink) and the actor list stay untouched (measured in the Castoth arena: list and links identical before and after the grant, and no access to the actor's $04 / $05 from this code).
 ; - $0B22 is the heal counter hpToHeal. The flag index is the scene id (not an enemy).
 ---------------------------------------------
 
@@ -74,7 +74,7 @@ boss_clear_reward_handler [
     PHX 
     LDX $20
     LDA $@boss_reward_range_table+1, X ; A = first scene (low byte) and last scene (high byte) of the row
-    STA $0004             ; Range word into actor $04 (also the list predecessor link)
+    STA $0004             ; Range word (first scene low, last scene high) into the engine's absolute $0004 (not the actor's $04)
     JSR $&BossClearApplyStatReward ; Apply HP/STR/DEF boosts
     PLX 
     LDA $playerMaxHp      ; hpToHeal := maxHp - hp: UpdateHUD refills the bar, 1 HP per 8 frames

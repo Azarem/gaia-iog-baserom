@@ -41,7 +41,7 @@
 
 ; Internal JSR helper that removes the actor at X from the scene's doubly-linked list ($04 previous, $06 next).
 ; 
-; Patches the neighbours and the head/tail pointers at $56/$58, then calls ReturnActorSlot. Must be entered with D = X: ReturnActorSlot zeroes D and then sets D = X again. Callers: Die and MarkDeath (the actor itself), KillPrev and KillNext (they switch D and X to the victim first). Removing a sole list entry leaves actorListLast ($58) stale.
+; Patches the neighbours and the head/tail pointers at $56/$58, then calls ReturnActorSlot. Must be entered with D = X: ReturnActorSlot zeroes D and then sets D = X again. Callers: Die and MarkDeath (the actor itself), KillPrev and KillNext (they switch D and X to the victim first). Removing a sole list entry leaves actorListLast ($58) stale (measured in scene $FB: $56 = 0 and $58 = $1000 until the next scene load clears both).
 
 UnlinkActor {
     LDY $0004, X          ; Load prev pointer of actor being removed
@@ -238,7 +238,7 @@ CopyActorState {
     LDA $2A               ; Copy frame counter ($2A)
     STA $002A, Y
     TXA 
-    STA $0024, Y          ; $0024 = spawner's slot (scripts later use $24 as scratch; reader of the initial value unknown)
+    STA $0024, Y          ; $0024 = spawner's slot: read as the parent reference by FlickerParentActor, hit_stagger_controller, SpawnDamageNumberEffect, StatueRewardOrbitalSparkle, camera_drift and eleven enemy, boss and prologue scripts; other actors reuse $24 as scratch (the player's walk and idle timers)
     LDA $statsPtr, X      ; Copy statsPtr, metaspritePtr, spritesetPtr via stack (cross-actor copy)
     PHA 
     LDA $metaspritePtr, X
@@ -262,7 +262,7 @@ CopyActorState {
     STA $moveScratch2, X
     STA $0008, X
     STA $chatPtr, X
-    LDA $sceneCurrent     ; Scene $FF (inventory): keep extendedFlags and callbacks (inferred, see InitActorPool note)
+    LDA $sceneCurrent     ; Scene $FF (inventory): the clear of extendedFlags and the callback block is skipped; in 42 measured spawns there both the spawner's and the new slot's extendedFlags and callbacks were already 0, so the skip changed nothing observable
     CMP #$00FF
     BEQ loc_00B279
     LDA #$0000

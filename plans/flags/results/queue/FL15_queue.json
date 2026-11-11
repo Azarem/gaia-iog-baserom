@@ -1,0 +1,98 @@
+[
+  {
+    "id": "FL15-SPINDASH",
+    "flag": 1298,
+    "scope": { "scenes": [133] },
+    "priority": "P2",
+    "claim": "Spine flag $0512 (Spin Dash, abilityBitmask bit 2): in scene $85 (wall_rampway) gw85_spin_dash_gate does nothing unless the player stands at exactly pixel (X $0458, Y $00D0); there a Will without the bit has his X set to $03C0, while Will with the bit, Freedan and Shadow are left alone. It does not react to an attack and opens nothing (the shipped block note says otherwise).",
+    "start": { "scene": 133, "flags": [1298], "form": "Will", "state": "scene $85 reachable on foot; abilityBitmask ($0AA2) bit 2 clear, then set by memory write" },
+    "trial": {
+      "control": "bit 2 clear: walk Will to pixel (X $0458, Y $00D0) and read player X ($0014 of the player actor at $09AA) on the next frames",
+      "forced": "set $0AA2 bit 2 and repeat; then repeat as Freedan with the bit clear",
+      "observe": ["player X after reaching the spot (expect $03C0 only for Will without the bit)", "abilityBitmask $0AA2", "characterForm $0AD4", "screenshot of the position"]
+    },
+    "confirms": "player X becomes $03C0 only for Will with bit 2 clear",
+    "refutes": "Freedan or Will with the bit is moved, or the spot is never reachable by walking (the actor then has no visible effect)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL15-MU67-ENTRY",
+    "flag": 1282,
+    "scope": { "scenes": [103] },
+    "priority": "P2",
+    "claim": "Scene $67 (mu_vampire_lair): the male and female vampire actors skip the TestWramFlag_Offset100(2) test and idle under playerFlags $0008 when the player is at exactly (X $0180, Y $0060) or (X $0180, Y $01E0) on their first frame. The warp entries into $67 with spawn ($0178,$01D0) and ($0178,$0050) would produce those positions with the usual +8 / +16 pixel offset (not read).",
+    "start": { "scene": 103, "flags": [1282], "form": "Will", "state": "boss flag $0502 (byte $0AA0 bit 2) set by memory write, then enter $67 through each of the three warp entries (scene_warps.asm:1180, 1188, 1189)" },
+    "trial": {
+      "control": "flag set, enter by the warp that spawns at ($0078,$01D0): both vampires die at spawn",
+      "forced": "flag set, enter by the warps that spawn at ($0178,$01D0) and ($0178,$0050): observe whether the vampires stay and whether playerFlags $0008 is set",
+      "observe": ["player X/Y on the first frame", "actor list of scene $67 (male row #03, female row #04)", "playerFlags $09AE bit $0008", "enemiesRemaining $0AEC"]
+    },
+    "confirms": "the vampires survive and playerFlags $0008 is set on the two warps whose player position equals the compared pixel pair",
+    "refutes": "the vampires die at spawn on every entry, or the position never equals the compared pair",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL15-ABILITY-GRANT",
+    "flag": 1296,
+    "scope": { "scenes": [21] },
+    "priority": "P2",
+    "claim": "Firing control for the ability grant: in Itory Village (scene $15) the Dark Space ability orb ORs $01 into abilityBitmask when the player stands in the statue zone (tiles (3,A)-(5,B)); with the bit already set the orb dies at spawn. Will's attack needs bit 0 or bit 2 to charge.",
+    "start": { "scene": 21, "flags": [], "form": "Will", "state": "abilityBitmask ($0AA2) = 0; the Dark Space portal of scene $15 entered (variant 2 layout; $0B12 = $15)" },
+    "trial": {
+      "control": "bit 0 clear: stand at the statue zone and read $0AA2 after the fanfare; then hold the attack button for 40 frames outside",
+      "forced": "set $0AA2 = 1 before entering the Dark Space: the orb must not appear; set it back to 0 and set $0AA2 = 4 (Spin Dash): Will's attack must charge as well",
+      "observe": ["abilityBitmask $0AA2 before and after", "ability orb actor present or absent", "fanfare / text printed", "Status tab row 0 for Will (Psycho Dash)", "whether a held attack charges"]
+    },
+    "confirms": "$0AA2 becomes $01, the Status tab shows Psycho Dash, the attack charges; with the bit preset no orb spawns",
+    "refutes": "another value is written, or the orb appears with the bit set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL15-BOSS-CLAIM",
+    "flag": 1280,
+    "scope": { "scenes": [41] },
+    "priority": "P2",
+    "claim": "Firing control for the boss reward flags: Castoth (scene $29) with flag $0500 clear fights and, when it dies, boss_clear_reward_handler pays the unclaimed rooms of scenes $0C-$28, refills HP and sets byte $0AA0 bit 0; with the flag set Castoth dies at spawn and enemiesRemaining is 0.",
+    "start": { "scene": 41, "flags": [], "form": "Will", "state": "byte $0AA0 bit 0 clear; flags $0300+scene of the rooms $0C-$28 clear or partly set" },
+    "trial": {
+      "control": "kill Castoth: read Max HP, STR, DEF ($0ACA, $0ADE, $0ADC) and byte $0AA0 before and after",
+      "forced": "set byte $0AA0 bit 0 and enter scene $29: observe the boss actor and enemiesRemaining ($0AEC); repeat for the Viper (scene $55, bit 1) as a second boss",
+      "observe": ["$0AA0 bit 0", "playerMaxHp / playerStr / playerDef deltas (at most +5 / +4 / +5)", "hpToHeal $0B22", "boss actor present or absent", "enemiesRemaining $0AEC and enemiesRemainingBcd $0AEE"]
+    },
+    "confirms": "the bit is set after the death and the stat deltas equal the unclaimed rooms; with the bit preset no boss spawns",
+    "refutes": "the bit is set at another time, or the boss fights with the bit preset",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL15-SHADOW-ROWS",
+    "flag": 1304,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Flags $0518-$051A (1304-1306) are tested by the Status tab for Shadow and set by no shipped code; setting them shows three placeholder rows 'DEFENCERK', 'DARKCOREK', 'BLACK4K' with the description 'Dark 1'.",
+    "start": { "scene": 255, "flags": [], "form": "Shadow", "state": "characterForm $0AD4 = 2 (any scene where the pause menu opens); $0AA3 = 0, then $0AA3 = 7 by memory write" },
+    "trial": {
+      "control": "open the pause menu, Status tab, as Shadow with $0AA3 = 0: no ability rows",
+      "forced": "write $0AA3 = 7 and reopen the Status tab: three rows appear; move the cursor over each row",
+      "observe": ["rows shown and their text", "itemAbilityIndex $0AE8 (9, 10, 11)", "screenshot of the Status tab"]
+    },
+    "confirms": "rows and strings as stated",
+    "refutes": "no row appears, or other text is printed (the form-2 rows are then not reachable)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL15-EARTHQUAKER-ONLY",
+    "flag": 1302,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Freedan with only bit 6 (Earthquaker, $0AA2 = $40) passes the attack gate BIT #$0050 and a released charge launches Dark Friar although bit 4 is clear; bit 6 also enables the ledge-jump drop attack.",
+    "start": { "scene": 66, "flags": [], "form": "Freedan", "state": "characterForm = 1, $0AA2 = $40 by memory write, on a ledge-jump spot (any scene with a ledge)" },
+    "trial": {
+      "control": "$0AA2 = $10: hold and release the attack (Dark Friar fires); jump off a ledge and press attack (no drop attack)",
+      "forced": "$0AA2 = $40: repeat both",
+      "observe": ["whether Dark Friar fires", "whether the drop attack starts (LedgeJumpDropAttack)", "abilityBitmask $0AA2"]
+    },
+    "confirms": "with $40 only: Dark Friar fires and the drop attack starts",
+    "refutes": "no attack starts with bit 4 clear",
+    "needs": ["FR00"]
+  }
+]

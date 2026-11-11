@@ -1,0 +1,129 @@
+{
+  "_note": "FL26 notes spec: block notes of angel_village actors whose shipped text is wrong or hides the flag handshake the code runs. Each note describes the code as it is now; flag bytes are named by index and scene.",
+  "angel_village/angel_tunnel_rooms/av74_ishtar.asm": {
+    "blockNote": [
+      "Ishtar and her self-portrait in the tunnel rooms (scene $74).",
+      "",
+      "Flag $89 is set by the test scene ($75) after the fourth correct answer. With $89 clear the actor stands at its post in frame #12 and its interact handler prints 'I wonder if you're here to get Kara. Go into this room. If you solve all the riddles, I'll give back the girl.'; with $89 set the actor dies at spawn.",
+      "",
+      "At spawn the actor also starts a child actor (code_06CEB8, offset (0,-16)) for the self-portrait. With $89 clear the child shows frame #13 and has no interact handler. With $89 set it shows frame #15 and installs the handler code_06CEDF, which sets flag $8B and prints the long speech ('I have been waiting for you. Sprinkle magic powder on the painting, and give it a kiss...') the first time and '.............' on every later talk.",
+      "",
+      "No actor of scene $74 starts a fight (the scene lists the player, the camera, av74_kara, av74_ishtar and a hidden Red Jewel)."
+    ]
+  },
+  "angel_village/angel_tunnel_rooms/av74_kara.asm": {
+    "blockNote": [
+      "Kara's picture and the rescue cutscene in the tunnel rooms (scene $74).",
+      "",
+      "The actor dies at spawn when flag $8C (Kara rescued) is set. Otherwise it spawns a child (code_06D251, offset (0,16)) that carries the picture's interact handler, and polls BranchIfHasItem #14 (Magic Dust); only while the player carries the item does it enter code_06D171.",
+      "",
+      "The picture's handler (code_06D25A): with flag $89 (Ishtar's test passed) clear it prints 'Kara's picture. She is contained inside it....'. With $89 set and scratch flag $01 clear it prints 'If I don't spread magic dust...'. With $89 set and scratch flag $01 set it prints the kiss text and sets flag $8A. Scratch $01 is set by UseItem_MagicPowder when the player uses the Magic Dust in tiles (07,08)-(09,0A) of this scene, and is cleared by every scene load.",
+      "",
+      "code_06D171 waits for scratch $01 and then flag $8A, locks the joypad ($FFFC), fades the backdrop out twice, loads the Nazca sprite set and runs the rescue: Kara walks up, three dialogs between Kara and Will (they start with Kara's 'Will....Sorry for being so selfish.'), then it sets flag $8C and queues scene $6A (the Angel Village annex)."
+    ]
+  },
+  "angel_village/angel_village/av6B_door.asm": {
+    "blockNote": [
+      "Door of the Angel Village (scene $6B).",
+      "",
+      "At spawn the actor writes $0F into four bytes of the collision tile map ($7FC568, $7FC56A, $7FCA52, $7FCA54), nudges itself by (8,0) and installs an interact handler. If the player is near (BranchIfPlayerNear #01) it opens at once; otherwise it waits for scratch flag $01, which the interact handler sets.",
+      "",
+      "Opening plays sound #06 on channel 2, applies BgChange #45 and writes the shared phase word $0AA6 := 0 (the counter that the undersea-tunnel actors and the test scene read). The actor never closes the door and no persistent flag records it: every load of scene $6B starts with the door closed unless the player spawns next to it."
+    ]
+  },
+  "angel_village/angel_tunnel_test/av75_apprentice.asm": {
+    "blockNote": [
+      "Ishtar's apprentice in the test scene ($75).",
+      "",
+      "At spawn the actor tests the player against tiles (70,00)-(80,10), the last observation room. Inside, it sets scratch flag $00 (the byte the player code reads to select the alternate idle sprite set) and writes playerSpeedNs := $FFFF. It then places itself by $0AA6 >> 1: 1 -> tile (3A,1D), 2 -> (57,1D), 3 -> (00,71); other values keep the placed position.",
+      "",
+      "The actor marks itself solid and its interact handler prints 'When you solve the puzzle of the room you may pass.'"
+    ]
+  },
+  "angel_village/angel_tunnel_waterfall/av73_waterfall_sound.asm": {
+    "blockNote": [
+      "Waterfall sound and alcove flag in the waterfall tunnel (scene $73).",
+      "",
+      "At spawn, if the player is inside tiles (00,00)-(40,10) the actor sets scratch flag $00 and dies. Otherwise it spawns a watcher (code_06D733) that sets scratch $00 while the player is inside tiles (2A,17)-(2F,1D) and clears it everywhere else, and its main script writes APUIO0 = $40 + min(2 * |playerXTile - $2C|, $30) every fourth frame, so the value grows with the horizontal distance from tile column $2C. What the sound engine does with that port value (volume or another parameter) is not traced here.",
+      "",
+      "Scratch $00 is read by the player's idle, ladder and shimmy code, which selects the alternate sprite set while it is set."
+    ]
+  },
+  "angel_village/angel_tunnel_test/av75_voice_doors.asm": {
+    "blockNote": [
+      "Door objects of Ishtar's test corridor (scene $75): eight actors share this script, the door index 0-7 being the low nibble of the actor word $0E.",
+      "",
+      "An actor dies at spawn when flag $89 (test passed) is set or when the player is inside a room (Y < $F0). In the corridor it installs an interact handler that compares the phase word $0AA6 with the door index: a smaller counter prints 'Ishtar's voice resounds. Don't hurry. Open the doors in order from the left.', a larger one prints 'That door is already open. There's no need to open it.', an equal one plays sound #0E, applies BgChange #49 + index and sets word flag $0149 + index."
+    ]
+  },
+  "angel_village/angel_tunnel_test/av75_voice_rooms.asm": {
+    "blockNote": [
+      "Room controller of Ishtar's test (scene $75), one actor.",
+      "",
+      "The actor dies at spawn when the player is in the corridor (Y >= $F0). In a room it first clears the eight door flags $0149-$0150. A view room (playerXTile bit 4 clear) increments the phase word $0AA6, locks the joypad ($CFFC), prints 'Learn well the condition of that room...' and unlocks.",
+      "",
+      "An answer room (bit 4 set) locks the joypad, prints 'Show how it's different from the room before.', spawns a cursor actor (code_06DBF3, moved by the D-pad) at the player position and waits for the button press (BranchIfPressed #$8001). playerXTile >> 5 selects room 0-3 and its cursor box. Inside the box it prints that room's 'Right answer!' text and increments $0AA6; in room 3 it instead sets flag $89 and word flag $0151 (test passed). Outside the box it prints 'How are your powers of observation?... Try again!!' and decrements $0AA6. The actor then unlocks the joypad and dies."
+    ]
+  },
+  "angel_village/undersea_tunnel/st68_neil.asm": {
+    "blockNote": [
+      "Neil in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).",
+      "",
+      "Phase 0: locks the joypad ($CFFC), prints 'Five days have passed since we entered the tunnel...', sets scratch flag $01, unlocks, installs the 'Thousands of years ago people walked through this tunnel...' handler and waits for scratch $02 (the mushrooms examined). It then polls for the player inside tiles (0B,00)-(0C,10); on entry it locks the joypad again, sets scratch $03 and plays frame #12.",
+      "",
+      "Phase 1: dies. Phase 2: placed at tile (18,1A), locks the joypad, prints 'Two weeks since entering the tunnel...' and the Kara/Lance remark, and sets scratch $01 (st68_kara continues); the lock stays until the next scene load."
+    ]
+  },
+  "angel_village/undersea_tunnel/st68_erik.asm": {
+    "blockNote": [
+      "Erik in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).",
+      "",
+      "Phase 0: waits for scratch flag $01 (Neil's narration done), walks to his camp position, installs the 'Hey, don't look!' handler and waits for scratch $04 (Kara's remark done). He then walks off, prints 'In this way, another day passed slowly...', increments $0AA6 and queues scene $68 again at (0070,01A0), which starts phase 1.",
+      "",
+      "Phase 1: dies. Phase 2: placed at tile (17,1A) with no further behaviour."
+    ]
+  },
+  "angel_village/undersea_tunnel/st68_lily.asm": {
+    "blockNote": [
+      "Lilly in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).",
+      "",
+      "Phase 0: waits for scratch flag $01, changes frame, installs the 'People are strange... I am afraid the longer we travel in this tunnel...' handler and changes frame again when scratch $04 is set.",
+      "",
+      "Phase 1 (the eighth night): placed at tile (11,1C), locks the joypad ($CFFC), prints 'Eighth day in the tunnel...', walks to Will, asks 'Can't sleep?', turns the player to face her (SetPlayerIdleFacing #0003), prints the Will/Lilly talk, increments $0AA6 and queues scene $68 again at (0160,01C0), which starts phase 2. Phase 2: placed at tile (19,1D), idle."
+    ]
+  },
+  "angel_village/undersea_tunnel/st68_kara.asm": {
+    "blockNote": [
+      "Kara in the undersea tunnel (scene $68). The phase word $0AA6 selects the piece (SwitchCase 0, 1, 2).",
+      "",
+      "Phase 0: waits for scratch flag $01 (Neil's narration done), walks to her camp position, installs the 'I want a steak! And a salad!' handler, waits for scratch $03 (Neil at the exit strip), prints 'Oh, no! Will found more mushrooms...' and sets scratch $04. Phase 1: dies.",
+      "",
+      "Phase 2: placed at tile (15,1B); waits for scratch $01 (Neil's 'Two weeks' narration), then plays the Morse-code finale: sound #1E taps, ship-style camera drift actors (code_06B00C), music #06, the party's dialog, Seth's message, and 'Neil: I don't hear anything now...'. It then calls ClearAllWramFlags (zero-fills the kill-flag block $0A80-$0A9F), sets gfxCacheIdxB := $0404 and queues scene $69 (the Angel Village entrance) at (02A0,00C0)."
+    ]
+  },
+  "angel_village/angel_entrance/av69_lance.asm": {
+    "blockNote": [
+      "Controller of the arrival cutscene at the Angel Village entrance (scene $69); the actor prints Neil's and Lance's lines.",
+      "",
+      "The actor dies at spawn when flag $8D (the Watermia arrival has started) or flag $75 (this cutscene was shown) is set. Otherwise it locks the joypad ($CFFC), prints 'Neil: We're here at last...' and 'Lance: Look! A sign!', walks, prints the sign discussion, and sets scratch flag $01 (Lilly, Neil and Erik walk). It then waits for scratch $04 (the end of the Lilly/Kara exchange), sets persistent flag $75, walks to its final position and unlocks the joypad.",
+      "",
+      "The chain of scratch flags is $01 Lance, $02 Lilly, $03 Kara, $04 Lilly; the other four av69 actors run the same two death tests."
+    ]
+  },
+  "angel_village/angel_annex/av6A_erik.asm": {
+    "blockNote": [
+      "Erik in the Angel Village annex (scene $6A); he runs the reunion cutscene after Kara's rescue.",
+      "",
+      "At spawn: flag $8D set -> dies. Flag $A9 (reunion done) set -> code_06C513: placed at tile (16,0C) with the handler 'I think I saw a Red Jewel in the Angel Village.'. Flag $8C (Kara rescued) set -> code_06C4D7: locks the joypad ($CFFC), walks to tile (0F,0C) and on, prints the reunion dialog (Neil, Lilly and Kara react to Kara's return), sets flag $A9 and unlocks. Otherwise: installs the 'The sun is really bright. I never noticed that before.' handler."
+    ]
+  },
+  "angel_village/angel_annex/av6A_neil.asm": {
+    "blockNote": [
+      "Neil in the Angel Village annex (scene $6A); he offers the trip to Watermia once the party is reunited.",
+      "",
+      "At spawn: flag $8D set -> dies. Flag $A9 (reunion done) set -> code_06C065: placed at tile (17,0E) in frame #15 with the handler code_06C077. Flag $8C (Kara rescued) set and $A9 clear -> code_06C056: starts at tile (0F,0E), walks four steps and falls into code_06C065. Otherwise: installs the 'I think the Angels are descendants of the Mu people.' handler.",
+      "",
+      "code_06C077 asks 'Can we go now? Yes / Wait a minute'. Yes (row 1) prints 'I think it's very hot in the Floating City...', stages world-map move route #11 and queues scene $78 (Watermia) at (0250,0370); the other answers print 'There's no hurry. Take your time.'"
+    ]
+  }
+}

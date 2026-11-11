@@ -1,0 +1,309 @@
+[
+  {
+    "preset": "new_game_start", "idx": 0, "flag": null, "scope": { "scenes": [8] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 16 written before the warp): scene $08 arrives with joypadMaskStd $0000, 6 actors, no writer row.",
+      "clear": "Preset written (0 flags) = control: sc08_priest stores $CFF0 at ROM offset 297638 (82 frames before the banner ends), the lesson dialog runs, the joypad is free from watch frame 1330 with A pulses; flag 16 is set during the window; inventory empty, form Will (0>0>0)."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p00; raw/FR50_rows.jsonl tags p00_C, p00_P, p00_K"
+  },
+  {
+    "preset": "after_castle_letter", "idx": 1, "flag": null, "scope": { "scenes": [10] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "Preset (14 flags incl. 63, item 09 in slot 0): scene $0A arrives with joypadMaskStd $0000 and no joypad writer row; free from the first watch frame.",
+      "clear": "Control (no preset): ec0A_left_guard stores $CFF0 at 311290 (23 frames before the banner ends), releases at 311328 (watch frame 277), sets flag 63."
+    },
+    "corrections": [
+      { "addFlags": [16, 39], "reason": "Natural state orig_N03_castle_gate.mss (same scene, same inventory, form, abilities, HP, $0AA6, $0AAC, $0AB0, $0AC4) differs from the replayed preset state orig_P01 in exactly two flags: 16 ($10) and 39 ($27) are set in the natural state and clear in the preset. Flag 16 is also absent from presets 2-18 (they list 39 from preset 2 on)." }
+    ],
+    "evidence": "FR50_20261106.md row p01 and 'Natural-state cross-check'; raw/FR50_rows.jsonl tags p01_C, p01_P; flag diff of orig_N03 against orig_P01"
+  },
+  {
+    "preset": "before_incan_ruins", "idx": 2, "flag": null, "scope": { "scenes": [28] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 75 added): arrival free, no writer row.",
+      "clear": "Preset = control: ir1C_lily stores $CFF0 at 641547 (23 frames before the banner ends) and releases at 641568 (watch frame 133, after the dialog handler pair at 43300/43326); items 09 02 03 04 shown on the inventory screen (raw/screenshots/FR50_inv_p02_P_723.png), the control screen is empty."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p02; tags p02_C, p02_P, p02_K; inventory rows inv_p02"
+  },
+  {
+    "preset": "before_castoth", "idx": 3, "flag": null, "scope": { "scenes": [41] }, "queueId": null,
+    "verdict": "CONTRADICTED", "grade": "CONTRADICTED", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 1280 added): ir29_castoth and player_transition_handlers are absent from the arrival list, ir29_transform locks the joypad ($EFF0 at 642971, release 643048 at watch frame 116) and sets flag word $011F (flag 287).",
+      "clear": "Preset = control: ir29_castoth stores $EFF0 at 695097 (28 frames before the banner ends) and releases at 695124 (watch frame 170); the form word stays 0 (Will) for the whole 1500-frame window (formHist has one entry)."
+    },
+    "corrections": [
+      { "noteFix": "Remove 'the player is changed to Shadow if not already (Transform_WillToShadow)' from the preset note (FL32_presets.json:391) and from the scene-$29 note (FL32_scene-flags.json:328, source ':70 {694805}'): the call at extracted/incan_ruins/ir29_castoth.asm:74-76 {694816-694822} belongs to btF2_neo_castoth (label at :50, scene $F2); ir29_castoth (label at :171) has no Transform call.", "formNeeded": "Will" }
+    ],
+    "evidence": "FR50_20261106.md row p03; tags p03_C, p03_P, p03_K (formHist, maskW)"
+  },
+  {
+    "preset": "before_diamond_mine", "idx": 4, "flag": null, "scope": { "scenes": [62] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 106 added): dm3E_intro stores and clears the lock in the same frame (391586 then 391605), joypadMaskStd $0000 at the banner end.",
+      "clear": "Preset = control: dm3E_intro stores $CFF0 at 391586 and releases at 391605 (watch frame 49) after the narration dialog; flag 106 is set during the window."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p04; tags p04_C, p04_P, p04_K"
+  },
+  {
+    "preset": "before_sky_garden", "idx": 5, "flag": null, "scope": { "scenes": [88] }, "queueId": null,
+    "verdict": "CONTRADICTED", "grade": "CONTRADICTED", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "No skip flag exists for scene $58; preset and control are identical by design.",
+      "clear": "sp58_descent_cutscene stores $EFF0 at 426289 (29 frames before the banner ends); sp58_missed_flight prints its dialog (release 257, relock 301 through the dialog handler 43300/43326) and the joypad is still locked at watch frame 600. FR40 (scene $58 row): with A pulses the scene loads $5A at frame 3631 and the player is never free in $58."
+    },
+    "corrections": [
+      { "noteFix": "'afterwards the player is free' (FL32_presets.json:864, FL32_scene-flags.json:679 'releases it when the script ends') is wrong: scene $58 ends by loading scene $5A, the joypad lock is never released inside the scene." }
+    ],
+    "evidence": "FR50_20261106.md row p05; tags p05_C, p05_P; FR40_20261106.md scene table row $58"
+  },
+  {
+    "preset": "before_viper", "idx": 6, "flag": null, "scope": { "scenes": [85] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 1281 added): sg55_viper and hdma_dma_spc are absent from the arrival list, sg55_mystic_statue locks ($FFF0 at 708168, 28 frames before the banner ends; dialog release 50, relock 61), statue_inventory_reward stores a lock at 52575 (watch frame 164), and scene_lifecycle clears it at 253496 (frame 527); the arrival is not free until frame 528.",
+      "clear": "Preset = control: sg55_viper stores $EFF0 at 709023 (28 frames before the banner ends) and releases at 709038 (watch frame 81); form stays Will."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p06; tags p06_C, p06_P, p06_K"
+  },
+  {
+    "preset": "before_seaside_palace", "idx": 7, "flag": null, "scope": { "scenes": [90] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 110 added): sp5A_monologue stores 427164 and clears 427188 in the same frame, joypadMaskStd $0000 at the banner end.",
+      "clear": "Preset = control: lock at 427164, release at 427188 (watch frame 49) after the monologue dialog; flag 110 is set during the window."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p07; tags p07_C, p07_P, p07_K"
+  },
+  {
+    "preset": "before_mu", "idx": 8, "flag": null, "scope": { "scenes": [96] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "No skip flag; no discriminating control exists (preset = control). Arrival free: joypadMaskStd $0000, playerFlags $0000, no joypad writer row from script start to 40 free frames after the banner.",
+      "clear": "Coverage: 41 watch frames after the banner; later in-scene cutscenes are not covered."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p08; tags p08_C, p08_P"
+  },
+  {
+    "preset": "before_vampires", "idx": 9, "flag": null, "scope": { "scenes": [103] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 134 added), player placed at warp destination (200, 320): mu67_erik writes no lock; mu67_vampires lock at 717449 (watch frame 133) and release at 717477 (frame 236); flag 135 set.",
+      "clear": "Preset, same placement: mu67_erik stores the lock at 434930 (29 frames before the banner ends), dialog handler pairs at 43300/43326, mu67_vampires release at 717477 (watch frame 340); flags 134 and 135 set. From the natural entry the arrival is free in preset, control and K runs (the lock needs the player inside tiles (1,19)-(15,21), reached by the warp destination, not by a walk: the walk from the natural entry stopped at x 344)."
+    },
+    "corrections": [
+      { "noteFix": "The preset note (FL32_presets.json:2058) lists entry class cutscene with 'the arrival script runs': the lock is zone-gated (mu67_erik.asm:32 BranchIfPlayerInAbsTiles #01,#13,#0F,#15), the arrival from the natural entry is free." }
+    ],
+    "evidence": "FR50_20261106.md row p09; tags p09_C, p09_P, p09_K, p09_WP, p09_WK (dest 200,320)"
+  },
+  {
+    "preset": "before_great_wall", "idx": 10, "flag": null, "scope": { "scenes": [130] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 157 added): arrival free, no writer row.",
+      "clear": "Preset = control: gw82_trail_intro stores $CFF0 at 505150 and releases at 505163 (watch frame 49); flag 157 is set during the window."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p10; tags p10_C, p10_P, p10_K"
+  },
+  {
+    "preset": "before_sand_fanger", "idx": 11, "flag": null, "scope": { "scenes": [138] }, "queueId": null,
+    "verdict": "INCONCLUSIVE", "grade": "INFERRED", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 1283 added): the actor at entry 8B:819E is gone at the end of the arrival (80:C30E in its place, 8 live actors against 10); no lock either way.",
+      "clear": "Preset = control: arrival free (joypadMaskStd $0000, no writer row). The intro lock (gw8A_sand_fanger.asm:226 {754129}) sits behind two position zones, tiles (13,25)-(18,27) and (15,44)-(17,46); three placement and walk configurations (five runs) did not reach the second zone (from the natural entry the walk stops at y 176 and x 148; destination (256,416) settles at (264,432) and (240,408) at (248,416), both inside the first zone, and the player cannot move down)."
+    },
+    "corrections": [
+      { "missing": "A path or a warp destination inside the second zone with the first zone entered before it; scene-flags note FL32_scene-flags.json:1056 and preset note FL32_presets.json:2870 say 'locks at its intro' without the zones." }
+    ],
+    "evidence": "FR50_20261106.md row p11; tags p11_C, p11_P, p11_K, p11_WP, p11_WK"
+  },
+  {
+    "preset": "before_mt_kress", "idx": 12, "flag": null, "scope": { "scenes": [160] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 167 added): arrival free, no writer row.",
+      "clear": "Preset = control: mtA0_intro stores $CFF0 at 517996 and releases at 518009 (watch frame 49); flag 167 is set during the window."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p12; tags p12_C, p12_P, p12_K"
+  },
+  {
+    "preset": "before_angkor_wat", "idx": 13, "flag": null, "scope": { "scenes": [176] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 179 added): arrival free, no writer row.",
+      "clear": "Preset = control: awB0_intro stores $CFF0 at 563189 and releases at 563202 (watch frame 37); flag 179 is set during the window."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p13; tags p13_C, p13_P, p13_K"
+  },
+  {
+    "preset": "before_pyramid", "idx": 14, "flag": null, "scope": { "scenes": [205] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "No skip flag; preset = control. Arrival free: joypadMaskStd $0000, no joypad writer row; playerFlags $0008 (combat lock bit, as in every non-combat scene).",
+      "clear": "Coverage: 41 watch frames after the banner. Inventory screen shows the seven items 09 15 16 18 1C 25 26 (raw/screenshots/FR50_inv_p14_P_723.png); the control screen is empty."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p14; tags p14_C, p14_P; inventory rows inv_p14"
+  },
+  {
+    "preset": "before_mummy_queen", "idx": 15, "flag": null, "scope": { "scenes": [221] }, "queueId": null,
+    "verdict": "CONTRADICTED", "grade": "CONTRADICTED", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "No skip flag usable; preset = control.",
+      "clear": "Arrival free; with the player walking in the arena (preset, quick warp) joypadMaskStd stays $0000 for 521 watch frames; the first write (frame 522, combat_collision.asm:1523 {246966} from player_character, then game_over_sequence {54839} at 523) is the player's death (HP 0 of 8). Static: pyDD_mummy_queen.asm has no joypadMaskStd store; the lair writers are pyDD_teleporter.asm:79 {765472} and pyDD_mystic_statue.asm:27 {577056}."
+    },
+    "corrections": [
+      { "noteFix": "'the Mummy Queen actor locks the joypad at its intro' (FL32_presets.json:4867) is wrong: the fight starts at spawn without a lock (scene entry class free, FL32_scene-flags scene 221)." }
+    ],
+    "evidence": "FR50_20261106.md row p15; tags p15_C, p15_P, p15_WP"
+  },
+  {
+    "preset": "before_babel_tower", "idx": 16, "flag": null, "scope": { "scenes": [222] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "K control (flag 210 added): arrival free, no writer row.",
+      "clear": "Preset = control: btDE_monologue stores $CFF0 at 628946 and releases at 628959 (watch frame 61); flag 210 is set during the window."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p16; tags p16_C, p16_P, p16_K"
+  },
+  {
+    "preset": "before_final_area", "idx": 17, "flag": null, "scope": { "scenes": [231] }, "queueId": null,
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "No skip flag; preset = control.",
+      "clear": "playerFlags $0800 at the banner end, joypadMaskStd $0000 with no flag test; characterForm goes 0 > 2 27 frames before the banner ends (sE7_space_flight_controller.asm:27 {847312}, STA $characterForm); scene $E8 loads at frame 969."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p17; tags p17_C, p17_P, p17_FN"
+  },
+  {
+    "preset": "before_dark_gaia", "idx": 18, "flag": null, "scope": { "scenes": [232] }, "queueId": null,
+    "verdict": "CONTRADICTED", "grade": "CONTRADICTED", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "Form word 2 written before the warp: the scene spawns shadow_shimmer (7 live actors against 5), palette 8 changes, the Shadow sprite is drawn (raw/screenshots/FR50_p18_F2_548.png against FR50_p18_F0_548.png); the natural arrival from $E7 (form 0 > 2 in scene $E7, 27 frames before its banner ends) shows the same sprite and actor list (FR50_p17_FN_1557.png).",
+      "clear": "Preset (form Will): playerFlags $0800 at the banner end, released at watch frame 95; joypadMaskStd is never written (no writer row, $0000 throughout)."
+    },
+    "corrections": [
+      { "form": "Shadow", "reason": "The only way into $E8 is $E7, whose controller sets characterForm = 2; the preset leaves Will. State orig_P18_before_dark_gaia_shadow.mss has the form word written." },
+      { "noteFix": "'locks the player (playerFlags $0800 and the joypad)' (FL32_presets.json:6569, FL32_scene-flags.json:1714): only playerFlags $0800 is set, joypadMaskStd stays 0." }
+    ],
+    "evidence": "FR50_20261106.md row p18 and 'Form trial'; tags p18_C, p18_P, p18_F0, p18_F1, p18_F2, p17_FN"
+  },
+  {
+    "preset": null, "idx": null, "flag": 134, "scope": { "scenes": [103] }, "queueId": "FL32-41",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Set at load, player placed in tiles (1,19)-(15,21) (destination (200,320)): mu67_erik does not lock (no joypad write by it); the vampires' script still locks at 717449 and releases at 717477 (frame 236).",
+      "clear": "Clear: mu67_erik stores the lock at 434930, the dialog runs, flag 134 and 135 are set, the vampires' script releases at 717477 (frame 340)."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p09; tags p09_WP / p09_WK (dest 200,320). FR40 grade INCONCLUSIVE (arrival free from the natural entry, zone not entered)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 1283, "scope": { "scenes": [138] }, "queueId": "FL32-32",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Set at load: the sand fanger actor (entry 8B:819E) is gone by the end of the arrival, 8 live actors against 10 (80:C30E in its place); no lock either way at arrival. The lock claim of the draft note is not covered (INCONCLUSIVE).",
+      "clear": "Clear: the actor is alive and idles at its entry (SetEntryHere, position zones not entered)."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p11; tags p11_P vs p11_K (actors1). FR40 grade INCONCLUSIVE."
+  },
+  {
+    "preset": null, "idx": null, "flag": 1280, "scope": { "scenes": [41] }, "queueId": "FL32-23",
+    "verdict": "CONTRADICTED", "grade": "CONTRADICTED", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Set at load (preset story state): ir29_castoth is absent from the arrival list and ir29_transform runs the post-fight cutscene: lock $EFF0 at 642971, release 643048 (watch frame 116), flag word $011F (287) set. The arrival is not free until frame 117.",
+      "clear": "Clear: ir29_castoth locks at 695097 and releases at 695124 (frame 170)."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p03; tags p03_P, p03_K; same verdict as FR40 (grade unchanged, effect text added)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 1281, "scope": { "scenes": [85] }, "queueId": "FL32-27",
+    "verdict": "CONTRADICTED", "grade": "CONTRADICTED", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Set at load (preset story state): sg55_viper absent, sg55_mystic_statue locks ($FFF0 at 708168) and statue_inventory_reward runs (store 52575 at watch frame 164); the arrival is not free for 500+ frames.",
+      "clear": "Clear: sg55_viper locks at 709023 and releases at 709038 (frame 81)."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p06; tags p06_P, p06_K; same verdict as FR40 (grade unchanged, effect text added)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 16, "scope": { "scenes": [8] }, "queueId": "FL32-20",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $08: arrival free from the preset story state (joypadMaskStd $0000, 6 actors).",
+      "clear": "Scene $08: sc08_priest locks at 297638 and the lesson runs (free from frame 1330 with A pulses); flag 16 is set at the end."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p00; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 63, "scope": { "scenes": [10] }, "queueId": "FL32-40",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $0A: joypadMaskStd $0000 at arrival from the replayed preset.",
+      "clear": "Scene $0A: ec0A_left_guard locks at 311290, releases at 311328 (frame 277) and sets the flag."
+    },
+    "corrections": [],
+    "evidence": "FR50_20261106.md row p01 and the standing control; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 75, "scope": { "scenes": [28] }, "queueId": "FL32-23",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": { "set": "Scene $1C: arrival free (K control of preset 2).", "clear": "Scene $1C: ir1C_lily locks at 641547 and releases at 641568 (frame 133)." },
+    "corrections": [], "evidence": "FR50_20261106.md row p02; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 106, "scope": { "scenes": [62] }, "queueId": "FL32-26",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": { "set": "Scene $3E: dm3E_intro locks and unlocks in the same frame (391586 / 391605).", "clear": "Scene $3E: lock at 391586, release at 391605 (frame 49); the flag is set at the end." },
+    "corrections": [], "evidence": "FR50_20261106.md row p04; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 110, "scope": { "scenes": [90] }, "queueId": "FL32-28",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": { "set": "Scene $5A: sp5A_monologue locks and unlocks in the same frame (427164 / 427188).", "clear": "Scene $5A: lock at 427164, release at 427188 (frame 49); the flag is set at the end." },
+    "corrections": [], "evidence": "FR50_20261106.md row p07; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 157, "scope": { "scenes": [130] }, "queueId": "FL32-32",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": { "set": "Scene $82: arrival free.", "clear": "Scene $82: gw82_trail_intro locks at 505150 and releases at 505163 (frame 49); the flag is set at the end." },
+    "corrections": [], "evidence": "FR50_20261106.md row p10; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 167, "scope": { "scenes": [160] }, "queueId": "FL32-34",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": { "set": "Scene $A0: arrival free.", "clear": "Scene $A0: mtA0_intro locks at 517996 and releases at 518009 (frame 49); the flag is set at the end." },
+    "corrections": [], "evidence": "FR50_20261106.md row p12; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 179, "scope": { "scenes": [176] }, "queueId": "FL32-36",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": { "set": "Scene $B0: arrival free.", "clear": "Scene $B0: awB0_intro locks at 563189 and releases at 563202 (frame 37); the flag is set at the end." },
+    "corrections": [], "evidence": "FR50_20261106.md row p13; unchanged grade (FR40)."
+  },
+  {
+    "preset": null, "idx": null, "flag": 210, "scope": { "scenes": [222] }, "queueId": "FL32-37",
+    "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-RUNTIME",
+    "effects": { "set": "Scene $DE: arrival free.", "clear": "Scene $DE: btDE_monologue locks at 628946 and releases at 628959 (frame 61); the flag is set at the end." },
+    "corrections": [], "evidence": "FR50_20261106.md row p16; unchanged grade (FR40)."
+  }
+]

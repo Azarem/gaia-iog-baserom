@@ -1,0 +1,1827 @@
+{
+  "1": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "2": {
+    "flags": [
+      21
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The entry actor locks the joypad at spawn on the first visit, prints the cave narration and unlocks; with the intro flag set it only guards the exit row.",
+    "source": "extracted/south_cape/coastal_cave/sc02_entry.asm:21 {310855}, set at :19 {310849}, unlock :25 {310868}",
+    "names": [
+      "sc_cave_intro_seen"
+    ]
+  },
+  "3": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "4": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "5": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "6": {
+    "flags": [
+      29,
+      37,
+      61
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Three arrival scripts depend on the story state: Hamlet locks the joypad when the cave news is done and neither the Kara intro nor the soldier scene is done; the morning monologue locks when the dinner night has passed and the morning flag is clear; Kara's return locks when the throne room is done and Lily is not yet met. Setting one flag of each exclusion group frees the arrival; in any other story state the scene is free.",
+    "source": "extracted/south_cape/wills_house/sc06_hamlet.asm:21 {303603}, sc06_monologue.asm:51 {304311}, sc06_kara_return.asm:23 {304583}",
+    "names": [
+      "sc_morning_narration_seen",
+      "sc_lily_met_in_house",
+      "sc_kara_intro_done"
+    ]
+  },
+  "7": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "8": {
+    "flags": [
+      16
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The priest locks the joypad at spawn while the lesson flag is clear, plays the lesson text and sets the flag at its end; with the flag set the priest is a plain NPC.",
+    "source": "extracted/south_cape/church/sc08_priest.asm:29 {297638}, set at :45 {297683}"
+  },
+  "10": {
+    "flags": [
+      63
+    ],
+    "entry": "locked-until-flag",
+    "grade": "INFERRED",
+    "note": "Will showed Lance's letter to the castle guard. Without it the guard actor locks the joypad (joypadMaskStd $065A stays nonzero). Static reading (FL32): ec0A_left_guard releases the lock itself after its dialog (extracted/edward_castle/edward_castle/ec0A_left_guard.asm:34 {311328}); the lock is transient unless the scripted walk stalls in a warp-in start. FR40 decides.",
+    "source": "mesen2-mcp tools/lua/iog_bootstrap.lua (observed in Mesen2); H3 of the Mesen2 investigation plan confirms the convention; static: extracted/edward_castle/edward_castle/ec0A_left_guard.asm:19 {311290}, set :32 {311322}",
+    "names": [
+      "ec_entrance_letter_shown"
+    ],
+    "expectOld": {
+      "note": "Will showed Lance's letter to the castle guard. Without it the guard actor locks the joypad (joypadMaskStd $065A stays nonzero)."
+    }
+  },
+  "11": {
+    "flags": [
+      36
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The cell actor locks the joypad at spawn while the cell-door flag is clear, prints Will's imprisonment text and unlocks; later phases lock again after waits on scratch flags.",
+    "source": "extracted/edward_castle/castle_prison/ec0B_cell.asm:33 {315940}, unlock :37 {315953}",
+    "names": [
+      "ec_prison_cell_door_unlocked"
+    ]
+  },
+  "12": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "13": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "14": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "15": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "16": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "17": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "18": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "19": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "Lily's meeting at the exit locks the joypad at spawn only when the player is not in Will form (it prints a line and changes the form back); in Will form the arrival is free.",
+    "source": "extracted/edward_castle/aqueduct_exit/ec13_lily.asm:29 {638894}"
+  },
+  "21": {
+    "flags": [
+      43
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lily's village introduction locks the joypad at spawn when the trip has started and the introduction flag is clear.",
+    "source": "extracted/itory/itory_village/it15_lily.asm:35 {320194}",
+    "names": [
+      "it_village_lily_intro_done"
+    ]
+  },
+  "22": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "23": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "24": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "25": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "26": {
+    "flags": [
+      73
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lily's camp scene locks the joypad at spawn while the camp-gate flag and the ruins-trip flag are both clear.",
+    "source": "extracted/itory/moon_tribe_camp/it1A_lily.asm:26 {324705}",
+    "names": [
+      "it_moon_camp_gate_opened"
+    ]
+  },
+  "27": {
+    "flags": [
+      284
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The trial actor locks the joypad at spawn while the trial-done word flag is clear.",
+    "source": "extracted/itory/moon_tribe_cave/it1B_trial.asm:25 {325794}",
+    "names": [
+      "it_moon_tribe_trial_done"
+    ]
+  },
+  "28": {
+    "flags": [
+      75
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lily's catch-up scene locks the joypad at spawn while the entrance flag is clear (and Kara's follows after a wait); a non-Will form is changed back to Will at spawn.",
+    "source": "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:30 {641547}",
+    "names": [
+      "ir_entrance_kara_catchup_done"
+    ]
+  },
+  "29": {
+    "flags": [
+      108
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The cliff monologue locks the joypad at spawn on the first visit (flag 6C clear) and sets the flag.",
+    "source": "extracted/incan_ruins/larai_cliff/ir1D_monologue.asm:20 {643130}",
+    "names": [
+      "ir_larai_monologue_seen"
+    ]
+  },
+  "30": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "31": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "32": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "33": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "34": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "35": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "36": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "37": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "38": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "39": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "40": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "41": {
+    "flags": [
+      1280
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Castoth's actor locks the joypad at its intro and starts the fight (the player is turned to Shadow); with the boss reward flag set the actor spawns no fight (enemy counters zeroed, actor dies) and nothing locks.",
+    "source": "extracted/incan_ruins/ir29_castoth.asm:194 {695097}, flag test :176 {695049}, form :70 {694805}",
+    "names": [
+      "ir_castoth_reward_claimed"
+    ]
+  },
+  "42": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "43": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "44": {
+    "flags": [
+      76
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The descent actor locks the joypad at spawn while the descent-done flag is clear and runs the Gold Ship descent.",
+    "source": "extracted/gold_ship/ship_gold/gs2C_descent.asm:28 {360837}",
+    "names": [
+      "gs_ship_descent_done"
+    ]
+  },
+  "45": {
+    "flags": [
+      80
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lily's wake-up scene locks the joypad at spawn on the first visit and sets the wake-up flag.",
+    "source": "extracted/gold_ship/ship_wreck_interior/gs2D_lily.asm:29 {363703}",
+    "names": [
+      "gs_wreck_interior_wakeup_done"
+    ]
+  },
+  "46": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "47": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "48": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "49": {
+    "flags": [
+      86
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The rescuer actor locks the joypad at spawn while the departure flag and the briefing flag are both clear.",
+    "source": "extracted/freejia/oakton_interior/dc31_rescuer.asm:25 {371572}",
+    "names": [
+      "fr_oakton_departure_agreed"
+    ]
+  },
+  "50": {
+    "flags": [
+      100
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Kara's arrival scene locks the joypad at spawn while the hotel-guide, arrival-intro and Erik-rescued flags are all clear.",
+    "source": "extracted/freejia/freejia/fr32_kara.asm:22 {372840}",
+    "names": [
+      "fr_freejia_arrival_intro_done"
+    ]
+  },
+  "51": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "52": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "53": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "54": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "55": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "56": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "57": {
+    "flags": [
+      88
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lily's hotel scene locks the joypad at spawn while the reunion flag and the Erik-rescued flag are both clear.",
+    "source": "extracted/freejia/freejia_hotel/fr39_lily.asm:24 {378309}",
+    "names": [
+      "fr_hotel_reunion_done"
+    ]
+  },
+  "58": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "59": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "60": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "61": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "62": {
+    "flags": [
+      106
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The intro actor locks the joypad at spawn, prints the mine narration when flag 6A is clear and unlocks within the same script; with the flag set it unlocks in the same frame and dies.",
+    "source": "extracted/diamond_mine/mine_entrance/dm3E_intro.asm:20 {391586}, set :34 {391616}",
+    "names": [
+      "dm_mine_entrance_intro_done"
+    ]
+  },
+  "63": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "64": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "65": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "66": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "67": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "68": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "69": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "70": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "71": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "73": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Neil's cottage cutscene always runs: it locks the joypad at spawn and releases it when its script ends; no flag skips it.",
+    "source": "extracted/nazca/neils_cottage/na49_neil.asm:27 {383149}"
+  },
+  "75": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Neil's Nazca scene always runs: it locks the joypad at spawn and releases it when its script ends; no flag skips it.",
+    "source": "extracted/nazca/nazca/na4B_neil.asm:19 {387145}"
+  },
+  "76": {
+    "flags": [
+      107
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The shared intro actor locks the joypad at spawn, prints the Sky Garden narration when flag 6B is clear and unlocks within the same script; with the flag set it unlocks in the same frame and dies.",
+    "source": "extracted/diamond_mine/mine_entrance/dm3E_intro.asm:20 {391586}, set :41 {391634}",
+    "names": [
+      "sg_garden_arrival_narration_seen"
+    ]
+  },
+  "77": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "78": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "79": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "80": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "81": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "82": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "83": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "84": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "85": {
+    "flags": [
+      1281
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Viper's actor locks the joypad at its intro and starts the fight; with the boss reward flag set the actor spawns no fight and nothing locks.",
+    "source": "extracted/sky_garden/viper_lair/sg55_viper.asm:139 {709023}, flag test :123 {708981}",
+    "names": [
+      "sg_viper_reward_claimed"
+    ]
+  },
+  "86": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "88": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The descent cutscene always runs: it locks the joypad at spawn and releases it when the script ends.",
+    "source": "extracted/sky_garden/garden_descent/sp58_descent_cutscene.asm:31 {426289}"
+  },
+  "89": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The crash cutscene always runs: it locks the joypad at spawn and releases it when the script ends.",
+    "source": "extracted/sky_garden/garden_crash/garden_crash_cutscene.asm:42 {237744}"
+  },
+  "90": {
+    "flags": [
+      110
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The palace monologue locks the joypad at spawn and releases it in the same pass when the arrival flag is set, otherwise after the text; the same actor serves scenes 5A, 5F and 61 with their own latch.",
+    "source": "extracted/seaside_palace/palace_main/sp5A_monologue.asm:19 {427164}",
+    "names": [
+      "sp_arrival_monologue_seen"
+    ]
+  },
+  "91": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "92": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "93": {
+    "flags": [
+      112
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The fountain actor locks the joypad at scene load when Lilly's pocket scene is done, the fountain is not yet purified and the Purification Stone is held; with the purified flag set it does nothing.",
+    "source": "extracted/seaside_palace/palace_fountain/sp5D_fountain.asm:36 {431125}, :43 {431148}",
+    "names": [
+      "sp_fountain_purified_done"
+    ]
+  },
+  "94": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "95": {
+    "flags": [
+      119
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The shared palace monologue actor locks the joypad at spawn and releases it in the same pass when the Mu arrival flag is set.",
+    "source": "extracted/seaside_palace/palace_main/sp5A_monologue.asm:19 {427164}",
+    "names": [
+      "mu_arrival_monologue_seen"
+    ]
+  },
+  "96": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "97": {
+    "flags": [
+      124
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The shared palace monologue actor locks the joypad at spawn and releases it in the same pass when the water remark flag is set.",
+    "source": "extracted/seaside_palace/palace_main/sp5A_monologue.asm:19 {427164}",
+    "names": [
+      "mu_water_lowered_remark_seen"
+    ]
+  },
+  "98": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "99": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "100": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "101": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "102": {
+    "flags": [
+      130
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The altar narration locks the joypad when the burial-ground flag is clear and the player stands outside the narration box; the altar actor locks again before the scene reload once both rama statues are placed.",
+    "source": "extracted/mu/mu_altar_room/mu66_altar_dialog.asm:21 {433308}, mu66_altar1.asm:27 {433230}",
+    "names": [
+      "mu_altar_burial_ground_seen"
+    ]
+  },
+  "103": {
+    "flags": [
+      134
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Erik's cry locks the joypad (zone-gated) while the cry flag is clear and the vampires' script releases it; with the vampire reward flag set the vampires do not exist, so with the cry flag clear the lock never ends. The vampires lock again before the fight setup.",
+    "source": "extracted/mu/mu_vampire_lair/mu67_erik.asm:39 {434930}, release mu67_vampires.asm:191 {717477}, intro lock :179 {717449}",
+    "names": [
+      "mu_lair_erik_cry_seen"
+    ]
+  },
+  "104": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The tunnel scene is controlled by the stage word $0AA6 (Neil, Lilly, Neil); the lock lasts until the map change and no flag skips it.",
+    "source": "extracted/angel_village/undersea_tunnel/st68_neil.asm:31 {436975}"
+  },
+  "105": {
+    "flags": [
+      117
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lance's entrance scene locks the joypad at spawn unless the arrival-scene flag or the Watermia arrival flag is set.",
+    "source": "extracted/angel_village/angel_entrance/av69_lance.asm:19 {440983}",
+    "names": [
+      "av_entrance_arrival_scene_done"
+    ]
+  },
+  "106": {
+    "flags": [
+      169
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Erik's annex scene locks the joypad when Kara is rescued and the annex reunion flag is still clear.",
+    "source": "extracted/angel_village/angel_annex/av6A_erik.asm:30 {443616}",
+    "names": [
+      "av_annex_reunion_done"
+    ]
+  },
+  "107": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "108": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "109": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "110": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "111": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "112": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "113": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "114": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "115": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "116": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "117": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Each room entry locks the joypad for its intro text; no flag test gates it, and the doors die once the riddles are solved.",
+    "source": "extracted/angel_village/angel_tunnel_test/av75_voice_rooms.asm:39 {448760}, :49 {448782}"
+  },
+  "120": {
+    "flags": [
+      141
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The arrival actor locks the joypad at spawn while the arrival-cutscene flag is clear.",
+    "source": "extracted/watermia/watermia/wa78_intro.asm:26 {491537}",
+    "names": [
+      "wa_arrival_cutscene_started"
+    ]
+  },
+  "121": {
+    "flags": [
+      145
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lance's scene in Luke's house locks the joypad when his father's visit is done and the exchange flag, the festival flag and the glass-game flag are clear.",
+    "source": "extracted/watermia/lukes_house/wa79_lance.asm:24 {502938}",
+    "names": [
+      "wa_lance_lily_exchange_done"
+    ]
+  },
+  "122": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "123": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "124": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "125": {
+    "flags": [
+      149
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The glass opponent locks the joypad at spawn when the glass game is won and the delivery flag and the festival flag are clear.",
+    "source": "extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:33 {495006}",
+    "names": [
+      "wa_glass_will_delivered"
+    ]
+  },
+  "126": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "127": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Lily's exchange scene locks the joypad at spawn with no flag test.",
+    "source": "extracted/watermia/lance_lily_exchange/wa7F_lily.asm:19 {504290}"
+  },
+  "130": {
+    "flags": [
+      157
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The trail intro locks the joypad at spawn on the first visit and sets the intro flag.",
+    "source": "extracted/great_wall/wall_entrance/gw82_trail_intro.asm:19 {505150}",
+    "names": [
+      "gw_trail_intro_seen"
+    ]
+  },
+  "131": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "133": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "134": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "135": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "136": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "137": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "An ending scene: it locks the joypad at spawn and queues the next ending scene itself.",
+    "source": "extracted/ending/ending_new_babel/s89_new_babel.asm:23 {778287}"
+  },
+  "138": {
+    "flags": [
+      1283
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Sand Fanger's actor locks the joypad at its intro and starts the fight; with the boss reward flag set the actor spawns no fight.",
+    "source": "extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:113 {753787}, flag test :189 {754027}",
+    "names": [
+      "gw_sand_fanger_reward_claimed"
+    ]
+  },
+  "139": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "140": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "A self-advancing prophecy narration: the shared start handler masks input at spawn and the scene queues the next prologue scene itself.",
+    "source": "extracted/system/title_screen/sFC_title_start_handler.asm:27 {772532}"
+  },
+  "141": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "A self-advancing legend narration: the shared start handler masks input at spawn.",
+    "source": "extracted/system/title_screen/sFC_title_start_handler.asm:27 {772532}"
+  },
+  "142": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "A self-advancing narration: the shared start handler masks input at spawn.",
+    "source": "extracted/system/title_screen/sFC_title_start_handler.asm:27 {772532}"
+  },
+  "143": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "A self-advancing narration: the shared start handler masks input at spawn; the diary menu follows.",
+    "source": "extracted/system/title_screen/sFC_title_start_handler.asm:27 {772532}"
+  },
+  "144": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "An ending scene: it locks the joypad at spawn and queues the next ending scene itself.",
+    "source": "extracted/ending/ending_changed_world/s90_changed_world.asm:23 {777798}"
+  },
+  "145": {
+    "flags": [
+      165
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The arrival actor locks the joypad at spawn while the arrival flag is clear.",
+    "source": "extracted/euro/euro/eu91_intro.asm:26 {507443}",
+    "names": [
+      "eu_arrival_cutscene_played"
+    ]
+  },
+  "146": {
+    "flags": [
+      158
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Rofsky's argument locks the joypad on the first visit and sets the argument flag.",
+    "source": "extracted/euro/geezer_central/eu92_rofsky.asm:19 {513526}",
+    "names": [
+      "eu_geezers_argument_seen"
+    ]
+  },
+  "147": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "148": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "149": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "150": {
+    "flags": [
+      171
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Neil's greeting locks the joypad while the greeting, morning and Hamlet flags are clear; the morning scene locks when the morning flag is set and the Hamlet flag is clear.",
+    "source": "extracted/euro/guest_room/eu96_neil.asm:24 {514886}, :40 {514914}",
+    "names": [
+      "eu_hamlet_morning_scene_done"
+    ]
+  },
+  "151": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The clerks lock the joypad depending on the player's spawn pixel (no flag test) and the second clerk releases it.",
+    "source": "extracted/euro/flea_market/eu97_clerk1.asm:26 {510892}, eu97_clerk2.asm:22 {511047}"
+  },
+  "152": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "153": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "154": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "155": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "156": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "157": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "160": {
+    "flags": [
+      167
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The temple intro locks the joypad on the first visit and sets the intro flag.",
+    "source": "extracted/mountain_temple/kress_entrance/mtA0_intro.asm:20 {517996}",
+    "names": [
+      "mt_kress_intro_seen"
+    ]
+  },
+  "161": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "162": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "163": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "164": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "165": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "166": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "167": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "168": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "169": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "172": {
+    "flags": [
+      178
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Kara's village scenes lock the joypad: the arrival scene when all progress flags are clear, the sleep scene when the rest flag is set, the Hamlet scene when the sleep flag is set; setting the Hamlet-scene flag frees all three.",
+    "source": "extracted/native_village/native_village/nvAC_kara.asm:32 {557197}, :66 {557273}, :101 {557408}",
+    "names": [
+      "nv_hamlet_cutscene_done"
+    ]
+  },
+  "173": {
+    "flags": [
+      174
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Kara's vacant-hut scene locks the joypad when the house search has started and neither the hut-checked flag nor the Hamlet flag is set.",
+    "source": "extracted/native_village/vacant_hut/nvAD_kara.asm:27 {559852}",
+    "names": [
+      "nv_vacant_hut_checked"
+    ]
+  },
+  "174": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "176": {
+    "flags": [
+      179
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The entrance intro locks the joypad on the first visit and sets the intro flag.",
+    "source": "extracted/angkor_wat/angkor_entrance/awB0_intro.asm:20 {563189}",
+    "names": [
+      "aw_entrance_intro_seen"
+    ]
+  },
+  "177": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "178": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "179": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "180": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "181": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "182": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "183": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "184": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "185": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "186": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "187": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "188": {
+    "flags": [
+      183
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The blinding-light actor locks the joypad on the first visit and sets the shrine intro flag.",
+    "source": "extracted/angkor_wat/angkor_shrine_crystal/awBC_blinding_light.asm:22 {563755}",
+    "names": [
+      "aw_crystal_shrine_intro_seen"
+    ]
+  },
+  "189": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "190": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "191": {
+    "flags": [
+      190
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The spirit guide locks the joypad at spawn when the vision is seen and the Gorgon Flower is not yet given.",
+    "source": "extracted/angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:46 {563927}",
+    "names": [
+      "aw_gorgon_flower_given"
+    ]
+  },
+  "192": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The future vision cutscene always runs: it locks the joypad at spawn and releases it when the script ends.",
+    "source": "extracted/angkor_wat/future_vision/future_vision_cutscene.asm:45 {238080}"
+  },
+  "195": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "196": {
+    "flags": [
+      210
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Kara's hotel scene locks the joypad at spawn when Dao is reached and the Babel monologue flag is clear.",
+    "source": "extracted/dao/dao_hotel/daC4_kara.asm:43 {566492}",
+    "names": [
+      "bt_entrance_monologue_seen"
+    ]
+  },
+  "197": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "198": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "199": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "200": {
+    "flags": [
+      210
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Neil's dorm scene locks the joypad at spawn when the Dao hotel flag is set and the Babel monologue flag is clear.",
+    "source": "extracted/dao/dao_dorm/daC8_neil.asm:24 {566729}",
+    "names": [
+      "bt_entrance_monologue_seen"
+    ]
+  },
+  "201": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "204": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "205": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "206": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "207": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "208": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "209": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "210": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "211": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "212": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "213": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "214": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "215": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "216": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "217": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "218": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "219": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "220": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The flight scene locks the joypad at spawn with no flag test.",
+    "source": "extracted/babel_tower/babel_flight/btDC_plane_jumping.asm:21 {622924}"
+  },
+  "221": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "222": {
+    "flags": [
+      210
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The entrance monologue sets its latch flag, locks the joypad, prints the text and unlocks on the first visit; with the flag set the actor dies without a lock.",
+    "source": "extracted/babel_tower/babel_entrance/btDE_monologue.asm:32 {628946}, flag set :30 {628940}",
+    "names": [
+      "bt_entrance_monologue_seen"
+    ]
+  },
+  "223": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "The Kara-missing actor is placed here but locks only in scene $E0 (CMP #$00E0 at extracted/babel_tower/babel_entrance/btDE_kara_missing.asm {624172}); the other actors of the scene lock only after a halt or a position condition, so the arrival is free.",
+    "source": "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:27 {624172}, lock :36 {624200}"
+  },
+  "224": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Kara's disappearance scene locks the joypad at spawn only in scene $E0, when flag $D4 (Kara follows) is set and the crystal gate word flag $0178 is set; it clears $D4, prints the text and unlocks. The player is free on arrival when $D4 is clear or $0178 is clear; both are clears, which the flag list of a scene entry cannot express.",
+    "source": "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:25 {624163}, :29 {624177}, lock :36 {624200}, unlock :40 {624213}"
+  },
+  "225": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "The Kara-missing actor is placed here but locks only in scene $E0 (CMP #$00E0 at extracted/babel_tower/babel_entrance/btDE_kara_missing.asm {624172}); the other actors of the scene lock only after a halt or a position condition, so the arrival is free.",
+    "source": "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:27 {624172}, lock :36 {624200}"
+  },
+  "226": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "No actor placed in the scene writes the joypad lock mask on a path from its actor-def entry that has no halt before it and no position, item, proximity or button condition. Some of these scenes hold later in-scene cutscenes that lock the joypad after a trigger; they do not affect the arrival.",
+    "source": "absence: for every actor-def of the actor files placed by extracted/tables/scene_actors.asm for the scene (engine actors under actors/ excluded) the guard analysis of plans/flags/tools/fl32_guards.mjs (entry-only mode, per placed label) found no TSB/ORA/STA to $joypadMaskStd with an empty halt-and-condition set; locks written by spawned children or later handlers were not searched; offset: not available"
+  },
+  "227": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "The Kara-missing actor is placed here but locks only in scene $E0 (CMP #$00E0 at extracted/babel_tower/babel_entrance/btDE_kara_missing.asm {624172}); the other actors of the scene lock only after a halt or a position condition, so the arrival is free.",
+    "source": "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:27 {624172}, lock :36 {624200}"
+  },
+  "228": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Olman's rooftop scene locks the joypad at spawn with no flag test and spawns the spirits.",
+    "source": "extracted/babel_tower/babel_rooftop/btE4_olman.asm:31 {626599}"
+  },
+  "229": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "An ending scene: it locks the joypad at spawn; the epilogue half is chosen by flag DB afterwards.",
+    "source": "extracted/ending/ending_comet/sE5_epilogue.asm:31 {774924}"
+  },
+  "230": {
+    "flags": [],
+    "entry": "free",
+    "grade": "INFERRED",
+    "note": "The Dark Space hub starts free: Gaia's talk locks the joypad only after the player talks to Gaia (GaiaDialogueEntry) and the exit sequence locks it when the player leaves.",
+    "source": "extracted/system/dark_space/sE6_gaia.asm:582 {580339} (talk mask), :106 {579565} (exit mask)"
+  },
+  "231": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The space flight controller locks the player through the player flag bit $0800 at spawn with no flag test.",
+    "source": "extracted/babel_tower/space_flight/sE7_space_flight_controller.asm:36 {847339}"
+  },
+  "232": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Dark Gaia's lair intro locks the player (playerFlags $0800 and the joypad) at spawn with no flag test.",
+    "source": "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:77 {847587}"
+  },
+  "233": {
+    "flags": [
+      41
+    ],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The mansion intro locks the joypad at spawn and sets the mansion intro flag; with the flag set the lock is skipped.",
+    "source": "extracted/mansion/mansion/sE9_mansion_intro.asm:27 {588930}",
+    "names": [
+      "ma_mansion_intro_seen"
+    ]
+  },
+  "234": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "Solid Arm's lair intro locks the joypad at spawn with no flag test.",
+    "source": "extracted/mansion/solid_arm_lair/sEA_solid_arm.asm:49 {587568}"
+  },
+  "240": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "An ending scene: it locks the joypad at spawn and queues the credits itself.",
+    "source": "extracted/ending/ending_class_dismissed/sF0_class_dismissed.asm:34 {646026}"
+  },
+  "242": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The Dark Castoth actor transforms the player to Shadow at spawn when the form is not Shadow already (Transform_WillToShadow, playerFlags $0800 set until the transformation ends), tests no flag, and starts the fight; the arrival is not free until the transformation ends.",
+    "source": "extracted/incan_ruins/ir29_castoth.asm:74 {694816}, :81 {694837}"
+  },
+  "243": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The Dark Viper actor transforms the player to Shadow at spawn when the form is not Shadow already (Transform_WillToShadow, playerFlags $0800 set until the transformation ends), tests no flag, and starts the fight; the arrival is not free until the transformation ends.",
+    "source": "extracted/sky_garden/viper_lair/sg55_viper.asm:66 {708858}, :73 {708879}"
+  },
+  "244": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The Dark Vampires actor transforms the player to Shadow at spawn when the form is not Shadow already (Transform_WillToShadow, playerFlags $0800 set until the transformation ends), tests no flag, and starts the fight; the arrival is not free until the transformation ends.",
+    "source": "extracted/mu/mu_vampire_lair/mu67_vampires.asm:57 {717174}, :64 {717195}"
+  },
+  "245": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The Dark Sand Fanger actor transforms the player to Shadow at spawn when the form is not Shadow already (Transform_WillToShadow, playerFlags $0800 set until the transformation ends), tests no flag, and starts the fight; the arrival is not free until the transformation ends.",
+    "source": "extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:78 {753722}, :85 {753743}"
+  },
+  "246": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The Dark Mummy Queen actor transforms the player to Shadow at spawn when the form is not Shadow already (Transform_WillToShadow, playerFlags $0800 set until the transformation ends), tests no flag, and starts the fight; the arrival is not free until the transformation ends.",
+    "source": "extracted/pyramid/mummy_queen_lair/pyDD_mummy_queen.asm:60 {763449}, :67 {763470}"
+  },
+  "247": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The credits scene locks the joypad at spawn and ends the game from its own script.",
+    "source": "extracted/ending/ending_credits/sF7_credits.asm:82 {644753}"
+  },
+  "250": {
+    "flags": [],
+    "entry": "unknown",
+    "grade": "INFERRED",
+    "note": "The diary menu scene is not an adventure scene: its actor masks input at spawn and the menu drives the next scene change; no flag is tested.",
+    "source": "extracted/system/diary_menu/sFA_diary_menu.asm:150 {778917}"
+  },
+  "251": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The boot logo scene masks input at spawn and queues the title screen itself.",
+    "source": "extracted/system/boot_logos/sFB_boot_logo.asm:60 {772315}, :89 {772376}"
+  },
+  "252": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The title scene masks input at spawn and queues the prologue or the diary menu from the title handler.",
+    "source": "extracted/system/title_screen/sFC_title_start_handler.asm:27 {772532}, :40 {772547}"
+  },
+  "253": {
+    "flags": [],
+    "entry": "cutscene",
+    "grade": "INFERRED",
+    "note": "The statue ceremony scene locks input at spawn; the ceremony index in $0AAC selects the sequence and the scene returns to the caller itself.",
+    "source": "extracted/system/statue_inventory/statue_inventory_reward.asm:65 {52575}"
+  },
+  "254": {
+    "flags": [],
+    "entry": "unknown",
+    "grade": "INFERRED",
+    "note": "The world map is driven by WorldMapController (staged position and destination menu); it masks input at spawn and releases it for the menu. No flag gates the scene itself; the exit menus of the town scenes gate the destinations.",
+    "source": "extracted/system/world_map/WorldMapController.asm:109 {238356}"
+  },
+  "255": {
+    "flags": [],
+    "entry": "unknown",
+    "grade": "INFERRED",
+    "note": "The inventory scene has no inbound scene-change edge: the menu overlay enters it. No entry class applies.",
+    "source": "absence: no QueueMapChange or scene-warp destination $FF in extracted/ (plans/flags/tools/fl32_scenes.mjs reach: the only scene without an inbound edge)"
+  }
+}

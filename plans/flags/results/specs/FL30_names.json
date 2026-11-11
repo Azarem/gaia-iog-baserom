@@ -1,0 +1,11 @@
+[
+  { "address": 181386, "old": "IdleStandSouthShadow", "new": "IdleStandSouthAlt", "row": "FL30-names-01" },
+  { "address": 181402, "old": "IdleStandNorthShadow", "new": "IdleStandNorthAlt", "row": "FL30-names-02" },
+  { "address": 181418, "old": "IdleStandWestShadow", "new": "IdleStandWestAlt", "row": "FL30-names-03" },
+  { "address": 181434, "old": "IdleStandEastShadow", "new": "IdleStandEastAlt", "row": "FL30-names-04" },
+  { "address": 182368, "old": "LadderIdleSouthShadow", "new": "LadderIdleSouthAlt", "row": "FL30-names-05" },
+  { "address": 182384, "old": "LadderIdleNorthShadow", "new": "LadderIdleNorthAlt", "row": "FL30-names-06" },
+  { "address": 182725, "old": "ShimmyDetachRightShadow", "new": "ShimmyDetachRightAlt", "row": "FL30-names-07" },
+  { "address": 182744, "old": "ShimmyDetachLeftShadow", "new": "ShimmyDetachLeftAlt", "row": "FL30-names-08" },
+  { "address": 50237, "old": "PlayerIdleUseShadowSprite", "new": "PlayerIdleUseAltSprite", "row": "FL30-names-09" }
+]

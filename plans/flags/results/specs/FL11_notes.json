@@ -1,0 +1,39 @@
+{
+  "_note": "FL11 draft: block notes that the code contradicts (three) or that omit the flag mechanism (one, pyCC_dark_space_portal). Apply in the apply pass (plan section 7); re-run extract:lt first. Docs markdown cannot go through merge: see the report, section 'Contradictions', for the replacement text of docs/code/bank02/game-systems.md and docs/code/bank00/event-flags.md.",
+  "sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm": {
+    "blockNote": [
+      "Hit-toggle blocker A on the Sky Garden southwest underside (scene $52).",
+      "",
+      "A solid prop (sprite frame $0F, $10 while in the hit state) whose HP is reset to $FF every frame, so it is never defeated. Each hit switches it between two states:",
+      "- hit state: StageBgChange #26 with ApplyBgChange, then flag words $0125 and $0126 are set;",
+      "- reset state: StageBgChange #90 (the undo block) with ApplyBgChange, then both flag words are cleared.",
+      "",
+      "Every frame the actor re-reads $0126: set selects the hit state, clear selects the reset state (a set $0126 at spawn starts it in the hit state). The actor reads only $0126. Both flags also act as event-block triggers through ApplyAllEventBlocks: $0125 applies block $25 in scene $51 (the top side) and $0126 applies block $26 in scene $52."
+    ]
+  },
+  "sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm": {
+    "blockNote": [
+      "Hit-toggle blocker B on the Sky Garden southwest underside (scene $52).",
+      "",
+      "A solid prop with HP $FF. Each hit alternates between two states, which exclude each other:",
+      "- state 1: StageBgChange #28 with ApplyBgChange, flag words $0127 and $0128 set, $0129 and $012A cleared;",
+      "- state 2: StageBgChange #2A with ApplyBgChange, $0129 and $012A set, $0127 and $0128 cleared.",
+      "",
+      "At spawn a set $0127 starts the actor so that the next hit moves it to state 2; a clear $0127 starts it so that the next hit moves it to state 1. Only $0127 is read by this actor. The four flags also act as event-block triggers through ApplyAllEventBlocks: $0127 and $0129 apply blocks $27 and $29 in scene $51 (the top side), $0128 and $012A apply blocks $28 and $2A in scene $52."
+    ]
+  },
+  "edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm": {
+    "blockNote": [
+      "Hittable prop of the aqueduct back area (scene $12): its first hit opens two event blocks.",
+      "",
+      "A sprite (frame $0F, $11 after the hit) with HP $FF and a hit callback. The first hit plays sound $0F on both channels, runs StageBgChange #14 and #15 with ApplyBgChange (event block $14 on the effect layer, event block $15 on the map layer) and sets flag words $0114 and $0115; later hits find $0114 set and change nothing. Every later load of scene $12 applies both blocks again through ApplyAllEventBlocks."
+    ]
+  },
+  "pyramid/pyramid_main/pyCC_dark_space_portal.asm": {
+    "blockNote": [
+      "Dark Space portal at the Pyramid main entrance (scene $CC).",
+      "",
+      "The actor word $0E (the spawn attribute shifted right once) is an event flag offset: the actor yields until flag $0100 + $0E is set, then spawns dark_space.DarkSpacePortalInit with config $2B00 and stores 3 in the child's $24 (1 when $0E is $72). Its only placement (scene_actors row $CC#06, attribute $E7) gives $0E = $73; that flag is set when the Mystic Ball at row $CC#05 is defeated (its death-action index is $73), so the portal appears after that kill."
+    ]
+  }
+}

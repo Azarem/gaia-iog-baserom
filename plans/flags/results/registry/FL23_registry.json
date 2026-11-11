@@ -1,0 +1,932 @@
+{
+  "_note": "FL23 fragment (Gold Ship and Freejia): scratch records keyed by scene (scene ids are decimal: $2A=42 ... $3C=60), persistent records for the 17 owned story flags, spine flags under proposals. Evidence is file:line plus the decimal ROM offset in braces (inventory offset). Not applied to db-us/flags.json.",
+  "flags": {
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [43] },
+          "name": "gs_wreck_fish_intro_ack",
+          "area": "gold_ship",
+          "summary": "The child actor of gs2B_erik has finished the Lance and Erik dialog and the camera shakes of the fish attack.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2B_erik leaves WaitOnFlagByte(#01, #01), waits #1D, prints the 'that fish again' dialog and sets scratch flag $02.",
+            "clear": "gs2B_erik keeps waiting; its child (code_05927E) is still running the opening dialog and the camera shakes."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_wreck/gs2B_erik.asm:115 {365223}",
+            "extracted/gold_ship/ship_wreck/gs2B_erik.asm:40 {364991}"
+          ],
+          "notes": "Producer: code_05927E (child spawned at abs (1D8,260) when $51 is set). Consumer: gs2B_erik main script. Pairs with scratch $02 of the same scene."
+        },
+        {
+          "scope": { "scenes": [45] },
+          "name": "gs_wreck_interior_mummy_talk_req",
+          "area": "gold_ship",
+          "summary": "Will has talked to the Queen's mummy; Lilly and Lance start their part of the ring cutscene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2D_lily leaves WaitOnFlagByte(#01, #01), is placed at tile (1D,0D) and walks; gs2D_lance leaves its wait and moves to tile (0F,0D); the mummy handler skips the joypad lock on later talks.",
+            "clear": "Lilly and Lance stay at their spawn tiles; the first talk with the mummy locks the joypad ($CFFC) and sets the flag."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_wreck_interior/gs2D_mummy.asm:31 {363320}",
+            "extracted/gold_ship/ship_wreck_interior/gs2D_mummy.asm:34 {363332}",
+            "extracted/gold_ship/ship_wreck_interior/gs2D_lily.asm:59 {363780}",
+            "extracted/gold_ship/ship_wreck_interior/gs2D_lance.asm:21 {364489}"
+          ],
+          "notes": "The flag is zeroed at every scene load, so the cutscene can run again on each visit of scene $2D."
+        },
+        {
+          "scope": { "scenes": [47] },
+          "level": "row",
+          "summary": "Adrift script (dc2F_adrift) trigger of the current day: day 0 Kara's first talk (dc2F_adrift:86), day 1 a fish was hit (:204), day 2 Kara's first talk (:305), day 3 a fish was hit (:373), day 5 Kara's first talk (:487), day 6 Kara's talk (:560); the main script waits on it (:109, :276, :373, :456, :532) or tests it (:66, :121, :303, :485).",
+          "evidence": [
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:86 {366441}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:204 {366746}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:305 {367024}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:487 {367672}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:560 {367847}"
+          ],
+          "queue": ["FL23-12"],
+          "notes": "The day is the word $0AA6 (SwitchCase index 0-6), not a flag. The scratch flags are zeroed at each reload of scene $2F, so every day starts clear."
+        },
+        {
+          "scope": { "scenes": [48] },
+          "name": "fr_oakton_dog_talk_req",
+          "area": "freejia",
+          "summary": "Will has talked to the dog (Turbo) in Oakton; the dog plays its animation.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dc30_dog leaves WaitOnFlagByte(#01, #01), plays its StageSpriteLoop (#48, #10) animation, then clears the flag and waits again.",
+            "clear": "dc30_dog waits."
+          },
+          "evidence": [
+            "extracted/freejia/oakton/dc30_dog.asm:20 {371322}",
+            "extracted/freejia/oakton/dc30_dog.asm:21 {371325}",
+            "extracted/freejia/oakton/dc30_dog.asm:30 {371341}"
+          ],
+          "notes": "Self-pulse inside one actor: the interact handler sets, the main script clears and waits. Dog name 'Turbo' from the dc30_kara dialog."
+        },
+        {
+          "scope": { "scenes": [49] },
+          "name": "fr_oakton_interior_rescuer_dialog_req",
+          "area": "freejia",
+          "summary": "The rescuer has printed his first line (scurvy, Vitamin C); Kara may walk in and speak.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dc31_kara leaves WaitOnFlagByte(#01, #01), walks in, prints the wake-up dialog and sets scratch flag $02.",
+            "clear": "dc31_kara waits (when $56 and $76 are clear)."
+          },
+          "evidence": [
+            "extracted/freejia/oakton_interior/dc31_rescuer.asm:41 {371620}",
+            "extracted/freejia/oakton_interior/dc31_kara.asm:24 {372632}"
+          ],
+          "notes": "Producer: dc31_rescuer. Consumer: dc31_kara. Pairs with scratch $02 of the same scene."
+        },
+        {
+          "scope": { "scenes": [50] },
+          "name": "fr_freejia_alley_guard_push_req",
+          "area": "freejia",
+          "summary": "Will talked to the alley guard while standing at or past the guard's X position; the guard steps aside and pushes Will west.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_alley_guard clears its solid mark, writes -5 to playerSpeedEw ($09B2), waits #1D and clears the flag.",
+            "clear": "fr32_alley_guard stays solid."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_alley_guard.asm:41 {374726}",
+            "extracted/freejia/freejia/fr32_alley_guard.asm:22 {374690}",
+            "extracted/freejia/freejia/fr32_alley_guard.asm:27 {374705}"
+          ],
+          "notes": "Self-pulse inside one actor (interact handler sets, main script waits and clears). The handler picks its line by comparing playerXPos with the guard's own X ($14), not by a story flag."
+        },
+        {
+          "scope": { "scenes": [57] },
+          "name": "fr_hotel_lily_greeting_req",
+          "area": "freejia",
+          "summary": "Lilly has greeted Will and Kara in the hotel and waits for Kara's reaction.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr39_kara leaves WaitOnFlagByte(#01, #01), walks to Lilly, sets persistent flag $58 and prints the reunion dialog.",
+            "clear": "fr39_kara waits; Lilly sets the flag only after her greeting dialog."
+          },
+          "evidence": [
+            "extracted/freejia/freejia_hotel/fr39_lily.asm:35 {378343}",
+            "extracted/freejia/freejia_hotel/fr39_kara.asm:27 {377970}"
+          ],
+          "notes": "Only runs while $65 and $58 are clear."
+        },
+        {
+          "scope": { "scenes": [60] },
+          "name": "fr_slave_market_guard_pass_req",
+          "area": "freejia",
+          "summary": "Will answered Yes to the slave market guard; the guard steps aside.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr3C_slaver leaves WaitOnFlagByte(#01, #01), clears its solid mark, moves and shows frame $1A.",
+            "clear": "The guard stays solid and prints the 'Go home' lines."
+          },
+          "evidence": [
+            "extracted/freejia/slave_market/fr3C_slaver.asm:47 {377228}",
+            "extracted/freejia/slave_market/fr3C_slaver.asm:17 {377181}"
+          ],
+          "notes": "Producer (talk handler) and consumer (main script) are the same actor; never cleared. Not a story flag, so a reload of the scene closes the guard again."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [43] },
+          "name": "gs_wreck_erik_dialog_req",
+          "area": "gold_ship",
+          "summary": "Erik has printed his 'that fish again' dialog; the child of gs2B_erik may finish the sequence.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The child (code_05927E) leaves its camera-shake loop, waits #63, makes Erik jump, clears flag $4D, writes 0 to $0AA6 and queues scene $2F.",
+            "clear": "The child keeps spawning camera_drift shakes at random."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_wreck/gs2B_erik.asm:43 {365002}",
+            "extracted/gold_ship/ship_wreck/gs2B_erik.asm:128 {365250}"
+          ],
+          "notes": "Producer: gs2B_erik main script. Consumer: its child. Pairs with scratch $01 of the same scene."
+        },
+        {
+          "scope": { "scenes": [45] },
+          "name": "gs_wreck_interior_mummy_dialog_ack",
+          "area": "gold_ship",
+          "summary": "The mummy's ring dialog has been printed; Lilly and Kara react.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2D_lily leaves WaitOnFlagByte(#02, #01), prints the ring dialog and runs the camera shakes; gs2D_kara switches to its second talk handler.",
+            "clear": "Lilly waits after her walk; Kara keeps her first talk handler."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_wreck_interior/gs2D_mummy.asm:39 {363339}",
+            "extracted/gold_ship/ship_wreck_interior/gs2D_lily.asm:77 {363835}",
+            "extracted/gold_ship/ship_wreck_interior/gs2D_kara.asm:16 {363532}"
+          ],
+          "notes": "The mummy sets it on every talk (the talk handler falls into the dialog code), so it stays set once the mummy was talked to."
+        },
+        {
+          "scope": { "scenes": [47] },
+          "level": "row",
+          "summary": "Adrift script second trigger of the current day: day 0 Kara's repeated talk (dc2F_adrift:92), day 2 the jar letter was read (:344), day 3 Kara's talk with full HP (:394), day 5 Kara's second talk (:493); the main script waits on it (:365, :465).",
+          "evidence": [
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:92 {366449}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:344 {367096}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:394 {367415}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:493 {367680}"
+          ],
+          "queue": ["FL23-12"],
+          "notes": "Scene $2F only; zeroed at each reload."
+        },
+        {
+          "scope": { "scenes": [49] },
+          "name": "fr_oakton_interior_kara_dialog_ack",
+          "area": "freejia",
+          "summary": "Kara has printed her wake-up dialog; the rescuer continues with his directions.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dc31_rescuer leaves WaitOnFlagByte(#02, #01), animates and prints the directions to Freejia, then sets persistent flag $76.",
+            "clear": "dc31_rescuer waits."
+          },
+          "evidence": [
+            "extracted/freejia/oakton_interior/dc31_kara.asm:48 {372708}",
+            "extracted/freejia/oakton_interior/dc31_rescuer.asm:42 {371623}"
+          ],
+          "notes": "Pairs with scratch $01 of the same scene."
+        },
+        {
+          "scope": { "scenes": [50] },
+          "name": "fr_freejia_arrival_kara_talk_req",
+          "area": "freejia",
+          "summary": "Kara has printed her first line about the city and waits for the guide to speak.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_guide leaves WaitOnFlagByte(#02, #01), walks to Will, prints the hotel offer and clears the flag.",
+            "clear": "fr32_kara (waiting with WaitOnFlagByte(#02, #00)) continues with 'Let's go!!' and sets $64 and scratch $03."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_kara.asm:28 {372859}",
+            "extracted/freejia/freejia/fr32_kara.asm:29 {372862}",
+            "extracted/freejia/freejia/fr32_guide.asm:21 {373167}",
+            "extracted/freejia/freejia/fr32_guide.asm:29 {373194}"
+          ],
+          "notes": "Request and acknowledge on one bit: Kara sets (request), the guide clears (acknowledge)."
+        },
+        {
+          "scope": { "scenes": [57] },
+          "name": "fr_hotel_lance_talk_req",
+          "area": "freejia",
+          "summary": "Will has talked to Lance (before his memory returns); Lilly continues her reunion script.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr39_lily leaves WaitOnFlagByte(#02, #01), walks to tile (0D,1C) and prints the 'Lance hit his head' dialog.",
+            "clear": "fr39_lily waits after her greeting."
+          },
+          "evidence": [
+            "extracted/freejia/freejia_hotel/fr39_lance.asm:56 {378861}",
+            "extracted/freejia/freejia_hotel/fr39_lily.asm:39 {378355}"
+          ],
+          "notes": "Lance sets it on a talk only while $68 is clear."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [47] },
+          "level": "row",
+          "summary": "Adrift script goal of the current day: day 0 Smoked Meat fed to the villagers (item_use_system UseItem_SmokedMeat, needs scratch $02 set), day 2 Kara's reply after the letter (dc2F_adrift:316), day 5 set by the script after the Day 18 dialog (:472) and tested by the shark children (:504, :514) to die; the main script waits on it (:55, :288).",
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:811 {232828}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:55 {366380}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:288 {366976}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:316 {367037}",
+            "extracted/gold_ship/adrift/dc2F_adrift.asm:472 {367627}"
+          ],
+          "queue": ["FL23-12"],
+          "notes": "Resolves the lead 'who sets $03 on day 0': UseItem_SmokedMeat (scene $2F, $02 set) is the setter, so the inventory's system site for $03 belongs to this scene."
+        },
+        {
+          "scope": { "scenes": [50] },
+          "name": "fr_freejia_arrival_walk_req",
+          "area": "freejia",
+          "summary": "Kara has finished the arrival dialog ('Let's go!!'); the guide walks to the hotel door.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_guide leaves WaitOnFlagByte(#03, #01) and walks the route to the hotel door.",
+            "clear": "fr32_guide stands where it finished its dialog."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_kara.asm:35 {372881}",
+            "extracted/freejia/freejia/fr32_guide.asm:30 {373197}"
+          ],
+          "notes": "Producer: fr32_kara (together with $64)."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [50] },
+          "name": "fr_freejia_hotel_door_talk_req",
+          "area": "freejia",
+          "summary": "Will has talked to Kara at the hotel door ('This is the hotel! Let's go in!').",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_kara leaves WaitOnFlagByte(#04, #01), locks the joypad ($CFFC), walks to the door and sets scratch $05 and $57.",
+            "clear": "fr32_kara stands at tile (27,25) with its talk handler."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_kara.asm:80 {372988}",
+            "extracted/freejia/freejia/fr32_kara.asm:56 {372935}"
+          ],
+          "notes": "Producer (talk handler) and consumer (main script) are the same actor; never cleared. Only runs when $64 is set and $65 and $57 are clear."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [50] },
+          "name": "fr_freejia_hotel_door_open_req",
+          "area": "freejia",
+          "summary": "Kara has reached the hotel door; the door actor opens.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The door child of fr32_guide (code_05B315) leaves WaitOnFlagByte(#05, #01), plays sound #0E, clears its solid mark and dies.",
+            "clear": "The door child stays closed and solid."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_kara.asm:65 {372961}",
+            "extracted/freejia/freejia/fr32_guide.asm:84 {373537}"
+          ],
+          "notes": "Producer: fr32_kara. Consumer: the door child spawned at abs (278,230)."
+        }
+      ]
+    },
+    "14": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [42] },
+          "name": "gs_dream_shira_talk_req",
+          "area": "gold_ship",
+          "summary": "Will has started talking to Shira in the dream; the zoom effect begins.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dream_zoom_controller leaves WaitOnFlagByte(#0E, #01), writes the HDMA scroll registers ($00F6/$00FA) from the camera position, starts $00FE at $00A0 and lowers it by 2 per frame until below $0040, then dies.",
+            "clear": "dream_zoom_controller waits; the HDMA values keep their spawn values ($0040/$0040/$0120 from gs2A_shira)."
+          },
+          "evidence": [
+            "extracted/gold_ship/dream/gs2A_shira.asm:44 {365700}",
+            "extracted/gold_ship/dream/dream_zoom_controller.asm:18 {49581}"
+          ],
+          "notes": "The setter is the first instruction of the talk handler, before the dialog, so the zoom runs during the dialog."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [50] },
+          "name": "fr_freejia_showman_talk_req",
+          "area": "freejia",
+          "summary": "Will has talked to the showman in Freejia; he performs his show and leaves.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_showman leaves WaitOnFlagByte(#0F, #01), locks the joypad ($CFFC), plays its animation with a child actor (code_05BDEB), walks off, unlocks the joypad and dies.",
+            "clear": "fr32_showman stays a solid talk NPC."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_showman.asm:40 {376250}",
+            "extracted/freejia/freejia/fr32_showman.asm:20 {376196}"
+          ],
+          "notes": "Producer (talk handler) and consumer (main script) are the same actor; never cleared, and the showman is gone for the rest of the visit. Index reuse: the same index means a different handshake in scene $39."
+        },
+        {
+          "scope": { "scenes": [57] },
+          "name": "fr_hotel_memory_melody_played_req",
+          "area": "freejia",
+          "summary": "Will finished playing the Memory Melody in front of Lance; Lance's memory returns.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr39_lance leaves WaitOnFlagByte(#0F, #01), locks the joypad ($CFFC), spawns the sparkle child (code_05CD16, which runs while the flag is set), prints the 'What is this place?' dialog and clears the flag.",
+            "clear": "Lance stays a solid NPC with his talk handler; the sparkle child dies."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:931 {233336}",
+            "extracted/freejia/freejia_hotel/fr39_lance.asm:22 {378759}",
+            "extracted/freejia/freejia_hotel/fr39_lance.asm:30 {378789}",
+            "extracted/freejia/freejia_hotel/fr39_lance.asm:83 {380200}"
+          ],
+          "notes": "Producer: UseItem_MemoryMelody_Effect (melody index 2 of the flute effect table, dispatched by FluteMusicActorController after the music ends; requires scene $39, Will's form and $68 clear). Consumer: fr39_lance. Resolves the lead 'who sets $0F in scene $39'."
+        }
+      ]
+    },
+    "78": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gs_queen_welcome_done",
+          "area": "gold_ship",
+          "summary": "Will has talked to the Inca Queen on the freed Gold Ship (scene $2E) and heard her welcome.",
+          "kinds": ["once-latch", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2E_queen prints the short repeat line; gs2E_sleep leaves WaitOnFlagByte(#4E, #01) (it also needs $4F), and its talk handler can reach the 'try to get some rest' line only when $4F and $F8 are set too; gs2C_crew5 shifts +$20 in X when $F8 is also set.",
+            "clear": "gs2E_queen prints the long welcome and sets the flag; gs2E_sleep keeps waiting and its talk handler prints the 'Looking around the ship?' line; gs2C_crew5 stays at its spawn."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_gold_interior/gs2E_queen.asm:38 {363047}",
+            "extracted/gold_ship/ship_gold_interior/gs2E_queen.asm:36 {363037}",
+            "extracted/gold_ship/ship_gold_interior/gs2E_sleep.asm:26 {362037}",
+            "extracted/gold_ship/ship_gold_interior/gs2E_sleep.asm:74 {362158}",
+            "extracted/gold_ship/ship_gold/gs2C_crew5.asm:16 {361417}"
+          ],
+          "notes": "No clear site anywhere in the extracted tree (searched: all .asm under extracted/ for ClearFlagByte #4E and the index 78 in the inventory)."
+        }
+      ]
+    },
+    "79": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gs_crows_nest_guard_talked",
+          "area": "gold_ship",
+          "summary": "Will has talked to the Crow's Nest guard; the ship has left the cave into the sunlight.",
+          "kinds": ["cutscene-stage", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2C_crow_crew runs its brightness sequence once (joypad lock, StartMusic #03, TM/CGADSUB/COLDATA writes, backdrop fade, guard dialog) and on later loads only sets musicRoomGroup to 2 and idles; its helper child (code_05857A) and the queen's helper child (code_058B07) die; gs2E_queen becomes a talk NPC at +8; gs2E_sleep leaves WaitOnFlagByte(#4F, #01).",
+            "clear": "gs2C_crow_crew waits for $4C, spawns its helper child (writes TM, CGADSUB and COLDATA every frame) and its talk handler sets the flag; gs2E_queen spawns its helper child and has no talk handler."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_gold/gs2C_crow_crew.asm:79 {361651}",
+            "extracted/gold_ship/ship_gold/gs2C_crow_crew.asm:30 {361519}",
+            "extracted/gold_ship/ship_gold/gs2C_crow_crew.asm:35 {361541}",
+            "extracted/gold_ship/ship_gold_interior/gs2E_queen.asm:18 {363010}",
+            "extracted/gold_ship/ship_gold_interior/gs2E_sleep.asm:27 {362041}"
+          ],
+          "notes": "Name from the guard's dialog ('The ship is coming out of the cave'); the dialog says 'brightness', not storm. No clear site found (same search as $4E)."
+        }
+      ]
+    },
+    "80": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gs_wreck_interior_wakeup_done",
+          "area": "gold_ship",
+          "summary": "Lilly has woken Will in the wrecked ship interior (scene $2D).",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2D_lily skips the wake-up and runs its ring-cutscene script (code_058CFF) directly: no joypad lock, no pose hold, no 'Will! Wake up!'.",
+            "clear": "gs2D_lily sets the flag, locks the joypad ($CFFC), holds Will in PlayerPoseHold, prints 'Will! Wake up!' and returns Will to PlayerIdleEntry, then falls into code_058CFF."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_wreck_interior/gs2D_lily.asm:26 {363691}",
+            "extracted/gold_ship/ship_wreck_interior/gs2D_lily.asm:27 {363697}"
+          ],
+          "notes": "The latch is set before the dialog is printed, so leaving the scene during the wake-up still consumes it."
+        }
+      ]
+    },
+    "81": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gs_wreck_seth_cry_heard",
+          "area": "gold_ship",
+          "summary": "Will heard Seth's scream in the wrecked ship interior; the fish attack on the deck (scene $2B) is next.",
+          "kinds": ["cutscene-stage", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2B_erik spawns its sequence child, waits for scratch $01, runs the fish-attack dialog and camera shakes and ends by queuing scene $2F; gs2B_seth dies on load.",
+            "clear": "gs2B_erik and gs2B_seth are solid talk NPCs; Seth gives a Red Jewel once (flag $E0)."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_wreck_interior/gs2D_lance.asm:43 {364549}",
+            "extracted/gold_ship/ship_wreck/gs2B_erik.asm:27 {364956}",
+            "extracted/gold_ship/ship_wreck/gs2B_seth.asm:18 {366145}"
+          ],
+          "notes": "Name from the dialog set just before ('Wa-a-a-a-ah!!!! ... That's Seth! It's coming from the deck!'). Because scene $2D has a warp to $2B, the player can reach the deck with the flag still clear. The flag is not tested in scene $2D."
+        }
+      ]
+    },
+    "83": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_freejia_herb_taken",
+          "area": "freejia",
+          "summary": "The Herb of Freejia (scene $32) has been picked up.",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "All three fr32_herb placements return without text or item.",
+            "clear": "A herb placement gives item $06 and, only if the inventory had room, sets the flag and prints 'You found the herbs!'; with a full inventory it prints the full message and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_herb.asm:24 {380721}",
+            "extracted/freejia/freejia/fr32_herb.asm:26 {380732}"
+          ],
+          "queue": ["FL23-11"],
+          "notes": "Three placements (scene_actors records $11-$13 of scene $32, spawn attribute $00) share this one flag and the actor code reads no spawn parameter, so only one herb can be collected. Runtime check queued because three placements suggest three items."
+        }
+      ]
+    },
+    "84": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_freejia_hp_jewel_taken",
+          "area": "freejia",
+          "summary": "The HP jewel of Freejia (scene $32) has been picked up.",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "All three fr32_hp_jewel placements return without text or effect.",
+            "clear": "A placement sets the flag, prints 'You found the HP jewel!' and adds 1 to playerMaxHp ($0ACA)."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_hp_jewel.asm:25 {380822}",
+            "extracted/freejia/freejia/fr32_hp_jewel.asm:26 {380828}",
+            "extracted/freejia/freejia/fr32_hp_jewel.asm:28 {380835}"
+          ],
+          "queue": ["FL23-11"],
+          "notes": "Same pattern as $53: three placements (records $14-$16 of scene $32, attribute $00), one flag. The flag is set before the maximum HP increment and there is no inventory check."
+        }
+      ]
+    },
+    "86": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_oakton_departure_agreed",
+          "area": "freejia",
+          "summary": "Kara said 'let's go to Freejia' in the Oakton house; she now waits outside next to the dog.",
+          "kinds": ["cutscene-stage", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dc31_kara (scene $31) dies on load and dc31_rescuer skips its cutscene; dc30_kara (scene $30) stays and her talk queues scene $32 after a world-map move.",
+            "clear": "dc30_kara dies on load; in scene $31 Kara's talk handler sets the flag and her script walks out of the room."
+          },
+          "evidence": [
+            "extracted/freejia/oakton_interior/dc31_kara.asm:78 {372762}",
+            "extracted/freejia/oakton_interior/dc31_kara.asm:21 {372616}",
+            "extracted/freejia/oakton_interior/dc31_kara.asm:51 {372711}",
+            "extracted/freejia/oakton_interior/dc31_rescuer.asm:22 {371557}",
+            "extracted/freejia/oakton/dc30_kara.asm:16 {371361}"
+          ],
+          "notes": "Setter and the script that waits for it (dc31_kara:51) are the same actor."
+        }
+      ]
+    },
+    "87": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_freejia_hotel_guide_done",
+          "area": "freejia",
+          "summary": "The hotel guide has taken Will and Kara to the Freejia hotel door and Kara went in.",
+          "kinds": ["cutscene-stage", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_kara dies on load; fr32_guide stands at tile (29,24) with the 'Business is terrible' line and spawns town_door.TownDoorInit.",
+            "clear": "fr32_kara and fr32_guide run the arrival and hotel-door sequence (gated by $64)."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_kara.asm:69 {372973}",
+            "extracted/freejia/freejia/fr32_kara.asm:19 {372825}",
+            "extracted/freejia/freejia/fr32_guide.asm:18 {373144}",
+            "extracted/freejia/eriks_captivity/fr33_erik.asm:39 {380329}"
+          ],
+          "notes": "Also set by fr33_erik (the rescue sets $57, $58, $64 and $65 together) so the arrival scripts stay off after the rescue."
+        }
+      ]
+    },
+    "88": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_hotel_reunion_done",
+          "area": "freejia",
+          "summary": "Kara and Lilly have met in the Freejia hotel.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr39_kara and fr39_lily skip the reunion: they take their final tiles (Kara (14,1A), Lilly (16,1C)) with their talk handlers.",
+            "clear": "fr39_lily locks the joypad ($CFFC) and runs the greeting; fr39_kara waits for scratch $01, then sets the flag."
+          },
+          "evidence": [
+            "extracted/freejia/freejia_hotel/fr39_kara.asm:32 {377985}",
+            "extracted/freejia/freejia_hotel/fr39_kara.asm:21 {377951}",
+            "extracted/freejia/freejia_hotel/fr39_lily.asm:22 {378300}",
+            "extracted/freejia/eriks_captivity/fr33_erik.asm:40 {380332}"
+          ],
+          "notes": "Set early in fr39_kara's sequence (before her dialog), so quitting during the cutscene still consumes it."
+        }
+      ]
+    },
+    "89": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_harborer_woman_talked",
+          "area": "freejia",
+          "summary": "Will talked to the woman who hides the escaped laborer (scene $3A) and so knows where he hides.",
+          "kinds": ["quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_slaver2's 'Tell location' answer gives a Red Jewel (item $01) and sets $5A.",
+            "clear": "fr32_slaver2 prints the 'doesn't know where the laborer is' line for both answers."
+          },
+          "evidence": [
+            "extracted/freejia/harborer_house/fr3A_sympathetic.asm:30 {377643}",
+            "extracted/freejia/freejia/fr32_slaver2.asm:72 {374954}"
+          ],
+          "notes": "Name from the dialog ('Please! Don't tell!'). No clear site found."
+        }
+      ]
+    },
+    "90": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_slaver_told_hideout",
+          "area": "freejia",
+          "summary": "Will told the slave traders where the escaped laborer hides and received a Red Jewel.",
+          "kinds": ["quest-done", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_slaver1 and fr32_slaver2 stop waiting, clear their solid marks and walk off (slaver2 releases the joypad lock $EFFC afterwards); on later loads both slavers, fr3A_harborer and fr3A_sympathetic die.",
+            "clear": "The slavers are solid talk NPCs; the harborer and the woman are talk NPCs in scene $3A."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_slaver2.asm:80 {374974}",
+            "extracted/freejia/freejia/fr32_slaver1.asm:14 {374809}",
+            "extracted/freejia/freejia/fr32_slaver2.asm:18 {374869}",
+            "extracted/freejia/harborer_house/fr3A_harborer.asm:14 {375897}",
+            "extracted/freejia/harborer_house/fr3A_sympathetic.asm:14 {377617}"
+          ],
+          "notes": "The flag is set only after GiveItem succeeded (a full inventory prints 'Is your inventory full? Too bad...' and leaves it clear). The joypad is locked ($EFFC) in the same handler. Name from dialog and effects."
+        }
+      ]
+    },
+    "100": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_freejia_arrival_intro_done",
+          "area": "freejia",
+          "summary": "Kara's and the guide's arrival dialog in Freejia (scene $32) has been played.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_kara waits at tile (27,25) with 'This is the hotel!' as its talk handler; fr32_guide stands at tile (28,25) with 'Well, come in.'.",
+            "clear": "fr32_kara locks the joypad ($CFFC) and runs the arrival sequence; fr32_guide waits for scratch $02."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_kara.asm:34 {372878}",
+            "extracted/freejia/freejia/fr32_kara.asm:20 {372831}",
+            "extracted/freejia/freejia/fr32_guide.asm:20 {373161}",
+            "extracted/freejia/eriks_captivity/fr33_erik.asm:41 {380335}"
+          ],
+          "notes": "Set after Kara's second line and before she walks off, so re-entering the scene during her walk skips to the door state."
+        }
+      ]
+    },
+    "102": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_sam_erik_location_heard",
+          "area": "freejia",
+          "summary": "Sam in the slave market told Will that Erik is held in a house on a back street corner.",
+          "kinds": ["quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The door voice's talk handler (fr32_kidnapper door child) prints the 'Is a man called Erik there?' dialog and sets $67.",
+            "clear": "The door voice only prints its 'go home' warning."
+          },
+          "evidence": [
+            "extracted/freejia/slave_market/fr3C_sam.asm:30 {376976}",
+            "extracted/freejia/freejia/fr32_kidnapper.asm:88 {373771}"
+          ],
+          "notes": "Sam is only present while $6A is clear (fr3C_sam:14)."
+        }
+      ]
+    },
+    "103": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_kidnapper_door_confronted",
+          "area": "freejia",
+          "summary": "Will asked the voice behind the cell door in Freejia about Erik; the door actor turns hostile (INFERRED: a breakable door).",
+          "kinds": ["cutscene-stage", "gate-open"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "The first-phase fr32_kidnapper actor dies before marking tile (04,0D) solid; the door child at abs (48,E0) leaves WaitOnFlagByte(#67, #01), copies palette data, sets joypad mask bit $2000, calls EnemyInitBasic and sets its HP to 5; the talk handler also marks the tiles (08,0E)-(08,11) solid.",
+            "clear": "The first-phase actor marks tile (04,0D) solid; the door child only prints the warning, or with $66 set the Erik question."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_kidnapper.asm:95 {373786}",
+            "extracted/freejia/freejia/fr32_kidnapper.asm:22 {373617}",
+            "extracted/freejia/freejia/fr32_kidnapper.asm:52 {373692}"
+          ],
+          "queue": ["FL23-10"],
+          "notes": "Mechanics are read in full; 'breakable door' is inferred from the HP 5 enemy init, the door sprite (frame $01 of spriteset_npc_props, same as fr32_locked_door) and Erik's later line 'I didn't think you could break down the door!' (fr33_erik). What a hit does is the common enemy code, not read here. Name from dialog."
+        }
+      ]
+    },
+    "118": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_oakton_rescuer_briefing_done",
+          "area": "freejia",
+          "summary": "The Oakton rescuer has told Will and Kara that Freejia lies to the north.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "dc31_rescuer skips its cutscene; dc31_kara takes tile (07,09) and waits there for $56.",
+            "clear": "dc31_rescuer locks the joypad ($CFFC), holds Will in PlayerPoseHold, starts music $1B and prints the scurvy dialog; dc31_kara waits for scratch $01."
+          },
+          "evidence": [
+            "extracted/freejia/oakton_interior/dc31_rescuer.asm:46 {371637}",
+            "extracted/freejia/oakton_interior/dc31_rescuer.asm:23 {371563}",
+            "extracted/freejia/oakton_interior/dc31_kara.asm:23 {372626}"
+          ],
+          "notes": "Set after the directions dialog (the joypad lock is released right after)."
+        }
+      ]
+    },
+    "224": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gs_seth_red_jewel_given",
+          "area": "gold_ship",
+          "summary": "Seth has given Will the Red Jewel on the wrecked Gold Ship deck (scene $2B).",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gs2B_seth prints 'It's the first time I've ever given you anything.'",
+            "clear": "gs2B_seth prints the jewel line, calls GiveItem #01 and sets the flag only when the item was added (a full inventory jumps to hidden_red_jewel.HiddenRedJewelInventoryFull and the flag stays clear)."
+          },
+          "evidence": [
+            "extracted/gold_ship/ship_wreck/gs2B_seth.asm:34 {366177}",
+            "extracted/gold_ship/ship_wreck/gs2B_seth.asm:31 {366162}"
+          ],
+          "notes": "Only reachable while $51 is clear (Seth dies on $51)."
+        }
+      ]
+    },
+    "225": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_creep_red_jewel_given",
+          "area": "freejia",
+          "summary": "The old man in Freejia (fr32_creep) has given Will a Red Jewel.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fr32_creep prints 'Ha ha ha.' only.",
+            "clear": "fr32_creep prints the gift dialog, calls GiveItem #01 and sets the flag only when the item was added (full inventory: HiddenRedJewelInventoryFull, flag stays clear)."
+          },
+          "evidence": [
+            "extracted/freejia/freejia/fr32_creep.asm:28 {374491}",
+            "extracted/freejia/freejia/fr32_creep.asm:25 {374476}"
+          ],
+          "notes": "Name from the dialog ('This is a gift')."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "76": [
+      {
+        "source": "FL23",
+        "name": "gs_ship_descent_done",
+        "summary": "The Gold Ship departure cutscene (scene $2C) has finished; Erik, Lance and Seth have boarded in South Cape and Will's house uses the shared interior art.",
+        "kinds": ["cutscene-stage", "once-latch"],
+        "roles": [
+          "setter: gs2C_descent.asm:69 {360944}, after the backdrop fade and before the 'Incan Gold Ship?!' dialog",
+          "test: gs2C_descent.asm:26 {360828} (dies when set)",
+          "wait: gs2C_crow_crew.asm:31 {361525} (spawns its helper child only once set)",
+          "test: south_cape sc02_erik / sc02_lance / sc02_seth (Die when set; sc02_erik.asm:16 {309428}, sc02_lance.asm:18 {307301})",
+          "scene_meta $13 gate for scene $06: tables/scene_meta.asm:387 (set selects meta_label_01, the shared interior art of scene $03)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL10 proposal gs_ship_descent_done. Never cleared by a COP site."
+      }
+    ],
+    "77": [
+      {
+        "source": "FL23",
+        "name": "gs_wreck_palette_alt_set",
+        "summary": "The wreck palette thinker uses its alternate phase (bundle #34 once, then the #33 loop) while this flag is set.",
+        "kinds": ["cutscene-stage"],
+        "roles": [
+          "setter: gs2E_sleep.asm:62 {362126}, dc2F_adrift.asm:131 {366548} (end of day 1), dc2F_adrift.asm:475 {367637} (end of day 5)",
+          "clearer: gs2B_erik.asm:145 {365283} (before queuing scene $2F), dc2F_adrift.asm:322 {367045} (end of day 2)",
+          "test: thinkers/gold_ship_wreck_palette.asm (spawn-time test, offset 46713); the thinker runs in scenes $2B-$2F"
+        ],
+        "confidence": "medium",
+        "notes": "What the phase means in story terms (night, hunger) is not decoded; the name states only what the flag changes. Not cleared after day 5 (no clear site)."
+      }
+    ],
+    "82": [
+      {
+        "source": "FL23",
+        "name": "gs_adrift_final_palette_set",
+        "summary": "The wreck palette thinker uses its final phase (scanline thinkers killed, palette 2 flattened to dark blue) while this flag is set.",
+        "kinds": ["cutscene-stage"],
+        "roles": [
+          "setter: dc2F_adrift.asm:377 {367375} (end of day 3), together with word flag $0120",
+          "clearer: dc2F_adrift.asm:428 {367501} (end of day 4), together with word flag $0120",
+          "test: thinkers/gold_ship_wreck_palette.asm (spawn-time test before the $4D test)"
+        ],
+        "confidence": "medium",
+        "notes": "Only the one scene visit between set and clear (the reload after day 3) shows the phase."
+      }
+    ],
+    "101": [
+      {
+        "source": "FL23",
+        "name": "fr_erik_rescued_done",
+        "summary": "Erik has been freed from the cell in Freejia (scene $33) and the world map offers Diamond Mine from Freejia.",
+        "kinds": ["quest-done", "gate-open"],
+        "roles": [
+          "setter: fr33_erik.asm:42 {380338}, with $57, $58 and $64 and the word $0AA6 = 7",
+          "wait: fr33_erik.asm:20 {380291} (Erik walks away after it), test fr33_erik.asm:17 {380279} (dies when set)",
+          "tests: fr32_kara.asm:18 {372819} (dies), fr39_kara.asm:20 {377945}, fr39_lily.asm:21 {378294} and :77 {378431}, fr39_erik.asm:17 {379699} (Erik only exists in the hotel when set)",
+          "gate: actors/overworld_exit.asm:272 {52097} (scene $32 exit shows the Diamond Mine choice when set)"
+        ],
+        "confidence": "high",
+        "notes": "Setter and the world-map gate are in different groups (freejia, actors)."
+      }
+    ],
+    "104": [
+      {
+        "source": "FL23",
+        "name": "fr_hotel_lance_memory_restored",
+        "summary": "Lance's memory has returned in the Freejia hotel after the Memory Melody.",
+        "kinds": ["quest-done", "cutscene-stage"],
+        "roles": [
+          "setter: fr39_lance.asm:46 {378843}, after the memory-return dialog",
+          "tests (dialog changes): fr39_lance.asm:55 {378855}, fr39_kara.asm:61 {378045}, fr39_lily.asm:76 {378425}, fr39_erik.asm:35 {379723} (set sends Erik's talk to the 'inventor in the woods' line and queues scene $49)",
+          "gate: system/inventory/item_use_system.asm:900 {233259} (UseItem_MemoryMelody fails with the 'nothing happened' line when set)"
+        ],
+        "confidence": "high",
+        "notes": "Setter, melody gate and dialogs are in different groups (freejia, system)."
+      }
+    ],
+    "106": [
+      {
+        "source": "FL23",
+        "name": "dm_mine_entrance_intro_done",
+        "summary": "Will's Diamond Mine entrance monologue has played; the laborers Imas and Sam have left the Freejia slave market.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter and latch: diamond_mine/mine_entrance/dm3E_intro.asm:33 {391610} (test) and :34 {391616} (set), scene $3E only (scene $4C uses $6B)",
+          "tests in scope: fr3C_imas.asm:15 {376553} (dies), fr3C_sam.asm:14 {376950} (dies), fr3C_remus.asm:15 {376749} (switches to a different pose and the line 'How can things like this happen?')"
+        ],
+        "confidence": "medium",
+        "notes": "Whether the laborers are in the mine afterwards is not read here. Never cleared."
+      }
+    ],
+    "248": [
+      {
+        "source": "FL23",
+        "name": "gs_mystic_statue_ceremony_done",
+        "summary": "The Gold Ship Mystic Statue has been delivered to the Queen's crew (statue ceremony of scene $FD done).",
+        "kinds": ["quest-done", "reward-claimed"],
+        "roles": [
+          "trigger: gs2E_crew2.asm:21 {362736} (BranchIfHasItem #38), :32 RemoveItem, :35-:46 writes $0AAC = 0, $0B12 = $2E and queues scene $FD",
+          "setter: system/statue_inventory/statue_inventory_reward.asm (SetFlagRaw of statue_reward_table row 0, index $F8)",
+          "tests in scope: gs2E_sleep.asm:32 {362056} and :76 {362170} (bed trigger and talk line), gs2C_crew5.asm:17 {361423} (placement)"
+        ],
+        "confidence": "high",
+        "notes": "No literal SetFlagByte #F8 exists; the setter is the table-driven ceremony. Item $38 is the Mystic Statue (chest flag $0208 in scene $2E, FL12)."
+      }
+    ],
+    "255": [
+      {
+        "source": "FL23",
+        "name": "sys_scene_setup_done",
+        "summary": "Scene-setup latch: palette thinkers set it and wait until the engine clears it (next scene setup or inventory use).",
+        "kinds": ["engine", "idiom"],
+        "roles": [
+          "set and wait: gold_ship/dream/dream_palette_loop.asm:16 {46809} and :17 {46812} (WaitOnFlagByte(#FF, #00), then BRA back to PaletteStart #35; the KillThinker after the BRA is unreachable)",
+          "also read by thinkers/gold_ship_wreck_palette.asm (latch loops of the $4D and $52 phases)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL10 proposal sys_scene_setup_done."
+      }
+    ],
+    "389": [
+      {
+        "source": "FL23",
+        "name": "gs_ship_departure_started",
+        "summary": "The Gold Ship departure sequence (scene $2C) has started.",
+        "kinds": ["cutscene-stage", "gate-open"],
+        "roles": [
+          "setter: gs2C_descent.asm:29 {360840} (SetFlagWord #$0185, before $4C and the display setup, while the joypad is locked)",
+          "reader: event block $85 of scene $1E (FL11, FL11-14); no COP test of the flag exists"
+        ],
+        "confidence": "low",
+        "notes": "Agrees with FL11's proposal; the tile that changes in scene $1E is not decoded here either."
+      }
+    ]
+  }
+}

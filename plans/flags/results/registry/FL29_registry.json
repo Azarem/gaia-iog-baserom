@@ -1,0 +1,1239 @@
+{
+  "_note": "FL29 registry fragment: pyramid, babel_tower, ending, unused. Scratch flags are keyed by scene; spine flags ($BB $D0 $D2 $FF and the crystal gates $0175-$0178) are proposals only (FL31 writes the record). The flags >= $0100 of the FL11 / FL15 records ($0170 $0171 $0173 $0504) are verified and cross-referenced in _crossref so that every inventory site of the scope is cited. $0179 is recorded here in full (its setter is in this scope). $FC and $FD are recorded in full: the setter is the table-driven statue ceremony (statue_reward_table rows 4 and 5), the same pattern as $F9 of FL24.",
+  "_crossref": [
+    "$0170 py_meltdown_a_ledge_opened and $0171 py_meltdown_b_ledge_opened (FL11) verified: extracted/pyramid/pyD0_ledge_jump_trigger.asm:31 {570784} tests $0171, :35 {570793} tests $0170, :114 {570926} sets $0170, :121 {570937} sets $0171; the actor dies when its own flag word is set; placements tables/scene_actors.asm:4147 (scene $D0, parameter #01) and :4161 (scene $D1, parameter #03). The shipped block note of the file already states the corrected behavior (no breakable wall).",
+    "$0173 py_main_dark_space_open (FL11) verified: extracted/pyramid/pyramid_main/pyCC_dark_space_portal.asm:17 {570989} and :21 {570999} call TestFlag_0100 with $0E = #73 (placement tables/scene_actors.asm:4086, spawn byte #E7, #E7 >> 1 = $73); the setter is the Mystic Ball with death-action #73 (tables/scene_actors.asm:4085, scene $CC row ;05) through extracted/pyramid/pyCC_mystic_ball.asm:248 {771956} TestFlag_0100 and :251 {771966} SetFlag_0100. Searched tables/scene_actors.asm for a non-zero death-action of pyCC_mystic_ball in scenes $CC-$DB: this row is the only one.",
+    "$0504 py_mummy_queen_reward_claimed (FL15) verified: extracted/pyramid/mummy_queen_lair/pyDD_mummy_queen.asm:123 {763580} TestWramFlag_Offset100 with A = #$0004 (flag $0504); when set the actor zeroes the kill counters and dies. The setter is the boss reward handler of scene $DD (FL15).",
+    "Dynamic indices. falling_orb_flags: pyD4_falling_orb ($0E word + $80): placements tables/scene_actors.asm:4237-4244 give #E5 (four rows, flag $F2) and #E7 (four rows, flag $F3); both indices are recorded below. dark_space_portal_death_flags: $0173, see above. pyD0 stale name: see $0170 / $0171 above.",
+    "Items and direct accesses of the scope (no flag index): extracted/pyramid/puzzle_room/pyCD_explorer.asm BranchIfHasItem {573999} {574004} {574009} {574014} {574019} {574024} (items $1E-$23 are the six hieroglyph stones); extracted/pyramid/heiroglyph_room/pyDA_lithograph1.asm to pyDA_lithograph6.asm GiveItem (items $1E-$23); extracted/babel_tower/babel_lower_floors/btDF_crystal_ring.asm BranchIfItemEquipped {629147}, BranchIfHasItem {629162}, GiveItem {629335} (item $27, the Crystal Ring)."
+  ],
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [225] },
+          "name": "bt_light_elevator_player_pose_cue",
+          "area": "babel_tower",
+          "summary": "Set by the light elevator actor of scene $E1 239 ticks after the player steps into the elevator tiles; the only readers are the idle, ladder and shimmy-detach branches of player_character, which stage the pose group #10-#13 instead of #00-#03 while it is set.",
+          "kinds": ["cutscene-stage", "pose-switch"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character stages sprite group #10-#13 for the idle poses (and the ladder / shimmy variants) instead of #00-#03.",
+            "clear": "Normal pose group."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_light_elevator/btE1_light_elevator.asm:32 {628139}",
+            "extracted/actors/player/player_character.asm:232 {181375}",
+            "extracted/actors/player/player_character.asm:243 {181391}"
+          ],
+          "notes": "The eight player_character branches (idle S/N/W/E, ladder idle S/N, shimmy detach R/L) are the only readers that can run in scene $E1 (fl_scope scene 225); FL30 owns the player side. The elevator locks the joypad ($CFFC) before the wait, so the player stands in its idle pose during the ride; whether the pose switch is visible is the runtime item."
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_melody_played_cue",
+          "area": "pyramid",
+          "summary": "Lola's Melody was played in the Pyramid puzzle room: both flame statues leave their wait.",
+          "kinds": ["handshake", "cue"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCD_flame_statue (left) and pyCD_flame_statue2 (right) wait 29 / 89 ticks, shoot their flame children and the left one sets scratch $03.",
+            "clear": "The statues stay in their idle frame."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_flame_statue.asm:26 {571233}",
+            "extracted/pyramid/puzzle_room/pyCD_flame_statue.asm:54 {571307}",
+            "extracted/system/inventory/item_use_system.asm:781 {232552}"
+          ],
+          "notes": "Producer: the Lola's Melody effect of item_use_system (code_038C68, scene $CD branch), which also clears scratch $0E. Consumers: the two statue actors. The other SetFlagByte #01 sites of item_use_system ({231958} {234433} {235734} {235760}) belong to other items."
+        },
+        {
+          "scope": { "scenes": [220] },
+          "name": "bt_flight_farewell_done",
+          "area": "babel_tower",
+          "summary": "The farewell dialog of the airship scene (Neil, Erik, Kara) has been printed; the plane actor leaves its loop and flies on.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btDC_plane_jumping stops staging frame #06 and runs the approach (flight loop, 199 ticks, the second child, 279 ticks, scene $DE).",
+            "clear": "The plane actor keeps staging frame #06 every frame."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_flight/btDC_plane_jumping.asm:50 {622998}",
+            "extracted/babel_tower/babel_flight/btDC_plane_jumping.asm:75 {623081}"
+          ],
+          "notes": "Producer: the child code_0981E5 (spawned after the first flight loop) prints the long dialog and sets the byte before it dies. Consumer: btDC_plane_jumping. Name from the dialog."
+        },
+        {
+          "scope": { "scenes": [221, 246] },
+          "name": "py_queen_teleport_active",
+          "area": "pyramid",
+          "summary": "A teleporter pad of the Mummy Queen lair is running its teleport; the neo queen watcher of scene $F6 waits for it to clear before it transforms the player.",
+          "kinds": ["handshake", "busy-interlock"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The watcher (code_0BA65F of btF6_neo_queen) keeps waiting.",
+            "clear": "After the enemy counter is zero the watcher continues: Transform_ShadowToWill, sets $0179 and queues scene $E3."
+          },
+          "evidence": [
+            "extracted/pyramid/mummy_queen_lair/pyDD_teleporter.asm:57 {765423}",
+            "extracted/pyramid/mummy_queen_lair/pyDD_teleporter.asm:132 {765618}",
+            "extracted/pyramid/mummy_queen_lair/pyDD_mummy_queen.asm:86 {763495}"
+          ],
+          "notes": "Scene $DD has the teleporter producer and no reader (the real queen does not read the byte); scene $F6 has the same teleporter file and the watcher consumer. Name from the code, not from a label."
+        },
+        {
+          "scope": { "scenes": [222] },
+          "name": "bt_olman_talk_cue",
+          "area": "babel_tower",
+          "summary": "The player talked to Olman at the Babel entrance (before the Mystic Statue ceremony): the actor locks the player and runs the long explanation.",
+          "kinds": ["handshake", "cue"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btDE_olman leaves its wait, locks the player, spawns the flicker child code_0988DA, plays music #0E and prints 'Will: Father! Why are you in that form!!!'; then it writes globalScriptIndex = 5 and queues scene $FD (the statue ceremony of row 5).",
+            "clear": "Olman stays solid with his interact handler."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_entrance/btDE_olman.asm:34 {624676}",
+            "extracted/babel_tower/babel_entrance/btDE_olman.asm:93 {624854}"
+          ],
+          "notes": "Producer: the interact handler code_0988D2 (prints 'One worn-out body is quietly laid down...' and sets the byte). Consumer: the main script. Only reached with $FD clear."
+        },
+        {
+          "scope": { "scenes": [223] },
+          "name": "bt_crystal_ring_dropped",
+          "area": "babel_tower",
+          "summary": "Once-per-load latch of the Crystal Ring drop in the Babel lower floors: the ring child is spawned only on the first pass through the trigger zone of a scene load.",
+          "kinds": ["once-latch", "reward-gate"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The trigger zone (75,17)-(77,19) no longer spawns the ring child.",
+            "clear": "Walking into the zone without the ring sets it and spawns code_0999CC (the ring falls from the Flute, 'It's King Edward's Crystal Ring!!', GiveItem #27)."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_lower_floors/btDF_crystal_ring.asm:43 {629167}",
+            "extracted/babel_tower/babel_lower_floors/btDF_crystal_ring.asm:44 {629173}"
+          ],
+          "notes": "The zone code returns early when item #27 is equipped or held (BranchIfItemEquipped {629147}, BranchIfHasItem {629162}); the scratch byte stops a second spawn while the first ring child is alive. GiveItem {629335}: inventory full prints 'But your inventory is full!' and the child stays interactive. The ring is a held item, not a persistent flag."
+        },
+        {
+          "scope": { "scenes": [225] },
+          "name": "bt_light_elevator_ride_cue",
+          "area": "babel_tower",
+          "summary": "Set by the light elevator actor of scene $E1 359 ticks after scratch $00 (598 ticks after the player enters the elevator tiles); no script of scene $E1 reads it.",
+          "kinds": ["cutscene-stage", "write-only"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The next instruction spawns py_death_particle; no reader.",
+            "clear": "Nothing."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_light_elevator/btE1_light_elevator.asm:34 {628146}"
+          ],
+          "notes": "Absence claim: fl_scope scene 225 lists every flag site that can run in scene $E1 (inventory sites with scene $E1 in their scope plus the shared player_character sites); none reads $01. The comet-soon NPC of the same scene uses $02, $04 and $0F, not $01. Direct reads of $0A00 were searched in extracted/babel_tower, thinkers, pyramid and ending: none."
+        },
+        {
+          "scope": { "scenes": [226] },
+          "name": "bt_exterior_spirit_talk_cue",
+          "area": "babel_tower",
+          "summary": "The player talked to the spirit at the Babel exterior ('You were brought back to save Earth. I'll take you to the top floor.'): the spirit locks the player and lifts it up the tower.",
+          "kinds": ["handshake", "cue"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btE2_brought_back leaves its wait, locks the player, installs btE1_comet_soon.code_0997B7 as the player's script and carries the player up until its y is below $90, then moves to (0188,0110).",
+            "clear": "The spirit stays solid with its interact handler."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_exterior/btE2_brought_back.asm:27 {628701}",
+            "extracted/babel_tower/babel_exterior/btE2_brought_back.asm:76 {628834}"
+          ],
+          "notes": "Producer: the interact handler code_09985E. Consumer: the main script. No condition other than the talk: the header's 'after story conditions are met' has no code behind it."
+        },
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_seth_spoken",
+          "area": "babel_tower",
+          "summary": "The player talked to the first rooftop spirit (Seth, from the dialog); one of the five conditions of Olman's 'At last the time is near' line.",
+          "kinds": ["cue", "gather-condition"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Olman's interact handler counts it; with $02-$05 also set he prints the gather line and sets $0F.",
+            "clear": "Olman answers 'I need to talk to you.'"
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:125 {627254}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:65 {626723}"
+          ],
+          "notes": "Setter: code_099232, the interact handler of the spirit spawned at (00D8,00F0). Name from the dialog ('Seth: Ah, Will.')."
+        },
+        {
+          "scope": { "scenes": [232] },
+          "name": "bt_comet_phase2_started",
+          "area": "babel_tower",
+          "summary": "Dark Gaia's second form is on screen (set after the second palette flash and before the BG change of the transformation); the timed HDMA thinker of the lair switches to its burst pattern.",
+          "kinds": ["cutscene-stage", "boss-phase"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "comet_lair_hdma_c_timed leaves its idle sine and enters CometLairHdmaCTimedBurst (amplitude 4, 112 frames).",
+            "clear": "The thinker keeps the idle sine (amplitude from $8000, 8)."
+          },
+          "evidence": [
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:222 {847918}",
+            "extracted/babel_tower/comet_lair/comet_lair_hdma_c_timed.asm:19 {48472}"
+          ],
+          "notes": "Setter: the transformation section of sE8_dark_gaia (code after oneshot_palette_flash_19). Reader: comet_lair_hdma_c_timed only."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_jackal_arrival_cue",
+          "area": "pyramid",
+          "summary": "The Jackal has said 'There, that's good. Don't move!!' in the Pyramid puzzle room: Kara leaves her wait and starts her choreography.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCD_kara runs her walk and frame sequence and waits for $04.",
+            "clear": "Kara keeps waiting."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:78 {571582}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:30 {572759}"
+          ],
+          "notes": "Producer pyCD_jackal, consumer pyCD_kara. Both only run after all six stones $C2-$C7 are set and with $BB clear. Cues $02, $04, $05 and $06 are the four steps of one choreography."
+        },
+        {
+          "scope": { "scenes": [225] },
+          "name": "bt_comet_spirit_talk_cue",
+          "area": "babel_tower",
+          "summary": "The player talked to the comet spirit of the light elevator area ('The comet will soon be entering Earth's orbit...'): the spirit locks the player and carries it up.",
+          "kinds": ["handshake", "cue"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btE1_comet_soon leaves its wait, locks the player, installs code_0997B7 as the player's script and moves up until y < $E0.",
+            "clear": "The spirit stays solid with its interact handler."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_light_elevator/btE1_comet_soon.asm:57 {628402}",
+            "extracted/babel_tower/babel_light_elevator/btE1_comet_soon.asm:110 {628554}"
+          ],
+          "notes": "The actor only runs when the player arrived at (0180,07A0) (BranchIfPlayerAt {628279}; otherwise it dies). Producer: the interact handler code_099746."
+        },
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_neil_father_spoken",
+          "area": "babel_tower",
+          "summary": "The player talked to the second rooftop spirit (Neil's father, from the dialog); one of the five gather conditions.",
+          "kinds": ["cue", "gather-condition"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Counts for Olman's gather line.",
+            "clear": "Olman answers 'I need to talk to you.'"
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:159 {627432}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:66 {626729}"
+          ],
+          "notes": "Setter: code_0992E4, the interact handler of the spirit at (0098,00E0). Name from the dialog."
+        },
+        {
+          "scope": { "scenes": [229] },
+          "name": "end_epilogue_mother_voice_cue",
+          "area": "ending",
+          "summary": "First load of the epilogue: the actor sets it before the mother's voice sprite appears and waits for it to clear; the voice sprite clears it when it has risen, the two puppets read it to start walking.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The two npc puppets (code_0BD4F7) take their step branch code_0BD512 (StageSpriteMoveX #04 / #02).",
+            "clear": "The actor continues with 'Will: Mother?!' and sets $DB."
+          },
+          "evidence": [
+            "extracted/ending/ending_comet/sE5_epilogue.asm:45 {774984}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:47 {774998}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:239 {775496}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:210 {775435}"
+          ],
+          "notes": "Producer sE5_epilogue (set after 'Strange Voice: Yes. The world is awakened.', spawns code_0BD539 at (00A0,FFF0)); code_0BD539 clears it after its StageSpriteLoopMoveY. Name from the dialog."
+        },
+        {
+          "scope": { "scenes": [232] },
+          "name": "bt_comet_gaia_wave_running",
+          "area": "babel_tower",
+          "summary": "Dark Gaia started a wave attack: the boss shows frame #1A until the HDMA ripple thinker has finished and cleared the byte.",
+          "kinds": ["handshake", "boss-attack"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The boss loops frame #1A (AnimOnce) and re-tests the byte every pass.",
+            "clear": "The boss sets WH0 = $FF, plays the ending of the attack (frame loop #06 for 60 ticks, frame #18) and returns to the main loop."
+          },
+          "evidence": [
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:300 {848115}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:308 {848144}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:985 {847143}"
+          ],
+          "notes": "Producer and consumer: sE8_dark_gaia (set after SpawnThinker code_0CEC65 and two child spawns). Clearer: the ripple thinker code_0CEC65, after 36 steps of its QueueHdmaDirect animation, just before it kills itself."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_flame_statue_fired",
+          "area": "pyramid",
+          "summary": "The left flame statue of the puzzle room has fired: the Jackal (once it has made its speech) leaves its watch loop and takes the panic path.",
+          "kinds": ["handshake", "trap-trigger"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCD_jackal: code_08B956 (lock, clear $0E, 12 flame sprites, 'Wa-a-a-a-ah!!!!', sets $04, $05, $06, $BB).",
+            "clear": "The Jackal keeps its loop (knife line on a button press at x $48)."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_flame_statue.asm:40 {571287}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:121 {571698}"
+          ],
+          "notes": "Producer: pyCD_flame_statue (last step of the left statue). The byte is only read in the Jackal's loop (after the whisper 'Will... Play the Flute....'), so a statue fired earlier (by playing the melody before the stones are collected) sets $03 but is read by nobody until the loop starts: it is still set then."
+        },
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_neil_mother_spoken",
+          "area": "babel_tower",
+          "summary": "The player talked to the third rooftop spirit (Neil's mother, from the dialog); one of the five gather conditions.",
+          "kinds": ["cue", "gather-condition"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Counts for Olman's gather line.",
+            "clear": "Olman answers 'I need to talk to you.'"
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:191 {627593}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:67 {626735}"
+          ],
+          "notes": "Setter: code_099385, the interact handler of the spirit at (00B8,0160). Name from the dialog."
+        },
+        {
+          "scope": { "scenes": [229] },
+          "name": "end_epilogue_spirits_depart_cue",
+          "area": "ending",
+          "summary": "Second load of the epilogue: after Olman's explanation the actor sets it and starts the music; the two puppets (and the voice sprite) rise, clear it, and the actor continues after 239 + 119 ticks.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "code_0BD4F7 puppets and code_0BD539 take code_0BD51F (three StageSpriteLoopMoveY runs), clear the byte and die.",
+            "clear": "The actor waits 239 and 119 ticks and continues with the player transformation."
+          },
+          "evidence": [
+            "extracted/ending/ending_comet/sE5_epilogue.asm:63 {775057}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:65 {775063}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:209 {775429}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:230 {775476}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:243 {775505}"
+          ],
+          "notes": "Producer sE5_epilogue (after dialogstring_0BD9FA and the call of music #13), consumers the puppets spawned at (0078,0080) and (0098,0080); one of them clears the byte. Name from the staging."
+        },
+        {
+          "scope": { "scenes": [232] },
+          "name": "bt_comet_phase1_defeated",
+          "area": "babel_tower",
+          "summary": "Dark Gaia's first form was killed (first death callback code_0CEF88): every projectile and flame child of the first phase dies at its next test.",
+          "kinds": ["boss-phase", "kill-switch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "code_0CF570 / code_0CF5AF (the falling projectiles) jump to Die at each of their five tests.",
+            "clear": "The projectiles keep falling."
+          },
+          "evidence": [
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:159 {847752}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:815 {849278}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:828 {849307}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:839 {849327}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:850 {849351}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:860 {849374}"
+          ],
+          "notes": "After the callback the boss refills its HP from enemy_stats_table+154, sets the second-form palette and spawns the second-form children (see $01 of this scene)."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_jackal_panic_started",
+          "area": "pyramid",
+          "summary": "The Jackal's panic sequence started in the Pyramid puzzle room: Kara walks toward the player.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCD_kara sets bit $0800 of its flags and runs four steps right, then waits for $05.",
+            "clear": "Kara keeps waiting."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:156 {571779}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:41 {572793}"
+          ],
+          "notes": "Producer pyCD_jackal after it spawned code_08BA04 (the 'Wa-a-a-a-ah!!!!' child), consumer pyCD_kara."
+        },
+        {
+          "scope": { "scenes": [225] },
+          "name": "bt_comet_spirit_ride_done",
+          "area": "babel_tower",
+          "summary": "The comet spirit has put the player down at the end of the light elevator area; the player's script (code_0997B7) leaves its lifted pose.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "code_0997B7 (installed as the player's script by the spirit) restores the sprite priority and jumps to PlayerIdleEntry.",
+            "clear": "The player script re-stages sprite #19 every frame."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_light_elevator/btE1_comet_soon.asm:98 {628528}",
+            "extracted/babel_tower/babel_light_elevator/btE1_comet_soon.asm:135 {628671}"
+          ],
+          "notes": "Producer btE1_comet_soon after the last move and 49 ticks; the consumer is a routine written into the player actor's entry words ($0000 / $0002 of the player slot) and runs in the player's context. The same routine is used by btE2_brought_back in scene $E2."
+        },
+        {
+          "scope": { "scenes": [226] },
+          "name": "bt_exterior_spirit_ride_done",
+          "area": "babel_tower",
+          "summary": "The Babel exterior spirit has put the player down; the player's script (btE1_comet_soon.code_0997B7) leaves its lifted pose.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The routine restores the sprite priority and jumps to PlayerIdleEntry.",
+            "clear": "The player script re-stages sprite #19 every frame."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_exterior/btE2_brought_back.asm:64 {628811}",
+            "extracted/babel_tower/babel_light_elevator/btE1_comet_soon.asm:135 {628671}"
+          ],
+          "notes": "Producer btE2_brought_back; the reader is the shared routine in btE1_comet_soon.asm (cross-file label). Index reuse with scene $E1 ($04) on purpose: same routine."
+        },
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_hamlet_spoken",
+          "area": "babel_tower",
+          "summary": "The player talked to the fourth rooftop spirit (Hamlet, from the dialog); one of the five gather conditions.",
+          "kinds": ["cue", "gather-condition"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Counts for Olman's gather line.",
+            "clear": "Olman answers 'I need to talk to you.'"
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:223 {627770}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:68 {626741}"
+          ],
+          "notes": "Setter: code_099436, the interact handler of the spirit at (0148,0130) ('Hamlet: Oink oink!!'). Name from the dialog."
+        },
+        {
+          "scope": { "scenes": [229] },
+          "name": "end_epilogue_kara_farewell_cue",
+          "area": "ending",
+          "summary": "Second load of the epilogue: Kara asks Will to come close; the actor sets it, the player's script walks Will to Kara and clears it as the acknowledgement.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The player's script loc_0BD494 leaves its wait, steps east (StagePlayerMoveX), stages sprite #02 and clears the byte.",
+            "clear": "The actor continues with 'Will: Don't worry. I will search you out.'"
+          },
+          "evidence": [
+            "extracted/ending/ending_comet/sE5_epilogue.asm:81 {775109}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:82 {775112}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:157 {775321}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:162 {775336}"
+          ],
+          "notes": "Producer sE5_epilogue (after dialogstring_0BDC95), consumer the player script installed at {775090}; set then waited for clear."
+        },
+        {
+          "scope": { "scenes": [232] },
+          "name": "bt_comet_gaia_defeated",
+          "area": "babel_tower",
+          "summary": "Dark Gaia's second form was killed (final death callback code_0CF154): the arena children stop spawning or die, the player is locked and the scene queues the epilogue (scene $E5).",
+          "kinds": ["boss-phase", "kill-switch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The two spawners (code_0CF3FC / code_0CF403 loop) and the child code_0CF429 jump to their Die branches.",
+            "clear": "The spawners keep spawning."
+          },
+          "evidence": [
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:332 {848212}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:646 {848922}",
+            "extracted/babel_tower/comet_lair/sE8_dark_gaia.asm:682 {849024}"
+          ],
+          "notes": "After setting it the callback locks the joypad ($FFFC), spawns the death sequence children, waits 299 ticks, queues scene $E5 and writes characterForm := 0 (direct access {848330}) at its end."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_jackal_walk_cue",
+          "area": "pyramid",
+          "summary": "Second step of the Jackal's panic choreography: Kara runs again.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCD_kara waits 15 ticks and runs six more steps right, then waits for $06.",
+            "clear": "Kara keeps waiting."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:168 {571814}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:50 {572818}"
+          ],
+          "notes": "Producer pyCD_jackal (after the 180-tick frame loop), consumer pyCD_kara."
+        },
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_fifth_spirit_spoken",
+          "area": "babel_tower",
+          "summary": "The player talked to the fifth rooftop spirit (the one who speaks of immortality and a terminal disease); the last of the five gather conditions and the one Olman's handler tests with sense set.",
+          "kinds": ["cue", "gather-condition"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "With $01-$04 set Olman prints 'At last the time is near. Everyone. Give Will your power!', sets $0F and locks the player.",
+            "clear": "Olman answers 'I need to talk to you.'"
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:255 {627938}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:69 {626747}"
+          ],
+          "notes": "Setter: code_0994DE, the interact handler of the spirit at (0158,00E0). The speaker is not named in the text; no name is guessed."
+        },
+        {
+          "scope": { "scenes": [229] },
+          "name": "end_epilogue_player_stand_cue",
+          "area": "ending",
+          "summary": "Second load of the epilogue: the actor sets it after Will's last line; the player's script leaves its wait and stages the stand pose.",
+          "kinds": ["cue", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The player script (loc_0BD494) stages sprite #01 and ends.",
+            "clear": "The player script keeps waiting."
+          },
+          "evidence": [
+            "extracted/ending/ending_comet/sE5_epilogue.asm:92 {775145}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:163 {775339}"
+          ],
+          "notes": "Producer sE5_epilogue (after 'Will: Let's go. To Earth....'), consumer the same player script that also uses $04."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_jackal_departed_cue",
+          "area": "pyramid",
+          "summary": "Last step of the Jackal's panic choreography: Kara locks the player, walks to the player and speaks.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCD_kara locks the player, walks to (+10 px, same y), prints 'Will... Why must everyone hate each other...?', walks to (0068,00B0), prints 'I'm sorry... I got upset...' and installs her interact handler.",
+            "clear": "Kara keeps waiting."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:185 {571866}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:58 {572841}"
+          ],
+          "notes": "The Jackal sets $06 and then $BB and clears $0F in the next three instructions."
+        }
+      ]
+    },
+    "10": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_fusion_burst_cue",
+          "area": "babel_tower",
+          "summary": "Kara's farewell line on the rooftop has been printed: the six orbiting sprites turn into the burst frame and die.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Each orbit child (code_098F01 to code_098F2E via code_098F35) stages the burst frame #1E, plays it once and dies.",
+            "clear": "The six children keep orbiting the player."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_kara.asm:73 {626086}",
+            "extracted/babel_tower/babel_rooftop/btE4_kara.asm:170 {626539}"
+          ],
+          "notes": "Producer btE4_kara (after 'Your battle will change the fate of humanity. Now you must go to the comet!!'), consumers the six orbit children."
+        }
+      ]
+    },
+    "13": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_jackal_melody_heard",
+          "area": "pyramid",
+          "summary": "Lola's Melody was played in the puzzle room while $0E was set and $BB clear: the Jackal's loop skips its knife line.",
+          "kinds": ["cue"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCD_jackal jumps to code_08B950 (RTL) instead of testing the player's x position.",
+            "clear": "The knife line 'If you come any closer, I'll use this knife...' is available."
+          },
+          "evidence": [
+            "extracted/system/inventory/item_use_system.asm:711 {232426}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:122 {571704}"
+          ],
+          "notes": "Producer: the scene $CD branch of the Lola's Melody item (loc_038BDE, after its $BB and $0E tests). Consumer: pyCD_jackal. The inventory overlay clears the scratch word."
+        }
+      ]
+    },
+    "14": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_melody_playable",
+          "area": "pyramid",
+          "summary": "Lola's Melody has an effect in the puzzle room: item_use_system answers 'nothing happened' while it is clear. The Jackal sets it at spawn, clears it when the six stones are in, and sets it again after its whisper.",
+          "kinds": ["item-gate", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The melody effect runs (sets $0D, then $01 for the flame statues).",
+            "clear": "The melody prints 'nothing happened'."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:25 {571425}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:33 {571458}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:119 {571693}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:145 {571740}",
+            "extracted/system/inventory/item_use_system.asm:710 {232420}",
+            "extracted/system/inventory/item_use_system.asm:782 {232555}"
+          ],
+          "notes": "Four writes: set at spawn, clear once $C2-$C7 are all set (BB clear), set after the whisper, clear when the flame statue fires ($03 seen). The melody's own effect also clears it ({232555}). Because the byte is set before the stones are collected, the melody works on a first visit to the room (static reading; queued as a runtime item)."
+        },
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_fusion_line_seen",
+          "area": "babel_tower",
+          "summary": "Kara's interact handler on the rooftop printed the fusion line ('When Will and Kara joined and became one with the Light Knight...'); her main script leaves its wait and starts the fusion.",
+          "kinds": ["handshake", "cue"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btE4_kara spawns the six orbit children, writes Transform_WillToShadow into the player, walks next to it and prints the farewell line.",
+            "clear": "Kara keeps her interact handler."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_kara.asm:34 {625953}",
+            "extracted/babel_tower/babel_rooftop/btE4_kara.asm:105 {626169}"
+          ],
+          "notes": "Producer: code_098DF5 (taken when $0F is set), consumer: the main script of btE4_kara. Direct write of the transformation routine into the player slot."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [205] },
+          "name": "py_jackal_scene_active",
+          "area": "pyramid",
+          "summary": "The Jackal is armed (set once the six stones are in and $BB is clear) until its sequence ends; while it is set the hieroglyph plate item answers with a timing message.",
+          "kinds": ["busy-interlock", "item-gate"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "UseItem_HieroglyphPlate (scene $CD branch) prints the 'not the time' message instead of the six-slot menu.",
+            "clear": "The slot menu runs."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:34 {571461}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:187 {571872}",
+            "extracted/system/inventory/item_use_system.asm:1475 {236210}"
+          ],
+          "notes": "Set once, cleared once, by pyCD_jackal; read by the item code (system, outside the scope)."
+        },
+        {
+          "scope": { "scenes": [214] },
+          "name": "py_vader_barrier_busy",
+          "area": "pyramid",
+          "summary": "One of the two Vader barriers of scene $D6 is swapping its row pair; the other ignores hits until it clears.",
+          "kinds": ["busy-interlock"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "A hit on either barrier is ignored (JumpNextFrame back to the idle callback).",
+            "clear": "The next hit starts a swap."
+          },
+          "evidence": [
+            "extracted/pyramid/pyramid_vader_a/pyD6_vader_barrier_upper.asm:65 {574316}",
+            "extracted/pyramid/pyramid_vader_a/pyD6_vader_barrier_upper.asm:70 {574327}",
+            "extracted/pyramid/pyramid_vader_a/pyD6_vader_barrier_upper.asm:109 {574455}",
+            "extracted/pyramid/pyramid_vader_a/pyD6_vader_barrier_lower.asm:51 {574550}",
+            "extracted/pyramid/pyramid_vader_a/pyD6_vader_barrier_lower.asm:56 {574561}",
+            "extracted/pyramid/pyramid_vader_a/pyD6_vader_barrier_lower.asm:96 {574692}"
+          ],
+          "notes": "Each barrier tests the byte in its hit callback, sets it, swaps the solid rows and clears it when the shared counter (slot $1060 + $26) has run through $FE00. Neither file tests characterForm. Which attack lands the hit and what the row swap does for the player (which cells are solid when) is not traced to the map: INFERRED."
+        },
+        {
+          "scope": { "scenes": [225] },
+          "name": "bt_comet_spirit_gfx_loaded",
+          "area": "babel_tower",
+          "summary": "Set by btE1_comet_soon right after it has decompressed the vampire graphics and palette for the spirit sprite; no script of scene $E1 reads it.",
+          "kinds": ["cutscene-stage", "write-only"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Nothing reads it.",
+            "clear": "Nothing."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_light_elevator/btE1_comet_soon.asm:46 {628367}"
+          ],
+          "notes": "Absence claim: fl_scope scene 225 shows the sites that can run in scene $E1; the other users of $0F are scenes $CD, $D6 and $E4 and item_use_system (scene $FF branch, the plate message only runs in scene $CD). Name from the position in the script."
+        },
+        {
+          "scope": { "scenes": [228] },
+          "name": "bt_rooftop_spirits_gathered",
+          "area": "babel_tower",
+          "summary": "Olman said 'At last the time is near. Everyone. Give Will your power!': the five spirits and Olman walk to the player and die, then Kara's interact handler offers the fusion line.",
+          "kinds": ["gather-trigger", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Each spirit (code_0991F4, code_0992A0, code_099347, code_0993F8, code_0994A0) leaves its idle loop, clears solid, moves to the player and dies (the second one unlocks the joypad); Olman waits 29 ticks, clears solid and dies; Kara's handler prints the fusion line instead of '.................'.",
+            "clear": "The spirits idle in frame #04; Kara prints '.................'."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:57 {626710}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:85 {626777}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:112 {627219}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:144 {627391}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:178 {627558}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:210 {627735}",
+            "extracted/babel_tower/babel_rooftop/btE4_olman.asm:242 {627903}",
+            "extracted/babel_tower/babel_rooftop/btE4_kara.asm:98 {626154}"
+          ],
+          "notes": "Setter: code_099050 (Olman's interact handler, after the five spoken cues), which also locks the player. Readers: the five spirits, Olman (main script) and Kara (btE4_kara code_098DEA)."
+        }
+      ]
+    },
+    "194": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_hieroglyph_stone_1_taken",
+          "area": "pyramid",
+          "summary": "The first Hieroglyph Stone (item $1E) was taken from lithograph 1 of the hieroglyph room; its wall shows the empty panel.",
+          "kinds": ["pickup-claimed", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Lithograph 1 stages BG change #94 at load and dies; the Jackal, Kara of scene $CD count it; the explorer NPC of scene $CD dies.",
+            "clear": "Lithograph 1 is interactive; the Jackal and Kara wait."
+          },
+          "evidence": [
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph1.asm:24 {575368}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph1.asm:29 {575387}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph1.asm:40 {575398}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph1.asm:43 {575413}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:26 {571428}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:23 {572729}",
+            "extracted/pyramid/puzzle_room/pyCD_explorer.asm:18 {573963}"
+          ],
+          "notes": "Setter: the interact path of pyDA_lithograph1 after GiveItem #1E succeeds (inventory full: message, flag not set). The family $C2-$C7 is six identical records: lithograph n sets flag $C1+n, gives item $1D+n, stages BG change $93+n. The stones are placed on the plates of the puzzle room (direct accesses of $0B28 are FL40's). Name from the item."
+        }
+      ]
+    },
+    "195": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_hieroglyph_stone_2_taken",
+          "area": "pyramid",
+          "summary": "The second Hieroglyph Stone (item $1F) was taken from lithograph 2 (BG change #95).",
+          "kinds": ["pickup-claimed", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Lithograph 2 stages its empty panel and dies; the Jackal and Kara of scene $CD count it; the explorer dies.",
+            "clear": "Lithograph 2 is interactive."
+          },
+          "evidence": [
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph2.asm:20 {575567}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph2.asm:25 {575586}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph2.asm:36 {575597}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph2.asm:39 {575612}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:27 {571432}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:24 {572733}",
+            "extracted/pyramid/puzzle_room/pyCD_explorer.asm:19 {573969}"
+          ],
+          "notes": "Same pattern as $C2."
+        }
+      ]
+    },
+    "196": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_hieroglyph_stone_3_taken",
+          "area": "pyramid",
+          "summary": "The third Hieroglyph Stone (item $20) was taken from lithograph 3 (BG change #96).",
+          "kinds": ["pickup-claimed", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Lithograph 3 stages its empty panel and dies; the Jackal and Kara of scene $CD count it; the explorer dies.",
+            "clear": "Lithograph 3 is interactive."
+          },
+          "evidence": [
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph3.asm:18 {575735}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph3.asm:23 {575754}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph3.asm:34 {575765}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph3.asm:37 {575780}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:28 {571436}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:25 {572737}",
+            "extracted/pyramid/puzzle_room/pyCD_explorer.asm:20 {573975}"
+          ],
+          "notes": "Same pattern as $C2."
+        }
+      ]
+    },
+    "197": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_hieroglyph_stone_4_taken",
+          "area": "pyramid",
+          "summary": "The fourth Hieroglyph Stone (item $21) was taken from lithograph 4 (BG change #97).",
+          "kinds": ["pickup-claimed", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Lithograph 4 stages its empty panel and dies; the Jackal and Kara of scene $CD count it; the explorer dies.",
+            "clear": "Lithograph 4 is interactive."
+          },
+          "evidence": [
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph4.asm:18 {575903}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph4.asm:23 {575922}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph4.asm:34 {575933}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph4.asm:37 {575948}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:29 {571440}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:26 {572741}",
+            "extracted/pyramid/puzzle_room/pyCD_explorer.asm:21 {573981}"
+          ],
+          "notes": "Same pattern as $C2."
+        }
+      ]
+    },
+    "198": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_hieroglyph_stone_5_taken",
+          "area": "pyramid",
+          "summary": "The fifth Hieroglyph Stone (item $22) was taken from lithograph 5 (BG change #98).",
+          "kinds": ["pickup-claimed", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Lithograph 5 stages its empty panel and dies; the Jackal and Kara of scene $CD count it; the explorer dies.",
+            "clear": "Lithograph 5 is interactive."
+          },
+          "evidence": [
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph5.asm:18 {576071}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph5.asm:23 {576090}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph5.asm:34 {576101}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph5.asm:37 {576116}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:30 {571444}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:27 {572745}",
+            "extracted/pyramid/puzzle_room/pyCD_explorer.asm:22 {573987}"
+          ],
+          "notes": "Same pattern as $C2."
+        }
+      ]
+    },
+    "199": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_hieroglyph_stone_6_taken",
+          "area": "pyramid",
+          "summary": "The sixth Hieroglyph Stone (item $23) was taken from lithograph 6 (BG change #99).",
+          "kinds": ["pickup-claimed", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Lithograph 6 stages its empty panel and dies; the Jackal and Kara of scene $CD count it; the explorer dies.",
+            "clear": "Lithograph 6 is interactive."
+          },
+          "evidence": [
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph6.asm:19 {576239}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph6.asm:24 {576258}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph6.asm:35 {576269}",
+            "extracted/pyramid/heiroglyph_room/pyDA_lithograph6.asm:38 {576284}",
+            "extracted/pyramid/puzzle_room/pyCD_jackal.asm:31 {571448}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:28 {572749}",
+            "extracted/pyramid/puzzle_room/pyCD_explorer.asm:23 {573993}"
+          ],
+          "notes": "Same pattern as $C2. Lithograph 6 is the one the dialog and the BG change numbering mark as last (#99)."
+        }
+      ]
+    },
+    "209": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_hieroglyph_puzzle_solved",
+          "area": "pyramid",
+          "summary": "The six hieroglyph plates were placed in the right order in the puzzle room ('There was a sound from over the entrance!'): the Pyramid main portal to the Mummy Queen becomes interactive.",
+          "kinds": ["puzzle-solved", "gate-open"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCC_portal leaves its wait: 'The mummified queen of the Pyramid appears.' with Quit / Jump in; Jump in queues scene $DD at (00F8,01B0). pyCD_puzzle dies at load.",
+            "clear": "The portal waits; the puzzle controller of scene $CD runs."
+          },
+          "evidence": [
+            "extracted/pyramid/puzzle_room/pyCD_puzzle.asm:48 {576450}",
+            "extracted/pyramid/puzzle_room/pyCD_puzzle.asm:76 {576495}",
+            "extracted/pyramid/pyramid_main/pyCC_portal.asm:22 {576889}"
+          ],
+          "notes": "Setter: pyCD_puzzle when the slot table $0B28 + 2n equals n for n = 0..5 (direct accesses are FL40's); it also plays sound $0F0F. A wrong arrangement returns the plates with GiveItemToPlayer and redraws metatile #87 at (5..A,6). Name from the dialog."
+        }
+      ]
+    },
+    "211": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "bt_flute_discovery_monologue_seen",
+          "area": "babel_tower",
+          "summary": "The monologue 'The Flute I had was discovered here.' of the Babel lower floors (scene $DF) has played; it plays once.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The monologue actor dies at load in scene $DF.",
+            "clear": "Walking into the zone (3F,19)-(40,1D) locks the player, makes Will face south-east, sets the flag and prints the line."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_entrance/btDE_monologue.asm:44 {628964}",
+            "extracted/babel_tower/babel_entrance/btDE_monologue.asm:56 {628997}"
+          ],
+          "notes": "Same actor as $D2 (btDE_monologue): in scene $DE it uses $D2, in scene $DF this flag, selected by sceneCurrent. No other reader in the repo (inventory: only these two sites). Name from the dialog."
+        }
+      ]
+    },
+    "212": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "bt_kara_following_will",
+          "area": "babel_tower",
+          "summary": "Kara walks with Will through the Tower of Babel: set when she joins in scene $DF (or rejoins in scene $E3), cleared in scene $E0 once the fourth crystal gate is open and she is gone.",
+          "kinds": ["party-state", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btDE_kara_missing (placed in scenes $DE, $DF, $E0, $E1, $E3) runs the follower; btDF_kara and btE3_kara die at load.",
+            "clear": "btDE_kara_missing dies at load; btDF_kara waits for the player at tiles (70,09)-(72,0D); btE3_kara waits for the player at (0080,01A0)."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_lower_floors/btDF_kara.asm:25 {630415}",
+            "extracted/babel_tower/babel_lower_floors/btDF_kara.asm:75 {630545}",
+            "extracted/babel_tower/babel_upper_floors/btE3_kara.asm:20 {623896}",
+            "extracted/babel_tower/babel_upper_floors/btE3_kara.asm:52 {623981}",
+            "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:25 {624163}",
+            "extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:30 {624184}"
+          ],
+          "notes": "Setters: btDF_kara after 'Wait....' and 'Will: Kara!!!? Kara: I'm sorry. I just feel that, if we part now, we'll never meet again...' ({630545}, spawns EscortFollowPathTracker), and btE3_kara after 'Will: Kara! Where did you go?!' ({623981}). Clearer: btDE_kara_missing in scene $E0 when $0178 is set ({624177} test, {624184} clear), with 'Kara's not here... Where did she go...?'. The Kara of scene $E3 therefore only appears after the Neo Fanger fight. Name from the code (the old actor name 'kara_missing' describes only the clearing step)."
+        }
+      ]
+    },
+    "219": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "end_epilogue_first_half_done",
+          "area": "ending",
+          "summary": "The first half of the epilogue (scene $E5: 'What's happened to the comet...?' to 'Mother?! The Earth.') has played; the next load of scene $E5 runs the second half.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "sE5_epilogue takes code_0BD374 (Will asks why they know the future ... Kara's farewell, transformation, scene $89).",
+            "clear": "sE5_epilogue runs the first half and queues scene $90 (the changed world)."
+          },
+          "evidence": [
+            "extracted/ending/ending_comet/sE5_epilogue.asm:37 {774946}",
+            "extracted/ending/ending_comet/sE5_epilogue.asm:49 {775006}"
+          ],
+          "notes": "Chain: scene $E8 queues scene $E5 (first load, $DB clear); the first half sets $DB and queues scene $90; scene $90 queues scene $E5 again (second load, $DB set); the second half queues scene $89; scene $89 queues scene $F7 (credits); scene $F7 queues scene $F0. No clear site anywhere in extracted/: a later play from a save made before the Dark Gaia fight would skip the first half if the flag stays set (persistence across new game / load not traced): INFERRED, queued."
+        }
+      ]
+    },
+    "245": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "unused_mode7_boss_defeated",
+          "area": "unused",
+          "summary": "Dead code: the death callback of unused_mode7_boss sets it; the unreferenced thinker babel_palette_65_unused waits for it and would then run palette animation #65 every frame.",
+          "kinds": ["dead-code"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "babel_palette_65_unused would run PaletteStart #65 and PaletteStep each frame.",
+            "clear": "The thinker would wait."
+          },
+          "evidence": [
+            "extracted/unused/unused_mode7_boss.asm:221 {633885}",
+            "extracted/unused/babel_palette_65_unused.asm:12 {46979}"
+          ],
+          "notes": "Neither file is spawned by any scene or script (the file headers and the empty reference search say so); this is not evidence of intended design. The shipped header of babel_palette_65_unused ('unless flag byte $F5 is set') reverses the wait sense."
+        }
+      ]
+    },
+    "242": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": { "scenes": [212] },
+          "name": "py_trickle_orbs_a_fallen",
+          "area": "pyramid",
+          "summary": "The four falling orbs of the first group of Pyramid scene $D4 (tiles (22,1B), (24,1B), (22,1D), (24,1D), spawn byte #E5) have fallen; at the next load they are drawn already fallen.",
+          "kinds": ["once-latch", "puzzle-state"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "Each orb of the group takes the fallen state at load (priority minimum, collision cleared) and ends.",
+            "clear": "Each orb waits for: body bank $97, animation index 1, characterForm 1 (Freedan) and the player within BranchIfPlayerNear #0C; it then sets the flag and falls."
+          },
+          "evidence": [
+            "extracted/pyramid/pyramid_trickle_a/pyD4_falling_orb.asm:30 {575240}",
+            "extracted/pyramid/pyramid_trickle_a/pyD4_falling_orb.asm:65 {575295}"
+          ],
+          "notes": "Dynamic index: flag = $0E word + $80 = (#E5 >> 1) + $80 = $F2 (TestFlagRaw / SetFlagRaw, helper base $00xx). Each orb tests the flag once at load, so within one visit the four orbs of a group fall one by one as the player triggers each. The trigger action (which player move stages body bank $97 animation 1 as Freedan) is not traced: rows 6-8 of body_table use bank $97; attack_ability_system.asm:403 and player_character.asm:610 stage row 6. The shipped header ('energy orbs fall from above in timed patterns') does not match the code. Only scene $D4 places the actor (searched tables/scene_actors.asm for pyD4_falling_orb: rows :4237-:4244, the group rows :4237-:4240 use #E5)."
+        }
+      ]
+    },
+    "243": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": { "scenes": [212] },
+          "name": "py_trickle_orbs_b_fallen",
+          "area": "pyramid",
+          "summary": "The four falling orbs of the second group of Pyramid scene $D4 (tiles (0C,4B), (0E,4B), (0C,4D), (0E,4D), spawn byte #E7) have fallen; at the next load they are drawn already fallen.",
+          "kinds": ["once-latch", "puzzle-state"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "Each orb of the group takes the fallen state at load and ends.",
+            "clear": "Each orb waits for the Freedan trigger (see $F2) and falls."
+          },
+          "evidence": [
+            "extracted/pyramid/pyramid_trickle_a/pyD4_falling_orb.asm:30 {575240}",
+            "extracted/pyramid/pyramid_trickle_a/pyD4_falling_orb.asm:65 {575295}"
+          ],
+          "notes": "Dynamic index: (#E7 >> 1) + $80 = $F3. Same actor and trigger as $F2."
+        }
+      ]
+    },
+    "252": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_mummy_queen_mystic_statue_collected",
+          "area": "pyramid",
+          "summary": "The Mummy Queen Mystic Statue (statue_reward_table row 4) has been collected: the Pyramid main portal disappears and Kara, waiting in the puzzle room, speaks.",
+          "kinds": ["reward-claimed", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyCC_portal dies at load; pyCD_kara (standing state) leaves its wait, locks the player, prints the voice of the Flute ('Bring the five Mystic Statues to the Tower...') and Kara's 'Neil has built another airplane...', sets $D0 and queues scene $C8 (Dao).",
+            "clear": "The portal can show the queen once $D1 is set; Kara keeps standing."
+          },
+          "evidence": [
+            "extracted/pyramid/pyramid_main/pyCC_portal.asm:20 {576879}",
+            "extracted/pyramid/puzzle_room/pyCD_kara.asm:106 {572963}",
+            "extracted/system/statue_inventory/statue_inventory_reward.asm:114 {52689}"
+          ],
+          "notes": "No literal SetFlagByte #FC exists; the setter is the table-driven ceremony (statue_reward_table row 4, match value $04, flag from the table with SetFlagRaw). pyDD_mystic_statue (scene $DD, after enemiesRemaining = 0) locks the player, writes globalScriptIndex := 4, sourceSceneId := $CD and the return coordinates and queues scene $FD; the ceremony returns to scene $CD. Same pattern as $F8 (FL23) and $F9 (FL24)."
+        }
+      ]
+    },
+    "253": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "bt_olman_mystic_statue_collected",
+          "area": "babel_tower",
+          "summary": "The last Mystic Statue (statue_reward_table row 5, entrusted by Olman at the Babel entrance) has been collected: Olman now sends the player to the roof.",
+          "kinds": ["reward-claimed", "quest-done"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btDE_olman takes code_098891: locks the player, prints 'Soon the comet will be very close. By then, the two of you must go to the roof of the tower. Close your eyes....' and queues scene $E4 at (00F0,0140).",
+            "clear": "Olman is interactive (scratch $01 cue, long explanation, then the ceremony of scene $FD)."
+          },
+          "evidence": [
+            "extracted/babel_tower/babel_entrance/btDE_olman.asm:31 {624664}",
+            "extracted/system/statue_inventory/statue_inventory_reward.asm:114 {52689}"
+          ],
+          "notes": "No literal SetFlagByte #FD exists; the setter is the ceremony of scene $FD (row 5). The talk path writes globalScriptIndex := 5 and sourceSceneId := $DE, so the ceremony returns to scene $DE where the flag is set at load."
+        }
+      ]
+    },
+    "377": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "bt_crystal_gate_e_open",
+          "area": "babel_tower",
+          "summary": "The Neo Queen fight of the Babel boss lair (scene $F6) is won: the crystal gate of the Babel upper floors (scene $E3) opens.",
+          "kinds": ["gate-open", "boss-defeated"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "btE3_crystal_gate clears its two solid cells (29,38) and (2A,38) and dies.",
+            "clear": "The gate cells stay solid."
+          },
+          "evidence": [
+            "extracted/pyramid/mummy_queen_lair/pyDD_mummy_queen.asm:109 {763546}",
+            "extracted/babel_tower/babel_upper_floors/btE3_crystal_gate.asm:19 {624633}"
+          ],
+          "notes": "Setter: the neo queen watcher (code_0BA65F, spawned by btF6_neo_queen, scene $F6): after enemiesRemaining = 0 and the teleport byte $01 clear it runs Transform_ShadowToWill, SetFlagWord #$0179 and queues scene $E3 at (01F8,03A0). Agrees with the FL11 proposal. The name has the crystal gate letter e like gates a-d ($0175-$0178)."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "187": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "py_jackal_scene_done",
+        "summary": "The Jackal scene of the Pyramid puzzle room (scene $CD) has played.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/pyramid/puzzle_room/pyCD_jackal.asm:186 {571869} (end of the panic path, after $06)",
+          "test: extracted/pyramid/puzzle_room/pyCD_jackal.asm:32 {571452} (set: the Jackal becomes a solid prop at tile (09,0B)); extracted/pyramid/puzzle_room/pyCD_kara.asm:29 {572753} (set: Kara stands at tile (08,0B) with her interact handler and waits for $FC)",
+          "test elsewhere: extracted/system/inventory/item_use_system.asm:709 {232414} (Lola's Melody: 'nothing happened' while set); extracted/dao/dao_hotel/daC4_kara.asm:19 {566458}"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with the FL28 proposal; the setter and the two tests in scene $CD are now cited. The melody test shows the flag also ends the melody's use in the room."
+      }
+    ],
+    "208": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "py_kara_scene_done",
+        "summary": "Kara's scene at the end of the Pyramid (scene $CD, after the Mystic Statue) has played; the party continues in the Dao dorm (scene $C8).",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/pyramid/puzzle_room/pyCD_kara.asm:119 {573003} (after the flute-voice dialog, before QueueMapChange #C8)",
+          "test: extracted/pyramid/puzzle_room/pyCD_kara.asm:22 {572723} (set: Kara dies at load)",
+          "test elsewhere: extracted/dao/dao_dorm/daC8_neil.asm:49 {566767}; extracted/dao/dao_hotel/daC4_kara.asm:18 {566452}"
+        ],
+        "confidence": "high",
+        "notes": "The setter runs only after $FC is set (Kara waits for the statue)."
+      }
+    ],
+    "210": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "bt_entrance_monologue_seen",
+        "summary": "The monologue at the Tower of Babel entrance (scene $DE: 'The Tower of Babel was deathly quiet. Time stood still...') has played.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/babel_tower/babel_entrance/btDE_monologue.asm:30 {628940}",
+          "test: extracted/babel_tower/babel_entrance/btDE_monologue.asm:29 {628934} (set: the actor dies)",
+          "test elsewhere: extracted/dao/dao_dorm/daC8_neil.asm:18 {566705}; extracted/dao/dao_hotel/daC4_erik.asm:13 {566634}; extracted/dao/dao_hotel/daC4_kara.asm:17 {566446}; extracted/dao/dao/daC3_babel_travel_spirit.asm:22 {622795}"
+        ],
+        "confidence": "high",
+        "notes": "The flag is set on the first arrival in scene $DE by the flight (scene $DC). The setter is the only one in the repo (inventory)."
+      }
+    ],
+    "255": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "sys_scene_setup_done",
+        "summary": "Scene-setup latch: the HDMA and display thinkers re-apply their init pass while it is clear and idle in their steady state once it is set.",
+        "kinds": ["scene-latch"],
+        "roles": [
+          "test (sense clear = jump back to the init block): extracted/babel_tower/comet_lair/sE8_comet_display_config.asm:42 {846746}, :63 {846789}, :83 {846832}, :110 {846894}, :132 {846942}; extracted/babel_tower/comet_lair/comet_lair_hdma_a.asm:20 {48400}; extracted/babel_tower/comet_lair/comet_lair_hdma_b.asm:17 {48433}; extracted/babel_tower/comet_lair/comet_lair_hdma_c_timed.asm:18 {48466}, :31 {48503}; extracted/babel_tower/sine_hdma_ending_wave.asm:19 {48937}",
+          "dead code: extracted/unused/native_village_dup_unused.asm:16 {48826} (test); extracted/unused/palette_buffer_clear_unused.asm:23 {46866} (set) and :24 {46869} (wait for clear)"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with FL10, FL21-FL25 and FL28. In scene $E8 the five display-config states each re-write TM / TS / CGWSEL / CGADSUB / BG1SC / BG2SC every frame until $FF is set; the boss swaps the state by writing the thinker's entry word at slot $0F00. The setter is the engine (FL10)."
+      }
+    ],
+    "373": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "bt_crystal_gate_a_open",
+        "summary": "The first crystal gate of the Babel middle floors (scene $E0) is open: the Neo Castoth fight (scene $F2, btF2_neo_castoth) was won.",
+        "kinds": ["gate-open", "boss-defeated"],
+        "roles": [
+          "waiter: extracted/babel_tower/babel_middle_floors/btE0_crystal_gate_a.asm:19 {624441} (clears solid cells (71,38) and (72,38), then dies)",
+          "setter elsewhere: extracted/incan_ruins/ir29_castoth.asm:161 {695015}"
+        ],
+        "confidence": "high",
+        "notes": "No crystal item is read: the gate waits for the boss flag."
+      }
+    ],
+    "374": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "bt_crystal_gate_b_open",
+        "summary": "The second crystal gate of the Babel middle floors (scene $E0) is open: the Neo Viper fight (scene $F3, btF3_neo_viper) was won.",
+        "kinds": ["gate-open", "boss-defeated"],
+        "roles": [
+          "waiter: extracted/babel_tower/babel_middle_floors/btE0_crystal_gate_b.asm:19 {624489} (clears solid cells (0D,28) and (0E,28), then dies)",
+          "setter elsewhere: extracted/sky_garden/viper_lair/sg55_viper.asm:109 {708947}"
+        ],
+        "confidence": "high",
+        "notes": "No crystal item is read."
+      }
+    ],
+    "375": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "bt_crystal_gate_c_open",
+        "summary": "The third crystal gate of the Babel middle floors (scene $E0) is open: the Neo Vampires fight (scene $F4, btF4_neo_male_vampire / btF4_neo_female_vampire) was won.",
+        "kinds": ["gate-open", "boss-defeated"],
+        "roles": [
+          "waiter: extracted/babel_tower/babel_middle_floors/btE0_crystal_gate_c.asm:18 {624537} (clears solid cells (49,18) and (4A,18), then dies)",
+          "setter elsewhere: extracted/mu/mu_vampire_lair/mu67_vampires.asm:115 {717275}"
+        ],
+        "confidence": "high",
+        "notes": "No crystal item is read."
+      }
+    ],
+    "376": [
+      {
+        "source": "FL29",
+        "scope": null,
+        "name": "bt_crystal_gate_d_open",
+        "summary": "The fourth crystal gate of the Babel middle floors (scene $E0) is open: the Neo Fanger fight (scene $F5, btF5_neo_fanger) was won. It is also the trigger for Kara to vanish.",
+        "kinds": ["gate-open", "boss-defeated", "party-trigger"],
+        "roles": [
+          "waiter: extracted/babel_tower/babel_middle_floors/btE0_crystal_gate_d.asm:19 {624585} (clears solid cells (15,08) and (16,08), then dies)",
+          "test: extracted/babel_tower/babel_entrance/btDE_kara_missing.asm:29 {624177} (scene $E0 only: set = $D4 is cleared and 'Kara's not here... Where did she go...?' is printed)",
+          "setter elsewhere: extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:157 {753950}"
+        ],
+        "confidence": "high",
+        "notes": "Two readers in this scope; the second one (Kara vanishing, scenes $E0 only) is not about a gate."
+      }
+    ]
+  }
+}

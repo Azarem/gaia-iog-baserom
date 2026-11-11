@@ -9,7 +9,7 @@
 ; arm pattern complexity. Spawns camera_drift for screen shake on
 ; impacts. On defeat, triggers the Freedan transformation cutscene
 ; (flag word $011F) or the Babel Tower post-fight (scene $F2 variant).
-; Uses StandardEnemyDefeatHandler for the win sequence.
+; Uses StandardEnemyDefeatHandler for the win sequence. The entry code of ir29_castoth tests boss flag $0500 (TestWramFlag_Offset100 with index 0: byte $0AA0 bit 0, set by boss_clear_reward_handler once the stat catch-up is done); when it is set the actor zeroes enemiesRemaining and enemiesRemainingBcd and dies at once, so a rewarded Castoth is not fought again.
 ---------------------------------------------
 
 ?INCLUDE 'ApplyOrbitalOffsetFromRef'

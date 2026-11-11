@@ -1,0 +1,1328 @@
+{
+  "actors/overworld_exit.asm": {
+    "blockNote": [
+      "Exit-to-world-map actor (Bank 00, 51781-52569). One copy is placed in each of 15 town, village and dungeon-entrance scenes (spawn record x 00, y 01, type 00). It waits for the player to reach a fixed exit zone, then stages the world-map arrival position and a destination-menu id and lets the engine switch to the world map.",
+      "",
+      "=== FLOW ===",
+      "",
+      "1. OverworldExitDispatch compares sceneCurrent with 15 scene ids and JMPs to the region handler. The handler tests the exit zone every frame (South Cape re-enters its own handler with SetEntryHere; all other regions go through the compare chain again each frame).",
+      "2. Zone tests: a pixel test on playerYPos (South Cape: Y < $10, Edward's Castle: Y == $2D0) or COP BranchIfPlayerInAbsTiles ( minX, minY, maxX, maxY ). The tile test runs on (player X, player Y - 8) and is strict at the minimum edge and inclusive at the maximum edge, in tiles x 16.",
+      "3. Inside the zone the handler may test story flags with BranchOnFlagByte. The first flag found set wins, so the later-story flag is tested first where there are two.",
+      "4. Every success path does the same: $0D60 := 0, COP StageWorldMapChoice ( start X, start Y, choice id ), JMP OverworldExitFinalize. StageWorldMapChoice only writes worldMapStagedX/PlayerY/ChoiceId; a nonzero staged X makes CheckSceneTransition send the game to scene $FE (the world map). WorldMapController then drops the player at the staged position and runs world_map_options[choice] (a 'Quit / destination' menu).",
+      "5. OverworldExitFinalize sets gfxCacheIdxB := $0400, SetEntryHere and RTL: the actor then idles at the RTL until the scene changes.",
+      "",
+      "=== EXITS ===",
+      "",
+      "Choice ids select the menu text in world_map_options (39 entries; ids $01-$1B are staged here). The flag setters are the first match found by searching extracted/ for SetFlagByte.",
+      "",
+      "| Scene | Area | Exit zone | Gate (first match wins) | Start X,Y | Choice id and menu |",
+      "|-------|------|-----------|-------------------------|-----------|--------------------|",
+      "| 01 | south_cape/south_cape | Y < $10 | flag $26 (sc06_kara_return), then flag $25 (also sc06_kara_return) | $D4,$3A4 | $02 Itory Village; $1B Quit only; default $01 Edward's Castle |",
+      "| 0A | edward_castle/edward_castle | Y == $2D0 | none | $104,$334 | $03 South Cape |",
+      "| 15 | itory/itory_village | tiles (2D,2E)-(2F,30) | flag $01 disables the exit; flag $4A (it1A_lily) | $C4,$2B4 | $06 Inca Ruins; default $04 South Cape |",
+      "| 1C | incan_ruins/incan_ruins_entrance | tiles (06,1C)-(08,1E) | none | $134,$284 | $05 Itory Village |",
+      "| 32 | freejia/freejia | tiles (12,3C)-(16,3E) | flag $65 (fr33_erik) | $254,$2D4 | $07 Diamond Mine; default $09 Quit only |",
+      "| 3E | diamond_mine/mine_entrance | tiles (0A,3F)-(0C,40) | none | $334,$334 | $08 Freejia |",
+      "| 69 | angel_village/angel_entrance | tiles (29,0D)-(2C,0F) | flag $8D (wa78_intro) | $384,$164 | $0A Watermia; default $15 Quit only |",
+      "| 78 | watermia/watermia | tiles (27,3D)-(29,40) | flag $94 (wa79_neil), then flag $8E (Lance's Letter used) | $2D4,$1A4 | $0E Angel Village / Great Wall / Euro city; $0C Angel Village / Great Wall; default $0B Angel Village |",
+      "| 82 | great_wall/wall_entrance | tiles (00,08)-(01,0B) | none | $2A4,$124 | $0D Watermia |",
+      "| 91 | euro/euro | tiles (3F,42)-(40,48) | flag $AC (nvAC_kara), then flag $9F (eu92_erasquez) | $1D4,$134 | $1A Mt.Temple / Watermia / Natives' Vil.; $10 Mt.Temple / Watermia; default $0F Watermia |",
+      "| A0 | mountain_temple/kress_entrance | tiles (2F,1B)-(30,1C) | none | $214,$B4 | $11 Euro city |",
+      "| AC | native_village/native_village | tiles (1F,1B)-(20,20) | flag $B6 (daC4_kara), then flag $B1 (nvAC_map_kid) | $124,$1A4 | $19 Ankor Wat / Euro city / Dao Village; $13 Ankor Wat / Euro city; default $12 Euro city |",
+      "| B0 | angkor_wat/angkor_entrance | tiles (1D,4F)-(24,50) | none | $134,$154 | $14 Natives' Village |",
+      "| C3 | dao/dao | tiles (00,0D)-(01,11) | flag $B4 (daC8_neil) | $94,$114 | $17 Pyramid / Natives' Village; default $16 Natives' Village |",
+      "| CC | pyramid/pyramid_main | tiles (00,0D)-(01,0F) or (3F,0D)-(40,0F) | none | $74,$B4 | $18 Dao Village |",
+      "",
+      "Reading the table: the route menus grow with the story (flags set by the NPC scripts listed), and three choice ids ($09, $15, $1B) are menus that offer only 'Quit'. Choice ids $1C-$26 of world_map_options are never staged here.",
+      "",
+      "=== QUIRKS ===",
+      "",
+      "- Edward's Castle compares playerYPos with == $2D0, not a range. If the player can skip that row the exit never fires; not checked (OQ-I042-5).",
+      "- The Itory Village exit is disabled while flag $01 is set. $01 is set by unrelated scripts (angel_village, undersea_tunnel, great_wall floor buttons); whether it is cleared on scene load was not traced (OQ-I042-7).",
+      "- $0D60 is cleared on every path. It is the first word of the six-word companion array at $0D60-$0D6A that WorldMapController scans to place companion dots; why only the first word is cleared is not known (OQ-I042-6).",
+      "- The old header said the actor 'zeroes $0D60, stages the cursor and falls through to the exit handler'; that is right, but the handlers do not 'fall through': they JMP to OverworldExitFinalize."
+    ],
+    "partNotes": {
+      "OverworldExitDispatch": [
+        "Scene dispatch: compare sceneCurrent with 15 ids in turn and JMP to the matching region handler; an unknown id ends in OverworldExitNoMatch."
+      ],
+      "OverworldExitNoMatch": [
+        "No handler for this scene id: RTL (the dispatch runs again next frame)."
+      ],
+      "OverworldExitFinalize": [
+        "Common tail of every success path: gfxCacheIdxB := $0400, SetEntryHere, RTL. The actor idles here until the scene changes."
+      ],
+      "OverworldExitSouthCape": [
+        "Scene 01. The only handler that uses SetEntryHere: it re-tests playerYPos < $10 every frame. At the north edge it picks the menu from flags $26 and $25."
+      ],
+      "OverworldExitSouthCapeNorthGate": [
+        "Player is at the north edge: flag $26 -> menu $02 (Itory Village), flag $25 -> menu $1B (Quit only), otherwise menu $01 (Edward's Castle). Start ($D4,$3A4)."
+      ],
+      "OverworldExitSouthCapeFlag26": [
+        "Stage menu $02 (Quit / Itory Village), start ($D4,$3A4)."
+      ],
+      "OverworldExitSouthCapeFlag25": [
+        "Stage menu $1B (Quit only), start ($D4,$3A4)."
+      ],
+      "OverworldExitEdwardCastle": [
+        "Scene 0A. Exit when playerYPos is exactly $2D0."
+      ],
+      "OverworldExitEdwardCastleSouthEdge": [
+        "Stage menu $03 (Quit / South Cape), start ($104,$334)."
+      ],
+      "OverworldExitItoryVillage": [
+        "Scene 15. Flag $01 disables the exit; otherwise tiles (2D,2E)-(2F,30) trigger it."
+      ],
+      "OverworldExitItoryVillageBlocked": [
+        "Exit disabled by flag $01, or the player is outside the rectangle: RTL."
+      ],
+      "OverworldExitItoryVillageEnter": [
+        "Flag $4A -> menu $06 (Inca Ruins); otherwise menu $04 (South Cape). Start ($C4,$2B4)."
+      ],
+      "OverworldExitItoryVillageFlag4A": [
+        "Stage menu $06 (Quit / Inca Ruins), start ($C4,$2B4)."
+      ],
+      "OverworldExitRuinsEntrance": [
+        "Scene 1C. Tiles (06,1C)-(08,1E) trigger the exit."
+      ],
+      "OverworldExitRuinsEntranceEast": [
+        "Stage menu $05 (Quit / Itory Village), start ($134,$284)."
+      ],
+      "OverworldExitFreejia": [
+        "Scene 32. Tiles (12,3C)-(16,3E) trigger the exit."
+      ],
+      "OverworldExitFreejiaDefault": [
+        "Flag $65 -> menu $07 (Diamond Mine); otherwise menu $09 (Quit only). Start ($254,$2D4)."
+      ],
+      "OverworldExitFreejiaFlag65": [
+        "Stage menu $07 (Quit / Diamond Mine), start ($254,$2D4)."
+      ],
+      "OverworldExitDiamondMine": [
+        "Scene 3E. Tiles (0A,3F)-(0C,40) trigger the exit."
+      ],
+      "OverworldExitDiamondMineEast": [
+        "Stage menu $08 (Quit / Freejia), start ($334,$334)."
+      ],
+      "OverworldExitAngelVillage": [
+        "Scene 69. Tiles (29,0D)-(2C,0F) trigger the exit."
+      ],
+      "OverworldExitAngelVillageDefault": [
+        "Flag $8D -> menu $0A (Watermia); otherwise menu $15 (Quit only). Start ($384,$164)."
+      ],
+      "OverworldExitAngelVillageFlag8D": [
+        "Stage menu $0A (Quit / Watermia), start ($384,$164)."
+      ],
+      "OverworldExitWatermia": [
+        "Scene 78. Tiles (27,3D)-(29,40) trigger the exit."
+      ],
+      "OverworldExitWatermiaDefault": [
+        "Flag $94 -> menu $0E, flag $8E -> menu $0C, otherwise menu $0B. Start ($2D4,$1A4). The later-story flag is tested first."
+      ],
+      "OverworldExitWatermiaFlag8E": [
+        "Stage menu $0C (Quit / Angel Village / Great Wall), start ($2D4,$1A4)."
+      ],
+      "OverworldExitWatermiaFlag94": [
+        "Stage menu $0E (Quit / Angel Village / Great Wall / Euro city), start ($2D4,$1A4)."
+      ],
+      "OverworldExitGreatWall": [
+        "Scene 82. Tiles (00,08)-(01,0B) trigger the exit."
+      ],
+      "OverworldExitGreatWallNorth": [
+        "Stage menu $0D (Quit / Watermia), start ($2A4,$124)."
+      ],
+      "OverworldExitEuro": [
+        "Scene 91. Tiles (3F,42)-(40,48) trigger the exit."
+      ],
+      "OverworldExitEuroDefault": [
+        "Flag $AC -> menu $1A, flag $9F -> menu $10, otherwise menu $0F. Start ($1D4,$134)."
+      ],
+      "OverworldExitEuroFlag9F": [
+        "Stage menu $10 (Quit / Mt.Temple / Watermia), start ($1D4,$134)."
+      ],
+      "OverworldExitEuroFlagAC": [
+        "Stage menu $1A (Quit / Mt.Temple / Watermia / Natives' Vil.), start ($1D4,$134)."
+      ],
+      "OverworldExitMountainTemple": [
+        "Scene A0. Tiles (2F,1B)-(30,1C) trigger the exit."
+      ],
+      "OverworldExitMountainTempleEast": [
+        "Stage menu $11 (Quit / Euro city), start ($214,$B4)."
+      ],
+      "OverworldExitNativeVillage": [
+        "Scene AC. Tiles (1F,1B)-(20,20) trigger the exit."
+      ],
+      "OverworldExitNativeVillageDefault": [
+        "Flag $B6 -> menu $19, flag $B1 -> menu $13, otherwise menu $12. Start ($124,$1A4)."
+      ],
+      "OverworldExitNativeVillageFlagB1": [
+        "Stage menu $13 (Quit / Ankor Wat / Euro city), start ($124,$1A4)."
+      ],
+      "OverworldExitNativeVillageFlagB6": [
+        "Stage menu $19 (Quit / Ankor Wat / Euro city / Dao Village), start ($124,$1A4)."
+      ],
+      "OverworldExitAngkorWatDoor": [
+        "Scene B0. Tiles (1D,4F)-(24,50) trigger the exit."
+      ],
+      "OverworldExitAngkorWatDoorSouth": [
+        "Stage menu $14 (Quit / Natives' Village), start ($134,$154)."
+      ],
+      "OverworldExitDaoVillage": [
+        "Scene C3. Tiles (00,0D)-(01,11) trigger the exit."
+      ],
+      "OverworldExitDaoVillageDefault": [
+        "Flag $B4 -> menu $17; otherwise menu $16. Start ($94,$114)."
+      ],
+      "OverworldExitDaoVillageFlagB4": [
+        "Stage menu $17 (Quit / Pyramid / Natives' Village), start ($94,$114)."
+      ],
+      "OverworldExitPyramid": [
+        "Scene CC. Two rectangles, (00,0D)-(01,0F) and (3F,0D)-(40,0F), trigger the same exit."
+      ],
+      "OverworldExitPyramidNorth": [
+        "Stage menu $18 (Quit / Dao Village), start ($74,$B4)."
+      ]
+    },
+    "comments": {
+      "51781": {
+        "text": "Current scene id",
+        "expect": "LDA $sceneCurrent"
+      },
+      "51784": {
+        "text": "Scene $01 (south_cape/south_cape)?",
+        "expect": "CMP #$0001"
+      },
+      "51787": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene01"
+      },
+      "51789": {
+        "text": "Scene $01 matched: run OverworldExitSouthCape",
+        "expect": "JMP $&OverworldExitSouthCape"
+      },
+      "51792": {
+        "text": "Scene $0A (edward_castle/edward_castle)?",
+        "expect": "CMP #$000A"
+      },
+      "51795": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene0A"
+      },
+      "51797": {
+        "text": "Scene $0A matched: run OverworldExitEdwardCastle",
+        "expect": "JMP $&OverworldExitEdwardCastle"
+      },
+      "51800": {
+        "text": "Scene $15 (itory/itory_village)?",
+        "expect": "CMP #$0015"
+      },
+      "51803": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene15"
+      },
+      "51805": {
+        "text": "Scene $15 matched: run OverworldExitItoryVillage",
+        "expect": "JMP $&OverworldExitItoryVillage"
+      },
+      "51808": {
+        "text": "Scene $1C (incan_ruins/incan_ruins_entrance)?",
+        "expect": "CMP #$001C"
+      },
+      "51811": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene1C"
+      },
+      "51813": {
+        "text": "Scene $1C matched: run OverworldExitRuinsEntrance",
+        "expect": "JMP $&OverworldExitRuinsEntrance"
+      },
+      "51816": {
+        "text": "Scene $32 (freejia/freejia)?",
+        "expect": "CMP #$0032"
+      },
+      "51819": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene32"
+      },
+      "51821": {
+        "text": "Scene $32 matched: run OverworldExitFreejia",
+        "expect": "JMP $&OverworldExitFreejia"
+      },
+      "51824": {
+        "text": "Scene $3E (diamond_mine/mine_entrance)?",
+        "expect": "CMP #$003E"
+      },
+      "51827": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene3E"
+      },
+      "51829": {
+        "text": "Scene $3E matched: run OverworldExitDiamondMine",
+        "expect": "JMP $&OverworldExitDiamondMine"
+      },
+      "51832": {
+        "text": "Scene $69 (angel_village/angel_entrance)?",
+        "expect": "CMP #$0069"
+      },
+      "51835": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene69"
+      },
+      "51837": {
+        "text": "Scene $69 matched: run OverworldExitAngelVillage",
+        "expect": "JMP $&OverworldExitAngelVillage"
+      },
+      "51840": {
+        "text": "Scene $78 (watermia/watermia)?",
+        "expect": "CMP #$0078"
+      },
+      "51843": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene78"
+      },
+      "51845": {
+        "text": "Scene $78 matched: run OverworldExitWatermia",
+        "expect": "JMP $&OverworldExitWatermia"
+      },
+      "51848": {
+        "text": "Scene $82 (great_wall/wall_entrance)?",
+        "expect": "CMP #$0082"
+      },
+      "51851": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene82"
+      },
+      "51853": {
+        "text": "Scene $82 matched: run OverworldExitGreatWall",
+        "expect": "JMP $&OverworldExitGreatWall"
+      },
+      "51856": {
+        "text": "Scene $91 (euro/euro)?",
+        "expect": "CMP #$0091"
+      },
+      "51859": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotScene91"
+      },
+      "51861": {
+        "text": "Scene $91 matched: run OverworldExitEuro",
+        "expect": "JMP $&OverworldExitEuro"
+      },
+      "51864": {
+        "text": "Scene $A0 (mountain_temple/kress_entrance)?",
+        "expect": "CMP #$00A0"
+      },
+      "51867": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotSceneA0"
+      },
+      "51869": {
+        "text": "Scene $A0 matched: run OverworldExitMountainTemple",
+        "expect": "JMP $&OverworldExitMountainTemple"
+      },
+      "51872": {
+        "text": "Scene $AC (native_village/native_village)?",
+        "expect": "CMP #$00AC"
+      },
+      "51875": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotSceneAC"
+      },
+      "51877": {
+        "text": "Scene $AC matched: run OverworldExitNativeVillage",
+        "expect": "JMP $&OverworldExitNativeVillage"
+      },
+      "51880": {
+        "text": "Scene $B0 (angkor_wat/angkor_entrance)?",
+        "expect": "CMP #$00B0"
+      },
+      "51883": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotSceneB0"
+      },
+      "51885": {
+        "text": "Scene $B0 matched: run OverworldExitAngkorWatDoor",
+        "expect": "JMP $&OverworldExitAngkorWatDoor"
+      },
+      "51888": {
+        "text": "Scene $C3 (dao/dao)?",
+        "expect": "CMP #$00C3"
+      },
+      "51891": {
+        "text": "Not this scene: test the next id",
+        "expect": "BNE OverworldExitNotSceneC3"
+      },
+      "51893": {
+        "text": "Scene $C3 matched: run OverworldExitDaoVillage",
+        "expect": "JMP $&OverworldExitDaoVillage"
+      },
+      "51896": {
+        "text": "Scene $CC (pyramid/pyramid_main)?",
+        "expect": "CMP #$00CC"
+      },
+      "51899": {
+        "text": "Not scene $CC either: no handler",
+        "expect": "BNE OverworldExitNoMatch"
+      },
+      "51901": {
+        "text": "Scene $CC matched: run OverworldExitPyramid",
+        "expect": "JMP $&OverworldExitPyramid"
+      },
+      "51904": {
+        "text": "No handler for this scene id",
+        "expect": "RTL"
+      },
+      "51905": {
+        "text": "Value $0400 for gfxCacheIdxB",
+        "expect": "LDA #$0400"
+      },
+      "51908": {
+        "text": "gfxCacheIdxB := $0400 (every exit path sets it; purpose of the value not traced, OQ-I042-6)",
+        "expect": "STA $gfxCacheIdxB"
+      },
+      "51911": {
+        "text": "Re-enter at the RTL below from now on: the actor idles until the scene changes",
+        "expect": "COP [SetEntryHere]"
+      },
+      "51913": {
+        "text": "Return to the engine",
+        "expect": "RTL"
+      },
+      "51914": {
+        "text": "Re-enter here every frame (the scene dispatch is skipped)",
+        "expect": "COP [SetEntryHere]"
+      },
+      "51916": {
+        "text": "Player Y position",
+        "expect": "LDA $playerYPos"
+      },
+      "51919": {
+        "text": "Y < $10: the player is at the north edge of the scene",
+        "expect": "CMP #$0010"
+      },
+      "51922": {
+        "text": "At the edge: go on to the flag tests",
+        "expect": "BCC OverworldExitSouthCapeNorthGate"
+      },
+      "51924": {
+        "text": "Not at the north edge: nothing this frame",
+        "expect": "RTL"
+      },
+      "51925": {
+        "text": "Flag $26 set (sc06_kara_return): choose menu $02 (Quit / Itory Village)",
+        "expect": "COP [BranchOnFlagByte] ( #26, #01, &OverworldExitSouthCapeFlag26 )"
+      },
+      "51931": {
+        "text": "Flag $25 set (sc06_kara_return): choose menu $1B (Quit only)",
+        "expect": "COP [BranchOnFlagByte] ( #25, #01, &OverworldExitSouthCapeFlag25 )"
+      },
+      "51937": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "51940": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "51943": {
+        "text": "Stage world-map start ($00D4,$03A4) and choice $01 (Quit / Edward's Castle); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$00D4, #$03A4, #01 )"
+      },
+      "51950": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "51953": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "51956": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "51959": {
+        "text": "Stage world-map start ($00D4,$03A4) and choice $02 (Quit / Itory Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$00D4, #$03A4, #02 )"
+      },
+      "51966": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "51969": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "51972": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "51975": {
+        "text": "Stage world-map start ($00D4,$03A4) and choice $1B (Quit only); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$00D4, #$03A4, #1B )"
+      },
+      "51982": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "51985": {
+        "text": "Player Y position",
+        "expect": "LDA $playerYPos"
+      },
+      "51988": {
+        "text": "Exit row: Y exactly $2D0 (equality, not a range; OQ-I042-5)",
+        "expect": "CMP #$02D0"
+      },
+      "51991": {
+        "text": "On the exit row: stage the world-map exit",
+        "expect": "BEQ OverworldExitEdwardCastleSouthEdge"
+      },
+      "51993": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "51994": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "51997": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52000": {
+        "text": "Stage world-map start ($0104,$0334) and choice $03 (Quit / South Cape); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0104, #$0334, #03 )"
+      },
+      "52007": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52010": {
+        "text": "Flag $01 set (set by many unrelated scripts): exit disabled",
+        "expect": "COP [BranchOnFlagByte] ( #01, #01, &OverworldExitItoryVillageBlocked )"
+      },
+      "52016": {
+        "text": "Player inside tiles (2D,2E)-(2F,30) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitItoryVillageEnter",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #2D, #2E, #2F, #30, &OverworldExitItoryVillageEnter )"
+      },
+      "52024": {
+        "text": "Exit disabled (flag $01) or player outside the rectangle: nothing this frame",
+        "expect": "RTL"
+      },
+      "52025": {
+        "text": "Flag $4A set (it1A_lily): choose menu $06 (Quit / Inca Ruins)",
+        "expect": "COP [BranchOnFlagByte] ( #4A, #01, &OverworldExitItoryVillageFlag4A )"
+      },
+      "52031": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52034": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52037": {
+        "text": "Stage world-map start ($00C4,$02B4) and choice $04 (Quit / South Cape); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$00C4, #$02B4, #04 )"
+      },
+      "52044": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52047": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52050": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52053": {
+        "text": "Stage world-map start ($00C4,$02B4) and choice $06 (Quit / Inca Ruins); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$00C4, #$02B4, #06 )"
+      },
+      "52060": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52063": {
+        "text": "Player inside tiles (06,1C)-(08,1E) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitRuinsEntranceEast",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #06, #1C, #08, #1E, &OverworldExitRuinsEntranceEast )"
+      },
+      "52071": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52072": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52075": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52078": {
+        "text": "Stage world-map start ($0134,$0284) and choice $05 (Quit / Itory Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0134, #$0284, #05 )"
+      },
+      "52085": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52088": {
+        "text": "Player inside tiles (12,3C)-(16,3E) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitFreejiaDefault",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #12, #3C, #16, #3E, &OverworldExitFreejiaDefault )"
+      },
+      "52096": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52097": {
+        "text": "Flag $65 set (fr33_erik): choose menu $07 (Quit / Diamond Mine)",
+        "expect": "COP [BranchOnFlagByte] ( #65, #01, &OverworldExitFreejiaFlag65 )"
+      },
+      "52103": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52106": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52109": {
+        "text": "Stage world-map start ($0254,$02D4) and choice $09 (Quit only); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0254, #$02D4, #09 )"
+      },
+      "52116": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52119": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52122": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52125": {
+        "text": "Stage world-map start ($0254,$02D4) and choice $07 (Quit / Diamond Mine); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0254, #$02D4, #07 )"
+      },
+      "52132": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52135": {
+        "text": "Player inside tiles (0A,3F)-(0C,40) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitDiamondMineEast",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #0A, #3F, #0C, #40, &OverworldExitDiamondMineEast )"
+      },
+      "52143": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52144": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52147": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52150": {
+        "text": "Stage world-map start ($0334,$0334) and choice $08 (Quit / Freejia); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0334, #$0334, #08 )"
+      },
+      "52157": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52160": {
+        "text": "Player inside tiles (29,0D)-(2C,0F) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitAngelVillageDefault",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #29, #0D, #2C, #0F, &OverworldExitAngelVillageDefault )"
+      },
+      "52168": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52169": {
+        "text": "Flag $8D set (wa78_intro): choose menu $0A (Quit / Watermia)",
+        "expect": "COP [BranchOnFlagByte] ( #8D, #01, &OverworldExitAngelVillageFlag8D )"
+      },
+      "52175": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52178": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52181": {
+        "text": "Stage world-map start ($0384,$0164) and choice $15 (Quit only); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0384, #$0164, #15 )"
+      },
+      "52188": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52191": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52194": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52197": {
+        "text": "Stage world-map start ($0384,$0164) and choice $0A (Quit / Watermia); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0384, #$0164, #0A )"
+      },
+      "52204": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52207": {
+        "text": "Player inside tiles (27,3D)-(29,40) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitWatermiaDefault",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #27, #3D, #29, #40, &OverworldExitWatermiaDefault )"
+      },
+      "52215": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52216": {
+        "text": "Flag $94 set (wa79_neil): choose menu $0E (Quit / Angel Village / Great Wall / Euro city)",
+        "expect": "COP [BranchOnFlagByte] ( #94, #01, &OverworldExitWatermiaFlag94 )"
+      },
+      "52222": {
+        "text": "Flag $8E set (set when Lance's Letter is used): choose menu $0C (Quit / Angel Village / Great Wall)",
+        "expect": "COP [BranchOnFlagByte] ( #8E, #01, &OverworldExitWatermiaFlag8E )"
+      },
+      "52228": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52231": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52234": {
+        "text": "Stage world-map start ($02D4,$01A4) and choice $0B (Quit / Angel Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$02D4, #$01A4, #0B )"
+      },
+      "52241": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52244": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52247": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52250": {
+        "text": "Stage world-map start ($02D4,$01A4) and choice $0C (Quit / Angel Village / Great Wall); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$02D4, #$01A4, #0C )"
+      },
+      "52257": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52260": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52263": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52266": {
+        "text": "Stage world-map start ($02D4,$01A4) and choice $0E (Quit / Angel Village / Great Wall / Euro city); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$02D4, #$01A4, #0E )"
+      },
+      "52273": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52276": {
+        "text": "Player inside tiles (00,08)-(01,0B) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitGreatWallNorth",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #00, #08, #01, #0B, &OverworldExitGreatWallNorth )"
+      },
+      "52284": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52285": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52288": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52291": {
+        "text": "Stage world-map start ($02A4,$0124) and choice $0D (Quit / Watermia); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$02A4, #$0124, #0D )"
+      },
+      "52298": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52301": {
+        "text": "Player inside tiles (3F,42)-(40,48) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitEuroDefault",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #3F, #42, #40, #48, &OverworldExitEuroDefault )"
+      },
+      "52309": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52310": {
+        "text": "Flag $AC set (nvAC_kara): choose menu $1A (Quit / Mt.Temple / Watermia / Natives' Vil.)",
+        "expect": "COP [BranchOnFlagByte] ( #AC, #01, &OverworldExitEuroFlagAC )"
+      },
+      "52316": {
+        "text": "Flag $9F set (eu92_erasquez): choose menu $10 (Quit / Mt.Temple / Watermia)",
+        "expect": "COP [BranchOnFlagByte] ( #9F, #01, &OverworldExitEuroFlag9F )"
+      },
+      "52322": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52325": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52328": {
+        "text": "Stage world-map start ($01D4,$0134) and choice $0F (Quit / Watermia); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$01D4, #$0134, #0F )"
+      },
+      "52335": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52338": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52341": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52344": {
+        "text": "Stage world-map start ($01D4,$0134) and choice $10 (Quit / Mt.Temple / Watermia); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$01D4, #$0134, #10 )"
+      },
+      "52351": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52354": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52357": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52360": {
+        "text": "Stage world-map start ($01D4,$0134) and choice $1A (Quit / Mt.Temple / Watermia / Natives' Vil.); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$01D4, #$0134, #1A )"
+      },
+      "52367": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52370": {
+        "text": "Player inside tiles (2F,1B)-(30,1C) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitMountainTempleEast",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #2F, #1B, #30, #1C, &OverworldExitMountainTempleEast )"
+      },
+      "52378": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52379": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52382": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52385": {
+        "text": "Stage world-map start ($0214,$00B4) and choice $11 (Quit / Euro city); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0214, #$00B4, #11 )"
+      },
+      "52392": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52395": {
+        "text": "Player inside tiles (1F,1B)-(20,20) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitNativeVillageDefault",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #1F, #1B, #20, #20, &OverworldExitNativeVillageDefault )"
+      },
+      "52403": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52404": {
+        "text": "Flag $B6 set (daC4_kara): choose menu $19 (Quit / Ankor Wat / Euro city / Dao Village)",
+        "expect": "COP [BranchOnFlagByte] ( #B6, #01, &OverworldExitNativeVillageFlagB6 )"
+      },
+      "52410": {
+        "text": "Flag $B1 set (nvAC_map_kid): choose menu $13 (Quit / Ankor Wat / Euro city)",
+        "expect": "COP [BranchOnFlagByte] ( #B1, #01, &OverworldExitNativeVillageFlagB1 )"
+      },
+      "52416": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52419": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52422": {
+        "text": "Stage world-map start ($0124,$01A4) and choice $12 (Quit / Euro city); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0124, #$01A4, #12 )"
+      },
+      "52429": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52432": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52435": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52438": {
+        "text": "Stage world-map start ($0124,$01A4) and choice $13 (Quit / Ankor Wat / Euro city); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0124, #$01A4, #13 )"
+      },
+      "52445": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52448": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52451": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52454": {
+        "text": "Stage world-map start ($0124,$01A4) and choice $19 (Quit / Ankor Wat / Euro city / Dao Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0124, #$01A4, #19 )"
+      },
+      "52461": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52464": {
+        "text": "Player inside tiles (1D,4F)-(24,50) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitAngkorWatDoorSouth",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #1D, #4F, #24, #50, &OverworldExitAngkorWatDoorSouth )"
+      },
+      "52472": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52473": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52476": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52479": {
+        "text": "Stage world-map start ($0134,$0154) and choice $14 (Quit / Natives' Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0134, #$0154, #14 )"
+      },
+      "52486": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52489": {
+        "text": "Player inside tiles (00,0D)-(01,11) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitDaoVillageDefault",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #00, #0D, #01, #11, &OverworldExitDaoVillageDefault )"
+      },
+      "52497": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52498": {
+        "text": "Flag $B4 set (daC8_neil): choose menu $17 (Quit / Pyramid / Natives' Village)",
+        "expect": "COP [BranchOnFlagByte] ( #B4, #01, &OverworldExitDaoVillageFlagB4 )"
+      },
+      "52504": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52507": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52510": {
+        "text": "Stage world-map start ($0094,$0114) and choice $16 (Quit / Natives' Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0094, #$0114, #16 )"
+      },
+      "52517": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52520": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52523": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52526": {
+        "text": "Stage world-map start ($0094,$0114) and choice $17 (Quit / Pyramid / Natives' Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0094, #$0114, #17 )"
+      },
+      "52533": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      },
+      "52536": {
+        "text": "Player inside tiles (00,0D)-(01,0F) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitPyramidNorth",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #00, #0D, #01, #0F, &OverworldExitPyramidNorth )"
+      },
+      "52544": {
+        "text": "Player inside tiles (3F,0D)-(40,0F) (x > min, x <= max, y-8 likewise)? Yes: OverworldExitPyramidNorth",
+        "expect": "COP [BranchIfPlayerInAbsTiles] ( #3F, #0D, #40, #0F, &OverworldExitPyramidNorth )"
+      },
+      "52552": {
+        "text": "Not in the exit zone: nothing this frame (the dispatch runs again next frame)",
+        "expect": "RTL"
+      },
+      "52553": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "52556": {
+        "text": "Clear $0D60, the first word of the world map's six-word companion array (effect not traced, OQ-I042-6)",
+        "expect": "STA $0D60"
+      },
+      "52559": {
+        "text": "Stage world-map start ($0074,$00B4) and choice $18 (Quit / Dao Village); the nonzero X arms the world-map transition",
+        "expect": "COP [StageWorldMapChoice] ( #$0074, #$00B4, #18 )"
+      },
+      "52566": {
+        "text": "Common tail: set gfxCacheIdxB, then idle",
+        "expect": "JMP $&OverworldExitFinalize"
+      }
+    }
+  },
+  "functions/SpawnHitSparkSprites.asm": {
+    "blockNote": [
+      "Item-effect sparkle actor (Bank 00, 56579-56667). One spawn is a 24-frame effect that draws two small tiles side by side at the actor's position: 8 frames standing still, then 16 frames rising one pixel per frame. The old text ('four tile entries flanking the hit position', 'spawned during inventory-screen hit feedback') is wrong: it writes two compose-buffer entries per frame and its only spawn site is GiveItemToPlayer.",
+      "",
+      "=== SPAWN ===",
+      "",
+      "inventory_mgmt.GiveItemToPlayer, special-item branch: effect index >= 6 (item id $86 and up) adds 5 to hpToHeal, runs COP SpawnListAppend ( @SpawnHitSparkSprites, #00, #00, #$2F00 ) after PHD / TXA / TCD, then plays sound #22. The fourth operand is the flags word for the child's $10. The child copies position from the actor whose slot is in X when the item is given (the in-line comment there says the player; not verified). No item id of $86 or more was found in the chest tables or GiveItem operands of extracted/, so whether this path is reachable in the shipped game is open (OQ-I042-1).",
+      "",
+      "=== BODY ===",
+      "",
+      "SpawnHitSparkSprites: LoopStart #08 (8 frames) calling AppendHitSparkOamEntry, then LoopStart #10 (16 frames) that first subtracts 1 from $16 and then calls it again; LoopEnd yields every iteration; then Die. There is no initial Y offset (unlike the damage numbers).",
+      "AppendHitSparkOamEntry writes two 6-byte entries at the compose-buffer cursor oamWriteOffset ($00D8) in the buffer at $7F3100: X - 4 with tile word $327A, and X + 4 with tile word $327B, both at Y = $16. The tile words are tile $7A and $7B with attribute $3200 (the same priority 3 / palette 1 as the damage digits; tiles $70-$79 are the digits). The cursor advances by $0C. No terminator is written here; the main loop writes $FF after all actors have run.",
+      "",
+      "What tiles $7A / $7B look like was not checked (OQ-I042-2)."
+    ],
+    "partNotes": {
+      "SpawnHitSparkSprites": [
+        "Child actor entry: 8 frames at the spawn position, then 16 frames moving up one pixel per frame, calling AppendHitSparkOamEntry each frame."
+      ],
+      "AppendHitSparkOamEntry": [
+        "Append two compose-buffer entries (X - 4 / tile $327A and X + 4 / tile $327B, both at Y = $16) at oamWriteOffset, then oamWriteOffset += $0C. Preserves X."
+      ]
+    },
+    "comments": {
+      "56579": {
+        "text": "8 frames standing at the spawn position",
+        "expect": "COP [LoopStart] ( #08 )"
+      },
+      "56582": {
+        "text": "Draw the two sparkle tiles",
+        "expect": "JSR $&AppendHitSparkOamEntry"
+      },
+      "56585": {
+        "text": "Yield one frame; repeat until 8 frames are done",
+        "expect": "COP [LoopEnd]"
+      },
+      "56587": {
+        "text": "16 frames while rising",
+        "expect": "COP [LoopStart] ( #10 )"
+      },
+      "56590": {
+        "text": "Current Y",
+        "expect": "LDA $16"
+      },
+      "56592": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "56593": {
+        "text": "-1: rise one pixel per frame",
+        "expect": "ADC #$FFFF"
+      },
+      "56596": {
+        "text": "Store Y",
+        "expect": "STA $16"
+      },
+      "56598": {
+        "text": "Draw the two sparkle tiles",
+        "expect": "JSR $&AppendHitSparkOamEntry"
+      },
+      "56601": {
+        "text": "Yield one frame; repeat until 16 frames are done",
+        "expect": "COP [LoopEnd]"
+      },
+      "56603": {
+        "text": "Effect over: remove the actor",
+        "expect": "COP [Die]"
+      },
+      "56605": {
+        "text": "Save the actor slot (X is the buffer offset below)",
+        "expect": "PHX"
+      },
+      "56606": {
+        "text": "X := compose-buffer write cursor ($00D8)",
+        "expect": "LDX $oamWriteOffset"
+      },
+      "56609": {
+        "text": "Tile word: tile $7A, attribute $3200 (priority 3, palette 1)",
+        "expect": "LDA #$327A"
+      },
+      "56612": {
+        "text": "Entry 1 tile word (entry offset +4)",
+        "expect": "STA $oamComposeBuffer+4, X"
+      },
+      "56616": {
+        "text": "Actor X",
+        "expect": "LDA $14"
+      },
+      "56618": {
+        "text": "Prepare the subtraction",
+        "expect": "SEC"
+      },
+      "56619": {
+        "text": "X - 4",
+        "expect": "SBC #$0004"
+      },
+      "56622": {
+        "text": "Entry 1 X (entry offset +0)",
+        "expect": "STA $oamComposeBuffer, X"
+      },
+      "56626": {
+        "text": "Actor Y",
+        "expect": "LDA $16"
+      },
+      "56628": {
+        "text": "Entry 1 Y (entry offset +2)",
+        "expect": "STA $oamComposeBuffer+2, X"
+      },
+      "56632": {
+        "text": "Tile word: tile $7B, attribute $3200",
+        "expect": "LDA #$327B"
+      },
+      "56635": {
+        "text": "Entry 2 tile word (entry offset +A)",
+        "expect": "STA $oamComposeBuffer+A, X"
+      },
+      "56639": {
+        "text": "Actor X",
+        "expect": "LDA $14"
+      },
+      "56641": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "56642": {
+        "text": "X + 4",
+        "expect": "ADC #$0004"
+      },
+      "56645": {
+        "text": "Entry 2 X (entry offset +6)",
+        "expect": "STA $oamComposeBuffer+6, X"
+      },
+      "56649": {
+        "text": "Actor Y",
+        "expect": "LDA $16"
+      },
+      "56651": {
+        "text": "Entry 2 Y (entry offset +8)",
+        "expect": "STA $oamComposeBuffer+8, X"
+      },
+      "56655": {
+        "text": "Write cursor",
+        "expect": "LDA $oamWriteOffset"
+      },
+      "56658": {
+        "text": "Prepare the add",
+        "expect": "CLC"
+      },
+      "56659": {
+        "text": "Two 6-byte entries = $0C bytes",
+        "expect": "ADC #$000C"
+      },
+      "56662": {
+        "text": "Advance the cursor ($00D8)",
+        "expect": "STA $oamWriteOffset"
+      },
+      "56665": {
+        "text": "Restore the actor slot",
+        "expect": "PLX"
+      },
+      "56666": {
+        "text": "Done",
+        "expect": "RTS"
+      }
+    }
+  },
+  "actors/floor_button.asm": {
+    "blockNote": [
+      "Floor button (Bank 00, 51710-51778): a solid, hit-triggered switch that raises one numbered event flag each time it is struck. It is not a pressure plate: the actor is solid (MarkSolidHere), so the player cannot stand on it, and the trigger is the engine's hit callback. The old text ('triggers puzzle state when the player or objects land on the plate', 'used in pyramid puzzle rooms') is wrong.",
+      "",
+      "=== INIT ===",
+      "",
+      "actor-def <#00,#00,#01>. $24 := $0E (spawn type byte >> 1, the flag number), then $0E := $2000 (OAM attribute word, priority 2). statsPtr points at enemy_stats_table + $118 (the assembler's offset is hex), which is entry $46: HP $14, ATK $16, DEF $FF, type 0; the actor's currentHp is overwritten with $FF anyway. Metasprite spriteset_enemies, frame $0F shown with AnimOnce, MarkSolidHere. $12 |= $0031: bit $0001 selects between the two post-hit invulnerability modes ($FFEF recovery vs $0011 invincibility in combat_collision; which one it picks was not traced), bit $0010 makes the victim stagger-immune, bit $0020 marks it as a boss so no damage digits are spawned (combat_collision).",
+      "loc_00CA1F (re-arm): currentHp := $FF, COP SetHitCallback ( &FloorButtonHitCallback ), SetEntryHere, RTL. The actor then idles.",
+      "",
+      "=== WHEN HIT ===",
+      "",
+      "combat_collision dispatches onHitCallback ($7F1000) after the hit damage: the callback pointer becomes the victim's entry address and onHitCallback is cleared, so the script below runs on the actor's next turn. FloorButtonHitCallback: SetFlagRaw with A = $24 (the event-flag number, no base offset), frame $10 (assumed to be the pressed look; not viewed), AnimOnce, WaitByte #0F, frame $0F, AnimOnce, then BRA loc_00CA1F which restores HP $FF and registers the callback again. The button can therefore be struck again after about $0F frames plus two animation cycles.",
+      "",
+      "=== PLACEMENT AND FLAG READERS ===",
+      "",
+      "Seven spawns, all in Great Wall scenes (the old docs say pyramid):",
+      "",
+      "| Scene | Area | Position (tile) | Type byte | Flag | Reader of that flag |",
+      "|-------|------|-----------------|-----------|------|---------------------|",
+      "| 83 | great_wall/wall_dive | 35,1B | 03 | $01 | gw83_switch (WaitOnFlagByte $01, placed on the same tile) |",
+      "| 85 | great_wall/wall_rampway | 18,1A | 03 | $01 | gw85_retractable_gate |",
+      "| 85 | great_wall/wall_rampway | 3B,29 and 29,2B | 05 | $02 | gw85_short_switch_spear |",
+      "| 85 | great_wall/wall_rampway | 37,2C | 07 | $03 | gw85_long_switch_spear |",
+      "| 85 | great_wall/wall_rampway | 64,1D | 09 | $04 | gw85_multi_switch_spear |",
+      "| 87 | scene 87 (no area folder in extracted/) | 2F,28 | 1F | $0F | none in the scene's spawn list |",
+      "",
+      "The gw85 actors run WaitOnFlagByte ( #n, #01 ) followed by ClearFlagByte ( #n ), so in the rampway the flag is a one-shot trigger consumed by the gate or spear. gw83_switch waits on flag $01 and does not clear it. In scene 87 the flag $0F has no waiter among the scene's actors (the gw82_wall_spear actors it spawns use timers only); $0F is also used as an unrelated flag in Babel Tower and Freejia scripts (OQ-I042-3)."
+    ],
+    "partNotes": {
+      "code_00C9FE": [
+        "Init: flag number $24 := $0E, OAM attribute $2000, stats pointer at enemy_stats_table + $118, frame $0F, solid, $12 |= $0031, then fall into the re-arm step."
+      ],
+      "loc_00CA1F": [
+        "Re-arm: HP := $FF, register FloorButtonHitCallback, SetEntryHere and idle with RTL. Reached from init and from the end of the callback."
+      ],
+      "FloorButtonHitCallback": [
+        "Runs after a hit: set event flag $24, show frame $10 (assumed pressed look), wait $0F frames, show frame $0F again, then re-arm."
+      ]
+    },
+    "comments": {
+      "51710": {
+        "text": "Spawn type byte >> 1: the event-flag number (1, 2, 3, 4 or $0F)",
+        "expect": "LDA $0E"
+      },
+      "51712": {
+        "text": "Keep it in $24 for the hit callback",
+        "expect": "STA $24"
+      },
+      "51714": {
+        "text": "OAM attribute word: priority 2, palette 0",
+        "expect": "LDA #$2000"
+      },
+      "51717": {
+        "text": "Replaces $0E now that the flag number is saved",
+        "expect": "STA $0E"
+      },
+      "51719": {
+        "text": "Offset $118 = entry $46 of enemy_stats_table (HP $14, ATK $16, DEF $FF, type 0)",
+        "expect": "LDA #$&enemy_stats_table+118"
+      },
+      "51722": {
+        "text": "Stats pointer",
+        "expect": "STA $statsPtr, X"
+      },
+      "51726": {
+        "text": "Metasprite set: spriteset_enemies",
+        "expect": "COP [SetMetasprite] ( @spriteset_enemies )"
+      },
+      "51731": {
+        "text": "Frame $0F (resting)",
+        "expect": "COP [StageSpriteFrame] ( #0F )"
+      },
+      "51734": {
+        "text": "Show it",
+        "expect": "COP [AnimOnce]"
+      },
+      "51736": {
+        "text": "Solid: the player cannot walk onto the button",
+        "expect": "COP [MarkSolidHere]"
+      },
+      "51738": {
+        "text": "$0001 iframe-mode select, $0010 stagger-immune, $0020 boss (no damage digits)",
+        "expect": "LDA #$0031"
+      },
+      "51741": {
+        "text": "Set those bits in $12",
+        "expect": "TSB $12"
+      },
+      "51743": {
+        "text": "Re-arm: HP value 255",
+        "expect": "LDA #$00FF"
+      },
+      "51746": {
+        "text": "currentHp := $FF (the button cannot be killed in practice)",
+        "expect": "STA $currentHp, X"
+      },
+      "51750": {
+        "text": "Run FloorButtonHitCallback when hit (onHitCallback is cleared on every dispatch)",
+        "expect": "COP [SetHitCallback] ( &FloorButtonHitCallback )"
+      },
+      "51754": {
+        "text": "Re-enter here every frame",
+        "expect": "COP [SetEntryHere]"
+      },
+      "51756": {
+        "text": "Idle until hit",
+        "expect": "RTL"
+      },
+      "51757": {
+        "text": "Flag number from init",
+        "expect": "LDA $24"
+      },
+      "51759": {
+        "text": "Set event flag A (SetFlagRaw: no base offset)",
+        "expect": "JSL $@flag_helpers.SetFlagRaw"
+      },
+      "51763": {
+        "text": "Frame $10 (assumed pressed look; not viewed)",
+        "expect": "COP [StageSpriteFrame] ( #10 )"
+      },
+      "51766": {
+        "text": "Show it",
+        "expect": "COP [AnimOnce]"
+      },
+      "51768": {
+        "text": "Hold for $0F frames",
+        "expect": "COP [WaitByte] ( #0F )"
+      },
+      "51771": {
+        "text": "Frame $0F (resting)",
+        "expect": "COP [StageSpriteFrame] ( #0F )"
+      },
+      "51774": {
+        "text": "Show it",
+        "expect": "COP [AnimOnce]"
+      },
+      "51776": {
+        "text": "Back to the re-arm step",
+        "expect": "BRA loc_00CA1F"
+      }
+    }
+  }
+}

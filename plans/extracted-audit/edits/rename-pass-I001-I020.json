@@ -1,0 +1,37 @@
+{
+    "system/engine/system_core.asm": {
+        "partNotes": {
+            "MainLoop": [
+                "The main game loop: one pass per frame, entered after SystemInit and never left (the last instruction is BRL MainLoop).",
+                "",
+                "Order of one pass: VBlankWaitAndJoypad (frame sync and joypad read), EnableNmiOnly, RunThinkers_TypeA, CheckSceneTransition, CheckWarpAndChest, GlobalInputHandler, UpdateFrameCounters, RunActors_Normal, the $FF terminator for the OAM compose buffer, SortActorsByDepth, the four collision passes (RunCombatCollision, RunInteractionCollision, CheckPlayerDeath, ProcessDodgeCallbacks), CameraSmoothScroll for layer 0 and layer 1, ResetHdmaState, RunThinkers_TypeB, ComposeAllSprites, UpdateHUD, LoadMusicFromTransitionState, EnableNmiAndJoypad."
+            ],
+            "UpdateHUD_Active": "Body of UpdateHUD, entered when hudDisableFlag bit 6 (HUD off) is clear: it saves displayModeFlags bit 0 and runs the HP recovery animation, the stat-change redraw, the enemy health bar timer and the cache update described in the UpdateHUD note."
+        }
+    },
+    "system/engine/cop_handlers_wait.asm": {
+        "partNotes": {
+            "WaitStoreAndYield": "Shared tail of WaitByte and WaitWord (A = frame count): stores the count in waitCounter ($08), copies the resume bank and PC from the COP frame ($0C/$0A) into the entry pointer ($02/$00), then discards the COP stack frame with two PLA and returns with RTL to the actor loop, which resumes the actor when the counter goes negative."
+        }
+    },
+    "system/engine/cop_handlers_actor_death.asm": {
+        "partNotes": {
+            "UnlinkChildrenCascade": "Entry of the child-removal cascade (X = dying actor, reached when actor flag $0040 is set): walks the doubly-linked actor list backward and forward from the dying actor while parentId matches it, returns every slot in that span to the pool with ReturnActorSlot, and patches the list links around the removed span."
+        }
+    },
+    "system/engine/music_actors.asm": {
+        "partNotes": {
+            "MusicJingleAfterSpawn": "Continuation after the first SpcTransferMusicData spawn: gives the child the jingle's music data index ($26 + 1 as chatPtr), sets $1000 in its $12 so it still runs in display-filter mode, masks the joypad (joypadMaskStd bits 2-15) and yields with SetEntryHere. On resume it polls musicTransitionState and continues at MusicJingleRenderSync once the value is $FFFF (upload complete).",
+            "MusicJingleRenderSync": "Runs after the jingle upload finished: spawns MusicRenderSync (with $1000 set in its $12) and hands it the dialogue string pointer ($20) and bank ($22), then yields and polls APUIO1 every frame. The value $FF (the SPC700's reply that its sound engine is ready) continues at MusicJingleSpcReady.",
+            "MusicJingleSpcReady": "After the SPC reply: unmasks the joypad again, spawns a second SpcTransferMusicData whose chatPtr is the scene music index saved in orbitAngle (so the scene track is reloaded) and polls musicTransitionState; at $FFFF it continues at MusicJingleWaitFinal. Pool exhaustion branches to MusicLoadCleanup.",
+            "MusicJingleWaitFinal": "Final step of the jingle sequence: waits one frame (COP WaitByte #01), then falls through into MusicLoadCleanup, which leaves display-filter mode and kills the actor.",
+            "IsMusicPlayingYes": "Shared exit of IsMusicPlaying that returns carry set: a music transfer is in progress or the display-filter flag is still set."
+        }
+    },
+    "system/hdma_ramp_tables.asm": {
+        "partNotes": {
+            "ramp_curve_arc_64": "Entry 0 of ramp_motion_curves: 64 signed Y deltas in pixels, one per frame, running from $F0 (−16) through 0 to $10 (+16): the slow arc.",
+            "ramp_curve_arc_32": "Entry 1 of ramp_motion_curves: 32 signed Y deltas in pixels, one per frame, running from $F8 (−8) through 0 to $08 (+8): the fast arc."
+        }
+    }
+}

@@ -1,0 +1,187 @@
+{
+  "_note": "IT-02: WaitByte / WaitWord / wait counter $08 = n skips n passes and runs on pass n + 1, so it waits n + 1 ticks (actor_execution.asm DEC $08 / BPL, cop_handlers_wait.asm). One spec, ten files plus the town_door comment. Block and part notes use edit ops, so re-running this spec reports an error instead of =unchanged.",
+
+  "system/engine/warps_interaction.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "WaitByte 11 frames", "with": "WaitByte #0B (12 ticks)" },
+        { "find": "ChestDialogueActor: waits 72 frames", "with": "ChestDialogueActor: WaitByte #48 (73 ticks)" }
+      ]
+    },
+    "partNotes": {
+      "ChestDialogueActor": {
+        "edit": [
+          { "find": "COP [WaitByte] ($48): waits 72 frames while the fanfare plays", "with": "COP [WaitByte] ( #48 ): waits 73 ticks (operand + 1) while the fanfare plays" }
+        ]
+      },
+      "InitWarpTable": {
+        "edit": [
+          { "find": "each entry starts with a non-$FF byte, and the routine advances by 12 bytes ($000C) per entry until finding the $FF terminator.", "with": "the first byte of each entry is its X tile (bit 7 clear), the routine advances by 12 bytes ($000C) per entry and stops at the first byte with bit 7 set (BMI; every list uses $FF)." }
+        ]
+      }
+    },
+    "comments": {
+      "174099": { "text": "Spawn ChestDialogueActor (shows the item text after its 73-tick delay)", "expect": "SpawnAfterFlags" },
+      "174216": { "text": "WaitByte #0B = 12 ticks, then fall into the cleanup", "expect": "WaitByte" },
+      "174227": { "text": "WaitByte #48 = 73 ticks before showing the item dialogue", "expect": "WaitByte" }
+    }
+  },
+
+  "system/engine/music_actors.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "Waits again for $FFFF, WaitByte(1), then falls through", "with": "Waits again for $FFFF, WaitByte #01 (2 ticks), then falls through" },
+        { "find": "MusicRenderSync waits $48 (72) frames, clears", "with": "MusicRenderSync does WaitByte #48 (73 ticks), clears" }
+      ]
+    },
+    "partNotes": {
+      "MusicJingleActor": {
+        "edit": [
+          { "find": "waits again for $FFFF and WaitByte(1), then falls through", "with": "waits again for $FFFF and WaitByte #01 (2 ticks), then falls through" }
+        ]
+      },
+      "MusicJingleWaitFinal": {
+        "edit": [
+          { "find": "waits one frame (COP WaitByte #01), then falls through", "with": "waits 2 ticks (COP WaitByte #01), then falls through" }
+        ]
+      },
+      "MusicRenderSync": {
+        "edit": [
+          { "find": "Waits $48 (72) frames via COP [WaitByte],", "with": "Waits 73 ticks via COP [WaitByte] ( #48 )," }
+        ]
+      }
+    },
+    "comments": {
+      "172250": { "text": "Final sync: WaitByte #01 = 2 ticks, then fall through into MusicLoadCleanup", "expect": "WaitByte" },
+      "172261": { "text": "WaitByte #48 = 73 ticks before showing the text (inferred: the jingle plays meanwhile)", "expect": "WaitByte" }
+    }
+  },
+
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "FluteRestoreMusicPhase": {
+        "edit": [
+          { "find": "WaitByte one frame", "with": "WaitByte #01 (2 ticks)" }
+        ]
+      }
+    }
+  },
+
+  "system/engine/cop_handlers_script_control.asm": {
+    "partNotes": {
+      "JumpAfterDelay": {
+        "edit": [
+          { "find": "plus one word (frame delay)", "with": "plus one word (delay count n)" },
+          { "find": "stores the delay word in $08, and yields via RTL.", "with": "stores n in $08 and yields via RTL. The script resumes at the target n + 1 ticks later (the WaitByte rule; 0 = next tick)." }
+        ]
+      }
+    },
+    "comments": {
+      "43557": { "text": "Read delay count word operand (n)", "expect": "LDA [$0A]" },
+      "43563": { "text": "Store n in timer $08: the actor resumes at the target n + 1 ticks later", "expect": "STA $08" }
+    }
+  },
+
+  "system/engine/cop_handlers_player_query.asm": {
+    "partNotes": {
+      "WaitWhileOffscreen": {
+        "edit": [
+          { "find": "(delay in frames)", "with": "(delay count n)" },
+          { "find": "stores the delay in $08 and yields, so the test repeats after the delay;", "with": "stores n in $08 and yields, so the test repeats n + 1 ticks later (the WaitByte rule);" }
+        ]
+      }
+    },
+    "comments": {
+      "37091": { "text": "Store n in the actor's wait counter $08: the test re-runs n + 1 ticks later", "expect": "STA $08" },
+      "37093": { "text": "Pop COP frame and yield via RTL; the COP re-executes when the wait counter runs out", "expect": "PLA" }
+    }
+  },
+
+  "actors/player/player_character.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "sets playerFlags $0010 for 479 frames)", "with": "sets playerFlags $0010 for 480 ticks, WaitWord #$01DF)" }
+      ]
+    },
+    "comments": {
+      "182079": { "text": "Terrain shake: set playerFlags bit 4 ($0010), WaitWord #$01DF = 480 ticks, clear flag, die", "expect": "LDA" }
+    }
+  },
+
+  "functions/RandomPlayerOffset.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "so the actor sleeps 60 frames; its entry pointer is never changed, so it should run this code again and re-roll the position: a marker that hops every 60 frames, not a '60-frame lifetime' as the older header said.", "with": "so the actor skips 60 passes and runs again on the 61st tick; its entry pointer is never changed, so it should run this code again and re-roll the position: a marker that hops every 61 ticks, not a lifetime." }
+      ]
+    },
+    "comments": {
+      "720257": { "text": "Wait counter $08 = $3C: skips 60 passes, so the entry code runs again after 61 ticks (a re-roll), not a lifetime", "expect": "LDA" }
+    }
+  },
+
+  "actors/hit_switch.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "AnimOnce, WaitByte #0F, frame $0F", "with": "AnimOnce, WaitByte #0F (16 ticks), frame $0F" },
+        { "find": "after about $0F frames plus two animation cycles", "with": "after about 16 ticks plus two animation cycles" }
+      ]
+    },
+    "partNotes": {
+      "HitSwitchTriggered": {
+        "edit": [
+          { "find": "wait $0F frames", "with": "wait 16 ticks (WaitByte #0F)" }
+        ]
+      }
+    },
+    "comments": {
+      "51768": { "text": "Hold for 16 ticks (WaitByte #0F)", "expect": "WaitByte" }
+    }
+  },
+
+  "functions/npc_wander_ai.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "(the script sleeps 120 frames after the caller's SetEntryHereAndYield)", "with": "(the script sleeps 121 ticks after the caller's SetEntryHereAndYield: $78 skipped passes, then it runs on the next one)" }
+      ]
+    },
+    "partNotes": {
+      "NpcWanderStageStand": {
+        "edit": [
+          { "find": "wait 120 frames ($08 = $78)", "with": "wait 121 ticks ($08 = $78: 120 skipped passes)" }
+        ]
+      }
+    },
+    "comments": {
+      "51059": { "text": "$08 := $78: the script sleeps 121 ticks after the caller's SetEntryHereAndYield", "expect": "LDA" }
+    }
+  },
+
+  "functions/camera_drift.asm": {
+    "blockNote": {
+      "edit": [
+        { "find": "A run is followed by $08 := 3 (3 frames) and DEC $2A; the third run ends in Die, so the actor lives about 9 frames and applies 3 Y and 3 X offsets.", "with": "A run is followed by $08 := 3 (the next run starts 4 ticks later) and DEC $2A; the third run ends in Die, so the runs fall 4 ticks apart (the third 8 ticks after the first) and the actor applies 3 Y and 3 X offsets before it dies." }
+      ]
+    },
+    "partNotes": {
+      "CameraDriftPatterned": {
+        "edit": [
+          { "find": "3 runs, 3 frames apart,", "with": "3 runs, 4 ticks apart ($08 := 3)," }
+        ]
+      },
+      "loc_00D05B": {
+        "edit": [
+          { "find": "wait 3 frames ($08), count down $2A", "with": "$08 := 3 (the next run starts 4 ticks later), count down $2A" }
+        ]
+      }
+    },
+    "comments": {
+      "53343": { "text": "$08 := 3: the next run starts 4 ticks later", "expect": "STA $08" }
+    }
+  },
+
+  "actors/town_door.asm": {
+    "comments": {
+      "50695": { "text": "Off-screen ($4000 set at spawn): operand #0A goes to $08, so this op re-runs 11 ticks later; it becomes the entry pointer, the loop head of later frames", "expect": "WaitWhileOffscreen" }
+    }
+  }
+}

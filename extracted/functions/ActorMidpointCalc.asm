@@ -2,7 +2,7 @@
 ; 
 ; $04 and $06 are the actor's prevActorLink / nextActorLink (wram-memory-map). mtA0_acid_spider (code_0BA2BE) and awB0_zombie call it every frame from a SetEntryHere loop without setting either, so the child sits midway between its list neighbours; dm3D_flayzer calls it once to place a shot.
 ; Callers: mtA0_acid_spider (2 sites), awB0_zombie, av6E_draco (2), dm3D_flayzer, unused_mode7_boss. combat_collision does not call it.
-; When $06 is 0 (no successor) the B reads would hit low RAM at $0014 / $0016; whether callers guarantee a neighbour was not traced.
+; When $06 is 0 (no successor) the B reads would hit low RAM at $0014 / $0016; AllocateActorAfter gives a child spawned by SpawnAfterMarked / SpawnAfterFlags $04 = its spawner and $06 = the spawner's old next link, which is 0 when the spawner was the list tail, so a child can start with $06 = 0. Not traced at run time: whether a caller ever runs in that state (none of the callers ran in the scenes tried).
 ---------------------------------------------
 
 ---------------------------------------------

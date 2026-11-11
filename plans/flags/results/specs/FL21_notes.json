@@ -1,0 +1,230 @@
+{
+  "_note": "FL21 draft: shipped block notes (the header comments of the extracted files) and two comments that the code contradicts or leaves misleading for the flags of Edward's Castle and the mansion. Every blockNote is a full-text replacement (re-appliable); the two jeweler_gem entries use find/with and expectOld. Apply in the apply pass (plan section 7) after a fresh extract:lt. Docs that cannot go through merge are listed in the report, section 7.",
+  "edward_castle/edward_castle/ec0A_left_guard.asm": {
+    "blockNote": [
+      "Left guard at the castle entrance (scene $0A).",
+      "",
+      "Three states, chosen at spawn by flag $21 (the throne scene is over) and flag $3F (the letter was shown):",
+      "- $21 and $3F clear (first arrival): sets the joypad lock ($CFFC in joypadMaskStd), runs one walking loop, prints the intrusion dialog and the 'Will shows the letter to the guard' / 'you may pass' lines, sets $3F and releases the lock. The actor never checks for a letter item; the dialog is fixed, so the lock lasts only until this cutscene ends.",
+      "- $3F set, $21 clear: patrols between two walking loops for good; talk: 'Go to the second floor if you want to meet King Edward.'",
+      "- $21 set (after the throne scene): parked solid at tile (06,27); talk: 'Ah! It's you! You've escaped from the prison... Run from this castle.'"
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_right_guard.asm": {
+    "blockNote": [
+      "Right guard at the castle entrance (scene $0A).",
+      "",
+      "$21 clear: walks one patrol loop (talk meanwhile: 'Be courteous and know that the King is very strict.'), then stands still with a second talk handler. Its first talk prints 'Don't raise your voice. And mind your manners.', gives one Red Jewel (GiveItem #01; inventory full jumps to hidden_red_jewel.HiddenRedJewelInventoryFull and leaves the latch clear), prints 'In exchange, I will give you one Red Jewel.' and sets flag $D8; later talks print only the manners line.",
+      "",
+      "$21 set (after the throne scene): parked at tile (38,29) with the 'Zzzzzz' handler."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_stair_guard.asm": {
+    "blockNote": [
+      "Stairway guard NPC in Edward Castle (scene $0A).",
+      "",
+      "$21 clear: solid, blocking the stairs. Talk: 'King Edward is having breakfast. Wait a while, then enter.' The wait is on flag $19 (Will has met Kara; set by ec0A_kara), not on time: once $19 is set the guard clears his solid mark, steps aside, becomes solid again beside the stairs and says 'The interview room is before you. Climb the stairs to meet the king.'",
+      "",
+      "$21 set (after the throne scene): asleep ('Zzzzzz...')."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_kara_guard.asm": {
+    "blockNote": [
+      "Guard outside Kara's room at Edward Castle (scene $0A).",
+      "",
+      "States keyed on flags $21, $19 and $1A:",
+      "- $21, $19 and $1A clear: blocks the door with three solid marks. His talk ('This is the Princess's room. Strangers can't enter.') sets scratch $01 and locks the joypad ($CFFC); Kara answers (sets $1A and scratch $02), and the guard prints the 'shabby boy ... Let him in, or I'll tell everyone your old nickname' dialog and unlocks. The script then falls through to the door post (code_04C991).",
+      "- At the post: waits for scratch $03 (Kara finished her plea), says 'Princess, let's go.', clears $03 and waits for $19.",
+      "- $19 set (Kara's scene is done): talk 'Your business is finished. Get out! Now!' with playerSpeedEw = 8 and bit $0100 ORed into joypadCurrent (a forced walk).",
+      "- $21 set (after the throne scene): asleep ('Zzzzz...').",
+      "",
+      "Comedy scene: Kara blackmails him with his old nickname."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_kara.asm": {
+    "blockNote": [
+      "Kara in her room at Edward Castle (scene $0A, scene_actors row 10).",
+      "",
+      "Tests at spawn, in order: $22 set (Kara escaped): dies. $21 set: escort mode (below). $19 set: idles with the plea talk. $1A set: stands at tile (0B,0C) and runs the meeting when Will is near. None set: waits for scratch $01 (the door guard's talk), sets $1A, prints 'Who is it?' / 'A guest?', sets scratch $02 for the guard and falls into the meeting.",
+      "",
+      "Meeting (before the throne scene): locks the joypad ($CFFC); Will says he was told to bring the Crystal Ring; Kara's plea; sets scratch $03 (the guard says 'Princess, let's go'), waits for the guard to clear it, prints 'I feel scared ... Please save me! Take me out of here!', sets $19 and unlocks.",
+      "",
+      "Escort (after the throne scene, $21 set): stands solid at tile (05,0A); her talk ('Of course, you've come! ... His name is Hamlet') sets scratch $01, after which she follows Will (EscortFollowPathTracker). The cellar helper code_04CF5C watches tiles (1E,2C)-(22,2D) for the action button: scratch $01 clear: 'If you want to take her away, now's the time...'; no yak roast (item #0A): 'we should take food! Would you go to the cellar with me?'; with the roast: sets $22 and word $0119, prints 'At last, we leave.', writes $0D60 and $0D62, stages a world-map move and queues scene $06 (Will's house)."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_barrel_roast.asm": {
+    "blockNote": [
+      "Barrel with the yak roast in Edward Castle (scene $0A, scene_actors row 13 at tile (28,3B)).",
+      "",
+      "Flag $46 set at spawn: the script jumps into code_04D0FF, which sets $46 again, sets displayModeFlags bit $80, plays MusicAndText #17 ('You've found a large, yummy roast leg of yak!' and Kara's 'Everything's ready!') and dies; as written the pickup message therefore replays whenever the scene loads with $46 set (not watched in the emulator).",
+      "",
+      "$46 clear: waits for scratch $01 (set by the Kara-door guard's talk before the throne scene and by Kara's talk after it, so the barrel is not gated on $21), then installs the talk handler: GiveItem #0A (inventory full: InventoryFullMessage and the flag stays clear), then the code_04D0FF path. A tile trigger at (22,37)-(26,3D) prints Kara's hint 'I think someone put food in one of these barrels.' The escape in ec0A_kara tests the item (BranchIfHasItem #0A), not $46."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_edward.asm": {
+    "blockNote": [
+      "King Edward -- the throne room audience scene (scene $0A).",
+      "",
+      "Spawns solid at his throne (nudged +8 in X). Talk: 'You're Will? You look so...shabby. Well, did you bring the Crystal Ring?' with two answers; they print different lines ('How dare you say such a thing to me!!' for the first, 'Good. An honest lad. Give me the Ring.' ... 'Are you lying to me, young whelp?!' for the second) and both end with 'Guards!! Throw this impudent weasel in prison!!' and set scratch $05. The main script waits on $05, locks the joypad ($CFFC), sets scratch $0A and prints 'Soldier: Yes, sir!'; the throne guards start on $0A and release the lock at the end of the sequence.",
+      "",
+      "Edward sets only scene scratch flags. The persistent flag of this scene, $21, is set by the fade-out helper of ec0A_throne_guard2 just before the prison scene is queued."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_prison_guard.asm": {
+    "blockNote": [
+      "Guard blocking the prison entrance in the castle (scene $0A).",
+      "",
+      "$21 clear: solid two tiles high; talk: 'This is the underground prison. Innocent people can't enter.' $21 set (after the throne scene): the actor dies at spawn."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_torch1.asm": {
+    "blockNote": [
+      "Animated wall torch in Edward Castle (instance 1, ten placements in scene $0A).",
+      "",
+      "The torch exists only after the throne scene: with flag $21 CLEAR the actor dies at spawn; with $21 set it runs the flame loop (RNG-phase start, WaitWhileOffscreen, frame #06 animation)."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_torch2.asm": {
+    "blockNote": [
+      "Animated wall torch in Edward Castle (instance 2, eleven placements in scene $0A).",
+      "",
+      "Same script as ec0A_torch1 with another position nudge: with flag $21 CLEAR the actor dies at spawn, so the torches exist only after the throne scene."
+    ]
+  },
+  "edward_castle/edward_castle/ec0A_throne_guards.asm": {
+    "blockNote": [
+      "Throne room guards and the arrest sequence (scene $0A): ec0A_throne_guard1 and ec0A_throne_guard2 (scene_actors rows 09 and 0A).",
+      "",
+      "Both stand solid with the 'keep your wits about you' handler until scratch $0A (set by ec0A_edward) arrives, then walk their routes. Guard2 prints 'Will: Ma'am! Save me!! / Queen Edwina: Did you say Ma'am??' and sets scratch $0B; ec0A_edwina answers with $0C; both guards then continue.",
+      "",
+      "Guard2 then spawns code_04C6F2 (moves Will's X up to $01F8, then #50 steps in Y) and code_04C721, a fade-out (INIDISP brightness 15 down to 0), which SETS flag $21, queues scene $0B (the prison) at ($00E8,$00A0), releases the joypad lock and dies."
+    ]
+  },
+  "edward_castle/edward_castle/edward_castle_alarm_palette.asm": {
+    "blockNote": [
+      "Red-alert palette thinker of Edward Castle (scene $0A; the second record of thinker list 0CE821).",
+      "",
+      "At spawn it tests flags once: $22 set (Kara escaped) or $21 clear (the throne scene has not happened) kills the thinker at once. The tests are not repeated, so the alert shows only when the scene loads with $21 set and $22 clear (the castle after the prison). Then it loops: PaletteStart #05 / PaletteStep (a cycling emergency palette), writes COLDATA $24 and $42 (red tint), sets the scene-setup latch $FF and waits for the engine to clear it before the next cycle."
+    ]
+  },
+  "edward_castle/castle_prison/ec0B_guard.asm": {
+    "blockNote": [
+      "Fellow prisoner in the castle prison (scene $0B, tile (02,14)); the label says 'guard' but the dialog ('I don't need anyone's help... I can get out by myself...') is a prisoner's.",
+      "",
+      "At spawn it replays the unlocked-door state of the Prison Key doors: flag $42 set: ClearTypeAbs (09,17); flag $43 set: ClearTypeAbs (14,17) (no code sets $43). Then it marks itself solid, installs the talk handler and writes the player's attribute word ($0E) every frame: $3000 while Will is inside tiles (0D,12)-(11,14), $2000 elsewhere."
+    ]
+  },
+  "edward_castle/castle_prison/ec0B_cell.asm": {
+    "blockNote": [
+      "Prison cell master script (scene $0B, scene_actors row 03 at tile (0B,20)).",
+      "",
+      "Flag $24 (cell door opened with the Prison Key) set: the actor dies at spawn. Otherwise it spawns a VRAM helper (code_04DB00: one AdhocVramDma per frame while scratch $00 is clear), marks the door tiles (0E,11) and (0F,11) solid, locks the joypad, plays Will's opening monologue, unlocks and waits for three scratch handshakes in order: $02 (the door tried), $03 (the moss) and $04 (the ball and chain examined).",
+      "",
+      "After #$04B0 ticks a soldier's whisper announces the bread and the bread child (code_04D346) drops in; its talk (Will tastes the bread) sets scratch $01, and after #$0258 ticks the evening scene runs (joypad lock, the flute and Will's father's voice, the hint to look at the left-hand wall). The script then waits for gemCount to become nonzero (the wall gem, collect_handler_gem), prints the flute dialog and spawns the pig child (code_04D310, 'Oink oink'); talking to the pig gives the Prison Key (item #02) and sets flag $23, which ends the pig and the cell script. The key is used on the door by UseItem_PrisonKey, which sets $24."
+    ]
+  },
+  "edward_castle/aqueduct_entrance/ec0C_force_hint.asm": {
+    "blockNote": [
+      "Will's hint about enemy-clear jewels (scene $0C, aqueduct entrance).",
+      "",
+      "Dies at spawn when playerMaxHp is not 8. With max HP 8 it yields every frame and, the moment playerMaxHp changes, locks the joypad ($CFFC), waits #$27 ticks, prints 'When you defeat all of the enemies around you, a Jewel will appear.' and unlocks. It reads and writes no event flag."
+    ]
+  },
+  "edward_castle/aqueduct_lockway/ec0E_lily.asm": {
+    "blockNote": [
+      "Lilly's first appearance in the aqueduct lockway (scene $0E, tile (3D,0E)).",
+      "",
+      "Flag $DE set: the actor dies at spawn. Otherwise, when Will comes within #01 tile, it sets $DE, spawns an orbiting orb (code_09A9A1: hittable, 'Hey! What are you doing!!' when hit), moves for #$04B0 ticks by the direction DirToPlayer returns, prints 'Come here, or the demon will get you!' and moves away (moveXAlt $60, moveYAlt $30). It gives no puzzle guidance and has a single appearance, not multi-state dialog."
+    ]
+  },
+  "edward_castle/aqueduct_lockway/ec0E_barrier.asm": {
+    "blockNote": [
+      "Barrier actors of the aqueduct lockway (scene $0E): ec0E_barrier and ec0E_barrier2-4 (scene_actors rows 15-18).",
+      "",
+      "Each marks its tile solid and waits on scratch flag $01, which the single ec0E_switch toggles on every hit (8 wait sites). $01 set: the barrier clears its solid mark, slides (StageSpriteLoopMoveY then StageSpriteLoopMoveX; the first actor #04 steps each, barrier2 #02 steps with a #1F-tick pause), marks its new position solid and waits for $01 to clear, then slides back. The movement is scripted sprite stepping, not physics."
+    ]
+  },
+  "edward_castle/aqueduct_lockway/ec0E_statue.asm": {
+    "blockNote": [
+      "Statue actors of the aqueduct lockway (scene $0E, rows 12 and 13 at tiles (3D,11) and (3E,11)).",
+      "",
+      "With flag $21 (the throne scene) set, which is always so when the aqueduct is reachable, the talk handler prints 'This has the same shape as the statue from the seaside cave...'. With $21 clear the actor would instead be a solid push block (interaction_handlers.push_handler_solid); that branch is not reachable in normal play (inferred, not watched)."
+    ]
+  },
+  "edward_castle/aqueduct_doorway/ec11_button_voice.asm": {
+    "blockNote": [
+      "The doorway switch of the aqueduct (scene $11, tile (1C,07), the same tile as ec11_countdown): a solid, unkillable hit target (HP $FF) with a hit callback.",
+      "",
+      "Hit with word flag $0113 set or scratch $02 clear: plays frames #11 and #12 only. Hit with $02 set and scratch $01 set (the countdown's '3' window): clears $02, applies BG change #13 (the door), sets $0113, plays sounds and prints 'Stop! The door is open!! Go in!!'. Hit with $02 set and $01 clear: prints 'Wait! I told you, you have to push them at the same time!', then the voice's instructions again, and sets scratch $03, which restarts the count. The strange voice that counts is ec11_countdown; $02 is set by UseItem_LolaMelody_Effect."
+    ]
+  },
+  "edward_castle/aqueduct_doorway/ec11_countdown.asm": {
+    "blockNote": [
+      "The strange voice of the aqueduct doorway (scene $11): an invisible actor at tile (1C,07).",
+      "",
+      "Parks when word flag $0113 is set. Otherwise it waits for scratch $02 (set when Lola's Melody is played in this scene) and, when Will is within #03 tiles, locks the joypad, prints the instructions ('The door won't open unless you push this switch on the count of three'), starts music #1B, unlocks and counts: #$78 silent passes, sound #10 with digit 1 for #$3C, #$78 silent, sound #10 with digit 2 for #$3C, #$63 silent, then sets scratch $01 (the on-time window), sound #11 and digit 3 for #$28 passes, clears $01 and prints 'Wait! I told you ...'. A hit before the window sets scratch $03 (from ec11_button_voice), which restarts the count; the hit in the window opens the door and clears $02, which parks this actor."
+    ]
+  },
+  "edward_castle/aqueduct_doorway/ec11_aqueduct_blocker.asm": {
+    "blockNote": [
+      "Second switch-shaped hit target of the aqueduct doorway (scene $11, tile (03,07)).",
+      "",
+      "Solid and unkillable (HP $FF); when hit it plays frames #11 and #12 and re-arms. It reads and writes no flag and has no effect on the door: only ec11_button_voice opens it."
+    ]
+  },
+  "edward_castle/aqueduct_doorway/ec11_aqueduct_gate_sprite.asm": {
+    "blockNote": [
+      "One-shot orb sprite of the aqueduct doorway (scene $11, tile (0B,0B)).",
+      "",
+      "Flag $DF set: dies at spawn. Otherwise it sets $DF, plays frame #33 of spriteset_pickups_effects for #02 steps and moves with StageMove / TickMove toward moveXAlt $0048, moveYAlt $0050. It has no open or closed gate state; the doorway door is the BG change #13 applied by ec11_button_voice."
+    ]
+  },
+  "edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm": {
+    "blockNote": [
+      "Hit-toggle prop of the aqueduct back area (scene $12, tile (2B,56)); it uses the switch stats (HP $FF) and never dies.",
+      "",
+      "Each hit plays frame #11; the first hit (word flag $0114 clear) also plays a sound, applies BG change #14, sets $0114, applies BG change #15 and sets $0115 (event blocks $14 and $15); later hits do nothing more. For form 0 (characterForm = 0) it first sets bit $0200 of $10."
+    ]
+  },
+  "edward_castle/aqueduct_exit/ec13_lily.asm": {
+    "blockNote": [
+      "Lilly at the aqueduct exit (scene $13, tile (07,08)).",
+      "",
+      "Flag $3A clear: after WaitByte #01, music #1B and WaitByte #3B she waits; if Will is in another form (characterForm not 0) she first locks the joypad, prints 'When the enemies are destroyed, Will can return to his original shape...' and starts Transform_FreedanToWill on the player. When Will comes within #03 tiles she sets $3A, locks the joypad and prints 'Girl: I saw you!! ... You can change your shape like me! I'm Lilly, an Itory girl protected by the Flower Spirit' (Will learned the melody from Grandma Lola, who asked her to rescue him), plays a sound, prints 'The Elder is calling... I have to go. We'll meet again! Goodbye, Will!', walks away, unlocks and dies. The two do not set out together here.",
+      "",
+      "Flag $3A set: she dies at spawn (the form revert still runs when needed)."
+    ]
+  },
+  "mansion/mansion/sE9_mansion_intro.asm": {
+    "blockNote": [
+      "Mansion entrance (scene $E9): the awakening narration and the exit trigger.",
+      "",
+      "Flag $29 clear (first visit): writes CGADSUB = $21, sets $29, locks the joypad ($EFFC), waits #1D, prints 'When I awoke, I was standing in the entrance to a strange mansion.', unlocks and continues into the per-frame loop (code_08FC92). Flag $29 set: goes straight to the loop. The loop writes CGADSUB = $21 every frame and, when Will is inside the relative tile rectangle (32,3E)-(34,3F), queues scene $E3 at ($0280,$01A0) and dies (the same destination as the Solid Arm defeat). The warp to the Solid Arm lair (scene $EA) is in scene_warps (warp_def_E6). Reached from actors/jeweler_gem (50 Red Jewels)."
+    ]
+  },
+  "mansion/solid_arm_lair/sEA_solid_arm.asm": {
+    "blockNote": [
+      "Solid Arm boss fight -- Jeweler Gem's true form (scene $EA, enemy row 04, enemy number $5F).",
+      "",
+      "Spawn: sets cameraBoundsY, spawns the defeat watcher (code_08F9F2), stores the revive warp (binary_08F9EA), locks the joypad ($EFFC), waits, plays sound #0E and applies BG change #9C. With flag $E8 clear it fades in music #1B, waits #$0120 ticks, SETS $E8 and prints the introduction ('Welcome to my home. The Jeweler Gem is a temporary form. The true form is called Solid Arm. ... It is I who manipulated the labor trade.'); with $E8 set (a repeat visit) the music fade, the dialog and the flag write are skipped. Because $E8 is set before the fight, the Jeweler Gem NPC (actors/jeweler_gem) disappears as soon as the introduction starts, even if Will dies. Then music #0F, a #31 wait, unlock, and the fight loop (arm attacks chosen by the player's Y and X position).",
+      "",
+      "Defeat (code_08F9F2, polling enemiesRemaining): locks the joypad, fades in music #1B, waits #$0120 ticks, prints 'I was defeated again... Blazer was strong, but you are stronger... Danger approaches this planet. You should hurry to the Tower of Babel...' and queues scene $E3 at ($0280,$01A0). No item, flag or counter changes on defeat; nothing in the code rewards the Red Jewel collection."
+    ]
+  },
+  "actors/jeweler_gem.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "sEA_solid_arm sets it, so after that optional fight Gem no longer appears (JewelerDie)",
+          "with": "sEA_solid_arm sets it when the boss's introduction begins (before the fight, not after it), so once Will has entered the Solid Arm lair Gem no longer appears (JewelerDie)"
+        }
+      ]
+    },
+    "comments": {
+      "577187": {
+        "text": "Flag $E8 (set by sEA_solid_arm when the boss intro starts, before the fight): Gem is gone, die",
+        "expect": "BranchOnFlagByte"
+      }
+    }
+  }
+}

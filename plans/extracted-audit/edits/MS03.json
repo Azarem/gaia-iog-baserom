@@ -1,0 +1,155 @@
+{
+  "_note": "MS03: D1 + D2 notes (APU port log and SPC-side trace). Union of mesen2-results/specs/D1_notes.json and D2_notes.json (disjoint files, no conflicting entries; the only change against the draft is a shorter text for comment 254403). Comments use expectOld because the stored comment is replaced on a line that already has one. 'find' must occur exactly once in the stored note.",
+  "actors/player/player_character.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "CameraShakeActor (about 60 frames of random camera-target offsets",
+          "with": "CameraShakeActor (61 ticks of random camera-target offsets, with sound #15 queued on every tick"
+        }
+      ]
+    },
+    "comments": {
+      "182097": {
+        "text": "Restarts here every tick (no SetEntryHere): queues sound #15 on each of the 61 ticks ($26 = $3C), shakes the camera, then dies",
+        "expectOld": "Camera shake actor: play sound #15, shake for $26 frames, then die"
+      }
+    }
+  },
+  "system/engine/music_actors.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "($06F2, the scene's current music index)",
+          "with": "($06F2: the BGM id stored by the scene's music record; StartMusic does not update it, and pyCD_jackal and the Memory Melody item overwrite it with $0F and $0E)"
+        }
+      ]
+    },
+    "partNotes": {
+      "MusicJingleActor": {
+        "edit": [
+          {
+            "find": "Saves musicParentActor (the scene's current music index) in orbitAngle",
+            "with": "Saves musicParentActor (the BGM id stored by the scene's music record; StartMusic does not update it) in orbitAngle"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "172096": {
+        "text": "Save musicParentActor ($06F2: the BGM id the scene's music record stored) in orbitAngle for the restore at step 5",
+        "expectOld": "Save musicParentActor ($06F2: the scene's current music index) in orbitAngle for the restore at step 5"
+      }
+    }
+  },
+  "system/engine/system_core.asm": {
+    "partNotes": {
+      "NmiHandler": {
+        "edit": [
+          {
+            "find": "13. Otherwise write APUIO2: 0 on odd frames, the dequeued sfxQueueCh1 byte on even frames",
+            "with": "13. Otherwise write the sound word (16-bit store to APUIO2, so the high byte lands in APUIO3): 0 on odd frames; on even frames the dequeued word sfxQueueCh1 (low byte, APUIO2) / sfxQueueCh2 (high byte, APUIO3), and both queue bytes are cleared. A musicTransitionState of $FFFF skips the write"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "33648": {
+        "text": "Frame parity bit: odd frames write 0 to APUIO2/3, even frames send the dequeued sound word",
+        "expectOld": "Frame parity bit: odd frames write 0 to APUIO2"
+      },
+      "33654": {
+        "text": "Dequeue the pending sound word: sfxQueueCh1 (low byte) and sfxQueueCh2 (high byte); the STZ below clears both",
+        "expectOld": "Dequeue pending sound effect for SPC transfer"
+      },
+      "33660": {
+        "text": "Write the sound word: low byte (Ch1) to APUIO2 ($2142), high byte (Ch2) to APUIO3 ($2143); 0 on odd frames",
+        "expectOld": "Write audio command to SPC I/O port 2 ($2142)"
+      }
+    }
+  },
+  "system/engine/hdma_dma_spc.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(not traced: whether the fade is audible before the following $01/$F0 commands)",
+          "with": "(measured: the fade is audible, the engine's master volume steps from $53 to 0 over about 335 frames; the $01 sent after the $F1 echo does not interrupt it, because the engine's last-command byte $08 already holds $01; the engine's fade-end code then runs CmdStop, which writes 0 to APUIO0, and only then does the thinker send $F0)"
+        }
+      ]
+    },
+    "partNotes": {
+      "SpcFadeOutHandshake": {
+        "edit": [
+          {
+            "find": "so the handshake costs a few frames but never blocks the main loop. Not traced: whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later.",
+            "with": "so the handshake never blocks the main loop, but the fade-out leg lasts about 340 frames. Measured: the $01 in step 2 has no effect while the engine's last-command byte ($08) already holds $01, so the fade started by $F1 runs to its end and is audible (master volume $53 to 0 in about 335 frames). The engine's fade-end code then calls CmdStop, which writes 0 to APUIO0; that zero is what step 2 waits for, so SpcTransferMusicData's $F0 follows the end of the fade, not one or two frames after the $01. While the main loop is blocked inside a dialogue wait the thinker does not run and the zero is read later."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "254403": {
+        "text": "$01 after the $F1 echo: ignored while the engine's last-command byte $08 already holds $01, so the fade continues (after the upload it starts the song)",
+        "expectOld": "Port command $01: engine path ASL to $02"
+      },
+      "254405": {
+        "text": "Echo seen: send $01 (no effect while the engine's $08 already holds $01)",
+        "expectOld": "SPC ready"
+      }
+    }
+  },
+  "system/engine/cop_handlers_audio.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(not traced: whether it is audible before the following $01/$F0 commands)",
+          "with": "(measured: audible, a master-volume ramp from $53 to 0 over about 335 frames; the thinker sends $F0 only after the SPC answers 0 at the end of the fade)"
+        }
+      ]
+    },
+    "partNotes": {
+      "FadeThenStartMusic": {
+        "edit": [
+          {
+            "find": "Whether the fade is audible before the following $01/$F0 commands is not traced.",
+            "with": "The fade is audible: the engine's master volume steps from $53 to 0 over about 335 frames, and the thinker sends $F0 only after the SPC answers 0 at the end of the fade."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/scene_script.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Wait frames → optional stop command ($F2) → ready signal ($F0) → handshake poll",
+          "with": "Wait frames → $F2 when $0D72 is set (the engine's CmdF2: key off all voices, volumes unchanged) → $F0 (the engine's CmdStop: master and echo volume 0, echo writes off; the SPC answers 0) → handshake poll"
+        }
+      ]
+    },
+    "partNotes": {
+      "SpcMusicLoadCmd": {
+        "edit": [
+          {
+            "find": "optional stop ($F2 + 32 frames if $0D72 set), handshake ($F0 poll, $FF)",
+            "with": "$F2 held for 32 frames if $0D72 is set (CmdF2: voices keyed off, the voices fall silent within 4 frames, master volume unchanged), $F0 (CmdStop) and a poll for the SPC's zero answer, $FF (jump into the resident loader, which writes no DSP register)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "166812": {
+        "text": "Send $F2 to APU I/O port 0: the engine's CmdF2 keys off all voices (KOFF = $FF); master volume and echo stay unchanged",
+        "expectOld": "Send stop command $F2"
+      },
+      "166817": {
+        "text": "Wait 32 frames ($20) with $F2 on the port (the engine re-dispatches it every tick)",
+        "expectOld": "Wait 32 frames"
+      },
+      "166823": {
+        "text": "Send $F0: the engine's CmdStop (master and echo volume 0, echo writes off, EON = 0); the SPC answers 0 on port 0",
+        "expectOld": "Send ready signal $F0"
+      }
+    }
+  }
+}

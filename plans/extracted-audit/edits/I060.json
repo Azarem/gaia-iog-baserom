@@ -1,0 +1,385 @@
+{
+  "system/world_map/world_map_options.asm": {
+    "blockNote": [
+      "World map destination menus and their handlers (Bank 03, 242689-244449). WorldMapController runs world_map_options[choice id & $1F] with SwitchCase after SetSavedPtr(DeferSceneTransition); the chosen handler ends in RestoreSavedPtr, which returns to DeferSceneTransition.",
+      "",
+      "=== A MENU (choice ids $01-$1B) ===",
+      "",
+      "PrintDialogString shows a Quit / destination text, then COP DialogueOptions ( grid, skip, &list ) runs MenuSelectionHandler and jumps through the list; the RestoreSavedPtr that follows in the source is never reached (the RTI goes to the list target).",
+      "- grid byte: low nibble = items per column, high nibble = total items (0 when everything fits in one column): #01 Quit only, #02 two items, #32 three items, #42 four items. The text puts the second column after the spaces (Quit [N] ... = column one; the text after 8-12 spaces = column two).",
+      "- skip byte: text lines skipped before the first option row (#01 everywhere here). The cursor always starts on the first item, Quit.",
+      "- list index = MenuSelectionHandler result: 0 = B pressed, 1 = first item (column one, top), 2 = column one, second row, then column two top to bottom. So for #32 / #42 the list order is not the reading order of the text.",
+      "- Quit and B both run the same handler: QueueMapChange back to the scene the player came from, with no route (route id stays 0), so DeferSceneTransition dies and the scene changes at once.",
+      "",
+      "=== HANDLERS ===",
+      "",
+      "A trip handler is StageWorldMapMoveIds ( 0, route id ) followed by a QueueMapChange ( scene, X, Y, flags, scroll ) for the destination. Most handlers are two adjacent blocks: the first has no end and falls into the second (the second is also the Quit handler of the destination's own menu). Seven handlers hold both operations in one block. QueueMapChange flag bit 7 ($80) records the destination as the new revive / save point (Inca Ruins, Diamond Mine, Great Wall, Mt.Temple entrance, Angkor Wat, Pyramid). The Watermia to Euro handlers also write $0D60 := 7 (leader animation 7).",
+      "",
+      "=== CHOICE IDS (staged by overworld_exit, first flag found wins; see its table) ===",
+      "",
+      "| Id | Menu | Id | Menu |",
+      "|----|------|----|------|",
+      "| $01 | South Cape: Quit / Edward's Castle | $0F | Euro: Quit / Watermia |",
+      "| $02 | South Cape: Quit / Itory Village | $10 | Euro: Quit / Watermia / Mt.Temple |",
+      "| $03 | Edward's Castle: Quit / South Cape | $11 | Mt.Temple: Quit / Euro city |",
+      "| $04 | Itory: Quit / South Cape | $12 | Natives' Village: Quit / Euro city |",
+      "| $05 | Inca Ruins: Quit / Itory | $13 | Natives' Village: Quit / Euro / Ankor Wat |",
+      "| $06 | Itory: Quit / Inca Ruins | $14 | Angkor Wat: Quit / Natives' Village |",
+      "| $07 | Freejia: Quit / Diamond Mine | $15 | Angel Village: Quit only |",
+      "| $08 | Diamond Mine: Quit / Freejia | $16 | Dao: Quit / Natives' Village |",
+      "| $09 | Freejia: Quit only | $17 | Dao: Quit / Natives' Village / Pyramid |",
+      "| $0A | Angel Village: Quit / Watermia | $18 | Pyramid: Quit / Dao |",
+      "| $0B | Watermia: Quit / Angel Village | $19 | Natives' Village: Quit / Euro / Ankor Wat / Dao |",
+      "| $0C | Watermia: Quit / Angel Village / Great Wall | $1A | Euro: Quit / Watermia / Mt.Temple / Natives' Village |",
+      "| $0D | Great Wall: Quit / Watermia | $1B | South Cape: Quit only |",
+      "| $0E | Watermia: Quit / Angel Village / Great Wall / Euro | | |",
+      "",
+      "Entries $00 and $1C-$26 are never staged. $00 only returns (the controller dies before SwitchCase when the choice id is 0); $1C-$25 print an empty [TPL:11] and return; $26 prints Nothing!!. Route ids staged here: $01-$04, $07, $08, $0A, $0B, $11-$20 (the other routes belong to scripted trips, see world_map_routes).",
+      "",
+      "=== ROUTES (world_map_routes.asm, Bank 03 241015-242132; the merge tool cannot annotate that file: no bank information) ===",
+      "",
+      "38 table entries ($00-$25) point at 37 route arrays; $00 aliases $01. A step is four bytes: three movement_delta_table indices (X $00CA, Y $00CC, rotation $00BC; 0 = still) and a tick count n. The extraction shows them as route-step < b0, b1, b2, b3 >, which the old header read as flags, direction, spare and distance; that reading is wrong. Every array is 4n + 1 bytes: a hidden $FF ends it; $FE (subroutine) is never used.",
+      "Indices used: X and Y take 1 (+1 per tick), 2 (-1), $11 (alternating +1, 0) or $12 (alternating -1, 0); rotation takes 1 (+1) or 2 (-1). Steps never mix rotation with movement: a route turns the map ($20 = 22.5 degrees, $40 = 45, $80 = 90, $C0 = 135) and runs straight in one of eight directions.",
+      "Check: summing the steps reproduces the distance between the staged start positions of the two scenes (overworld_exit): route $09 = 128 north, $03 = 16 west and 240 north, $0A = 224 east and 96 south ($0B the reverse), $01 = 48 east and 112 north. These match with n ticks per step; the engine code applies n + 1 deltas, which would add one pixel per axis step (OQ-I060-2).",
+      "",
+      "| Route | Trip | Route | Trip |",
+      "|-------|------|-------|------|",
+      "| $01 | South Cape to Edward Castle (menu) | $13 | Watermia to Great Wall (menu) |",
+      "| $02 | Edward Castle to South Cape (menu, ec0A_kara) | $14 | Great Wall to Watermia (menu) |",
+      "| $03 | South Cape to Itory (menu, sc06_kara_return) | $15 | Watermia to Euro, leader anim 7 (menu, wa79_neil) |",
+      "| $04 | Itory to South Cape (menu) | $16 | Euro to Watermia, leader anim 7 (menu) |",
+      "| $05 | Itory to Moon Tribe Camp (it17_lily) | $17 | Euro to Mt.Temple (menu) |",
+      "| $06 | Moon Tribe Camp to Inca Ruins (it1A_lily) | $18 | Mt.Temple to Euro (menu) |",
+      "| $07 | Itory to Inca Ruins (menu) | $19 | Euro to Natives Village (menu, eu96_kara) |",
+      "| $08 | Inca Ruins to Itory (menu) | $1A | Natives Village to Euro (menu) |",
+      "| $09 | Diamond Coast (Oakton) to Freejia (dc30_kara) | $1B | Natives Village to Ankor Wat (menu) |",
+      "| $0A | Freejia to Diamond Mine (menu) | $1C | Ankor Wat to Natives Village (menu) |",
+      "| $0B | Diamond Mine to Freejia (menu) | $1D | Natives Village to Dao (menu, nvAE_kara) |",
+      "| $0C | Freejia hotel to Neil Cottage (fr39_erik) | $1E | Dao to Pyramid (menu) |",
+      "| $0D | Neil Cottage to Nazca Painting (na49_lance) | $1F | Pyramid to Dao (menu) |",
+      "| $0E $0F $10 | not staged by anything found | $20 | Dao to Natives Village (menu) |",
+      "| $11 | Angel Village to Watermia (menu, av6A_neil) | $21 | Dao to Over Babel, leader anim $0B (daC8_neil) |",
+      "| $12 | Watermia to Angel Village (menu) | $22 | Watermia to South Cape, leader anim $0D (wa78_men) |",
+      "| | | $23 $24 $25 | not staged by anything found |"
+    ],
+    "partNotes": {
+      "world_map_options": [
+        "39 pointers indexed by the choice id & $1F: $01-$1B are real menus, $00 and $1C-$26 are never run. Several menus share handlers."
+      ],
+      "code_03B44F": [
+        "Choice $00: only RestoreSavedPtr. Never run: WorldMapController dies before SwitchCase when the choice id is 0."
+      ],
+      "code_03B451": [
+        "Choice $01: Quit / Edward's Castle (South Cape exit, default). List: 0, 1 -> code_03B959 (back to South Cape); 2 -> code_03B965 (route $01)."
+      ],
+      "code_03B47D": [
+        "Choice $02: Quit / Itory Village (South Cape exit after a sc06_kara_return flag). List: Quit -> code_03B959; 2 -> code_03B975 (route $03)."
+      ],
+      "code_03B4A8": [
+        "Choice $03: Quit / South Cape (Edward's Castle exit). List: Quit -> code_03B969 (back to the castle); 2 -> code_03B955 (route $02)."
+      ],
+      "code_03B4CC": [
+        "Choice $04: Quit / South Cape (Itory Village exit, default). List: Quit -> code_03B979 (back to Itory); 2 -> code_03B985 (route $04)."
+      ],
+      "code_03B4F0": [
+        "Choice $05: Quit / Itory Village (Inca Ruins entrance exit). List: Quit -> code_03B9A9 (back to the ruins); 2 -> code_03B995 (route $08)."
+      ],
+      "code_03B51A": [
+        "Choice $06: Quit / Inca Ruins (Itory Village exit after flag $4A, it1A_lily). List: Quit -> code_03B999 (back to Itory); 2 -> code_03B9A5 (route $07)."
+      ],
+      "code_03B53F": [
+        "Choice $07: Quit / Diamond Mine (Freejia exit after flag $65, fr33_erik). List: Quit -> code_03B9C9 (back to Freejia); 2 -> code_03B9B5 (route $0A)."
+      ],
+      "code_03B563": [
+        "Choice $08: Quit / Freejia (Diamond Mine entrance exit). List: Quit -> code_03B9B9 (back to the mine); 2 -> code_03B9C5 (route $0B)."
+      ],
+      "code_03B587": [
+        "Choice $09: Quit only (Freejia exit, default). Quit -> code_03B9C9 (back to Freejia)."
+      ],
+      "code_03B5A1": [
+        "Choice $0A: Quit / Watermia (Angel Village exit after flag $8D, wa78_intro). List: Quit -> code_03B9E9 (back to Angel Village); 2 -> code_03B9D5 (route $11)."
+      ],
+      "code_03B5C7": [
+        "Choice $0B: Quit / Angel Village (Watermia exit, default). List: Quit -> code_03B9D9 (back to Watermia); 2 -> code_03B9E5 (route $12)."
+      ],
+      "code_03B5F2": [
+        "Choice $0C: Quit / Angel Village / Great Wall, grid #32 (Watermia exit after flag $8E). List: Quit -> code_03BA09; 2 = Great Wall -> code_03B9F5 (route $13); 3 = Angel Village -> code_03B9E5 (route $12)."
+      ],
+      "code_03B62A": [
+        "Choice $0D: Quit / Watermia (Great Wall entrance exit). List: Quit -> code_03B9F9 (back to the wall); 2 -> code_03BA05 (route $14)."
+      ],
+      "code_03B650": [
+        "Choice $0E: Quit / Angel Village / Great Wall / Euro city, grid #42 (Watermia exit after flag $94, wa79_neil). List: Quit -> code_03BA09; 2 = Great Wall -> code_03B9F5; 3 = Angel Village -> code_03B9E5; 4 = Euro city -> code_03BA15 (route $15)."
+      ],
+      "code_03B697": [
+        "Choice $0F: Quit / Watermia (Euro exit, default). List: Quit -> code_03BA1F (back to Euro); 2 -> code_03BA2B (route $16)."
+      ],
+      "code_03B6BD": [
+        "Choice $10: Quit / Mt.Temple / Watermia, grid #32 (Euro exit after flag $9F). List: Quit -> code_03BA1F; 2 = Watermia -> code_03BA2B (route $16); 3 = Mt.Temple -> code_03BA41 (route $17)."
+      ],
+      "code_03B6F3": [
+        "Choice $11: Quit / Euro city (Mt.Temple entrance exit). List: Quit -> code_03BA45 (back to the temple); 2 -> code_03BA51 (route $18)."
+      ],
+      "code_03B719": [
+        "Choice $12: Quit / Euro city (Natives' Village exit, default). List: Quit -> code_03BA65 (back to the village); 2 -> code_03BA71 (route $1A)."
+      ],
+      "code_03B73F": [
+        "Choice $13: Quit / Ankor Wat / Euro city, grid #32 (Natives' Village exit after flag $B1). List: Quit -> code_03BA65; 2 = Euro city -> code_03BA71 (route $1A); 3 = Ankor Wat -> code_03BA81 (route $1B)."
+      ],
+      "code_03B778": [
+        "Choice $14: Quit / Natives' Village (Angkor Wat entrance exit). List: Quit -> code_03BA85 (back to Angkor Wat); 2 -> code_03BA91 (route $1C)."
+      ],
+      "code_03B7A5": [
+        "Choice $15: Quit only (Angel Village exit, default). Quit -> code_03B9E9 (back to Angel Village)."
+      ],
+      "code_03B7B5": [
+        "Choice $16: Quit / Natives' Village (Dao exit, default). List: Quit -> code_03BAC5 (back to Dao); 2 -> code_03BAA1 (route $20)."
+      ],
+      "code_03B7E2": [
+        "Choice $17: Quit / Pyramid / Natives' Village, grid #32 (Dao exit after flag $B4). List: Quit -> code_03BAC5; 2 = Natives' Village -> code_03BAA1 (route $20); 3 = Pyramid -> code_03BAB1 (route $1E)."
+      ],
+      "code_03B81A": [
+        "Choice $18: Quit / Dao Village (Pyramid exit). List: Quit -> code_03BAB5 (back to the pyramid); 2 -> code_03BAD1 (route $1F)."
+      ],
+      "code_03B843": [
+        "Choice $19: Quit / Ankor Wat / Euro city / Dao Village, grid #42 (Natives' Village exit after flag $B6). List: Quit -> code_03BA65; 2 = Euro city -> code_03BA71; 3 = Ankor Wat -> code_03BA81; 4 = Dao -> code_03BAC1 (route $1D)."
+      ],
+      "code_03B88C": [
+        "Choice $1A: Quit / Mt.Temple / Watermia / Natives' Village, grid #42 (Euro exit after flag $AC). List: Quit -> code_03BA1F; 2 = Watermia -> code_03BA2B; 3 = Mt.Temple -> code_03BA41; 4 = Natives' Village -> code_03BA61 (route $19)."
+      ],
+      "code_03B8D6": [
+        "Choice $1B: Quit only (South Cape exit). Quit -> code_03B959 (back to South Cape)."
+      ],
+      "code_03B8E6": [
+        "Choice $1C: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B8EC": [
+        "Choice $1D: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B8F2": [
+        "Choice $1E: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B8F8": [
+        "Choice $1F: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B8FE": [
+        "Choice $20: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B904": [
+        "Choice $21: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B90A": [
+        "Choice $22: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B910": [
+        "Choice $23: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B916": [
+        "Choice $24: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B91C": [
+        "Choice $25: prints an empty [TPL:11] and returns. Never staged."
+      ],
+      "code_03B922": [
+        "Choice $26: prints Nothing!! and returns. Never staged."
+      ],
+      "loc_03B928": [
+        "Not code: the three bytes C2 11 CA are one more blank [TPL:11] string (like dialogstring_03B92B) decoded as REP #$11 / DEX. Nothing references it (R-I060-3)."
+      ],
+      "code_03B955": [
+        "Route $02 (Edward's Castle to South Cape), then falls into code_03B959."
+      ],
+      "code_03B959": [
+        "Queue scene $01 South Cape at (376, 64), facing 3, scroll $4300. Quit handler of the South Cape menus and the target of route $02."
+      ],
+      "code_03B965": [
+        "Route $01 (South Cape to Edward's Castle), then falls into code_03B969."
+      ],
+      "code_03B969": [
+        "Queue scene $0A Edward's Castle at (504, 704), facing 0, scroll $3420. Quit handler of the Edward's Castle menu."
+      ],
+      "code_03B975": [
+        "Route $03 (South Cape to Itory Village), then falls into code_03B979."
+      ],
+      "code_03B979": [
+        "Queue scene $15 Itory Village at (728, 688), facing 0, scroll $3500. Quit handler of the Itory menus."
+      ],
+      "code_03B985": [
+        "Route $04 (Itory Village to South Cape) and the queue for scene $01 South Cape (same operands as code_03B959) in one block."
+      ],
+      "code_03B995": [
+        "Route $08 (Inca Ruins to Itory Village), then falls into code_03B999."
+      ],
+      "code_03B999": [
+        "Queue scene $15 Itory Village (same operands as code_03B979). Quit handler of the Itory menu with the Inca Ruins option."
+      ],
+      "code_03B9A5": [
+        "Route $07 (Itory Village to Inca Ruins), then falls into code_03B9A9."
+      ],
+      "code_03B9A9": [
+        "Queue scene $1C Inca Ruins at (104, 416), flags $80 (revive / save point), scroll $2200. Quit handler of the Inca Ruins menu."
+      ],
+      "code_03B9B5": [
+        "Route $0A (Freejia to Diamond Mine), then falls into code_03B9B9."
+      ],
+      "code_03B9B9": [
+        "Queue scene $3E Diamond Mine at (168, 976), flags $80 (revive / save point), scroll $4200. Quit handler of the mine menu."
+      ],
+      "code_03B9C5": [
+        "Route $0B (Diamond Mine to Freejia), then falls into code_03B9C9."
+      ],
+      "code_03B9C9": [
+        "Queue scene $32 Freejia at (304, 848), facing 0, scroll $4500. Quit handler of the Freejia menus."
+      ],
+      "code_03B9D5": [
+        "Route $11 (Angel Village to Watermia), then falls into code_03B9D9."
+      ],
+      "code_03B9D9": [
+        "Queue scene $78 Watermia at (632, 912), facing 0, scroll $4500. Quit handler of the Angel Village-side Watermia menu ($0B)."
+      ],
+      "code_03B9E5": [
+        "Route $12 (Watermia to Angel Village), then falls into code_03B9E9."
+      ],
+      "code_03B9E9": [
+        "Queue scene $69 Angel Village at (672, 192), facing 0, scroll $1300. Quit handler of the Angel Village menus."
+      ],
+      "code_03B9F5": [
+        "Route $13 (Watermia to Great Wall), then falls into code_03B9F9."
+      ],
+      "code_03B9F9": [
+        "Queue scene $82 Great Wall at (32, 144), flags $87 (revive / save point, facing 7), scroll $1800. Quit handler of the Great Wall menu."
+      ],
+      "code_03BA05": [
+        "Route $14 (Great Wall to Watermia), then falls into code_03BA09."
+      ],
+      "code_03BA09": [
+        "Queue scene $78 Watermia (same operands as code_03B9D9). Quit handler of the Watermia menus."
+      ],
+      "code_03BA15": [
+        "Leader animation $0D60 := 7, route $15 (Watermia to Euro), then falls into code_03BA1F."
+      ],
+      "code_03BA1F": [
+        "Queue scene $91 Euro at (976, 1072), facing 6, scroll $5400. Quit handler of the Euro menus."
+      ],
+      "code_03BA2B": [
+        "Leader animation $0D60 := 7, route $16 (Euro to Watermia) and the queue for scene $78 Watermia (same operands as code_03B9D9) in one block."
+      ],
+      "code_03BA41": [
+        "Route $17 (Euro to Mt.Temple), then falls into code_03BA45."
+      ],
+      "code_03BA45": [
+        "Queue scene $A0 Mt.Temple entrance at (712, 432), flags $86 (revive / save point, facing 6), scroll $2300. Quit handler of the Mt.Temple menu."
+      ],
+      "code_03BA51": [
+        "Route $18 (Mt.Temple to Euro) and the queue for scene $91 Euro (same operands as code_03BA1F) in one block."
+      ],
+      "code_03BA61": [
+        "Route $19 (Euro to Natives' Village), then falls into code_03BA65."
+      ],
+      "code_03BA65": [
+        "Queue scene $AC Natives' Village at (448, 464), facing 6, scroll $2200. Quit handler of the Natives' Village menus."
+      ],
+      "code_03BA71": [
+        "Route $1A (Natives' Village to Euro) and the queue for scene $91 Euro (same operands as code_03BA1F) in one block."
+      ],
+      "code_03BA81": [
+        "Route $1B (Natives' Village to Ankor Wat), then falls into code_03BA85."
+      ],
+      "code_03BA85": [
+        "Queue scene $B0 Angkor Wat at (504, 1216), flags $80 (revive / save point), scroll $5400. Quit handler of the Angkor Wat menu."
+      ],
+      "code_03BA91": [
+        "Route $1C (Ankor Wat to Natives' Village) and the queue for scene $AC (same operands as code_03BA65) in one block."
+      ],
+      "code_03BAA1": [
+        "Route $20 (Dao to Natives' Village) and the queue for scene $AC (same operands as code_03BA65) in one block."
+      ],
+      "code_03BAB1": [
+        "Route $1E (Dao to Pyramid), then falls into code_03BAB5."
+      ],
+      "code_03BAB5": [
+        "Queue scene $CC Pyramid at (16, 208), flags $87 (revive / save point, facing 7), scroll $4400. Quit handler of the Pyramid menu."
+      ],
+      "code_03BAC1": [
+        "Route $1D (Natives' Village to Dao), then falls into code_03BAC5."
+      ],
+      "code_03BAC5": [
+        "Queue scene $C3 Dao at (16, 224), facing 7, scroll $2300. Quit handler of the Dao menus."
+      ],
+      "code_03BAD1": [
+        "Route $1F (Pyramid to Dao) and the queue for scene $C3 Dao (same operands as code_03BAC5) in one block."
+      ]
+    },
+    "comments": {
+      "242773": {
+        "text": "Grid #02: two items in one column, skip 1 line; list index 0 = cancel, 1 = Quit, 2 = the destination (the next op is never reached)",
+        "expect": "DialogueOptions"
+      },
+      "243083": {
+        "text": "Grid #01: one item (Quit only)",
+        "expect": "DialogueOptions"
+      },
+      "243190": {
+        "text": "Grid #32: three items, two per column; list order is column by column: Quit, Great Wall, Angel Village",
+        "expect": "DialogueOptions"
+      },
+      "243284": {
+        "text": "Grid #42: four items, two per column; list order: Quit, Great Wall, Angel Village, Euro city",
+        "expect": "DialogueOptions"
+      },
+      "244248": {
+        "text": "Leader animation 7 (also the first of the wa79_neil 7/8/9/A set) for the Watermia to Euro leg",
+        "expect": "STA $0D60"
+      },
+      "244270": {
+        "text": "Leader animation 7 for the Euro to Watermia leg",
+        "expect": "STA $0D60"
+      }
+    }
+  },
+  "tables/palette_bundles.asm": {
+    "blockNote": [
+      "Palette animation bundles (bank $16 in the extraction, ROM bank $96; 128 bundles, ids $00-$7F). They are not compressed and nothing is decompressed: a bundle is a list of colour strips that the five palette COP handlers (#36-#3A, cop_handlers_palette) step through with LoadPaletteBundle / CopyPaletteBundleFrame (hdma_dma_spc).",
+      "",
+      "=== FORMAT ===",
+      "",
+      "- palette_bundles: 128 word pointers, indexed by the bundle id (animScratch+2 of the palette thinker or actor).",
+      "- A bundle is a list of 6-byte sub-entries, palette-bundle < N, &frames, dest, size, wait >, ended by a hidden 0 byte: N = number of frames in the strip (0 ends the bundle); &frames = address of the first frame; dest = first CGRAM colour index (the colours go to the staging buffer $7F0A00 + 2 x index); size = bytes per frame minus one ($0D = 7 colours, $0F = 8, $1D = 15, $1F = 16, $03 = 2, $02 = a backdrop RGB triplet); wait = extra ticks between frames.",
+      "- The word_16xxxx arrays are the frames, stored back to back (BGR555 words), N frames per strip.",
+      "",
+      "Whole-file counts (not a sample): 132 palette_bundle_ blocks (128 in the table + 4 empty padding bundles, see below), 1,200 sub-entries, 834 frame arrays. The commonest (dest, size) pairs: ($21, $17) 446 times (12 colours at index $21), ($23, $19) 175, ($81, $1D) 143 (15 colours at $81-$8F: the player's sprite colours), ($80, $1F) 39, ($2A, $0B) 25, ($A1, $1D) 24, ($91, $1D) 24.",
+      "",
+      "Known uses (not all traced): bundles #0B / #0C restore Will's / Freedan's colours ($81-$8F) after the attack tints (attack_ability_system); #2A / #2B / #4B / #2C / #5B are the attack and aura effects; #4A is the Dark Friar flash; ambient_palette_cycler lists the per-scene ambient strips ($30 for scenes 21-23 is a six-strip colour rotation); WorldMapController resets Will's colours with PaletteResetAndKillThinker #0B. What most bundles look like on screen was not traced."
+    ],
+    "partNotes": {
+      "palette_bundles": [
+        "Bundle id -> bundle (128 entries, $00-$7F). Bundles are not sorted by use; several of the early ones are single-frame colour sets, later ones are multi-frame strips."
+      ],
+      "palette_bundle_1685F7": [
+        "Bundle $0B: one frame of 15 colours (size $1D) to colour $81-$8F, wait 0. Will's normal sprite colours. Used by AttackCleanup and by WorldMapController's palette reset."
+      ],
+      "palette_bundle_16861C": [
+        "Bundle $0C: one frame of 15 colours to colour $81-$8F, wait 0. Freedan's normal sprite colours (restored by AttackCleanup)."
+      ],
+      "palette_bundle_16D209": [
+        "Bundle $77: one strip of 8 frames of 16 colours (size $1F) at colour $41, wait 5."
+      ],
+      "palette_bundle_16D210": [
+        "Empty bundle (only the end byte $00): padding between bundle $77 end byte and its frames. No table entry refers to it (R-I060-4)."
+      ],
+      "palette_bundle_16D211": [
+        "Empty bundle (only the end byte $00), second padding byte after bundle $77. No reference (R-I060-4)."
+      ],
+      "palette_bundle_16D310": [
+        "Bundle $78: one strip of 8 frames of 16 colours (size $1F) at colour $41, wait 5."
+      ],
+      "palette_bundle_16D317": [
+        "Empty bundle (only the end byte $00): padding between bundle $78 end byte and its frames. No reference (R-I060-4)."
+      ],
+      "palette_bundle_16D318": [
+        "Empty bundle (only the end byte $00), second padding byte after bundle $78. No reference (R-I060-4)."
+      ]
+    },
+    "comments": {}
+  }
+}

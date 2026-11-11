@@ -1,0 +1,33 @@
+{
+    "system/engine/combat_collision.asm": {
+        "comments": {
+            "244729": "$0080 must be set (same bit later set on victims as \"iframe-active\"; exact role here is unresolved, see OQ-8 in questions/I001-I020_open-questions.md)"
+        },
+        "partNotes": {
+            "EnemyHitPlayerHandler": [
+                "Resolve one phase-2 overlap: apply player-strength damage to the overlapped actor (X = victim, $08 = box owner / hitter). NOTE: despite the name this reduces the victim actor's HP; contact damage to the player is ApplyInteractionDamage. Name kept pending an approved rename (rename row 13 in renames/I001-I020_rename-proposals.md).",
+                "",
+                "Two main paths based on $24 flag (set by the friendly/interaction detection in the outer loop):",
+                "",
+                "Path 1 ($24 nonzero — interaction/push hit): Checks the enemy's scratch1010+6 ($7F1016,X) for a custom interaction handler. If present, overwrites the enemy's entry point. Otherwise, sets the enemy to player_transition_handlers, marks $0040 (death flag), and dispatches knockback velocity by player facing direction (±4 to extVelocityX/Y).",
+                "",
+                "Path 2 ($24 zero — combat damage, the code under EnemyHitPlayer_Epilogue): Checks if the victim has $0010 in flags10 (invincible) → routes to InvinciblePlayerHit. Otherwise computes damage:",
+                "  totalStr = playerStr + bonus ($09E2, 0 for hitter slot $1000) + climbStateData",
+                "  rawDamage = max(1, totalStr − victimStats[2])   (stats[2] = DEF)",
+                "  netDamage = rawDamage + characterForm",
+                "Subtracts from enemy HP, spawns damage digits (priority $2B00 with $1000 in spawned actor's $12), handles death (onDeathCallback or StandardEnemyDefeatHandler), and spawns HitStaggerMain for knockback.",
+                "",
+                "After damage: checks and dispatches onHitCallback ($7F1000,X). Assigns iframes ($0011 or $FFEF). Updates HUD HP display. Finally checks extendedFlags $0050 for collision callback processing — clears $FFAF bits, toggles $6000 in $12, and dispatches onCollideCallback."
+            ]
+        }
+    },
+    "system/engine/smooth_follow.asm": {
+        "partNotes": {
+            "FollowChaseMoveWest": [
+                "Octant handler: target down-right, |dx| > |dy|. Despite the label the actor heads mostly EAST.",
+                "",
+                "Slope row from ComputeFollowAngleAlt, facing base 4 (E, ESE, SE) via ResolveFollowDirection, step X += major, Y += minor. If the facing is still turning ($0000 not negative) the actor continues along its current facing through SelectFallbackDirection instead. (All eight handlers in this file are named for a heading that does not match their geometry; see the rename proposals in renames/I001-I020_rename-proposals.md.)"
+            ]
+        }
+    }
+}

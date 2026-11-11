@@ -97,7 +97,7 @@ Assembler syntax examples:
 
 ```asm
 COP [D0] ( #8D, #00, &skyd_destroy )
-COP [A0] ( @TitleCometSpriteActor, #$0080, #$0050, #$1800 )
+COP [A0] ( @TitleEarthSpriteActor, #$0080, #$0050, #$1800 )
 COP [BE] ( #02, #01, &skyd_options )
 COP [26] ( #78, #$0160, #$0268, #07, #$4500 )
 ```

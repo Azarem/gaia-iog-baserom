@@ -1,0 +1,156 @@
+{
+  "tables/forced_walk_sequence_table.asm": {
+    "blockNote": [
+      "Camera pan step lists of the forced-walk warps (Bank 01, 108894-109278): 16 word pointers ($00-$0F) to 16 lists that set the speed profile of the camera pan during a forced walk. The old note ('animation frame sequences', 'pairs of sprite frame index + movement step', 'direction-indexed') was wrong: the lists hold no sprite frames and are not indexed by direction.",
+      "",
+      "=== WHO READS IT ===",
+      "",
+      "An extended warp entry (ExecuteForcedWalkWarp) keeps the list number in the low nibble of its byte 6 (scrollStepTableBase), the direction in bits 4/5/7. The four ForcedWalk* actors in forced_walk look up forced_walk_sequence_table[index] and store the pointer in scrollStepTableBase; the CameraPan* handler of the walk direction then calls CameraScrollStepLookup once per pan call.",
+      "",
+      "=== LIST FORMAT ===",
+      "",
+      "A list is a run of little-endian words, ended by a word whose high byte is 0 (always $0000 here). For each word: low byte = delay D, high byte = step S. CameraPan* adds the low nibble of S pixels to the camera target on the call that loads the word and on each of the next D calls, so a word moves the camera S x (D + 1) pixels. The pan ends when the list ends or when the camera target reaches the camera bounds, whichever comes first.",
+      "",
+      "All 16 lists have the same shape: an ease-in of 4 calls each at 1, 2, 4, 6 px (then 8, 10 in the longer ones), a long cruise word, and the mirror ease-out. Only the cruise length changes, which sets the pan distance. The totals are all multiples of 16 pixels (one map block), so every pan covers whole blocks. Each list part note gives its profile and total; the table is 32 bytes, the lists 352 bytes (20 bytes for 12 of them, 28 bytes for the 4 with the longer ramp: $01, $05, $0A, $0F).",
+      "",
+      "| Index | Cruise | Total | Index | Cruise | Total |",
+      "|-------|--------|-------|-------|--------|-------|",
+      "| $00 | 8 px x 19 | 256 | $08 | 8 px x 29 | 336 |",
+      "| $01 | 12 px x 22 | 512 | $09 | 8 px x 31 | 352 |",
+      "| $02 | 8 px x 17 | 240 | $0A | 12 px x 42 | 752 |",
+      "| $03 | 8 px x 21 | 272 | $0B | 8 px x 35 | 384 |",
+      "| $04 | 8 px x 23 | 288 | $0C | 8 px x 47 | 480 |",
+      "| $05 | 12 px x 86 | 1280 | $0D | 8 px x 49 | 496 |",
+      "| $06 | 8 px x 25 | 304 | $0E | 8 px x 53 | 528 |",
+      "| $07 | 8 px x 27 | 320 | $0F | 12 px x 42 | 784 |",
+      "",
+      "The sums are hand-computed from the bytes. Which warp uses which list was not traced (OQ-I064-1)."
+    ],
+    "partNotes": {
+      "forced_walk_sequence_table": [
+        "16 pointers to the pan step lists, indexed by the low nibble of byte 6 of an extended warp entry (index x 2 in forced_walk). Format and totals: see the block note."
+      ],
+      "binary_01A97E": [
+        "Index $00: 1, 2, 4, 6 px ease-in, 8 px x 19 calls, ease-out 6, 4, 2, 1. Total 256 px."
+      ],
+      "binary_01A992": [
+        "Index $01: ease-in 1, 2, 4, 6, 8, 10 px, 12 px x 22 calls, ease-out 10, 8, 6, 4, 2, 1. Total 512 px."
+      ],
+      "binary_01A9AE": [
+        "Index $02: 1, 2, 4, 6 ease-in, 8 px x 17, ease-out. Total 240 px."
+      ],
+      "binary_01A9C2": [
+        "Index $03: 1, 2, 4, 6 ease-in, 8 px x 21, ease-out. Total 272 px."
+      ],
+      "binary_01A9D6": [
+        "Index $04: 1, 2, 4, 6 ease-in, 8 px x 23, ease-out. Total 288 px."
+      ],
+      "binary_01A9EA": [
+        "Index $05: ease-in 1, 2, 4, 6, 8, 10 px, 12 px x 86 calls, ease-out. Total 1280 px, the longest pan."
+      ],
+      "binary_01AA06": [
+        "Index $06: 1, 2, 4, 6 ease-in, 8 px x 25, ease-out. Total 304 px."
+      ],
+      "binary_01AA1A": [
+        "Index $07: 1, 2, 4, 6 ease-in, 8 px x 27, ease-out. Total 320 px."
+      ],
+      "binary_01AA2E": [
+        "Index $08: 1, 2, 4, 6 ease-in, 8 px x 29, ease-out. Total 336 px."
+      ],
+      "binary_01AA42": [
+        "Index $09: 1, 2, 4, 6 ease-in, 8 px x 31, ease-out. Total 352 px."
+      ],
+      "binary_01AA56": [
+        "Index $0A: ease-in 1, 2, 4, 6, 8, 10 px, 12 px x 42 calls, ease-out. Total 752 px."
+      ],
+      "binary_01AA72": [
+        "Index $0B: 1, 2, 4, 6 ease-in, 8 px x 35, ease-out. Total 384 px."
+      ],
+      "binary_01AA86": [
+        "Index $0C: 1, 2, 4, 6 ease-in, 8 px x 47, ease-out. Total 480 px."
+      ],
+      "binary_01AA9A": [
+        "Index $0D: 1, 2, 4, 6 ease-in, 8 px x 49, ease-out. Total 496 px."
+      ],
+      "binary_01AAAE": [
+        "Index $0E: 1, 2, 4, 6 ease-in, 8 px x 53, ease-out. Total 528 px."
+      ],
+      "binary_01AAC2": [
+        "Index $0F: 1, 2, 4, 6 ease-in, 8 px x 6, 10 px x 4, 12 px x 42, then 10 px x 4, 8 px x 6, 6, 4, 2, 1. Total 784 px."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/spriteset_town_objects.asm": {
+    "blockNote": [
+      "Two Freejia tile animations (Bank 14, 1359872-1360072). It is a spriteset only in format: its one user streams the frames into VRAM as tiles, it holds no door or switch sprites (the old note was a guess from the name).",
+      "",
+      "The only user is fr32_laborer_npc (Freejia): two actors run SetScratchPointer(misc_fx_1CD080) (the tile art), SetMetasprite(spriteset_town_objects), ResetSpriteState and AdvanceSpriteAnim. code_05B021 plays animation 0 into VRAM word $3FE0, code_05B03E (spawned by it) plays animation 1 into VRAM word $3FF0. The two destinations are one 4bpp tile apart ($10 words = 32 bytes).",
+      "",
+      "=== WHAT AdvanceSpriteAnim READS ===",
+      "",
+      "Only the size flag of the first sub-sprite (group +$0D, 0 = a 32-byte tile DMA here) and its tile byte (group +$12, times 32 = offset in the art). The other header and sub-sprite fields are not read on this path. General struct format: see spriteset_freedan.",
+      "",
+      "=== CONTENT ===",
+      "",
+      "- Animation 0: 4 frames, hold 7 (8 ticks, a 32-tick loop), groups 14C028-14C064, tile bytes 0, 1, 2, 3.",
+      "- Animation 1: 4 frames, hold 6 (7 ticks, a 28-tick loop), groups 14C078-14C0B4, tile bytes 4, 5, 6, 7 (tile words $0604-$0607; the high byte is not read here).",
+      "- All 8 groups are alike: header extents 8, 0, 8, 0, default boxes, one size-0 sub-sprite at offset 0, 0. Each frame is one 8x8 tile.",
+      "",
+      "What the tiles show is not known: the actors have no movement code, although the file header of fr32_laborer_npc speaks of a walking laborer (OQ-I064-2)."
+    ],
+    "partNotes": {
+      "spriteset_town_objects": [
+        "Two animation pointers (index 0 and 1), selected by the first operand of ResetSpriteState in fr32_laborer_npc."
+      ],
+      "sprite_set_14C004": [
+        "Animation 0: groups 14C028, 14C03C, 14C050, 14C064 (tile bytes 0 to 3), each held 7 (8 ticks); the hidden $FFFF terminator wraps the loop. Streamed to VRAM word $3FE0."
+      ],
+      "sprite_set_14C016": [
+        "Animation 1: groups 14C078, 14C08C, 14C0A0, 14C0B4 (tile bytes 4 to 7), each held 6 (7 ticks). Streamed to VRAM word $3FF0."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/spriteset_will.asm": {
+    "blockNote": [
+      "Will player spriteset (Bank 15, 1409024-1426465): every frame the player can show in form 0. 72 animations ($00-$47), 398 frame records, 238 sprite groups, 1781 sub-sprites (at most 12 per group). Chosen by body_table[0] (art will_sprites_1A8000); SetActorBody copies the table pointer and bank into the actor ($7F0006, $7F0008). The animation numbering is shared with spriteset_freedan and spriteset_shadow; the struct format is described in the block note of spriteset_freedan.",
+      "",
+      "=== WHAT DIFFERS FROM FREEDAN ===",
+      "",
+      "- 72 animations against 76: Will's table ends at $47, the Freedan table has the extra $48-$4B (wall-push south / north exist for Freedan only).",
+      "- Idle south, west and east are two frames: hold $77 (120 ticks) then hold 4 (5 ticks, the short second pose); idle north is one frame, hold 9 (10 ticks). Freedan's idle is a single frame held 101 ticks.",
+      "- Walk is 4 frames of hold 5 (6 ticks); Freedan's is 7 (8 ticks). The 'Moving' cycles $0C-$0F are 4 frames of hold 4 (5 ticks).",
+      "- $44-$47 are Will's own lunge animations (player_character RangedAttack*, form 0 only).",
+      "",
+      "=== CHECKS ===",
+      "",
+      "All 238 groups have a count byte equal to their number of sub-sprites, and all 72 frame lists are 4n + 2 bytes long with a $FFFF terminator in the ROM.",
+      "",
+      "The previous header said 'flute-play' frames. FluteMusicActorController (item_use_system) puts the player into the static pose PlayerStaticBodyPose while a melody plays and no dedicated flute animation was found, so the claim was dropped (OQ-I064-3)."
+    ],
+    "partNotes": {
+      "spriteset_will": [
+        "72 word pointers to frame lists, indexed by the actor animation index ($28). The staged indices are the same as in spriteset_freedan (see its table part note for the full list); the shapes of the Will data:",
+        "",
+        "| Index | Use | Frames |",
+        "|-------|-----|--------|",
+        "| $00-$03 | idle south / north / west / east (the Spin Dash launch stages the same four) | south, west, east: hold $77 then 4; north: hold 9 |",
+        "| $04-$07 | the shapes of $00-$03 on a second set of groups ($14 repeats the groups of $04 in a 6-frame cycle); nothing found stages them | |",
+        "| $08-$0B | walk south / north / west / east | 4 frames, hold 5 |",
+        "| $0C-$0F | 'Moving' cycles (momentum code) | 4 frames, hold 4 |",
+        "| $10-$13 | staged for Shadow only; here 6/3/6/6-frame cycles on the idle groups of $00-$03, hold 7 | |",
+        "| $36-$39 | melee attack south / north / west / east | |",
+        "| $3A-$3D | guard (block) | |",
+        "| $42, $43 | attack against a wall west / east | |",
+        "| $44-$47 | lunge south / north / west / east (form 0 only) | |",
+        "",
+        "The other indices have the same uses as in the Freedan table (vine, ladder, shimmy). Not staged by the player scripts: $14-$17, $1C-$29, $3E-$41 (OQ-I064-4)."
+      ],
+      "sprite_group_158758": [
+        "Example group: Will idle south, first frame of animation $00 (also the first frame of $10). Header: extents X 11 / 14, Y 34 / 8, default boxes, 7 sub-sprites. The tile word $402A has the H flip bit set; the same $006E / $006F / $0060 tile words recur in the other idle groups."
+      ]
+    },
+    "comments": {}
+  }
+}

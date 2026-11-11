@@ -4,7 +4,7 @@
 ; 
 ; | Index | Records | User |
 ; |-------|---------|------|
-; | $00-$03 | 2 each (holds $0A, $14) | South, north, west and east pose. Their first groups are the first groups of the Psycho Dash lists $04-$07. StagePlayerSprite #00-#03 (#00 south, #01 north, #02 west, #03 east, chosen by the held D-pad direction) is issued at the end of the Spin Dash, where it only reaches this table while the override of SetPlayerSpriteDirect #04 is still active (OQ-I072-4) |
+; | $00-$03 | 2 each (holds $0A, $14) | South, north, west and east pose. Their first groups are the first groups of the Psycho Dash lists $04-$07. StagePlayerSprite #00-#03 (#00 south, #01 north, #02 west, #03 east, chosen by the held D-pad direction) is issued at the end of the Spin Dash, where StagePlayerSprite clears the body override (playerFlags bit 15 goes from set to clear) and restores the Will spriteset, so the pose is drawn from spriteset_will (95:8000) and these entries are not reached by this path (measured at the end of the dash in all four directions: playerFlags $8001 before the stage, $0001 and sprite set 95:8000 after it) |
 ; | $04-$07 | 10 each | Psycho Dash south, north, west, east: attack_ability_system PsychoDash*: SetPlayerSpriteDirect #04 + StageSpriteMoveY #04 / #05 or StageSpriteMoveX #06 / #07 with chain $36. The pose (hold 9), then nine one-tick frames alternating three groups |
 ; | $08-$0B | 2 each | The same lists as $00-$03; not selected by any code found |
 ; | $0C-$0E, $0F-$11, $12-$14, $15-$17 | 3 / 4 / 2 | Psycho Slider south, north, west, east (RunAttackNS / RunAttackEW in player_character): start frame once, loop frame (StageSpriteLoopMoveY / MoveX #02, #44), finish frame once |
@@ -13,7 +13,7 @@
 ; | $1D | 8, hold 0 | Spin Dash: loops while the guided projectile flies (StageSpriteLoop #1D, #04) and for the 12 or 24 launch passes (SpinDashLaunchLoop) |
 ; | $1E | 20 | Not selected by any code found |
 ; | $1F | 2 (hold $13) | The flute pose: PlayerStaticBodyPose (player_transition_handlers) stages it every frame while the melody plays; also a credits frame |
-; | $20 | 4 (hold 9) | The hold pose: PlayerPoseHold / PlayerPoseHoldExit (gs2D_lily, gs2E_sleep, dc2F_adrift, dc31_rescuer, dc31_kara). All its groups hold the same two sub-sprites (tiles $01CC / $01EE), which does not look like a body pose (OQ-I072-5) |
+; | $20 | 4 (hold 9) | The hold pose: PlayerPoseHold / PlayerPoseHoldExit (gs2D_lily, gs2E_sleep, dc2F_adrift, dc31_rescuer, dc31_kara). All its groups hold the same two sub-sprites (tiles $01CC / $01EE), which draw the player lying on the ground (measured: two 16 x 16 sprites side by side, 32 x 16 px, OAM tiles 0 and 2 at the player's place, on sprite palette 0, so the colours follow the current form; all four frames show the same pose; seen as Will on the raft in dc2F_adrift after the entry was set the way code_059C7A sets it) |
 ; | $21 | 10 | Not selected by any code found |
 ; | $22 | 4, hold 0 | Spin Dash charge: SpinDashMain stages it with StageSprAndHitbox #22 (contact damage) |
 ; | $23-$26 | 1 each | Not selected by any code found; one group each, the four groups of $22 |

@@ -1,0 +1,431 @@
+{
+  "_note": "FL15 fragment (domain D7). domains.D7 is the domain record (ranges narrowed to the flags that are storage: $0500-$0507 and $0510-$051F). flags: one full record per index in use: the five boss reward flags $0500-$0504 (1280-1284), the five ability flags that have a setter and a reader ($0510 1296, $0511 1297, $0514 1300, $0515 1301, $0516 1302) and the three Shadow slots the Status tab tests but nothing sets ($0518-$051A 1304-1306). proposals: 1298 ($0512, Spin Dash) is read in two groups (system and great_wall: gw85_spin_dash_gate), so FL31 writes its record. _no_use lists every other index of the domain with the search that found no use. Evidence offsets: the {n} tag of the asm line, or, for tables/scene_actors.asm rows (untagged file), the ROM offset of the 7- or 9-byte record decoded from rebuilt/Illusion of Gaia.smc (plans/flags/tools/fl15_query.mjs bosses/darkspace, 0 mismatches), and the ROM offset of AbilitySceneTable (584538, bytes checked against the ROM).",
+  "domains": {
+    "D7": {
+      "name": "boss reward / ability unlock",
+      "ranges": [[1280, 1287], [1296, 1311]],
+      "indexed": true,
+      "persistence": "save",
+      "lifecycle": "Byte $0AA0 (flags $0500-$0507) and the word $0AA2-$0AA3 (flags $0510-$051F, also abilityBitmask) lie in the save block $0A00-$0BFB. ClearSceneState zeroes only $0A00-$0A01; ClearAllWramFlags (WorldMapController {238336}, st68_kara {438261}, sp58_red_eye {426502}) and the inline loop of game_over_sequence ({54988}-{55002}) zero exactly $0A80-$0A9F, one byte below $0AA0, so a set bit survives scene changes, the world map and a game over. Boot zero-fills WRAM and SystemInit clears the low byte of abilityBitmask again ({32946}); DiaryNewGameStart writes neither byte (FL10), so a new game starts from the boot zeros. The range shipped for D7 is narrowed to the 8 + 16 bits that have storage: $0508-$050F ($0AA1) is unassigned and $0520-$059F is not flag storage ($0AA4-$0AB3 hold state words, FL10 byte map).",
+      "access": "Boss flags: TestWramFlag_Offset100 / SetWramFlag_Offset100 (index AND 7, base $0100 on wramFlags $0A80), called by boss_clear_reward_handler ({49883}, {49928}) and tested at spawn by the six lair actors ({695049}, {708981}, {717345}, {717790}, {754027}, {763580}). Ability flags: TestFlag_0510 (+$0510, one call: TestAbilityFlag {190952}) and direct 16-bit access of abilityBitmask $0AA2 (31 inventory rows in 8 files: one live setter, sE6_gaia AbilityOrbActor {584379}/{584382}). No COP flag operand, no scene-meta gate and no other helper reaches $0500-$051F."
+    }
+  },
+  "flags": {
+    "1280": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_castoth_reward_claimed",
+          "area": "incan_ruins",
+          "summary": "Castoth has been beaten and its dungeon catch-up reward (boss row 0) has been paid.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir29_castoth (scene $29, row #03) zeroes enemiesRemaining and enemiesRemainingBcd and dies at spawn, so the boss never appears; boss_clear_reward_handler (row #05) goes straight to its idle loop and never pays again.",
+            "clear": "Castoth fights. When its death callback sets playerFlags $0020, boss_clear_reward_handler pays every room of scenes $0C-$28 with a nonzero tier whose flag $0300+scene is still clear (at most Max HP +5, STR +4, DEF +5 over 14 rooms), sets hpToHeal := maxHp - hp and sets this flag."
+          },
+          "evidence": [
+            "extracted/actors/boss_clear_reward_handler.asm:63 {49883}",
+            "extracted/actors/boss_clear_reward_handler.asm:87 {49928}",
+            "extracted/actors/boss_clear_reward_handler.asm:104 {49938}",
+            "extracted/incan_ruins/ir29_castoth.asm:176 {695049}",
+            "extracted/incan_ruins/ir29_castoth.asm:282 {695340}",
+            "extracted/system/engine/flag_helpers.asm:31 {45154}",
+            "extracted/system/engine/flag_helpers.asm:42 {45165}",
+            "extracted/tables/scene_actors.asm:1566 {824180}",
+            "extracted/tables/scene_actors.asm:1568 {824196}"
+          ],
+          "notes": "Boss number 0 = row 0 of boss_reward_range_table (ROM bytes 29 0C 29 checked at 49938). The lair test passes the literal A = $0000. The rematch actor btF2_neo_castoth (scene $F2) does not call the helpers and no handler is placed in $F2, so it neither tests nor sets this flag. The only writer is the handler; no COP operand, direct access or other helper call reaches $0AA0."
+        }
+      ]
+    },
+    "1281": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_viper_reward_claimed",
+          "area": "sky_garden",
+          "summary": "The Viper has been beaten and its dungeon catch-up reward (boss row 1) has been paid.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sg55_viper (scene $55, row #17) zeroes enemiesRemaining and enemiesRemainingBcd and dies at spawn; boss_clear_reward_handler (row #19) idles and never pays again.",
+            "clear": "The Viper fights. When its death callback sets playerFlags $0020, boss_clear_reward_handler pays every room of scenes $3D-$54 with a nonzero tier whose flag $0300+scene is still clear (at most Max HP +6, STR +4, DEF +5 over 15 rooms), refills HP and sets this flag."
+          },
+          "evidence": [
+            "extracted/actors/boss_clear_reward_handler.asm:63 {49883}",
+            "extracted/actors/boss_clear_reward_handler.asm:87 {49928}",
+            "extracted/actors/boss_clear_reward_handler.asm:105 {49942}",
+            "extracted/sky_garden/viper_lair/sg55_viper.asm:123 {708981}",
+            "extracted/sky_garden/viper_lair/sg55_viper.asm:1102 {710995}",
+            "extracted/system/engine/flag_helpers.asm:31 {45154}",
+            "extracted/system/engine/flag_helpers.asm:42 {45165}",
+            "extracted/tables/scene_actors.asm:2244 {828636}",
+            "extracted/tables/scene_actors.asm:2246 {828652}"
+          ],
+          "notes": "Row 1 of boss_reward_range_table (ROM bytes 55 3D 55 checked at 49942); the lair test passes A = $0001. btF3_neo_viper (scene $F3) does not test the flag."
+        }
+      ]
+    },
+    "1282": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_vampires_reward_claimed",
+          "area": "mu",
+          "summary": "The Mu vampires have been beaten and their dungeon catch-up reward (boss row 2) has been paid.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "mu67_male_vampire (scene $67, row #03) zeroes enemiesRemaining and enemiesRemainingBcd and dies at spawn, mu67_female_vampire (row #04) dies at spawn; boss_clear_reward_handler (row #0A) idles and never pays again. Both tests are skipped when the player stands at exactly (X $0180, Y $0060) or (X $0180, Y $01E0): the actor then branches to func_0AFA48, which sets playerFlags $0008 (combat lock) and idles.",
+            "clear": "The vampires fight. The first death callback (male func_0AFA59 {717374}, female code_0AFAA0 {717798}) finds $09F2 = 0, increments it and prints a line; the second finds $09F2 nonzero and sets playerFlags $0020, which starts the payment: boss_clear_reward_handler pays every room of scenes $5A-$66 with a nonzero tier whose flag $0300+scene is still clear (at most Max HP +2, STR +2, DEF +2 over 6 rooms), refills HP and sets this flag."
+          },
+          "evidence": [
+            "extracted/actors/boss_clear_reward_handler.asm:63 {49883}",
+            "extracted/actors/boss_clear_reward_handler.asm:87 {49928}",
+            "extracted/actors/boss_clear_reward_handler.asm:106 {49946}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:136 {717345}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:308 {717790}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:152 {717374}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:315 {717798}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:1238 {719451}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:1250 {719477}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:1270 {719522}",
+            "extracted/mu/mu_vampire_lair/mu67_vampires.asm:1282 {719548}",
+            "extracted/system/engine/flag_helpers.asm:31 {45154}",
+            "extracted/system/engine/flag_helpers.asm:42 {45165}",
+            "extracted/tables/scene_actors.asm:2551 {830724}",
+            "extracted/tables/scene_actors.asm:2552 {830733}",
+            "extracted/tables/scene_actors.asm:2558 {830777}"
+          ],
+          "notes": "Row 2 of boss_reward_range_table (ROM bytes 67 5A 67 checked at 49946); both lair tests pass A = $0002. The two exact-position branches are at {717326}/{717334} (male) and {717771}/{717779} (female); scene_warps rows into $67 spawn the player at ($0178,$01D0) and ($0178,$0050) (scene_warps.asm:1180, 1189; a third warp into $67 at :1188 lands at $0078, $01D0), which would be (X $0180, Y $01E0) and (X $0180, Y $0060) with the usual +8/+16 pixel offset: that offset is not read here, so which entry skips the test is INFERRED (queue FL15-MU67-ENTRY). The female vampire's branch has no counter reset. btF4_neo_male_vampire / btF4_neo_female_vampire (scene $F4) do not test the flag."
+        }
+      ]
+    },
+    "1283": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_sand_fanger_reward_claimed",
+          "area": "great_wall",
+          "summary": "Sand Fanger has been beaten and its dungeon catch-up reward (boss row 3) has been paid.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "gw8A_sand_fanger (scene $8A, row #03) zeroes enemiesRemaining and enemiesRemainingBcd and dies at spawn; boss_clear_reward_handler (row #04) idles and never pays again.",
+            "clear": "Sand Fanger fights. When its death callback sets playerFlags $0020, boss_clear_reward_handler pays every room of scenes $6D-$89 with a nonzero tier whose flag $0300+scene is still clear (at most Max HP +5, STR +4, DEF +4 over 13 rooms), refills HP and sets this flag."
+          },
+          "evidence": [
+            "extracted/actors/boss_clear_reward_handler.asm:63 {49883}",
+            "extracted/actors/boss_clear_reward_handler.asm:87 {49928}",
+            "extracted/actors/boss_clear_reward_handler.asm:107 {49950}",
+            "extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:189 {754027}",
+            "extracted/great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:734 {755088}",
+            "extracted/system/engine/flag_helpers.asm:31 {45154}",
+            "extracted/system/engine/flag_helpers.asm:42 {45165}",
+            "extracted/tables/scene_actors.asm:3166 {834863}",
+            "extracted/tables/scene_actors.asm:3167 {834872}"
+          ],
+          "notes": "Row 3 of boss_reward_range_table (ROM bytes 8A 6D 8A checked at 49950); the lair test passes A = $0003. The scene row carries death-action byte $6A (event flag $016A, FL11) and enemy number 0 (no kill bit, FL14). btF5_neo_fanger (scene $F5) does not test the flag."
+        }
+      ]
+    },
+    "1284": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_mummy_queen_reward_claimed",
+          "area": "pyramid",
+          "summary": "The Mummy Queen has been beaten and the pyramid catch-up reward (boss row 4) has been paid.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "pyDD_mummy_queen (scene $DD, row #07) zeroes enemiesRemaining and enemiesRemainingBcd and dies at spawn; boss_clear_reward_handler (row #0A) idles and never pays again.",
+            "clear": "The Mummy Queen fights. When her death callback sets playerFlags $0020, boss_clear_reward_handler pays every room of scenes $A0-$DC with a nonzero tier whose flag $0300+scene is still clear (at most Max HP +11, STR +13, DEF +15 over 39 rooms), refills HP and sets this flag."
+          },
+          "evidence": [
+            "extracted/actors/boss_clear_reward_handler.asm:63 {49883}",
+            "extracted/actors/boss_clear_reward_handler.asm:87 {49928}",
+            "extracted/actors/boss_clear_reward_handler.asm:108 {49954}",
+            "extracted/pyramid/mummy_queen_lair/pyDD_mummy_queen.asm:123 {763580}",
+            "extracted/pyramid/mummy_queen_lair/pyDD_mummy_queen.asm:497 {764376}",
+            "extracted/system/engine/flag_helpers.asm:31 {45154}",
+            "extracted/system/engine/flag_helpers.asm:42 {45165}",
+            "extracted/tables/scene_actors.asm:4450 {843760}",
+            "extracted/tables/scene_actors.asm:4453 {843783}"
+          ],
+          "notes": "Row 4 of boss_reward_range_table (ROM bytes DD A0 DD checked at 49954); the lair test passes A = $0004. btF6_neo_queen (scene $F6) does not test the flag. The 39 rooms are the nonzero-tier scenes of $A0-$DC, which span the Mountain Temple, Angkor Wat and the pyramid (scene lists in FL13)."
+        }
+      ]
+    },
+    "1296": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_will_psycho_dash_unlocked",
+          "area": "system",
+          "summary": "Will owns Psycho Dash (form 0, slot 0; abilityBitmask $0AA2 bit 0, mask $01).",
+          "kinds": ["engine", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Will's attack gate (BIT #$0005 on abilityBitmask) passes, so a held attack charges and releasing it launches Psycho Dash; the Status tab shows Psycho Dash for Will (row 0 and its description); the Dark Space of Itory Village (source scene $15) dies at spawn because the bit is already owned.",
+            "clear": "Will cannot start a charged attack unless Spin Dash (bit 2) is set; the Status tab hides row 0 for Will; the Itory Village Dark Space spawns the ability orb that grants it."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:1383 {584538}",
+            "extracted/system/dark_space/sE6_gaia.asm:1189 {584186}",
+            "extracted/system/dark_space/sE6_gaia.asm:1290 {584379}",
+            "extracted/system/dark_space/sE6_gaia.asm:1291 {584382}",
+            "extracted/tables/scene_actors.asm:1257 {822066}",
+            "extracted/actors/player/attack_ability_system.asm:155 {178162}",
+            "extracted/system/inventory/inventory_menu.asm:741 {190554}",
+            "extracted/system/inventory/inventory_menu.asm:586 {190276}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/system/engine/flag_helpers.asm:235 {46256}",
+            "extracted/unused/dark_rewards.asm:108 {631943}"
+          ],
+          "notes": "Index = characterForm*4 + slot = 0 (TestAbilityFlag). The only live setter is AbilityOrbActor (the grant ORs the table bit $01 into abilityBitmask after the player stands in the statue zone, forced to Will first). Bit 0 is read only through the combined gate $0005 (Psycho Dash or Spin Dash): no code tests bit 0 alone except the Status tab and the orb's own owned check. The unused prototype dark_rewards (never placed) grants the same bit for source scene $15. Name is the in-game ability name (sE6_gaia string 'Psycho Dash'); the community 'Psycho Dash 01' bit order matches."
+        }
+      ]
+    },
+    "1297": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_will_psycho_slider_unlocked",
+          "area": "system",
+          "summary": "Will owns Psycho Slider (form 0, slot 1; abilityBitmask $0AA2 bit 1, mask $02).",
+          "kinds": ["engine", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "CheckRunAttack lets Will's run attack proceed: with the attack button down and a speed of at least 3 on one axis the slide (RunAttackEW / RunAttackNS) starts; the Status tab shows Psycho Slider (row 1); the Mu West Dark Space (source scene $62) dies at spawn.",
+            "clear": "The run attack never starts (CheckRunAttack returns); the Status tab hides row 1 for Will; the Mu West Dark Space spawns the ability orb."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:1383 {584538}",
+            "extracted/system/dark_space/sE6_gaia.asm:1189 {584186}",
+            "extracted/system/dark_space/sE6_gaia.asm:1290 {584379}",
+            "extracted/tables/scene_actors.asm:2461 {830103}",
+            "extracted/actors/player/player_character.asm:1293 {183198}",
+            "extracted/system/inventory/inventory_menu.asm:756 {190594}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/unused/dark_rewards.asm:125 {632084}"
+          ],
+          "notes": "The run attack also requires characterForm 0, actor $10 bit $0080 clear and playerFlags $1000 clear (not on a slope). Setter: AbilityOrbActor in scene $62 (mu_west, scene_actors row #04). The unused dark_rewards prototype grants bit $02 for source scene $62."
+        }
+      ]
+    },
+    "1300": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_freedan_dark_friar_unlocked",
+          "area": "system",
+          "summary": "Freedan owns Dark Friar (form 1, slot 0; abilityBitmask $0AA2 bit 4, mask $10).",
+          "kinds": ["engine", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Freedan's attack gate (BIT #$0050 on abilityBitmask) passes, so a held attack charges and releasing it launches Dark Friar; the Status tab shows Dark Friar for Freedan (row 0); the Diamond Mine elevator passage Dark Space (source scene $42) dies at spawn.",
+            "clear": "Freedan cannot start a charged attack unless Earthquaker (bit 6) is set; the Status tab hides row 0 for Freedan; the scene $42 Dark Space spawns the ability orb."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:1383 {584538}",
+            "extracted/system/dark_space/sE6_gaia.asm:1189 {584186}",
+            "extracted/system/dark_space/sE6_gaia.asm:1290 {584379}",
+            "extracted/tables/scene_actors.asm:1897 {826183}",
+            "extracted/actors/player/attack_ability_system.asm:213 {178285}",
+            "extracted/system/inventory/inventory_menu.asm:741 {190554}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/unused/dark_rewards.asm:142 {632210}"
+          ],
+          "notes": "Index = 1*4 + 0 = 4 (ability index 5 in the name tables). Bit 4 is read only through the combined gate $0050 (Dark Friar or Earthquaker): the charge release launches Dark Friar without testing bit 4 again (LaunchDarkFriar {178371}). Bit 3 ($08, flag $0513) is unused, so Freedan's bits start at bit 4. Setter: AbilityOrbActor in scene $42; the unused dark_rewards prototype grants bit $10 for source scene $42."
+        }
+      ]
+    },
+    "1301": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_freedan_aura_barrier_unlocked",
+          "area": "system",
+          "summary": "Freedan owns Aura Barrier (form 1, slot 1; abilityBitmask $0AA2 bit 5, mask $20).",
+          "kinds": ["engine", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "After Freedan's 100-frame charge, the attack takes the extended branch: releasing launches Dark Friar, a D-pad press returns without action, L or R launches Aura Barrier (which needs the player to stand still); the Status tab shows Aura Barrier (row 1); the Mountain Temple vine maze Dark Space (source scene $A7) dies at spawn.",
+            "clear": "After the charge the attack waits only for release and launches Dark Friar; the Status tab hides row 1 for Freedan; the scene $A7 Dark Space spawns the ability orb."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:1383 {584538}",
+            "extracted/system/dark_space/sE6_gaia.asm:1189 {584186}",
+            "extracted/system/dark_space/sE6_gaia.asm:1290 {584379}",
+            "extracted/tables/scene_actors.asm:3584 {837558}",
+            "extracted/actors/player/attack_ability_system.asm:236 {178346}",
+            "extracted/system/inventory/inventory_menu.asm:756 {190594}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/unused/dark_rewards.asm:176 {632556}"
+          ],
+          "notes": "Index = 1*4 + 1 = 5. Setter: AbilityOrbActor in scene $A7 (kress_maze, row #03); the unused dark_rewards prototype grants bit $20 for source scene $A7."
+        }
+      ]
+    },
+    "1302": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_freedan_earthquaker_unlocked",
+          "area": "system",
+          "summary": "Freedan owns Earthquaker (form 1, slot 2; abilityBitmask $0AA2 bit 6, mask $40).",
+          "kinds": ["engine", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Freedan's ledge-jump drop attack is available (CheckLedgeJumpAttack: form 1, attack pressed while falling starts LedgeJumpDropAttack); bit 6 also passes Freedan's attack gate (BIT #$0050); the Status tab shows Earthquaker (row 2); the Angkor Wat inner east Dark Space (source scene $B8) dies at spawn.",
+            "clear": "No drop attack; Freedan's attack gate depends on Dark Friar (bit 4); the Status tab hides row 2 for Freedan; the scene $B8 Dark Space spawns the ability orb."
+          },
+          "evidence": [
+            "extracted/system/dark_space/sE6_gaia.asm:1383 {584538}",
+            "extracted/system/dark_space/sE6_gaia.asm:1189 {584186}",
+            "extracted/system/dark_space/sE6_gaia.asm:1290 {584379}",
+            "extracted/tables/scene_actors.asm:3892 {839840}",
+            "extracted/actors/player/player_character.asm:593 {181957}",
+            "extracted/actors/player/attack_ability_system.asm:213 {178285}",
+            "extracted/system/inventory/inventory_menu.asm:771 {190634}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/unused/dark_rewards.asm:159 {632374}"
+          ],
+          "notes": "Index = 1*4 + 2 = 6. The charged-attack code launches Dark Friar on release whichever of bits 4 or 6 opened the gate, so Earthquaker alone would also let Freedan charge and fire Dark Friar although bit 4 is clear; whether that state can occur depends on the order in which the Dark Spaces are visited, which is not evidence here. Setter: AbilityOrbActor in scene $B8; the unused dark_rewards prototype grants bit $40 for source scene $B8."
+        }
+      ]
+    },
+    "1304": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_shadow_ability_slot0_unlocked",
+          "area": "system",
+          "summary": "Shadow ability slot 0 (form 2, slot 0; abilityBitmask high byte $0AA3 bit 0). Never set by any shipped code; the Status tab tests it.",
+          "kinds": ["engine"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "With characterForm 2 the Status tab unhides row 0 and prints ability index 9: the placeholder strings 'DEFENCERK' (name) and 'Dark 1' (description). No attack code reads it.",
+            "clear": "The Status tab shows no row 0 for Shadow (the shipped state)."
+          },
+          "evidence": [
+            "extracted/system/inventory/inventory_menu.asm:741 {190554}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/system/engine/flag_helpers.asm:235 {46256}",
+            "extracted/tables/system_strings.asm:609 {124481}"
+          ],
+          "notes": "No setter: searched every .asm under extracted/ (including unused/) for abilityBitmask, $0AA2/$0AA3 in all addressing forms, COP flag operands $0518-$051B and the helper calls; the only writers of abilityBitmask are the six sites listed in the report, none of which sets a bit above $80 (the 16-bit debug stores $00FF clear $0AA3). Scope of the absence claim: extracted/ as tagged at the inventory build. The string offset {124481} is the ROM offset of label consolestring_01E641 (file untagged; checked against the ROM text). Name is a slot name (no ability exists)."
+        }
+      ]
+    },
+    "1305": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_shadow_ability_slot1_unlocked",
+          "area": "system",
+          "summary": "Shadow ability slot 1 (form 2, slot 1; $0AA3 bit 1). Never set by any shipped code; the Status tab tests it.",
+          "kinds": ["engine"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "With characterForm 2 the Status tab unhides row 1 and prints ability index 10: the placeholder strings 'DARKCOREK' and 'Dark 1'.",
+            "clear": "The Status tab shows no row 1 for Shadow (the shipped state)."
+          },
+          "evidence": [
+            "extracted/system/inventory/inventory_menu.asm:756 {190594}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/system/engine/flag_helpers.asm:235 {46256}",
+            "extracted/tables/system_strings.asm:611 {124491}"
+          ],
+          "notes": "No setter, same search as 1304. String offset {124491} = label consolestring_01E64B."
+        }
+      ]
+    },
+    "1306": {
+      "domain": "D7",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sys_shadow_ability_slot2_unlocked",
+          "area": "system",
+          "summary": "Shadow ability slot 2 (form 2, slot 2; $0AA3 bit 2). Never set by any shipped code; the Status tab tests it.",
+          "kinds": ["engine"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "With characterForm 2 the Status tab unhides row 2 and prints ability index 11: the placeholder strings 'BLACK4K' and 'Dark 1'.",
+            "clear": "The Status tab shows no row 2 for Shadow (the shipped state)."
+          },
+          "evidence": [
+            "extracted/system/inventory/inventory_menu.asm:771 {190634}",
+            "extracted/system/inventory/inventory_menu.asm:1015 {190952}",
+            "extracted/system/engine/flag_helpers.asm:235 {46256}",
+            "extracted/tables/system_strings.asm:613 {124501}"
+          ],
+          "notes": "No setter, same search as 1304. String offset {124501} = label consolestring_01E655."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "1298": [
+      {
+        "source": "FL15",
+        "scope": null,
+        "name": "sys_will_spin_dash_unlocked",
+        "summary": "Will owns Spin Dash (form 0, slot 2; abilityBitmask $0AA2 bit 2, mask $04).",
+        "kinds": ["engine", "reward-claimed"],
+        "roles": [
+          "setter: system/dark_space/sE6_gaia.asm:1290 {584379} / :1291 {584382} (AbilityOrbActor, source scene $86 great_wall/wall_blind_pit, tables/scene_actors.asm:3101 {834430}); unused prototype unused/dark_rewards.asm:142-159 is never placed",
+          "reader (system): actors/player/attack_ability_system.asm:155 {178162} (gate $0005), :177 {178217} (BIT #$0004: charge continues, L or R launches Spin Dash); system/inventory/inventory_menu.asm:771 {190634} (Status row 2 of Will)",
+          "reader (great_wall): great_wall/wall_rampway/gw85_spin_dash_gate.asm:27 {518420} (scene $85, pushes a Will without the bit back to X $03C0 when the player is at exactly X $0458, Y $00D0)",
+          "owned-check: system/dark_space/sE6_gaia.asm:1189 {584186} (the scene $86 orb dies at spawn if set)"
+        ],
+        "confidence": "high",
+        "notes": "Two groups read it (system, great_wall), so FL31 writes the record. Effects: set = Will's charged attack continues to the L/R choice and Spin Dash can be launched, the rampway gate lets Will stand at (X $0458, Y $00D0), the Status tab lists Spin Dash; clear = release always launches Psycho Dash and the gate moves Will to X $03C0. The shipped gw85_spin_dash_gate block note says the gate checks Freedan and opens on an attack: it is wrong (specs/FL15_notes.json). Runtime queue item FL15-SPINDASH."
+      }
+    ]
+  },
+  "_no_use": {
+    "1285": {
+      "note": "$0505, boss row 5 (scene $F8, range $00-$00; ROM bytes F8 00 00 checked at 49958). Reachable only if boss_clear_reward_handler is placed in scene $F8; scene $F8 holds no handler (the handler is placed in $29, $55, $67, $8A and $DD only, tables/scene_actors.asm rows listed in the report) and no lair actor tests index 5. No writer, no reader. Searched: every TestWramFlag_Offset100/SetWramFlag_Offset100 call (8 calls, indices 0-4 plus the handler's computed index), every COP flag operand (0 sites in $0500-$05FF), direct $0AA0/$0AA1 accesses (0), scene-meta gates (0 with index >= $0500) over extracted/ and the FL01 inventory."
+    },
+    "1286": {
+      "note": "$0506, boss row 6 (scene $29, empty range): shadowed by row 0 because the scene search takes the first match. Never reachable. Same search as 1285."
+    },
+    "1287": {
+      "note": "$0507, boss row 7 (scene $29, empty range): shadowed by row 0. Rows 8-10 (scene $29) would mask to $0500-$0502 but are shadowed too. Same search as 1285."
+    },
+    "1299": {
+      "note": "$0513 = Will slot 3 (abilityBitmask bit 3, mask $08). No setter, no reader: the Status tab tests slots 0-2 only (the fourth ability index 4 is an empty string), the attack code reads bits 0, 1, 2, 4, 5, 6 only, AbilitySceneTable has no mask $08. Searched every .asm under extracted/ (including unused/) for abilityBitmask and $0AA2 in all addressing forms: 31 accesses in 8 files, none with mask $08 except the 16-bit debug stores of $00FF (debug_man {781889}, unused_debug_mode {637608}, which set it)."
+    },
+    "1303": {
+      "note": "$0517 = Freedan slot 3 (abilityBitmask bit 7, mask $80). No reader and no live setter; set only by the 16-bit debug stores of $00FF (debug_man, unused_debug_mode, both unplaced). Same search as 1299."
+    },
+    "1307": {
+      "note": "$051B = Shadow slot 3 ($0AA3 bit 3). The Status tab tests slots 0-2 only; no setter, no reader. Same search as 1304."
+    },
+    "1308-1311": {
+      "note": "$051C-$051F ($0AA3 bits 4-7, a fourth form index that does not exist: the form-name table repeats Shadow for form 3). No setter, no reader. Same search as 1304."
+    },
+    "1288-1295": {
+      "note": "$0508-$050F = byte $0AA1: unassigned. No access to $0AA1 in extracted/ (inventory direct accesses of $0AA0-$0AA5: 31, all $0AA2), no COP operand, no helper input reaches it (Offset100 masks the index to 3 bits, so $0508+ is unreachable through it; TestFlag_0510 adds $0510)."
+    },
+    "1312-1439": {
+      "note": "$0520-$059F: not flag storage. Bytes $0AA4-$0AB3 are state words ($0AA6 plate id, $0AAC globalScriptIndex, $0AB0, $0AB2; FL10 byte map), TestFlag_0510 is called only with index form*4 + slot (at most 11 for forms 0-2, so at most $051B), and no COP operand or other helper reaches the range."
+    }
+  }
+}

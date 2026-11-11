@@ -776,7 +776,7 @@ InitActorPool {
     TXA 
 
   loc_03CE67:
-    STA $0F00, X          ; Zero three thinker regions: $0F00 slots, $7F0E00 (see note: extended data page is $7F0F00), $7F3000
+    STA $0F00, X          ; Zero three thinker regions: $0F00 slots, $7F0E00 (no other reader or writer; the extended data page is $7F0F00), $7F3000 (= $7F2100 + thinker slot: loop start / counter at +0 / +2 and a per-thinker word at +4)
     STA $7F0E00, X
     STA $7F3000, X
     INX 
@@ -921,7 +921,7 @@ AdvanceSceneDataAndFree {
 ; 
 ; Reads sequentially from [$3E] with Y as the stream offset:
 ; - Bytes 0-1: X/Y tile coordinates → ×16 (ASL ×4) → pixel positions at $0014,X and $0016,X
-; - Byte 2: Type/flags byte. Bit 0 selects how $000E,X (oamXorFlags) is built: 0 = ((byte2 & $F6) << 8) | word at $06F0 (default actor properties; never written by extracted code), 1 = direct mode (byte2 >> 1)
+; - Byte 2: Type/flags byte. Bit 0 selects how $000E,X (oamXorFlags) is built: 0 = ((byte2 & $F6) << 8) | word at $06F0 (default actor properties: the low byte $06F0 stays 0 and the high byte $06F1 is stored by SceneCmd_ConfigDisplay from display preset record byte +4, bits 4-5; measured $20 in most scenes and $10 in $59, $8C, $8D, $C0 and $FE), 1 = direct mode (byte2 >> 1)
 ; - Bytes 3-4: Code pointer → $42 (work area)
 ; - Byte 5: Bank byte → $44
 ; - Byte 6: Stats table index → $7F0020,X. Zero = no stats (skip enemy init)

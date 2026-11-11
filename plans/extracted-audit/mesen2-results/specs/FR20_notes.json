@@ -1,0 +1,29 @@
+{
+  "_note": "FR20 draft. FL21-04 (VERIFIED-RUNTIME): $E8 is set by sEA_solid_arm before the intro dialog, not after the fight. FL21-01 (CONTRADICTED half): with $21 set the two ec0E_statue actors stay solid push blocks and also get an interact handler. Dry-run only until the apply pass.",
+  "actors/jeweler_gem.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "sEA_solid_arm sets it, so after that optional fight Gem no longer appears (JewelerDie).",
+          "with": "sEA_solid_arm sets it before its intro dialog (after the scene's lock and the WaitWord #$0120 wait, with no fight needed), so from the first entry into scene $EA on, Gem no longer appears (JewelerDie) in the six scenes that spawn him ($01, $32, $6B, $7B, $9B, $C3)."
+        }
+      ]
+    },
+    "comments": {
+      "577187": {
+        "text": "Flag $E8 (set by sEA_solid_arm before its intro dialog, not after the fight): Gem is gone, die",
+        "expect": "BranchOnFlagByte"
+      }
+    }
+  },
+  "edward_castle/aqueduct_lockway/ec0E_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Statue inspection actor in the aqueduct lockway.",
+          "with": "Statue actor in the aqueduct lockway: always a solid push block (MarkSolidHere, push_handler_solid child). With $21 set the first block also stores the inspect handler as chatPtr and then falls through into the same solid-and-push code, so the statue stays solid and pushable and can also be inspected."
+        }
+      ]
+    }
+  }
+}

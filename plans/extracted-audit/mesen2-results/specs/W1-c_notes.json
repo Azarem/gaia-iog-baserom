@@ -1,0 +1,137 @@
+{
+ "_note": "W1-c (2026-11-07), see mesen2-results/W1-c_20261107.md. Event flag #00 selects the idle sprite family (#10-#13 / anim $11 instead of #00-#03 / anim $01) for Will and for Shadow, so the 'Shadow flag' wording is wrong (Will took the flag-set path in 25 of the 26 scene_flag_init scenes, Shadow took the clear path in scenes $E7 / $E8). ClearSceneState zeroes flags $00-$0F and both enemy counters at every scene setup (164 of 164), so flag #01 cannot be carried into Itory (the exit fired right after #01 was forced in scene $01) and a kill with enemyNum 0 (scene $1B) sets no bit and is spawned again on every entry. A boss with the reward flag set ($0AA0 bit 0 for Castoth) is cleared at once by its own entry code. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/W1-c_notes.json --dry-run.",
+ "actors/overworld_exit.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "The Itory Village exit is disabled while flag $01 is set. $01 is set by unrelated scripts (angel_village, undersea_tunnel, great_wall floor buttons); whether it is cleared on scene load was not traced.",
+     "with": "The Itory Village exit is disabled while flag $01 is set. ClearSceneState zeroes flags $00-$0F at every scene setup, so $01 is clear when scene $15 starts, whatever other scenes set. Inside scene $15 only it15_lily sets it (after its palette flash and WaitByte #7F) and clears it again; it15_kara waits for it."
+    }
+   ]
+  },
+  "comments": {
+   "52010": {
+    "text": "Flag $01 set (by it15_lily inside this scene; clear at scene start): exit disabled",
+    "expect": "COP"
+   }
+  }
+ },
+ "actors/scene_flag_init.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "What the set flag means is not traced. Other users of flag #00:",
+     "with": "With the flag set, the player's idle poses use sprite indexes #10-#13 (animation $11 in PlayerIdleAnimLoop) instead of #00-#03 (animation $01), for Will and for Shadow alike, and shadow_shimmer stays in its Active state for the whole scene. Other users of flag #00:"
+    },
+    {
+     "find": "whose comments call it the Shadow flag. The unconditional set in these 26 scenes does not fit a Shadow-form flag.",
+     "with": "all of which test it (measured for the idle poses and the shimmer; the ladder-idle and shimmy-detach variants are not traced). The flag does not follow the character form: Shadow with the flag clear takes the #00-#03 poses and Will with it set takes the #10-#13 ones."
+    }
+   ]
+  }
+ },
+ "actors/player/player_character.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "IdleStand* (8 directional × Shadow variants)",
+     "with": "IdleStand* (4 directions, each with a variant for flag byte #00 set: IdleStand*Flagged)"
+    }
+   ]
+  },
+  "comments": {
+   "181375": {
+    "text": "South idle: flag byte #00 clear stages sprite #00, set stages #10 (either character form)",
+    "expect": "COP"
+   },
+   "181386": {
+    "text": "Flag #00 set: south idle sprite #10",
+    "expect": "COP"
+   },
+   "181391": {
+    "text": "North idle: flag byte #00 clear stages sprite #01, set stages #11",
+    "expect": "COP"
+   },
+   "181402": {
+    "text": "Flag #00 set: north idle sprite #11",
+    "expect": "COP"
+   },
+   "181407": {
+    "text": "West idle: flag byte #00 clear stages sprite #02, set stages #12",
+    "expect": "COP"
+   },
+   "181418": {
+    "text": "Flag #00 set: west idle sprite #12",
+    "expect": "COP"
+   },
+   "181423": {
+    "text": "East idle: flag byte #00 clear stages sprite #03, set stages #13",
+    "expect": "COP"
+   },
+   "181434": {
+    "text": "Flag #00 set: east idle sprite #13",
+    "expect": "COP"
+   }
+  }
+ },
+ "functions/SetPlayerIdleFacing.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "branch on the Shadow flag byte #00)",
+     "with": "branch on flag byte #00)"
+    }
+   ]
+  }
+ },
+ "actors/player_transition_handlers.asm": {
+  "partNotes": {
+   "PlayerIdleAnimLoop": {
+    "edit": [
+     {
+      "find": "What flag #00 means is not traced.",
+      "with": "The choice depends only on the flag, not on the character form (measured: flag clear in scene $29 takes anim $01, flag set in scene $1D takes anim $11); scene_flag_init lists the scenes that set it."
+     }
+    ]
+   }
+  }
+ },
+ "functions/StandardEnemyDefeatHandler.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "SetDungeonKillFlag (the enemyNum bit in wramFlags, so the enemy stays dead on re-entry)",
+     "with": "SetDungeonKillFlag (sets the enemyNum bit in wramFlags, so the enemy is skipped when the scene is set up again; an enemy whose enemyNum is 0 sets no bit and is spawned again on every entry)"
+    }
+   ]
+  },
+  "comments": {
+   "56306": {
+    "text": "Set this enemy's bit in wramFlags: skipped on re-entry (enemyNum 0 sets no bit)",
+    "expect": "COP"
+   }
+  }
+ },
+ "system/engine/scene_lifecycle.asm": {
+  "partNotes": {
+   "ClearSceneState": {
+    "edit": [
+     {
+      "find": "climb state, actor count, DMA skip flag.",
+      "with": "climb state, actor count, the enemy counters enemiesRemaining ($0AEC) and enemiesRemainingBcd ($0AEE) (InitActorFromSceneData counts the scene's enemies up again), DMA skip flag."
+     }
+    ]
+   }
+  }
+ },
+ "incan_ruins/ir29_castoth.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "Uses StandardEnemyDefeatHandler for the win sequence.",
+     "with": "Uses StandardEnemyDefeatHandler for the win sequence. The entry code of ir29_castoth tests boss flag $0500 (TestWramFlag_Offset100 with index 0: byte $0AA0 bit 0, set by boss_clear_reward_handler once the stat catch-up is done); when it is set the actor zeroes enemiesRemaining and enemiesRemainingBcd and dies at once, so a rewarded Castoth is not fought again."
+    }
+   ]
+  }
+ }
+}

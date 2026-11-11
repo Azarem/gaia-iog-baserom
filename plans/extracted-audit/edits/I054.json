@@ -1,0 +1,179 @@
+{
+  "functions/StandardEnemyDefeatHandler.asm": {
+    "blockNote": [
+      "Standard field-enemy defeat script (Bank 00, 56202-56816). The defeated actor itself runs it (X = D = the victim). Entered in three ways: (1) as the default death script: hit_stagger_controller (HitStaggerResolveHit) and two inline paths in combat_collision set the victim's entry point to StandardEnemyDefeatHandler when its HP reaches zero and it has no onDeathCallback ($7F1004); (2) by COP JumpFar from the own scripts of 13 enemies (pyCC_mystic_ball, pyD2_haunt, awB1_wall_walker, pyDD_mummy_queen, gw83_asp, mu67_vampires, av6E_draco, sg55_viper, sg4D_dynapede, sg4E_nitropede, sg4D_cyber, ir29_castoth, sg51_statue) and from EnemyDefeatDispatch (the last enemy of a scene); (3) ir20_statue and ir26_statue JumpFar straight into EnemyDefeatFlashAndDrop.",
+      "",
+      "=== FLOW ===",
+      "",
+      "1. Kill counters (StandardEnemyDefeatHandler). Skipped when statsPtr points at the first enemy_stats_table entry (an EnemyInitBasic actor: HP 1, no stats) or extendedFlags bit $0080 (the boss bit). Otherwise enemiesRemainingBcd ($0AEE) -= 1 in decimal mode, enemiesRemaining ($0AEC) -= 1 in hex, and the new count is also kept in orbitAngle ($7F0010,X): 0 means this was the last enemy on the map.",
+      "2. Flash (EnemyDefeatFlashAndDrop). Movement is halted ($2C / $2E and moveScratch1 / 2 := 0), SFX #06 plays on channel 1 and EnemyDeathFlash is spawned at the enemy (flags $0302; bit $0002 draws it in front of every actor). The flash gets $12 bit $1000 (CopyActorState clears it) so that it keeps running in display-filter actor mode, then WaitByte 2.",
+      "3. No-stats and boss actors go to EnemyDefeatBossCleanup: hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, WaitByte 5, Die. They get no kill flag, gem drop or reward.",
+      "4. Other enemies: SetDungeonKillFlag (the enemyNum bit in wramFlags, so the enemy stays dead on re-entry), then the gem decision, hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, the field reveal, and finally Die when enemies remain or EnemyStatBonusReward when this was the last one.",
+      "   Gem decision: TestFlag_0300 (event flag $0300 + scene = this scene's clear reward was already claimed) set, or orbitAngle nonzero (enemies remain): drop a gem when the stats byte +3 (gemDropType) is nonzero, through EnemyGemDropRouter. Last enemy with the reward still unclaimed: no gem, the stat reward replaces it.",
+      "   Field reveal: deathActionIdx ($7F0024,X) nonzero and event flag $0100 + idx still clear: set it and spawn SpawnFieldRevealEffect (flags $0342, with $12 $1000), handing it the index.",
+      "5. EnemyStatBonusReward (last enemy only): enemy_clear_reward_table[scene] selects the pickup (0 none, 1 HP, 2 STR, 3 or more DEF) unless the scene flag $0300 is already set. It sets displayModeFlags $0080 (display-filter actor mode: only actors with $12 $1000 run, so the world freezes while the pickup plays), spawns reward_actors.e_hp_increase / e_str_increase / e_def_increase (flags $1000, $12 $1000) and Dies. RewardActorVFX sets the scene flag later (see reward_actors).",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header said ComposeDigitSprites_AtCursor assigns this as the OnDeath callback during enemy setup (no code there references it; the engine falls back to it when $7F1004 is empty), that it is about 360 bytes (it spans about 614), that it calls ClearLowHere (the COP is ClearSolidHere) and that the $12 $1000 write is a 'priority boost'. The comment on the first block said the gem drop is skipped when scene flag $0300 is set; it is the opposite: gems drop when the flag is set or enemies remain. EnemyDropSystem.asm (line 5) repeats the inverted condition. The 'about 20 enemy actor scripts' were 13 JumpFar sites, EnemyDefeatDispatch, 2 statues and 3 engine sites."
+    ],
+    "partNotes": {
+      "StandardEnemyDefeatHandler": [
+        "Entry (X = the defeated actor). A statsPtr equal to the first enemy_stats_table entry (EnemyInitBasic enemies) jumps to EnemyDefeatFlashAndDrop without counting; so does a boss bit ($0080) in extendedFlags. Otherwise it counts the kill in decimal ($0AEE) and in hex ($0AEC, also stored in orbitAngle: remaining enemies, 0 = last) and falls into EnemyDefeatFlashAndDrop."
+      ],
+      "loc_00DB96": [
+        "Not a no-stats actor: the boss bit ($0080 of extendedFlags) skips the counters, otherwise decrement the BCD and hex counters."
+      ],
+      "EnemyDefeatFlashAndDrop": [
+        "Common start of the defeat (also entered directly by ir20_statue and ir26_statue and by the fall-through above): stop the actor, SFX #06, spawn EnemyDeathFlash, WaitByte 2, then boss / no-stats actors go to EnemyDefeatBossCleanup and the rest continue with the kill flag and the gem decision. orbitAngle is meaningful only on the counted path."
+      ],
+      "loc_00DBE9": [
+        "Boss-bit test again after the wait; then SetDungeonKillFlag and the gem decision (TestFlag_0300 and orbitAngle)."
+      ],
+      "loc_00DC03": [
+        "Gem path: the stats byte +3 (gemDropType) of the actor's enemy_stats_table entry; zero skips the gem, otherwise EnemyGemDropRouter spawns it and returns to code_00DC13."
+      ],
+      "code_00DC13": [
+        "Common tail of the counted path (also the return point of EnemyGemDropRouter): hide the enemy ($10 |= $2000; the flash shows the effect) and free its solid tile when extendedFlags $0008 is set."
+      ],
+      "loc_00DC23": [
+        "Field reveal: when deathActionIdx is nonzero and event flag $0100 + idx is clear, set the flag and spawn SpawnFieldRevealEffect (flags $0342, $12 $1000), passing the index to the child."
+      ],
+      "loc_00DC54": [
+        "orbitAngle nonzero (enemies remain): Die. Zero (the last enemy): EnemyStatBonusReward."
+      ],
+      "loc_00DC5D": [
+        "Die for an enemy that was not the last."
+      ],
+      "EnemyDefeatBossCleanup": [
+        "Defeat of a boss or no-stats actor: after the flash wait (2 frames) hide it ($10 |= $2000), free its solid tile when extendedFlags $0008 is set, wait 5 frames and Die. No counters, kill flag, drop or reward."
+      ],
+      "loc_00DC72": [
+        "Final wait (5 frames) before Die."
+      ],
+      "EnemyGemDropRouter": [
+        "Gem-type dispatcher, reached with A = the stats byte +3 (gemDropType, nonzero) when this scene's reward flag $0300 is set or enemies remain (not, as the old note said, when the flag is clear). Two DEC operations select the spawn: 1 = SpawnDropGem1 (fixed $83), 2 = SpawnDropGem2 (fixed $84), otherwise SpawnDropByHpTier (the weighted picker). Each spawn uses SpawnListAppend with flags $0420 and jumps back to code_00DC13."
+      ],
+      "loc_00DD63": [
+        "gemDropType 1: SpawnDropGem1, then back to code_00DC13."
+      ],
+      "loc_00DD6F": [
+        "gemDropType 2: SpawnDropGem2, then back to code_00DC13."
+      ],
+      "loc_00DD7B": [
+        "Any other gemDropType: SpawnDropByHpTier, then back to code_00DC13."
+      ],
+      "EnemyStatBonusReward": [
+        "Clear reward of the last enemy of a scene. Pushes enemy_clear_reward_table[sceneCurrent] (0 none, 1 HP, 2 STR, 3 or more DEF). A set scene flag $0300 (reward already claimed) or a tier of 0 just Dies; otherwise displayModeFlags $0080 is set (display-filter actor mode) and the matching reward_actors pickup is spawned with flags $1000 (and $12 $1000, so it runs in that mode). The actor then Dies."
+      ],
+      "loc_00DDB3": [
+        "No reward: drop the pushed tier and Die."
+      ],
+      "loc_00DDB6": [
+        "Tier 1: spawn e_hp_increase (flags $1000, $12 $1000) and Die."
+      ],
+      "loc_00DDCA": [
+        "Tier 2: spawn e_str_increase (flags $1000, $12 $1000) and Die."
+      ],
+      "loc_00DDDE": [
+        "Tier 3 or more: spawn e_def_increase (flags $1000, $12 $1000) and Die."
+      ]
+    },
+    "comments": {
+      "56202": { "text": "statsPtr = first enemy_stats_table entry: an EnemyInitBasic actor (HP 1, no stats), not counted", "expect": "LDA $statsPtr" },
+      "56218": { "text": "extendedFlags $0080 = boss bit: not counted", "expect": "BIT #$0080" },
+      "56223": { "text": "Decimal mode: enemiesRemainingBcd -= 1", "expect": "SED" },
+      "56235": { "text": "Hex count -= 1", "expect": "LDA $enemiesRemaining" },
+      "56242": { "text": "Remaining enemies after this kill (0 = the last one)", "expect": "STA $orbitAngle" },
+      "56246": { "text": "Halt movement: $2C / $2E and moveScratch1 / 2 := 0", "expect": "LDA #$0000" },
+      "56261": { "text": "Death SFX #06 on channel 1", "expect": "PlaySoundCh1" },
+      "56264": { "text": "Flash at the enemy; flags $0302 (bit $0002 = in front of every actor); Y = child", "expect": "SpawnListAppend" },
+      "56273": { "text": "Child $12 |= $1000 (CopyActorState cleared it): the flash keeps running in display-filter mode", "expect": "LDA $0012" },
+      "56282": { "text": "2 frames", "expect": "WaitByte" },
+      "56294": { "text": "No-stats actor: no kill flag, drop or reward", "expect": "JMP" },
+      "56306": { "text": "Set this enemy's bit in wramFlags (it stays dead on re-entry)", "expect": "SetDungeonKillFlag" },
+      "56311": { "text": "Carry set = this scene's clear reward was already claimed", "expect": "TestFlag_0300" },
+      "56315": { "text": "Claimed: gems may drop", "expect": "BCS" },
+      "56317": { "text": "Unclaimed: no gem for the last enemy (the stat reward replaces it)", "expect": "LDA $orbitAngle" },
+      "56323": { "text": null, "expect": "LDA $statsPtr" },
+      "56328": { "text": "Stats byte +3 = gemDropType (0 = no gem)", "expect": "LDA $0003" },
+      "56339": { "text": "Hide the enemy ($2000); the flash child shows the effect", "expect": "LDA #$2000" },
+      "56348": { "text": "extendedFlags $0008: the actor made its tile solid", "expect": "BIT #$0008" },
+      "56355": { "text": "deathActionIdx: field-reveal index (0 = none)", "expect": "LDA $deathActionIdx" },
+      "56361": { "text": "Carry set = reveal flag $0100 + idx already set", "expect": "TestFlag_0100" },
+      "56371": { "text": "Mark it revealed", "expect": "SetFlag_0100" },
+      "56375": { "text": "Reveal effect, flags $0342; Y = child", "expect": "SpawnListAppend" },
+      "56384": { "text": "Child $12 |= $1000", "expect": "LDA $0012" },
+      "56394": { "text": "Copy the index into the child's deathActionIdx (X = child for the store)", "expect": "LDA $deathActionIdx" },
+      "56404": { "text": "Enemies remain: Die; last enemy: stat reward", "expect": "LDA $orbitAngle" },
+      "56434": { "text": "5 frames", "expect": "WaitByte" },
+      "56711": { "text": "Palette 0 for this actor (repeated below; effect not traced)", "expect": "SetSpritePalette" },
+      "56714": { "text": "Y = scene; the table gives the reward tier", "expect": "LDY $sceneCurrent" },
+      "56727": { "text": "Carry set = reward already claimed (RewardActorVFX sets the flag)", "expect": "TestFlag_0300" },
+      "56731": { "text": "Claimed: no reward", "expect": "BCS" },
+      "56736": { "text": "Tier 0: no reward", "expect": "LDA $01, S" },
+      "56740": { "text": "Display-filter actor mode: only $12 $1000 actors run while the pickup plays", "expect": "LDA #$0080" },
+      "56747": { "text": "Tier 1 = HP, 2 = STR, otherwise DEF", "expect": "DEC" },
+      "56758": { "text": "HP pickup; flags $1000", "expect": "SpawnListAppend" },
+      "56778": { "text": "STR pickup; flags $1000", "expect": "SpawnListAppend" },
+      "56798": { "text": "DEF pickup; flags $1000", "expect": "SpawnListAppend" }
+    }
+  },
+  "system/boot_logos/boot_logo_palette_enix.asm": {
+    "blockNote": [
+      "Boot-logo palette thinker (Bank 00, 47167-47186). Scene $FB's thinker list (thinker_spawn_0CEB1D, slot 0, param #01) spawns it together with boot_logo_palette_quintet and boot_logo_palette_third. All three start with the scene and run side by side, in BOTH visits of scene $FB (sFB_boot_logo reloads the scene for the second logo), so each visit animates all three palettes at once; which animation is seen depends on which OBJ palette the logo sprites use.",
+      "",
+      "This thinker plays palette bundles $50, $52 and $54 in order: PaletteStart selects a bundle and PaletteStep runs it to its end (the op continues only when the bundle is finished), three times, then KillThinker. The param byte #01 is never read (PaletteStart overwrites animScratch+2 with the bundle ID). Header word $0800: bit 11 keeps it running in the lighter frame routines, bit 2 is clear (runs before the actors).",
+      "",
+      "=== THE BUNDLES (palette_bundles, bank $16) ===",
+      "",
+      "Each bundle has 8 sub-entries of one frame each. A frame is 15 colors (30 bytes) written to CGRAM colors $81 to $8F, i.e. colors 1 to 15 of OBJ palette 0 (the Quintet thinker writes $91 to $9F, OBJ palette 1). There is 1 extra tick between frames in $50 and $52 and 3 in $54.",
+      "$50: starts all black; a 13-color ramp from dark purple ($2C4B) to white ($7FFF) grows across colors 1 to 13, its white tip moving from color 1 to color 13 with the darker colors trailing it; colors 14 and 15 stay 0.",
+      "$52: the ramp turns white from its bright end towards its dark end until all 13 colors are white, while colors 14 and 15 brighten from $18C6 / $2108 to $4E73 / $6739.",
+      "$54: starts all white and fades back down to the ramp (steps through $777D, $6AFA, ... to $2C4B ... $7FFF) while colors 14 and 15 darken to $1425 / $2449.",
+      "So the logo's palette sweeps in, flashes to white and settles on a rainbow ramp: a shine effect. This is read from the colour values (not run).",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header said it is the first of three thinkers and 'animates the Enix logo colors'; the Quintet note said it runs 'after the Enix palette sequence'. They are spawned together and run in parallel; which logo uses OBJ palette 0 or 1 was not traced (OQ-I054-1). The name is by spawn order."
+    ],
+    "partNotes": {
+      "boot_logo_palette_enix": [
+        "Thinker: bundles $50, $52 and $54 on OBJ palette 0 (CGRAM colors $81 to $8F): reveal, flash to white, settle."
+      ],
+      "code_00B841": [
+        "Entry. Three PaletteStart / PaletteStep pairs (bundles $50, $52, $54), then KillThinker and RTL."
+      ]
+    },
+    "comments": {
+      "47169": { "text": "Bundle $50: reveal the ramp on OBJ palette 0 (8 steps)", "expect": "PaletteStart" },
+      "47172": { "text": "Runs the whole bundle (the op continues when it ends)", "expect": "PaletteStep" },
+      "47174": { "text": "Bundle $52: ramp turns white", "expect": "PaletteStart" },
+      "47179": { "text": "Bundle $54: white fades back to the ramp (3 extra ticks per step)", "expect": "PaletteStart" }
+    }
+  },
+  "system/boot_logos/boot_logo_palette_quintet.asm": {
+    "blockNote": [
+      "Boot-logo palette thinker (Bank 00, 47187-47206): the twin of boot_logo_palette_enix. Spawned together with it and boot_logo_palette_third by scene $FB's thinker list (thinker_spawn_0CEB1D, slot 1, param #01, never read) and run in parallel with them in both visits of the scene.",
+      "",
+      "Plays palette bundles $51, $53 and $55 in order (PaletteStart + PaletteStep each), then KillThinker. The bundles hold exactly the same colour frames as $50, $52 and $54 (see boot_logo_palette_enix) but write them to CGRAM colors $91 to $9F, colors 1 to 15 of OBJ palette 1, with the same 1 / 1 / 3 extra ticks. So the effect is a black to rainbow-ramp reveal, a white flash and a settle, applied to a second logo palette.",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header said it runs 'after the Enix palette sequence'; it runs at the same time. Which of the two logos uses OBJ palette 1 was not traced (OQ-I054-1)."
+    ],
+    "partNotes": {
+      "boot_logo_palette_quintet": [
+        "Thinker: bundles $51, $53 and $55 on OBJ palette 1 (CGRAM colors $91 to $9F): the same reveal, flash and settle as the Enix thinker."
+      ],
+      "code_00B855": [
+        "Entry. Three PaletteStart / PaletteStep pairs (bundles $51, $53, $55), then KillThinker and RTL."
+      ]
+    },
+    "comments": {
+      "47189": { "text": "Bundle $51: reveal the ramp on OBJ palette 1 (8 steps)", "expect": "PaletteStart" },
+      "47194": { "text": "Bundle $53: ramp turns white", "expect": "PaletteStart" },
+      "47199": { "text": "Bundle $55: white fades back to the ramp", "expect": "PaletteStart" }
+    }
+  }
+}

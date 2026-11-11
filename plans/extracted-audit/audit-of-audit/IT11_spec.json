@@ -1,0 +1,354 @@
+{
+  "_note": "IT-11: tables I065-I068 complete clean-up (A07 findings 02, 04, 05, 06, 07, 08, 09, 13, 15, 16, 18, 19, 20, 22) plus the DialogCmd_InsertTemplate header, one OQ comment in DialogStringRenderer and the three actor comments in attack_ability_system / player_character. Partial edits (find must occur once). Ranges use the inclusive-last-byte convention (blocks.json end - 1), as in IT-10. parallax_scroll_table is clean and not touched.",
+
+  "tables/dialog_template_table.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "Bank 01, 117397-117670)",
+        "with": "Bank 01, 117397-117669)"
+      },
+      {
+        "find": "afterwards it restores the cursor ($0998), the string pointer and the bank, so the caller's string continues where it stopped. The old note ('Dark Space transforms', 'templates $08-$11 are size presets', '$12 is the world map prompt', '$13-$15 are silent screen effects') had every range shifted by one and the main purpose wrong: most templates select the colours of a speaker.",
+        "with": "afterwards it restores the caller's string pointer, the bank and the processor flags, and reloads the cursor from $0998, where the template's last character left it, so a [DLG] template positions the text that follows (the speaker templates only set colours, palette and sound, so they leave the cursor where it was). Most templates select the colours of a speaker."
+      },
+      {
+        "find": "(uses = occurrences of [TPL:nn] in the extracted strings, whole-file count)",
+        "with": "(uses = occurrences of [TPL:nn] in the extracted strings, comment lines excluded)"
+      },
+      {
+        "find": "'Where do you go?' | 49 | the route menus",
+        "with": "'Where do you go?' | 37 | the route menus"
+      },
+      {
+        "find": "Which of the two colour words is the glyph and which the outline was not checked at runtime (OQ-I065-1).",
+        "with": "Not traced: which of the two colour words is the glyph and which the outline."
+      }
+    ] },
+    "partNotes": {
+      "dialog_template_11_where_do_you_go": { "edit": [
+        {
+          "find": "Template $11 (49 uses)",
+          "with": "Template $11 (37 uses)"
+        }
+      ] }
+    }
+  },
+
+  "tables/scene_meta.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "(Bank 0D, 884736-897023, movable)",
+        "with": "(Bank 0D, 884736-897022, movable)"
+      },
+      {
+        "find": "The old note ('tileset, tilemap, palette bundle, music track, collision layer and display configuration') described fixed fields and a collision layer; the records are command streams and hold no collision data",
+        "with": "The records are command streams and hold no collision data"
+      },
+      {
+        "find": "SceneCmd_LoadPalette (see R-I065-6)",
+        "with": "SceneCmd_LoadPalette"
+      },
+      {
+        "find": "the map of layer 1 or 2 (operand $01 225 times, $02 158 times)",
+        "with": "the map of layer 0 (operand $01, 225 uses) or layer 1 (operand $02, 158 uses)"
+      }
+    ] }
+  },
+
+  "tables/enemy_stats_table.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "109552-109992 = $01:ABF0",
+        "with": "109552-109991 = $01:ABF0"
+      },
+      {
+        "find": " The old note was wrong about the fourth byte ('Type 0-3, affects damage calculations'), about DEF $7F ('immune to normal damage') and about HP $7F / $FF ('boss-tier').",
+        "with": ""
+      },
+      {
+        "find": "(read by combat_collision and StandardEnemyDefeatHandler)",
+        "with": "(read by combat_collision, StandardEnemyDefeatHandler and field_reveal_object)"
+      },
+      {
+        "find": "3 or more = SpawnDropByHpTier (EnemyDropSystem) | EnemyGemDropRouter in StandardEnemyDefeatHandler |",
+        "with": "3 or more = SpawnDropByHpTier (EnemyDropSystem); FieldRevealFromActorStats reads the same byte as value & 3: 0 = nothing, 1 / 2 / 3 = a gem pickup worth 1 / 2 / 5 gems | EnemyGemDropRouter in StandardEnemyDefeatHandler; FieldRevealFromActorStats in field_reveal_object (spawned by EnemyDefeatDispatch for every kill but the last) |"
+      },
+      {
+        "find": "Which attack of the game goes through which of the two routines was not traced at runtime (OQ-I066-2).",
+        "with": "Not traced: which attack of the game goes through which of the two routines."
+      },
+      {
+        "find": "Damage and stagger immunity are bits $0010 / $0020 of the actor's $12 flags (EnemyInitBasic sets both), not table data.",
+        "with": "Bit $0010 of the actor's $12 flags is damage / stagger immunity and bit $0020 is the boss bit (EnemyInitBasic sets both): immunity is flag data, not table data."
+      },
+      {
+        "find": " $4B $52 $53 $59 (OQ-I066-1).",
+        "with": " $4B $52 $53 $59."
+      }
+    ] }
+  },
+
+  "tables/spriteset_aura.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "(Bank 17, 1544192-1544618 = $17:9000)",
+        "with": "(Bank 17, 1544192-1544617 = $17:9000)"
+      },
+      {
+        "find": " The old note said '4 animation frames for the rotating barrier sprites': the table holds 3 animations of 4 frames.",
+        "with": ""
+      },
+      {
+        "find": "AuraBarrierMain copies 7 colours of fx_palette_198090 to CGRAM $A9 ($A9-$AF); AuraBarrierPaletteFX cycles them. That VRAM $4400 is tile $40 of the first sprite name table assumes the sprite name base is $4000 (OBSEL was not traced, OQ-I066-3).",
+        "with": "AuraBarrierMain copies 7 colours of fx_palette_198090 to CGRAM $A9-$AF; AuraBarrierPaletteFX cycles bundle #5B over colours $A1-$A8 of the same palette (the bundle writes only $A1-$A8). The statement that VRAM $4400 is tile $40 of the first sprite name table assumes the sprite name base is $4000 (OBSEL not traced)."
+      },
+      {
+        "find": "Checks: 426 bytes",
+        "with": "Byte budget: 426 bytes"
+      }
+    ] }
+  },
+
+  "tables/spriteset_shadow.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "1343488-1355931 = $14:8000",
+        "with": "1343488-1355930 = $14:8000"
+      },
+      {
+        "find": "row $03 is a copy, OQ-I061-1)",
+        "with": "row $03 is a copy)"
+      },
+      {
+        "find": "The old header ('walking, idle, attack and liquify animation frames', 'Shadow's unique morph poses') named poses the code does not use: 'liquify' appears nowhere outside the headers of this file and spriteset_shadow_fx, and the table has the same 76 indices as the Freedan table. Shadow's separate mode body",
+        "with": "Shadow's separate mode body"
+      },
+      {
+        "find": "=== CHECKS ===",
+        "with": "=== TOTALS ==="
+      },
+      {
+        "find": " (the label spacing of 75 consecutive lists was checked by hand)",
+        "with": ""
+      }
+    ] }
+  },
+
+  "tables/item_pickup_text_table.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "Bank 01, 130340-130924)",
+        "with": "Bank 01, 130340-130923)"
+      },
+      {
+        "find": "The old note ('item acquisition dialog messages', 'stat increases', 'inventory-full messages, and defaults') was wrong: the 64 strings are the item NAMES (or a short found-message for a few items)",
+        "with": "The 64 strings are the item names (or a short found-message for a few items)"
+      },
+      {
+        "find": "the item-pickup code of combat_collision (line 1563)",
+        "with": "InteractionDamage_NPCChat in combat_collision (an NPC that gives an item)"
+      },
+      {
+        "find": "These items print nothing through this table (OQ-I067-1).",
+        "with": "These items print nothing through this table."
+      },
+      {
+        "find": "Necklace Stones and Will (OQ-I067-2).",
+        "with": "Necklace Stones and Will."
+      }
+    ] },
+    "partNotes": {
+      "item_pickup_text_15": { "edit": [
+        {
+          "find": "'You found the Teapot!' (OQ-I067-2).",
+          "with": "'You found the Teapot!'."
+        }
+      ] }
+    }
+  },
+
+  "tables/spriteset_darkgaia_projectile.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "1560576-1561584, 1008 bytes",
+        "with": "1560576-1561583, 1008 bytes"
+      },
+      {
+        "find": "The old note ('Will's Psycho Dash and Psycho Slide projectile sprites', 'ranged abilities') was wrong: the only user",
+        "with": "The only user"
+      },
+      {
+        "find": "projectile_travel_south, 17D04E, 17D054, 17D05A",
+        "with": "projectile_travel_south, projectile_travel_north, projectile_travel_west, projectile_travel_east"
+      },
+      {
+        "find": "The tile graphics these sub-sprites draw were not traced (OQ-I067-3).",
+        "with": "Not traced: the tile graphics these sub-sprites draw."
+      }
+    ] }
+  },
+
+  "tables/spriteset_transform_poses.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "1032192-1043845, 11653 bytes",
+        "with": "1032192-1043844, 11653 bytes"
+      },
+      {
+        "find": "The old note ('Psycho Dash, Psycho Slide, Dark Friar cast, Aura Barrier, Earthquaker', 'special abilities of all three characters') was wrong: body_table row $05 selects this set",
+        "with": "body_table row $05 selects this set"
+      },
+      {
+        "find": "are not referenced by any of the seven scripts (OQ-I067-4).",
+        "with": "are not referenced by any of the seven scripts."
+      }
+    ] },
+    "partNotes": {
+      "spriteset_transform_poses": { "edit": [
+        {
+          "find": "$0C (transform_pose_0B)",
+          "with": "$0C (transform_pose_0C)"
+        }
+      ] },
+      "transform_pose_04": { "edit": [
+        {
+          "find": "not referenced by the Transform_* scripts (OQ-I067-4).",
+          "with": "not referenced by the Transform_* scripts."
+        }
+      ] },
+      "transform_pose_0B": null,
+      "transform_pose_0C": "Animation $0C: not referenced by the Transform_* scripts.",
+      "transform_pose_11": { "edit": [
+        {
+          "find": "not referenced by the Transform_* scripts (OQ-I067-4).",
+          "with": "not referenced by the Transform_* scripts."
+        }
+      ] },
+      "sprite_group_0FD5AA": { "edit": [
+        {
+          "find": "starts at 0FD5E8 (OQ-I067-5).",
+          "with": "starts at 0FD5E8."
+        }
+      ] }
+    }
+  },
+
+  "tables/spriteset_npc_props.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "Bank 0E, 973312-974144, 832 bytes",
+        "with": "Bank 0E, 973312-974143, 832 bytes"
+      },
+      {
+        "find": "The old note ('town furniture, signs, chests, and decorative elements') was too broad: no chest uses it (chests are map tiles drawn by warps_interaction), and there is no furniture.",
+        "with": "No chest uses it (chests are map tiles drawn by warps_interaction)."
+      },
+      {
+        "find": "| town_door, open frame (1 sub-sprite) |",
+        "with": "| town_door, open frame (1 sub-sprite); fr32_locked_door |"
+      },
+      {
+        "find": "town_door closed frame (6 sub-sprites); fr32_guide |",
+        "with": "town_door closed frame (6 sub-sprites); fr32_guide; fr32_locked_door; fr32_kidnapper |"
+      },
+      {
+        "find": "flames: av6B_flame, ec0A_torch1, ec0A_torch2 |",
+        "with": "flames: av6B_flame, ec0A_torch1, ec0A_torch2; mu63_spirits (it stages the flame, not a spirit) |"
+      },
+      {
+        "find": "reading the Stage* operand that follows it (E2); the images were not viewed, so the descriptions of $02, $05, $07 and $0A come from the actor names (OQ-I068-1). Animations $03 and $09 have no user (OQ-I068-2).",
+        "with": "reading the Stage* operand that follows it; the images were not viewed, so the descriptions of $02, $05, $07 and $0A come from the actor names. No actor selects animations $03 and $09."
+      }
+    ] },
+    "partNotes": {
+      "npc_props_03": { "edit": [
+        {
+          "find": "no actor selects it (OQ-I068-2).",
+          "with": "no actor selects it."
+        }
+      ] },
+      "npc_props_09": { "edit": [
+        {
+          "find": "no actor selects it (OQ-I068-2).",
+          "with": "no actor selects it."
+        }
+      ] }
+    }
+  },
+
+  "tables/display_preset_table.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "(Bank 01, 98304-98868)",
+        "with": "(Bank 01, 98304-98867)"
+      },
+      {
+        "find": "; the old note said 'selected by scene metadata', which is not what the code does. SceneCmd_ConfigDisplay documents",
+        "with": ". SceneCmd_ConfigDisplay documents"
+      },
+      {
+        "find": " (closes OQ-5 of the first audit pass)",
+        "with": ""
+      },
+      {
+        "find": "Which scenes use which preset was not traced (OQ-I068-3).",
+        "with": "Not traced: which scenes use which preset."
+      }
+    ] }
+  },
+
+  "tables/scene_warps.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "98868-108894, 10026 bytes",
+        "with": "98868-108893, 10026 bytes"
+      },
+      {
+        "find": "The old note described the second list as 'staircase warps with climb-animation offsets'; it holds forced-walk warps (see below), although all of them are vertical walks.",
+        "with": "The second list holds forced-walk warps (see below), all of them vertical walks."
+      },
+      {
+        "find": " (answers part of OQ-I064-1). Which warp uses which list was still not mapped one by one.",
+        "with": ". Not traced: which warp uses which pan list."
+      },
+      {
+        "find": "stored in $0AF4 (every warp) and sceneSaveData (save warps). The two forced-walk entries of warp_def_03 use unusual first stream bytes ($04, $05) (OQ-I068-4). Sampled about 18% by reading (header and pointer table, lists $00-$05, $61-$64, $E1-$E3 and the tail); the counts above were computed over the whole file.",
+        "with": "stored in reviveWarpPtr ($0AF4; every warp) and sceneSaveData (save warps). The two forced-walk entries of warp_def_03 use unusual first stream bytes ($04, $05); not traced: what the walk does with them."
+      }
+    ] }
+  },
+
+  "system/engine/DialogStringRenderer.asm": {
+    "partNotes": {
+      "DialogCmd_InsertTemplate": { "edit": [
+        {
+          "find": "Restores the VRAM cursor, string pointer, bank, and processor state on return.",
+          "with": "Restores the caller's string pointer, bank and processor flags on return, and reloads the VRAM cursor from $0998, where the template's last character left it (DialogCmd_Return hands the cursor back only through $0998), so a [DLG] template positions the text that follows."
+        }
+      ] }
+    },
+    "comments": {
+      "254630": { "text": "Set displayModeFlags bit 0 so the BG3 staging buffer is re-uploaded (consumer not traced)", "expect": "LDA" }
+    }
+  },
+
+  "actors/player/attack_ability_system.asm": {
+    "partNotes": {
+      "AttackSystemEntry": { "edit": [
+        {
+          "find": "AuraProjectileChild is the individual orbiting sprite with 3-frame animation.",
+          "with": "AuraProjectileChild is the individual orbiting sprite; its set (spriteset_aura) has 3 animations of 4 frames."
+        }
+      ] }
+    },
+    "comments": {
+      "178963": { "text": "Metasprite set spriteset_aura (Aura orbital projectile graphics)", "expect": "SetMetasprite" }
+    }
+  },
+
+  "actors/player/player_character.asm": {
+    "comments": {
+      "184168": { "text": "Projectile south: metasprite set spriteset_darkgaia_projectile, initial sprite #00 + MoveY #09, then loop #04 + #0F", "expect": "SetMetasprite" }
+    }
+  }
+}

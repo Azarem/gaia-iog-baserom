@@ -16,7 +16,7 @@
 ; 
 ; === HAZARD ===
 ; 
-; The loop re-reads the victim's position through $24 every frame and never checks that the slot still holds the same actor. If the victim died and its slot were reused within the 16 frames, the number would follow whatever occupies the slot (analysis only, not run).
+; The loop re-reads the victim's position through $24 every frame and never checks that the slot still holds the same actor. If the victim died and its slot were reused within the 16 frames, the number would follow whatever occupies the slot (measured after a lethal hit: the victim's slot held another actor 4 ticks later, at the same position, for the rest of the number's 16 frames; the new occupant did not move, so following it was not observed).
 ; 
 ; DamageNumberShort_unused is an unreferenced variant of this routine.
 ---------------------------------------------

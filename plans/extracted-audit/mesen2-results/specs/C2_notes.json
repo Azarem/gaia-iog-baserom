@@ -1,0 +1,49 @@
+{
+  "_note": "C2 (2026-10-30). Shipped text shown wrong by the C2 runs, see mesen2-results/C2_20261030.md. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/C2_notes.json --dry-run. Comments are replaced through expectOld because extracted/ carries no line-tracking tags; the apply pass should run extract:lt first and may switch to expect. 'find' must occur exactly once in the stored note. The blockNote of hdma_dma_spc.asm and the partNote of AdhocVramDma replace the C1 drafts for the same sentences (C1_notes.json): apply C2_notes.json instead of those two C1 entries, keep the other C1 entries (radar_map_screen.asm:229608 and system_core.asm:33215 are unchanged by C2).",
+  "system/engine/hdma_dma_spc.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Writers must store the size before the destination (the destination arms the transfer).",
+          "with": "The destination word is the pending flag: the NMI runs the transfer when it is nonzero. Both writers (RadarScreenSetup and the AdhocVramDma COP handler) store the destination before the size. Measured: in every pair (radar screen, credits scene, boot) the NMI was off at both stores and no NMI ran between them. Actors normally run with NMITIMEN = $01, but the first UpdateFrameDialogue pass after a scene load runs RunActors_CutsceneOnly with NMITIMEN = $81, and neither writer guards against an NMI between its two stores there. A writer that can run with the NMI on has to store the size first."
+        }
+      ]
+    }
+  },
+  "system/engine/cop_handlers_vram.asm": {
+    "partNotes": {
+      "AdhocVramDma": {
+        "edit": [
+          {
+            "find": "The destination word is written before the size word, but the NMI fires on a nonzero destination.",
+            "with": "The destination word is written before the size word, and the NMI runs the transfer when the destination is nonzero. Actors normally execute with NMITIMEN = $01 (NMI off), so no NMI can run between the two stores; UpdateFrameFull switches the NMI off first. The first UpdateFrameDialogue pass after a scene load runs actors with NMITIMEN = $81 and has no such protection."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/GlobalInputHandler.asm": {
+    "comments": {
+      "229449": {
+        "text": "NMITIMEN = $01: NMI off, joypad auto-read stays on (OpenInventoryScreen already leaves it in this state)",
+        "expectOld": "Restore NMI-only mode (disable joypad auto-read during inventory teardown)"
+      },
+      "229519": {
+        "text": "Display loop: NMITIMEN = $81 for one VBlank wait (joypad is read), then back to $01 (NMI off, joypad auto-read on)",
+        "expectOld": "Display loop: enable NMI+joypad, wait for VBlank (joypad is read), back to NMI-only"
+      }
+    }
+  },
+  "system/engine/scene_lifecycle.asm": {
+    "partNotes": {
+      "ExecuteSceneTransition": {
+        "edit": [
+          {
+            "find": "and a chain of VBlank sync/NMI enable calls.",
+            "with": "and a chain of VBlank sync/NMI enable calls. The last call of the chain, EnableNmiAndJoypad, leaves NMITIMEN = $81 into the enter transition: the first UpdateFrameDialogue pass runs RunActors_CutsceneOnly with the NMI on, and the DisableNmiKeepJoypad at the end of that pass turns it off."
+          }
+        ]
+      }
+    }
+  }
+}

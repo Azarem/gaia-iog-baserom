@@ -35,7 +35,7 @@
 ; 
 ; Palette FX (bundle contents decoded from palette_bundles): WillAttackPaletteFX = #2A twice then #2B forever; FreedanAttackPaletteFX = #4B twice then #2C forever (both tint the 15 colors at CGRAM $81–$8F, which AttackCleanup restores with the single-frame bundles #0B/#0C); AuraBarrierPaletteFX = #5B forever (8 colors at CGRAM $A1–$A8, a blue-to-white ramp, 16 ticks per cycle). Dark Friar also starts bundle #4A through a thinker: a white flash on $81–$8F fading back to Freedan's normal colors over 36 ticks.
 ; 
-; Ability tables: LoadAbilityDamageA (will_ability_damage_table, Will) and LoadAbilityDamageB (freedan_ability_damage_table, Freedan) do not hold sprite or hitbox data. Each 6-byte record is { word 0, word pointer to the ability's upgrade-level word, then one damage byte per level }; the loader reads the level from that WRAM word ($0B16 Psycho Dash, $0B18 Psycho Slider, $0B1A Spin Dash; $0B1C Dark Friar, $0B1E Aura Barrier, $0B20 Earthquaker) and stores record[4 + level] to abilityDamageBonus ($09E0, Will) or rangedDamageBonus ($09E2, Freedan), the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.
+; Ability tables: LoadAbilityDamageA (will_ability_damage_table, Will) and LoadAbilityDamageB (freedan_ability_damage_table, Freedan) do not hold sprite or hitbox data. Each 6-byte record is { word 0, word pointer to the ability's upgrade-level word, then one damage byte per level }; the loader reads the level from that WRAM word ($0B16 Psycho Dash, $0B18 Psycho Slider, $0B1A Spin Dash; $0B1C Dark Friar, $0B1E Aura Barrier, $0B20 Earthquaker) and stores record[4 + level] to abilityDamageBonus ($09E0, Will) or rangedDamageBonus ($09E2, Freedan), the bonus that ApplyHitDamageToVictim adds to the hit strength (abilityDamageBonus on every hit, rangedDamageBonus only when the source is not the player actor in slot $1000). The value in A is the record number in the table (0, 1 or 2), not an animation table entry. Word 0 of a record is not read: in every Will cast (Psycho Dash, Psycho Slider, Spin Dash, levels 0 and 1) the loader read exactly the table index word, record+2 and record+4+level. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7 (stored when the charge completes); Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7. Which record each ability loads: Psycho Dash loads Will index 0; the Psycho Slider loads index 1; Spin Dash loads index 2 when the charge ends and index 1 again in SpinDashLaunch, so the Spin Dash flight adds the Psycho Slider value (by the Slider level word $0B18; measured: abilityDamageBonus 4/7 at the charge end and 5/8 in flight, 5 at level 0), not 4/7; every Dark Friar projectile loads Freedan index 0 (the trail south, the trail east/west and the fragments call LoadAbilityDamageB with index 0); the Aura Barrier record (index 1, 5/9) is never loaded, so its orbitals (counted from $0B1E: 2 at level 0, 4 at level 1) hit with whatever rangedDamageBonus holds (0 in the measured run, no Dark Friar cast before); Earthquaker loads Freedan index 2 in LedgeJumpDropLand (read from the code, not run).
 ; 
 ; === TRAIL FOLLOWERS (TrailFollowerSprA, 179702–179872) ===
 ; 
@@ -57,7 +57,7 @@
 ; - Actor flags $10: bit 13 ($2000) = hidden for SortActorsByDepth and the script-only path of RunActors_Normal (no collision-aware movement, no iframe handling); bit 14 ($4000) = off-screen flag maintained by the depth sort; bit 7 ($0080) = hit/iframe marker.
 ; - $12 bits $2000 / $4000 negate the Y / X movement of staged movement chains (so one chain runs south or north, east or west).
 ; - COP movement operands (StageMoveXY, StageSpriteMoveX/Y, StageSpriteLoopMoveX/Y) are indices into move_chain_table, not distances: index 1/3/5/7 = constant +1/+2/+3/+4 per frame, 2/4/6 = the negatives, index $36 = 8 frames of 0, then 4,4,7,7,9,9,12,12, then 0,0, then eight frames of −8.
-; - LoopStart/LoopEnd yield once per iteration, so LoopStart(#n) is an n-frame loop.
+; - LoopEnd yields after every iteration except the last, so LoopStart(#n) runs its body in n consecutive frames.
 ---------------------------------------------
 
 ?BANK 02
@@ -114,7 +114,7 @@
 ; 
 ; 4. Aura Orbital System (178711–179002): AuraOrbitalSpawner spawns 2-4 orbital children (count depends on upgrade flag $0B1E), manages 240-frame orbit rotation expanding from diameter 0 to 64, then runs a 30-frame shrink. UpdateOrbitalPositions iterates children with angle spacing via ApplyOrbitalOffsetFromRef. AuraProjectileChild is the individual orbiting sprite; its set (spriteset_aura) has 3 animations of 4 frames. AuraProjectileShrink reverses the animation and flags for removal.
 ; 
-; 5. Dark Friar (179003–179701): DarkFriarMain sets flags, spawns VRAM DMA, loads palette, spawns a palette reset thinker (#4A), and dispatches by facing direction. Each directional handler (South/North/West/East) spawns a projectile and trail at character-appropriate offsets. DarkFriarProjectile is the initial flash sprite. DarkFriarTrailSouth and DarkFriarTrailEastWest are the growing trail actors with optional collision (enabled by upgrade level $0B1C). DarkFriarBounceLoop keeps the trail travelling until it leaves the screen, and at upgrade level 2 holding attack runs DarkFriarDisableCollide, which detonates it into fragments on demand. DarkFriarOnHit spawns 4 fragment actors at 90° intervals. DarkFriarFragmentInit sets up spiraling outward motion, DarkFriarFragmentLoop applies the reversed velocity every frame until the fragment leaves the screen (actor flag $4000), then it dies.
+; 5. Dark Friar (179003–179701): DarkFriarMain sets flags, spawns VRAM DMA, loads palette, spawns a palette reset thinker (#4A), and dispatches by facing direction. Each directional handler (South/North/West/East) spawns a projectile and trail at character-appropriate offsets. DarkFriarProjectile is the initial flash sprite. DarkFriarTrailSouth and DarkFriarTrailEastWest are the growing trail actors with optional collision (enabled by upgrade level $0B1C). DarkFriarBounceLoop keeps the trail travelling until it leaves the screen, and at upgrade level 2 holding attack runs DarkFriarDisableCollide, which detonates it into fragments on demand. DarkFriarOnHit spawns 4 fragment actors at 90° intervals. DarkFriarFragmentInit sets up spiraling outward motion, DarkFriarFragmentLoop applies the negated stored velocity every frame. The spiral phase moves a fragment by minus the stored value, so after the negation it moves by the stored value and flies straight on along the direction it had at the end of the spiral (no U-turn), until it leaves the screen (actor flag $4000); then it dies.
 
 AttackSystemEntry {
     LDA $playerFlags      ; Combat lock check (one-time, at spawn): $0008 is set in non-combat scenes, where no attack companion is wanted
@@ -445,7 +445,7 @@ AuraOrbitalSpawner {
     INC $24
 
   loc_02BA39:
-    COP [SpawnAfterMarked] ( @AuraProjectileChild, #$0600 ) ; Spawn standard orbital child (always present regardless of upgrade)
+    COP [SpawnAfterMarked] ( @AuraProjectileChild, #$0600 ) ; Spawn standard orbital child (always present regardless of upgrade); operand $0600 = its $10: $0400 body box hits actors, $0200 not a victim
     INC $24
     COP [SpawnAfterMarked] ( @AuraProjectileChild, #$0600 )
     LDA #$00F0            ; Set orbital lifetime to 240 frames ($00F0)
@@ -677,7 +677,7 @@ DarkFriarTrailNorthInit {
 }
 
 DarkFriarTrailSouth {
-    LDA #$0000            ; Load animation table B entry 0 — Dark Friar trail sprite configuration
+    LDA #$0000            ; A = 0: Freedan ability record 0 (Dark Friar) for LoadAbilityDamageB
     JSR $&LoadAbilityDamageB
     COP [SetMetasprite] ( @spriteset_dark_friar )
     LDA $playerFlags      ; Check player flags bit 7 ($0080) for behind-wall rendering mode (never set by shipped scenes)
@@ -800,7 +800,7 @@ DarkFriarFragment3 {
 
   DarkFriarFragmentInit:
     STA $orbitAngle, X    ; Store initial orbit angle for this fragment's spiral expansion path
-    LDA #$0000            ; Load animation table B entry 0 for fragment sprite set
+    LDA #$0000            ; A = 0: Freedan ability record 0 (Dark Friar) for LoadAbilityDamageB
     JSR $&LoadAbilityDamageB
     LDA #$0000            ; Initialize orbit diameter to 0 — fragments spiral outward from impact point
     STA $orbitDiameter, X
@@ -834,7 +834,7 @@ DarkFriarFragment3 {
     CLC 
     ADC #$04
     STA $orbitDiameter, X
-    BCS loc_02BDA8        ; Diameter overflow (carry set) → max range reached, begin velocity reversal
+    BCS loc_02BDA8        ; Diameter overflow (carry set): maximum range reached; the stored velocity is negated below and the fragment flies on in the same direction
     REP #$20
     LDA $14
     PHA 
@@ -858,21 +858,21 @@ DarkFriarFragment3 {
     BRA loc_02BD52
 
   loc_02BDA8:
-    REP #$20              ; Max range reversal: restore 16-bit mode for velocity negation
+    REP #$20              ; Maximum range: restore 16-bit mode for the velocity negation (the sign of the stored velocity flips, the fragment does not turn back)
     LDA #$6000
     TRB $12               ; Clear direction flags ($6000) in mirror register for velocity reversal
-    LDA $7F100C, X        ; Negate X velocity (EOR #$FFFF + INC = two's complement) — reverse horizontal
+    LDA $7F100C, X        ; Negate the stored X velocity (EOR #$FFFF + INC = two's complement). The spiral moved the fragment by minus the stored value, so now it moves by the stored value and keeps its direction (measured: stored X -6 before the negation and 6 after it, the fragment moves +6 px per tick in X on both sides of the change)
     EOR #$FFFF
     INC 
     STA $7F100C, X
-    LDA $7F100E, X        ; Negate Y velocity — reverse vertical direction
+    LDA $7F100E, X        ; Negate the stored Y velocity (same effect: the sign flips, the direction of travel stays)
     EOR #$FFFF
     INC 
     STA $7F100E, X
     BRA loc_02BDD7
 
   DarkFriarFragmentLoop:
-    COP [AnimOneFrame]    ; Fragment return phase: animate and apply reversed velocity each frame
+    COP [AnimOneFrame]    ; Outward flight phase: animate and apply the negated velocity each frame; the fragment flies on in a straight line until it leaves the screen
     LDA $2A
     BEQ DarkFriarFragmentLoop
     LDA $08
@@ -977,7 +977,7 @@ TrailPositionInit {
 ; 
 ; 1. Offset Helpers (179826–179871): ComputeParentOffset stores the XY delta between current position and a parent actor. ApplyParentOffset adds the stored delta back to the parent's current position. Used by Dark Friar projectile/trail actors to maintain relative positioning.
 ; 
-; 2. Psycho Dash (179872–180392): PsychoDashMain loads animation table A entry 0, disables status display, dispatches by facing. Each directional handler (South/North/West/East) spawns a trail afterimage actor, sets the movement direction via force flags, stages movement index $36 (a delta chain, not a distance), then returns to idle. The four PsychoDashTrail actors (South/North/West/East) record 8 position deltas during the dash and replay them in reverse as afterimage segments.
+; 2. Psycho Dash (179872–180392): PsychoDashMain loads animation table A entry 0, disables status display, dispatches by facing. Each directional handler (South/North/West/East) spawns a trail afterimage actor, sets the movement direction via force flags, stages movement index $36 (a delta chain, see PsychoDashSouth: the player moves 52 px away in 7 ticks and the trail actor's replay brings it back to the start), then returns to idle. The four PsychoDashTrail actors (South/North/West/East) record the position deltas during the dash and replay them in reverse, one per tick, onto the player: the dash ends where it started (net displacement 0; 52 px out and back in all four directions, at upgrade levels 0 and 1).
 ; 
 ; 3. Spin Dash (180393–180763): SpinDashMain sets $2002 flags, enters a charge loop that aborts when the actor is hit (flag bit 7, $0080), then transitions to either the charge tick phase (L/R shoulder decrement charge level) or projectile launch. On launch, spawns GuidedProjectileActor, kills it on completion, and uses an RTS-trick (PEA label-1) to chain through directional speed setup → SpinDashRelease → SpinDashLaunch. SpinDashChargeTick alternates the L/R test by the parity of the charge level. SpinDashAbort clears flags and restores state.
 ; 
@@ -1012,7 +1012,7 @@ ApplyParentOffset {
 }
 
 PsychoDashMain {
-    LDA #$0000            ; Load animation table A entry 0 — Psycho Dash sprite configuration
+    LDA #$0000            ; A = 0: entry 0 of the Will damage table (the Psycho Dash record, level word $0B16): LoadAbilityDamageA stores 5 / 10 in abilityDamageBonus; no sprite configuration is loaded here
     JSR $&LoadAbilityDamageA
     JSR $&player_character.FreezeCameraForAttack ; Disable status display during Psycho Dash execution (cross-file call)
     COP [GetPlayerFacing] ; Get player facing for directional dash dispatch (0=S, 1=N, 2=W, 3=E)
@@ -1031,7 +1031,7 @@ PsychoDashDirTable [
 PsychoDashSouth {
     COP [SpawnAfter] ( @PsychoDashTrailSouth ) ; South: spawn trail afterimage actor for dash path
     COP [SetPlayerSpriteDirect] ( #04 ) ; Set player body to Psycho Dash pose (sprite #04)
-    COP [StageSpriteMoveY] ( #04, #36 ) ; Sprite #04, Y movement index $36 (delta chain 8×0, 4,4,7,7,9,9,12,12, 0,0, 8×−8), not ~54 px; AnimOnce ends the movement with the animation
+    COP [StageSpriteMoveY] ( #04, #36 ) ; Sprite #04, Y movement index $36 (delta chain 8×0, 4,4,7,7,9,9,12,12, 0,0, 8×−8). Measured on the player: 8 ticks of 0, then 4, 4, 7, 7, 9, 9 and 12 px per tick (52 px away; the eighth entry does not show), a hold of 5 ticks, then the trail actor replays the recorded deltas in reverse (12, 9, 9, 7, 7, 4, 4) and the player is back at its start (net 0); AnimOnce ends the movement with the animation
     COP [AnimOnce]
     BRA loc_02BF03
 }
@@ -1299,7 +1299,7 @@ PsychoDashTrailEast {
     RTL 
 
   loc_02C0FB:
-    LDA #$0002            ; Charge complete or minimum reached — transition to projectile launch phase
+    LDA #$0002            ; Charge complete or minimum reached; A = 2: Will ability record 2 (Spin Dash 4/7) for LoadAbilityDamageA, replaced by the Psycho Slider record in SpinDashLaunch — transition to projectile launch phase
     JSR $&LoadAbilityDamageA
     LDA #$0100            ; Clear bit 8 ($0100) from actor flags — end charge visual state
     TRB $10
@@ -1374,7 +1374,7 @@ SpinDashRelease {
 
 SpinDashLaunch {
     STA $loopCounter, X   ; A (12 or 24) is the pass count for the LoopEnd below; retPtr2 was set to SpinDashLaunchLoop
-    LDA #$0001            ; Load animation table A entry 1 for Spin Dash launch sprite set
+    LDA #$0001            ; A = 1: entry 1 of the Will damage table, the Psycho Slider record (level word $0B18, 5 / 8); the Spin Dash flight adds 5 / 8 from here on, not the 4 / 7 stored at the charge end
     JSR $&LoadAbilityDamageA
 
   SpinDashLaunchLoop:
@@ -1645,7 +1645,7 @@ LoadAbilityDamageA {
     PLA 
     LDA $@ability_damage_tables.will_ability_damage_table+4, X
     AND #$00FF
-    STA $abilityDamageBonus ; abilityDamageBonus ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Slider 5/8, Spin Dash 4/7)
+    STA $abilityDamageBonus ; abilityDamageBonus ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7 at the charge end; the Spin Dash flight stores the Slider record again: 5/8)
     PLX 
     RTS 
 }
@@ -1669,7 +1669,7 @@ LoadAbilityDamageB {
     PLA 
     LDA $@ability_damage_tables.freedan_ability_damage_table+4, X
     AND #$00FF
-    STA $rangedDamageBonus ; rangedDamageBonus ($09E2) = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7)
+    STA $rangedDamageBonus ; rangedDamageBonus ($09E2) = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Earthquaker 0/7); the Aura Barrier record (index 1, 5/9) is never loaded
     PLX 
     RTS 
 }

@@ -1,0 +1,91 @@
+{
+ "_note": "W1-b (2026-11-07), see mesen2-results/W1-b_20261107.md. Shipped notes that say 'no setter' (layerPriorityFlag bit 12), 'never written' ($06F0) or 'no reader' (forcedScrollOverride $06C8) are contradicted by the census: SceneCmd_ConfigDisplay (166728) sets $06EF bit 4 in scenes $59 $8C-$8F $C0 $FE (the copy it enables ran in $8C-$8F and, with the world-map name text, in $FE); SceneCmd_ConfigDisplay (166571) stores $06F1 and InitActorFromSceneData (249668) ORs the $06F0 word into oamXorFlags in 989 spawns; WriteBgScroll (33753) read $06C8 3320 times in scenes $4E $58 $A0 $A1 and BG2HOFS / BG1HOFS equalled $06C8 & $03FF on all 1952 override passes checked. The flag $FF comment keeps its text and drops '(inferred)': all 14 685 run-time tests of flag $FF (byte $0A1F, mask $80) in the 11 follow-up sessions came from thinker slots (D = $0F00-$0FFF). Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/W1-b_notes.json --dry-run.",
+ "system/engine/sprite_composition.asm": {
+  "partNotes": {
+   "RenderComposeBuffer": {
+    "edit": [
+     {
+      "find": "No setter for bit 12 of layerPriorityFlag was found in the extracted code, so what triggers this mode is unconfirmed.",
+      "with": "SceneCmd_ConfigDisplay sets the bit: the low 5 bits of display_preset_table record byte +7 go to scrollModeFlags ($06EF), and bit 4 of that byte is bit 12 of this word. The presets with it belong to scenes $59, $8C-$8F, $C0 and $FE; the preset write of every other scene clears it. The copy needs a nonzero $00DA: the prologue scenes $8C-$8F fill it and so does the destination-name display of the world map in $FE (measured: the copy runs there with $00DA = $24 and $38), while $59 and $C0 take this branch with $00DA = 0 in the measured frames and return at once."
+     }
+    ]
+   }
+  }
+ },
+ "system/engine/actor_execution.asm": {
+  "partNotes": {
+   "InitActorFromSceneData": {
+    "edit": [
+     {
+      "find": "(default actor properties; never written by extracted code)",
+      "with": "(default actor properties: the low byte $06F0 stays 0 and the high byte $06F1 is stored by SceneCmd_ConfigDisplay from display preset record byte +4, bits 4-5; measured $20 in most scenes and $10 in $59, $8C, $8D, $C0 and $FE)"
+     }
+    ]
+   }
+  }
+ },
+ "actors/layer1_scroll_actors.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "forcedScrollOverride ($06C8): written here with bit 15 set, the same convention as ScrollCameraInit; no reader found.",
+     "with": "forcedScrollOverride ($06C8): written here with bit 15 set, the same convention as ScrollCameraInit; WriteBgScroll reads it as the layer-1 horizontal scroll override while bit 15 is set: the value (masked to $03FF) replaces the normal position in BG2HOFS, or in BG1HOFS when layerPriorityFlag is negative (scene $58)."
+    }
+   ]
+  },
+  "partNotes": {
+   "Layer1ParallaxRatio": {
+    "edit": [
+     {
+      "find": "forcedScrollOverride ($06C8, no reader found)",
+      "with": "forcedScrollOverride ($06C8, which WriteBgScroll reads as the layer-1 horizontal scroll override while bit 15 is set)"
+     }
+    ]
+   }
+  },
+  "comments": {
+   "59692": {
+    "text": "X position with bit 15 set goes to forcedScrollOverride; WriteBgScroll then uses it as the layer-1 horizontal scroll (measured in scenes $4E and $58)",
+    "expect": "STA"
+   }
+  }
+ },
+ "system/engine/camera_scroll.asm": {
+  "partNotes": {
+   "ScrollCameraInit": {
+    "edit": [
+     {
+      "find": "Outside layer1_scroll_actors no reader of $06C8 was found in extracted/.",
+      "with": "WriteBgScroll reads $06C8 as the layer-1 horizontal scroll override while bit 15 is set (measured in scenes $A0 and $A1: BG2HOFS equals $06C8 & $03FF on all 759 override passes)."
+     }
+    ]
+   }
+  },
+  "comments": {
+   "59780": {
+    "text": "Store in forcedScrollOverride ($06C8); WriteBgScroll uses it as the layer-1 horizontal scroll while bit 15 is set",
+    "expect": "STA"
+   }
+  }
+ },
+ "system/inventory/inventory_overlay.asm": {
+  "comments": {
+   "191950": {
+    "text": "BG2 slot of the vertical scroll override (scrollOverrideV + 2, flag bit 7 of $06CD); zeroed with the scroll state, never saved",
+    "expect": "STX"
+   }
+  }
+ },
+ "system/engine/scene_lifecycle.asm": {
+  "comments": {
+   "253315": {
+    "text": "BG2 slot of the vertical scroll override (scrollOverrideV + 2)",
+    "expect": "STX"
+   },
+   "253564": {
+    "text": "Set event flag $FF (bit 7 of $0A1F, cleared at the top of this routine): scene-setup-complete signal that init-phase thinkers loop on (e.g. sE8_comet_display_config); measured: only thinkers test it",
+    "expect": "COP"
+   }
+  }
+ }
+}

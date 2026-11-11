@@ -1,0 +1,99 @@
+{
+  "_note": "W1-a (2026-11-07), see mesen2-results/W1-a_20261107.md. The player-movement notes say that no code sets $AA bits $0800 / $0400 ('$AB bits 2/3') and that nothing reads $AB bits 2 / 3. Measured: TSB $AB with #$04 / #$08 ran 309 times over 14 sessions (scenes $01, $15, $2E, $3E, $3F, $5B, $72, $DD, $E8) and in the 277 probed setter ticks (8 sessions) the $AA word showed bit $0400 / $0800 at the vertical gates; the gates (BIT #$0800 at 184352, BIT #$0400 at 184364) read them. In 276 of the 277 probed setter ticks the vertical velocity $24 is 0 after the pop, so neither gate is reached; the one tick that reached the north gate had bit $0400 set. Bit 7 is set (407 times) and no instruction tests it. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/W1-a_notes.json --dry-run.",
+  "system/player/player_move_main.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$0800 and $0400 are tested before the north and south dispatch, but nothing in extracted/ ever sets them; player_move_west only clears them (TRB #$0840 / #$0440). Those two gates therefore always pass.",
+          "with": "$0800 and $0400 are tested before the north and south dispatch. They are bits 3 and 2 of $AB: the wall-slide variant entries set them with TSB $AB (player_move_west code_02DCCB and code_02DC77, player_move_east EastWallSouthFlag and EastWallNorthFlag), and the horizontal-speed-smaller paths of player_move_west clear them (TRB #$0840 / #$0440). A set bit makes the matching gate skip that vertical dispatch for the tick. In the measured runs the setter ticks have $24 = 0 after the pop (the vertical phase is skipped anyway), so the gates never saw their own bit set."
+        }
+      ]
+    },
+    "partNotes": {
+      "PlayerMovementTick_SouthStep": {
+        "edit": [
+          {
+            "find": "gate on $AA bit $0400 (never set)",
+            "with": "gate on $AA bit $0400 ($AB bit 2, set by the wall-slide variant entries; set skips the south dispatch)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "184352": { "text": "Bit $0800 = $AB bit 3, set by the wall-slide variant entries: set skips the north dispatch", "expect": "BIT" },
+      "184364": { "text": "Bit $0400 = $AB bit 2, set by the wall-slide variant entries: set skips the south dispatch", "expect": "BIT" }
+    }
+  },
+  "system/player/player_move_west.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(only $0040 is ever set in the extracted code; the $0800/$0400 guards in PlayerMovementTick have no setter)",
+          "with": "($0040 = the horizontal phase ran; $0400 and $0800 = $AB bits 2 and 3, set by the wall-slide variant entries and tested by the south and north gates of PlayerMovementTick)"
+        },
+        {
+          "find": "(bit 1 is read by player_move_ns SouthWallNudge; bits 2/3/7 have no reader)",
+          "with": "(bit 1 is read by player_move_ns SouthWallNudge; bits 2 and 3 are the $0400 / $0800 gate bits tested in PlayerMovementTick; bit 7 is set by the wall-slide handlers and no instruction tests it)"
+        }
+      ]
+    },
+    "comments": {
+      "187511": { "text": "Variant entry: set $AB bit 2 ($04 = $AA bit $0400, the south gate bit of PlayerMovementTick), then join the handler", "expect": "LDA" },
+      "187597": { "text": "Variant entry: set $AB bit 3 ($08 = $AA bit $0800, the north gate bit of PlayerMovementTick), then join the handler", "expect": "LDA" },
+      "188560": { "text": "Horizontal speed smaller: $20 dropped, clear $AA bits $0840 ($0800 is set by code_02DCCB and EastWallSouthFlag; $0040 is the horizontal-phase flag)", "expect": "LDA" },
+      "188643": { "text": "Horizontal speed smaller: $20 dropped, clear $AA bits $0440 ($0400 is set by the variant entries code_02DC77 and EastWallNorthFlag)", "expect": "LDA" }
+    }
+  },
+  "system/player/player_move_east.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "nothing reads those bits.",
+          "with": "bit 7 has no reader; bits 2 and 3 are the $0400 / $0800 gate bits that PlayerMovementTick tests before its south and north dispatch."
+        }
+      ]
+    },
+    "partNotes": {
+      "EastWallNorthFlag": {
+        "edit": [
+          {
+            "find": "sets $AB bit 2 (no reader)",
+            "with": "sets $AB bit 2 ($AA bit $0400, the south gate bit of PlayerMovementTick)"
+          }
+        ]
+      },
+      "EastWallSouthFlag": {
+        "edit": [
+          {
+            "find": "sets $AB bit 3 (no reader)",
+            "with": "sets $AB bit 3 ($AA bit $0800, the north gate bit of PlayerMovementTick)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "186337": { "text": "Compact entry: set $AB bit 2 ($AA bit $0400, the south gate bit of PlayerMovementTick), then join the gap chain at loc_02D7AB", "expect": "LDA" },
+      "186395": { "text": "$00 = X: the map index left by the last probe or MapCell step; then set $AB bit 3 (the $0800 north gate bit of PlayerMovementTick) and join the chain", "expect": "STX" }
+    }
+  },
+  "system/player/player_move_south.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "unless $AA bit $0400 is set (nothing sets it)",
+          "with": "unless $AA bit $0400 ($AB bit 2, set by the wall-slide variant entries) is set"
+        }
+      ]
+    }
+  },
+  "thinkers/scanline_band_hdma_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Those extra words are never cleared by this thinker.",
+          "with": "Those extra words are never cleared by this thinker: at spawn they still hold the values of the previous parallax scene, so a revisit starts the extra bands at the old phase."
+        }
+      ]
+    }
+  }
+}

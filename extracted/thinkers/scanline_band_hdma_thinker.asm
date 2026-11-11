@@ -54,15 +54,15 @@
 ; | $23 | BG2HOFS: 1 scroll bands (1 proportional, 0 auto) | $7800 | DF-E1, E3 |
 ; | $24 | BG1HOFS: 33 scroll bands (0 proportional, 33 auto) | $7800 | E5 |
 ; 
-; Types $04 and $22 (COLDATA bands) and all $FFFF entries are not spawned by any scene thinker list. Type $02 (COLDATA colour gradient) accounts for 53 of the 81 scenes with a parallax thinker; its scene list includes the South Cape interiors 03-08 (which also run flag_gated_palette_cool). Type $03 is spawned by scenes $FD and $FF; scene $FF also spawns inventory_bg3_scroll_hdma, the inventory-screen scene.
+; Types $04 and $22 (COLDATA bands) and all $FFFF entries are not spawned by any scene thinker list; no SpawnThinker or SpawnThinkerParam site names the thinker, and the one record that names an $FFFF entry ($0F, in the unreferenced list thinker_spawn_0CE9EA) is never run. Measured in every loadable scene: exactly the 20 types of this table occur. Type $02 (COLDATA colour gradient) accounts for 53 of the 81 scenes with a parallax thinker in their lists (scene $84 has no script record and cannot load, so 80 scenes spawn one at run time); its scene list includes the South Cape interiors 03-08 (which also run flag_gated_palette_cool). Type $03 is spawned by scenes $FD and $FF; scene $FF also spawns inventory_bg3_scroll_hdma, the inventory-screen scene.
 ; 
 ; === QUIRKS ===
 ; 
-; - The accumulator clear covers only $0720-$074F, but entry $05 uses accumulators up to $0758 and entry $24 up to $0760. Those extra words are never cleared by this thinker. $0720 is also used by sE7_space_bg_scroll and the F7 credits code, so this region is shared.
+; - The accumulator clear covers only $0720-$074F, but entry $05 uses accumulators up to $0758 and entry $24 up to $0760. Those extra words are never cleared by this thinker: at spawn they still hold the values of the previous parallax scene, so a revisit starts the extra bands at the old phase. $0720 is also used by sE7_space_bg_scroll and the F7 credits code, so this region is shared.
 ; - A table that covers fewer than 224 lines ends with an explicit count-0 byte; the PPU register then simply keeps the last value written for the rest of the frame.
 ; - The window path hard-codes a 3-byte stride, which only matches register pair WH0/WH1 (mode 1).
 ; - All reads of the table use absolute addressing under DBR $81, which mirrors ROM bank 01.
-; - Runtime behaviour of the individual entries (what the screen looks like) was not checked.
+; - Measured on screen: type $02 (scene $03) is a COLDATA gradient (a fixed colour that changes every few lines) that CGADSUB $A3 subtracts from BG1, BG2 and the backdrop; type $05 (scene $2B) scrolls the water bands through BG2HOFS and is combined with type $06, a COLDATA gradient that CGADSUB $22 adds to BG2 and the backdrop; scene $2D runs types $07 (CGADSUB bands $A1 / $22), $06, $08 and $05 together on four channels; type $24 (scene $E5) moves 33 BG1HOFS bands; type $20 (scene $C3) is the window rectangle: with W12SEL $02 (window 1 enabled, not inverted, on BG1) and TMW $17 it cuts BG1 out of the rectangle (x $60-$9F and 48 lines when the camera is at the position tested), and the gap lines carry $0000, a window one pixel wide at x = 0 that hides the BG1 column x = 0 wherever BG1 is opaque there. The thinker writes only its one register: TM, TMW, TS, TSW, CGWSEL and the base CGADSUB come from the scene's display preset (written once at the scene load), not from this thinker. Types not run on screen: $00, $01, $03, $0A, $0B, $0E, $1B-$1F, $21 and $23.
 ---------------------------------------------
 
 ?INCLUDE 'hardware_math'

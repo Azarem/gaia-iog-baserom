@@ -1,0 +1,35 @@
+{
+  "_note": "C3 (2026-10-30), see mesen2-results/C3_20261030.md. No shipped sentence is wrong; these are refinements that replace hedged or incomplete static statements with the measured behaviour. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/C3_notes.json --dry-run. The comment goes through expectOld because extracted/ carries no line-tracking tags; the apply pass may switch to expect after extract:lt. 'find' must occur exactly once in the stored note.",
+  "system/engine/system_core.asm": {
+    "partNotes": {
+      "SystemInit": {
+        "edit": [
+          {
+            "find": "3. MEMSEL = 1 (but InitHardwareRegisters writes MEMSEL = 0 afterwards: boot stays SlowROM until sFB_boot_logo enables FastROM)",
+            "with": "3. MEMSEL = 1: FastROM timing lasts only for the register-init loop of InitHardwareRegisters, whose last table entry writes MEMSEL = 0. The WRAM clear, the SPC engine upload (video frames 3 to 7 after reset) and the first scene loads run with SlowROM timing until BootLogoInit (frame 84) writes MEMSEL = 1. Measured: the upload takes the same number of master clocks with FastROM timing, because it waits on the SPC port handshake"
+          },
+          {
+            "find": "No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).",
+            "with": "No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch). InitSystemVariables skips the stack page, so after a cold boot the byte holds power-on RAM contents and after a reset the value the game left there. Measured with the byte at $83, $00, $5A and random power-on values: the branch is taken only for $83 and skips the second LDY; the first sceneNext write (0), the frame of every later boot step and the scene sequence are identical"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "32807": {
+        "text": "MEMSEL = 1: FastROM timing only for the register-init loop; its last table entry writes 0, so the boot stays SlowROM until BootLogoInit",
+        "expectOld": "MEMSEL = 1; InitHardwareRegisters writes 0 again below, so boot stays SlowROM until sFB_boot_logo"
+      }
+    }
+  },
+  "system/boot_logos/sFB_boot_logo.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "use the same flag.",
+          "with": "use the same flag. A reset clears it too: the boot WRAM clear (InitSystemVariables) zeroes $0A02, so every boot starts with the first logo. Measured after a reset with the flag set at the title and after a reset with the flag set by the game during the second logo: the first logo plays in both cases."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,1064 @@
+{
+  "_note": "FL27 registry fragment: watermia (scenes $78-$7F = decimal 120-127) and euro (scenes $91-$9D = decimal 145-157). Scratch flags are keyed by scene; the eight persistent spine flags ($8D $94 $96 $9D $9F $A7 $A8 $AC) are proposals only (FL31 writes the records). The names of the persistent owned flags are guessed from the dialog around the set sites unless the notes say the code proves them. Flags $0280-$028B (hidden Red Jewels of scenes $78 $7B $91 $9D) belong to FL12 and are cross-referenced in _crossref.",
+  "_crossref": [
+    "$0288 wa_watermia_hidden_jewel_taken, $0289 wa_gambling_house_hidden_jewel_taken, $028A eu_euro_hidden_jewel_taken, $028B eu_dark_chapel_hidden_jewel_taken (FL12): hidden_red_jewel placements in this scope (tables/scene_actors.asm:2874 scene $78 type #11, :2908 scene $7B type #13, :3263 scene $91 type #15, :3369 scene $9D type #17; $0E = type >> 1 = 8, 9, A, B; flag = $0E + $80 on event-flag base $0200). The inventory trace hidden_red_jewel_flags lists the same four rows (candidate indices 648 649 650 651, one scene each: 120, 123, 145, 157). wa79_lance and eu95_ann jump into hidden_red_jewel.HiddenRedJewelInventoryFull when GiveItem reports a full inventory (extracted/watermia/lukes_house/wa79_lance.asm:87 {503071}, extracted/euro/rolek_mansion/eu95_ann.asm:60 {515926}) and keep their own flags ($E2, $E5) clear in that case.",
+    "Direct accesses of the scope that are not flag bits: the word $0AA6 (aliases global flag indices $0530-$053F, flags:tail) is the Russian Glass bitmask of wa78_glass_game: cleared at spawn (extracted/watermia/watermia/wa78_glass_game.asm:55 {495723}); the bits $04 $10 $02 $08 $01 are the five glasses in the order the opponent drinks them (ORA at :75 {495784}, :105 {495869}, :135 {495956}, :163 {496038}, :191 {496119}; every one of the five glass children ORs the same bit when the player drinks it at :462 {497878}, :504 {498177}, :538 {498241}, :572 {498299}; the fifth, bit $01, is tested at :593 {498338}). The same word is a phase counter in angel_village and nazca (FL26): two unrelated uses of one word. $0AB0 jewelsCollected (BCD) is incremented by wa79_kara (extensions of the inventory-full branch, extracted/watermia/lukes_house/wa79_kara.asm:64 {501179}, :67 {501186}) and wa7D_glass_opponent (extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:56 {495052}, :59 {495059}). $0ACE playerHp := 0 at extracted/watermia/watermia/wa78_glass_game.asm:617 {498377} (answer Yes to the last glass); $0ACA/$0ACE +1 at extracted/euro/flea_market/eu97_life_medicine.asm:43 {511272}/:44 {511275}; $0B1C read and written by eu97_dark_medicine at :40 {511500}/:44 {511511}; $0ADE (playerStr) +1 at extracted/euro/power_house/eu93_found.asm:27 {517412}/:29 {517416}.",
+    "Scene entry: scene_flag_init (placed in scene $78 by tables/scene_actors.asm:2832) sets scratch $00 at spawn (extracted/actors/scene_flag_init.asm:16 {50794}); no other scene of this scope places it. Scene $78 also places the festival thinker through thinker_spawn_0CE9AC (tables/scene_thinkers.asm), which reads $96 (flag 150).",
+    "Scene-meta gate: tables/scene_meta.asm:1683 {890774} (record $78) is a $13 branch on flag $96: set loads pal_watermia_dark. The only $13 gate of the scope."
+  ],
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_watermia_alt_idle_zone",
+          "area": "watermia",
+          "summary": "Set at the spawn of scene $78 by scene_flag_init and never cleared there; the player's idle, ladder and shimmy code selects the alternate sprite set for the whole visit.",
+          "kinds": ["unknown"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character.asm branches to the '*Shadow' idle pieces (alternate sprite ids #10-#13) at its idle-stand entries.",
+            "clear": "The player uses the normal idle sprites #00-#03."
+          },
+          "evidence": [
+            "extracted/actors/scene_flag_init.asm:16 {50794}",
+            "extracted/actors/player/player_character.asm:232 {181375}",
+            "extracted/actors/player/player_character.asm:243 {181391}",
+            "extracted/actors/player/player_character.asm:254 {181407}",
+            "extracted/actors/player/player_character.asm:265 {181423}"
+          ],
+          "queue": ["FL27-09"],
+          "notes": "Producer: scene_flag_init, placed by tables/scene_actors.asm:2832 (scene $78, spawn parameters #00 #01 #00). No actor of scene $78 clears scratch $00 (the scope's only $00 sites are in eu9D_altar, scene $9D; the other $00 users are outside the scope: see the inventory row of index 0). The reader is the idle code of the player actor; what differs on screen was not looked at, so the grade stays INFERRED (same open point as FL26 scene $75). Queue FL27-09."
+        },
+        {
+          "scope": { "scenes": [157] },
+          "name": "eu_dark_chapel_altar_alt_idle_zone",
+          "area": "euro",
+          "summary": "The player stands in tiles (0F,07)-(10,09) of the dark chapel in front of the statue; the player's idle code uses the alternate sprite set while it is set.",
+          "kinds": ["unknown"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character.asm uses the alternate ('Shadow') idle sprites #10-#13.",
+            "clear": "The player uses the normal idle sprites."
+          },
+          "evidence": [
+            "extracted/euro/dark_chapel/eu9D_altar.asm:20 {517508}",
+            "extracted/euro/dark_chapel/eu9D_altar.asm:26 {517512}",
+            "extracted/actors/player/player_character.asm:232 {181375}"
+          ],
+          "queue": ["FL27-10"],
+          "notes": "eu9D_altar runs one loop (SetEntryHere at {517492}): when scratch $01 is clear it tests BranchIfPlayerInAbsTiles (0F,07)-(10,09); inside, it sets $00 ({517512}), outside it clears $00 ({517508}). The loop is re-entered every frame. Nothing in scene $9D reads $00; the player idle code is the only reader found. Same producer/reader shape as FL26 flag 0 in scenes $73 and $75. Queue FL27-10."
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [157] },
+          "name": "eu_altar_passage_open_request",
+          "area": "euro",
+          "summary": "The player answered Yes to 'The wind is blowing from behind the statue... Look?'; the altar's own loop reacts by opening the passage and clears the byte again.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The altar loop plays sound $0101, applies BgChange #69, removes its interact handler (#$0000) and clears $01.",
+            "clear": "The loop keeps polling the tile test for scratch $00."
+          },
+          "evidence": [
+            "extracted/euro/dark_chapel/eu9D_altar.asm:18 {517494}",
+            "extracted/euro/dark_chapel/eu9D_altar.asm:35 {517529}",
+            "extracted/euro/dark_chapel/eu9D_altar.asm:57 {517562}"
+          ],
+          "notes": "Producer and consumer are the two halves of the same actor: the interact handler code_07E5A1 ({517537}) sets $01 on row 1 'Yes' ({517562}); the main loop tests it first ({517494}). Rows 2 and cancel only print the empty string dialogstring_07E602. No persistent flag records the opened passage in this actor (the BgChange is applied again only if the player answers Yes again after a reload)."
+        },
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_gate_spectator_released",
+          "area": "watermia",
+          "summary": "During the Russian Glass game a spectator's Yes/No answer (Yes) makes the solid spectator code_079637 step aside.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "code_079637 leaves its wait, locks the player ($EFFC), clears its solidity (two tiles), installs a new interact handler (code_0796A4), walks and then unlocks.",
+            "clear": "code_079637 stays solid at (4C8,C0) with the handler code_079677."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:327 {497222}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:375 {497312}"
+          ],
+          "notes": "Producer: code_07969C (the Yes branch of a spectator dialog, {497308}-{497312}); consumer: the spectator child spawned at ($04C8,$00C0) by wa78_glass_game ({495617}). Only spawned when $96 is set (the SpawnAfterAbsFlags block starts at {495595})."
+        },
+        {
+          "scope": { "scenes": [121] },
+          "name": "wa_lukes_house_party_cue_and_stay_talk",
+          "area": "watermia",
+          "summary": "Two unrelated uses in Luke's house, told apart by the persistent state. Before the glass game: Lance has spoken ('Let's have Lilly's birthday party while we're all together.') and Lily starts her surprise animation. After the glass game, $A5 clear: the player has talked to Lance ('I'm sorry, but I want to stay here...') and Neil now starts the trip to Euro.",
+          "kinds": ["handshake", "cutscene-stage", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Birthday phase: wa79_lily leaves its wait ({501900}), animates and prints 'What? Everybody remembered my birthday?'. Post-game phase: wa79_neil's handler code_07A1D4 prints the departure text, sets $94, stores companions $0D60-$0D66, stages the world-map move and queues scene $91.",
+            "clear": "Birthday phase: wa79_lily stands with the handler code_07A915 ('I heard that Lance saw someone he knew in town.'). Post-game phase: wa79_neil prints dialogstring_07A2BE ('You got Kruks? ... I think we should go west, to Euro...')."
+          },
+          "evidence": [
+            "extracted/watermia/lukes_house/wa79_lance.asm:32 {502961}",
+            "extracted/watermia/lukes_house/wa79_lily.asm:22 {501900}",
+            "extracted/watermia/lukes_house/wa79_lance.asm:80 {503057}",
+            "extracted/watermia/lukes_house/wa79_neil.asm:53 {500180}"
+          ],
+          "notes": "Birthday chain of scene $79 ($90 set, $91 $96 $97 clear): Lance sets $01 -> Lily (sets $02 after her line) -> Kara (waits $02, animates, cake dialog, sets $03) -> Lance (waits $03, 'Ah, Lilly. Can I talk to you for a minute?', sets $04) -> Lily (waits $04, leaves with QueueMapChange #7F). Post-game phase ($97 set): the producer is wa79_lance's handler code_07AD07 when $A5 is clear ({503047}); the consumer is wa79_neil's handler. The byte is cleared on every scene load, so the two talks must happen in one visit: Lance first, then Neil. Once $A5 is set ($94 is set by then) Neil is gone and Lance's handler gives the Red Jewel instead. The registry keeps one meaning because the scene id is the key; FL31 may split it by a state scope."
+        },
+        {
+          "scope": { "scenes": [122] },
+          "name": "wa_father_house_father_talked",
+          "area": "watermia",
+          "summary": "Will talked to Lance's father ('I went on an expedition with Olman. It was scary, but fun.'); Lance's next talk reports the lost memory and sets $90.",
+          "kinds": ["handshake", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7A_lance's handler code_07AB6F prints dialogstring_07ABC4 ('He seems to have lost his memory...') and sets $90.",
+            "clear": "The handler repeats 'Will, do you recognize this person? He's my father.'."
+          },
+          "evidence": [
+            "extracted/watermia/lances_fathers_house/wa7A_lances_father.asm:28 {504761}",
+            "extracted/watermia/lances_fathers_house/wa7A_lance.asm:69 {502639}"
+          ],
+          "notes": "Producer: wa7A_lances_father's handler when $A5 is clear ({504751}). The byte is scratch, so the order father-then-Lance has to happen within one visit of scene $7A."
+        },
+        {
+          "scope": { "scenes": [127] },
+          "name": "wa_exchange_lily_first_line_done",
+          "area": "watermia",
+          "summary": "Scene $7F step 1: Lily has said 'What? You're not yourself. Relax.' and Lance's answer; Lance starts the bouquet.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7F_lance leaves its first wait and spawns the bouquet child code_07B1C2, then waits for $02.",
+            "clear": "wa7F_lance stands still."
+          },
+          "evidence": [
+            "extracted/watermia/lance_lily_exchange/wa7F_lily.asm:27 {504315}",
+            "extracted/watermia/lance_lily_exchange/wa7F_lance.asm:21 {503761}"
+          ],
+          "notes": "Whole scene $7F chain ($01..$05, all producer/consumer pairs between wa7F_lily and wa7F_lance; the two bouquet children wait on $02 (code_07B1C2) and $04 (code_07B1CD), see flags 2 and 4): Lily sets $01 -> Lance spawns bouquet, waits $02 -> Lily sets $02 ('A bouquet of roses!') -> Lance waits $03 -> Lily sets $03 ('They smell wonderful...') -> Lance's confession, sets $04 -> Lily runs off, sets $05 -> Lance waits $05, walks off, narration, sets $91 and queues scene $79."
+        },
+        {
+          "scope": { "scenes": [150] },
+          "name": "eu_guest_room_neil_asks_kara_pending",
+          "area": "euro",
+          "summary": "Morning scene in the guest room: Neil has said 'Kara, someone's come asking about you. Something about being an old friend.' and waits until Kara has reacted ('What!!!?'); Kara clears the byte after her sprite moves.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "eu96_kara leaves its wait at {514471} and (after its reaction) clears the byte at {514488}.",
+            "clear": "eu96_neil (WaitOnFlagByte with sense 00 at {514965}) resumes, plays two sprite loops and prints dialogstring_07DDBF, then spawns Hamlet (code_07DECB)."
+          },
+          "evidence": [
+            "extracted/euro/guest_room/eu96_neil.asm:55 {514962}",
+            "extracted/euro/guest_room/eu96_neil.asm:56 {514965}",
+            "extracted/euro/guest_room/eu96_kara.asm:24 {514471}",
+            "extracted/euro/guest_room/eu96_kara.asm:30 {514488}"
+          ],
+          "notes": "Neil sets $01 right after dialogstring_07DD70 and then waits for it to be CLEAR; Kara waits for it SET and clears it: a set-then-clear round trip between the two actors (scene $96, $AA set, $AB and $AC clear)."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_game_start",
+          "area": "watermia",
+          "summary": "The player has talked to the Russian Glass opponent (rules dialog); the game starts.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The main actor of wa78_glass_game leaves its wait at {495734}, locks the player ($CFFC), starts music #06 and the opponent drinks the first glass.",
+            "clear": "The opponent stands at tile (48,0B) with the handler code_07923C."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:59 {495734}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:225 {496192}"
+          ],
+          "notes": "Producer: code_07923C (interact handler of the opponent, prints dialogstring_0792F7, sets $02). Only with $96 set. The same actor resets $0AA6 := 0 at {495723}."
+        },
+        {
+          "scope": { "scenes": [121] },
+          "name": "wa_birthday_lily_surprised",
+          "area": "watermia",
+          "summary": "Lily has said 'What? Everybody remembered my birthday?'; Kara starts her cake animation.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa79_kara leaves its wait ({501080}), runs three sprite moves, spawns the cake child and prints the cake dialog.",
+            "clear": "wa79_kara stands with the handler code_07A5FF ('Watermia is very pretty, but I've heard a terrible rumor.')."
+          },
+          "evidence": [
+            "extracted/watermia/lukes_house/wa79_lily.asm:32 {501932}",
+            "extracted/watermia/lukes_house/wa79_kara.asm:23 {501080}"
+          ],
+          "notes": "Link 2 of the scene $79 chain described at flag 1 (scene 121)."
+        },
+        {
+          "scope": { "scenes": [122] },
+          "name": "wa_father_house_lance_talked",
+          "area": "watermia",
+          "summary": "Will has talked to Lance once ('Will, do you recognize this person? He's my father.'); Lance's script continues with the music cue.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7A_lance leaves its wait, locks the player ($EFFC), starts music #1B, prints 'Will, do you recognize this person?' and installs the handler code_07AB6F.",
+            "clear": "Lance stands solid with the handler code_07AB6B."
+          },
+          "evidence": [
+            "extracted/watermia/lances_fathers_house/wa7A_lance.asm:21 {502532}",
+            "extracted/watermia/lances_fathers_house/wa7A_lance.asm:64 {502635}"
+          ],
+          "notes": "Both sides are in the same actor: the interact handler code_07AB6B sets $02, the main script waits for it."
+        },
+        {
+          "scope": { "scenes": [127] },
+          "name": "wa_exchange_bouquet_given",
+          "area": "watermia",
+          "summary": "Scene $7F step 2: Lily has said 'Oh, Lance! A bouquet of roses!'.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7F_lance (main) and its bouquet child code_07B1C2 leave their waits.",
+            "clear": "Lance holds frame #38, the child holds frame #3A."
+          },
+          "evidence": [
+            "extracted/watermia/lance_lily_exchange/wa7F_lily.asm:35 {504339}",
+            "extracted/watermia/lance_lily_exchange/wa7F_lance.asm:25 {503781}",
+            "extracted/watermia/lance_lily_exchange/wa7F_lance.asm:105 {504263}"
+          ],
+          "notes": "See flag 1 scene 127 for the whole chain."
+        },
+        {
+          "scope": { "scenes": [150] },
+          "name": "eu_hamlet_arrived",
+          "area": "euro",
+          "summary": "Hamlet (the pig, child actor code_07DECB) has walked in; Neil continues the morning scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "eu96_neil leaves its wait ({514996}), starts music #02 and prints dialogstring_07DDD2, then sets $AB.",
+            "clear": "eu96_neil waits after spawning Hamlet."
+          },
+          "evidence": [
+            "extracted/euro/guest_room/eu96_neil.asm:63 {514996}",
+            "extracted/euro/guest_room/eu96_neil.asm:117 {515822}"
+          ],
+          "notes": "Producer: the child code_07DECB (same file, spawned at {514985}); consumer: eu96_neil."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_player_turn1_done",
+          "area": "watermia",
+          "summary": "Glass game round 1: the player has drunk a glass and then talked to the opponent; the next opponent turn starts.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa78_glass_game leaves its wait at {495820} and continues with the second opponent turn (bit $10 of $0AA6).",
+            "clear": "The opponent's handler code_079244 prints dialogstring_079422 while $0F is set; the main actor waits."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:87 {495820}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:232 {496206}"
+          ],
+          "notes": "Producer: code_079244 (prints dialogstring_079401 and sets $03 only when $0F is clear, i.e. after a glass actor cleared $0F). Rounds 2-4 use the same pattern with $04 (wait {495905}, set {496220}), $05 (wait {495994}, set {496234}) and $06 (wait {496069}, set {496248}). See scratch flags $04 $05 $06."
+        },
+        {
+          "scope": { "scenes": [121] },
+          "name": "wa_birthday_cake_done",
+          "area": "watermia",
+          "summary": "Kara and Neil have finished the birthday cake dialog; Lance continues.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa79_lance leaves its wait ({502964}), prints 'Ah, Lilly. Can I talk to you for a minute? I'll wait outside.', moves and sets $04.",
+            "clear": "Lance waits."
+          },
+          "evidence": [
+            "extracted/watermia/lukes_house/wa79_kara.asm:40 {501144}",
+            "extracted/watermia/lukes_house/wa79_lance.asm:33 {502964}"
+          ],
+          "notes": "Link 3 of the scene $79 chain (flag 1, scene 121)."
+        },
+        {
+          "scope": { "scenes": [127] },
+          "name": "wa_exchange_roses_thanked",
+          "area": "watermia",
+          "summary": "Scene $7F step 3: Lily has said 'They smell wonderful... Thank you.'; Lance starts his confession.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7F_lance prints 'Yes, the words are harder to say than a tongue twister.', starts music #1B and the confession.",
+            "clear": "Lance waits."
+          },
+          "evidence": [
+            "extracted/watermia/lance_lily_exchange/wa7F_lily.asm:40 {504363}",
+            "extracted/watermia/lance_lily_exchange/wa7F_lance.asm:29 {503793}"
+          ],
+          "notes": "See flag 1 scene 127."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_player_turn2_done",
+          "area": "watermia",
+          "summary": "Glass game round 2: the player has drunk a glass and talked to the opponent.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa78_glass_game leaves its wait at {495905} and starts the third opponent turn.",
+            "clear": "Main actor waits."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:117 {495905}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:239 {496220}"
+          ],
+          "notes": "Same pattern as scratch $03."
+        },
+        {
+          "scope": { "scenes": [121] },
+          "name": "wa_birthday_lance_talk_started",
+          "area": "watermia",
+          "summary": "Lance has asked to talk to Lily and walked off; Lily follows.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa79_lily leaves its wait ({501935}), prints 'Huh? I wonder what?', 'Excuse me everyone. I'll be right back..', walks off and queues scene $7F.",
+            "clear": "Lily waits."
+          },
+          "evidence": [
+            "extracted/watermia/lukes_house/wa79_lance.asm:42 {502993}",
+            "extracted/watermia/lukes_house/wa79_lily.asm:33 {501935}"
+          ],
+          "notes": "Link 4 (last) of the scene $79 chain (flag 1, scene 121)."
+        },
+        {
+          "scope": { "scenes": [127] },
+          "name": "wa_exchange_confession_done",
+          "area": "watermia",
+          "summary": "Scene $7F step 4: Lance has finished 'Lilly... I love you...'; Lily runs off and the bouquet child dies.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7F_lily leaves its wait ({504366}) and runs; the Lily-side bouquet child code_07B1CD dies ({504274}).",
+            "clear": "Lily and the bouquet stay."
+          },
+          "evidence": [
+            "extracted/watermia/lance_lily_exchange/wa7F_lance.asm:43 {503837}",
+            "extracted/watermia/lance_lily_exchange/wa7F_lily.asm:41 {504366}",
+            "extracted/watermia/lance_lily_exchange/wa7F_lily.asm:77 {504274}"
+          ],
+          "notes": "See flag 1 scene 127."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_player_turn3_done",
+          "area": "watermia",
+          "summary": "Glass game round 3: the player has drunk a glass and talked to the opponent.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa78_glass_game leaves its wait at {495994} and starts the fourth opponent turn.",
+            "clear": "Main actor waits."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:147 {495994}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:246 {496234}"
+          ],
+          "notes": "Same pattern as scratch $03."
+        },
+        {
+          "scope": { "scenes": [127] },
+          "name": "wa_exchange_lily_gone",
+          "area": "watermia",
+          "summary": "Scene $7F step 5: Lily has run off the screen; Lance walks away and ends the scene.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7F_lance leaves its wait ({503840}), spawns the narration child and walks toward (02F8,0120); the narration sets $91 and queues scene $79.",
+            "clear": "Lance waits."
+          },
+          "evidence": [
+            "extracted/watermia/lance_lily_exchange/wa7F_lily.asm:60 {504426}",
+            "extracted/watermia/lance_lily_exchange/wa7F_lance.asm:44 {503840}"
+          ],
+          "notes": "See flag 1 scene 127."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_player_turn4_done",
+          "area": "watermia",
+          "summary": "Glass game round 4: the player has drunk a glass and talked to the opponent; the fifth (last) opponent glass follows.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa78_glass_game leaves its wait at {496069}, locks the player and runs the end sequence ({496084}-{496172}).",
+            "clear": "Main actor waits."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:173 {496069}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:253 {496248}"
+          ],
+          "notes": "Same pattern as scratch $03. After round 4 the opponent drinks the last glass (bit $01), spectators react and the actor sets $08."
+        }
+      ]
+    },
+    "8": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_game_over_cue",
+          "area": "watermia",
+          "summary": "The opponent has drunk the last glass; the spectators and the glass children react.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Spectator children (code_07958C, code_0795E4, and two more) leave their waits, clear solidity and walk away.",
+            "clear": "Spectators stand solid with their handlers."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:193 {496125}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:276 {497047}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:301 {497135}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:399 {497689}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:422 {497744}"
+          ],
+          "notes": "Producer: the main actor ({496125}), immediately before QueueMapChange #7D ({496153}), ClearFlag $96 and SetFlag $97."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [120] },
+          "name": "wa_glass_player_may_drink",
+          "area": "watermia",
+          "summary": "Glass game: the opponent has finished his turn and the player may drink one glass; the glass drunk clears the byte.",
+          "kinds": ["handshake", "puzzle-state"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "A glass child accepts the interaction: it clears $0F, ORs its bit into $0AA6, prints the drink text, plays sound #2E and dies. The opponent's handlers code_079244, code_079252, code_079260 and code_07926E print dialogstring_079422 instead of sending the game on.",
+            "clear": "The glass children print dialogstring_0798E7's refusal text; the opponent's handlers print dialogstring_079401 and set the round byte ($03-$06)."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:86 {495817}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:116 {495902}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:146 {495991}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:172 {496066}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:230 {496196}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:237 {496210}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:244 {496224}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:251 {496238}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:459 {497866}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:460 {497872}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:501 {498165}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:502 {498171}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:535 {498226}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:536 {498232}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:569 {498287}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:570 {498293}",
+            "extracted/watermia/watermia/wa78_glass_game.asm:603 {498348}"
+          ],
+          "notes": "The glass children test with sense 00 (jump to the refusal when the byte is CLEAR). The four earlier children clear the byte and OR their bit; the fifth (bit $01, {498348}) offers 'drink?' (DialogueOptions at {498358}); row 1 'Yes' writes playerHp := 0 ({498377}), any other answer prints dialogstring_079992. The wa78_glass_game main actor sets the byte before each of rounds 1-4 only; whether the fifth glass is reachable without the byte is not traced. The byte is the only scratch $0F use in scenes of this scope."
+        }
+      ]
+    },
+    "143": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_fireplace_journal_taken",
+          "area": "watermia",
+          "summary": "The journal in the crack of the fireplace in Lance's father's house (scene $7A) has been picked up (item $15, Blue Journal).",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "fireplace_journal dies at spawn; the item is not offered again.",
+            "clear": "The actor stands at its post; interact prints 'There's a journal in a crack in the fireplace.' + 'He gets the journal.', sets the flag, then GiveItem #15 and dies."
+          },
+          "evidence": [
+            "extracted/watermia/lances_fathers_house/fireplace_journal.asm:14 {505022}",
+            "extracted/watermia/lances_fathers_house/fireplace_journal.asm:30 {505050}"
+          ],
+          "notes": "The flag is set BEFORE GiveItem (the order differs from hidden_red_jewel, which sets it after the give). On a full inventory GiveItem branches to code_07B4E4 (a bare RTL, {505060}); the flag is already set and the actor dies at the next spawn, so the journal is not obtainable again. Queue FL27-12 checks this at runtime. Absence of other users: fl_scope index 8F shows 2 sites, both in this file; the inventory has no direct access to byte $0A11 outside flag_helpers, save_system, inventory_overlay and scene_lifecycle. The name is guessed from the text."
+        }
+      ]
+    },
+    "144": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_lance_father_visit_done",
+          "area": "watermia",
+          "summary": "Will saw Lance's father (lost memory) with Lance; Lance leaves the house with Will to prepare Lilly's birthday party.",
+          "kinds": ["quest-guard", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "In scene $7A wa7A_lance ends its wait, and when the player stands in tiles (07,07)-(08,0A) it walks, prints 'Will, wait. I'll go, too. I'm preparing Lilly's birthday party...' and dies; at the next spawn it dies at once. In scene $79 wa79_lance (with $91 $96 $97 clear) runs the birthday setup.",
+            "clear": "In scene $79 wa79_lance dies at spawn (Lance is not in the house yet)."
+          },
+          "evidence": [
+            "extracted/watermia/lances_fathers_house/wa7A_lance.asm:18 {502520}",
+            "extracted/watermia/lances_fathers_house/wa7A_lance.asm:31 {502565}",
+            "extracted/watermia/lances_fathers_house/wa7A_lance.asm:76 {502654}",
+            "extracted/watermia/lukes_house/wa79_lance.asm:22 {502929}"
+          ],
+          "notes": "Set by Lance's handler code_07AB7A after scratch $01 of scene $7A is set (father talked). The name is guessed from the dialog."
+        }
+      ]
+    },
+    "145": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_lance_lily_exchange_done",
+          "area": "watermia",
+          "summary": "The Lance/Lily bouquet scene ($7F) has played; Lance and Lily are gone from Luke's house and Kara delivers Lance's Letter.",
+          "kinds": ["cutscene-stage", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa79_lance and wa79_lily die at spawn in scene $79; wa79_kara runs code_07A5A0 (Lance's Letter delivery, $92).",
+            "clear": "The scene $79 birthday sequence is available (needs $90)."
+          },
+          "evidence": [
+            "extracted/watermia/lance_lily_exchange/wa7F_lance.asm:83 {503943}",
+            "extracted/watermia/lukes_house/wa79_lance.asm:21 {502923}",
+            "extracted/watermia/lukes_house/wa79_lily.asm:18 {501884}",
+            "extracted/watermia/lukes_house/wa79_kara.asm:21 {501070}"
+          ],
+          "notes": "Set by the narration child of wa7F_lance ({503943}) just before QueueMapChange #79 ({503958})."
+        }
+      ]
+    },
+    "146": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_kara_lance_letter_given",
+          "area": "watermia",
+          "summary": "Kara has handed Will Lance's Letter (item $16) and Will recalls 'So in the morning... When I awoke, Lance had disappeared...'.",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa79_kara skips the delivery and installs the handler code_07A604 ('What happened to Lance and Lilly? I'm worried.').",
+            "clear": "wa79_kara (with $91 set, $94 $97 $96 clear) gives item $16 (after an inventory-full exchange of a Red Jewel or a Herb), sets the flag, locks the player ($CFFC) and prints the recollection."
+          },
+          "evidence": [
+            "extracted/watermia/lukes_house/wa79_kara.asm:51 {501152}",
+            "extracted/watermia/lukes_house/wa79_kara.asm:75 {501195}"
+          ],
+          "notes": "Item $16 is Lance's Letter (tables/system_strings.asm item list); UseItem_LanceLetter sets $8E, not this flag. Only wa79_kara reads and writes $92 (fl_scope index 92: 2 sites). Inventory-full branch: code_07A5AD tests Red Jewel ($01) then Herb ($06); when the player holds neither, the code falls through into code_07A5B7, which removes item $01 and adds 1 to $0AB0 (jewelsCollected, BCD) anyway: the removal of an item not held is not traced (queue FL27-13)."
+        }
+      ]
+    },
+    "149": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_glass_will_delivered",
+          "area": "watermia",
+          "summary": "The glass player's will (item $18) has been handed to Will in the glass player's house after the game.",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa7D_glass_opponent dies at spawn; the wa78_women instance of scene $7D (spawn parameter #09, switch index 4) says 'We don't need money. Real joy is being with those you love.' instead of 'Soon the baby will be born...'.",
+            "clear": "With $97 set the actor sets the flag, locks the player ($CFFC), prints dialogstring_078E2D ('...This is my husband's will...There are four Kruks outside.') and GiveItem #18."
+          },
+          "evidence": [
+            "extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:17 {494964}",
+            "extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:28 {494991}",
+            "extracted/watermia/watermia/wa78_women.asm:72 {494002}"
+          ],
+          "notes": "The flag is set before GiveItem (same order as $8F). The inventory-full branch exchanges a Red Jewel or a Herb (both branches print the same 'Red Jewels' text, extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:92 and :94). The wa7D actor has three states: $95 set -> dies; $97 set -> the will; $96 set -> dies; otherwise 'Man: Cough, cough. I seem to have caught a little cold.'."
+        }
+      ]
+    },
+    "151": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_glass_game_won",
+          "area": "watermia",
+          "summary": "The Russian Glass game is over: the opponent drank the last glass and Will survived (set together with the clear of $96 and the map change to scene $7D).",
+          "kinds": ["quest-done", "cutscene-stage", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene $7D: wa7D_glass_opponent delivers the will. Scene $78: the prize Kruks (wa78_prize_kruk) stay (they die while $97 is clear). Scene $79: Neil, Erik, Kara, Lily and Lance switch to their post-game handlers (departure to Euro, 'I wish Lance and Lilly were coming, too...').",
+            "clear": "The prize Kruks die at spawn; the scene $79 actors use their earlier handlers."
+          },
+          "evidence": [
+            "extracted/watermia/watermia/wa78_glass_game.asm:204 {496166}",
+            "extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:18 {494970}",
+            "extracted/watermia/watermia/wa78_prize_kruk.asm:15 {498447}",
+            "extracted/watermia/lukes_house/wa79_neil.asm:18 {500135}",
+            "extracted/watermia/lukes_house/wa79_erik.asm:15 {500785}",
+            "extracted/watermia/lukes_house/wa79_kara.asm:18 {501056}",
+            "extracted/watermia/lukes_house/wa79_lance.asm:19 {502911}",
+            "extracted/watermia/lukes_house/wa79_lily.asm:16 {501872}"
+          ],
+          "notes": "Set once, never cleared (one SetFlagByte; fl_scope index 97: 8 sites, no ClearFlag). If the player answers Yes at the last glass the game ends with playerHp := 0 and the flag stays clear. The dialog shows the player's survival only implicitly; the name 'won' is a reading of the code (the player must not drink the last glass)."
+        }
+      ]
+    },
+    "158": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_geezers_argument_seen",
+          "area": "euro",
+          "summary": "The first-visit cutscene of Rofsky and Erasquez arguing ('True genius is a violent thing!' / 'You just dash off packs of lies!!') has started in scene $92.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "eu92_rofsky stands solid with its interact handler (Teapot -> 'Oh, that's the Teapot... It really does exist...', otherwise the dispute text).",
+            "clear": "On spawn the actor sets the flag at once, locks the player ($CFFC), plays the argument dialog and unlocks."
+          },
+          "evidence": [
+            "extracted/euro/geezer_central/eu92_rofsky.asm:16 {513514}",
+            "extracted/euro/geezer_central/eu92_rofsky.asm:17 {513520}"
+          ],
+          "notes": "The flag is set before the lock and the dialog (a reload during the cutscene skips it). The Teapot test is BranchIfHasItem #19 at {513551}."
+        }
+      ]
+    },
+    "164": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_guest_room_neil_greeting_seen",
+          "area": "euro",
+          "summary": "Neil's first greeting in the guest room ('Well, make yourself at home. I want to talk to my parents...') has played.",
+          "kinds": ["once-latch", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "eu96_neil dies at spawn (while $AA is clear).",
+            "clear": "At spawn Neil sets the flag, locks the player ($CFFC), prints dialogstring_07DBE9, walks and unlocks."
+          },
+          "evidence": [
+            "extracted/euro/guest_room/eu96_neil.asm:21 {514874}",
+            "extracted/euro/guest_room/eu96_neil.asm:22 {514880}"
+          ],
+          "notes": "eu96_neil tests $AC, $AB, $AA before $A4 (see $AA, $AB). $A4 is set before the lock."
+        }
+      ]
+    },
+    "165": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_arrival_cutscene_played",
+          "area": "euro",
+          "summary": "The Euro arrival narration has played; the party is in Euro. Watermia NPCs change their dialog once it is set.",
+          "kinds": ["once-latch", "cutscene-stage", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene $91: eu91_intro dies at spawn. Scene $7A: wa7A_lances_father says 'Oh, Will. Sorry I made you worry...' and no longer sets scratch $01. Scene $79 (after $97): Lily says 'Rumor is we're going to collide with a big star...' and Lance gives a Red Jewel once ($E2) instead of 'I'm sorry, but I want to stay here...'.",
+            "clear": "Scene $91: eu91_intro locks the player ($CFFC), plays the narration and sets the flag before QueueMapChange #96."
+          },
+          "evidence": [
+            "extracted/euro/euro/eu91_intro.asm:22 {507429}",
+            "extracted/euro/euro/eu91_intro.asm:52 {507527}",
+            "extracted/watermia/lukes_house/wa79_lily.asm:87 {502047}",
+            "extracted/watermia/lukes_house/wa79_lance.asm:78 {503047}",
+            "extracted/watermia/lances_fathers_house/wa7A_lances_father.asm:26 {504751}"
+          ],
+          "notes": "The flag is both the Euro cutscene latch and a 'the party has been to Euro' marker read by three Watermia actors (all in this scope, so the flag is owned). The Watermia changes can only be seen when the player returns to Watermia; the Euro world-map exit lists Watermia in menus $10 ($9F set) and $1A ($AC set) (OverworldExitEuroStage, see proposals $9F and $AC); the entries of the default menu $0F are not named in the file."
+        }
+      ]
+    },
+    "166": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_power_house_strength_taken",
+          "area": "euro",
+          "summary": "The man in the Euro power house has given Will the power (playerStr + 1).",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "eu93_found prints 'Well, go.'.",
+            "clear": "eu93_found sets the flag, prints 'You found it here. I understand your wishes. I'll give you the power at once.' and adds 1 to $0ADE (playerStr)."
+          },
+          "evidence": [
+            "extracted/euro/power_house/eu93_found.asm:24 {517399}",
+            "extracted/euro/power_house/eu93_found.asm:25 {517405}"
+          ],
+          "notes": "$0ADE is named playerStr in the source; the in-game effect of the stat was not traced here. No overflow guard: the increment runs once because of this flag."
+        }
+      ]
+    },
+    "170": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_neil_mansion_talk_done",
+          "area": "euro",
+          "summary": "Neil's emotional talk in the Rolek mansion ('I finally realize how important my parents are to me...') is done; the party returns to the guest room for the morning.",
+          "kinds": ["cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Scene $95: eu95_neil dies at spawn. Scene $96: eu96_neil runs the morning cutscene, eu96_kara and eu96_erik leave their first states.",
+            "clear": "eu95_neil shows his earlier text; the guest-room actors keep their evening states."
+          },
+          "evidence": [
+            "extracted/euro/rolek_mansion/eu95_neil.asm:16 {516989}",
+            "extracted/euro/rolek_mansion/eu95_neil.asm:37 {517025}",
+            "extracted/euro/guest_room/eu96_neil.asm:20 {514868}",
+            "extracted/euro/guest_room/eu96_kara.asm:21 {514462}",
+            "extracted/euro/guest_room/eu96_erik.asm:27 {514737}"
+          ],
+          "notes": "Set by eu95_neil's script when $A8 (Teapot used) is set; followed by QueueMapChange #96 at {517034}."
+        }
+      ]
+    },
+    "171": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_hamlet_morning_scene_done",
+          "area": "euro",
+          "summary": "The guest-room morning scene with Hamlet is over; Kara offers to leave for the west.",
+          "kinds": ["cutscene-stage", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "eu96_neil keeps its post-scene handler (code_07DBE4); eu96_kara's handler says 'To the west of here are the ruins of Ankor Wat...Let's go!' and starts the world-map move and QueueMapChange #AC.",
+            "clear": "The morning scene runs (when $AA is set) or the evening states apply."
+          },
+          "evidence": [
+            "extracted/euro/guest_room/eu96_neil.asm:19 {514862}",
+            "extracted/euro/guest_room/eu96_neil.asm:67 {515010}",
+            "extracted/euro/guest_room/eu96_kara.asm:17 {514446}"
+          ],
+          "notes": "The destination scene $AC is the native_village group. Kara's departure handler sets no flag in this file; $AC is set by nvAC_kara (see proposal $AC)."
+        }
+      ]
+    },
+    "214": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_ann_apple_errand_started",
+          "area": "euro",
+          "summary": "Ann's secret about the Jackal was answered 'No, please don't!' (or cancelled); Ann now asks for apples ('Aah. I want an apple. Let's go to the marketplace!').",
+          "kinds": ["quest-guard", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Ann's handler switches to the apple branch (code_07DF33).",
+            "clear": "Ann asks 'Should I tell Kara about it?' with rows 'If you must!' / 'No, please don't!'. Row 1 prints 'I don't like that Kara...' and sets nothing."
+          },
+          "evidence": [
+            "extracted/euro/rolek_mansion/eu95_ann.asm:26 {515856}",
+            "extracted/euro/rolek_mansion/eu95_ann.asm:39 {515882}"
+          ],
+          "notes": "DialogueOptions returns row + 1 (index 0 = cancel); the table is cancel -> code_07DF26, row 1 -> code_07DF2E, row 2 -> code_07DF26, so row 2 and cancel set the flag. Apples are sold at eu91_merchant_counter (one per player, no flag: BranchIfHasItem #28 at extracted/euro/euro/eu91_merchant_counter.asm:63 {508071})."
+        }
+      ]
+    },
+    "226": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_lance_red_jewel_given",
+          "area": "watermia",
+          "summary": "Lance gave Will the Red Jewel in Luke's house after the party had been to Euro.",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "wa79_lance prints 'I hope you get to see your father soon.'.",
+            "clear": "With $97 and $A5 set, wa79_lance prints dialogstring_07AEDE ('My father's getting better every day...') and GiveItem #01; the flag is set only if the give succeeds (a full inventory jumps to HiddenRedJewelInventoryFull and the flag stays clear)."
+          },
+          "evidence": [
+            "extracted/watermia/lukes_house/wa79_lance.asm:85 {503061}",
+            "extracted/watermia/lukes_house/wa79_lance.asm:88 {503076}"
+          ],
+          "notes": "Index $E2 is also one of the 'seven NPC jewel gifts' listed in hidden_red_jewel's header; here the flag is the actor's own."
+        }
+      ]
+    },
+    "227": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_ann_first_apple_given",
+          "area": "euro",
+          "summary": "Will gave Ann the first apple ('Thanks. I can't eat any more.').",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The next apple goes to $E4.",
+            "clear": "The first apple sets this flag, is removed (RemoveItem #28) and Ann prints the thanks."
+          },
+          "evidence": [
+            "extracted/euro/rolek_mansion/eu95_ann.asm:56 {515907}",
+            "extracted/euro/rolek_mansion/eu95_ann.asm:70 {515939}"
+          ],
+          "notes": "Only eu95_ann reads and writes $E3 (fl_scope index E3: 2 sites)."
+        }
+      ]
+    },
+    "228": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_ann_second_apple_given",
+          "area": "euro",
+          "summary": "Will gave Ann the second apple.",
+          "kinds": ["reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The next apple gives the Red Jewel and sets $E5.",
+            "clear": "The second apple sets this flag, is removed and Ann prints the thanks."
+          },
+          "evidence": [
+            "extracted/euro/rolek_mansion/eu95_ann.asm:57 {515913}",
+            "extracted/euro/rolek_mansion/eu95_ann.asm:75 {515944}"
+          ],
+          "notes": "Reached only with $E3 set."
+        }
+      ]
+    },
+    "229": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_ann_red_jewel_given",
+          "area": "euro",
+          "summary": "Ann gave Will a Red Jewel for the third apple ('Good. As a present I'll give you this jewel.').",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Ann only says 'I'll take care of Kara...'.",
+            "clear": "With $D6 set and an apple, the third apple removes the apple, prints dialogstring_07E10A and gives item $01; the flag is set after the give."
+          },
+          "evidence": [
+            "extracted/euro/rolek_mansion/eu95_ann.asm:49 {515891}",
+            "extracted/euro/rolek_mansion/eu95_ann.asm:61 {515931}"
+          ],
+          "notes": "RemoveItem #28 runs before GiveItem; a full inventory jumps to HiddenRedJewelInventoryFull ({515926}) and the flag stays clear, so the apple is spent and a further apple is needed (the next talk, with $E3 and $E4 set and no apple, prints dialogstring_07E0DE which repeats the 'I want an apple' text). Queue FL27-14."
+        }
+      ]
+    },
+    "240": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_life_medicine_taken",
+          "area": "euro",
+          "summary": "Will drank the Life Medicine in the flea market (+1 max HP, +1 HP).",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The interact handler prints 'I'm sorry... One to a customer.'.",
+            "clear": "'This is Life Medicine. Try some?' rows Yes/No; Yes sets the flag, increments playerMaxHp and playerHp, prints 'Your power is increased!' and the actor dies."
+          },
+          "evidence": [
+            "extracted/euro/flea_market/eu97_life_medicine.asm:25 {511242}",
+            "extracted/euro/flea_market/eu97_life_medicine.asm:42 {511269}"
+          ],
+          "notes": "Free of charge (no money check in the file). The actor is not killed by the flag at spawn: it dies after the drink and reappears with the flag set on the next load."
+        }
+      ]
+    },
+    "241": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_dark_medicine_taken",
+          "area": "euro",
+          "summary": "Will drank the Dark Medicine in the flea market (Dark Friar power raised).",
+          "kinds": ["once-latch", "reward-claimed"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "eu97_dark_medicine dies at spawn.",
+            "clear": "Yes: if $0B1C is 2 the actor prints 'The Dark Friar's power is strong enough!' and leaves the flag clear; otherwise it writes $0B1C := 1, sets the flag and prints 'Freedan's Dark Power has increased!'."
+          },
+          "evidence": [
+            "extracted/euro/flea_market/eu97_dark_medicine.asm:14 {511453}",
+            "extracted/euro/flea_market/eu97_dark_medicine.asm:45 {511514}"
+          ],
+          "notes": "$0B1C is the Dark Friar power level by the dialog ('The Dark Friar's power is increased!'); the write of #1 even when the value is already 1 is as coded. The meaning of $0B1C values was not traced here."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "141": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "wa_arrival_cutscene_started",
+        "summary": "The Watermia arrival cutscene (wa78_intro) has started: the Angel Village party NPCs are gone and the Angel Village world-map exit offers Watermia.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/watermia/watermia/wa78_intro.asm:51 {491619}; the cutscene is skipped when set (test at extracted/watermia/watermia/wa78_intro.asm:22 {491523})",
+          "waiter in this scope: extracted/watermia/wa78_lance_camera_pan.asm:25 {491980} (starts the repeating camera-bob keyframe loop; placed in scenes $78 and $7F) and extracted/watermia/watermia/wa78_moving_pad.asm:19 {499621} (the rideable pad does not start before the flag)",
+          "test elsewhere (FL26): extracted/actors/overworld_exit.asm:319 {52169}; the ten av69/av6A party actors"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL26 proposal. Read in full for the three Watermia sites; the set point is the middle of the intro (after the sprite walk, before the narration text and QueueMapChange #79)."
+      }
+    ],
+    "148": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "wa_party_left_for_euro",
+        "summary": "Neil started the trip to Euro from Luke's house: the party leaves Watermia for scene $91.",
+        "kinds": ["quest-done", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/watermia/lukes_house/wa79_neil.asm:60 {500195} (also stores companions $0D60-$0D66, stages the world-map move and queues scene $91 at {500236})",
+          "die at spawn when set: extracted/watermia/lukes_house/wa79_neil.asm:16 {500127}, extracted/watermia/lukes_house/wa79_erik.asm:14 {500779}, extracted/watermia/lukes_house/wa79_kara.asm:17 {501050}, extracted/watermia/watermia/wa78_prize_kruk.asm:14 {498441}",
+          "world-map menu: extracted/actors/overworld_exit.asm:348 {52216} (Watermia exit, scene $78 tiles (27,3D)-(29,40): set selects menu $0E 'Quit / Angel Village / Great Wall / Euro city', tested before $8E)"
+        ],
+        "confidence": "high",
+        "notes": "No other writer or reader (fl_scope index 94: 5 sites, 4 here + 1 in actors). Name guessed from the code effect; the set point is the start of the departure, not the arrival in Euro (that is $A5). Queue FL27-02."
+      }
+    ],
+    "150": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "wa_festival_night_active",
+        "summary": "Watermia is in its festival (glass game) night: set when Lance and Lily's reunion on the Great Wall ends, cleared when the Russian Glass game ends.",
+        "kinds": ["cutscene-stage", "quest-guard"],
+        "roles": [
+          "setter: extracted/great_wall/wall_inner/gw8B_lance_lily.asm:61 {505825} (then $C8 and QueueMapChange #79)",
+          "clearer: extracted/watermia/watermia/wa78_glass_game.asm:203 {496163} (the same block sets $97 at {496166})",
+          "scene gate: tables/scene_meta.asm:1683 {890774} (record $78: set loads pal_watermia_dark)",
+          "festival palette thinker: extracted/watermia/watermia/watermia_festival_palette.asm:16 {46934} (scenes $78 and $7F: set runs WatermiaFestivalPaletteFlash)",
+          "glass game: extracted/watermia/watermia/wa78_glass_game.asm:23 {495562} (set spawns the ten spectator/glass children and the game; clear makes the actor a wandering NPC with the 'On full moon nights they play Russian Glass' handler)",
+          "glass house: extracted/watermia/glass_players_house/wa7D_glass_opponent.asm:19 {494976} (set -> dies)",
+          "walking woman: extracted/watermia/watermia/wa78_moving_woman.asm:45 {492572} (set: 'A woman in pink chanted over that lotus leaf.'; clear: the raft-house line)",
+          "Luke's house: extracted/watermia/lukes_house/wa79_neil.asm:19 {500141}, wa79_erik.asm:16 {500791}, wa79_kara.asm:19 {501062}, wa79_lance.asm:20 {502917}, wa79_lily.asm:17 {501878} (night handlers; Lance's is code_07ACD6, Lily's code_07A8F3)"
+        ],
+        "confidence": "high",
+        "notes": "FL10 proposed wa_festival_night_active, FL24 gw_lance_lilly_reunion_done (the setter's event). The flag is cleared by the glass game, so a 'done' name is false while it is clear after the game; 'wa_festival_night_active' describes the interval. FL31 decides; the set site stays the Great Wall script. Queue FL27-03."
+      }
+    ],
+    "157": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "gw_trail_intro_seen",
+        "summary": "The Great Wall trail intro (gw82_trail_intro) has played; Luke's raft-house instance disappears from Watermia.",
+        "kinds": ["once-latch", "cutscene-stage"],
+        "roles": [
+          "setter: extracted/great_wall/wall_entrance/gw82_trail_intro.asm:17 {505144} (test at :16 {505138})",
+          "Watermia reader: extracted/watermia/watermia/wa78_men.asm:43 {492845} (sense 00: only the instance whose $24 is 5 (placement parameter #0B, scene $78) tests it; set clears its solidity and kills it. The other 11 instances never look at the flag)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with FL24's gw_trail_intro_seen. Luke says 'Take care of my house. Make yourself at home while I'm gone.' (dialogstring_07879B). Queue FL27-04."
+      }
+    ],
+    "159": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "eu_mt_kress_marked_on_map",
+        "summary": "Erasquez has told Will to look at the Teapot at Mt. Kress ('Rofsky marked Mt.Kress on Will's map!'); the Euro world-map exit offers Mt. Kress.",
+        "kinds": ["once-latch", "quest-guard", "gate-open"],
+        "roles": [
+          "setter: extracted/euro/geezer_central/eu92_erasquez.asm:24 {513973} (reached when the player holds the Teapot, item $19, at {513962}; test at :23 {513967})",
+          "world-map menu: extracted/actors/overworld_exit.asm:407 {52316} (Euro exit, scene $91 tiles (3F,42)-(40,48): after $AC, set selects menu $10 'Quit / Mt.Temple / Watermia')"
+        ],
+        "confidence": "high",
+        "notes": "The setter text mentions the Teapot, so the flag is the 'Teapot shown to Erasquez' event; the Mt. Kress entry in the menu is the effect. Also: a Teapot is needed to set it. Queue FL27-05."
+      }
+    ],
+    "167": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "mt_kress_intro_seen",
+        "summary": "The Mt. Kress entrance intro has played; Friezer, Max and Rudy are gone from Euro.",
+        "kinds": ["once-latch", "cutscene-stage", "quest-guard"],
+        "roles": [
+          "setter: extracted/mountain_temple/kress_entrance/mtA0_intro.asm:18 {517990} (test at :17 {517984})",
+          "die at spawn when set: extracted/euro/friezers_house/eu9A_friezer.asm:14 {517639}, extracted/euro/friezers_house/eu9A_max.asm:13 {517785}, extracted/euro/friezers_house/eu9A_rudy.asm:13 {517910} (scene $9A; the destroy blocks share ROM offset {517654})"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with FL24 (mt_kress_intro_seen). The three explorers leave Euro once the player reached the Kress entrance (scene $A0). Queue FL27-06."
+      }
+    ],
+    "168": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "eu_teapot_used_in_mansion",
+        "summary": "The Teapot was used in the Rolek mansion (scene $95): the Moon Tribe reveal plays and Neil's parents disappear.",
+        "kinds": ["cutscene-stage", "quest-guard"],
+        "roles": [
+          "setter: extracted/system/inventory/item_use_system.asm:1314 {235613} (UseItem_Teapot: tiles (28,09)-(2D,0D), removes item $19; the comment at :1295 says 'Dao (scene $95)')",
+          "waiters: extracted/euro/rolek_mansion/eu95_neils_father.asm:24 {516562}, extracted/euro/rolek_mansion/eu95_neils_mother.asm:23 {516843} (they lock the player ($EFFC), play the Moon Tribe dialog and walk to (0268,0060); they die at spawn once set: :18 {516541}, :18 {516826})",
+          "test: extracted/euro/rolek_mansion/eu95_neil.asm:30 {517010} (set: the emotional dialog, then sets $AA and queues scene $96)"
+        ],
+        "confidence": "high",
+        "notes": "Scene $95 is the Euro Rolek mansion, not Dao: the item_use_system comment is wrong. Queue FL27-07."
+      }
+    ],
+    "172": [
+      {
+        "source": "FL27",
+        "scope": null,
+        "name": "nv_party_arrived_native_village",
+        "summary": "The party has arrived in the Native Village (scene $AC) after leaving Euro.",
+        "kinds": ["cutscene-stage", "quest-guard"],
+        "roles": [
+          "setter: extracted/native_village/native_village/nvAC_kara.asm:37 {557213}",
+          "die at spawn when set (scene $96): extracted/euro/guest_room/eu96_neil.asm:18 {514856}, extracted/euro/guest_room/eu96_kara.asm:16 {514440}, extracted/euro/guest_room/eu96_erik.asm:14 {514720}",
+          "world-map menu: extracted/actors/overworld_exit.asm:406 {52310} (Euro exit: set selects menu $1A 'Quit / Mt.Temple / Watermia / Natives' Vil.', tested before $9F)",
+          "other readers: extracted/native_village/native_village/nvAC_erik.asm:21 {558439} and :22 {558445}, extracted/native_village/native_village/nvAC_hamlet.asm:27 {558719} and :28 {558725}, nvAC_kara.asm:30 {557188}"
+        ],
+        "confidence": "high",
+        "notes": "The Euro guest-room actors are removed once the party has been to the Native Village; the world-map menu offers the Native Village from Euro. The name is guessed from the setter's scene. Queue FL27-08."
+      }
+    ]
+  }
+}

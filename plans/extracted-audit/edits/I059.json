@@ -1,0 +1,223 @@
+{
+  "system/world_map/WorldMapController.asm": {
+    "blockNote": [
+      "World map controller (scene $FE actor, Bank 03, 238321-239290). The scene is a Mode 7 map; this file runs the arrival zoom, the destination menu, the companion dots, the route playback and the dive into the destination scene.",
+      "",
+      "=== HOW A TRIP STARTS ===",
+      "",
+      "Both kinds of trip arrive through CheckSceneTransition / ExecuteSceneTransition, which see a nonzero $0D52/$0D53 and then move $0D52 -> $0D54 (worldMapPlayerX), $0652 -> $0D6C, sceneNext -> $0D6E and sceneCurrent -> $0D6F, and switch to scene $FE:",
+      "- Menu trip: the exit actor in a town or dungeon entrance (overworld_exit) writes $0D60 := 0 and runs COP StageWorldMapChoice (start X, start Y, choice id). The choice id in $0D58 selects a menu in world_map_options.",
+      "- Scripted trip: an NPC departure script (13 of them, e.g. ec0A_kara, wa79_neil, daC8_neil) fills the party array, runs COP StageWorldMapMove (start X, start Y, 0, route id) and has already queued the destination with QueueMapChange. StageWorldMapMove clears $0D58, so there is no menu.",
+      "",
+      "=== STATE BLOCK $0D52-$0D6F ===",
+      "",
+      "| Address | Meaning |",
+      "|---------|---------|",
+      "| $0D52 | staged start X; nonzero = a world-map entry is pending (moved to $0D54 and cleared on arrival) |",
+      "| $0D54 / $0D56 | worldMapPlayerX / Y: start position on the 1024 x 1024 map |",
+      "| $0D58 | choice id (0 = none). The low 5 bits index world_map_options |",
+      "| $0D5A | route id (0 = none). Index into world_map_routes, set by COP #65 / #67 |",
+      "| $0D5C | route subroutine return pointer (0 = none) |",
+      "| $0D5E | written by COP #65 / #67 (always 0), never read |",
+      "| $0D60-$0D6A | party array: six words of spm_overworld_sprites animation indices. $0D60 is the leader, $0D62-$0D6A are up to five companions, 0 = empty |",
+      "| $0D6C | deferred $0652 (scroll parameters of the queued scene change) |",
+      "| $0D6E | destination scene (low byte); a scripted trip gets it from ExecuteSceneTransition, a menu trip from DeferSceneTransition |",
+      "| $0D6F | scene being left (the start name is looked up with it) |",
+      "",
+      "ClearWorldMapState zeroes $0D52-$0D6D (14 words, CPY #$001C), so $0D6E/$0D6F survive the trip.",
+      "",
+      "=== MODE 7 PARAMETERS THE CONTROLLER DRIVES ===",
+      "",
+      "Mode7PerspectiveInit (scene thinker, see mode7_perspective) sets the global words $B8 := $0400, $B6 := 0, $BC := 0 and the centre $CA/$CC := ($0D54, $0D56). Per frame it turns them into the M7A-M7D HDMA tables:",
+      "- $B8 is the divisor at the top scanline: smaller = zoomed out, larger = zoomed in ($80 is about 1:1).",
+      "- $B6 is how much the divisor grows per scanline: 0 = flat map, larger = stronger perspective.",
+      "- $BC is the rotation index (512 steps per turn). Route steps change it, so the map turns during a trip. The old comments called it elevation.",
+      "- $CA/$CC are the world X/Y (map centre). cameraTargetX/Y follow as centre - ($80, $70).",
+      "",
+      "=== TIMELINE ===",
+      "",
+      "1. WorldMapController (code_03A2F4): characterForm := 0, two palette-reset thinkers (bundle $0B: Will's normal sprite colours, CGRAM $81-$8F), ClearAllWramFlags, mask the buttons, spawn ArrivalAndTravelSetup as a child (flags $3800). With no choice id it dies here; otherwise it gives the child animScratch2 |= $0804, saves DeferSceneTransition with SetSavedPtr and runs world_map_options[choice & $1F] (menu and handler).",
+      "2. ArrivalAndTravelSetup, 44 ticks: places itself (the leader's dot) at the start position, centres the camera, then each tick adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8. The divisor falls from $0400 to about $34 (hand-computed), a zoom-out from 8x in to a wide view.",
+      "3. Menu trips only: wait 15 frames, spawn HdmaWindowEffect, then poll $0D5A every frame (RTL = try again next frame) while the menu is open. Choosing Quit leaves it at 0: the handler has already queued the scene you came from and DeferSceneTransition just dies, so this actor idles until the scene changes.",
+      "4. Tilt phase (loc_03A3A4), 93 ticks: shows the start-area name (see world_map_names), adds the TickGravity delta ((t * (t >> 1)) >> 7, growing) to $B6 and 1 to $B8. $B6 ends at about $03F0, so the flat map tilts into a strong perspective view. Then the name is cleared ($00DA := 0).",
+      "5. Companion dots: the party array is scanned from $0D62, N companions pick entry N of companion_position_tables, and one CompanionDotMovement actor per companion is spawned. RouteAnimationEngine is spawned and this actor becomes the leader's dot.",
+      "6. RouteAnimationEngine plays the route bytes (see world_map_routes): X, Y and rotation steps change $CA/$CC/$BC.",
+      "7. RouteEndHandler: dots die, the destination name shows for 59 frames, $B6 falls by $10 per frame until the map is flat again (Start skips everything), then the deferred sceneNext/$0652 are restored and the controller dives: $B8 grows by an increasing delta, a zoom-in while the scene exit transition runs.",
+      "",
+      "=== SPRITES (spm_overworld_sprites.sprite.asm, not annotatable with the merge tool) ===",
+      "",
+      "The spritemap (scene_meta_00FE, $1238 bytes, gfx_overworld_actors, palette pal_overworld_sprites at colour $90) has 14 animations. The leader and companion dots use the animation index from the party array as actor field $28.",
+      "- 0-5: 4-frame cycles (hold 7), one per party slot value (art identity not checked). 6: three 1-part frames.",
+      "- 7-A: four 5-frame sets. wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg (menu handlers set only $0D60 := 7), so these look like the pieces of one vehicle (not checked at runtime).",
+      "- B: 3 frames of 24-28 parts, used as the leader by daC8_neil (Dao to Over Babel). C: same shape, no writer found. D: 4 frames, used as the leader by wa78_men (Watermia to South Cape).",
+      "",
+      "=== KEY ROUTINES ===",
+      "",
+      "- DeferSceneTransition: callback after the menu handler; keeps the queued scene out of the way while the route plays.",
+      "- ArrivalAndTravelSetup: arrival zoom, menu wait, tilt phase, dot formation, route launch; then runs as the leader's dot.",
+      "- CompanionDotMovement: one companion dot (also the shared dot loop).",
+      "- RouteAnimationEngine: interpreter for the world_map_routes bytes. RouteEndHandler: end-of-route name, untilt and dive.",
+      "- LookupMapName: scene id -> name string pointer."
+    ],
+    "partNotes": {
+      "WorldMapController": [
+        "Controller actor of scene $FE. Resets the character form and palettes, spawns ArrivalAndTravelSetup, and for a menu trip runs the world_map_options handler for the choice id (the handler ends in RestoreSavedPtr, which returns to DeferSceneTransition). With no choice id (scripted trip) it dies at once and the child does all the work."
+      ],
+      "DeferSceneTransition": [
+        "Callback after the menu handler. Route id 0 means the player chose Quit (the handler queued the scene they came from), so it just dies and the normal scene change happens. Otherwise it moves the queued destination into $0D6E (low byte only, $0D6F keeps the source scene) and $0652 into $0D6C, then clears both so the scene does not change until the route has played."
+      ],
+      "ArrivalAndTravelSetup": [
+        "Child actor (flags $3800, script-driven). Phases: 44-tick zoom-out ($B8 falls), for a menu trip a 15-frame wait + HdmaWindowEffect + wait for the player's route, the 93-tick tilt phase with the start name ($B6 grows), then the companion dots. It finally becomes the leader's dot through the shared loop in CompanionDotMovement and dies when the route ends."
+      ],
+      "loc_03A3A4": [
+        "Tilt phase. Looks up and shows the name of the scene being left ($0D6F), then 93 ticks of gravity-curve growth in $B6 (perspective) and $B8 + 1."
+      ],
+      "loc_03A3E6": [
+        "Party scan: Y steps through $0D62, $0D64, ... and stops at the first empty slot or at Y = $0C. Y - 2 is then 2 x the number of companions."
+      ],
+      "loc_03A426": [
+        "Dot spawn loop: one CompanionDotMovement per non-empty slot $0D62-$0D6A. Each gets its animation index, its slot pair from the layout, and the leader's pair as home."
+      ],
+      "CompanionDotMovement": [
+        "A companion's dot. Entry: it was spawned at the leader's position, so it glides to its own formation slot (camera + slot pair) at 1 pixel per frame, then joins the shared dot loop at loc_03A497.",
+        "Actor fields: $24 = own slot pair (low byte X, high byte Y, screen offsets), $26 = leader's slot pair (copied to orbitDiameter as home), $28 = animation index."
+      ],
+      "loc_03A497": [
+        "Shared dot loop (leader and companions). Every frame the dot is placed at camera + slot pair; while a route is playing the frame hold time (from $08 into $26) counts down and AnimOneFrame stages the next animation frame. When the route id becomes 0 the dot moves one step toward its home pair and dies, so all dots are gone as soon as the route ends. The leader's home is its own slot, so it dies at once."
+      ],
+      "companion_position_tables": [
+        "Formation layouts indexed by the number of companions N (entry N; entry 6 is never reached because at most 5 companions are scanned). Each layout is a list of screen-offset pairs (X, Y) from the camera target, the first for the leader. N = 1 uses binary_03A521 (two dots side by side), N = 4 uses binary_03A525, all others use binary_03A511."
+      ],
+      "binary_03A511": [
+        "Eight offset pairs: leader (80,80), then (70,90) (90,90) (68,A0) (98,A0) (80,98), (60,B0) (A0,B0). Only the first six are reachable (leader + 5 companions)."
+      ],
+      "binary_03A521": [
+        "Two pairs for N = 1: leader (78,80), companion (88,80)."
+      ],
+      "binary_03A525": [
+        "Five pairs for N = 4: same as the first five pairs of binary_03A511 (the entry is redundant)."
+      ],
+      "RouteAnimationEngine": [
+        "Interpreter for the route bytes of world_map_routes[$0D5A]. A step is four bytes: movement_delta_table indices for X ($CA), Y ($CC) and rotation ($BC), then a tick count n (the step runs n + 1 ticks). Index 0 is null (that axis stands still). $FF ends the route, $FE calls a subroutine (2-byte target, one level). Each tick adds the next delta of each active axis and sets cameraTargetX/Y = centre - ($80, $70). The delta chains come from movement_delta_table (constants +-1.. and half-speed alternations)."
+      ],
+      "RouteStepLoop": [
+        "Read the next step: $FF -> RouteEndHandler, $FE -> RouteSubroutineCall, otherwise load the three delta chain pointers and the tick count and start the step."
+      ],
+      "SkipToSceneTransition": [
+        "Start pressed during the end-of-route countdown: restore the deferred sceneNext/$0652, clear the state block and yield; the scene changes at once without the dive."
+      ],
+      "RouteSubroutineCall": [
+        "Route byte $FE: remember the address after the 2-byte target in $0D5C and continue at the target. One nesting level only; a second $FE would overwrite $0D5C. No shipped route uses it: no step in world_map_routes starts with $FE (every route is 4n step bytes plus a hidden $FF end byte)."
+      ],
+      "RouteEndHandler": [
+        "Route byte $FF. A pending subroutine return (nonzero $0D5C) continues the caller. A true end: clear route and choice ids (the dots notice and die), show the destination name (scene $0D6E) for 59 frames, then lower $B6 by $10 per frame until it would go negative (the map is flat again; Start skips to the scene change). Landing: $B6 := 0, transition speeds gfxCacheIdxB := $0406, restore the deferred scene change, clear the state block, and from then on add the TickGravity delta to $B8 every frame (zoom-in dive) until the scene changes."
+      ],
+      "loc_03A60B": [
+        "True end of the route (no subroutine return pending)."
+      ],
+      "loc_03A644": [
+        "Landing: perspective gone, restore the deferred scene change and start the zoom-in dive while the scene exit runs."
+      ],
+      "ClearWorldMapState": [
+        "Zero $0D52-$0D6D (14 words). $0D6E/$0D6F are not cleared."
+      ],
+      "LookupMapName": [
+        "Search world_map_names (3-byte entries: scene id, name pointer) for the scene id in $0000. Found: Y := name pointer. Not found: Y is returned unchanged (the table has no terminator, see world_map_names). Called with the source scene $0D6F at the start and the destination $0D6E at the end."
+      ]
+    },
+    "comments": {
+      "238330": { "text": "Palette reset thinker, bundle $0B = Will's 15 normal colours at CGRAM $81-$8F (PaletteRestart + PaletteStep, then it kills itself)", "expect": "SpawnThinkerParam" },
+      "238340": { "text": "Same palette reset thinker spawned a second time (reason not known, OQ-I059-2)", "expect": "SpawnThinkerParam" },
+      "238353": { "text": "Suppress nearly all buttons in joypadCurrent (shipped $FFFC, vanilla $FFF0); Start is still read from joypadRaw", "expect": "LDA #$FFFC" },
+      "238359": { "text": "Menu trip (choice id set) or scripted trip (0: nothing to dispatch, this actor dies below)", "expect": "LDA $worldMapChoiceId" },
+      "238372": { "text": "Child's animScratch2 |= $0804 (bits 2 and 11, the thinker filter flags; effect on an actor not verified, OQ-I059-1)", "expect": "ORA #$0804" },
+      "238385": { "text": "Choice id low 5 bits = index into world_map_options (ids $01-$1B are staged, $1C-$26 never)", "expect": "AND #$001F" },
+      "238391": { "text": "Each menu handler ends in RestoreSavedPtr, which returns to DeferSceneTransition", "expect": "SetSavedPtr" },
+      "238395": { "text": "Run world_map_options[choice]: the menu, then the chosen handler", "expect": "SwitchCase" },
+      "238401": { "text": "Route id still 0: the player chose Quit, so just die (the handler already queued the origin scene)", "expect": "LDA $worldMapRouteId" },
+      "238411": { "text": "Destination scene -> $0D6E, low byte only (the source scene stays in $0D6F)", "expect": "STA $0D6E" },
+      "238419": { "text": "$0652 (scroll parameters of the queued scene change) -> $0D6C", "expect": "STA $0D6C" },
+      "238422": { "text": "Clear $0652 and sceneNext so the scene does not change while the route plays", "expect": "STZ $warpScrollParams" },
+      "238454": { "text": "v0 = $20, shift 5: tick delta = ((t * (t >> 1)) >> 5) - $20, negative for all 44 ticks (sum about -970)", "expect": "InitGravity" },
+      "238459": { "text": "44 ticks of zoom-out, one yield per tick", "expect": "LoopStart" },
+      "238462": { "text": "moveScratch2 := the gravity-curve delta for this tick", "expect": "TickGravity" },
+      "238469": { "text": "Mode 7 divisor $B8 += delta (negative): about $0400 down to about $34, the view zooms out (OQ-I059-4)", "expect": "ADC $00B8" },
+      "238479": { "text": "Menu trip (choice id set): wait for a route; scripted trip (0): go straight on", "expect": "LDA $worldMapChoiceId" },
+      "238487": { "text": "HdmaWindowEffect: BGMODE/COLDATA split with a moving boundary row (see its notes)", "expect": "SpawnThinker" },
+      "238492": { "text": "Poll point: re-entered every frame while the menu is open", "expect": "SetEntryHere" },
+      "238494": { "text": "Route id set by the chosen handler (StageWorldMapMoveIds): nonzero = a destination with a route was chosen", "expect": "LDA $worldMapRouteId" },
+      "238497": { "text": "Route chosen: continue with the tilt phase", "expect": "BNE loc_03A3A4" },
+      "238499": { "text": "No route yet (menu open, or Quit): yield and poll again next frame", "expect": "RTL" },
+      "238500": { "text": "Scene being left -> $0000, the LookupMapName key for the start name", "expect": "LDA $0D6F" },
+      "238509": { "text": "Name actor (pr_text_placement_calc): builds the sprite text of the string in its $26, then dies", "expect": "SpawnBeforeFlags" },
+      "238516": { "text": "Y := name string pointer for scene $0000", "expect": "LookupMapName" },
+      "238520": { "text": "Y := the new name actor (AllocateActorBefore leaves it in $04; LookupMapName clobbered Y)", "expect": "LDY $04" },
+      "238525": { "text": "v0 = 0, shift 7: tick delta = (t * (t >> 1)) >> 7, growing from 0", "expect": "InitGravity" },
+      "238530": { "text": "93 ticks of tilt phase", "expect": "LoopStart" },
+      "238535": { "text": "Perspective $B6 += delta: the flat map tilts (about $03F0 after 93 ticks)", "expect": "LDA $00B6" },
+      "238546": { "text": "Divisor $B8 + 1 per tick (slight zoom in)", "expect": "INC $00B8" },
+      "238558": { "text": "Clear bit 13 ($2000, script-driven mode forced on by CopyActorState) so the leader is handled like the $1800 dots", "expect": "LDA #$2000" },
+      "238566": { "text": "Scan the party array from $0D62 (the leader's $0D60 is skipped)", "expect": "INY" },
+      "238568": { "text": "Stop after $0D6A: at most 5 companions", "expect": "CPY #$000C" },
+      "238573": { "text": "Slot in use (nonzero animation index)?", "expect": "LDA $0D60, Y" },
+      "238578": { "text": "Layout table index: entry N for N companions (word entries, X = 2N)", "expect": "PHX" },
+      "238582": { "text": "Layout pointer for this companion count (entry 6 unreachable)", "expect": "LDA $@companion_position_tables" },
+      "238594": { "text": "Leader animation index (party array word 0) -> actor $28", "expect": "LDA $0D60" },
+      "238599": { "text": "First slot pair of the layout = the leader's slot (screen offsets X, Y from the camera target)", "expect": "LDA [$18]" },
+      "238630": { "text": "Dot spawn loop: Y := next slot ($0D62, $0D64, ... $0D6A)", "expect": "INY" },
+      "238637": { "text": "Empty slot: no more companions", "expect": "BEQ loc_03A450" },
+      "238640": { "text": "One dot actor per companion (flags $1800: bit 13 clear), spawned at the leader's position", "expect": "SpawnAfterFlags" },
+      "238648": { "text": "New dot's animation index := party array value", "expect": "STA $0028, Y" },
+      "238653": { "text": "New dot's own slot pair (next pair of the layout)", "expect": "STA $0024, Y" },
+      "238658": { "text": "New dot's home pair := the leader's slot pair (where it returns when the route ends)", "expect": "STA $0026, Y" },
+      "238667": { "text": "Slots $0D62-$0D68 loop back; after $0D6A the loop ends", "expect": "CPY #$000A" },
+      "238674": { "text": "Home pair of this (leader) dot := its own slot pair, so it dies as soon as the route ends", "expect": "STA $orbitDiameter, X" },
+      "238678": { "text": "Two AnimOnce steps before the route starts", "expect": "LoopStart" },
+      "238687": { "text": "Remove the start-area name sprites (sprite-text byte count := 0)", "expect": "STZ $00DA" },
+      "238690": { "text": "Spawn RouteAnimationEngine before this actor; it plays the route bytes", "expect": "SpawnBefore" },
+      "238695": { "text": "Join the shared dot loop (this actor is the leader's dot from now on)", "expect": "BRA loc_03A497" },
+      "238733": { "text": "Glide from the leader's position to this slot at 1 px/frame (animation operand #FF leaves the animation unchanged)", "expect": "MoveToward" },
+      "238828": { "text": "Home reached: remove the dot (the leader's home is its own slot, so it dies at once)", "expect": "Die" },
+      "239049": { "text": "Rotation index $BC += delta (the map turns; not elevation)", "expect": "ADC $00BC" },
+      "239052": { "text": "Store the new rotation index", "expect": "STA $00BC" },
+      "239151": { "text": "End-of-route flatten loop: perspective $B6 -= $10 per frame", "expect": "LDA $00B6" },
+      "239172": { "text": "Map flat again: $B6 := 0", "expect": "LDA #$0000" },
+      "239178": { "text": "Save the re-entry point and yield", "expect": "SetEntryHereAndYield" },
+      "239180": { "text": "Remove the destination name sprites (sprite-text byte count := 0)", "expect": "STZ $00DA" },
+      "239183": { "text": "Set bit 11 ($0800, cutscene-active per cop_handlers_dialog) so the dive keeps running during the exit (inferred)", "expect": "LDA #$0800" },
+      "239188": { "text": "v0 = 0, shift 6: dive delta = (t * (t >> 1)) >> 6, growing from 0", "expect": "InitGravity" },
+      "239193": { "text": "Transition speeds: low byte $06 (exit), high byte $04 (enter), per scene_lifecycle", "expect": "LDA #$0406" },
+      "239221": { "text": "Dive: $B8 += delta, so the divisor grows (zoom in) while the scene exit transition runs", "expect": "LDA $moveScratch2, X" },
+      "239262": { "text": "Scene id of entry X (3-byte entries: id, name pointer)", "expect": "LDA $&world_map_names, X" },
+      "239265": { "text": "Zero id byte = end; the table has no terminator entry, so a miss would run on into the strings (OQ-I059-7)", "expect": "BEQ loc_03A6B6" }
+    }
+  },
+  "system/world_map/world_map_names.asm": {
+    "blockNote": [
+      "World map location names (Bank 03, 242132-242689): the scene id -> name table WorldMapController uses for the two area names of a trip, followed by the name strings.",
+      "",
+      "=== FORMAT ===",
+      "",
+      "37 map-label entries ($00-$24), 3 bytes each: a SCENE ID byte (a sceneCurrent / sceneNext value, not a map position index) and a word pointer to a sprite string. LookupMapName searches the table linearly for the scene id in $0000. There is no terminator entry: the strings follow the table directly, so an id that is not listed would run on into string bytes (no listed or staged scene does; OQ-I059-7).",
+      "",
+      "=== WHICH SCENE IDS ARE LOOKED UP ===",
+      "",
+      "The start name uses $0D6F (the scene being left), the end name the low byte of $0D6E (the destination). Between them the table holds:",
+      "- every overworld_exit scene: $01 $0A $15 $1C $32 $3E $69 $78 $82 $91 $A0 $AC $B0 $C3 $CC;",
+      "- every scene that starts a scripted trip: $06 $17 $1A $30 $39 $49 $6A $78 $79 $96 $AE $C8, and every scripted destination: $01 $15 $1A $1C $32 $49 $4B $78 $91 $AC $C4 $DC;",
+      "- ids no trip found in extracted/ uses: $31 $67 $68 $95 $9F $AD $C5 $DE (possibly left over).",
+      "",
+      "Several ids share a name: South Cape ($01 $06), Itory Village ($15 $17), Diamond Coast ($30 $31), Freejia ($32 $39), Angel Village ($69 $6A), Watermia ($78 $79), City of Euro ($91 $95 $96), Mt.Temple ($9F $A0), Natives' Village ($AC $AD $AE), Desert Village Dao ($C3 $C4 $C5 $C8). Each id has its own string except $C4 $C5 $C8, which share spritestring_03B3CC (the same text also exists at spritestring_03B3B9 for $C3).",
+      "",
+      "=== STRINGS ===",
+      "",
+      "The ~...~ strings are character codes ended by $CA ($CB = new line, $57 = space). pr_text_placement_calc builds one 8-pixel sprite record per character in the $7F0600 buffer (tile = code x 2 + $2300), centred horizontally at Y = $38, and keeps the byte count in $00DA; WorldMapController zeroes $00DA to remove the name."
+    ],
+    "partNotes": {
+      "world_map_names": [
+        "Scene id -> name string pointer, 37 entries in ascending scene id order. See the block note for which ids are used."
+      ]
+    },
+    "comments": {}
+  }
+}

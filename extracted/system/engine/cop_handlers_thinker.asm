@@ -6,7 +6,7 @@
 ; - SpawnThinker (COP #3C): same without the parameter byte (56 sites).
 ; - KillThinker (COP #3D): unlink the calling thinker and return its slot to the free list (29 sites).
 ; 
-; The spawn handlers copy the caller's animScratch2 ($7F000E,X) into the new thinker and clear its $0E. They do not test AllocateSpecialActor's carry: when the pool is exhausted Y still holds the caller's slot, so the entry-pointer stores would land on the caller (analysis only, unverified at runtime). Handlers return by writing the next script address into the COP stack frame ($02,S) and RTI.
+; The spawn handlers copy the caller's animScratch2 ($7F000E,X) into the new thinker and clear its $0E. They do not test AllocateSpecialActor's carry: when the pool is exhausted Y still holds the caller's slot, so the entry-pointer stores would land on the caller (measured with the thinker free list emptied: the stores landed on the calling actor and its entry address was rewritten by the next yield). Handlers return by writing the next script address into the COP stack frame ($02,S) and RTI.
 ---------------------------------------------
 
 ?BANK 00

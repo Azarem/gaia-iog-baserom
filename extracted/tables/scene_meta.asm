@@ -8,7 +8,7 @@
 ; 
 ; The original ROM packs the records back to back as [scene id word][commands][$00] and FindCurrentScene scans them. The extraction (post process Lookup(0,1) && Label(label,meta_label)) lifts the ids out into scene_meta_list (256 words indexed by scene id, $0000 = no record) and the label ids into meta_label_list (64 words), so every record starts directly with its first command. The baserom patch baserom/scene-load/SceneMetaLoad.patch.asm replaces FindCurrentScene (ASL the scene id, LDA [$3A],Y) and SkipScriptCommands (meta_label_list lookup) with the indexed versions, which the new layout needs. The scene_script.asm text still shows the original scanning routines because the patch is applied at rebuild, not at extraction.
 ; 
-; 231 records ($0000-$00FF minus 25 ids without a record: $09 $48 $4A $57 $76 $77 $80 $81 $84 $9E $9F $AA $AB $AF $C1 $C2 $CA $CB $EB-$EF $F1 $F8). 15 of the 16 unused ids of scene_actors are in that list. Every record starts with display-mode (all 231). 2052 commands in all.
+; 231 records ($0000-$00FF minus 25 ids without a record: $09 $48 $4A $57 $76 $77 $80 $81 $84 $9E $9F $AA $AB $AF $C1 $C2 $CA $CB $EB-$EF $F1 $F8). 15 of the 16 unused ids of scene_actors are in that list. No warp, QueueMapChange operand or script names any of the 25 ids, and none of them loads a room when it is written into sceneNext ($0642). In the original ROM FindCurrentScene scans the whole script block for the id: for 23 ids it finds no match and never returns (the NMI count stops after 17 frames; 18 ids stay in the scan loop, 5 run stray code), and $09 and $80 match a stray byte and run the bytes after it as a script (no SceneCmd_ConfigDisplay runs; $09 leaves a collision map of 3072 cells of type $0E, $80 keeps the previous scene's map). The rebuilt layout reads a $0000 pointer from scene_meta_list for these ids, so FindCurrentScene returns Y = $0000 - $3A, far from any record, and the interpreter runs whatever bytes lie there as commands: the game crashes for all 25 (the NMI stops after 19 frames with the stack pointer at $4212). Every record starts with display-mode (all 231). 2052 commands in all.
 ; 
 ; === COMMANDS (opcode, handler in scene_script, operands as shown in the extraction, count in this file) ===
 ; 
@@ -24,7 +24,7 @@
 ; | $13 | branch < flag, label > | SceneCmd_Branch | tests event flag (TestFlagRaw); set = continue at the label (SkipScriptCommands), clear = skip the label byte | 18 |
 ; | $14 | meta_label_NN: | SceneCmd_Label | defines label NN; executed as a no-op that skips its id byte | 56 |
 ; | $15 | jump < label > | SkipScriptCommands | continues at the label, which may be inside another scene's record; the commands from there run to that record's end | 176 |
-; | $17 | char-tiles < flags, @dmap > | SceneCmd_LoadCharTiles | tile art to VRAM; bit 7 = absolute word address (flags and $7F) x 4. One use: scene $FF (inventory), flags $80 = VRAM $0000 | 1 |
+; | $17 | char-tiles < flags, @dmap > | SceneCmd_LoadCharTiles | preformatted data to VRAM (the one file is four 32x32 BG tilemap screens, not tile art); bit 7 = word address (flags and $7F) << 10, one tilemap screen ($400 words) per unit. One command, in scene $FF (inventory), flags $80 = VRAM $0000; scene $FD runs it too through jump #11 | 1 |
 ; 
 ; Opcode $0E (SceneCmd_Skip3, 3 operand bytes) and the terminator $00 do not appear in the extraction (the delimiter is hidden). Opcodes $01, $07-$0D, $0F, $12 and $16 map to SceneCmd_Default (a bare RTS).
 ; 
@@ -3027,6 +3027,9 @@ scene_meta_00FC [
   spritemap < #$0165, #00, @spm_title_actors >   ;09
 ]
 
+---------------------------------------------
+; Scene $FD (statue inventory): display preset 0, silent music, inventory sprite art and palette, then jump < #11 > into scene $FF's meta_label_11, which loads the background palette, the BG bitmap and the dmap_inventory_bg tilemaps. The statue_inventory_reward actor then points BG1 at tilemap screen 2 (BG1SC = $08) and BG2 at screen 3.
+
 scene_meta_00FD [
   display-mode < #00 >   ;00
   music < #1B, #00, @bgm_no_music >   ;01
@@ -3049,7 +3052,7 @@ scene_meta_00FE [
 ]
 
 ---------------------------------------------
-; Scene $FF (inventory), loaded with SceneScriptNoMusic: display preset 0, sprite art and palette, then meta_label_11 in front of the background palette, BG bitmap and the only char-tiles command of the file (flags $80 = VRAM $0000).
+; Scene $FF (inventory), loaded with SceneScriptNoMusic: display preset 0, sprite art and palette, then meta_label_11 in front of the background palette, BG bitmap and the only char-tiles command of the file (flags $80 = VRAM $0000). dmap_inventory_bg holds four 32x32 BG tilemaps: screen 0 = BG1 Status, 1 = BG1 Items, 2 = BG1 statue scene, 3 = BG2 water (docs/dmap-inventory-bg.md). Scene $FD reaches the same command through jump < #11 >.
 
 scene_meta_00FF [
   display-mode < #00 >   ;00

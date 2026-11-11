@@ -11,7 +11,7 @@
 ; 1. Horizontal: the vertical velocity $24 is parked on the stack and zeroed. $20 = 0 skips the phase. Otherwise $AA bit $0040 is set (see below) and DispatchWestMove (negative $20) or DispatchEastMove (positive $20) runs. Afterwards $22 >> 2 and $26 >> 2 are stored in the player actor's pixel position ($0014 / $0016: the values are POSITIONS, not deltas) and $20 is cleared.
 ; 2. Vertical: the parked velocity is popped back into $24. Wall-slide handlers of the horizontal phase can zero the parked word (CancelVerticalPhase in player_move_west), which then cancels this phase. Zero skips it, negative runs DispatchNorthMove, positive runs DispatchSouthMove. The controller commits the final $22 / $26 after the tick returns.
 ; 
-; $AA bits: $0040 = horizontal phase ran (read by AutoAlignEW_North here and AutoAlignEW_South, which refuse to nudge in that case). $0800 and $0400 are tested before the north and south dispatch, but nothing in extracted/ ever sets them; player_move_west only clears them (TRB #$0840 / #$0440). Those two gates therefore always pass. $AB bit 1 is set by DispatchWestMove and read by player_move_ns.
+; $AA bits: $0040 = horizontal phase ran (read by AutoAlignEW_North here and AutoAlignEW_South, which refuse to nudge in that case). $0800 and $0400 are tested before the north and south dispatch. They are bits 3 and 2 of $AB: the wall-slide variant entries set them with TSB $AB (player_move_west code_02DCCB and code_02DC77, player_move_east EastWallSouthFlag and EastWallNorthFlag), and the horizontal-speed-smaller paths of player_move_west clear them (TRB #$0840 / #$0440). A set bit makes the matching gate skip that vertical dispatch for the tick. In the measured runs the setter ticks have $24 = 0 after the pop (the vertical phase is skipped anyway), so the gates never saw their own bit set. $AB bit 1 is set by DispatchWestMove and read by player_move_ns.
 ; 
 ; === AutoAlignEW_North (north counterpart of AutoAlignEW_South) ===
 ; 
@@ -96,16 +96,16 @@ PlayerMovementTick {
     BEQ PlayerMovementTick_Exit
     BPL PlayerMovementTick_SouthStep
     LDA $AA
-    BIT #$0800            ; Bit $0800: never set anywhere, so the gate always passes
+    BIT #$0800            ; Bit $0800 = $AB bit 3, set by the wall-slide variant entries: set skips the north dispatch
     BNE PlayerMovementTick_Exit
     JSR $&player_move_ns.DispatchNorthMove
     BRA PlayerMovementTick_Exit
 
-; South branch (positive $24): gate on $AA bit $0400 (never set), then DispatchSouthMove.
+; South branch (positive $24): gate on $AA bit $0400 ($AB bit 2, set by the wall-slide variant entries; set skips the south dispatch), then DispatchSouthMove.
 
   PlayerMovementTick_SouthStep:
     LDA $AA
-    BIT #$0400            ; Bit $0400: never set anywhere, so the gate always passes
+    BIT #$0400            ; Bit $0400 = $AB bit 2, set by the wall-slide variant entries: set skips the south dispatch
     BNE PlayerMovementTick_Exit
     JSR $&player_move_south.DispatchSouthMove
 

@@ -1,0 +1,15 @@
+{
+  "_note": "FL14 draft: ClearAllWramFlags has exactly one caller in WorldMapController (WorldMapController.asm:105 {238336}); no other JSL to it exists in extracted/ (st68_kara.asm:96 {438261} and sp58_red_eye.asm:68 {426502} are the other two). The shipped part note says 'twice'. Apply in the apply pass (plan section 7); re-run extract:lt first.",
+  "system/engine/flag_helpers.asm": {
+    "partNotes": {
+      "ClearAllWramFlags": {
+        "edit": [
+          {
+            "find": "WorldMapController (twice, when the world map is entered)",
+            "with": "WorldMapController (once, when the world map is entered)"
+          }
+        ]
+      }
+    }
+  }
+}

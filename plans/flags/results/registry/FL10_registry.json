@@ -1,0 +1,216 @@
+{
+  "_note": "FL10 fragment. 'domains' restates D1, D2, D6, D7, D8 and D9 with the lifecycle findings of FL10 (ranges unchanged). Every flag index read by a scene-meta gate is also used by another scene group or by the engine, so by plan 4.1 rule 7 each one is a proposal, not a record; flags is empty on purpose.",
+  "domains": {
+    "D1": {
+      "name": "scene scratch",
+      "ranges": [[0, 15]],
+      "persistence": "scene",
+      "indexed": true,
+      "lifecycle": "ClearSceneState zeroes flags $0000-$000F at every scene load: STX $eventFlags with X = $0000 (16-bit, ROM bytes a2 00 00 / 8e 00 0a at 253273 / 253291) writes bytes $0A00-$0A01; its single call site is ExecuteSceneTransition (252507). OpenInventoryScreen pushes the same word, zeroes it for the overlay (the overlay exit flag is flag $0000) and pops it on close (191788-192094). The bytes are inside the save block, so a save and a load carry them, but the next scene load zeroes them again. The same index means different things in different scenes. A few scripts read the bytes as a whole: ir1F_plate_gate_opener (bits 1-4 of $0A00), mu66_rama_spirits (the $0A00 low byte equals $FE) and dm3F_switch / dm3F_mine_collapse_trigger (byte $0A01 used as a laborer counter).",
+      "access": "COP $CC-$D3 (byte and word forms), SetFlagRaw/TestFlagRaw/ClearFlagRaw, direct LDA/STA $eventFlags and $0A01."
+    },
+    "D2": {
+      "name": "story / world events",
+      "ranges": [[16, 255]],
+      "persistence": "save",
+      "indexed": true,
+      "lifecycle": "Part of the save block $0A00-$0BFB. Scripts set them, and a few scripts clear them (for example $96, $F4); no scene load clears a D2 bit except flag $FF (bit 7 of $0A1F), which ClearSceneState and the inventory overlay clear and set again after setup.",
+      "access": "COP flag opcodes, the *Raw helpers (actor-parameter indices: laborers $A0-$A3, necklace stones $98/$99, statues $F8-$FD, orbs $F2/$F3), scene-meta gates (D9)."
+    },
+    "D6": {
+      "name": "dungeon kill flags",
+      "ranges": [[1024, 1279]],
+      "persistence": "dungeon",
+      "indexed": true,
+      "lifecycle": "Global = WRAM-relative wramFlags index + $0400 (index = enemy number). ClearAllWramFlags zero-fills $0A80-$0A9F (16 words, LDX #$0000 as a2 00 00 at 46285); it is called once each from WorldMapController (238336, world-map entry), st68_kara (438261) and sp58_red_eye (426502). game_over_sequence clears the same 32 bytes inline on a real game over (54988-55002); a revive keeps them. The bytes are inside the save block. No reset at an ordinary scene change was found.",
+      "access": "SetWramFlag (SetDungeonKillFlag), CheckEnemyDefeatedFlag (inline AND $wramFlags,Y), COP $D8 (index = enemyNum), direct LDA $0A9F in gw88_tomb_dark_space."
+    },
+    "D7": {
+      "name": "boss reward / ability unlock",
+      "ranges": [[1280, 1287], [1296, 1439]],
+      "persistence": "save",
+      "indexed": true,
+      "lifecycle": "Save block. $0500-$0507 are the bits of byte $0AA0 (Offset100 helpers mask the index to 3 bits; boss_clear_reward_handler uses six rows, $0500-$0505). $0510-$051F are the 16 bits of the abilityBitmask word at $0AA2 (TestFlag_0510 = characterForm*4 + slot; the traced set is $0510-$051A). The rest of the range is not flag storage in the code that exists: $0AA6, $0AAC, $0AB0 and $0AB2 are 16-bit state words (D8) and $0AA4-$0AA5, $0AA8-$0AAB, $0AAE-$0AAF have no access in extracted/.",
+      "access": "The *_Offset100 helpers, TestFlag_0510, direct reads and writes of abilityBitmask ($0AA2)."
+    },
+    "D8": {
+      "name": "non-bitfield gates",
+      "ranges": [],
+      "persistence": "none",
+      "indexed": false,
+      "lifecycle": "Items, character form, gems and other bytes of the save block that scripts test (FL40 extends the tool). Four 16-bit state words sit inside the flag-array tail: $0AA6 (script state: SwitchCase selector in dc2F_adrift, plate id in UseItem plate handlers), $0AAC globalScriptIndex (Dark Space layout variant, hieroglyph slot index), $0AB0 jewelsCollected, $0AB2 (Dark Space layout variant, saved copy of $0AAC).",
+      "access": "COP $D4-$D7 (items), SwitchCase on $0AD4/$0AA6, direct reads and writes."
+    },
+    "D9": {
+      "name": "scene-meta gates",
+      "ranges": [],
+      "persistence": "none",
+      "indexed": false,
+      "lifecycle": "A flag index read from a scene-meta command stream (SceneCmd_Branch, opcode $13 <flag> <label>) at scene load. TestFlagRaw masks the index to a byte, so only flags $0000-$00FF can gate. The 18 gates of 11 records use nine indices, all D2: $21, $4C, $70, $7B, $7E, $88, $96, $B3, $F4. A set flag skips to the unique $14 label (possibly in another record); a clear flag continues with the next command.",
+      "access": "$13 <flag> in scene_meta command streams."
+    }
+  },
+  "flags": {},
+  "proposals": {
+    "33": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "ec_throne_room_done",
+        "summary": "Flag $0021 is set by the Edward's Castle throne guards script (ec0A_throne_guards); many South Cape and castle NPCs branch on it, and the Will's house scene-meta record loads the main-character sprite set when it is set (and $004C is clear).",
+        "kinds": ["quest-done"],
+        "roles": [
+          "scene-meta gate (D9): scene $06, tables/scene_meta.asm:388, offset 885063, set -> meta_label_23 (main-character sprites)",
+          "setter: edward_castle/edward_castle/ec0A_throne_guards.asm:126, offset 313156",
+          "readers: 18 COP branch sites in scenes $01, $02, $06, $08, $0A, $0E"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the setter's scene (ec0A_throne_guards); the story meaning belongs to the South Cape / Edward Castle group. FL31 writes the record."
+      }
+    ],
+    "76": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "gs_ship_descent_done",
+        "summary": "Flag $004C is set by the gold ship descent scene; the Will's house scene-meta record loads the shared South Cape interior art and sprites when it is set, and three coastal-cave NPCs branch on it.",
+        "kinds": ["quest-done"],
+        "roles": [
+          "scene-meta gate (D9): scene $06, tables/scene_meta.asm:387, offset 885060, set -> meta_label_01 (scene $03 interior art, then jump $3E for the South Cape sprites)",
+          "setter: gold_ship/ship_gold/gs2C_descent.asm:69, offset 360944",
+          "waiter: gold_ship/ship_gold/gs2C_crow_crew.asm:31, offset 361525; branch readers sc02_lance, sc02_seth, sc02_erik, gs2C_descent"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the setter's file (gs2C_descent); the meaning is not established in FL10."
+      }
+    ],
+    "112": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "sp_palace_fountain_done",
+        "summary": "Flag $0070 is set by the Seaside Palace fountain scene; scene-meta in the palace main and coffin scenes skips the prison-enemy sprite load (jump to meta_label_0C, which loads the Freejia sprite set) when it is set.",
+        "kinds": ["quest-done"],
+        "roles": [
+          "scene-meta gate (D9): scene $5A tables/scene_meta.asm:1319 offset 889167; scene $5C tables/scene_meta.asm:1348 offset 889314; both set -> meta_label_0C (inside the scene $32 record)",
+          "setter: seaside_palace/palace_fountain/sp5D_fountain.asm:78, offset 431259",
+          "readers: 11 COP branch sites in scenes $5A-$5D, $5F-$62, $64, $65"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the setter (sp5D_fountain); the Seaside Palace group settles the meaning."
+      }
+    ],
+    "123": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "mu_hope_statue_west_placed",
+        "summary": "Flag $007B is set when the Statue of Hope is placed on the west pedestal (tiles $06-$0A, $06-$08) of the Mu prayer room; the Mu scene-meta records load the half-drained effect tilemap when it is set.",
+        "kinds": ["gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:1129, offset 234197 (UseItem_StatueOfHope, scene $63 only)",
+          "scene-meta gates (D9): scene $5F tables/scene_meta.asm:1385 offset 889480 (-> meta_label_16); scene $60 :1408 offset 889580 (-> meta_label_19); scene $61 :1425 offset 889649 (-> meta_label_1A); scene $62 :1442 offset 889718 (-> meta_label_1B)",
+          "other readers: mu/mu_tint_and_wave.asm:17, mu63_spirits.asm:23-24, sp5A_monologue.asm:49"
+        ],
+        "confidence": "medium",
+        "notes": "Name from the pedestal coordinates in UseItem_StatueOfHope and the scene-meta effect labels; the sequence of the two statues is not traced."
+      }
+    ],
+    "126": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "mu_hope_statue_east_placed",
+        "summary": "Flag $007E is set when the Statue of Hope is placed on the east pedestal (tiles $16-$1A, $06-$08) of the Mu prayer room; the Mu scene-meta records load the drained effect tilemap when it is set, and the test comes before the $007B test.",
+        "kinds": ["gate-open"],
+        "roles": [
+          "setter: system/inventory/item_use_system.asm:1121, offset 234180 (UseItem_StatueOfHope, scene $63 only)",
+          "scene-meta gates (D9): scenes $5F, $60, $61, $62, $64, $65 -> meta_label_17 (tables/scene_meta.asm:1384, 1407, 1424, 1441, 1469, 1483; offsets 889477, 889577, 889646, 889715, 889833, 889892)",
+          "other readers: mu/mu_prayer_room/mu63_spirits.asm:79-80"
+        ],
+        "confidence": "medium",
+        "notes": "Name from the pedestal coordinates in UseItem_StatueOfHope and the scene-meta effect labels."
+      }
+    ],
+    "136": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "mu_vampire_lair_done",
+        "summary": "Flag $0088 is set by mu67_neil_lily in the Mu vampire lair; three lair actors wait on it, and the scene-meta record of scene $67 loads the Nazca sprite set (meta_label_22) instead of the vampire sprites when it is set.",
+        "kinds": ["cutscene-stage"],
+        "roles": [
+          "scene-meta gate (D9): scene $67, tables/scene_meta.asm:1508, offset 889997, set -> meta_label_22 (inside the scene $49 record)",
+          "setter: mu/mu_vampire_lair/mu67_neil_lily.asm:41, offset 436127",
+          "waiters: mu67_erik.asm:51, mu67_lair_curtain.asm:13, mu67_kara.asm:16"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the scene group; the Mu group settles whether this marks the vampires' defeat or a later cutscene stage."
+      }
+    ],
+    "150": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "wa_festival_night_active",
+        "summary": "Flag $0096 is set by gw8B_lance_lily in the Great Wall and cleared by wa78_glass_game; Watermia NPCs branch on it, the festival palette thinker flashes while it is set, and the scene-meta record of scene $78 loads the dark palette (meta_label_2A) when it is set.",
+        "kinds": ["cutscene-stage"],
+        "roles": [
+          "scene-meta gate (D9): scene $78, tables/scene_meta.asm:1683, offset 890774, set -> meta_label_2A (pal_watermia_dark)",
+          "setter: great_wall/wall_inner/gw8B_lance_lily.asm:61, offset 505825; clearer: watermia/watermia/wa78_glass_game.asm:203, offset 496163",
+          "readers: 9 COP branch sites in scenes $78, $79, $7D, $7F"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the dark palette and the festival palette thinker; no dialog read. The Watermia group settles it."
+      }
+    ],
+    "179": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "aw_entrance_intro_seen",
+        "summary": "Flag $00B3 is a once-latch of the Angkor Wat entrance intro; the native village scene-meta record of scene $AC picks bgm_blessing_of_nature instead of bgm_ominous_whispers when it is set.",
+        "kinds": ["once-latch"],
+        "roles": [
+          "scene-meta gate (D9): scene $AC, tables/scene_meta.asm:2217, offset 893152, set -> meta_label_32",
+          "setter: angkor_wat/angkor_entrance/awB0_intro.asm:18, offset 563183 (after the branch at :17)",
+          "reader: native_village/native_village/nvAC_hamlet.asm:22, offset 558689"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the setter's file (awB0_intro)."
+      }
+    ],
+    "244": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "pr_prophecy_second_page_active",
+        "summary": "Flag $00F4 is set by the title intro (sFC_title_intro) and cleared inside pr8C_prologue1; the scene-meta record of scene $8C loads map_prologue_prophecy_2 instead of map_prologue_prophecy when it is set.",
+        "kinds": ["cutscene-stage"],
+        "roles": [
+          "scene-meta gate (D9): scene $8C, tables/scene_meta.asm:1901, offset 891790, set -> meta_label_36",
+          "setter: system/title_screen/sFC_title_intro.asm:49, offset 772466; clearer: prologue/prologue_prophecy/pr8C_prologue1.asm:122, offset 772898",
+          "readers: pr8C_prologue1.asm:27 (branch when clear), pr8C_prologue5.asm:24 (branch when set)"
+        ],
+        "confidence": "low",
+        "notes": "Name guessed from the map label; the prologue group settles the meaning."
+      }
+    ],
+    "255": [
+      {
+        "source": "FL10",
+        "scope": null,
+        "name": "sys_scene_setup_done",
+        "summary": "Flag $00FF (bit 7 of $0A1F) is the scene-setup-complete latch: ClearSceneState and the inventory overlay clear it while they rebuild the scene and set it again at the end; palette and HDMA thinkers set it themselves and park on it.",
+        "kinds": ["engine"],
+        "roles": [
+          "clearer: system/engine/scene_lifecycle.asm:842-844, offset 253418-253423 (direct LDA/AND #$7F/STA $eventFlagsF8toFF); system/inventory/inventory_overlay.asm:131-133, offset 191814-191819",
+          "setter: scene_lifecycle.asm:886, offset 253564 (COP SetFlagByte #FF); inventory_overlay.asm:255, offset 192190; 10 SetFlagByte sites in thinkers and actors (one in unused/)",
+          "readers: 20 BranchOnFlagByte and 6 WaitOnFlagByte sites in thinkers and scene scripts"
+        ],
+        "confidence": "medium",
+        "notes": "Engine-owned spine flag; FL31 writes the record. Whether a thinker that waits on it resumes after an inventory open and close is not checked."
+      }
+    ]
+  }
+}

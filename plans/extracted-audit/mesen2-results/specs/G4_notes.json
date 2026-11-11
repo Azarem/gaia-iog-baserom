@@ -1,0 +1,17 @@
+{
+  "_note": "G4 draft (2026-11-09, ROM O). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/G4_notes.json --dry-run. Source: mesen2-results/G4_20261109.md, raw/G4_sweep_all.json, raw/G4_tier_diary.json. One entry: the hit_stagger_controller block note names the writers of the knockback tier byte (free101C) as complete, but DiaryStartSlotLoop (sFA_diary_menu, tag 779122) also stores $0C in it (measured: 130 stores of 0C at pc 779126 from the diary menu actor, slot $1000, in 300 frames). That actor is never a hit victim, so the threshold sentence for tiers 2 and above stays true in the form 'no hit victim has such a tier'. No names spec: no label changes.",
+  "actors/hit_stagger_controller.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the only writers in extracted/ are CopyActorState (zero), those three and this file (copy to the child).",
+          "with": "the writers in extracted/ are CopyActorState (zero), player_character, mu5F_cyclops, this file (copy to the child) and DiaryStartSlotLoop in sFA_diary_menu, which stores $0C in the diary menu actor's own free101C as a camera pan step budget (that actor is never a hit victim)."
+        },
+        {
+          "find": "and could never match (no actor uses them).",
+          "with": "and could never match (no hit victim has such a tier: the values stored in extracted/ for an actor that can be hit are 0 and 1)."
+        }
+      ]
+    }
+  }
+}

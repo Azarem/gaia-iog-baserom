@@ -1,0 +1,29 @@
+{
+    "system/functions/vram_buffer_clear.asm": {
+        "blockNote": { "edit": [
+            { "find": "VRAM buffer clear — zeroes the BG3 tilemap staging buffer", "with": "BG3 tilemap buffer clear — zeroes the BG3 tilemap staging buffer" }
+        ] },
+        "comments": {
+            "192634": { "text": "Full clear: zero-fill the entire BG3 tilemap staging buffer ($7F:0200)", "expect": "LDA" }
+        }
+    },
+    "system/engine/GlobalInputHandler.asm": {
+        "comments": {
+            "229547": { "text": "Clear the BG3 staging buffer below the HUD rows to remove the radar/pause graphics", "expect": "JSL" },
+            "229556": { "text": "Set displayModeFlags bit 0 ($01) = BG3 staging buffer has pending data for next VBlank", "expect": "LDA" }
+        }
+    },
+    "system/engine/radar_map_screen.asm": {
+        "comments": {
+            "229643": { "text": "Clear the BG3 staging buffer below the HUD rows before drawing radar content", "expect": "JSL" }
+        }
+    },
+    "system/diary_menu/sFA_diary_menu.asm": {
+        "partNotes": {
+            "DiaryMenuClearVram": "Clear the BG3 tilemap staging buffer — wrapper that preserves registers across the ClearBg3TilemapBuffer_Full call."
+        },
+        "comments": {
+            "779092": { "text": "Clear the BG3 tilemap staging buffer", "expect": "JSR" }
+        }
+    }
+}

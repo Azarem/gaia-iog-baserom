@@ -1,0 +1,73 @@
+{
+  "_note": "N2 (2026-11-09), see mesen2-results/N2_20261109.md. Draft only, dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/N2_notes.json --dry-run. Corrects one wrong note (spriteset_will_abilities: the $20 pose does look like a body, Will lying down), the lunge trigger (a fresh press, not a hold), and replaces five hedges with the measured fact (lunge bounce and damage, sparkle paths, Shadow respawn in $E8, adrift palette look, statue confetti count). The apply pass decides.",
+  "tables/spriteset_will_abilities.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "which does not look like a body pose (OQ-I072-5)",
+          "with": "and they draw Will lying on the ground: two 16x16 sprites side by side (OAM tiles 0 and 2 at the player's place), seen on the raft in dc2F_adrift after the entry was set the way code_059C7A sets it"
+        }
+      ]
+    }
+  },
+  "actors/player/player_character.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again.",
+          "with": "extendedFlags $0040 (the bounce flag tile_collision_physics reads: the first wall contact clears it, sets $6000 in $12 and the rest of the curve runs backwards, so the lunge rebounds; a south lunge from a wall-adjacent spot went 3 px per tick down, hit the wall and came back up the remaining 14 steps of 3 and 4 of 1); the exits clear $0200 and $0040 again. The bonus is real: a bat with defence 0 lost 1 HP to the swing and 2 HP to the lunge."
+        }
+      ]
+    },
+    "partNotes": {
+      "RangedAttackSouth": {
+        "edit": [
+          {
+            "find": "when Will (form 0) holds the facing direction during the swing.",
+            "with": "when Will (form 0) presses the facing direction anew while the swing plays. Holding it from the attack press does not lunge: AttackInit consumes the held direction in joypadHeld, so only a fresh press reaches the BranchIfPressed #$0400 (the lunge started on the tick of that press, with the D-pad released for the first five ticks of the swing)."
+          }
+        ]
+      }
+    }
+  },
+  "functions/game_over_sequence.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "presumably because that fight is played as Shadow",
+          "with": "measured: a game over in $E8 with 0 gems respawns as form 2 at the saved warp (scene $1B in the test) with full HP and the flags cleared; the code does not say why"
+        }
+      ]
+    },
+    "partNotes": {
+      "GameOverSparkleOrbitA": {
+        "edit": [
+          {
+            "find": "so the sparkle swings out and back around the player, passing behind and in front (inferred from the signs; not run).",
+            "with": "so each sparkle runs a closed ellipse about 51 px wide and 36 px tall with a period of 42 ticks (21 behind, 21 in front): behind the other actors on the upper half, in front on the lower half. The three sparkles run the same ellipse at three heights (centres 16 px apart) and none rises. In scene $E8 the three sparkle actors live 107, 104 and 99 ticks, and a sparkle sprite is on screen in 81 of the 107 ticks (it drops out for one or two ticks at every restart of the animation)."
+          }
+        ]
+      }
+    }
+  },
+  "thinkers/gold_ship_wreck_palette.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "What $4D and $52 mean in story terms (adrift day / night / starvation phase) and what the colours depict is not decoded.",
+          "with": "On screen in scene $2F: with neither flag the sea is daytime blue (the Day 2 state), with $4D it is a red-brown dusk (Day 4 and Day 21), with $52 it is a dark night (Day 12); the flags were set for each $0AA6 state as the static reading of dc2F_adrift gives them. Why the story picks those looks beyond that is not decoded."
+        }
+      ]
+    }
+  },
+  "system/statue_inventory/statue_inventory_reward.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "so only about one burst in four is visible.",
+          "with": "so exactly 15 of the 60 bursts show (the spawn ticks with $36 a multiple of 4: 252, 256, ... 308); a burst lives 21 ticks and at most 6 are on screen at once."
+        }
+      ]
+    }
+  }
+}

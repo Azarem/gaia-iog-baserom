@@ -1,0 +1,93 @@
+{
+  "_note": "Follow-up to ledge-jump.json. (1) mnemonics $09E0 climbStateData -> abilityDamageBonus (applied to every player hit: Will's Psycho Dash / Slider / Spin Dash table byte, and the lunge's 1) and $09E2 climbStateData+2 -> rangedDamageBonus (Freedan's table byte, added by combat_collision only when the hitter is not the player actor, slot $1000; docs/ram_map.txt: 'Current attack damage bonus' / 'Additional ranged attack damage bonus'). (2) LockPlayerForClimb / UnlockPlayerAfterClimb -> ...Glide (only the Psycho Slider glide triggers call them), awB2_stair_climb -> awB2_slider_glide_trigger. (3) pyD0_breakable_wall -> pyD0_ledge_jump_trigger with the behaviour measured in Mesen2 (scene $D0, probe temp/pyd0_probe.py + temp/bgdiff_probe.py). Pairs with renames/apply-glide-ledge2_names.json (applied first) and the db-us/mnemonics.json edit.",
+
+  "actors/player/player_character.asm": {
+    "blockNote": { "edit": [
+      { "find": "climbStateData = 1 (the Will ability damage bonus combat_collision adds)", "with": "abilityDamageBonus = 1 (the ability damage bonus combat_collision adds)" }
+    ] },
+    "partNotes": {
+      "PlayerIdleEntry": { "edit": [
+        { "find": "(the block marker) and climbStateData;", "with": "(the block marker) and abilityDamageBonus;" }
+      ] },
+      "RangedAttackSouth": { "edit": [
+        { "find": "playerFlags $0800, climbStateData = 1,", "with": "playerFlags $0800, abilityDamageBonus = 1," }
+      ] }
+    },
+    "comments": {
+      "181219": { "text": "Zero abilityDamageBonus ($09E0), the ability damage bonus that the lunge sets to 1", "expect": "abilityDamageBonus" },
+      "184148": { "text": null, "expectOld": "Shared ranged setup" },
+      "184155": { "text": "abilityDamageBonus = 1: the ability damage bonus ($09E0) that combat_collision adds; PlayerIdleEntry zeroes it", "expect": "abilityDamageBonus" }
+    }
+  },
+
+  "actors/player/attack_ability_system.asm": {
+    "blockNote": { "edit": [
+      { "find": "stores record[4 + level] to climbStateData ($09E0, Will) or $09E2 (Freedan)", "with": "stores record[4 + level] to abilityDamageBonus ($09E0, Will) or rangedDamageBonus ($09E2, Freedan)" }
+    ] },
+    "partNotes": {
+      "ComputeParentOffset": { "edit": [
+        { "find": "to climbStateData ($09E0 Will, $09E2 Freedan)", "with": "to abilityDamageBonus ($09E0, Will) or rangedDamageBonus ($09E2, Freedan)" }
+      ] }
+    },
+    "comments": {
+      "181088": { "text": "abilityDamageBonus ($09E0) = Will ability damage bonus for the current level (Psycho Dash 5/10, Slider 5/8, Spin Dash 4/7)", "expect": "abilityDamageBonus" },
+      "181127": { "text": "rangedDamageBonus ($09E2) = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7)", "expect": "rangedDamageBonus" }
+    }
+  },
+
+  "tables/ability_damage_tables.asm": {
+    "blockNote": { "edit": [
+      { "find": "store record[4 + level] in climbStateData ($09E0 for Will, $09E2 for Freedan)", "with": "store record[4 + level] in abilityDamageBonus ($09E0 for Will) or rangedDamageBonus ($09E2 for Freedan)" }
+    ] }
+  },
+
+  "system/engine/combat_collision.asm": {
+    "blockNote": { "edit": [
+      { "find": "totalStr = playerStr + bonus + climbStateData      (bonus = $09E2, 0 when the hitter is actor slot $1000)", "with": "totalStr = playerStr + rangedDamageBonus + abilityDamageBonus   (rangedDamageBonus = $09E2, 0 when the hitter is actor slot $1000)" }
+    ] },
+    "partNotes": {
+      "ApplyHitDamageToVictim": { "edit": [
+        { "find": "totalStr = playerStr + bonus ($09E2, 0 for hitter slot $1000) + climbStateData", "with": "totalStr = playerStr + rangedDamageBonus ($09E2, 0 for hitter slot $1000) + abilityDamageBonus ($09E0)" }
+      ] },
+      "ApplyHitDamageToVictim_DamagePath": { "edit": [
+        { "find": "totalStr = playerStr + bonus + climbStateData, rawDamage", "with": "totalStr = playerStr + rangedDamageBonus + abilityDamageBonus, rawDamage" }
+      ] }
+    },
+    "comments": {
+      "245652": { "text": "$20 = rangedDamageBonus term: 0, or $09E2 unless the hitter ($08) is actor slot $1000; totalStr = playerStr + that term + abilityDamageBonus ($09E0)", "expect": "STZ" }
+    }
+  },
+
+  "system/engine/slider_glide.asm": {
+    "blockNote": { "edit": [
+      { "find": "plus clearing climbStateData ($09E0, in fact the ability damage bonus that attack_ability_system sets for the slide)", "with": "plus clearing abilityDamageBonus ($09E0, the ability damage bonus that attack_ability_system sets for the slide)" },
+      { "find": "triggers and climb handlers", "with": "triggers and glide routines" }
+    ] },
+    "partNotes": {
+      "UnlockPlayerAfterGlide": { "edit": [
+        { "find": "zeroes climbStateData ($09E0, the ability damage bonus)", "with": "zeroes abilityDamageBonus ($09E0, the ability damage bonus set for the slide)" }
+      ] }
+    },
+    "comments": {
+      "53409": { "text": "Mask D-pad buttons ($0F00) in joypadMaskStd — no input during the glide", "expect": "LDA #$0F00" },
+      "53418": { "text": "Set playerFlags $0800 (script/ability lock — glide active)", "expect": "TSB" },
+      "53422": { "text": "Zero abilityDamageBonus ($09E0), the ability damage bonus set for the slide; the slide's own cleanup is skipped, so zero it here", "expect": "abilityDamageBonus" }
+    }
+  },
+
+  "pyramid/pyD0_ledge_jump_trigger.asm": {
+    "blockNote": [
+      "Pyramid scenes $D0 (Meltdown A) and $D1 (Meltdown B), one placement each: a one-shot trigger that starts a ledge jump (LedgeJumpEntry). The old name and note (breakable wall, hit points, debris, 'used extensively in the maze-like corridors') do not match the code: there is no HP counter, no hit test, no spawn, and only these two scenes place it.",
+      "",
+      "The actor's $0E word (copied to $26) picks the variant: 0 uses flag word $0170 and BG change #70, anything else flag word $0171 and BG change #71. The actor dies at once when its flag word is set.",
+      "",
+      "Gate (every pass): the player's body spriteset bank byte ($7F0008 + player slot) must be $95 (Will) or $8E (Freedan) and the player's animation index ($28) must be $1C, which LedgeJumpLand stages on a ledge-jump landing (the pose $1C is also staged by other player code); then BranchIfPlayerNear #01 decides whether the gate opens.",
+      "",
+      "First pass ($24 = 0): sets $24 = 1, converts the actor's $14 / $16 to tile coordinates (the pixel values are saved in orbitAngle / orbitDiameter and restored), and draws metatiles #E8 and #E9 side by side with DrawMetatileHere at (tile X, tile Y - 1) and (tile X + 1, tile Y - 1). Measured in Mesen2 in scene $D0: the two cells (38, 20) and (39, 20), just north of the actor at tile (38, 21), change from collision type $00 to $0E (solid).",
+      "",
+      "Second pass ($24 is 1, entered after the player has left the near zone and lands again): plays sound #15, applies BG change #70 / #71 (55 tilemap words changed in scene $D0), sets the flag word, clears actor flag $0008 and sets $0200 in the player's $10, writes player_character.LedgeJumpEntry into the player actor (address +$00, bank byte +$02, $08 and $2A zeroed) and dies. In Mesen2 the player's entry word became LedgeJumpEntry (animation $18, actor flags $8700) and the player fell; a narrow brick strip appeared in the dark pit south of the player.",
+      "",
+      "Only the forced sequence was tested (the animation index was poked to $1C next to the actor): how the player reaches the gate in normal play, and what the two metatiles are meant to look like, was not watched. The jump starts because this script writes LedgeJumpEntry, with no type $08 cell involved (same as awB3_ledge_jump_trigger)."
+    ]
+  }
+}

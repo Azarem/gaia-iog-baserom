@@ -1,0 +1,83 @@
+{
+  "_note": "P1 (2026-11-09), see mesen2-results/P1_20261109.md. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/P1_notes.json --dry-run. Comment keys are the keys of the stored comments (expectOld guards them). 'find' must occur exactly once in the stored note.",
+  "thinkers/global_ambient_dispatcher.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "In the vanilla layout it is the B button (remapB); in this build transforms.json rewrites the system_init defaults to remapA = $8080 and remapB = $4008, so the A button feeds it (together with the attack bit $0080).",
+          "with": "The button that feeds it follows the remap table ($0DA6-$0DB4): in the vanilla Type 1 map (the table after a new game or a slot load) physical A gives $8000 and physical B gives $4000; in the identity map (title screen, diary, Button Type 2) physical B gives $8000. In this build transforms.json rewrites the system_init defaults to remapA = $8080 and remapB = $4008, so physical A feeds the interact bit together with the attack bit $0080, and physical B never does (it gives cancel $4000 and item use $0008)."
+        }
+      ]
+    },
+    "comments": {
+      "49098": {
+        "text": "Interact bit: physical A in this build and in the vanilla Type 1 map, physical B only in the identity map (see the block note)",
+        "expect": "BIT #$8000"
+      }
+    }
+  },
+  "system/engine/GlobalInputHandler.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the item-use button (Y $4000 in the vanilla game; this baserom's button-remap patch tests logical bit $0008 instead, applied through transforms.json)",
+          "with": "the item-use button (logical $4000 in the vanilla game: physical B in the Type 1 map, physical Y in the identity map; this baserom's button-remap patch tests logical bit $0008 instead, applied through transforms.json, and physical B gives it)"
+        },
+        {
+          "find": "Item use (vanilla Y $4000, logical $0008 here)",
+          "with": "Item use (logical $4000 in the vanilla game, $0008 here)"
+        },
+        {
+          "find": "and vanilla Y ($4000) as consumed on return",
+          "with": "and logical $4000 (the vanilla item-use bit) as consumed on return"
+        }
+      ]
+    },
+    "partNotes": {
+      "GlobalInputHandler": {
+        "edit": [
+          {
+            "find": "routes Start, Select, and Y buttons to map, inventory, and item use.",
+            "with": "routes the Start, Select and item-use buttons to map, inventory and item use."
+          },
+          {
+            "find": "(vanilla Y $4000, logical $0008 here) → item use.",
+            "with": "(logical $4000 in the vanilla game, $0008 here) → item use."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "229425": {
+        "text": "Item-use bit: logical $0008 here (physical B gives $4008), $4000 in the vanilla game (physical B in Type 1) → use equipped item",
+        "expect": "BIT #$0008"
+      },
+      "229453": {
+        "text": "$6000 = Select + logical $4000 (the vanilla item-use bit): consume both on return so neither re-triggers at once (logical $0008 is not included)",
+        "expect": "LDA #$6000"
+      }
+    }
+  },
+  "tables/body_table.asm": {
+    "partNotes": {
+      "body_table": {
+        "edit": [
+          {
+            "find": "Not traced: whether GetPlayerFacingDirection runs while row 8 is active.",
+            "with": "With $0AC8 = 8 forced and playerFlags bit 15 set, the call reads that word ($0100), subtracts the table address and adds the player animation frame; the long-indexed load then crosses from bank $83 into bank $84 offset $0100 + frame, which is the low WRAM page ($7E:0100 + frame, the stack page), not ROM, so the result is whatever that byte holds. Not traced: whether GetPlayerFacingDirection runs while row 8 is active."
+          }
+        ]
+      }
+    }
+  },
+  "functions/EscortFollowPathTracker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "whether a caller can reach that case is not traced.",
+          "with": "FacingDirectionLookup holds 4 at the player animation frames $4A-$4F and $54-$57, and the Will ability table holds 4 at frames $18-$1A; the tracker tests neither the carry nor the range. Whether a tracker call coincides with one of those frames is not traced (observed in the Lily scene while the player walked: 10 calls, A = 1 or 2, carry clear)."
+        }
+      ]
+    }
+  }
+}

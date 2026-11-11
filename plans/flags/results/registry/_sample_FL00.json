@@ -1,0 +1,69 @@
+{
+  "_note": "FL00 sample fragment. Keys starting with _ or $ are ignored. A persistent flag (D2) with a global meaning, and one scene-scratch flag (D1) whose index means different things in two scenes. Not applied to db-us/flags.json.",
+  "flags": {
+    "63": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_lance_letter_shown",
+          "area": "edward_castle",
+          "summary": "Will showed Lance's letter to the Edward's Castle left guard.",
+          "stage": "act1.edward_castle",
+          "kinds": ["quest-guard", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ec0A_left_guard skips the intrusion dialog and clears the joypad lock bits ($CFFC of joypadMaskStd $065A).",
+            "clear": "ec0A_left_guard sets the joypad lock bits ($CFFC) on spawn and waits for the letter dialog, so the player cannot move."
+          },
+          "evidence": [
+            "extracted/edward_castle/edward_castle/ec0A_left_guard.asm:17",
+            "extracted/edward_castle/edward_castle/ec0A_left_guard.asm:30",
+            "extracted/edward_castle/edward_castle/ec0A_left_guard.asm:32"
+          ],
+          "notes": "Runtime control (scene $0A with and without the flag) is recorded in db-us/scene-flags.json (source); FR00 turns it into a VERIFIED-RUNTIME result."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [28] },
+          "name": "ir_lily_dialog_req",
+          "area": "incan_ruins",
+          "summary": "Lily has printed her dialog line and waits for Kara to answer.",
+          "stage": "act2.incan_ruins",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "ir1C_kara leaves WaitOnFlagByte(#02, #01) and clears the flag.",
+            "clear": "ir1C_lily leaves WaitOnFlagByte(#02, #00) and continues."
+          },
+          "evidence": [
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:71",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_lily.asm:72",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_kara.asm:41",
+            "extracted/incan_ruins/incan_ruins_entrance/ir1C_kara.asm:46"
+          ],
+          "notes": "Producer: ir1C_lily (sets, then waits for clear). Consumer: ir1C_kara (waits for set, then clears)."
+        },
+        {
+          "scope": { "scenes": [40] },
+          "name": "ir_ceiling_trap_b_sprung",
+          "area": "incan_ruins",
+          "summary": "The second ceiling trap trigger of the room has fired.",
+          "stage": "act2.incan_ruins",
+          "kinds": ["once-latch"],
+          "grade": "INFERRED",
+          "evidence": [
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:46",
+            "extracted/incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm:47"
+          ],
+          "queue": ["FL00-SAMPLE-01"],
+          "notes": "Name from the test-then-set-then-spawn pattern (SpawnAfterAbsFlags of ec_proximity_door_toggle); not read in full. Sample record."
+        }
+      ]
+    }
+  }
+}

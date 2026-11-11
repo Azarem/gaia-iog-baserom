@@ -1,12 +1,10 @@
-; Crow's nest lookout — triggers the ship departure storm sequence.
+; Crow's nest lookout of the Gold Ship. The phases are keyed on two event flags: $4C (set by gs2C_descent when the ship leaves the cave) and $4F (set by this actor's first interaction).
 ; 
-; Multi-phase actor: before flag $4F, spawns a child thinker that
-; handles the storm palette flash (oneshot_backdrop_fade_out_1C).
-; Interaction triggers the "set sail" sequence with flag $4C.
-; When the storm event flag $4F is set, manages the transition
-; to the adrift sequence. Uses vblank_joypad for timing and
-; hardware register writes (TM, CGADSUB, COLDATA) for the
-; storm visual effects.
+; Flag $4F already set at spawn: no sequence runs; the actor clears bit $2000 of its flag word, sets musicRoomGroup to 2 and idles (SetEntryHere + RTL).
+; 
+; Flag $4F clear: the actor waits for flag $4C, spawns the child code_05857A and clears bit $2000 of its flag word. The child writes TM $15, CGADSUB $A1 and COLDATA $E0 every frame (dark cave tint) until flag $4F is set, then dies. The interaction handler code_0584A9 prints the guard's "the ship is coming out of the cave" line on the first talk and sets flag $4F; later talks print the closing line.
+; 
+; Flag $4F set while waiting: the lookout masks the joypad (joypadMaskStd), starts music $03, waits 2 ticks and a vblank, clears backdropColors, writes COLDATA $FF, TM $17 and CGADSUB $A2, waits 60 ticks, spawns oneshot_backdrop_fade_out_1C (the backdrop ramp), waits 192 ticks, writes CGADSUB $22, waits 120 ticks, prints the closing line and releases the joypad mask. vblank_joypad supplies the vblank wait.
 ---------------------------------------------
 
 ?INCLUDE 'oneshot_backdrop_fade_out_1C'

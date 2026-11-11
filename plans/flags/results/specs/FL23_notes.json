@@ -1,0 +1,173 @@
+{
+  "_note": "FL23 draft: shipped notes that the code contradicts (Gold Ship and Freejia). Every block note is a full-text replacement (the spec format has no partial edit). Apply in the apply pass (plan section 7) after a fresh extract:lt. Docs that cannot go through merge are listed in the report, section 'Contradictions'.",
+  "thinkers/gold_ship_wreck_palette.asm": {
+    "blockNote": [
+      "Palette-phase thinker of the Gold Ship wreck scenes (Bank 00, 46705-46802). Three scene_thinkers lists spawn it (0CE87F, 0CE890, 0CE8A1) and five scenes run it: $2B (0CE87F), $2C (0CE87F+4, which skips the first record), $2D (0CE8A1), $2E (0CE8A1+8, which skips the first two records) and $2F (0CE890), all Gold Ship scenes. The flags it reads, $4D and $52, are set and cleared by dc2F_adrift (also gs2E_sleep and gs2B_erik).",
+      "",
+      "=== PHASE PICK (spawn only) ===",
+      "",
+      "The two flag tests run once when the thinker spawns; the loops after them never return to the tests, so the phase is fixed for the scene visit (scene $2F reloads for each adrift 'day', which re-spawns the thinker with the then-current flags). Flag $52 set: final phase. Else flag $4D set: GoldShipWreckPaletteFlag4D (bundle #34 once, then the #33 loop). Neither: default.",
+      "",
+      "=== DEFAULT: bundle #1A forever ===",
+      "",
+      "A 12-strip palette cycle on colours $21-$2C (palette 2, colours 1-12): each strip is a 24-byte window that slides one colour at a time (wait 2-5), the peak colour $4164 a bright blue, so a highlight travels through the 12 colours. PaletteStart + PaletteStep play all strips and BRA repeats. It reads as a water glint cycle (an inference from the colours).",
+      "",
+      "=== FLAG $4D: GoldShipWreckPaletteFlag4D ===",
+      "",
+      "Bundle #34 once (a one-shot: 16 colours at $70, palette 7, and one colour at $59), then the scene-setup latch $FF is set and bundle #33 (the same 12-strip cycle as #1A with other colour values) loops while $FF stays set. When the latch is cleared (next scene setup or inventory open) the thinker restarts with #34. #34 plays once per latch cycle.",
+      "",
+      "=== FLAG $52: GoldShipWreckPaletteFlag52 ===",
+      "",
+      "Kills the thinker at the list head ($5A) and the one in the next pool slot (+$10): the first two thinkers spawned, which are scanline_band_hdma_thinker records 0 and 1 in all three lists (pool slots are handed out in ascending order from $0F00). KillThinker works on the slot in X and uses D only for its operand pointer, so D can stay on this thinker. Then it fills palette-buffer bytes $7F0A40-$7F0A5F, colours $20-$2F (palette 2), with $1421 (very dark blue, R1 G1 B5) so the colours the cycle used stay flat, sets colour 0 ($7F0A00) to $1442, applies bundle #36 (17 colours at $50, 16 at $70), sets $FF and waits for the latch to clear before repeating the fill and #36 (the kills are not repeated).",
+      "",
+      "What $4D and $52 mean in story terms (adrift day / night / starvation phase) and what the colours depict is not decoded."
+    ]
+  },
+  "gold_ship/ship_wreck/gs2B_wreck_wave_motion.asm": {
+    "blockNote": [
+      "Wave motion parallax controller for the Gold Ship scenes.",
+      "",
+      "Placed in scenes $2B-$2F (the wreck, the ship deck, the wreck interior, the gold interior and the adrift scene). At spawn it subtracts $20 from cameraDeltaY in scenes $2D and $2E only (the test is scene >= $2D and < $2F). Each frame it adds orbitAngle to cameraDeltaY while orbitDiameter counts down, to create the visual effect of the ship bobbing on waves; in scene $2F it then copies cameraDeltaY to cameraTargetY. Uses chatPtr, orbitAngle and orbitDiameter for sinusoidal wave timing."
+    ]
+  },
+  "gold_ship/ship_gold/gs2C_descent.asm": {
+    "blockNote": [
+      "Ship departure sequence — the Gold Ship leaves the cave (scene $2C).",
+      "",
+      "Flag $4C clear: sets the joypad lock ($EFFC), sets the word flag $0185, writes TM = $15, CGADSUB = $B1 and COLDATA = $FF, places Will at pixel (D0,20) and starts player_character.loc_02C63B on him, then tests each frame (SetEntryHere) whether Will is at (D0,240). There it sets the joypad lock again, spawns oneshot_backdrop_fade_out_1C, waits #BF, sets $4C, prints 'This is the Incan Gold Ship?!', releases the joypad lock and dies.",
+      "",
+      "Flag $4C set: the actor dies at once (code_0581FD). No music command is run by this actor."
+    ]
+  },
+  "gold_ship/ship_gold/gs2C_crow_crew.asm": {
+    "blockNote": [
+      "Crow's Nest guard on the Gold Ship deck (scene $2C) — brightness sequence when the ship leaves the cave.",
+      "",
+      "Flag $4F set: code_058498 sets musicRoomGroup to 2 and idles. Flag $4F clear: waits for $4C (set by gs2C_descent), spawns a helper actor (code_05857A) that writes TM = $15, CGADSUB = $A1 and COLDATA = $E0 every frame and dies when $4F is set, and waits for $4F. The talk handler (code_0584A9) prints 'Oh short King, look there. The ship is coming out of the cave!' and sets $4F; later talks print the 'brightness is like a new beginning' dialog.",
+      "",
+      "When $4F becomes set the script sets the joypad lock ($EFFC), starts music #03, waits one frame and calls vblank_joypad.VBlankWaitAndJoypad, blacks the backdrop colour, writes TM = $17, CGADSUB = $A2 and COLDATA = $FF, waits #3B, spawns oneshot_backdrop_fade_out_1C, waits #BF, writes CGADSUB = $22, waits #77, prints the guard's dialog, releases the joypad lock and falls into code_058498."
+    ]
+  },
+  "gold_ship/ship_gold_interior/gs2E_queen.asm": {
+    "blockNote": [
+      "The Queen of the Gold Ship — key NPC of scene $2E.",
+      "",
+      "Flag $4F clear: spawns a helper actor (code_058B07) that writes TM = $15 every frame and dies when $4F is set. Both paths then continue into code_058A0F: the Queen is nudged +8 in X and gets a talk handler. First talk (flag $4E clear): the long welcome dialog (the Mystic Statue of the Wind, the Incan royal family backstory) and sets $4E; later talks print dialogstring_058A30+M.",
+      "",
+      "Central character in the Gold Ship's backstory about the Incan royal family."
+    ]
+  },
+  "gold_ship/ship_gold_interior/gs2E_sleep.asm": {
+    "blockNote": [
+      "Bed of the Gold Ship (scene $2E) — trigger of the Shira dream.",
+      "",
+      "The actor is solid with a talk handler: flag $4E clear or $4F clear gives 'Looking around the ship? ... rest in this bed'; $4E, $4F and $F8 all set gives 'try to get some rest'; $4E and $4F set with $F8 clear gives the first line again. The script waits for $4E and $4F, sets musicRoomGroup to 2 and then tests $F8 each frame (set by the Mystic Statue ceremony of scene $FD). With $F8 set it tests each frame whether Will stands on tiles (0B,04)-(0C,06). Then it sets the joypad lock ($CFFC), prints 'I fell into a deep sleep...', holds Will in player_transition_handlers.PlayerPoseHold 8 pixels higher, waits #3B, sets $4D, sets musicRoomGroup to 0 and queues scene $2A (the dream with gs2A_shira). No form change is made in this file."
+    ]
+  },
+  "gold_ship/dream/dream_palette_loop.asm": {
+    "blockNote": [
+      "Thinker of the Shira dream (scene $2A) — palette animation #35.",
+      "",
+      "Loops PaletteStart #35 plus PaletteStep, then sets the scene-setup latch $FF and waits until $FF is cleared outside this block (WaitOnFlagByte(#FF, #00)), then branches back to the start. The loop has no exit in this block; the KillThinker at loc_00B6E2 is not reached from it."
+    ]
+  },
+  "gold_ship/dream/dream_zoom_controller.asm": {
+    "blockNote": [
+      "Camera zoom controller for Will's dream about his mother (scene $2A).",
+      "",
+      "Waits for scratch flag $0E (set by gs2A_shira in its talk handler). Then it writes $00F6 = $0088 minus bg1ScrollH and $00FA = $0180 minus mapScrollV, starts $00FE at $00A0, lowers $00FE by 2 each frame and dies when $00FE is below $0040."
+    ]
+  },
+  "gold_ship/adrift/dc2F_adrift.asm": {
+    "blockNote": [
+      "Adrift at sea — multi-day starvation sequence after the ship is set adrift.",
+      "",
+      "The longest cutscene script in the game (~608 lines). Covers the",
+      "crew's days of drifting: day-by-day text transitions, starvation",
+      "mechanics that damage the player's HP, enemy stat changes for",
+      "the weakening crew, palette fades to represent passing time,",
+      "and the eventual rescue. Uses hpToHeal for visual HP",
+      "drain effects. Includes",
+      "player_transition_handlers for cutscene movement control."
+    ]
+  },
+  "gold_ship/ship_wreck_interior/gs2D_lily.asm": {
+    "blockNote": [
+      "Lilly in the wrecked Gold Ship interior (scene $2D) — wakes Will, then reacts to the Queen's ring.",
+      "",
+      "Flag $50 clear (first visit): sets $50, sets the joypad lock ($CFFC), holds Will in player_transition_handlers.PlayerPoseHold, waits #1D, prints 'Will! Wake up!', waits #3B, returns Will to player_character.PlayerIdleEntry, releases the joypad lock ($EFFC) and falls into code_058CFF. Flag $50 set: starts at code_058CFF.",
+      "",
+      "code_058CFF: waits for scratch flag $01 (set by gs2D_mummy's first talk), is placed at tile (1D,0D) and walks, waits for scratch flag $02 (set by gs2D_mummy's dialog), prints the ring dialog, starts music #1B, shakes the camera three times with camera_drift (CameraDriftLoopShip), prints Kara's 'What?', starts music #06, sets musicRoomGroup to 1, installs the talk handler code_058DB6 and releases the joypad lock ($EFFC). From then on each frame it tests RngByte AND $E0 and, when the result is not zero, stores it in $08 and spawns another camera shake. The talk handler before the ring dialog is code_058DB1."
+    ]
+  },
+  "gold_ship/ship_wreck_interior/gs2D_lance.asm": {
+    "blockNote": [
+      "Lance in the wrecked Gold Ship interior (scene $2D) — triggers the Seth cutscene on approach.",
+      "",
+      "Before scratch flag $01 (set by gs2D_mummy's first talk): solid NPC at its spawn tile with the talk handler code_059028. After flag $01: clears the solid mark, moves to tile (0F,0D) (frame #05) and tests each frame whether Will is within 3 tiles (BranchIfPlayerNear). When Will is near it sets the joypad lock ($EFFC), prints 'Are you OK?', waits #3B, shakes the camera with camera_drift (CameraDriftLoopShip), waits #B3, prints Seth's scream with Lance's reply, sets persistent flag $51, removes the talk handler, walks off, releases the joypad lock and dies."
+    ]
+  },
+  "gold_ship/ship_wreck_interior/gs2D_kara.asm": {
+    "blockNote": [
+      "Kara in the wrecked Gold Ship interior (scene $2D).",
+      "",
+      "Solid NPC with two talk handlers, switched by scratch flag $02 (set by gs2D_mummy's dialog): before it she says 'They perished waiting for the King's return...'; after it she says only 'What . . . ?'."
+    ]
+  },
+  "freejia/freejia/fr32_locked_door.asm": {
+    "blockNote": [
+      "Locked door in Freejia (scene $32).",
+      "",
+      "Solid door actor. It tests no flag and applies no background change. At spawn, when Will is within #01 tile (BranchIfPlayerNear), it shows frame #00, sets the joypad lock ($CFFC) for #1D ticks and plays sound #0E; then (and otherwise at once) it shows frame #01, marks itself solid and sets the talk handler, which always prints 'It's locked from the inside...'."
+    ]
+  },
+  "freejia/freejia/fr32_alley_guard.asm": {
+    "blockNote": [
+      "Guard blocking the Freejia back alley (scene $32).",
+      "",
+      "Solid actor with a talk handler. The handler compares playerXPos ($09A2) with the guard's own X position ($14): below it prints 'Children don't come here. Go home.'; at or above it prints 'This kid! Where did you come from?! Go home! Go home!!' and sets scratch flag $01, on which the guard's main script clears its solid mark, writes $FFFB to playerSpeedEw ($09B2), waits #1D, clears the flag and marks itself solid again. No story flag is tested."
+    ]
+  },
+  "freejia/freejia/fr32_guide.asm": {
+    "blockNote": [
+      "Hotel guide man in Freejia (scene $32) — leads Will and Kara to the hotel.",
+      "",
+      "Flag $57 clear: spawns the door actor code_05B315 (it opens on scratch flag $05). With $64 clear the guide waits for scratch $02 (set by fr32_kara), walks (StageSpriteLoopMove), prints 'What a cute couple... Have you decided where you're staying tonight?', clears $02, waits for scratch $03, walks to the hotel door and falls into code_05B1F1, where it stands at tile (28,25) with the talk line 'Well, come in.'; with $64 set it starts at code_05B1F1. Flag $57 set: stands at tile (29,24) with the 'Business is terrible' line and spawns town_door.TownDoorInit. The guide sets no flag."
+    ]
+  },
+  "freejia/freejia/fr32_kidnapper.asm": {
+    "blockNote": [
+      "Door of the back-street house where Erik is held (scene $32, from Sam's dialog) and the voice behind it.",
+      "",
+      "First-phase actor (code_05B371): flag $67 set -> dies. Otherwise marks tile (04,0D) solid, waits while off-screen and, when Will enters tiles (05,0E)-(0B,12), moves its sprite, spawns the door actor code_05B3A1 at pixel (0048,00E0) and dies. The door actor is a solid door sprite (spriteset_npc_props frame #01) with a talk handler: flag $66 (Sam told Will) clear prints 'Man's voice: If you don't want to lose your lives, go home!!'; $66 set prints the same line plus Will asking about Erik, sets $67 and marks tiles (08,0E)-(08,11) solid. Once $67 is set the door actor copies palette data, sets joypad mask bit $2000, clears playerFlags bit $0008, calls EnemyInitBasic with HP 5, sets bit $0100 and clears bit $1000 of $10, and prints 'If I don't save Erik...' while Will stands on tiles (07,0E)-(08,12). What a hit does afterwards is the common enemy code, not read here."
+    ]
+  },
+  "freejia/adequacy_manor/fr38_boyfriend.asm": {
+    "blockNote": [
+      "Boyfriend NPC in the Adequacy Manor — caught in a comic scene.",
+      "",
+      "NPC with a single talk line (no flag test). Says: \"She, uh, was just helping",
+      "me... Ha ha ha.\" Part of the couple joke sequence with the",
+      "girlfriend NPC."
+    ]
+  },
+  "freejia/slave_market/fr3C_slaver.asm": {
+    "blockNote": [
+      "Slave market guard (scene $3C).",
+      "",
+      "Solid guard with a talk handler: prints 'Hey, boy! Kids can't come here! Go home! Go home! Or did you come to get a laborer?' with a Yes/No choice. No (or cancel) prints 'Go home! Go home!'. Yes prints 'I like your courage! I don't know what you'd do here, but have a look around.' and sets scratch flag $01; the main script then clears its solid mark, steps aside (StageSpriteMoveX) and shows frame #1A. No story flag is tested."
+    ]
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_MemoryMelody": [
+        "Memory Melody — play in the Freejia hotel (scene $39, Lance's room).",
+        "",
+        "Third melody handler. Requires Will (form 0) and scene $39 with flag $68 clear (Lance's memory is not restored yet). Checks tile region ($13,$18)–($1A,$1D). Music track $1D, melody index 2. Unlike the other melodies, this handler does not use the shared UseItem_FluteConfigureController subroutine — it configures the music actor inline and additionally sets musicParentActor to $0E."
+      ],
+      "UseItem_MemoryMelody_Effect": [
+        "Memory Melody success (melody index 2 of the flute effect table) — removes item $0D, spawns a palette reset thinker and sets scratch flag $0F. In scene $39 fr39_lance waits for $0F, clears it and later sets $68."
+      ]
+    }
+  }
+}

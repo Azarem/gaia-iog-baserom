@@ -1,15 +1,15 @@
 ; Title scene $FC intro actor (Bank 0B, 772391-772487, plus the comet actor and an unreferenced palette-fade stub below it). Spawned with sFC_title_start_handler by scene_FC_actors, the title scene's actor list.
 ; 
-; Loads the title palette, spawns TitleCometSpriteActor, shows two BG3 text strings on a timer and, after a ~42-second idle period (WaitWord $09D3 = 2516 ticks), sets event flag $F4 and queues scene $8C (the prologue). Flag $F4 is tested by pr8C_prologue1 (BranchOnFlagByte, branch when clear) and pr8C_prologue5 (branch when set) and cleared again in pr8C_prologue1, so it marks 'the prologue was started by the title's idle timeout'.
+; Loads the title palette, spawns TitleEarthSpriteActor, shows two BG3 text strings on a timer and, after a ~42-second idle period (WaitWord $09D3 = 2516 ticks), sets event flag $F4 and queues scene $8C (the prologue). Flag $F4 is tested by pr8C_prologue1 (BranchOnFlagByte, branch when clear) and pr8C_prologue5 (branch when set) and cleared again in pr8C_prologue1, so it marks 'the prologue was started by the title's idle timeout'.
 ; 
 ; === DISPLAY LAYERS ===
 ; 
-; TM starts at $10 (OBJ only: the comet sprites are the first thing on screen; the title picture is not on a main-screen layer yet). TitleCometSpriteActor later writes TM = $16 (BG2 + BG3 + OBJ) after its sprite animation, which brings in the title picture and the BG3 text layer.
+; TM starts at $10 (OBJ only: the Earth sprites are the first thing on screen; the title picture is not on a main-screen layer yet). TitleEarthSpriteActor later writes TM = $16 (BG2 + BG3 + OBJ) after its sprite animation, which brings in the title picture and the BG3 text layer.
 ; 
 ; === TEXT TIMING ===
 ; 
 ; Two BG3 text scripts are shown in sequence:
-; - consolestring_01DA5E after WaitByte $B3 (180 ticks, ~3 seconds)
+; - consolestring_01DA5E after WaitByte $B3 (180 ticks; 313 NMI frames, about 5.2 seconds, because the title scene's 135-frame fade-in runs while the wait is armed and no actor tick happens during it)
 ; - consolestring_01DA47 after WaitByte $77 more (120 ticks, ~2 seconds)
 ---------------------------------------------
 
@@ -25,7 +25,7 @@
 sFC_title_intro [
   actor-def < #00, #00, #30, {
 
-; Actor entry: set the display flags, load the palettes (pal_title over CGRAM colours 0-31, then pal_ending_comet over colours 0-7), spawn the comet, set TM = $10, then run the timed text sequence and the idle wait that ends in the queued change to the prologue scene.
+; Actor entry: set the display flags, load the palettes (pal_title over CGRAM colours 0-31, then pal_ending_comet over colours 0-7), spawn the Earth sprite actor, set TM = $10, then run the timed text sequence and the idle wait that ends in the queued change to the prologue scene.
 
   TitleIntroInit:
     LDA #$4001            ; displayModeFlags: bit 14 = HUD off, bit 0 = full BG3 upload request
@@ -34,14 +34,14 @@ sFC_title_intro [
     COP [CopyPalette] ( @pal_ending_comet, #00, #00, #08 ) ; pal_ending_comet: 8 colours over CGRAM colours 0-7 (replaces the first 8 title colours)
     LDA #$0000            ; Colour 0 (backdrop) := black in the palette staging
     STA $cgramPalette
-    COP [SpawnAfterAbsFlags] ( @TitleCometSpriteActor, #$0080, #$0050, #$1800 ) ; Spawn comet actor at (128,80)
+    COP [SpawnAfterAbsFlags] ( @TitleEarthSpriteActor, #$0080, #$0050, #$1800 ) ; Spawn the Earth sprite actor at (128,80)
     SEP #$20
-    LDA #$10              ; TM = $10: OBJ only (comet sprites first)
+    LDA #$10              ; TM = $10: OBJ only (the Earth sprites first)
     STA $TM
     REP #$20
     LDA #$0804            ; gfxCacheIdxB = $0804: transition speed bytes (exit $04, enter $08)
     STA $gfxCacheIdxB
-    COP [WaitByte] ( #B3 ) ; WaitByte #B3 = 180 ticks (~3 sec)
+    COP [WaitByte] ( #B3 ) ; WaitByte #B3 = 180 ticks (operand + 1); the 135-frame fade-in runs between two ticks, so the first string appears 313 NMI frames after this line
     COP [RunBg3Script] ( @system_strings.consolestring_01DA5E ) ; First title text string
     COP [WaitByte] ( #77 ) ; WaitByte #77 = 120 ticks (~2 sec)
     COP [RunBg3Script] ( @system_strings.consolestring_01DA47 ) ; Second title text string
@@ -56,9 +56,9 @@ sFC_title_intro [
 ]
 
 ---------------------------------------------
-; Title comet sprite actor (spawned by TitleIntroInit at ($80,$50)). Runs animation #00 for 240 loop cycles in place, then 64 loop cycles with X speed 2 (StageSpriteLoopMoveX), waits 60 ticks (WaitByte #3B), switches TM to $16 and parks on SetEntryHere. Its frames come from spm_title_actors.
+; Title Earth sprite actor (spawned by TitleIntroInit at ($80,$50); the 48 parts draw a half-lit Earth, not a comet). Runs animation #00 for 240 loop cycles in place, then 64 loop cycles with X speed 2 (StageSpriteLoopMoveX), waits 60 ticks (WaitByte #3B), switches TM to $16 and parks on SetEntryHere. Its frames come from spm_title_actors.
 
-TitleCometSpriteActor {
+TitleEarthSpriteActor {
     COP [SetSpritePriority] ( #10 ) ; Sprite priority $10
     COP [StageSpriteLoop] ( #00, #F0 ) ; Animation #00, 240 loop cycles (held in place)
     COP [AnimLoop]
@@ -74,7 +74,7 @@ TitleCometSpriteActor {
 }
 
 ---------------------------------------------
-; Palette-animation stub: PaletteStart #2D (45 decimal), one PaletteStep, then Die. No spawn or pointer to it exists anywhere in extracted/ (UNVERIFIED-RUNTIME whether anything reaches it).
+; Palette-animation stub: PaletteStart #2D (45 decimal), one PaletteStep, then Die. No spawn operand, table word or instruction operand anywhere in the ROM points to it, and the routine before it ends in RTL, so it never runs.
 
 TitlePaletteStep_noref {
     COP [PaletteStart] ( #2D ) ; Palette animation #2D (45)

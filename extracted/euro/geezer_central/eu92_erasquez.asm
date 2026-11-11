@@ -1,8 +1,6 @@
-; Erasquez the violinist in Euro — senses Will's power.
+; Erasquez in the Euro geezer house (scene $92): the Teapot test and the hint that sets flag $9F.
 ; 
-; NPC: "Hey, you! I feel a strange power coming from you..."
-; Erasquez can perceive Will's psychic abilities. Adds to
-; Euro's artistic and spiritual character.
+; Solid and interactable. The interact handler tests the inventory first (BranchIfHasItem #19). With the Teapot (item $19) he prints 'Erasquez: I feel the presence of evil from somewhere in town...' and changes nothing (the item stays, $9F is not touched). Without the Teapot and $9F clear he sets $9F and prints 'Hey, you! I feel a strange power coming from you...' ending with 'At the right time, go to Mt.Kress and take a look at the Teapot.' and 'Rofsky marked Mt.Kress on Will's map!'. Without the Teapot and $9F set he prints 'The spirits' tears in the teapot reflect your true form.'. $9F is read by the Euro world-map exit (scene $91), which then stages menu $10 (Quit / Mt.Temple / Watermia) instead of menu $0F; flag $AC takes precedence with menu $1A.
 ---------------------------------------------
 
 ---------------------------------------------

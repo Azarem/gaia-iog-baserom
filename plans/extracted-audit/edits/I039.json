@@ -1,0 +1,515 @@
+{
+  "system/player/player_move_ns.asm": {
+    "blockNote": [
+      "North (negative $24) vertical-phase collision dispatch, wall handlers and north slope physics (184376-184902, Bank 02). DispatchNorthMove is called once per tick by PlayerMovementTick after the horizontal phase; the mirror image for positive $24 is DispatchSouthMove in player_move_south.",
+      "",
+      "=== CONVENTIONS ===",
+      "",
+      "Positions are sub-pixels (4 per pixel; a 16-px tile is 64, so AND #$FFC0 floors to a row line). $24 / $26 are the Y velocity / position (negative = north, Y grows downward) and $22 is X. $1A / $1E are the probe pixel X / Y and $00 is the map index of the last probe; MapCellUp / Down / Left / Right read $00 and return the new index in X only (a caller that wants to keep it does STX $00; a result that is not stored is lost). CheckSubTileAlignX / Y: carry CLEAR = the probe sits on a 16-px line (flush), carry SET = it straddles two cells. Probe types: $02 ladder, $08 vine, $0E and above solid, $03 / $0C slopes; $06 / $09 are undecoded wall-like types (audit OQ-16, OQ-I029-5), so 'south wall' / 'north wall' below are handler names, not directions.",
+      "",
+      "=== DISPATCH ORDER (DispatchNorthMove) ===",
+      "",
+      "1. ProbeCurrentTL (carry set only): $06 -> SouthWallHandler, $03 -> NorthSlopeRight, $0C -> NorthSlopeLeft; any other type falls on.",
+      "2. ProbeCurrentTR: $09 -> NorthWallHandler.",
+      "3. ProbeFutureTL (top-left after the step): $0E and above or $08 -> blocked path; $02 -> NorthInteractTile; $06 -> SouthWallNudge.",
+      "4. CheckSubTileAlignX. X flush: future TL $09 -> NorthProbeRedirect, anything else -> the plain step. X straddling: future TL $09 -> blocked path; otherwise MapCellRight (the future TR cell) is read: $0E and above, $08, $02 or $06 -> blocked path, $09 -> NorthProbeRedirect, anything else -> the plain step.",
+      "5. Plain step: $26 += $24 (Y shrinks). $22 and $20 are not touched; PlayerMovementTick commits the position afterwards.",
+      "6. Blocked path (loc_02D0AF): SetActorCollisionFlag, AutoAlignEW (nudge X onto the column grid, carry clear = nudged), then SnapYNorthCollision. After a nudge the Y snap runs without zeroing playerSpeedNs (entry loc_02D0C2), so the player keeps pushing and is walked around the corner a couple of pixels per tick.",
+      "",
+      "The older header had step 4 reversed ('sub-tile aligned: MapCellRight'); the code runs the MapCellRight probe only when X is NOT flush.",
+      "",
+      "=== SNAPPING ===",
+      "",
+      "SnapYNorthCollision: Y' = $24 + $26 (the stepped Y), floored to a row line and moved one row down: $26 = (Y' AND $FFC0) + $40, $24 = 0. The hitbox top (feet - 16 px) then sits flush under the blocking row. In the normal blocked case Y' lies north of the old Y and the result falls between Y' and Y, so it backs the player off the step. Callers that run with $24 parked at 0 (the east and west wall-slide handlers) push the player SOUTH by 1..16 px instead (16 when already flush). The full entry also zeroes playerSpeedNs.",
+      "",
+      "=== SLOPES ===",
+      "",
+      "NorthSlopeRight ($03) and NorthSlopeLeft ($0C) are entered when the current TL has that type and need the current TR to match, else the move counts as blocked. The slope flag $09AF bit $10 (playerFlags $1000, on a slope) is set when Y is flush, when the cell below has the same type, or when d >= 8. Here d = 16 - n and n = (($26 + $24) >> 2) AND $0F is the row offset of the top probe inside the slope tile, so d >= 8 means the upper half of the tile; in the lower half (n >= 9, d < 8) the move is applied without the flag. The old text called d < 8 the 'upper half'. The slope directions ('right' / 'left') are undecoded (OQ-I033-3); the old part notes called the same types 'descending' and 'ascending' inconsistently.",
+      "",
+      "NorthSlopeLeft additionally filters the step through slopeFracAccum ($09C6, shared with the south handlers): a positive leftover is zeroed, then accum += $24. With |accum| >> 4 = 0 the unchanged $24 is applied and accum keeps the sum. Otherwise $24 is REPLACED by -(|accum| >> 4) and accum gains 16 per step. Nothing subtracts the distance that was actually moved, so for $24 = -8 the player alternates a full 2-px step and a 1-sub-pixel step (about 56 percent of the speed on average). UNVERIFIED-RUNTIME.",
+      "",
+      "=== WALL HANDLERS ===",
+      "",
+      "SouthWallHandler (current TL $06) and NorthWallHandler (current TR $09): if the opposite bottom corner (BR / BL) has the same type the player is enclosed and ClearMovementDeltas runs. Otherwise the future corner is probed and CheckSubTileAlignY decides. Y STRADDLING and future type $06 / $09: gap chain. Y flush, or another type: the snap path.",
+      "Gap chain: the neighbour cell east (SouthWallHandler, MapCellRight) or west (NorthWallHandler, MapCellLeft) of the future corner cell and the cell below that neighbour must both be type 0, else ClearSpeedNS_1 / _2 (playerSpeedNs = 0, nothing applied this tick). Both empty: ComputeYSnapOffset, then FineAdjustXWest / FineAdjustXEast. FineAdjustXWest moves X EAST and FineAdjustXEast moves X WEST (the names refer to the wall side), so SouthWallHandler slides the player east and NorthWallHandler west; the old headers said the opposite.",
+      "Snap path: SnapXDiagCollision (SouthWallHandler: X to the centre of the next column east, also zeroes playerSpeedEw) or SnapXEastCollision (NorthWallHandler: X floored to its column centre, i.e. west), then the future corner is re-probed. Still $06 / $09: take the slide. Anything else: zero $24 (so SnapYSouthCollision floors the CURRENT Y with no step added) and apply the move.",
+      "",
+      "SouthWallNudge (future TL $06): $AB bit 1 is set by DispatchDiagDownLeft in every tick where the west horizontal phase ran (a negative $20) and is cleared together with $AA at the start of the tick; the old text called it a 'wall interaction flag from a prior collision pass'. If it is set and X is flush, the north step is cancelled ($24 = 0) and the X move is applied. Otherwise MapCellRight from the future TL cell: $0E and above -> zero $24 + SnapYSouthCollision + apply (loc_02D1BC); anything else -> the SouthWallHandler gap chain.",
+      "",
+      "NorthProbeRedirect: reached from DispatchNorthMove when future TL is $09 (X flush) or the east cell is $09. Its MapCellDown + ReadCollisionNibble have no effect (MapCellDown only changes X, the nibble is dropped and MapCellLeft at loc_02D208 reads $00 again), so the chain starts from the cell recorded in $00 (OQ-I039-4).",
+      "",
+      "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code."
+    ],
+    "partNotes": {
+      "DispatchNorthMove": [
+        "Entry for negative $24, 8-bit probe mode, called from PlayerMovementTick after the horizontal phase. Probe order, the plain step and the blocked path are described in the block note; exits are JMPs into the slope / wall handlers, the plain step (loc_02D0A5) or the blocked path (loc_02D0AF)."
+      ],
+      "SnapYNorthCollision": [
+        "Y snap after a blocked north step: $26 = (($24 + $26) AND $FFC0) + $40, $24 = 0, so the hitbox top ends flush under the blocking row. The full entry zeroes playerSpeedNs first; the loc_02D0C2 entry (used after a successful AutoAlignEW nudge) keeps it. With $24 = 0 (east / west wall-slide callers) it pushes south by 1..16 px. See the block note."
+      ],
+      "NorthInteractTile": [
+        "Type $02 ladder ahead while moving north (a local label inside DispatchNorthMove). CheckSubTileAlignX: X straddling (carry set) -> blocked path. X flush: the player actor's entry becomes LadderClimbSouth (the ladder state entered from below: it checks Up before Down, then LadderIdleNorth) and $0008 = 0; then the blocked path runs, which holds the player at the ladder base."
+      ],
+      "NorthSlopeRight": [
+        "Current TL $03 while moving north. Needs the current TR to be $03 too, else blocked path. Y flush, or the cell below also $03: set the slope flag and apply. Otherwise d = 16 - n (see the block note): d < 8 applies the move without the flag, d >= 8 sets $09AF bit $10 first. The direction of the slope is undecoded (OQ-I033-3)."
+      ],
+      "NorthSlopeLeft": [
+        "Current TL $0C while moving north. Same gate and flag logic as NorthSlopeRight, but with d < 8 the move is applied without touching the accumulator; otherwise the flag is set and the step goes through the slopeFracAccum filter (block note): the full $24 when |accum + $24| < 16, else -(|accum + $24| >> 4). For $24 = -8 the steps alternate -8 and -1 sub-pixels. UNVERIFIED-RUNTIME."
+      ],
+      "SouthWallHandler": [
+        "Current TL $06 while moving north. Current BR $06 too: ClearMovementDeltas. Otherwise ProbeFutureTL + CheckSubTileAlignY. Y straddling and future TL $06: gap chain (loc_02D19E): the east cell and the cell below it must both be type 0, else ClearSpeedNS_1; both empty: ComputeYSnapOffset + FineAdjustXWest (X moves EAST). Y flush or another type: SnapXDiagCollision (X east to the next column centre), re-probe; $06 -> slide, else zero $24 + SnapYSouthCollision + apply."
+      ],
+      "SouthWallNudge": [
+        "Future TL $06 while moving north. $AB bit 1 (the west horizontal phase ran this tick) with X flush: $24 = 0 and the X move is applied. Otherwise MapCellRight from the future TL cell: $0E and above -> loc_02D1BC (zero $24, SnapYSouthCollision, apply); anything else -> the SouthWallHandler gap chain at loc_02D19E (which cancels on any nonzero type)."
+      ],
+      "ClearSpeedNS_1": [
+        "Abort of the SouthWallHandler gap chain: playerSpeedNs = 0 and return. No position is applied this tick ($26 stays as it was)."
+      ],
+      "NorthWallHandler": [
+        "Current TR $09 while moving north. Current BL $09 too: ClearMovementDeltas. Otherwise ProbeFutureTR + CheckSubTileAlignY. Y straddling and future TR $09: gap chain (loc_02D208): the west cell and the cell below it must both be type 0, else ClearSpeedNS_2; both empty: ComputeYSnapOffset + FineAdjustXEast (X moves WEST). Y flush or another type: SnapXEastCollision (X floored to its column centre, west), re-probe; $09 -> slide, else zero $24 + SnapYSouthCollision + apply."
+      ],
+      "NorthProbeRedirect": [
+        "Entry from DispatchNorthMove when the future TL is $09 (X flush) or the east cell is $09. MapCellDown + ReadCollisionNibble here are dead (the result is unused and the BRA target's MapCellLeft starts from $00), so it simply joins the NorthWallHandler gap chain at loc_02D208 with the cell in $00 (OQ-I039-4)."
+      ],
+      "ClearSpeedNS_2": [
+        "Abort of the NorthWallHandler gap chain: playerSpeedNs = 0 and return. No position is applied this tick."
+      ]
+    },
+    "comments": {
+      "184376": {
+        "text": "Vertical-phase entry for negative $24; the horizontal phase already ran this tick. 8-bit probe mode",
+        "expect": "SEP #$20"
+      },
+      "184383": {
+        "text": "Current TL type $06 -> SouthWallHandler (undecoded wall type: 'south wall' is a handler name, OQ-I029-5)",
+        "expect": "CMP #$06"
+      },
+      "184390": {
+        "text": "Current TL type $03 -> NorthSlopeRight (slope direction undecoded, OQ-I033-3; the old 'ascending' wording was a guess)",
+        "expect": "CMP #$03"
+      },
+      "184397": {
+        "text": "Current TL type $0C -> NorthSlopeLeft (the variant with the slopeFracAccum filter)",
+        "expect": "CMP #$0C"
+      },
+      "184407": {
+        "text": "Current TR type $09 -> NorthWallHandler (undecoded wall type, mirror of the TL $06 case)",
+        "expect": "CMP #$09"
+      },
+      "184414": {
+        "text": "ProbeFutureTL: top-left corner after the north step (type in A)",
+        "expect": "ProbeFutureTL"
+      },
+      "184421": {
+        "text": "Type $08 (vine) cannot be entered walking north: blocked path (it is a south-only tile)",
+        "expect": "CMP #$08"
+      },
+      "184425": {
+        "text": "Type $02 ladder ahead -> NorthInteractTile (the climb starts only with X on a column line)",
+        "expect": "CMP #$02"
+      },
+      "184436": {
+        "text": "Carry clear = left edge on a column line (X flush); carry set = X straddles two columns. A keeps the future TL type",
+        "expect": "CheckSubTileAlignX"
+      },
+      "184441": {
+        "text": "X flush and future TL $09 -> NorthProbeRedirect; any other type takes the plain step (loc_02D0A5)",
+        "expect": "CMP #$09"
+      },
+      "184450": {
+        "text": "X straddling and future TL $09: blocked path",
+        "expect": "CMP #$09"
+      },
+      "184454": {
+        "text": "X straddling: MapCellRight = the cell east of the future TL cell (the future TR cell); STX $00 keeps it",
+        "expect": "MapCellRight"
+      },
+      "184462": {
+        "text": "That east cell solid ($0E and above): blocked path (the old text said 'below')",
+        "expect": "CMP #$0E"
+      },
+      "184466": {
+        "text": "East cell is a vine ($08): blocked path",
+        "expect": "CMP #$08"
+      },
+      "184470": {
+        "text": "East cell is a ladder ($02): blocked path until X is flush",
+        "expect": "CMP #$02"
+      },
+      "184474": {
+        "text": "East cell $09 -> NorthProbeRedirect chain ($00 = that cell)",
+        "expect": "CMP #$09"
+      },
+      "184481": {
+        "text": "East cell $06 while X straddles: blocked path; any other type falls to the plain step",
+        "expect": "CMP #$06"
+      },
+      "184487": {
+        "text": "Plain step: $26 (Y) += $24 (negative, so the player moves north); $22 and $20 are not touched here",
+        "expect": "LDA $26"
+      },
+      "184498": {
+        "text": "AutoAlignEW: X nudge onto the column grid (carry clear = nudged); SEC when $AA bit $0040 is set or no nudge fits",
+        "expect": "AutoAlignEW"
+      },
+      "184501": {
+        "text": "No nudge: full Y snap (also zeroes playerSpeedNs)",
+        "expect": "BCS SnapYNorthCollision"
+      },
+      "184503": {
+        "text": "X was nudged: Y snap WITHOUT zeroing playerSpeedNs (entry loc_02D0C2); the push continues next tick",
+        "expect": "PHP"
+      },
+      "184514": {
+        "text": "Y' = $24 + $26, the stepped Y (equal to the current Y when a caller parked $24 at 0)",
+        "expect": "LDA $24"
+      },
+      "184519": {
+        "text": "Floor to the row line (64 sub-pixels = 16 px)",
+        "expect": "AND #$FFC0"
+      },
+      "184523": {
+        "text": "One row down: the hitbox top (feet - 16 px) ends flush under the blocking row",
+        "expect": "ADC #$0040"
+      },
+      "184528": {
+        "text": "Velocity consumed: $24 = 0",
+        "expect": "STZ $24"
+      },
+      "184543": {
+        "text": "LadderClimbSouth: the ladder state entered from below (checks Up before Down, then LadderIdleNorth)",
+        "expect": "LDA #$&player_character.LadderClimbSouth"
+      },
+      "184556": {
+        "text": "Then the blocked path (collision flag, X nudge, Y snap): holds the player at the base of the ladder",
+        "expect": "BRA loc_02D0AF"
+      },
+      "184580": {
+        "text": "n = (($26 + $24) >> 2) AND $0F: row offset of the top probe inside the slope tile (8-bit: low bytes only)",
+        "expect": "LDA $26"
+      },
+      "184594": {
+        "text": "d = 16 - n (1..16)",
+        "expect": "INC"
+      },
+      "184595": {
+        "text": "d < 8 (n >= 9, lower half of the tile): apply without the flag; d >= 8 goes on to set it",
+        "expect": "CMP #$08"
+      },
+      "184602": {
+        "text": "Set $09AF bit $10 (playerFlags $1000, on a slope): Y flush, same slope below, or d >= 8",
+        "expect": "LDA #$10"
+      },
+      "184632": {
+        "text": "n = (($24 + $26) >> 2) AND $0F as in NorthSlopeRight (same sum, 8-bit)",
+        "expect": "LDA $24"
+      },
+      "184646": {
+        "text": "d = 16 - n (1..16)",
+        "expect": "INC"
+      },
+      "184647": {
+        "text": "d < 8: apply the move without the flag and without the accumulator; d >= 8 sets the flag and filters the step",
+        "expect": "CMP #$08"
+      },
+      "184654": {
+        "text": "Set the slope flag (same condition as NorthSlopeRight), then run the fractional filter",
+        "expect": "LDA #$10"
+      },
+      "184661": {
+        "text": "slopeFracAccum ($09C6, shared with the south handlers): a positive (south-signed) leftover is zeroed first",
+        "expect": "LDA $slopeFracAccum"
+      },
+      "184669": {
+        "text": "sum = $24 + accum (both negative here); stored back as the new accumulator",
+        "expect": "LDA $24"
+      },
+      "184678": {
+        "text": "|sum|; shifted right 4 below to get the step",
+        "expect": "EOR #$FFFF"
+      },
+      "184686": {
+        "text": "step = |sum| >> 4. Zero: apply the unchanged $24 (a full step) and keep the sum in the accumulator",
+        "expect": "BEQ loc_02D185"
+      },
+      "184688": {
+        "text": "Temporary: $24 = step (positive)",
+        "expect": "STA $24"
+      },
+      "184695": {
+        "text": "accum = sum + (step << 4): 16 per step consumed (the distance actually moved is never subtracted)",
+        "expect": "ADC $slopeFracAccum"
+      },
+      "184701": {
+        "text": "$24 = -step REPLACES the velocity this tick (1/16 of the accumulated total, usually a very small move)",
+        "expect": "LDA $24"
+      },
+      "184725": {
+        "text": "Carry clear = Y flush -> snap path; carry set = Y straddles two rows. A keeps the future TL type",
+        "expect": "CheckSubTileAlignY"
+      },
+      "184730": {
+        "text": "Y straddling and future TL $06: gap chain; any other type takes the snap path (loc_02D1B2)",
+        "expect": "CMP #$06"
+      },
+      "184734": {
+        "text": "Gap chain: the cell east of the future TL cell must be empty (type 0)",
+        "expect": "MapCellRight"
+      },
+      "184742": {
+        "text": "Any nonzero type: cancel (ClearSpeedNS_1)",
+        "expect": "BNE ClearSpeedNS_1"
+      },
+      "184744": {
+        "text": "The cell below that east cell (from the stored $00) must also be empty",
+        "expect": "MapCellDown"
+      },
+      "184754": {
+        "text": "Full entry: zeroes playerSpeedEw; X goes to the centre of the next column EAST ($20 is 0 in this phase)",
+        "expect": "SnapXDiagCollision"
+      },
+      "184760": {
+        "text": "Still $06: take the slide; any other result falls to loc_02D1BC",
+        "expect": "CMP #$06"
+      },
+      "184766": {
+        "text": "Zero $24 first: SnapYSouthCollision then floors the CURRENT Y (no step added)",
+        "expect": "STZ $24"
+      },
+      "184768": {
+        "text": "SnapYSouthCollision: Y floored to its row line (up to 15 px north), then the move is applied",
+        "expect": "SnapYSouthCollision"
+      },
+      "184776": {
+        "text": "ComputeYSnapOffset: $02 = 16 - (probe Y AND $0F), 1..16 px (16 when flush; its own header says 0)",
+        "expect": "ComputeYSnapOffset"
+      },
+      "184779": {
+        "text": "FineAdjustXWest: X moves EAST (away from the wall under the left foot) by $02 - n px, then the move is applied",
+        "expect": "FineAdjustXWest"
+      },
+      "184782": {
+        "text": "$AB bit 1 = the west horizontal phase ran this tick (set in DispatchDiagDownLeft, cleared with $AA each tick)",
+        "expect": "LDA $AB"
+      },
+      "184795": {
+        "text": "West move and X flush: cancel the north step ($24 = 0), keep the X move",
+        "expect": "STZ $24"
+      },
+      "184800": {
+        "text": "MapCellRight from the future TL cell ($00 from ProbeFutureTL); the new index is in X",
+        "expect": "MapCellRight"
+      },
+      "184806": {
+        "text": "East cell solid ($0E and above): zero $24 + SnapYSouthCollision + apply (loc_02D1BC)",
+        "expect": "CMP #$0E"
+      },
+      "184810": {
+        "text": "Not solid: join the SouthWallHandler gap chain (it re-reads this cell; any nonzero type cancels)",
+        "expect": "BRA loc_02D19E"
+      },
+      "184814": {
+        "text": "Cancel: playerSpeedNs = 0 and return; the step is NOT applied ($26 unchanged this tick)",
+        "expect": "STZ $playerSpeedNs"
+      },
+      "184831": {
+        "text": "Carry clear = Y flush -> snap path; carry set = Y straddles two rows. A keeps the future TR type",
+        "expect": "CheckSubTileAlignY"
+      },
+      "184836": {
+        "text": "Y straddling and future TR $09: gap chain; any other type takes the snap path (loc_02D21C)",
+        "expect": "CMP #$09"
+      },
+      "184840": {
+        "text": "Gap chain: the cell WEST of the future TR cell must be empty (type 0)",
+        "expect": "MapCellLeft"
+      },
+      "184848": {
+        "text": "Any nonzero type: cancel (ClearSpeedNS_2)",
+        "expect": "BNE ClearSpeedNS_2"
+      },
+      "184850": {
+        "text": "The cell below that west cell (from the stored $00) must also be empty",
+        "expect": "MapCellDown"
+      },
+      "184860": {
+        "text": "SnapXEastCollision: X floored to its column centre (moves west); also zeroes playerSpeedEw",
+        "expect": "SnapXEastCollision"
+      },
+      "184868": {
+        "text": "Still $09: take the slide; any other result falls on to zero $24 and snap Y",
+        "expect": "BEQ loc_02D230"
+      },
+      "184872": {
+        "text": "Zero $24 first: SnapYSouthCollision then floors the CURRENT Y (no step added)",
+        "expect": "STZ $24"
+      },
+      "184874": {
+        "text": "SnapYSouthCollision: Y floored to its row line (up to 15 px north), then the move is applied",
+        "expect": "SnapYSouthCollision"
+      },
+      "184882": {
+        "text": "ComputeYSnapOffset: $02 = 16 - (probe Y AND $0F), 1..16 px",
+        "expect": "ComputeYSnapOffset"
+      },
+      "184885": {
+        "text": "FineAdjustXEast: X moves WEST (away from the wall under the right foot) by the overlap, then the move is applied",
+        "expect": "FineAdjustXEast"
+      },
+      "184888": {
+        "text": "No effect: MapCellDown only changes X, and MapCellLeft at the BRA target reads $00 again",
+        "expect": "MapCellDown"
+      },
+      "184891": {
+        "text": "Result unused (OQ-I039-4)",
+        "expect": "ReadCollisionNibble"
+      },
+      "184894": {
+        "text": "Join the NorthWallHandler gap chain; it starts from the cell in $00",
+        "expect": "BRA loc_02D208"
+      },
+      "184898": {
+        "text": "Cancel: playerSpeedNs = 0 and return; the step is not applied",
+        "expect": "STZ $playerSpeedNs"
+      }
+    }
+  },
+  "functions/SpawnDebrisBurst.asm": {
+    "blockNote": [
+      "Breakable-wall debris effect: a one-shot actor that spawns 8 child particle actors and dies. Each pass waits WaitByte(3) (the runner skips 3 passes, so 4 frames) and spawns DebrisBurstParticle with COP SpawnAfterFlags, initial $10 flags $0302; LoopEnd yields once more per pass, so one particle appears every 5 frames and the burst lasts about 40 frames (static reading, UNVERIFIED-RUNTIME).",
+      "",
+      "DebrisBurstParticle: spriteset_enemies metasprite, palette 0, priority #30. CopyActorState gives it the burst actor's position; $14 / $16 then get two independent RNG offsets of -16 .. +15 px (RngByte AND $1F, minus $10). It plays sound #$0F on both channels (PlaySoundBoth #$0F0F, so all eight particles play the crumble sound), stages sprite frame #01, runs AnimOnce and dies. Flags $0302: bit $0200 is part of the combat_collision skip masks (OQ-I030-2); $0100 and $0002 are undecoded.",
+      "",
+      "Spawn sites (4): dm3D_breakable_wall (Diamond Mine, flags $2000), gw83_switch (Great Wall, $2000), it19_breakable_wall (Itory cave, SpawnAfterAbsFlags at (152, 96), $2000) and dm40_trapped_slave (Diamond Mine, $3000). The older header named only the first two. docs/code/bank00/functions-camera-motion.md describes the routine as an LDX #8 / JSR random / DEX loop with offsets of +-$10 .. +-$30 pixels; the code is a COP LoopStart / LoopEnd script and the offsets are -16 .. +15 px."
+    ],
+    "partNotes": {
+      "SpawnDebrisBurst": [
+        "Burst actor: LoopStart #08, then per pass WaitByte #03, SpawnAfterFlags DebrisBurstParticle with $10 = $0302, LoopEnd (yields while the counter is nonzero); after the eighth pass it dies. One particle every 5 frames (4 wait + 1 LoopEnd yield)."
+      ],
+      "DebrisBurstParticle": [
+        "One debris particle: spriteset_enemies metasprite, palette 0, priority #30; X and Y each move by an independent random -16 .. +15 px from the inherited burst position; plays sound #$0F on both channels, shows frame #01 once (AnimOnce) and dies."
+      ]
+    },
+    "comments": {
+      "51640": {
+        "text": "Eight passes, one particle per pass",
+        "expect": "LoopStart"
+      },
+      "51643": {
+        "text": "WaitByte(3): the runner skips 3 passes, so 4 frames before each spawn (LoopEnd adds one yield: one particle per 5 frames)",
+        "expect": "WaitByte"
+      },
+      "51646": {
+        "text": "Spawn DebrisBurstParticle after this actor with $10 = $0302 (CopyActorState gives it this actor's position)",
+        "expect": "SpawnAfterFlags"
+      },
+      "51653": {
+        "text": "LoopEnd: counter - 1; nonzero yields and resumes at the WaitByte, zero continues",
+        "expect": "LoopEnd"
+      },
+      "51655": {
+        "text": "All eight spawned: this actor ends (the particles live on)",
+        "expect": "Die"
+      },
+      "51657": {
+        "text": "Particle metasprite: spriteset_enemies (the frame is staged below)",
+        "expect": "SetMetasprite"
+      },
+      "51668": {
+        "text": "RngByte: A = random byte",
+        "expect": "RngByte"
+      },
+      "51670": {
+        "text": "0..31",
+        "expect": "AND #$001F"
+      },
+      "51674": {
+        "text": "Offset -16 .. +15 px",
+        "expect": "SBC #$0010"
+      },
+      "51678": {
+        "text": "Add to posX ($14): X scatter around the burst actor",
+        "expect": "ADC $14"
+      },
+      "51692": {
+        "text": "Add to posY ($16): Y scatter (independent RngByte)",
+        "expect": "ADC $16"
+      },
+      "51696": {
+        "text": "PlaySoundBoth #$0F0F: sound #$0F on both channels (each of the 8 particles plays it)",
+        "expect": "PlaySoundBoth"
+      },
+      "51700": {
+        "text": "Debris sprite frame #01",
+        "expect": "StageSpriteFrame"
+      },
+      "51703": {
+        "text": "Play the frame animation once",
+        "expect": "AnimOnce"
+      }
+    }
+  },
+  "functions/InitPlayerScriptVariant.asm": {
+    "blockNote": [
+      "Called with JSL by cutscene actors (17 call sites in 14 actor files: st68_lily, dc31_kara, it15_lola, it15_lily, av74_kara, btDF_kara, btDE_olman, btDE_monologue, ir1C_lily, na4B_lily, sc06_lily, sc06_kara, dm43_elevator, sc02_seth) to put the player into an idle pose facing a chosen direction before scripted movement.",
+      "",
+      "Input: A (16-bit) = facing index 0 South, 1 North, 2 West, 3 East (the order of player_idle_entry_table and of GetPlayerFacingDirection); there is no range check. X is set to the player actor slot from $playerActor ($09AA). The routine writes the entry pointer of that actor: $0000,X = the IdleStand* word from the table, $0002,X = the bank byte of IdleStandSouth. The player's script therefore resumes in the idle pose on its next run. It also zeroes the wait counter $0008 and the movement scratch words $002C / $002E, both in the actor's DP page and in the extended data ($7F002C / $7F002E).",
+      "",
+      "The caller's X is saved with PHX / PLX; Y is untouched; A is clobbered. The old header's 'frame counter' is the wait counter $08. docs/code/bank00/data-tables-memory.md says the table is selected 'based on body form and scene context'; the routine looks only at A (the IdleStand* handlers themselves branch on the Shadow flag byte #00)."
+    ],
+    "partNotes": {
+      "InitPlayerScriptVariant": [
+        "Sets the player actor's script entry to IdleStandSouth / North / West / East chosen by A (0..3), resets the wait counter and the movement scratch words, and returns with RTL. See the block note."
+      ],
+      "player_idle_entry_table": [
+        "Four word entries (50960-50967) indexed by A * 2: IdleStandSouth, IdleStandNorth, IdleStandWest, IdleStandEast (the same order as GetPlayerFacingDirection: 0 down, 1 up, 2 left, 3 right). Read with a long-indexed load; all four handlers share one bank."
+      ]
+    },
+    "comments": {
+      "50916": {
+        "text": "Save the caller's X (its own actor slot, needed for its next COP)",
+        "expect": "PHX"
+      },
+      "50917": {
+        "text": "A = facing index 0..3 (South, North, West, East) -> word offset; no range check",
+        "expect": "ASL"
+      },
+      "50919": {
+        "text": "Entry address of the IdleStand* handler for that facing",
+        "expect": "LDA $@player_idle_entry_table, X"
+      },
+      "50923": {
+        "text": "X = player actor slot ($09AA)",
+        "expect": "LDX $playerActor"
+      },
+      "50926": {
+        "text": "Player actor entry pointer (low word): its script resumes at IdleStand* on the next run",
+        "expect": "STA $0000, X"
+      },
+      "50931": {
+        "text": "Bank byte of the entry (all four IdleStand* handlers share a bank)",
+        "expect": "LDA #$^player_character.IdleStandSouth"
+      },
+      "50938": {
+        "text": "Wait counter = 0 (the older header called it a frame counter)",
+        "expect": "STZ $0008, X"
+      },
+      "50941": {
+        "text": "Clear movement scratch $2C in the actor's DP page",
+        "expect": "STZ $002C, X"
+      },
+      "50944": {
+        "text": "Clear movement scratch $2E in the actor's DP page",
+        "expect": "STZ $002E, X"
+      },
+      "50950": {
+        "text": "Same two words in the extended data ($7F002C / $7F002E)",
+        "expect": "STA $moveScratch1, X"
+      },
+      "50958": {
+        "text": "Restore the caller's X",
+        "expect": "PLX"
+      }
+    }
+  }
+}

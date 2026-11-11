@@ -1,8 +1,6 @@
-; Neil's father at the Rolek mansion — business advice.
+; Neil's father at the Rolek mansion (scene $95): a Moon Tribe reveal triggered by the Teapot.
 ; 
-; NPC: "You can't go wrong by taking over the Rolek Company."
-; Later: a Moon Tribe spirit appears with ominous dialog about
-; darkness. Contrasts mundane business with cosmic threat.
+; $A8 set: the actor dies at spawn. Otherwise it stands solid with 'You can't go wrong by taking over the Rolek Company.' and waits for $A8 (set by UseItem_Teapot when the Teapot is used in tiles (28,09)-(2D,0D) of this scene). Then it locks the player ($EFFC, joypadMaskStd reads $EFF0), waits 4 ticks (WaitByte #03), starts music #1B, waits (WaitByte #3B), clears its solidity, walks, prints 'Moon Tribe: Ku ku ku... Soon this world will be wrapped in darkness. The previous owner of this body is now a skeleton sleeping under the shrine...', walks toward (0268,0060), starts music #04, waits 120 ticks (WaitByte #77), unlocks the player and falls through into code_07E21A (COP Die). Neil's mother runs the same walk and dies earlier in the same visit.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

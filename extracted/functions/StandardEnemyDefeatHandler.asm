@@ -5,7 +5,7 @@
 ; 1. Kill counters (StandardEnemyDefeatHandler). Skipped when statsPtr points at the first enemy_stats_table entry (an EnemyInitBasic actor: HP 1, no stats) or extendedFlags bit $0080 (the boss bit). Otherwise enemiesRemainingBcd ($0AEE) -= 1 in decimal mode, enemiesRemaining ($0AEC) -= 1 in hex, and the new count is also kept in orbitAngle ($7F0010,X): 0 means this was the last enemy on the map.
 ; 2. Flash (EnemyDefeatFlashAndDrop). Movement is halted ($2C / $2E and moveScratch1 / 2 := 0), SFX #06 plays on channel 1 and EnemyDeathFlash is spawned at the enemy (flags $0302; bit $0002 draws it in front of every actor). The flash gets $12 bit $1000 (CopyActorState clears it) so that it keeps running in display-filter actor mode, then WaitByte #02 (3 ticks).
 ; 3. No-stats and boss actors go to EnemyDefeatBossCleanup: WaitByte #02 (3 ticks), hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, WaitByte #05 (6 ticks), Die. They get no kill flag, gem drop or reward.
-; 4. Other enemies: SetDungeonKillFlag (the enemyNum bit in wramFlags, so the enemy stays dead on re-entry), then the gem decision, hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, the field reveal, and finally Die when enemies remain or EnemyStatBonusReward when this was the last one.
+; 4. Other enemies: SetDungeonKillFlag (sets the enemyNum bit in wramFlags, so the enemy is skipped when the scene is set up again; an enemy whose enemyNum is 0 sets no bit and is spawned again on every entry), then the gem decision, hide ($10 |= $2000), ClearSolidHere if extendedFlags $0008, the field reveal, and finally Die when enemies remain or EnemyStatBonusReward when this was the last one.
 ;    Gem decision: TestFlag_0300 (event flag $0300 + scene = this scene's clear reward was already claimed) set, or orbitAngle nonzero (enemies remain): drop a gem when the stats byte +3 (gemDropType) is nonzero, through EnemyGemDropRouter. Last enemy with the reward still unclaimed: no gem, the stat reward replaces it.
 ;    Field reveal: deathActionIdx ($7F0024,X) nonzero and event flag $0100 + idx still clear: set it and spawn SpawnFieldRevealEffect (flags $0342, with $12 $1000), handing it the index.
 ; 5. EnemyStatBonusReward (last enemy only): enemy_clear_reward_table[scene] selects the pickup (0 none, 1 HP, 2 STR, 3 or more DEF) unless the scene flag $0300 is already set. It sets displayModeFlags $0080 (display-filter actor mode: only actors with $12 $1000 run, so the world freezes while the pickup plays), spawns reward_actors.e_hp_increase / e_str_increase / e_def_increase (flags $1000, $12 $1000) and Dies. RewardActorVFX sets the scene flag later (see reward_actors).
@@ -84,7 +84,7 @@ EnemyDefeatFlashAndDrop {
     LDA $extendedFlags, X
     BIT #$0080
     BNE EnemyDefeatBossCleanup
-    COP [SetDungeonKillFlag] ; Set this enemy's bit in wramFlags (it stays dead on re-entry)
+    COP [SetDungeonKillFlag] ; Set this enemy's bit in wramFlags: skipped on re-entry (enemyNum 0 sets no bit)
     LDA $sceneCurrent
     JSL $@flag_helpers.TestFlag_0300 ; Carry set = this scene's clear reward was already claimed
     BCS DefeatGemPath     ; Claimed: gems may drop
@@ -195,7 +195,7 @@ EnemyGemDropRouter {
 ; Clear reward of the last enemy of a scene. Pushes enemy_clear_reward_table[sceneCurrent] (0 none, 1 HP, 2 STR, 3 or more DEF). A set scene flag $0300 (reward already claimed) or a tier of 0 just Dies; otherwise displayModeFlags $0080 is set (display-filter actor mode) and the matching reward_actors pickup is spawned with flags $1000 (and $12 $1000, so it runs in that mode). The actor then Dies.
 
 EnemyStatBonusReward {
-    COP [SetSpritePalette] ( #00 ) ; Palette 0 for this actor (repeated below; effect not traced)
+    COP [SetSpritePalette] ( #00 ) ; Palette 0 for this actor: clears the palette bits ($0E00) of the actor's $0E (measured: $2600 becomes $2000); the victim is already hidden ($10 bit $2000), so nothing changes on screen
     LDY $sceneCurrent     ; Y = scene; the table gives the reward tier
     LDA $&enemy_clear_reward_table, Y
     AND #$00FF

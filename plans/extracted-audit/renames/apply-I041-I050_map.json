@@ -1,0 +1,927 @@
+[
+ {
+  "old": "SpawnAttackTrailEffect",
+  "new": "SpawnDamageNumberEffect",
+  "row": "R-I041-1"
+ },
+ {
+  "old": "AttackTrailShort_unused",
+  "new": "DamageNumberShort_unused",
+  "row": "R-I041-1"
+ },
+ {
+  "old": "code_03A942",
+  "new": "Mode7InitEntry",
+  "row": "R-I041-2",
+  "addr": 239938
+ },
+ {
+  "old": "loc_03A994",
+  "new": "Mode7FillTableLoop",
+  "row": "R-I041-2",
+  "addr": 240020
+ },
+ {
+  "old": "loc_03A9F0",
+  "new": "Mode7SinNegative",
+  "row": "R-I041-2",
+  "addr": 240112
+ },
+ {
+  "old": "loc_03A9F9",
+  "new": "Mode7CosNegative",
+  "row": "R-I041-2",
+  "addr": 240121
+ },
+ {
+  "old": "loc_03AA09",
+  "new": "Mode7CosNegSinNegative",
+  "row": "R-I041-2",
+  "addr": 240137
+ },
+ {
+  "old": "loc_03AA30",
+  "new": "Mode7Q1Scanline",
+  "row": "R-I041-2",
+  "addr": 240176
+ },
+ {
+  "old": "loc_03AA6F",
+  "new": "Mode7Q1Overflow",
+  "row": "R-I041-2",
+  "addr": 240239
+ },
+ {
+  "old": "loc_03AA81",
+  "new": "Mode7Q2Scanline",
+  "row": "R-I041-2",
+  "addr": 240257
+ },
+ {
+  "old": "loc_03AAC0",
+  "new": "Mode7Q2Overflow",
+  "row": "R-I041-2",
+  "addr": 240320
+ },
+ {
+  "old": "loc_03AAD2",
+  "new": "Mode7Q3Scanline",
+  "row": "R-I041-2",
+  "addr": 240338
+ },
+ {
+  "old": "loc_03AB13",
+  "new": "Mode7Q3Overflow",
+  "row": "R-I041-2",
+  "addr": 240403
+ },
+ {
+  "old": "loc_03AB25",
+  "new": "Mode7Q4Scanline",
+  "row": "R-I041-2",
+  "addr": 240421
+ },
+ {
+  "old": "loc_03AB66",
+  "new": "Mode7Q4Overflow",
+  "row": "R-I041-2",
+  "addr": 240486
+ },
+ {
+  "old": "loc_03AB7D",
+  "new": "NormalizeDivisorShift",
+  "row": "R-I041-2",
+  "addr": 240509
+ },
+ {
+  "old": "loc_00C6A5",
+  "new": "HiddenRedJewelDone",
+  "row": "R-I041-2",
+  "addr": 50853
+ },
+ {
+  "old": "dialogstring_00C6A6",
+  "new": "HiddenRedJewelFoundString",
+  "row": "R-I041-2",
+  "addr": 50854
+ },
+ {
+  "old": "dialogstring_00C6BF",
+  "new": "HiddenRedJewelFullString",
+  "row": "R-I041-2",
+  "addr": 50879
+ },
+ {
+  "old": "SpawnHitSparkSprites",
+  "new": "SpawnItemSparkleEffect",
+  "row": "R-I042-1"
+ },
+ {
+  "old": "AppendHitSparkOamEntry",
+  "new": "AppendSparkleOamEntries",
+  "row": "R-I042-1"
+ },
+ {
+  "old": "floor_button",
+  "new": "hit_switch",
+  "row": "R-I042-2"
+ },
+ {
+  "old": "code_00C9FE",
+  "new": "HitSwitchInit",
+  "row": "R-I042-2",
+  "addr": 51710
+ },
+ {
+  "old": "loc_00CA1F",
+  "new": "HitSwitchRearm",
+  "row": "R-I042-2",
+  "addr": 51743
+ },
+ {
+  "old": "FloorButtonHitCallback",
+  "new": "HitSwitchTriggered",
+  "row": "R-I042-2"
+ },
+ {
+  "old": "OverworldExitRuinsEntranceEast",
+  "new": "OverworldExitRuinsEntranceStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitDiamondMineEast",
+  "new": "OverworldExitDiamondMineStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitGreatWallNorth",
+  "new": "OverworldExitGreatWallStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitMountainTempleEast",
+  "new": "OverworldExitMountainTempleStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitAngkorWatDoorSouth",
+  "new": "OverworldExitAngkorWatDoorStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitPyramidNorth",
+  "new": "OverworldExitPyramidStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitEdwardCastleSouthEdge",
+  "new": "OverworldExitEdwardCastleStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitFreejiaDefault",
+  "new": "OverworldExitFreejiaStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitAngelVillageDefault",
+  "new": "OverworldExitAngelVillageStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitWatermiaDefault",
+  "new": "OverworldExitWatermiaStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitEuroDefault",
+  "new": "OverworldExitEuroStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitNativeVillageDefault",
+  "new": "OverworldExitNativeVillageStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitDaoVillageDefault",
+  "new": "OverworldExitDaoVillageStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitItoryVillageEnter",
+  "new": "OverworldExitItoryVillageStage",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "OverworldExitSouthCapeNorthGate",
+  "new": "OverworldExitSouthCapeEdge",
+  "row": "R-I042-3"
+ },
+ {
+  "old": "TownDoorInteractLoop",
+  "new": "TownDoorHoldUpLoop",
+  "row": "R-I043-1"
+ },
+ {
+  "old": "TownDoorOpenAnim",
+  "new": "TownDoorOpenSound",
+  "row": "R-I043-1"
+ },
+ {
+  "old": "code_08CF59",
+  "new": "JewelerCancelReply",
+  "row": "R-I043-2",
+  "addr": 577369
+ },
+ {
+  "old": "code_08CF5E",
+  "new": "JewelerGiveJewelsOption",
+  "row": "R-I043-2",
+  "addr": 577374
+ },
+ {
+  "old": "code_list_08CF51",
+  "new": "JewelerMenuTable",
+  "row": "R-I043-2",
+  "addr": 577361
+ },
+ {
+  "old": "code_08D012",
+  "new": "JewelerInventoryFull",
+  "row": "R-I043-2",
+  "addr": 577554
+ },
+ {
+  "old": "code_08D00D",
+  "new": "JewelerGoodbye_unused",
+  "row": "R-I043-2",
+  "addr": 577549
+ },
+ {
+  "old": "incan_ruins_transform_palette",
+  "new": "gold_ship_wreck_palette",
+  "row": "R-I044-1"
+ },
+ {
+  "old": "IncanRuinsTransformPaletteWarmup",
+  "new": "GoldShipWreckPaletteFlag4D",
+  "row": "R-I044-1"
+ },
+ {
+  "old": "IncanRuinsTransformPaletteFinal",
+  "new": "GoldShipWreckPaletteFlag52",
+  "row": "R-I044-1"
+ },
+ {
+  "old": "GlobalAmbientFacingInvalid",
+  "new": "GlobalAmbientFacingValid",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientScanEast",
+  "new": "GlobalAmbientProbeDown",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientScanWest",
+  "new": "GlobalAmbientProbeUp",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientScanNorth",
+  "new": "GlobalAmbientProbeLeft",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientScanSouth",
+  "new": "GlobalAmbientProbeRight",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientAnimFacingVertical",
+  "new": "GlobalAmbientAnimFacingHorizontal",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientPlayTalkSound",
+  "new": "GlobalAmbientTalkWithSnapshot",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientTalkSoundResume",
+  "new": "GlobalAmbientTalkRestoreActor",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientOnDirectionPress",
+  "new": "GlobalAmbientOnInteractPress",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientTargetBehindPlayer",
+  "new": "GlobalAmbientTargetAtOrBehind",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "GlobalAmbientPaletteDefault",
+  "new": "GlobalAmbientPaletteUnused",
+  "row": "R-I044-2"
+ },
+ {
+  "old": "AutoAlignEW",
+  "new": "AutoAlignEW_North",
+  "row": "R-I045-1"
+ },
+ {
+  "old": "NudgeToLowerGrid",
+  "new": "NudgeAxisPlus8Clamped",
+  "row": "R-I045-2"
+ },
+ {
+  "old": "NudgeToUpperGrid",
+  "new": "NudgeAxisMinus8Clamped",
+  "row": "R-I045-2"
+ },
+ {
+  "old": "loc_02D002",
+  "new": "PlayerMovementTick_AfterHorizontal",
+  "row": "R-I045-4",
+  "addr": 184322
+ },
+ {
+  "old": "loc_02D02A",
+  "new": "PlayerMovementTick_SouthStep",
+  "row": "R-I045-4",
+  "addr": 184362
+ },
+ {
+  "old": "loc_02D034",
+  "new": "PlayerMovementTick_Exit",
+  "row": "R-I045-4",
+  "addr": 184372
+ },
+ {
+  "old": "code_00F3D3",
+  "new": "ApplyOrbitalOffsetFromRef_AddToCurrent",
+  "row": "R-I045-5",
+  "addr": 62419
+ },
+ {
+  "old": "particle_rain_spawner",
+  "new": "unused_particle_rain_spawner",
+  "row": "R-I045-6"
+ },
+ {
+  "old": "ParticleRainSpawnerLoop",
+  "new": "UnusedRainSpawnerLoop",
+  "row": "R-I045-6"
+ },
+ {
+  "old": "ParticleRainChild",
+  "new": "UnusedRainDropChild",
+  "row": "R-I045-6"
+ },
+ {
+  "old": "HitStaggerDirection",
+  "new": "HitStaggerSlideLoop",
+  "row": "R-I046-1"
+ },
+ {
+  "old": "HitStaggerReturnAI",
+  "new": "HitStaggerReleasePlayer",
+  "row": "R-I046-2"
+ },
+ {
+  "old": "HitStaggerKnockbackCallbackPass",
+  "new": "HitStaggerZeroToCarry",
+  "row": "R-I046-3"
+ },
+ {
+  "old": "code_0AA474",
+  "new": "EnemyDefeatDispatch_CountKill",
+  "row": "R-I046-6",
+  "addr": 697460
+ },
+ {
+  "old": "loc_0AA460",
+  "new": "EnemyDefeatDispatch_NotLast",
+  "row": "R-I046-6",
+  "addr": 697440
+ },
+ {
+  "old": "loc_02B2C0",
+  "new": "PlayerMoveNotStunned",
+  "row": "R-I047-1",
+  "addr": 176832
+ },
+ {
+  "old": "loc_02B2D0",
+  "new": "PlayerMoveSync",
+  "row": "R-I047-1",
+  "addr": 176848
+ },
+ {
+  "old": "loc_02B2E3",
+  "new": "PlayerMoveSyncY",
+  "row": "R-I047-1",
+  "addr": 176867
+ },
+ {
+  "old": "loc_02B2F3",
+  "new": "PlayerMoveJoypadGate",
+  "row": "R-I047-1",
+  "addr": 176883
+ },
+ {
+  "old": "loc_02B300",
+  "new": "PlayerMoveReadPad",
+  "row": "R-I047-1",
+  "addr": 176896
+ },
+ {
+  "old": "loc_02B303",
+  "new": "PlayerMoveAxisX",
+  "row": "R-I047-1",
+  "addr": 176899
+ },
+ {
+  "old": "loc_02B336",
+  "new": "PlayerMoveAxisY",
+  "row": "R-I047-1",
+  "addr": 176950
+ },
+ {
+  "old": "loc_02B36F",
+  "new": "PlayerMoveCollisionStage",
+  "row": "R-I047-1",
+  "addr": 177007
+ },
+ {
+  "old": "loc_02B394",
+  "new": "PlayerMoveCollisionTick",
+  "row": "R-I047-1",
+  "addr": 177044
+ },
+ {
+  "old": "loc_02B39C",
+  "new": "PlayerMoveWriteBack",
+  "row": "R-I047-1",
+  "addr": 177052
+ },
+ {
+  "old": "loc_02B3E3",
+  "new": "JoypadVelocityLeft",
+  "row": "R-I047-2",
+  "addr": 177123
+ },
+ {
+  "old": "loc_02B400",
+  "new": "JoypadVelocityRight",
+  "row": "R-I047-2",
+  "addr": 177152
+ },
+ {
+  "old": "loc_02B41D",
+  "new": "JoypadVelocityPureUp",
+  "row": "R-I047-2",
+  "addr": 177181
+ },
+ {
+  "old": "loc_02B424",
+  "new": "JoypadVelocityPureDown",
+  "row": "R-I047-2",
+  "addr": 177188
+ },
+ {
+  "old": "loc_02B3F2",
+  "new": "JoypadVelocityUpLeft",
+  "row": "R-I047-2",
+  "addr": 177138
+ },
+ {
+  "old": "loc_02B40F",
+  "new": "JoypadVelocityUpRight",
+  "row": "R-I047-2",
+  "addr": 177167
+ },
+ {
+  "old": "loc_02B3F9",
+  "new": "JoypadVelocityPureLeft",
+  "row": "R-I047-2",
+  "addr": 177145
+ },
+ {
+  "old": "loc_02B416",
+  "new": "JoypadVelocityPureRight",
+  "row": "R-I047-2",
+  "addr": 177174
+ },
+ {
+  "old": "loc_02B3FE",
+  "new": "JoypadVelocityDone",
+  "row": "R-I047-2",
+  "addr": 177150
+ },
+ {
+  "old": "loc_02B41B",
+  "new": "JoypadVelocityDoneRight",
+  "row": "R-I047-2",
+  "addr": 177179
+ },
+ {
+  "old": "code_00CF2C",
+  "new": "InventoryStatueSlotEntry",
+  "row": "R-I047-4",
+  "addr": 53036
+ },
+ {
+  "old": "loc_00CF42",
+  "new": "InventoryStatueSlotSetup",
+  "row": "R-I047-4",
+  "addr": 53058
+ },
+ {
+  "old": "loc_00CF60",
+  "new": "InventoryStatueSlotUncollected",
+  "row": "R-I047-4",
+  "addr": 53088
+ },
+ {
+  "old": "loc_00CF88",
+  "new": "InventoryStatueSlotHide",
+  "row": "R-I047-4",
+  "addr": 53128
+ },
+ {
+  "old": "loc_00E048",
+  "new": "HpIncreaseStore",
+  "row": "R-I047-5",
+  "addr": 57416
+ },
+ {
+  "old": "loc_00E096",
+  "new": "StrIncreaseStore",
+  "row": "R-I047-5",
+  "addr": 57494
+ },
+ {
+  "old": "loc_00E0E1",
+  "new": "DefIncreaseStore",
+  "row": "R-I047-5",
+  "addr": 57569
+ },
+ {
+  "old": "StatueRewardWrongTab",
+  "new": "StatueRewardNotThisStatue",
+  "row": "R-I048-1"
+ },
+ {
+  "old": "statue_reward_00CE97",
+  "new": "statue_reward_table",
+  "row": "R-I048-1",
+  "addr": 52887
+ },
+ {
+  "old": "code_00CD5C",
+  "new": "StatueRewardEntry",
+  "row": "R-I048-1",
+  "addr": 52572
+ },
+ {
+  "old": "IsStringPointer",
+  "new": "IsNotLoromAddress",
+  "row": "R-I048-2"
+ },
+ {
+  "old": "ShadowShimmerCycleA",
+  "new": "ShadowShimmerSlowStrips",
+  "row": "R-I048-2"
+ },
+ {
+  "old": "ShadowShimmerCycleB",
+  "new": "ShadowShimmerFastStrips",
+  "row": "R-I048-2"
+ },
+ {
+  "old": "DarkGemDropSystem",
+  "new": "EnemyDropSystem",
+  "row": "R-I049-1"
+ },
+ {
+  "old": "SpawnDarkGemType1",
+  "new": "SpawnDropGem1",
+  "row": "R-I049-2"
+ },
+ {
+  "old": "DarkGemDropAnimVariantB",
+  "new": "SpawnDropGem2",
+  "row": "R-I049-2"
+ },
+ {
+  "old": "DarkGemDropTierPicker",
+  "new": "SpawnDropByHpTier",
+  "row": "R-I049-2"
+ },
+ {
+  "old": "DarkGemDropAnimVariantA",
+  "new": "DropBodyGem5",
+  "row": "R-I049-2"
+ },
+ {
+  "old": "code_00DF38",
+  "new": "DropBodyGem1",
+  "row": "R-I049-2",
+  "addr": 57144
+ },
+ {
+  "old": "code_00DF61",
+  "new": "DropBodyGem2",
+  "row": "R-I049-2",
+  "addr": 57185
+ },
+ {
+  "old": "code_00DFE3",
+  "new": "DropBodyHeal5",
+  "row": "R-I049-2",
+  "addr": 57315
+ },
+ {
+  "old": "gem_drop_threshold_00DFFD",
+  "new": "drop_threshold_by_hp",
+  "row": "R-I049-2",
+  "addr": 57341
+ },
+ {
+  "old": "code_0BEE23",
+  "new": "DebugManEntry",
+  "row": "R-I049-3",
+  "addr": 781859
+ },
+ {
+  "old": "code_0BEE58",
+  "new": "DebugMenuLevel2",
+  "row": "R-I049-3",
+  "addr": 781912
+ },
+ {
+  "old": "code_0BEE6C",
+  "new": "DebugMenuLevel3",
+  "row": "R-I049-3",
+  "addr": 781932
+ },
+ {
+  "old": "code_0BEE80",
+  "new": "DebugMenuLevel4",
+  "row": "R-I049-3",
+  "addr": 781952
+ },
+ {
+  "old": "code_0BEE94",
+  "new": "DebugMenuLevel5",
+  "row": "R-I049-3",
+  "addr": 781972
+ },
+ {
+  "old": "code_0BEEA8",
+  "new": "DebugMenuLevel6",
+  "row": "R-I049-3",
+  "addr": 781992
+ },
+ {
+  "old": "code_0BEEBC",
+  "new": "DebugMenuLevel7",
+  "row": "R-I049-3",
+  "addr": 782012
+ },
+ {
+  "old": "code_list_0BEE4E",
+  "new": "DebugMenuTable1",
+  "row": "R-I049-3",
+  "addr": 781902
+ },
+ {
+  "old": "code_list_0BEE62",
+  "new": "DebugMenuTable2",
+  "row": "R-I049-3",
+  "addr": 781922
+ },
+ {
+  "old": "code_list_0BEE76",
+  "new": "DebugMenuTable3",
+  "row": "R-I049-3",
+  "addr": 781942
+ },
+ {
+  "old": "code_list_0BEE8A",
+  "new": "DebugMenuTable4",
+  "row": "R-I049-3",
+  "addr": 781962
+ },
+ {
+  "old": "code_list_0BEE9E",
+  "new": "DebugMenuTable5",
+  "row": "R-I049-3",
+  "addr": 781982
+ },
+ {
+  "old": "code_list_0BEEB2",
+  "new": "DebugMenuTable6",
+  "row": "R-I049-3",
+  "addr": 782002
+ },
+ {
+  "old": "code_list_0BEEC6",
+  "new": "DebugMenuTable7",
+  "row": "R-I049-3",
+  "addr": 782022
+ },
+ {
+  "old": "code_0BEED5",
+  "new": "DebugWarpGreatWall",
+  "row": "R-I049-3",
+  "addr": 782037
+ },
+ {
+  "old": "code_0BEEE4",
+  "new": "DebugWarpEdowaDo",
+  "row": "R-I049-3",
+  "addr": 782052
+ },
+ {
+  "old": "code_0BEEF3",
+  "new": "DebugWarpLastGaiaLook",
+  "row": "R-I049-3",
+  "addr": 782067
+ },
+ {
+  "old": "code_0BEF02",
+  "new": "DebugWarpItory",
+  "row": "R-I049-3",
+  "addr": 782082
+ },
+ {
+  "old": "code_0BEF11",
+  "new": "DebugWarpMoonTribe",
+  "row": "R-I049-3",
+  "addr": 782097
+ },
+ {
+  "old": "code_0BEF20",
+  "new": "DebugWarpUndergroundCastle",
+  "row": "R-I049-3",
+  "addr": 782112
+ },
+ {
+  "old": "code_0BEF2F",
+  "new": "DebugWarpEuro",
+  "row": "R-I049-3",
+  "addr": 782127
+ },
+ {
+  "old": "code_0BEF3E",
+  "new": "DebugWarpNativesVillage",
+  "row": "R-I049-3",
+  "addr": 782142
+ },
+ {
+  "old": "code_0BEF4D",
+  "new": "DebugWarpDao",
+  "row": "R-I049-3",
+  "addr": 782157
+ },
+ {
+  "old": "code_0BEF5C",
+  "new": "DebugWarpInca",
+  "row": "R-I049-3",
+  "addr": 782172
+ },
+ {
+  "old": "code_0BEF6B",
+  "new": "DebugWarpFreejia",
+  "row": "R-I049-3",
+  "addr": 782187
+ },
+ {
+  "old": "code_0BEF7A",
+  "new": "DebugWarpDiamondMine",
+  "row": "R-I049-3",
+  "addr": 782202
+ },
+ {
+  "old": "code_0BEF89",
+  "new": "DebugWarpSkyGarden",
+  "row": "R-I049-3",
+  "addr": 782217
+ },
+ {
+  "old": "code_0BEF98",
+  "new": "DebugWarpSeasidePalace",
+  "row": "R-I049-3",
+  "addr": 782232
+ },
+ {
+  "old": "code_0BEFA7",
+  "new": "DebugWarpMu",
+  "row": "R-I049-3",
+  "addr": 782247
+ },
+ {
+  "old": "code_0BEFB6",
+  "new": "DebugWarpAngelVillage",
+  "row": "R-I049-3",
+  "addr": 782262
+ },
+ {
+  "old": "code_0BEFC5",
+  "new": "DebugWarpNativesVillageAlt",
+  "row": "R-I049-3",
+  "addr": 782277
+ },
+ {
+  "old": "code_0BEFD4",
+  "new": "DebugWarpDaoAlt",
+  "row": "R-I049-3",
+  "addr": 782292
+ },
+ {
+  "old": "code_0BEFE3",
+  "new": "DebugWarpPyramid",
+  "row": "R-I049-3",
+  "addr": 782307
+ },
+ {
+  "old": "code_0BEFF2",
+  "new": "DebugWarpWatermia",
+  "row": "R-I049-3",
+  "addr": 782322
+ },
+ {
+  "old": "code_0BF001",
+  "new": "DebugWarpAngkorWat",
+  "row": "R-I049-3",
+  "addr": 782337
+ },
+ {
+  "old": "loc_00EB48",
+  "new": "CameraDeadBoundsX",
+  "row": "R-I049-4",
+  "addr": 60232
+ },
+ {
+  "old": "loc_00EB74",
+  "new": "CameraDeadBoundsY",
+  "row": "R-I049-4",
+  "addr": 60276
+ },
+ {
+  "old": "NpcWanderStandAnim0",
+  "new": "NpcWanderStandSouth",
+  "row": "R-I050-3"
+ },
+ {
+  "old": "NpcWanderStandAnim1",
+  "new": "NpcWanderStandNorth",
+  "row": "R-I050-3"
+ },
+ {
+  "old": "NpcWanderStandAnim2",
+  "new": "NpcWanderStandWest",
+  "row": "R-I050-3"
+ },
+ {
+  "old": "NpcWanderStandAnim3",
+  "new": "NpcWanderStandEast",
+  "row": "R-I050-3"
+ },
+ {
+  "old": "loc_00C76B",
+  "new": "NpcWanderStageStand",
+  "row": "R-I050-3",
+  "addr": 51051
+ },
+ {
+  "old": "loc_00C7EF",
+  "new": "NpcWanderStageWalk",
+  "row": "R-I050-3",
+  "addr": 51183
+ },
+ {
+  "old": "code_list_00C733",
+  "new": "npc_wander_case_table",
+  "row": "R-I050-3",
+  "addr": 50995
+ },
+ {
+  "old": "binary_00D068",
+  "new": "camera_drift_offsets",
+  "row": "R-I050-4",
+  "addr": 53352
+ },
+ {
+  "old": "loc_00CFE0",
+  "new": "CameraDriftShipPassEnd",
+  "row": "R-I050-4",
+  "addr": 53216
+ }
+]

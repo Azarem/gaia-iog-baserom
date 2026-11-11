@@ -1,0 +1,1353 @@
+[
+  {
+    "id": "FL30-01",
+    "flag": 0,
+    "scope": {
+      "scenes": [
+        6
+      ]
+    },
+    "claim": "Setting scratch flag $00 switches the player to the alternate idle animations ($10-$13) with every form; the pose it shows is the open question (purpose UNKNOWN).",
+    "priority": "P1",
+    "start": {
+      "scene": 6,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "warp to scene $06 with $00 clear; record playerActor animation index and a screenshot of the idle pose",
+      "forced": "repeat with $00 set (gaia.flags write on $0A00 bit 0) for Will, then Freedan and Shadow (form via $0AD4)",
+      "observe": [
+        "StagePlayerSprite animation index",
+        "screenshot of idle S/N/W/E",
+        "ladder idle and shimmy detach for the same flag value"
+      ]
+    },
+    "confirms": "effects.set of sys_player_alt_idle_active (anims $10-$13 for every form)",
+    "refutes": "any form that keeps anim $00-$03 with the flag set (the branch would not be form-independent)",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL30-02",
+    "flag": 0,
+    "scope": {
+      "scenes": [
+        21
+      ]
+    },
+    "claim": "Scenes where scene_flag_init is placed (26) start every visit in the alternate idle; compare Itory ($15) arrival with the flag forced clear.",
+    "priority": "P2",
+    "start": {
+      "scene": 21,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "warp to scene $15 normally and observe the idle pose after 2 frames",
+      "forced": "clear $00 each frame (write $0A00 &= ~1) and observe",
+      "observe": [
+        "animation index",
+        "screenshot"
+      ]
+    },
+    "confirms": "scene_flag_init sets $00 on its first tick and the alternate idle is visible",
+    "refutes": "no difference between the two runs",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL30-03",
+    "flag": 1,
+    "scope": {
+      "scenes": [
+        253,
+        255
+      ]
+    },
+    "claim": "palette_parent_child never spawns its child wave: nothing sets scratch $01 in scenes $FD and $FF.",
+    "priority": "P3",
+    "start": {
+      "scene": 255,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "open the inventory and the Mystic Statue ceremony; watch thinker list slots for a second palette_parent_child child",
+      "forced": "write $0A00 bit 1 while the overlay is open",
+      "observe": [
+        "thinker list",
+        "CGRAM colours of bundle #03"
+      ]
+    },
+    "confirms": "the child appears only when forced",
+    "refutes": "the child appears without forcing",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL30-04",
+    "flag": 255,
+    "scope": null,
+    "claim": "World thinkers parked on WaitOnFlagByte($FF clear) (flag_gated_palette_cool/warm, gold_ship_wreck_palette) either replay their bundle after an inventory open/close or stay parked.",
+    "priority": "P2",
+    "start": {
+      "scene": 3,
+      "flags": [
+        22
+      ],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "in scene $03 with $16 set and $1C clear, record CGRAM colours $19-$1F before opening the inventory",
+      "forced": "open and close the inventory, record CGRAM again and the thinker slot state",
+      "observe": [
+        "CGRAM $19-$1F",
+        "thinker list",
+        "flag $FF ($0A1F bit 7)"
+      ]
+    },
+    "confirms": "whether the thinker wakes on the clear and replays bundle #4C",
+    "refutes": "",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL30-05",
+    "flag": 16,
+    "scope": {
+      "scenes": [
+        251
+      ]
+    },
+    "claim": "Boot logo latch: $10 is clear when scene $FB starts, set during the first logo and cleared before the title; no save value leaks in.",
+    "priority": "P3",
+    "start": {
+      "scene": 251,
+      "flags": [],
+      "form": "Will",
+      "state": "cold boot"
+    },
+    "trial": {
+      "control": "cold boot with a populated SRAM and watch $0A02 bit 0 through the two logos and the title",
+      "forced": "soft reset in the middle of the game with $10 set and watch the logos",
+      "observe": [
+        "$0A02 bit 0 per frame",
+        "logo sequence"
+      ]
+    },
+    "confirms": "two-visit latch with no leak",
+    "refutes": "the second logo skipped or repeated",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL30-06",
+    "flag": 46,
+    "scope": null,
+    "claim": "$2E (Incan Melody, scene $18) has no reader: playing the melody with and without the flag changes nothing visible.",
+    "priority": "P3",
+    "start": {
+      "scene": 24,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "use the Incan Melody in scene $18 and watch NPCs",
+      "forced": "pre-set $2E and enter scene $18",
+      "observe": [
+        "NPC states",
+        "dialog"
+      ]
+    },
+    "confirms": "no difference",
+    "refutes": "any NPC reacts",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL30-07",
+    "flag": 16,
+    "scope": {
+      "scenes": [
+        251
+      ]
+    },
+    "claim": "Spine proposal sys_boot_logo_first_shown: Scene $FB (boot logos) has shown the first logo: the reload of scene $FB for the second logo sees the flag set and runs BootLogoSecondPhase.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-08",
+    "flag": 22,
+    "scope": null,
+    "claim": "Spine proposal sc_cave_kara_news_done: Agrees with FL20. The evening palette thinker applies bundle #4C only when this flag is set (and $1C clear).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-09",
+    "flag": 28,
+    "scope": null,
+    "claim": "Spine proposal sc_dinner_night_passed: Agrees with FL20. The evening palette thinkers die at spawn when it is set.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-10",
+    "flag": 36,
+    "scope": null,
+    "claim": "Spine proposal ec_prison_cell_door_unlocked: Agrees with FL21 (door A of the prison, UseItem_PrisonKey).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-11",
+    "flag": 37,
+    "scope": null,
+    "claim": "Spine proposal sc_lily_met_in_house: Agrees with FL20 (medium). With $26 clear and $25 set the South Cape world-map exit stages choice id $1B (Quit only): the way out is closed until the Itory trip",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-12",
+    "flag": 38,
+    "scope": null,
+    "claim": "Spine proposal sc_itory_trip_started: Agrees with FL20 (medium). Set: the South Cape world-map exit stages choice id $02 (Itory Village); tested before $25.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-13",
+    "flag": 47,
+    "scope": null,
+    "claim": "Spine proposal ir_entryway_block_placed: Agrees with FL22: the Blue Block (item $07) was fitted into the block slot of scene $25 by UseItem_DiamondBlock_Place.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-14",
+    "flag": 48,
+    "scope": null,
+    "claim": "Spine proposal ir_cliff_back_statue_a_placed: Agrees with FL22: Incan Statue A placed on the mantel (UseItem_IncaStatueA).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-15",
+    "flag": 49,
+    "scope": null,
+    "claim": "Spine proposal ir_cliff_back_statue_b_placed: Agrees with FL22: Incan Statue B placed on the mantel (UseItem_IncaStatueB).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-16",
+    "flag": 64,
+    "scope": null,
+    "claim": "Spine proposal it_village_barrier_lifted: Agrees with FL22 (medium): Lola's Melody was played in the Itory village; the melody is refused while set.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-17",
+    "flag": 66,
+    "scope": null,
+    "claim": "Spine proposal ec_prison_door_b_unlocked: Agrees with FL21 (door B of the prison, UseItem_PrisonKey).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-18",
+    "flag": 68,
+    "scope": null,
+    "claim": "Spine proposal it_elder_legend_heard: Agrees with FL22: both Incan statue handlers refuse (clear) until the elder's legend was heard.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-19",
+    "flag": 74,
+    "scope": null,
+    "claim": "Spine proposal it_moon_camp_ruins_trip_started: Agrees with FL22: the Itory world-map exit offers the Inca Ruins (choice id $06).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-20",
+    "flag": 77,
+    "scope": null,
+    "claim": "Spine proposal gs_wreck_palette_alt_set: Agrees with FL23 (medium): at spawn the Gold Ship wreck palette thinker plays bundle #34 once and then the #33 loop.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-21",
+    "flag": 82,
+    "scope": null,
+    "claim": "Spine proposal gs_adrift_final_palette_set: Agrees with FL23 (medium): at spawn the thinker kills the first two scanline-band thinkers and flattens palette 2 to dark blue.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-22",
+    "flag": 91,
+    "scope": null,
+    "claim": "Spine proposal dm_foyer_door_key_a_used: Agrees with FL24: Mine Key A was used.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-23",
+    "flag": 92,
+    "scope": null,
+    "claim": "Spine proposal dm_foyer_door_key_b_used: Agrees with FL24: Mine Key B was used.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-24",
+    "flag": 96,
+    "scope": null,
+    "claim": "Spine proposal sg_garden_pedestal_east_upper_crystal_set: Agrees with FL24 (medium): crystal-ball pedestal flag $60 (UseItem_CrystalBall).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-25",
+    "flag": 97,
+    "scope": null,
+    "claim": "Spine proposal sg_garden_pedestal_east_lower_crystal_set: Agrees with FL24 (medium): pedestal flag $61.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-26",
+    "flag": 98,
+    "scope": null,
+    "claim": "Spine proposal sg_garden_pedestal_west_upper_crystal_set: Agrees with FL24 (medium): pedestal flag $62.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-27",
+    "flag": 99,
+    "scope": null,
+    "claim": "Spine proposal sg_garden_pedestal_west_lower_crystal_set: Agrees with FL24 (medium): pedestal flag $63.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-28",
+    "flag": 101,
+    "scope": null,
+    "claim": "Spine proposal fr_erik_rescued_done: Agrees with FL23: Erik is freed; the Freejia world-map exit offers the Diamond Mine (choice id $07, else $09 Quit only).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-29",
+    "flag": 104,
+    "scope": null,
+    "claim": "Spine proposal fr_hotel_lance_memory_restored: Agrees with FL23: tested by the Memory Melody handler.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-30",
+    "flag": 105,
+    "scope": null,
+    "claim": "Spine proposal dm_elevator_key_used: Agrees with FL24: the Elevator Key was used.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-31",
+    "flag": 123,
+    "scope": null,
+    "claim": "Spine proposal mu_hope_statue_west_placed: Agrees with FL25.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-32",
+    "flag": 126,
+    "scope": null,
+    "claim": "Spine proposal mu_hope_statue_east_placed: Agrees with FL25.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-33",
+    "flag": 128,
+    "scope": null,
+    "claim": "Spine proposal mu_rama_statue_first_placed: Agrees with FL25.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-34",
+    "flag": 129,
+    "scope": null,
+    "claim": "Spine proposal mu_rama_statue_second_placed: Agrees with FL25.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-35",
+    "flag": 141,
+    "scope": null,
+    "claim": "Spine proposal wa_arrival_cutscene_started: Agrees with FL26/FL27: the Angel Village world-map exit offers Watermia (choice id $0A, else $15 Quit only).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-36",
+    "flag": 148,
+    "scope": null,
+    "claim": "Spine proposal wa_party_left_for_euro: Agrees with FL27: the Watermia world-map exit offers Euro (choice id $0E).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-37",
+    "flag": 159,
+    "scope": null,
+    "claim": "Spine proposal eu_mt_kress_marked_on_map: Agrees with FL27: the Euro world-map exit offers Mt. Kress (choice id $10, or $1A with $AC).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-38",
+    "flag": 168,
+    "scope": null,
+    "claim": "Spine proposal eu_teapot_used_in_mansion: Agrees with FL27: set by UseItem_Teapot.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-39",
+    "flag": 172,
+    "scope": null,
+    "claim": "Spine proposal nv_party_arrived_native_village: Agrees with FL28: the Euro world-map exit offers the Native Village (choice id $1A).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-40",
+    "flag": 177,
+    "scope": null,
+    "claim": "Spine proposal nv_temple_drawn_on_map: Agrees with FL28: the Native Village world-map exit offers Ankor Wat (choice id $13).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-41",
+    "flag": 180,
+    "scope": null,
+    "claim": "Spine proposal da_neil_reunion_seen: Agrees with FL28: Neil's reunion talk in the Dao dormitory was shown; the Dao world-map exit offers the Pyramid and the Dark Space Shadow statue unlocks.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-42",
+    "flag": 182,
+    "scope": null,
+    "claim": "Spine proposal da_arrived_dao: Agrees with FL28: the Native Village world-map exit offers Dao (choice id $19, tested first).",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-43",
+    "flag": 187,
+    "scope": null,
+    "claim": "Spine proposal py_jackal_scene_done: Agrees with FL29 (medium): the Pyramid Jackal sequence finished; Lola's Melody is refused in scene $CD once set.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-44",
+    "flag": 191,
+    "scope": null,
+    "claim": "Spine proposal nv_statue1_petal_placed: Agrees with FL28: first petal handler flag.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-45",
+    "flag": 192,
+    "scope": null,
+    "claim": "Spine proposal nv_statue2_petal_placed: Agrees with FL28: second petal handler flag.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-46",
+    "flag": 193,
+    "scope": null,
+    "claim": "Spine proposal nv_statue3_petal_placed: Agrees with FL28: third petal handler flag.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-47",
+    "flag": 232,
+    "scope": null,
+    "claim": "Spine proposal ma_solid_arm_intro_heard: Agrees with FL21: set at the start of the Solid Arm intro (sEA_solid_arm.asm:57 {587597}); Jeweler Gem dies at spawn once it is set.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-48",
+    "flag": 244,
+    "scope": null,
+    "claim": "Spine proposal pr_prophecy_first_pass_active: Agrees with FL20 (high): the title intro sets the flag after about 42 idle seconds and before QueueMapChange to scene $8C; pr8C_prologue1 clears it, and the sce",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-49",
+    "flag": 255,
+    "scope": null,
+    "claim": "Spine proposal sys_scene_setup_done: Agrees with the earlier iterations: scene-setup latch. ClearSceneState clears it at the top (scene_lifecycle.asm:~842, offsets 253418-253423) and sets it at the",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-50",
+    "flag": 275,
+    "scope": null,
+    "claim": "Spine proposal ec_aqueduct_door_open: Agrees with FL21 (word flag $0113): the Lola's Melody start handler refuses scene $11 once the doorway is open.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  },
+  {
+    "id": "FL30-51",
+    "flag": 312,
+    "scope": null,
+    "claim": "Spine proposal sp_mu_passage_door_open: Agrees with FL25 (word flag $0138): set by UseItem_SeasidePalaceKey.",
+    "priority": "P3",
+    "start": {
+      "scene": null,
+      "flags": [],
+      "form": "Will",
+      "state": "orig_S01r_south-cape-ready.mss"
+    },
+    "trial": {
+      "control": "run the flow of the roles with the flag clear",
+      "forced": "repeat with the flag set (FL31 picks the scene from the merged record)",
+      "observe": [
+        "the readers listed under roles"
+      ]
+    },
+    "confirms": "effects of the merged FL31 record",
+    "refutes": "",
+    "needs": [
+      "FR00",
+      "FL31"
+    ]
+  }
+]

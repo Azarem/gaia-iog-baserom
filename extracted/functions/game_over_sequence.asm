@@ -11,7 +11,7 @@
 ; === RESPAWN CHOICE ===
 ; 
 ; gemCount >= 100 (revive): gemCount -= 100, playerHp = playerMaxHp >> 1, and the respawn record is the one stored by the last warp the player took (reviveWarpPtr / reviveWarpBank, $0AF4 / $0AF6; ExecuteWarp writes a pointer to entry + 4 for every warp). Form and wramFlags are kept.
-; gemCount < 100 (real game over): gemCount = 0, characterForm = 0 (Will), or 2 (Shadow) when sceneCurrent is $E8 (the Dark Gaia arena in the comet lair; presumably because that fight is played as Shadow), playerHp = playerMaxHp, the 16 words of wramFlags ($0A80-$0A9F: dungeon kill and puzzle flags) are cleared, and the respawn record is sceneSaveData / sceneSaveDataBank ($0AF0 / $0AF2), which ExecuteWarp writes only for warps whose entry byte 9 has bit 7 set.
+; gemCount < 100 (real game over): gemCount = 0, characterForm = 0 (Will), or 2 (Shadow) when sceneCurrent is $E8 (the Dark Gaia arena in the comet lair; measured: a game over in $E8 as Will with 0 gems respawns as form 2 at the saved warp (scene $1B in the test) with full HP and the flags cleared, while the same death in scene $0C gives form 0; the code does not say why), playerHp = playerMaxHp, the 16 words of wramFlags ($0A80-$0A9F: dungeon kill and puzzle flags) are cleared, and the respawn record is sceneSaveData / sceneSaveDataBank ($0AF0 / $0AF2), which ExecuteWarp writes only for warps whose entry byte 9 has bit 7 set.
 ; 
 ; === SHARED RESPAWN TAIL ===
 ; 
@@ -192,7 +192,7 @@ GameOverCutsceneSprites {
 }
 
 ---------------------------------------------
-; Sparkle that loops forever: Flags10 $0001 (depth override: drawn behind every other actor) while animation #15 plays once with the X ramp $2D and the Y ramp $2F of move_chain_table, then $0002 (drawn in front of every actor) with animation #15 and the ramps $2E / $30. The ramps are $2D positive X, $2E negative X, $2F negative-then-positive Y and $30 positive-then-negative Y, so the sparkle swings out and back around the player, passing behind and in front (inferred from the signs; not run). Spawned twice.
+; Sparkle that loops forever: Flags10 $0001 (depth override: drawn behind every other actor) while animation #15 plays once with the X ramp $2D and the Y ramp $2F of move_chain_table, then $0002 (drawn in front of every actor) with animation #15 and the ramps $2E / $30. The ramps are $2D positive X, $2E negative X, $2F negative-then-positive Y and $30 positive-then-negative Y, so each sparkle runs a closed ellipse about 51 px wide and 36 px tall with a period of 42 ticks (21 behind, 21 in front): behind the other actors on the upper half, in front on the lower half. The three sparkles run the same ellipse at three heights (centres 16 px apart) and none rises. In scene $E8 the three sparkle actors live 107, 104 and 99 ticks, and a sparkle sprite is on screen in 81 of the 107 ticks (it drops out for one or two ticks at every restart of the animation). Spawned twice.
 
 GameOverSparkleOrbitA {
     LDA #$0001

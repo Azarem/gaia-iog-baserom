@@ -1,0 +1,188 @@
+[
+  {
+    "flag": 16, "scope": { "scenes": [8] }, "queueId": "FL20-01", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set by the COP at ROM offset 297683 (actor entry 84:8AD3) 1090 frames after the lesson dialog starts; scene $08 then loads with the joypad free and only the priest present (Lance, Erik, Seth absent).",
+      "clear": "Scene $08 locks the joypad ($CFF0 stored by sc08_priest at offset 297638) at arrival and runs the lesson; Erik's TRB at offset 298444 releases the lock 1412 frames after arrival, after Erik and Seth have left."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-01 (raw/FR20_FL20-01_*_20261105.json, screenshots FR20_FL20-01_*)"
+  },
+  {
+    "flag": 22, "scope": null, "queueId": "FL20-02", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set with scratch $04 by sc02_erik (slot $10C0, entry 84:B8CE) once Will has talked to Lance and Seth (FR10 f=6904). With it set at load, scene $02 starts Lance, Seth and Erik in their post-news handlers (Erik at (136,144)); scene $06 starts Kara (sc06_kara) and Hamlet (sc06_hamlet, joypad lock $CFF0 at offset 303603) and Bill and Lola in their evening handlers.",
+      "clear": "Scene $02 starts Lance, Seth, Erik in the pre-chain handlers (Erik at (136,288)); scene $06 has no Kara and no Hamlet. The claim that the evening palette thinkers die when it is clear was not observed (thinkers are not in the actor list)."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-02 (raw/FR20_FL20-02_*, FR20_S6_ARR/EVE)"
+  },
+  {
+    "flag": 28, "scope": null, "queueId": "FL20-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set by sc06_monologue (entry 84:A494, FR10 f=15884) after the stairs trigger. With $1C set and $1D clear at load, scene $06 locks the joypad ($CFF0, offset 304311) at arrival, sets $1D 78 frames later, then prints the morning narration; Bill and Lola run their morning handlers (entries @158 / @122).",
+      "clear": "With $1C clear (and $3E set) the joypad stays free and the monologue actor idles waiting for the stairs trigger; Bill and Lola run the dinner handlers (@112 / @103)."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-03 (raw/FR20_S6_DINNER/NIGHT/MORNING)"
+  },
+  {
+    "flag": 33, "scope": null, "queueId": "FL20-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $06 with $21 set and $25, $26 clear: sc06_lily, sc06_kara_return and its door-block actor are present, the joypad is locked at arrival (offset 304583), Bill and Lola are absent, collision cells (05,1D) and (06,1D) carry the actor solid mark ($F0). The scene_meta graphics gate changes 8 KB of VRAM with $4C set versus clear (which set holds the main characters was not identified).",
+      "clear": "Scene $06 keeps Bill and Lola and no Lily or Kara return."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-04 (raw/FR20_S6_CASTLE, FR20_FL20-04_s6_castle_*)"
+  },
+  {
+    "flag": 37, "scope": null, "queueId": "FL20-05", "verdict": "INCONCLUSIVE", "grade": "none (spine proposal)",
+    "effects": {
+      "set": "Forced half observed: with $25 set at load the door-block actor is absent, collision cells (05,1D) and (06,1D) are free, the joypad is free, and Lily (136,432) and Kara (200,432) stand at tiles (08,1B) and (0C,1B). The natural write by sc06_kara_return (Lily introduction handshake) was not reached in four trials.",
+      "clear": "-"
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-05"
+  },
+  {
+    "flag": 38, "scope": null, "queueId": "FL20-06", "verdict": "INCONCLUSIVE", "grade": "none (spine proposal)",
+    "effects": {
+      "set": "Forced half observed: with $26 set at load scene $06 has no Kara and no Lily, and in scene $01 at the house door (player (520,224)) with $21 set the house narration plays (flag $12 set, dialog) instead of the map change to scene $06. The natural write (second departure handshake, Yes answer, scene $15) was not reached.",
+      "clear": "With $26 clear and $21 set the same door tile queues the map change to scene $06 (kara_return present)."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-06"
+  },
+  {
+    "flag": 76, "scope": { "scenes": [2] }, "queueId": "FL20-07", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $02 with $4C set: sc02_lance, the main sc02_seth and sc02_erik are absent (only the statue-side sc02_seth@197 and interaction_handlers remain).",
+      "clear": "All three are present."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-07 (raw/FR20_FL20-07_s2_forced4C)"
+  },
+  {
+    "flag": 244, "scope": { "scenes": [140] }, "queueId": "FL20-08", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at title idle (FR10: f=3481 by entry 8B:C972, offset 772466) and scene $8C queued. Scene $8C with $F4 set runs pr8C_prologue1, clears $F4 at its ClearFlagByte (offset 45300) 892 frames in, then $8D (five visits, $017C-$017F set one per visit and $017C cleared on the fifth), $8E, $8F, $8C again and $FC.",
+      "clear": "Scene $8C with $F4 clear runs pr8C_prologue5 and goes to $FC after 857 frames; on the second idle pass 8C clears $F4 and $017D-$017F at one frame."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-08 (raw/FR20_FL20-08_forced_F4set, FR20_FL20-08_forced_F4clear)"
+  },
+  {
+    "flag": 281, "scope": { "scenes": [6] }, "queueId": "FL20-09", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $06 with $0119 set at load shows the ransacked room (VRAM 2 KB tilemap chunks 8-9 differ; screenshot shows a changed floor and furniture); the writer sc06_kara_return clear at offset 304776 was not observed at runtime.",
+      "clear": "Scene $06 shows the normal room."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL20-09 (raw/FR20_S6_MORNING*, screenshots)"
+  },
+  {
+    "flag": 32, "scope": null, "queueId": "FL20-10", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $20 set at load of scene $02, Lance, Seth and Erik start in their post-chain handlers (Lance @103, Seth @136, Erik @70) with Erik at his spawn (136,288), not at (136,144) as with $16. The flag was not written on the FR10 route (all stores of $0A00-$0AB3 watched over scenes $FC $FA $08 $01 $03 $04 $02 $06 $FE $0A, 20,079 frames).",
+      "clear": "-"
+    },
+    "expectGrade": "UNKNOWN", "evidence": "FR20_20261105.md section FL20-10 (raw/FR20_FL20-10_s2_forced20; FR10_20261104.md)"
+  },
+  {
+    "flag": 0, "scope": { "scenes": [1] }, "queueId": "FL20-11", "verdict": "INCONCLUSIVE", "grade": "INFERRED",
+    "effects": {
+      "set": "Writer half observed: scene $01 with the player at Y $0270 ends with $0A00 bit 0 set (SetFlagByte at offset 295903 executed once, f=3610); at Y $0120 ClearFlagByte at offset 295907 ran and the bit is clear. The idle sprite change was not observed (animation index $1028 equal in both).",
+      "clear": "-"
+    },
+    "expectGrade": "INFERRED", "evidence": "FR20_20261105.md section FL20-11"
+  },
+  {
+    "flag": 6, "scope": { "scenes": [2] }, "queueId": "FL20-12", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set by the Seth slot ($1090, entry 84:B507, offset 308487 PrintDialogString then SetFlagByte #06) at FR10 f=8289 after the statue moved. The actor behind Seth's list link ($1090 -> $1210) is the statue object (sc02_seth line 197, e_sc02_actor_04B051) at (232,192).",
+      "clear": "-"
+    },
+    "expectGrade": "INFERRED", "evidence": "FR20_20261105.md section FL20-12 (FR10_20261104.md log; raw/FR20_FL20-02_s2_forced16)"
+  },
+  {
+    "flag": 15, "scope": { "scenes": [140, 141, 142, 143] }, "queueId": "FL20-13", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set once per scene by the thinker (entry 8B:D03C); 10 reads of byte $0A01 over scenes $8C-$8F and the second $8C, all by that same thinker, none by an actor.",
+      "clear": "-"
+    },
+    "expectGrade": "INFERRED", "evidence": "FR20_20261105.md section FL20-13 (raw/FR20_FL20-13_prologue_readwatch)"
+  },
+  {
+    "flag": 33, "scope": null, "queueId": "FL21-01", "verdict": "CONTRADICTED", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Scene $0A with $21 set: the prison guard is absent, ten ec0A_torch1 and eleven ec0A_torch2 are present, the left guard stands at tile (06,27), right, stair and Kara-door guards run their post-throne handlers, palettes 1-7 differ from the clear case, a second ec0A_kara (escort) exists when $22 is clear. Scene $0E with $21 set: the two ec0E_statue actors are still solid push blocks (cells $F0, push handler present) and additionally have chatPtr $8853; the claim that they are inspectable INSTEAD of solid push blocks is wrong.",
+      "clear": "Scene $0A: prison guard present, no torches. Scene $0E: statues solid push blocks with chatPtr 0."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL21-01 (raw/FR20_FL21-01_*)"
+  },
+  {
+    "flag": 36, "scope": null, "queueId": "FL21-02", "verdict": "INCONCLUSIVE", "grade": "none (spine proposal)",
+    "effects": {
+      "set": "Reload half observed: with only $24 set, scene $0B has no ec0B_cell and no ec0B_door and the joypad is free. The key use (UseItem_PrisonKey setting $24 and $0106) was not run: no inventory/menu bot.",
+      "clear": "Scene $0B locks the joypad at arrival and runs the imprisonment scene."
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL21-02 (raw/FR20_FL21-B8_s0B_*)"
+  },
+  {
+    "flag": 66, "scope": null, "queueId": "FL21-03", "verdict": "INCONCLUSIVE", "grade": "none (spine proposal)",
+    "effects": {
+      "set": "Reload half observed: with $42 set, collision cell (09,17) is $00; with $42 clear it is $0F (type nibble F). The key-use writer was not run.",
+      "clear": "-"
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL21-03"
+  },
+  {
+    "flag": 232, "scope": null, "queueId": "FL21-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set by sEA_solid_arm at ROM offset 587597 261 frames after the scene lock and 1 frame before the intro dialog opens (no fight needed). With $E8 set at load Jeweler Gem is absent in all six scenes that spawn him ($01, $32, $6B, $7B, $9B, $C3) and present with it clear; re-entering scene $EA with it set skips the intro dialog.",
+      "clear": "-"
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL21-04 (raw/FR20_FL21-04_*)"
+  },
+  {
+    "flag": 255, "scope": { "scenes": [10] }, "queueId": "FL21-05", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "The alarm thinker (offsets 46643, 46655, 46674, 46677) runs only with $21 set and $22 clear (otherwise it reaches the kill at 46683 on its first frame). It runs PaletteStart once, executes SetFlagByte #FF, then WaitOnFlagByte #FF/#00 724 times in 700 frames while $0A1F bit 7 stays set; the bit is cleared at scene load (f=20698) and set again by the engine's scene setup (f=20704, D=0000). Not observed: restart of the cycle after an inventory open and close.",
+      "clear": "-"
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL21-05 (raw/FR20_FL21-05_*)"
+  },
+  {
+    "flag": 275, "scope": null, "queueId": "FL21-06", "verdict": "INCONCLUSIVE", "grade": "none (spine proposal)",
+    "effects": {
+      "set": "Reload half observed: with $0113 set at load of scene $11, ec11_countdown starts at a different entry (@89 instead of @23) and VRAM 4 KB (chunks 8-11) differs (BG change #13). The voice writer (melody, switch hit) and the melody item were not run.",
+      "clear": "-"
+    },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL21-06"
+  },
+  {
+    "flag": 281, "scope": null, "queueId": "FL21-07", "verdict": "INCONCLUSIVE", "grade": "none (spine proposal)",
+    "effects": { "set": "The cellar helper (ec0A_kara code_04CF72) is alive at (120,160) and the roast was obtained, but Down pressed at tiles (20,2C) in two trials did not set $22 or $0119.", "clear": "-" },
+    "expectGrade": "none (spine proposal)", "evidence": "FR20_20261105.md section FL21-07"
+  },
+  {
+    "flag": 67, "scope": null, "queueId": "FL21-08", "verdict": "INCONCLUSIVE", "grade": "UNKNOWN",
+    "effects": { "set": "With $43 set at load of scene $0B the collision cell (14,17) is $00, the same as with $43 clear: no observable effect at load. No write to $0A08 bit 3 on the FR10 route (scenes $FC $FA $08 $01 $03 $04 $02 $06 $FE $0A); the prison, escape and later scenes were not played.", "clear": "-" },
+    "expectGrade": "UNKNOWN", "evidence": "FR20_20261105.md section FL21-08"
+  },
+  {
+    "flag": 70, "scope": null, "queueId": "FL21-09", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $46 set at load of scene $0A, the barrel dies and the roast message opens at once (screenshot, displayModeFlags $0080); with $46 clear the barrel waits. Taking the roast sets $46 (write at f=20832, byte $0A08 0>$40).",
+      "clear": "-"
+    },
+    "expectGrade": "INFERRED", "evidence": "FR20_20261105.md section FL21-09"
+  },
+  {
+    "flag": 0, "scope": { "scenes": [11] }, "queueId": "FL21-10", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "No write to $0A00 bit 0 in scene $0B in 1200 frames. The helper (code_04DB00) executed the AdhocVramDma COP (offset 318208) 1169 times in 1223 frames (once per frame) and the helper is alive at the end; while the first dialog is open it pauses. Not observed: the inventory open and close.",
+      "clear": "-"
+    },
+    "expectGrade": "none (meaning without grade)", "evidence": "FR20_20261105.md section FL21-10 (raw/FR20_FL21-10_s0B_mashA)"
+  },
+  {
+    "flag": 1, "scope": { "scenes": [10] }, "queueId": "FL21-11", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Talking to the Kara-door guard with $21 clear sets scratch $01 (D=12A0, entry 84:C96D, f=20873) and arms the barrel (ec0A_barrel_roast moves from @19 to @22, chatPtr $D0FA); the barrel then gives the roast (and sets $46) without the prison.",
+      "clear": "-"
+    },
+    "expectGrade": "VERIFIED-STATIC", "evidence": "FR20_20261105.md section FL21-11"
+  }
+]

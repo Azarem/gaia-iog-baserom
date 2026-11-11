@@ -82,7 +82,7 @@ BranchIfHasItem {
 }
 
 ---------------------------------------------
-; COP #D7 with one byte (item ID) and one &Code operand. Compares the operand against inventorySlots[inventoryEquippedIndex]; branches to &Code when they match. inventorySlots is a 16-byte array ($0AB4–$0AC3, one item ID per byte; CheckInventoryForItem steps it with INY), so the index is a plain byte index. When nothing is equipped (index $FFFF, e.g. after RemoveItem) the indexed read wraps to $0AB3 — the byte before the array — so the compare reads unrelated data (analysis only, unverified at runtime).
+; COP #D7 with one byte (item ID) and one &Code operand. Compares the operand against inventorySlots[inventoryEquippedIndex]; branches to &Code when they match. inventorySlots is a 16-byte array ($0AB4–$0AC3, one item ID per byte; CheckInventoryForItem steps it with INY), so the index is a plain byte index. When nothing is equipped (index $FFFF, e.g. after RemoveItem) the 16-bit index carries into the data-bank byte, so the read is bank $82 (DBR is $81) offset $0AB3, a mirror of WRAM $0AB3, the byte before the array. That byte is the high byte of the word $0AB2 that DarkSpaceMainInit stores (the room variant 0 to 3, so the high byte is 0); no other writer of $0AB3 was found, so none of the operand item ids ($0F, $1C, $27 at the five sites) matches and the branch is not taken (static reading, not run).
 
 BranchIfItemEquipped {
     TYX 

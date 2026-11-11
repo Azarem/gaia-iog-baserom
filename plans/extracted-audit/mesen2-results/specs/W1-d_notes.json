@@ -1,0 +1,33 @@
+{
+  "_note": "W1-d (2026-11-08), see mesen2-results/W1-d_20261108.md. One shipped statement is wrong (field_reveal_object: 'child $26 = 0' for pyCC_mystic_ball / awB1_wall_walker); the others replace 'no reader found' with the measured readers. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/W1-d_notes.json --dry-run. extracted/ carries line-tracking tags, so comments use 'expect' (the instruction text on that line). 'find' must occur exactly once in the stored note.",
+  "actors/field_reveal_object.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "pyCC_mystic_ball (771837) and awB1_wall_walker (769369) (child $26 = 0).",
+          "with": "pyCC_mystic_ball (771837) and awB1_wall_walker (769369). All three spawners store the enemies remaining (the victim's orbitAngle) in the child's $26, so the child's $26 is nonzero (measured: $0001 and $000B for pyCC_mystic_ball, $0006 and $0012 for awB1_wall_walker)."
+        },
+        {
+          "find": "- Otherwise enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item:",
+          "with": "- Otherwise (only with $26 = 0, which none of the three spawners produces: the room-tier stores were never executed in the measured runs) enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item:"
+        }
+      ]
+    }
+  },
+  "thinkers/mode7_perspective.asm": {
+    "comments": {
+      "239947": {
+        "text": "$7F0B22 and $7F0B24 := $FFFF: palette staging words for CGRAM colors $91 and $92 ($7F0A00 + 2 x color); UploadCgramPalette's DMA of the staging buffer reads them every frame",
+        "expect": "LDA #$FFFF"
+      }
+    }
+  },
+  "system/engine/actor_execution.asm": {
+    "comments": {
+      "249447": {
+        "text": "Zero three thinker regions: $0F00 slots, $7F0E00 (no other reader or writer; the extended data page is $7F0F00), $7F3000 (= $7F2100 + thinker slot: loop start / counter at +0 / +2 and a per-thinker word at +4)",
+        "expect": "STA $0F00, X"
+      }
+    }
+  }
+}

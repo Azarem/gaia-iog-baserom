@@ -1,0 +1,77 @@
+{
+  "_note": "G3 draft (2026-11-09, ROM O, states S05 / S10 / S14 and the G3 scene $83 states). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/G3_notes.json --dry-run. Source: mesen2-results/G3_20261109.md and raw/G3_*.txt. Entries: (1) ApplyPlayerHitstun: the pool-full stores land in the sentinel slot, the stagger counter is never released; the 'UNVERIFIED-RUNTIME' footer is stale; (2) hit_stagger_controller: measured slide, release and cut-short path (the 'UNVERIFIED-RUNTIME' footer is stale); (3) ramps: the full-pool climb is measured; (4) item_use_system UseItem_WindFlute: the full-pool consequence; (5) SpawnDamageNumberEffect: slot reuse measured; (6) cop_handlers_thinker: the unchecked allocation failure measured; (7) actor_pool UnlinkActor and thinker KillThinker stale tail measured. No names spec: no label changes.",
+  "functions/ApplyPlayerHitstun.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The stores are indexed by that Y; what they hit at $1FC0 plus the field offset is not traced.",
+          "with": "The stores are indexed by that Y and land in the unused sentinel slot at $1FC0-$1FEF (words at $1FE8 and $1FEC, $1FEE and the extended word $7F1FEA): the actor list and the free list stay intact. With no stagger child nothing replaces the counter and the D-pad bits stay shown: the counter $003C counts down to 0 over 60 ticks while the player stands in place (measured with the free list emptied at the entry of this function)."
+        },
+        {
+          "find": "Everything here is UNVERIFIED-RUNTIME (no emulator trace); read from the code.",
+          "with": "Measured at runtime for Will, Freedan and Shadow through the Great Wall archer (hit sound #07 for every form, stagger child, counter $003C then $FFE2) and with the actor pool full. Everything else is read from the code."
+        }
+      ]
+    }
+  },
+  "actors/hit_stagger_controller.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic and flow are read from the code and the move_chain_table nodes.",
+          "with": "Measured: the player's stagger child runs 16 slide frames and releases the player 16 frames after the spawn (the player controller is skipped for those 16 ticks, then the counter becomes $FFE2 and runs from -30 to 0). An enemy knocked north with tier 0 slides 48 px (181 to 133) and resolves with its chain pointer $2E and wait counter $08 unchanged; the same knockback against a wall (37 px, 133 to 96) takes the cut-short path: its $2E becomes 0, its $08 becomes 0 because $2C is 0, and the victim's script runs again on the next frame. The purpose of the wake-up is inferred. The rest is read from the code and the move_chain_table nodes."
+        }
+      ]
+    }
+  },
+  "actors/ramps.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "if the actor pool were full the climb loop would never end. No evidence that this happens in practice.",
+          "with": "with the actor pool full no child exists: $06 is then the player's next link (another actor), which receives the exit speed in its orbitDiameter word, and the climb loop never restores the player (measured with the free list emptied at the climb entry: the player moves 8 px per frame with collision off, x 1008 to 2048 in 146 frames, then the scene exit at the map edge ends the loop). No evidence that this happens in practice."
+        }
+      ]
+    }
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": { "UseItem_WindFlute": {
+      "edit": [
+        {
+          "find": "If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path.",
+          "with": "If the actor pool is full (Y=$1FC0), jumps to the no-input-lock path: the controller never runs, so no music plays, displayModeFlags keeps $0080 and nothing clears it, the buttons stay shown, and the player does not leave its idle entry when the D-pad is held (measured with the free list emptied at the use: displayModeFlags still $0080 after 1800 frames; with the right button held for 150 frames the player stays in entry PlayerIdleEntry, while without the use the same input moves it to the walk entry). The configure stores of the music actor land in the sentinel slot at $1FC0-$1FEF."
+        }
+      ]
+    } }
+  },
+  "functions/SpawnDamageNumberEffect.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(analysis only, not run)",
+          "with": "(measured after a lethal hit: the victim's slot held another actor 4 ticks later, at the same position, for the rest of the number's 16 frames; the new occupant did not move, so following it was not observed)"
+        }
+      ]
+    }
+  },
+  "system/engine/cop_handlers_thinker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(analysis only, unverified at runtime)",
+          "with": "(measured with the thinker free list emptied: the stores landed on the calling actor and its entry address was rewritten by the next yield)"
+        }
+      ]
+    }
+  },
+  "system/engine/actor_pool.asm": {
+    "partNotes": { "UnlinkActor": {
+      "edit": [
+        {
+          "find": "Removing a sole list entry leaves actorListLast ($58) stale.",
+          "with": "Removing a sole list entry leaves actorListLast ($58) stale (measured in scene $FB: $56 = 0 and $58 = $1000 until the next scene load clears both)."
+        }
+      ]
+    } }
+  }
+}

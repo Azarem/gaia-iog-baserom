@@ -1,0 +1,215 @@
+{
+    "system/engine/system_init.asm": {
+        "blockNote": [
+            "Boot-time hardware and RAM initialisation plus two per-frame VBlank DMA routines (Bank 02).",
+            "",
+            "- InitHardwareRegisters and InitSystemVariables are boot code: SystemInit (system_core) calls them once, in that order, with DBR = $81 (so the absolute $0000,Y stores below reach the LowRAM mirror and the $2100/$4200 registers).",
+            "- UploadCgramPalette and UploadOamTable are NOT boot code: the NMI handler calls them every VBlank (steps 5 and 6 of NmiHandler); UploadCgramPalette is also called by the camera refresh (camera_tilemap) and by the inventory overlay. They assume the NMI register state: A already 8-bit, index registers 16-bit (they contain no REP/SEP for X).",
+            "- DmaFixedByteFill is the zero-fill helper of InitSystemVariables.",
+            "",
+            "=== WRAM clear ===",
+            "Three fixed-source DMA passes through the WRAM port ($2180): $0000-$00FF ($100 bytes), then from $0200 for $FF00 bytes (7E:0200 up to 7F:00FF; the WRAM address is 17 bits wide and keeps counting across the bank boundary), then the next $FF00 bytes without resetting the address (7F:0100-7F:FFFF). Total $1FF00 bytes: all 128 KB except the stack page $0100-$01FF. The zero byte is read from the ROM (first byte of math_lookup_tables.sine_table_8bit, sin(0) = $00; the older comment said slope_curve_table).",
+            "",
+            "=== SystemInitConstants (34 word writes, ;00-;21) ===",
+            "Layer map bases mapTilemapBaseA/B = $A000/$C000; DP $80-$82 = the collision map long pointer $7F:C000 (see AGENTS: never corrupt it); bgTilemapVramBase = $1000/$1800 (matches BG1SC/BG2SC below); metatileDefBase = $2000 (layer 0) and $06B0 = $2800 (layer 1, unnamed second word of the same array); strip staging pointers; collisionFlagTableL0/L1 = $0000/$0100 (offsets inside bank $7F); scene_meta pointer in $3A/$3C; the RAM stub bytes $0402 = 8B 54 and $0406 = AB 60 (PHB; MVN; PLB; RTS with the two MVN bank bytes filled in at $0404/$0405 when used); $5E/$60/$62 = 0/$0081/0 (consumers not traced); gfxCacheIdxB = 1, gfxCacheIdxA = $0404 (also the address of the stub's MVN operand pair); the joypad remap words remapL $0020, remapR $0010, remapB $4008, remapA $8080, remapY $0040, remapX $0004, remapSelect $2000, remapStart $1000 (db-us/transforms.json rewrites the four face-button defaults from the vanilla ROM values); $0B14 = $003C (no reader found anywhere in extracted); inventoryEquippedIndex = $FFFF; $0B04 = 0 (saved dialog frame delay that DialogStringRenderer restores).",
+            "",
+            "=== PpuRegisterInitTable (76 writes, ;00-;4B) ===",
+            "Disables DMA/HDMA, INIDISP $80 (forced blank), OBJSEL $02, BGMODE $09 (mode 1 with BG3 on top), BG1SC $11 / BG2SC $19 (VRAM $1000 / $1800, 64x32), BG3SC $78, BG12NBA $22, BG34NBA $06 (BG3 characters at $6000: the dialog font), zeroed scroll/Mode 7 registers (the two writes per register fill both bytes of the write-twice ports; M7A = $0100), VMAIN $80, window masks $33 with WH1 $FF, TM $04 (only BG3 on the main screen), CGWSEL $82, COLDATA $E0, NMITIMEN 0, WRIO $FF, and MEMSEL 0 as the LAST entry. SystemInit stores MEMSEL = 1 before calling InitHardwareRegisters, so this entry switches FastROM timing back off; sFB_boot_logo turns it on again later. Data ports and CGADD data ($2104, $2118/9, $2122) are not part of the table."
+        ],
+        "partNotes": {
+            "UploadCgramPalette": [
+                "VBlank DMA (called by NmiHandler every frame, by the camera refresh and by the inventory overlay): CGADD = 0, then 512 bytes from WRAM $7F:0A00 through DMA channel 0 to CGRAM ($2122). Afterwards the three bytes at $7F:0C00-$7F:0C02 are written verbatim to COLDATA ($2132); each byte must therefore carry its own channel-select bits (blue $80, green $40, red $20) and a 5-bit intensity. Entry contract: A 8-bit, X 16-bit (no REP/SEP for X)."
+            ],
+            "UploadOamTable": [
+                "VBlank DMA (called by NmiHandler every frame): OAMADD = 0, then $0220 bytes (512 main table + 32 high-table bytes) from WRAM $0422 through DMA channel 0 to the OAM port ($2104). Entry contract: X 16-bit, A 8-bit as left by the NMI."
+            ],
+            "InitSystemVariables": [
+                "Boot only (SystemInit). Zeroes all WRAM except the stack page $0100-$01FF with three DmaFixedByteFill passes ($1FF00 bytes in total; see the block note), then copies the 34 word entries of SystemInitConstants to their destinations (negative destination ends the table)."
+            ],
+            "SystemInitConstants": [
+                "34 entries of [destination word, value word] terminated by a destination word with bit 15 set (a lone FFFF in the ROM). See the block note for the meaning of each group."
+            ],
+            "DmaFixedByteFill": [
+                "Fills Y bytes of WRAM, starting at the current WMADD address, with a zero byte read from ROM. DMA channel 0 mode $08 (fixed source address, one register), B-bus $80 (WRAM data port), source = first byte of math_lookup_tables.sine_table_8bit (sin 0 = $00). The WRAM address advances across banks, so the caller does not have to reset it between passes."
+            ],
+            "InitHardwareRegisters": [
+                "Boot only (SystemInit). Walks PpuRegisterInitTable: 3-byte entries [register address word, value byte] until a negative address, writing each value with STA $0000,Y (DBR = $81). It covers only the registers listed in the table (not every PPU register); the last entry, MEMSEL = 0, turns FastROM timing off again."
+            ],
+            "CacheSlotIndices": [
+                "ROM table of 4 three-byte entries (slot index 0, 1, 2, 3, then two zero bytes). Its only reader is scene_script.RestoreCachedVram, which takes the slot index, converts it to a WRAM source address $4000 + slot x $2000 (the 4-slot VRAM cache ring) and DMAs it back to VRAM; X selects the entry (3 bytes per entry)."
+            ],
+            "PpuRegisterInitTable": [
+                "76 register writes of [address word, value byte] terminated by a negative address. Order: MDMAEN, HDMAEN, then the PPU registers $2100-$2133 in address order (write-twice registers appear twice), then NMITIMEN, WRIO, the multiply/divide inputs, H/V timers and finally MEMSEL = 0. Selected values: INIDISP $80, OBJSEL $02, BGMODE $09, BG1SC $11, BG2SC $19, BG3SC $78, BG12NBA $22, BG34NBA $06, VMAIN $80, M7SEL $80, windows $33 / WH1 $FF, TM $04, CGWSEL $82, COLDATA $E0, NMITIMEN 0, WRIO $FF."
+            ]
+        },
+        "comments": {
+            "171491": {
+                "text": "A becomes 8-bit; X must already be 16-bit (the NMI leaves it that way)",
+                "expect": "SEP #$20"
+            },
+            "171496": {
+                "text": "DMAP0 = 0: CPU to PPU, incrementing source, one register per unit",
+                "expect": "STZ $DMAP0"
+            },
+            "171526": {
+                "text": "Three bytes from $7F0C00-$7F0C02 go to COLDATA verbatim: each carries its own channel-select bits (blue $80, green $40, red $20)",
+                "expect": "LDA $backdropColors"
+            },
+            "171550": {
+                "text": "OAM address word = 0 (X is 16-bit on entry)",
+                "expect": "LDX #$0000"
+            },
+            "171616": {
+                "text": "Second pass: $FF00 bytes from 7E:0200, ending at 7F:00FF (the WRAM address is 17 bits and crosses the bank)",
+                "expect": "LDY #$FF00"
+            },
+            "171622": {
+                "text": "Third pass continues at 7F:0100 (address not reset) through 7F:FFFF: all WRAM except the stack page is zero",
+                "expect": "LDY #$FF00"
+            },
+            "171807": {
+                "text": "Source: first byte of math_lookup_tables.sine_table_8bit, sin(0) = $00 (not slope_curve_table)",
+                "expect": "LDA #$^math_lookup_tables.sine_table_8bit"
+            },
+            "171831": {
+                "text": "Table entry address word; a negative value ends the table",
+                "expect": "LDA $@PpuRegisterInitTable"
+            }
+        }
+    },
+    "system/engine/map_coords.asm": {
+        "blockNote": [
+            "Map coordinate utilities (Bank 02): tile and pixel coordinates to map indices and BG1 VRAM addresses, map index stepping, and the two slope probes used by player movement.",
+            "",
+            "=== Map index format ===",
+            "The map is a grid of 16x16-tile pages of 256 bytes, row-major, with a per-layer page stride (mapRowStrideL0/L1, $0693/$0695, selected by X = 0 or 2). index = (((tileY >> 4) x stride + (tileX >> 4)) << 8) or ((tileY and $F) << 4) or (tileX and $F). The same index addresses mapLayerTilemap ($7EA000), the collision map ($7FC000; an index at or above $4000 is out of range) and the effect layer.",
+            "- TileCoordsToMapIndex: DP $18/$1C (tile X/Y), X = layer selector -> X = index. Multiply8x8Unsigned multiplies the stride (A low) by the page row (A high = tileY >> 4). 16 JSL sites in warps_interaction, event_blocks, cop_handlers_metatile and cop_handlers_collision.",
+            "- PixelToVramAddress: DP $1A/$1E (pixel X/Y) -> A = ((Y and $F8) << 2) + ((X and $F8) >> 3) + ((X and $100) << 2) + $1000: the BG1 nametable (64x32 words at VRAM $1000, second 32x32 half for X bit 8; X wraps at 512 px and Y at 256 px). event_blocks adds $0800 for BG2.",
+            "- MapIndexMoveRight/Left/Down/Down_L1 step the index kept in $02 by one cell and return it in X. Right and both Down variants also store it back in $02; MapIndexMoveLeft returns X only. MapIndexMoveDown_L1 loads $02 without a REP, so it relies on the caller's M width (its two callers in event_blocks have M = 16).",
+            "",
+            "=== Slope probes ===",
+            "ProbeRightTiles and ProbeLeftTiles have exactly one caller each: DispatchDiagDownLeft (player_move_diag) calls ProbeRightTiles and DispatchEastMove (player_move_east) calls ProbeLeftTiles. They are interleaved with the coordinate code only because they share its tile_collision helpers. Both look for the slope collision types $0A (east-facing) and $05 (west-facing) at the corner probe, at the cell one ROW up (only after a transition tile) and one ROW down (MapCellUp/MapCellDown on the index in $00; the old comments called them MapCellLeft/Right), then at two future-position corners (ProbeFutureTL/BL for the right probe, TR/BR for the left one).",
+            "Return convention (callers test Z first): Z set = a slope was found, with carry clear for $0A and carry set for $05; Z clear = nothing found. The callers branch BNE (none), then BCS ($05: WestRampUp / DiagRampUpLeft) or fall through ($0A: EastRampDown / DiagRampDownRight). The old 'carry clear when found' header was wrong. The probe pixel X in $1A is modified in place (+8 for the right probe, -8 for the left one)."
+        ],
+        "partNotes": {
+            "TileCoordsToMapIndex": [
+                "DP $18 = tile X, $1C = tile Y, X register = layer selector (0 = layer 0, 2 = layer 1; picks mapRowStrideL0 or L1). Returns X = map index (see the block note for the format). Preserves P through PHP/PLP; 16 callers."
+            ],
+            "PixelToVramAddress": [
+                "DP $1A = pixel X, $1E = pixel Y. Returns A = VRAM word address in the BG1 nametable (64x32 words at $1000): row (Y and $F8) x 4, column (X and $F8) / 8, plus $0400 when X bit 8 is set. Callers: cop_handlers_metatile.ResolveTileData and two sites in event_blocks (one adds $0800 for BG2)."
+            ],
+            "MapIndexMoveRight": [
+                "Steps the index in $02 one cell east: increments the column nibble, and when it wraps (page boundary) increments the page byte and adds $F0 to restore the column. Stores the result in $02 and returns it in X. 11 callers (warps_interaction, event_blocks)."
+            ],
+            "MapIndexMoveLeft": [
+                "Steps the index in $02 one cell west (column nibble - 1; on underflow the page byte - 1 and the low byte - $F0). Returns the result in X only: unlike MapIndexMoveRight and Down it does NOT store it back in $02. 1 caller (warps_interaction chest check)."
+            ],
+            "MapIndexMoveDown": [
+                "Steps the index in $02 one row down for layer 0: low byte + $10; on carry adds mapRowStrideL0 to the page byte. Stores in $02 and returns it in X. 4 callers."
+            ],
+            "MapIndexMoveDown_L1": [
+                "Same as MapIndexMoveDown with mapRowStrideL1. The initial LDA $02 has no REP, so it uses the caller's accumulator width (both callers, in event_blocks, have M = 16). Stores in $02 and returns it in X."
+            ],
+            "ProbeRightTiles": [
+                "Slope probe used by DispatchDiagDownLeft. ProbeCurrentTL positions the probe pixels (its own result is discarded), then $1A is moved +8 and TileProbeMain samples the corner. Types: $0A or $05 end the routine at once; $09 (transition tile) also checks the cell one row up for $0A; then the cell one row down ($0A or $05), then ProbeFutureTL and ProbeFutureBL. Returns Z set when a slope was found (carry clear = $0A, set = $05) and Z clear when none."
+            ],
+            "ProbeLeftTiles": [
+                "Slope probe used by DispatchEastMove; mirror of ProbeRightTiles. ProbeCurrentTR positions the probe pixels (result discarded), $1A is moved -8, then the corner sample; transition type $06 also checks the cell one row up for $05; then one row down, then ProbeFutureTR and ProbeFutureBR. Returns Z set when found (carry clear = $0A, set = $05), Z clear when none."
+            ]
+        },
+        "comments": {
+            "176306": {
+                "text": "stride (A low) x page row (A high = tileY >> 4)",
+                "expect": "JSL $@hardware_math.Multiply8x8Unsigned"
+            },
+            "176310": {
+                "text": "Page byte = (page row x stride) and $FF; the saved low byte is (tileY and $F) x 16",
+                "expect": "STA $02, S"
+            },
+            "176419": {
+                "text": "Result returned in X only: $02 is not updated by this routine",
+                "expect": "TAX"
+            },
+            "176463": {
+                "text": "Loads with the CALLER's M width (no REP here): both callers have M = 16",
+                "expect": "LDA $02"
+            },
+            "176468": {
+                "text": "Next row inside the page (+$10); carry means the page's last row was passed",
+                "expect": "ADC #$10"
+            },
+            "176488": {
+                "text": "Result ignored: this call only positions the probe pixels $1A/$1E for the offset sample below",
+                "expect": "JSR $&tile_collision.ProbeCurrentTL"
+            },
+            "176506": {
+                "text": "$0A (east-facing slope) found: exit with Z set and carry clear",
+                "expect": "CMP #$0A"
+            },
+            "176510": {
+                "text": "$05 (west-facing slope) found: exit with Z set and carry set",
+                "expect": "CMP #$05"
+            },
+            "176518": {
+                "text": "Transition tile $09: look at the cell ONE ROW UP (MapCellUp on the probe index in $00) for a hidden $0A",
+                "expect": "JSR $&tile_collision.MapCellUp"
+            },
+            "176528": {
+                "text": "Cell ONE ROW DOWN from the probe (MapCellDown), not the right-hand cell",
+                "expect": "JSR $&tile_collision.MapCellDown"
+            },
+            "176564": {
+                "text": "Nothing found: the last compare failed, so Z is clear",
+                "expect": "RTS"
+            },
+            "176565": {
+                "text": "$0A found: Z still set from the compare, carry cleared; callers branch on Z first",
+                "expect": "CLC"
+            },
+            "176567": {
+                "text": "$05 found: Z set, carry set (from the compare)",
+                "expect": "RTS"
+            },
+            "176568": {
+                "text": "$0A found at a future corner: Z set, carry clear",
+                "expect": "CLC"
+            },
+            "176571": {
+                "text": "Result ignored: this call only positions the probe pixels $1A/$1E for the offset sample below",
+                "expect": "JSR $&tile_collision.ProbeCurrentTR"
+            },
+            "176589": {
+                "text": "$0A (east-facing slope) found: Z set, carry clear (caller takes EastRampDown)",
+                "expect": "CMP #$0A"
+            },
+            "176593": {
+                "text": "$05 (west-facing slope) found: Z set, carry set (caller takes WestRampUp)",
+                "expect": "CMP #$05"
+            },
+            "176601": {
+                "text": "Transition tile $06: look at the cell ONE ROW UP (MapCellUp) for a hidden $05",
+                "expect": "JSR $&tile_collision.MapCellUp"
+            },
+            "176611": {
+                "text": "Cell ONE ROW DOWN from the probe (MapCellDown), not the right-hand cell",
+                "expect": "JSR $&tile_collision.MapCellDown"
+            },
+            "176647": {
+                "text": "Nothing found: Z clear",
+                "expect": "RTS"
+            },
+            "176648": {
+                "text": "$05 found: Z set, carry set",
+                "expect": "RTS"
+            },
+            "176649": {
+                "text": "$0A found: Z set, carry cleared",
+                "expect": "CLC"
+            },
+            "176652": {
+                "text": "$0A found at a future corner: Z set, carry clear",
+                "expect": "CLC"
+            }
+        }
+    }
+}

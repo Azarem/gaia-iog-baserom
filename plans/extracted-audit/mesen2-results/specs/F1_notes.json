@@ -1,0 +1,46 @@
+{
+  "_note": "F1 draft (2026-11-08, ROM O, state S01r, Shadow / Freedan runs by quick warp). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/F1_notes.json --dry-run. Sources: mesen2-results/F1_20261108.md and raw/F1_*. Entry 1 corrects a shipped sentence (CONTRADICTED); entries 2-4 replace 'not viewed / not traced' wording with measured facts. No names spec: no label changes.",
+  "tables/spriteset_will_abilities.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "which does not look like a body pose (OQ-I072-5)",
+          "with": "which draw the player lying on the ground (measured: two 16 x 16 sprites side by side, 32 x 16 px, on sprite palette 0, so the colours follow the current form; all four frames show the same pose)"
+        }
+      ]
+    }
+  },
+  "tables/spriteset_shadow_aura_body.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The order of the calls is traced;",
+          "until": "=== CHECKS ===",
+          "with": "The order of the calls is traced and the frames were watched (Shadow form, script entered at PlayerAuraTransformEntry on open ground). $00 shows the standing body, then a star-shaped splash, a flat puddle that shrinks and a few small droplet sprites. $01 plays the same pictures backwards: droplets, puddle, splash and the standing body again, which is held for $13 ticks. $02 is a small blue water ball that alternates between its three groups on every frame while the player slides down. Every sub-sprite of $00 and $01 uses sprite palette 0, the palette of Shadow's normal body; in $02 the two 8 x 8 groups 17C3DE and 17C3F2 use palette 2 and the other two groups palette 0.\n\nThe abort path leaves through PlayerAuraTransformExit into PlayerIdleEntry, and the player shows Shadow's normal body set again from the next idle frame. When the sink finds floor, PlayerAuraLandComplete stages animation $1C through StagePlayerMoveY, which selects the actor's own body set (Shadow's, not row $08): a splash with rings and a puddle line, then a blob that grows into the standing body (spriteset_shadow $1C); the exit is the same PlayerAuraTransformExit. $0AC8 keeps the value 8 after the exit.\n\n"
+        }
+      ]
+    }
+  },
+  "tables/spriteset_shadow.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "$1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0), $1D-$25 are one frame each, $26-$29 are 4 frames.",
+          "with": "$1C is 11 frames (holds 0, 1, 2, 3, 4, 1, 2, 3, 2, 1, 0): a splash with rings (sprites on palette 1) and a puddle line, then a blob that grows into the standing body; it is the landing animation of PlayerFallFromHeight, PlayerSkyGardenJumpLanding and the Aura landing. $19, $1A and $1B all use the same group (sprite_group_148E5D, a spiky splash). $1D-$25 are one frame each; $1D, $1F, $20, $22, $23 and $25 all draw the same standing-body group (sprite_group_148D96, hold 31), while $1E, $21 and $24 have a group of their own (a crouched splash and two sideways streaks). $26-$29 are 4 frames. The body palette alternates between two colour sets (blue with gold sparks, cyan with green) while Shadow stands; both are sprite palette 0."
+        }
+      ]
+    }
+  },
+  "tables/spriteset_freedan.asm": {
+    "partNotes": {
+      "spriteset_freedan": {
+      "edit": [
+        {
+          "find": "$3E-$41, $4A and $4B: no player script stages them with an immediate operand.",
+          "with": "$3E-$41, $4A and $4B: no player script stages them with an immediate operand. Measured by forcing the first frame of each list on the player: $1C shows the body from the front with the sword out to its left; $1D-$1F and $26-$29 show it from behind with the cape spread; $20 and $23 show it facing left, $21 and $22 diving to the left, $24 and $25 diving to the right; $3E-$41 are sword poses (south, north, west, east) and $4A and $4B are one-frame poses."
+        }
+      ]
+      }
+    }
+  }
+}

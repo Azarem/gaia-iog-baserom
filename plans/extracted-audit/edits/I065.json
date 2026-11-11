@@ -1,0 +1,219 @@
+{
+  "tables/dialog_template_table.asm": {
+    "blockNote": [
+      "Dialog template strings (Bank 01, 117397-117670): 22 word pointers ($00-$15) to 22 short dialog strings that the [TPL:nn] control code ($C2, DialogCmd_InsertTemplate) splices into the string being drawn. The handler doubles the operand, switches DBR to this bank, reads the pointer from dialog_template_table and draws the template with a recursive JSL DialogStringRenderer; afterwards it restores the cursor ($0998), the string pointer and the bank, so the caller's string continues where it stopped. The old note ('Dark Space transforms', 'templates $08-$11 are size presets', '$12 is the world map prompt', '$13-$15 are silent screen effects') had every range shifted by one and the main purpose wrong: most templates select the colours of a speaker.",
+      "",
+      "=== THE TAGS USED HERE (DialogStringRenderer; all numbers in the tags are hex) ===",
+      "",
+      "- [SEP:ii,cccc] (DialogCmd_SetPaletteColor): writes the BGR555 word cccc to CGRAM buffer colour ii ($7F0A00 + ii x 2). The speaker templates write colours $11 and $12, which are entries 1 and 2 of 2bpp palette 4 ($10-$13).",
+      "- [PAL:4] (DialogCmd_SetPalette): the following characters use tile palette 4 (palette bits 10-12 of the tile word). Dialog strings return to the normal palette with [PAL:0] at their end.",
+      "- [SFX:ss] (DialogCmd_SetSfx): the per-character sound effect id kept in $0996 ([SFX:0] = silent). DialogCmd_OpenDialogueBox resets it to $10, the typing click.",
+      "- [DLG:col,row] (DialogCmd_SetPosition) and [SIZ:w,h] (DialogCmd_OpenDialogueBox): put the cursor at a column and row, then open a box w columns wide and h rows high.",
+      "",
+      "=== THE 22 TEMPLATES (uses = occurrences of [TPL:nn] in the extracted strings, whole-file count) ===",
+      "",
+      "| Id | Effect | Uses | Seen before |",
+      "|----|--------|------|-------------|",
+      "| $00 | Will colours, SFX $10 | 222 | Will: and narration (the default) |",
+      "| $01 | Kara colours, SFX $1B | 180 | Kara:, Ann:, Vampiress:, Karen: |",
+      "| $02 | Lilly colours, SFX $19 | 144 | Lilly:, Vampire:, Girl: |",
+      "| $03 | Erik colours, SFX $19 | 82 | Erik:, Lola:, Rofsky:, Queen Edwina:, Ishtar: |",
+      "| $04 | Lance colours, SFX $1C | 154 | Lance:, Bill:, Flute:, Elder:, Will's father:, Opponent: |",
+      "| $05 | Seth colours, SFX $1A | 27 | Seth:, Sam:, Remus:, Imas: |",
+      "| $06 | Neil colours, SFX $1A | 80 | Neil:, Man:, Spectator: |",
+      "| $07 | pink / red colours, no SFX | 2 | two lines without a speaker name |",
+      "| $08-$0B | box 13 columns x 1 / 2 / 3 / 4 rows at column 3, row 6 (upper box) | 9 / 28 / 303 / 122 | narration and cutscene text |",
+      "| $0C-$0F | box 13 columns x 1 / 2 / 3 / 4 rows at column 3, row $11 (the lower default position) | 2 / 4 / 55 / 19 | |",
+      "| $10 | the same box as $0F (a duplicate) | 6 | house descriptions |",
+      "| $11 | 14 x 3 box at column 2, row $14 and the text 'Where do you go?' | 49 | the route menus ([TPL:11][SFX:0] Quit [N] ...) |",
+      "| $12-$15 | the colours of $00, $01, $02 and $04 without the SFX tag (silent speaker colours) | 7 / 7 / 4 / 7 | Will:, Kara:, Will's mother:, Will's father: in the long cutscene strings |",
+      "",
+      "The speaker names come from the 'Name:' that follows the tag in the strings. Which of the two colour words is the glyph and which the outline was not checked at runtime (OQ-I065-1). The table is 44 bytes, the 22 strings 229 bytes."
+    ],
+    "partNotes": {
+      "dialog_template_table": [
+        "22 pointers to the template strings, indexed by the operand of [TPL:nn] ($C2). Layout of the ids: $00-$07 speaker colours, $08-$10 box shapes, $11 route prompt, $12-$15 silent speaker colours. See the block note for the table of effects and use counts."
+      ],
+      "dialogstring_01CAC1": [
+        "Template $00 (222 uses): Will colours. Palette 4 colour 1 = $6FDF (R31 G30 B27, cream), colour 2 = $0B1E (R30 G24 B2, orange); per-character SFX $10 (the typing click); [PAL:4]. Also the default for narration."
+      ],
+      "dialogstring_01CACE": [
+        "Template $01 (180 uses): Kara colours. Colour 1 = $777F (R31 G27 B29, pale pink), colour 2 = $561E (R30 G16 B21, pink); SFX $1B."
+      ],
+      "dialogstring_01CADB": [
+        "Template $02 (144 uses): Lilly colours. Colour 1 = $7FB7 (R23 G29 B31, pale blue), colour 2 = $79C2 (R2 G14 B30, blue); SFX $19."
+      ],
+      "dialogstring_01CAE8": [
+        "Template $03 (82 uses): Erik colours (also Lola, Rofsky, Queen Edwina, Ishtar). Colour 1 = $5F7F (R31 G27 B23, pale orange), colour 2 = $09FF (R31 G15 B2, orange); SFX $19."
+      ],
+      "dialogstring_01CAF5": [
+        "Template $04 (154 uses): Lance colours (also Bill, Flute, Elder, Will's father, Opponent). Colour 1 = $73F7 (R23 G31 B28, pale green), colour 2 = $2322 (R2 G25 B8, green); SFX $1C."
+      ],
+      "dialogstring_01CB02": [
+        "Template $05 (27 uses): Seth, Sam, Remus and Imas. Colour 1 = $7F3D (R29 G25 B31, lavender), colour 2 = $7137 (R23 G9 B28, purple); SFX $1A."
+      ],
+      "dialogstring_01CB0F": [
+        "Template $06 (80 uses): Neil (also Man, Spectator). Colour 1 = $739C (R28 G28 B28, light grey), colour 2 = $4631 (R17 G17 B17, grey); SFX $1A."
+      ],
+      "dialogstring_01CB1C": [
+        "Template $07 (2 uses): pink / red colours without SFX. Colour 1 = $673F (R31 G25 B25), colour 2 = $24FF (R31 G7 B9). Both uses are lines without a speaker name ('I... I love... you...' and a slap)."
+      ],
+      "dialogstring_01CB27": [
+        "Template $08 (9 uses): position column 3, row 6, then a box 13 columns x 1 row."
+      ],
+      "dialogstring_01CB2E": [
+        "Template $09 (28 uses): column 3, row 6, box 13 x 2."
+      ],
+      "dialogstring_01CB35": [
+        "Template $0A (303 uses, the most common): column 3, row 6, box 13 x 3."
+      ],
+      "dialogstring_01CB3C": [
+        "Template $0B (122 uses): column 3, row 6, box 13 x 4."
+      ],
+      "dialogstring_01CB43": [
+        "Template $0C (2 uses): column 3, row $11 (17, the lower position of the default box), box 13 x 1."
+      ],
+      "dialogstring_01CB4A": [
+        "Template $0D (4 uses): column 3, row $11, box 13 x 2."
+      ],
+      "dialogstring_01CB51": [
+        "Template $0E (55 uses): column 3, row $11, box 13 x 3."
+      ],
+      "dialogstring_01CB58": [
+        "Template $0F (19 uses): column 3, row $11, box 13 x 4 (the size of DialogCmd_OpenDefaultBox)."
+      ],
+      "dialogstring_01CB5F": [
+        "Template $10 (6 uses): identical to $0F (column 3, row $11, box 13 x 4). Seen in house description strings ('This is my house.', 'This is Lance's house.')."
+      ],
+      "dialogstring_01CB66": [
+        "Template $11 (49 uses): position column 2, row $14 (20), box 14 columns x 3 rows, the text 'Where do you go?' and a newline. The route menus ([TPL:11][SFX:0] Quit [N] ...) put the choices after it."
+      ],
+      "dialogstring_01CB7A": [
+        "Template $12 (7 uses): the colours of $00 (Will) without SFX; the long cutscene strings use it with an explicit [SFX:0]."
+      ],
+      "dialogstring_01CB85": [
+        "Template $13 (7 uses): the colours of $01 (Kara) without SFX."
+      ],
+      "dialogstring_01CB90": [
+        "Template $14 (4 uses): the colours of $02 (blue) without SFX; seen before 'Will's mother:' and one 'Strange Voice:'."
+      ],
+      "dialogstring_01CB9B": [
+        "Template $15 (7 uses): the colours of $04 (green) without SFX; seen before 'Will's father:'."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/parallax_scroll_table.asm": {
+    "partNotes": {
+      "binary_01D120": [
+        "Bare $FFFF word, the entry of table index $13. No scene thinker list spawns this type (see the block note)."
+      ],
+      "binary_01D122": [
+        "Bare $FFFF word, the entry of table index $14. Not spawned by any scene."
+      ],
+      "binary_01D124": [
+        "Bare $FFFF word shared by table indices $09 and $19. Not spawned by any scene."
+      ],
+      "binary_01D126": [
+        "Bare $FFFF word, the entry of table index $1A. Not spawned by any scene."
+      ],
+      "binary_01D128": [
+        "Bare $FFFF word, the entry of table index $0C. Not spawned by any scene."
+      ],
+      "binary_01D12A": [
+        "Bare $FFFF word, the entry of table index $0D. Not spawned by any scene."
+      ],
+      "binary_01D12C": [
+        "Bare $FFFF word, the entry of table index $0F. Not spawned by any scene."
+      ],
+      "binary_01D12E": [
+        "Bare $FFFF word, the entry of table index $10. Not spawned by any scene."
+      ],
+      "binary_01D130": [
+        "Bare $FFFF word, the entry of table index $11. Not spawned by any scene."
+      ],
+      "binary_01D132": [
+        "Bare $FFFF word, the entry of table index $12. Not spawned by any scene."
+      ],
+      "binary_01D134": [
+        "Bare $FFFF word, the entry of table index $15. Not spawned by any scene."
+      ],
+      "binary_01D136": [
+        "Bare $FFFF word, the entry of table index $16. Not spawned by any scene."
+      ],
+      "binary_01D138": [
+        "Bare $FFFF word, the entry of table index $17. Not spawned by any scene."
+      ],
+      "binary_01D13A": [
+        "Bare $FFFF word, the entry of table index $18. Not spawned by any scene."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/scene_meta.asm": {
+    "blockNote": [
+      "Scene resource scripts (Bank 0D, 884736-897023, movable): one command stream per scene id that tells the scene script interpreter which display preset, tile art, palettes, metatile sets, maps, sprite art and music to load for that scene. The old note ('tileset, tilemap, palette bundle, music track, collision layer and display configuration') described fixed fields and a collision layer; the records are command streams and hold no collision data (RebuildCollisionLayer builds it from the map layer after the script has run).",
+      "",
+      "=== WHO READS IT ===",
+      "",
+      "system_init sets DP $3A/$3C to the start of this block (wram-init). Loading a scene runs SceneScriptMain (ClearSceneState in scene_lifecycle): FindCurrentScene positions Y at the scene's first command, then each loop reads an opcode with ReadScriptByte and jumps through scene_script_jump_table until opcode $00 ends the script. SceneScriptNoMusic is the same loop that skips the music command (5 operand bytes); the inventory overlay uses it to load scene $FF and to reload the previous scene without restarting the BGM.",
+      "",
+      "=== LAYOUT: EXTRACTED / REBUILT vs THE ORIGINAL ROM ===",
+      "",
+      "The original ROM packs the records back to back as [scene id word][commands][$00] and FindCurrentScene scans them. The extraction (post process Lookup(0,1) && Label(label,meta_label)) lifts the ids out into scene_meta_list (256 words indexed by scene id, $0000 = no record) and the label ids into meta_label_list (64 words), so every record starts directly with its first command. The baserom patch baserom/scene-load/SceneMetaLoad.patch.asm replaces FindCurrentScene (ASL the scene id, LDA [$3A],Y) and SkipScriptCommands (meta_label_list lookup) with the indexed versions, which the new layout needs. The scene_script.asm text still shows the original scanning routines because the patch is applied at rebuild, not at extraction.",
+      "",
+      "231 records ($0000-$00FF minus 25 ids without a record: $09 $48 $4A $57 $76 $77 $80 $81 $84 $9E $9F $AA $AB $AF $C1 $C2 $CA $CB $EB-$EF $F1 $F8). 15 of the 16 unused ids of scene_actors are in that list. Every record starts with display-mode (all 231). 2052 commands in all.",
+      "",
+      "=== COMMANDS (opcode, handler in scene_script, operands as shown in the extraction, count in this file) ===",
+      "",
+      "| Opcode | Mnemonic | Handler | Operands and effect | Count |",
+      "|--------|----------|---------|---------------------|-------|",
+      "| $02 | display-mode < n > | SceneCmd_ConfigDisplay | index of a display_preset_table record (TM/TS, window and colour-math registers, BG mode, layer flags) | 231 |",
+      "| $03 | bitmap < start, end, page, @gfx, mode > | SceneCmd_LoadBgTiles | window [start x $200, end x $200) of the decompressed art goes to VRAM word page x $100 + a base chosen by mode: 0 = $2000 (255 uses), 1 = $4000 (62), 2 = $6000, no cache check (2), 3 = a whole 4bpp page (unused). A source already in the cache slot ends the command | 319 |",
+      "| $04 | palette < start, end, dest, @pal > | SceneCmd_LoadTilemap (see R-I065-6) | colours [start, end) of the palette data go to CGRAM buffer colour dest ($7F0A00 + dest x 2). When dest is $10 the first colour just loaded is also copied to colour 0 (the backdrop). Typical: 00,70,10 = 112 colours for BG palettes 1-7 (197 uses), 00,60,A0 = 96 sprite colours (44) | 278 |",
+      "| $05 | tileset < start, end, dest, layers, @set > | SceneCmd_LoadDualTilemap | window [start x $40, end x $40) of the decompressed metatile table to WRAM $7E2000 (layer 0) and/or $7E2800 (layer 1) + dest x $40; layers bit 0 = layer 0, bit 1 = layer 1 ($01 167, $02 105, $03 28); then BuildMetatileFlagTable. 00,20 = the first $800 bytes | 300 |",
+      "| $06 | tilemap < layer, @map > | SceneCmd_FullGraphics | the map of layer 1 or 2 (operand $01 225 times, $02 158 times) decompressed to mapTilemapBaseA $A000 / mapTilemapBaseB $C000 with its width and height | 383 |",
+      "| $10 | spritemap < size, 0, @spm > | SceneCmd_LoadSpriteTiles | the word is the data size (only used when the source is stored uncompressed), the next byte is skipped ($00 in all 56); the spm_* data is decompressed to $4000 in WRAM; source cache slot $0684 | 56 |",
+      "| $11 | music < track, group, @bgm > | SpcMusicLoadCmd | the SPC transfer runs only when the group equals musicRoomGroup ($06F6): group 0 in 225 uses, 1 in 5, 2 in 4 (scenes with two tracks, one per room group). The first byte is the BGM id (one id per @bgm_* pointer in all 234 uses), it is stored in $06F2 and a nonzero value writes $01 (play) to APUIO0 after the transfer | 234 |",
+      "| $13 | branch < flag, label > | SceneCmd_ConditionalLoad | tests event flag (TestFlagRaw); set = continue at the label (SkipScriptCommands), clear = skip the label byte | 18 |",
+      "| $14 | meta_label_NN: | SceneCmd_Nop | defines label NN; executed as a no-op that skips its id byte | 56 |",
+      "| $15 | jump < label > | SkipScriptCommands | continues at the label, which may be inside another scene's record; the commands from there run to that record's end | 176 |",
+      "| $17 | char-tiles < flags, @dmap > | SceneCmd_LoadCharTiles | tile art to VRAM; bit 7 = absolute word address (flags and $7F) x 4. One use: scene $FF (inventory), flags $80 = VRAM $0000 | 1 |",
+      "",
+      "Opcode $0E (SceneCmd_Skip3, 3 operand bytes) and the terminator $00 do not appear in the extraction (the delimiter is hidden). Opcodes $01, $07-$0D, $0F, $12 and $16 map to SceneCmd_Default (a bare RTS).",
+      "",
+      "=== LABELS, JUMPS AND BRANCHES ===",
+      "",
+      "A label is a position inside a record, so shared art is stored once: the first scene that needs it defines a label before its bitmap / tileset commands and the other scenes jump to it after their own palette and tilemap commands. The 56 labels use ids $01-$3F; the 8 ids $00 $0A $12 $13 $14 $21 $34 $35 are unused. The most used targets: $22 (18 jumps), $31 (14), $18 (14), $2C (11), $29 (9). A branch tests a story flag and picks one of two sprite sets (scene_meta_0006) or one of two tracks (scene_meta_00AC).",
+      "",
+      "The sample records below are listed in the part notes. Scene id to place names was not decoded here (the asset names such as pal_southcape, gfx_palace and gfx_village hint at the places)."
+    ],
+    "partNotes": {
+      "scene_meta_list": [
+        "256 pointers indexed by scene id ($00-$FF) to the scene_meta_XXXX records; $0000 marks the 25 ids without a record. Generated by the extraction (Lookup(0,1)); FindCurrentScene reads it as [$3A] + scene id x 2 (SceneMetaLoad patch)."
+      ],
+      "meta_label_list": [
+        "64 pointers indexed by label id ($00-$3F) to the meta_label_NN positions inside the records; $0000 for the 8 unused ids. Generated by the extraction (Label(label,meta_label)); SkipScriptCommands reads it for every jump and every set branch (SceneMetaLoad patch)."
+      ],
+      "scene_meta_0000": [
+        "Scene $00, the smallest record: display preset 0, the font art (bitmap mode 2 = VRAM word base $6000, where the dialog font lives) and the sprite palette of South Cape at colour $80. No music, no maps."
+      ],
+      "scene_meta_0001": [
+        "Scene $01 (South Cape): display preset 3, music $1C, the town tiles and effect tiles, the palette, both metatile sets and both maps. The label meta_label_3E in front of the sprite part (bitmap mode 1, sprite palette at colour $A0, spritemap) is the shared South Cape sprite set: other scenes reach it through jump < #3E > (scene $03, for example)."
+      ],
+      "scene_meta_0003": [
+        "Scene $03 (a South Cape interior): defines meta_label_01, the shared interior bitmaps and metatile sets, in the middle of its own record, then jumps to meta_label_3E for the sprites. Scenes $04, $05 and $07 load their own palette and maps and jump to meta_label_01."
+      ],
+      "scene_meta_0006": [
+        "Scene $06 (Will's house): two music commands (group 0 and group 1), then a branch pair that picks the sprite set from story flags: flag $4C set = meta_label_01 (the shared interior art of scene $03, which then jumps to the South Cape sprites); flag $21 set = meta_label_23 (the main characters, scene $02 art); otherwise it falls through to meta_label_07 (the castle actors) and jumps to meta_label_24 for the interior art."
+      ],
+      "scene_meta_00AC": [
+        "Scene $AC (gfx_village): the branch on flag $B3 chooses the music. Flag set = meta_label_32 (bgm_blessing_of_nature); clear = bgm_ominous_whispers, then jump to meta_label_33 over the other track. The shared village art and sprite part follow."
+      ],
+      "scene_meta_00FF": [
+        "Scene $FF (inventory), loaded with SceneScriptNoMusic: display preset 0, sprite art and palette, then meta_label_11 in front of the background palette, BG bitmap and the only char-tiles command of the file (flags $80 = VRAM $0000)."
+      ]
+    },
+    "comments": {}
+  }
+}

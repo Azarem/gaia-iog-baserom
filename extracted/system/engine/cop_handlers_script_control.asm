@@ -257,7 +257,7 @@ LoopStart {
 }
 
 ---------------------------------------------
-; COP #CB with no operands. Decrements the loop counter (pooled-actor or thinker variant). At zero it continues past the loop with RTI; otherwise it stores the count, sets $00 to the saved loop head and yields via RTL, so each iteration ends with a yield.
+; COP #CB with no operands. Decrements the loop counter (pooled-actor or thinker variant). At zero it continues past the loop with RTI; otherwise it stores the count, sets $00 to the saved loop head and yields via RTL: every pass except the last ends with a yield, and the last pass continues into the code after the loop in the same frame. A LoopStart count of n runs the body in n consecutive frames and yields n - 1 times (observed with count 3: LoopEnd runs three times, yields twice and exits through the RTI on the third).
 
 LoopEnd {
     TYX 

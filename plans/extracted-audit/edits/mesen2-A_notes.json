@@ -1,0 +1,324 @@
+{
+    "_note": "Campaign A (Mesen2) and its follow-up A4: runtime-verified replacements for stale or hedged notes. Evidence: plans/extracted-audit/mesen2-results/A1..A4 (ROM O, SHA-1 38de0c84...). Apply BEFORE mesen2-A_names.json (the names spec renames the SetPlayerGameOverFlag block; this spec still uses the old file name). Every comment entry carries an 'expect' guard (the instruction on the tagged line). 'expectOld' is not used: the current extract:lt prints the {address} tag on commented lines too (gaia-core writer.ts, emitLineTracking), and merge refuses expectOld on a tagged line. The spec therefore needs the extract:lt tree (and one new comment, 245854, can only be placed there).",
+    "_apply": "npm run extract:lt ; npm run merge -- plans/extracted-audit/edits/mesen2-A_notes.json --dry-run ; npm run merge -- plans/extracted-audit/edits/mesen2-A_notes.json ; npm run extract:lt ; npm run rebuild (CRC gate unchanged) ; then npm run names -- plans/extracted-audit/renames/apply-mesen2-A_names.json --dry-run / apply ; npm run names -- --check ; npm run extract:lt ; npm run rebuild",
+    "_evidence": {
+        "system/engine/combat_collision.asm": "A1 obs 5-6, A2 OQ-8, A4 K1/K1c/K1d (OQ-8 $0400 half, OQ-I049-3), A4 K1g obs 3 (OQ-I025-6 $0700, comment 247068)",
+        "functions/EnemyDropSystem.asm": "A4 K1, K1b, K1c (OQ-I049-3)",
+        "system/engine/actor_execution.asm": "A3 X3 (OQ-20): $10 bit 3 cleared on the player, Will walks through a wall",
+        "system/engine/sprite_composition.asm": "A1 OQ-38 (static: reader found, no runtime setter in 24,190 frames)",
+        "actors/player/player_character.asm": "A1/A2 (OQ-I023-3, OQ-I032-5), A4 K5 (OQ-I025-1 $0100), A4 DS/FW (OQ-I025-2 $2000)",
+        "actors/player/attack_ability_system.asm": "A2 OQ-I027-2, A3 X4/X4c: $0200 forced on the player, 120 frames of contact, HP 8 -> 8",
+        "actors/player_transition_handlers.asm": "A1 OQ-I052-5 (static), A2 OQ-I023-3, A4 DS/FW",
+        "actors/ramps.asm": "A2 OQ-I036-4: the readers are verified at runtime; the ramp writers themselves were not run",
+        "system/engine/slider_glide.asm": "A2 OQ-I023-3 (readers), the glide itself was not run (OQ-I023-6 stays open)",
+        "functions/StopPlayerOnDeath.asm": "A2 OQ-I032-5: three deaths, f10 = $87C8 afterwards",
+        "system/dark_space/sE6_gaia.asm": "A2 OQ-I023-3",
+        "functions/SetPlayerGameOverFlag.asm": "A3 X4/X4c: $0200 forced on the player, an enemy standing on Will for 120 frames did no damage",
+        "system/engine/cop_handlers_dialog.asm": "A4 OQ-54 T0/T2: bit $0800 forced back on during a text -> PrintDialogString ran 7 times in 12 frames instead of once",
+        "system/engine/cop_handlers_sprite.asm": "A1 OQ-I022-1: setters of $12 bit 1 (dm3D_flayzer2, dm3D_flayzer3, ir1F_stone_lord5) and clearers (InitActorPool, CopyActorState)",
+        "system/engine/slider_glide.asm (comments 53436, 53830, 53876, 53922, 54697)": "A2 OQ-I023-3: the four sibling comments and two clears that still said slide-active flag",
+        "actors/player_transition_handlers.asm (writers of the player's $2000)": "static: PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor also set $2000 on the player (A1/A4 saw only StartForcedWalk and DarkSpaceMonitorStartWarp)"
+    },
+    "system/engine/combat_collision.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "requires $0080 set in $10 (role unresolved)",
+                    "with": "requires $0080 set in $10 (hit-reaction active: ApplyHitDamageToVictim_DamagePath sets it on a victim, RunActors_Normal clears it)"
+                },
+                {
+                    "find": "dispatches StandardEnemyDefeatHandler and sets $0400 (standard defeat flag)",
+                    "with": "dispatches StandardEnemyDefeatHandler and sets $0400 (the actor then drops out of the interaction and attack-test passes; only these inline victims get it, a victim killed through HitStaggerResolveHit never does)"
+                }
+            ]
+        },
+        "partNotes": {
+            "CombatCollision_EnemyLoop": {
+                "edit": [
+                    {
+                        "find": "bit 7 ($0080) of $10 set (role unresolved)",
+                        "with": "bit 7 ($0080) of $10 set (hit-reaction active)"
+                    }
+                ]
+            }
+        },
+        "comments": {
+            "244787": {
+                "text": "$0400 set: skip the phase-1 attack test and take the phase-2 path below (the player carries it, so does an inline-lethal victim); clear: phase-1 test above",
+                "expect": "BIT #$0400"
+            },
+            "244792": {
+                "text": "$0140: a $0400 actor with either bit is not used as the outer-loop source ($0040 dead / orb-protected; $0100 = the player's vulnerable stance, set while idle)",
+                "expect": "BIT #$0140"
+            },
+            "245431": {
+                "text": "$0400: excluded from the interaction and attack-test passes (inline-lethal path: the dying victim stops being a target)",
+                "expect": "LDA #$0400"
+            },
+            "245854": {
+                "text": "$0400: excluded from the interaction and attack-test passes (inline-lethal path: the dying victim stops being a target)",
+                "expect": "LDA #$0400"
+            },
+            "247068": {
+                "text": "$0700: out of the interaction, attack and contact masks; the stub removes the actor on the next tick (measured for the gem pickup)",
+                "expect": "ORA #$0700"
+            },
+            "246411": {
+                "text": "$0200 ignore enemy contact (death, Aura Barrier, Spin Dash, slides, ramps) / $0080 hit-reaction active -> friendly NPCs only (FriendlyMode)",
+                "expect": "BIT #$0280"
+            }
+        }
+    },
+    "functions/EnemyDropSystem.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "combat_collision's player-attack phase skips actors with that bit; why the spawn flags set it first is not traced",
+                    "with": "while it is set the pickup is excluded from the interaction pass, so it cannot be collected (measured: with the bit forced back on, the pickup was not collected in the 88 frames observed); why the spawn flags set it first is not traced"
+                }
+            ]
+        },
+        "comments": {
+            "57154": {
+                "text": "Clear $10 bit $0400 that the $0420 spawn flags set: the pickup cannot be collected while it is set (why it is set first is not traced)",
+                "expect": "TRB $10"
+            }
+        }
+    },
+    "system/engine/actor_execution.asm": {
+        "partNotes": {
+            "RunActors_PostTick": {
+                "edit": [
+                    {
+                        "find": "(The flag's name is unverified: docs/wram-memory-map.md calls it \"player-hit\"; here it only selects collision-aware movement.)",
+                        "with": "(Measured: with bit 3 cleared on the player, Will walks through a wall that stops him otherwise; the bit selects collision-aware movement and is not a hit flag.)"
+                    }
+                ]
+            }
+        }
+    },
+    "system/engine/sprite_composition.asm": {
+        "comments": {
+            "247931": {
+                "text": "$0010 (bit 4 of $10): suppresses the blink and routes a hit to HitInvincibleVictim (no runtime setter seen; $12 bit 4 is the separate immunity)",
+                "expect": "BIT #$0010"
+            }
+        }
+    },
+    "actors/player/player_character.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "$0200 set while the Psycho Slider and the lunge run, $4000 off-screen (set by sprite_composition). The meaning of $0100 and $2000 for the player is not traced.",
+                    "with": "$0200 ignore enemy contact (set while the Psycho Slider, the lunge, the Aura Barrier and the Spin Dash run, and on death), $4000 off-screen (set by sprite_composition), $0100 vulnerable stance (set by PlayerIdleEntry; while it is set the player is skipped as attacker source and enemy contact hurts it; block, attack and run-attack clear it, and in a forced run with it cleared the enemy took the hit and Will none), $2000 hidden (set on the player by StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor; cleared by SyncPlayerToCamera, by the player_transition_handlers routines that set it, and by the actor pool rebuild)."
+                }
+            ]
+        },
+        "partNotes": {
+            "PlayerCharacterDef": {
+                "edit": [
+                    {
+                        "find": "$0001 in $12 (meaning of both bits not traced)",
+                        "with": "$0001 in $12 ($0100 = vulnerable stance, see the block note; the meaning of $12 $0001 is not traced)"
+                    }
+                ]
+            },
+            "PlayerIdleEntry": {
+                "edit": [
+                    {
+                        "find": "(SortActorsByDepth treats that bit as hidden; who sets it on the player is not traced)",
+                        "with": "(SortActorsByDepth treats that bit as hidden; StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor set it on the player)"
+                    }
+                ]
+            }
+        },
+        "comments": {
+            "181135": {
+                "text": "Init: set $0100 (vulnerable stance) in actor flags $10 and $0001 in $12 (meaning not traced), then store the actor slot as playerActor",
+                "expect": "LDA #$0100"
+            },
+            "181209": {
+                "text": "Set $0100 (vulnerable stance) in actor flags $10 again: block, attack and run-attack code clear it",
+                "expect": "LDA #$0100"
+            },
+            "181222": {
+                "text": "Bit $2000 of $10: hidden, SortActorsByDepth skips it; idle then yields without acting (the routines that set it on the player are listed in the part note)",
+                "expect": "LDA $10"
+            }
+        }
+    },
+    "actors/player/attack_ability_system.asm": {
+        "comments": {
+            "178559": {
+                "text": "Set bit 9 ($0200) in actor flags: Will ignores enemy contact while the Aura Barrier is active (CombatCollision_InnerLoop mask $76E0)",
+                "expect": "LDA #$0200"
+            },
+            "178684": {
+                "text": "Clear $0200: the Aura Barrier ends and Will can be hit again",
+                "expect": "LDA #$0200"
+            },
+            "180486": {
+                "text": "Set bit 9 ($0200): Will ignores enemy contact while the Spin Dash projectile is guided",
+                "expect": "LDA #$0200"
+            },
+            "180708": {
+                "text": "Clear bit 9 ($0200): contact damage is back (SpinDashAbort)",
+                "expect": "LDA #$0200"
+            }
+        }
+    },
+    "actors/player_transition_handlers.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "$0200 = scripted motion marker (the Psycho Slider and the lunge set it too), $2000 = SortActorsByDepth skips the actor and PlayerIdleEntry yields without acting (meaning not traced)",
+                    "with": "$0200 = ignore enemy contact (CombatCollision_InnerLoop mask $76E0; the Psycho Slider, the lunge, the Aura Barrier and the death handler set it too), $2000 = hidden: SortActorsByDepth skips the actor and PlayerIdleEntry yields without acting (StartForcedWalk, DarkSpaceMonitorStartWarp and the fall, jump and aura-sink routines of this file set it on the player)"
+                }
+            ]
+        },
+        "partNotes": {
+            "PlayerAuraLandOnSolid": {
+                "edit": [
+                    {
+                        "find": "set $10 bit $0002 (meaning not traced)",
+                        "with": "set $10 bit $0002 (draw in front of all actors: SortActorsByDepth tests $0003)"
+                    }
+                ]
+            }
+        },
+        "comments": {
+            "50249": {
+                "text": "$10 bit $0200: ignore enemy contact during the flute pose (cleared again by PlayerWalkingIdlePose)",
+                "expect": "TSB $10"
+            },
+            "50317": {
+                "text": "$10 |= $2200: hidden ($2000, skipped by SortActorsByDepth) and ignore enemy contact ($0200)",
+                "expect": "TSB $10"
+            },
+            "50393": {
+                "text": "$10 |= $2200: hidden (not depth-sorted) and ignore enemy contact",
+                "expect": "TSB $10"
+            },
+            "50633": {
+                "text": "$10 |= $0002 for the landing slide: draw in front of all actors (SortActorsByDepth BIT #$0003)",
+                "expect": "TSB $10"
+            }
+        }
+    },
+    "actors/ramps.asm": {
+        "comments": {
+            "54506": {
+                "text": "Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)",
+                "expect": "TSB $10"
+            },
+            "54541": {
+                "text": "Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)",
+                "expect": "TSB $10"
+            },
+            "54575": {
+                "text": "Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)",
+                "expect": "TSB $10"
+            },
+            "54633": {
+                "text": "Player $10 bit $0200 on: ignore enemy contact (CombatCollision_InnerLoop mask $76E0; contact skip measured with the bit forced on; this write site not run)",
+                "expect": "TSB $10"
+            }
+        }
+    },
+    "system/engine/slider_glide.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "$0200 = slide-active flag that RunAttackFlagSetup also sets; its reader is unknown",
+                    "with": "$0200 = ignore-enemy-contact flag (CombatCollision_InnerLoop mask $76E0) that RunAttackFlagSetup also sets"
+                }
+            ]
+        },
+        "comments": {
+            "53436": {
+                "text": "Clear $0200 (ignore enemy contact, set by RunAttackFlagSetup)",
+                "expect": "LDA #$0200"
+            },
+            "53784": {
+                "text": "Once on entry: $2000 = script-driven actor path, $0200 = ignore enemy contact (also set by RunAttackFlagSetup)",
+                "expect": "LDA #$2200"
+            },
+            "53830": {
+                "text": "Once on entry: script-driven path ($2000) + ignore enemy contact ($0200), same as SliderGlideWest",
+                "expect": "LDA #$2200"
+            },
+            "53876": {
+                "text": "Once on entry: script-driven path ($2000) + ignore enemy contact ($0200), same as SliderGlideWest",
+                "expect": "LDA #$2200"
+            },
+            "53922": {
+                "text": "Once on entry: script-driven path ($2000) + ignore enemy contact ($0200), same as SliderGlideWest",
+                "expect": "LDA #$2200"
+            },
+            "54697": {
+                "text": "Clear $0200 (ignore enemy contact) from the player's status word",
+                "expect": "AND #$FDFF"
+            }
+        }
+    },
+    "functions/StopPlayerOnDeath.asm": {
+        "comments": {
+            "62402": {
+                "text": "Set actor bit $0200 (not the playerFlags game-over bit): the dead player ignores enemy contact (CombatCollision_InnerLoop mask $76E0)",
+                "expect": "ORA #$0200"
+            }
+        }
+    },
+    "system/dark_space/sE6_gaia.asm": {
+        "comments": {
+            "587506": {
+                "text": "Clear bit 9 ($0200, ignore enemy contact, in the player's $10; not the game-over flag, which is playerFlags $0200)",
+                "expect": "AND #$FDFF"
+            }
+        }
+    },
+    "functions/SetPlayerGameOverFlag.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "The name suggests 'game over', but game over is bit 9 of playerFlags",
+                    "with": "This is not the game-over flag: game over is bit 9 of playerFlags"
+                },
+                {
+                    "find": "So the effect is most likely 'player cannot be hit during the boss-defeat sequence'",
+                    "with": "So the player cannot be hit while the bit is set (measured: with the bit forced on, an enemy standing on the player for 120 frames did no damage; the boss-defeat sequence itself was not run), which is what the boss-defeat sequences use it for"
+                }
+            ]
+        }
+    },
+    "system/engine/cop_handlers_dialog.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "does not re-run this actor — inferred)",
+                    "with": "does not re-run this actor; measured: with the bit forced back on during a text, PrintDialogString ran 7 times in 12 frames instead of once)"
+                }
+            ]
+        },
+        "comments": {
+            "43211": {
+                "text": "Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (measured for the text handler: with the bit forced on, the caller was re-run)",
+                "expect": "TRB $10"
+            },
+            "43295": {
+                "text": "Clear it for the duration of the text (measured: with it forced on, the handler re-entered 7 times in 12 frames)",
+                "expect": "TRB $10"
+            }
+        }
+    },
+    "system/engine/cop_handlers_sprite.asm": {
+        "blockNote": {
+            "edit": [
+                {
+                    "find": "sE8_dark_gaia right after SetHMirror",
+                    "with": "sE8_dark_gaia right after SetHMirror; dm3D_flayzer2, dm3D_flayzer3 and ir1F_stone_lord5 set it from their scripts; in the sessions measured only InitActorPool and CopyActorState cleared it"
+                }
+            ]
+        }
+    }
+}

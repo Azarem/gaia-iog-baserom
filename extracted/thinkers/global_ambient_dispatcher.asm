@@ -10,7 +10,7 @@
 ; 
 ; === TALK INTERACTION (every frame) ===
 ; 
-; 1. PHD / TCD set D = 0 and joypadCurrent bit $8000 is tested: the interact bit. In the vanilla layout it is the B button (remapB); in this build transforms.json rewrites the system_init defaults to remapA = $8080 and remapB = $4008, so the A button feeds it (together with the attack bit $0080). The notes in this file name the logical bit, not a button. Not pressed: return.
+; 1. PHD / TCD set D = 0 and joypadCurrent bit $8000 is tested: the interact bit. The button that feeds it follows the remap table ($0DA6-$0DB4): in the vanilla Type 1 map (the table after a new game or a slot load) physical A gives $8000 and physical B gives $4000; in the identity map (title screen, diary, Button Type 2) physical B gives $8000. In this build transforms.json rewrites the system_init defaults to remapA = $8080 and remapB = $4008, so physical A feeds the interact bit together with the attack bit $0080, and physical B never does (it gives cancel $4000 and item use $0008). The notes in this file name the logical bit, not a button. Not pressed: return.
 ; 2. GetPlayerFacingDirection: carry SET = no valid facing, return; carry CLEAR = valid (GlobalAmbientFacingValid). A = 0 down, 1 up, 2 left, 3 right, saved in $09EE.
 ; 3. A probe point one pixel in front of the player ($18 / $1C = player X / Y plus (0,+1), (0,-1), (-1,0) or (+1,0)) is built. The four probe labels follow the facing code: GlobalAmbientProbeDown handles facing 0 (down), GlobalAmbientProbeUp facing 1 (up), GlobalAmbientProbeLeft facing 2 (left), GlobalAmbientProbeRight facing 3 (right).
 ; 4. GlobalAmbientFindActorInFront walks the actor list from actorListFirst and keeps the actor with the smallest |dx| + |dy| to the probe point whose |dx| and |dy| are both below $10 and whose sum is below $20. Only actors with Flags10 bit $1000 count (the third actor-def header byte of NPCs and objects carries it; the player has it clear and is skipped). X = 0 when none is found.
@@ -102,7 +102,7 @@ GlobalAmbientPaletteUnused {
     LDA #$0000
     TCD 
     LDA $joypadCurrent
-    BIT #$8000            ; Interact bit: the B button in the vanilla layout, the A button in this build (system_init remap, see the block note)
+    BIT #$8000            ; Interact bit: physical A in this build and in the vanilla Type 1 map, physical B only in the identity map (see the block note)
     BEQ GlobalAmbientNoInteractInput
     JMP $&GlobalAmbientOnInteractPress
 

@@ -1,0 +1,100 @@
+{
+  "_note": "Climb terminology (ladder $02 / wall-shimmy $07 / vine $08). Evidence: player_move_{ns,south,east,west}.asm, player_character.asm, B1 census (mesen2-results/raw/B1_census_merged.json). Pairs with renames/apply-climb-terms_names.json and apply-climb-terms2_names.json (apply those first).",
+
+  "actors/player/player_character.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "Freedan-only vine climbing with a 3-frame alternating sprite cycle. CheckClimbAttack gates drop attack to Freedan (form 1)",
+        "with": "Vine descent state (entered through a type $08 cell, see SouthVineTile in player_move_south, or by the scripts awB3_vine_reveal and pyD0_breakable_wall) with a 3-frame alternating sprite cycle. It is not limited to Freedan: SouthVineTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the vine animations $18-$1B. Only the drop attack is Freedan-only: CheckClimbAttack gates it to Freedan (form 1)"
+      }
+    ] },
+    "partNotes": {
+      "ClimbVineEntry": { "edit": [
+        {
+          "find": "Vine climbing state machine — Freedan-only traversal system.",
+          "with": "Vine descent state machine, available to every form (only the drop attack, CheckClimbAttack, is Freedan-only).\n\nThree writers put its address into the player actor's entry word ($0000,Y): SouthVineTile (player_move_south) when the player walks south onto a type $08 cell, and the one-shot scene scripts awB3_vine_reveal (Angkor Wat outer north) and pyD0_breakable_wall (Pyramid scenes $D0 and $D1). It is a state, not a tile: the scripts enter it with no $08 cell involved."
+        }
+      ] }
+    }
+  },
+
+  "system/player/tile_collision.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "$07 ladder, $06 and $09",
+        "with": "$02 ladder (LadderClimbSouth / North), $07 wall-shimmy tile (ShimmyLeftEntry / ShimmyRightEntry), $08 vine (ClimbVineEntry, entered only walking south), $06 and $09"
+      }
+    ] }
+  },
+
+  "system/player/player_move_west.asm": {
+    "blockNote": { "edit": [
+      { "find": "$07 ladder tile (WestShimmyTile)", "with": "$07 wall-shimmy tile (WestShimmyTile)" },
+      { "find": "the ladder redirect leaves", "with": "the shimmy redirect leaves" }
+    ] },
+    "partNotes": {
+      "WestShimmyTile": "Type $07 ahead while moving west (a local label inside DispatchWestMove). The $07 cell is the wall-shimmy tile, not a ladder (ladders are type $02, SouthLadderTile / NorthLadderTile). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyLeftEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of EastShimmyTile (ShimmyRightEntry) in player_move_east. The old name DiagLadderTile called this a ladder, which it never starts.",
+      "DiagWallSouthShim": "Entry shim of the code_02DC4B wall handler: a lone SEP #$20 that falls into it. DiagRedirectToSouth jumps here when the future TL probe reads $06. The old name ended in FromDL, short for the old DiagLadderTile, which this label follows in the file; there is no other link to the shimmy tile.",
+      "DiagWallNorthShim": "Entry shim of the code_02DC9F wall handler: a lone SEP #$20 that falls into it. DiagRedirectToNorth jumps here when the future BL probe reads $09. The mirror of DiagWallSouthShim; the old name ended in FromDL for the old DiagLadderTile, with which it has no link.",
+      "CancelVerticalPhase": { "edit": [
+        { "find": "the ladder redirect", "with": "the shimmy redirects (WestShimmyTile, EastShimmyTile)" }
+      ] }
+    },
+    "comments": {
+      "187362": { "text": "Tile type $07 (wall-shimmy tile) -> WestShimmyTile: redirect to ShimmyLeftEntry", "expect": "CMP" },
+      "187436": { "text": "Shimmy tile $07: require Y sub-tile alignment (CheckSubTileAlignY)", "expect": "JSR" },
+      "187450": { "text": "Aligned on the shimmy tile: redirect actor state to ShimmyLeftEntry", "expect": "ShimmyLeftEntry" },
+      "187456": { "text": "Zero the actor wait counter (+$0008) before the shimmy", "expect": "LDA #$0000" }
+    }
+  },
+
+  "system/player/player_move_east.asm": {
+    "partNotes": {
+      "EastShimmyTile": { "edit": [
+        { "find": "Type $07 ahead while moving east", "with": "Type $07 (the wall-shimmy tile; ladders are type $02) ahead while moving east" }
+      ] }
+    },
+    "comments": {
+      "186130": { "text": "Y flush and future TR $06 -> EastWallSouthFlag; anything else goes on to the $07 (wall-shimmy tile) test", "expect": "CMP #$06" },
+      "186236": { "text": "Shimmy tile ($07): require Y sub-tile alignment before east shimmy", "expect": "CheckSubTileAlignY" },
+      "186263": { "text": "Then the blocked path (collision flag, Y nudge, X snap): holds the player at the shimmy tile edge", "expect": "BRA" }
+    }
+  },
+
+  "system/player/player_move_south.asm": {
+    "partNotes": {
+      "SouthVineTile": { "edit": [
+        {
+          "find": "Vine reached while walking south.",
+          "with": "Type $08 (the vine tile) reached while walking south. The old name SouthStairsTile was wrong: nothing here is a stair, and the playerFlags $0800 set below is not a stair flag.\n\n$08 is a real collision type, not a script flag: 59 of the 223 map scenes hold it (Angkor Wat, the Pyramid, Sky Garden, the Great Wall, Freejia, the Gold Ship, Incan Ruins, South Cape, Edward's Castle, Itory and others; B1 census, plans/extracted-audit/mesen2-results). The Mt. Temple scenes $A0-$A9 hold no $02, $07 or $08 cell, so the vine bridges there are ordinary walkable cells and not this tile. Whether the art of every $08 cell is a vine (rather than a rope or a ledge) was not checked.\n\nEntry rule:"
+        }
+      ] }
+    }
+  },
+
+  "angkor_wat/angkor_outer_north/awB3_vine_reveal.asm": {
+    "blockNote": [
+      "Angkor Wat outer north (scene $B3): one-shot trigger that changes the map and sends the player into the vine descent state.",
+      "",
+      "Spawned once, by scene_B3_actors. The actor dies at once when flag word $016E is set. Otherwise it waits (SetEntryHere) until the player stands in the tile box (6A, 0C)-(6F, 0D), then: ORs $CFFC into joypadMaskStd 20 times (LoopStart #14), plays the sound pair #$0F0F, applies BG change #6E (StageBgChange / ApplyBgChange), sets flag word $016E, writes player_character.ClimbVineEntry into the player actor (address at +$00, bank byte at +$02, $08 and $2A zeroed), sets playerFlags $0800 and dies.",
+      "",
+      "The player enters the vine state because this script writes ClimbVineEntry, not because of a type $08 cell. BG change #6E was not decoded or viewed, so what it draws (the old note said 'grows vines' and 'draw the vine tiles', a guess from the file name) and whether the path it opens is the one the descent follows is not verified."
+    ]
+  },
+
+  "pyramid/pyD0_breakable_wall.asm": {
+    "blockNote": [
+      "Pyramid scenes $D0 and $D1 (one placement each): one-shot trigger that draws two metatiles, applies a BG change and sends the player into the vine descent state. The old note (hit points, debris, 'used extensively in the maze-like corridors') does not match the code: there is no HP counter, no hit test and no spawn, and only two scenes place it.",
+      "",
+      "The actor's $0E word (copied to $26) picks the variant: 0 uses flag word $0170 and BG change #70, anything else flag word $0171 and BG change #71. The actor dies at once when its flag word is set. Otherwise each pass first requires the player's $7F0008 byte to be $95 or $8E and the player's animation index ($28) to be $1C; what those values mean was not traced ($1C is the pose ClimbVineLand stages, and other player code stages it too). Then BranchIfPlayerNear #01 leads to the action code. The first pass through it (the actor's $24 is 0) sets $24 = 1, converts the actor's $14 / $16 to tile coordinates (saved in orbitAngle / orbitDiameter, restored afterwards) and draws metatiles #E8 and #E9 side by side with DrawMetatileHere. A later pass ($24 nonzero) plays sound #15, applies the BG change, sets the flag word, clears actor flag $0008 and sets $0200 in the player's $10, writes player_character.ClimbVineEntry into the player actor (address +$00, bank byte +$02, $08 and $2A zeroed) and dies.",
+      "",
+      "As in awB3_vine_reveal, the vine state is entered by this script writing ClimbVineEntry, with no type $08 cell involved."
+    ]
+  },
+
+  "actors/player/player_move_controller.asm": {
+    "blockNote": { "edit": [
+      { "find": "(stairs, vine, ladder, cutscene)", "with": "(vine, ladder, shimmy, the slider-glide triggers, cutscene)" }
+    ] }
+  }
+}

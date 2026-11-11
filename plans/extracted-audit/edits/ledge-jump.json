@@ -1,0 +1,170 @@
+{
+  "_note": "The state formerly called ClimbVineEntry is a LEDGE JUMP: Mesen2, scene $01 (South Cape), walking south onto a type $08 cell, the player steps off a mossy wall edge and falls about 87 px (y 361 to 448) onto the roof below, pose $18 then the fall cycle $1A/$19, landing pose $1C, playerFlags $0808, actor flags $10 = $8700 ($0008 clear, $0200 set). No ladder, no vine (confirmed on the screenshots by the user). Pairs with renames/apply-ledge-jump_names.json (apply first). Supersedes the vine wording of edits/climb-terms.json.",
+
+  "actors/player/player_character.asm": {
+    "blockNote": { "edit": [
+      { "find": "traversal systems (climbing, ladders, shimmy)", "with": "traversal systems (ledge jump, ladders, shimmy)" },
+      { "find": "(cleared while climbing, restored on exit)", "with": "(cleared during a ledge jump, a ladder climb or a shimmy, restored on exit)" },
+      { "find": "2. VINE CLIMBING (181790–182198)", "with": "2. LEDGE JUMP (181790–182198)" },
+      {
+        "find": "Vine descent state (entered through",
+        "until": "Only the drop attack is Freedan-only",
+        "with": "Ledge jump: the player steps off a ledge and falls (3-frame alternating sprite cycle, force Y movement #07) until the solid-type test under the feet passes, then lands with pose $1C. Seen in Mesen2 in scene $01 (South Cape): Will walks south onto a type $08 cell, a gap in a mossy wall edge, and drops about 87 px onto the roof below. Entered through a type $08 cell (SouthLedgeTile in player_move_south) or by the scripts awB3_ledge_jump_trigger and pyD0_breakable_wall. It is not limited to Freedan: SouthLedgeTile checks no form, and the Freedan, Will and Shadow sprite sets all carry the animations $18-$1B. "
+      }
+    ] },
+    "partNotes": {
+      "LedgeJumpEntry": "Ledge jump: the player steps off a ledge and falls until the ground test under the feet passes. Available to every form; only the drop attack (CheckLedgeJumpAttack) is Freedan-only.\n\nThree writers put its address into the player actor's entry word ($0000,Y): SouthLedgeTile (player_move_south) when the player walks south onto a type $08 cell, and the one-shot scene scripts awB3_ledge_jump_trigger (Angkor Wat outer north) and pyD0_breakable_wall (Pyramid scenes $D0 and $D1). The scripts enter it with no $08 cell involved.\n\nEntry: clear actor flag $0008 (restored by LedgeJumpLand), set actor flag $0200, hide the use-item button ($0008) via joypadMaskStd. Plays the take-off poses (sprites #18, #19).\n\nMain loop: 3-sprite alternating cycle (#1A, #1B, #19) with force Y movement (#07 = downward). Each pass checks for solid ground (landing). CheckLedgeJumpFrame reads the $2A event flag for animation timing. CheckLedgeJumpAttack gates the drop attack to Freedan (characterForm == 1) with abilityBitmask bit 6 ($0040).\n\nMesen2, scene $01: pose $18 for about 24 frames at the edge, then the fall at about 4 px per frame (y 361 to 448), pose $1C for the landing; playerFlags $0808 and actor flags $8700 throughout.",
+      "LedgeJumpLand": "Landing of a ledge jump: plays sound #2C and the landing pose #1C, restores actor flag $0008, clears $0200 and the use-item hide, and returns to PlayerIdleEntry.",
+      "LedgeJumpDropAttack": { "edit": [
+        { "find": "Freedan drop attack from vine — triggers ground impact effects.", "with": "Freedan drop attack in the middle of a ledge jump (CheckLedgeJumpAttack: B pressed while falling) — triggers ground impact effects." },
+        { "find": "Pops the climb loop return address", "with": "Pops the ledge-jump loop return address" }
+      ] }
+    },
+    "comments": {
+      "181790": { "text": "Ledge jump start: clear $0008 in actor flags (LedgeJumpLand restores it), set $0200, then hide the use-item button via joypadMaskStd", "expect": "LDA #$0008" },
+      "181804": { "text": null, "expectOld": "Vine initial climb animation" },
+      "181806": { "text": "Take-off: StagePlayerMoveXY sprite #18, then (after AnimOnce) StagePlayerMoveY sprite #19 with force move #07", "expect": "StagePlayerMoveXY" },
+      "181819": { "text": "Check solid type below for landing; begin the 3-sprite alternating fall cycle", "expect": "BranchIfSolidType" },
+      "181906": { "text": "Ledge jump landing: play sound #2C, animate landing sprite #1C, restore flags, return to idle", "expect": "PlaySoundCh2" },
+      "181948": { "text": "Check drop attack: Freedan-only (form 1) with abilityBitmask bit 6 ($0040) → LedgeJumpDropAttack", "expect": "characterForm" }
+    }
+  },
+
+  "actors/player/player_move_controller.asm": {
+    "blockNote": { "edit": [
+      { "find": "(vine, ladder, shimmy, the slider-glide triggers, cutscene)", "with": "(ledge jump, ladder, shimmy, the slider-glide triggers, cutscene)" },
+      { "find": "(the vine, ladder and shimmy states clear it and restore it on exit)", "with": "(the ledge-jump, ladder and shimmy states clear it and restore it on exit)" }
+    ] },
+    "partNotes": {
+      "PlayerMoveCollisionStage": { "edit": [
+        { "find": "Clear (vine, ladder, shimmy)", "with": "Clear (ledge jump, ladder, shimmy)" }
+      ] }
+    },
+    "comments": {
+      "177017": { "text": "Bit $0008 = collision-checked movement (cleared during a ledge jump, a ladder climb or a shimmy)", "expect": "BIT #$0008" }
+    }
+  },
+
+  "system/player/player_move_main.asm": {
+    "blockNote": { "edit": [
+      { "find": "the vine, ladder and shimmy states clear it", "with": "the ledge-jump, ladder and shimmy states clear it" }
+    ] }
+  },
+
+  "system/player/player_move_ns.asm": {
+    "blockNote": { "edit": [
+      { "find": "$02 ladder, $08 vine, $0E and above solid", "with": "$02 ladder, $08 ledge jump, $0E and above solid" }
+    ] },
+    "comments": {
+      "184421": { "text": "Type $08 (ledge jump) cannot be entered walking north: blocked path (it is a south-only cell)", "expect": "CMP #$08" },
+      "184466": { "text": "East cell is a ledge-jump cell ($08): blocked path", "expect": "CMP #$08" }
+    }
+  },
+
+  "system/player/player_move_south.asm": {
+    "blockNote": { "edit": [
+      { "find": "$08 vine (can only be entered while walking south;", "with": "$08 ledge jump (a gap in a ledge edge; can only be entered while walking south;" },
+      { "find": "$08 -> SouthLedgeTile (vine)", "with": "$08 -> SouthLedgeTile (ledge jump)" },
+      { "find": "SouthLedgeTile (vine), SouthSlopeRight", "with": "SouthLedgeTile (ledge jump), SouthSlopeRight" }
+    ] },
+    "partNotes": {
+      "SouthLedgeTile": "Type $08 cell reached while walking south: the start of a ledge jump. The old names (SouthStairsTile, then SouthVineTile) were wrong: nothing here is a stair, a vine or a ladder. In Mesen2 (scene $01, South Cape) the player walks into the gap of a mossy wall edge, steps off and falls onto the roof below. It is south-only because a ledge can only be jumped down from the north; the north handler treats the cell as a wall.\n\n$08 is a real collision type, not a script flag: 59 of the 223 map scenes hold it (Angkor Wat, the Pyramid, Sky Garden, the Great Wall, Freejia, the Gold Ship, Incan Ruins, South Cape, Edward's Castle, Itory and others; B1 census, plans/extracted-audit/mesen2-results). Only South Cape was watched; the other scenes are assumed to be ledges of the same kind. The Mt. Temple scenes $A0-$A9 hold no $02, $07 or $08 cell.\n\nEntry rule: column-aligned (carry clear): go straight in. Straddling (carry set): the cell to the RIGHT must also be type $08, otherwise blocked. Sets playerFlags $0800 (script / ability lock) through the high byte playerStateByte, switches the player to LedgeJumpEntry (which sets actor flag $0200 and hides the use-item button), clears the wait counter and floors Y through SnapYSouthCollision (which also zeroes playerSpeedNs)."
+    },
+    "comments": {
+      "185256": { "text": "Ledge-jump cell at the destination: SouthLedgeTile (it can only be entered while walking south)", "expect": "CMP #$08" },
+      "185381": { "text": "Ledge jump: carry clear (single column) enters directly; carry set requires the cell to the right to be $08 as well", "expect": "CheckSubTileAlignX" },
+      "185386": { "text": "Straddling two columns: the cell one column to the RIGHT of FutureBL must also be a ledge-jump cell", "expect": "MapCellRight" },
+      "185407": { "text": "Player entry becomes LedgeJumpEntry (sets actor flag $0200, hides the use-item button, steps off the ledge)", "expect": "LedgeJumpEntry" },
+      "185413": { "text": "Zero the wait counter ($08) so the ledge jump starts at its next pass", "expect": "LDA #$0000" }
+    }
+  },
+
+  "system/player/tile_collision.asm": {
+    "blockNote": { "edit": [
+      { "find": "$08 vine (LedgeJumpEntry, entered only walking south)", "with": "$08 ledge jump (LedgeJumpEntry, entered only walking south)" }
+    ] }
+  },
+
+  "system/dark_space/sE6_gaia.asm": {
+    "comments": {
+      "587509": { "text": "Set bit 3: collision-checked movement (ledge-jump, ladder and shimmy states clear it)", "expect": "ORA" }
+    }
+  },
+
+  "system/engine/actor_execution.asm": {
+    "partNotes": {
+      "RunActors_Normal": { "edit": [
+        { "find": "(Freedan vine-drop landing)", "with": "(landing of the Freedan ledge-jump drop attack)" }
+      ] },
+      "RunActors_PauseFiltered": { "edit": [
+        { "find": "Freedan vine-drop landing freezes the world", "with": "the landing of the Freedan ledge-jump drop attack freezes the world" }
+      ] }
+    }
+  },
+
+  "angkor_wat/angkor_outer_north/awB3_ledge_jump_trigger.asm": {
+    "blockNote": [
+      "Angkor Wat outer north (scene $B3): one-shot trigger that changes the map and then makes the player jump (LedgeJumpEntry).",
+      "",
+      "Spawned once, by scene_B3_actors. The actor dies at once when flag word $016E is set. Otherwise it waits (SetEntryHere) until the player stands in the tile box (6A, 0C)-(6F, 0D), then: ORs $CFFC into joypadMaskStd 20 times (LoopStart #14), plays the sound pair #$0F0F, applies BG change #6E (StageBgChange / ApplyBgChange), sets flag word $016E, writes player_character.LedgeJumpEntry into the player actor (address at +$00, bank byte at +$02, $08 and $2A zeroed), sets playerFlags $0800 and dies.",
+      "",
+      "The jump starts because this script writes LedgeJumpEntry, not because of a type $08 cell. BG change #6E was not decoded or viewed. The earlier names and notes (awB3_vine_reveal, 'grows vines', 'draw the vine tiles', 'ladder trigger') were guesses; what the change draws and where the player lands was not watched."
+    ]
+  },
+
+  "pyramid/pyD0_breakable_wall.asm": {
+    "blockNote": [
+      "Pyramid scenes $D0 and $D1 (one placement each): one-shot trigger that draws two metatiles, applies a BG change and then makes the player jump (LedgeJumpEntry). The old note (hit points, debris, 'used extensively in the maze-like corridors') does not match the code: there is no HP counter, no hit test and no spawn, and only two scenes place it. The block name (breakable wall) is probably wrong as well and was not changed because the purpose of the trigger was not established.",
+      "",
+      "The actor's $0E word (copied to $26) picks the variant: 0 uses flag word $0170 and BG change #70, anything else flag word $0171 and BG change #71. The actor dies at once when its flag word is set. Otherwise each pass first requires the player's $7F0008 byte to be $95 or $8E and the player's animation index ($28) to be $1C; what those values mean was not traced ($1C is the landing pose of a ledge jump, LedgeJumpLand, and other player code stages it too). Then BranchIfPlayerNear #01 leads to the action code. The first pass through it (the actor's $24 is 0) sets $24 = 1, converts the actor's $14 / $16 to tile coordinates (saved in orbitAngle / orbitDiameter, restored afterwards) and draws metatiles #E8 and #E9 side by side with DrawMetatileHere. A later pass ($24 nonzero) plays sound #15, applies the BG change, sets the flag word, clears actor flag $0008 and sets $0200 in the player's $10, writes player_character.LedgeJumpEntry into the player actor (address +$00, bank byte +$02, $08 and $2A zeroed) and dies.",
+      "",
+      "As in awB3_ledge_jump_trigger, the jump starts because this script writes LedgeJumpEntry, with no type $08 cell involved."
+    ]
+  },
+
+  "tables/spriteset_freedan.asm": {
+    "partNotes": {
+      "spriteset_freedan": { "edit": [
+        { "find": "first pose of the vine entry (StagePlayerMoveXY)", "with": "first pose of the ledge jump (StagePlayerMoveXY)" },
+        { "find": "vine climb cycle $1A, $1B, $19, repeating", "with": "ledge-jump fall cycle $1A, $1B, $19, repeating" }
+      ] }
+    }
+  },
+
+  "tables/spriteset_shadow.asm": {
+    "blockNote": { "edit": [
+      { "find": "- Climb poses: the vine cycle $19-$1B", "with": "- Climb and jump poses: the ledge-jump fall cycle $19-$1B" }
+    ] },
+    "partNotes": {
+      "spriteset_shadow": { "edit": [
+        { "find": "the vine cycle and the ladder idles", "with": "the ledge-jump fall cycle and the ladder idles" }
+      ] }
+    }
+  },
+
+  "tables/spriteset_will.asm": {
+    "partNotes": {
+      "spriteset_will": { "edit": [
+        { "find": "(vine, ladder, shimmy)", "with": "(ledge jump, ladder, shimmy)" }
+      ] }
+    }
+  },
+
+  "tables/spriteset_freedan_fx.asm": {
+    "blockNote": { "edit": [
+      { "find": "the Aura Barrier cast and the vine drop attack", "with": "the Aura Barrier cast and the ledge-jump drop attack" },
+      { "find": "The vine drop attack is the Freedan-only drop from a climb", "with": "The ledge-jump drop attack is the Freedan-only drop during a ledge jump" }
+    ] },
+    "partNotes": {
+      "spriteset_freedan_fx": { "edit": [
+        { "find": "$00 vine drop fall", "with": "$00 ledge-jump drop fall" }
+      ] },
+      "freedan_fx_00_drop_fall": { "edit": [
+        { "find": "vine drop attack fall", "with": "ledge-jump drop attack fall" }
+      ] },
+      "freedan_fx_01_drop_land": { "edit": [
+        { "find": "vine drop landing", "with": "ledge-jump drop landing" }
+      ] }
+    }
+  }
+}

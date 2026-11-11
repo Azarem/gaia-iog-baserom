@@ -1,6 +1,6 @@
 ; Diary-menu highlight-band thinker for scene $FA (Bank 00, 48049-48203; spawned through thinker_spawn_0CEB18, the scene-$FA slot of the scene thinker table).
 ; 
-; Every frame it chooses HDMA tables for the PPU window-1 position registers WH0/WH1 ($2126/$2127; the operand #26 of COP QueueHdmaDirect is that B-bus register, see hdma_channel_config) from three cursor words kept by sFA_diary_menu, where a negative value means 'none': $0D92 = slot cursor, $0D96 = copy-target slot, $0D98 = tab / settings-row cursor. DiaryMenuInit sets WOBJSEL = $22 (window 1 is the colour window) and CGWSEL = $82 (main screen black inside it), so each table lays a band over the rows under a cursor; the band appearance is decoded from the registers, not observed.
+; Every frame it chooses HDMA tables for the PPU window-1 position registers WH0/WH1 ($2126/$2127; the operand #26 of COP QueueHdmaDirect is that B-bus register, see hdma_channel_config) from three cursor words kept by sFA_diary_menu, where a negative value means 'none': $0D92 = slot cursor, $0D96 = copy-target slot, $0D98 = tab / settings-row cursor. DiaryMenuInit sets WOBJSEL = $22 (window 1 is the colour window) and CGWSEL = $82 (main screen black inside it), so each table lays a band over the rows under a cursor; measured: inside a band the main screen is black and only the BG3 text shows (the sub screen is added by colour math); outside the band the map is unchanged.
 ; 
 ; === TABLES ===
 ; 
@@ -11,10 +11,10 @@
 ; 
 ; === SELECTION ===
 ; 
-; 1. Slot cursor $0D92 (first QueueHdmaDirect): negative writes WH0/WH1 = $FF/$00 directly and queues the empty table; 0 / 1 / 2+ queue the slot-1 / slot-2 / slot-3 band. While a copy target is set ($0D96 >= 0) this band is only queued on odd frames (even frames queue the empty table), so the source row flickers at 30 Hz.
+; 1. Slot cursor $0D92 (first QueueHdmaDirect): negative writes WH0/WH1 = $FF/$00 directly and queues the empty table; 0 / 1 / 2+ queue the slot-1 / slot-2 / slot-3 band. While a copy target is set ($0D96 >= 0) this band is only queued on odd frames (even frames queue the empty table), so the source row flickers at 30 Hz (measured: the band is drawn on every second frame; consecutive frames differ in the band's 31 lines and frames two apart are identical).
 ; 2. Target cursor $0D96 (second QueueHdmaDirect): same mapping, always queued.
 ; 3. Tab cursor $0D98 (third QueueHdmaDirect): negative = empty table, 0 / 1 / 2 / 3+ = the four narrow bands.
-; Each COP QueueHdmaDirect takes its own direct-table HDMA channel, so the three tables overlay each other on the same registers.
+; Each COP QueueHdmaDirect takes its own direct-table HDMA channel, so the three tables overlay each other on the same registers. The channels run in order on every scanline and the last write wins, so an empty entry of a later channel hides an earlier channel's band on its lines. Measured: with the tab cursor at 0 the slot-1 band is invisible (the tab-0 table covers lines 79-93 with its own band and then writes $FF / $00 for lines 94-189), while the slot-3 band is visible.
 ---------------------------------------------
 
 !frameCounter                   0036

@@ -1,0 +1,340 @@
+[
+  {
+    "id": "FL24-01",
+    "flag": 8,
+    "scope": { "scenes": [63] },
+    "priority": "P2",
+    "claim": "Scratch byte $0A01 of the mine main chamber is a hit counter: each of the four dm3F_switch placements zeroes it at spawn and adds 1 per hit, and dm3F_mine_collapse_trigger fires when it equals 4 (BG change #21, rumble #0E, word flag $0121).",
+    "start": { "scene": 63, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $3F, hit one switch four times with a Psycho Dash and read byte $0A01 after every hit",
+      "forced": "hit four different switches once each, then hit a fifth time; also write $0A01 := 3 and hit once",
+      "observe": [
+        "byte $0A01 after each hit",
+        "byte $0A24 bit 1 ($0121)",
+        "BG tilemap of the tunnel entrance (screenshot)",
+        "sound effect #0E"
+      ]
+    },
+    "confirms": "the collapse fires on the hit that makes $0A01 equal 4, regardless of which switches were hit",
+    "refutes": "the collapse needs four different switches, or never fires after a fifth hit has passed 4 without the check",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-02",
+    "flag": 0,
+    "scope": { "scenes": [61, 64] },
+    "priority": "P2",
+    "claim": "Scratch $00 is set by dm3D_breakable_wall (scene 61, tiles (05,03)-(07,07)) and dm40_trapped_slave (scene 64, tiles (08,14)-(0A,17)) as a proximity bit, and the player idle code reads it to pick the alternate idle sprite set (#10-#13).",
+    "start": { "scene": 61, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "stand idle outside the tile box and screenshot Will, then step into the box and screenshot again",
+      "forced": "write byte $0A00 bit 0 := 1 anywhere in scene 61 and screenshot the idle sprite",
+      "observe": [
+        "byte $0A00 bit 0",
+        "player sprite frame (screenshot)"
+      ]
+    },
+    "confirms": "the idle sprite changes exactly while bit 0 is set (inside the box or forced)",
+    "refutes": "the idle sprite is the same in both states",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-03",
+    "flag": 96,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposals $60-$63: a Crystal Ball placed in one of the four pedestal boxes of the Sky Garden main area sets the flag of that pedestal and releases the matching sg4C_platform actor; with the flag set at load the platform spawns in its parked state.",
+    "start": { "scene": 76, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $4C with $60-$63 clear and watch the four platforms",
+      "forced": "set $60 only (byte $0A0C bit 0), reload scene $4C, then use a Crystal Ball in the east-upper box (tiles (16,0C)-(18,0F)); repeat with $61-$63",
+      "observe": [
+        "bytes $0A0C bits 0-3",
+        "platform actor positions per frame",
+        "dialog on a second use of the ball in the same box"
+      ]
+    },
+    "confirms": "each flag moves exactly its own platform and a second ball in the same box prints the duplicate message",
+    "refutes": "a flag moves another platform, or the platform ignores the flag at load",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-04",
+    "flag": 91,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposals $5B and $5C: the cell door of the mine foyer opens only when both flags are set, whether set by the door's Yes/No scene or by using the keys one at a time; with exactly one set, talking to the door prints 'Without both keys'.",
+    "start": { "scene": 68, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $44 with both flags clear and talk to the door",
+      "forced": "set $5B only (byte $0A0B bit 3) and talk; then set $5C (bit 4) and watch the door",
+      "observe": [
+        "dialog",
+        "bytes $0A0B bits 3-4",
+        "word flag $017A (byte $0A2F bit 2)",
+        "BG tilemap (screenshot)"
+      ]
+    },
+    "confirms": "one flag: the 'without both keys' text; both: the door opens (BG #7A) and $017A is set",
+    "refutes": "one flag already opens the door",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-05",
+    "flag": 105,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Spine proposal dm_elevator_key_used ($69): the elevator door of scene 63 waits for it, then applies BG change #7B and sets $017B; using the key at tiles (18,34)-(1A,37) sets it.",
+    "start": { "scene": 63, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $3F and talk to the door without the key",
+      "forced": "set $69 (byte $0A0D bit 1) and watch the door",
+      "observe": [
+        "BG tilemap (screenshot)",
+        "byte $0A2F bit 3 ($017B)"
+      ]
+    },
+    "confirms": "the door opens in the frames after $69 is set and $017B appears",
+    "refutes": "the door needs the interact handler as well",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-06",
+    "flag": 217,
+    "scope": null,
+    "priority": "P3",
+    "claim": "The trapped laborer of scene 64 is freed only by a hit while playerFlags bit $0002 is set (Psycho Slider, Psycho Dash, run attack); a normal sword hit or Freedan's Dark Friar does not free him.",
+    "start": { "scene": 64, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "hit the laborer with a normal attack and with Freedan's Dark Friar",
+      "forced": "hit with Psycho Dash, then with Psycho Slider",
+      "observe": [
+        "playerFlags $09AE bit 1",
+        "byte $0A1B bit 1 ($D9)",
+        "jewelsCollected $0AB0",
+        "debris burst (screenshot)"
+      ]
+    },
+    "confirms": "only the Psycho attacks set $D9 and add 3 to jewelsCollected",
+    "refutes": "a normal hit or the Dark Friar frees him",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-07",
+    "flag": 162,
+    "scope": null,
+    "priority": "P3",
+    "claim": "dm3F_laborer sets the freed flag after its walk-off loop, so leaving the scene during the walk leaves the flag clear while the key (#0C or #0F) has already been given.",
+    "start": { "scene": 70, "flags": [], "form": "Freedan", "state": null },
+    "trial": {
+      "control": "break the chain of the nest laborer, take the key and wait for the walk to end; read $A2",
+      "forced": "break the chain, take the key and leave the scene during the walk; return and talk again",
+      "observe": [
+        "byte $0A14 bit 2 ($A2)",
+        "inventory (item #0C count)",
+        "second talk"
+      ]
+    },
+    "confirms": "leaving early leaves $A2 clear and the laborer can give the key again",
+    "refutes": "the flag is set at the talk, before the walk",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-08",
+    "flag": 15,
+    "scope": { "scenes": [135] },
+    "priority": "P3",
+    "claim": "Striking the hit switch at tile (2F,28) of scene 135 wakes the six gw87_statue_archer enemies (they switch to stats row CC and the live archer script); until then they restore their position and HP every frame.",
+    "start": { "scene": 135, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "hit a statue archer and push against it; watch position and HP",
+      "forced": "hit the switch, then watch the statues",
+      "observe": [
+        "byte $0A01 bit 7",
+        "statue archer actor state (stats pointer, $10 bit $0200)",
+        "screenshot of the room"
+      ]
+    },
+    "confirms": "all six statues start shooting after the switch and none before",
+    "refutes": "any statue acts before the switch, or the switch wakes only some",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-09",
+    "flag": 301,
+    "scope": null,
+    "priority": "P3",
+    "claim": "sg52_switch and sg54_pressure_switch watch scene actor #3 (the pushable knight armor): when it stands at pixel ($0258,$0330) in scene 82 or at ($0348,$02E0) in scene 84 they apply BG change #2E / #2F and set $012D+$012E / $012F; with the flag set at load the armor is placed at that spot.",
+    "start": { "scene": 82, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "push the armor onto the plate tile (25,33) and watch the map",
+      "forced": "set $012E (byte $0A25 bit 6) and reload scene $52; set $012F (byte $0A25 bit 7) and reload scene $54",
+      "observe": [
+        "armor position",
+        "BG tilemap (screenshot)",
+        "bytes $0A25 bits 5-7"
+      ]
+    },
+    "confirms": "the map changes when the armor reaches the plate and the armor is pre-placed when the flag is set",
+    "refutes": "the plate reacts to something other than the armor",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-10",
+    "flag": 293,
+    "scope": null,
+    "priority": "P3",
+    "claim": "sg52_blocker_enemy_a and _b are toggle switches, not enemies to kill: each hit swaps frame #0F and #10 and BG changes #90/#26 (a) or #28/#2A (b) and flips the flag pairs $0125/$0126 and $0127-$012A; the two placements of enemy_a mirror each other through $0126.",
+    "start": { "scene": 82, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "hit each blocker five times and watch the map and flag bytes",
+      "forced": "set $0126 and reload the scene",
+      "observe": [
+        "bytes $0A24 bits 5-7 and $0A25 bits 0-2",
+        "BG tilemap per hit",
+        "second placement of enemy_a"
+      ]
+    },
+    "confirms": "every hit toggles; both enemy_a placements change together",
+    "refutes": "a blocker dies or stops toggling after a number of hits",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-11",
+    "flag": 4,
+    "scope": { "scenes": [133] },
+    "priority": "P2",
+    "claim": "The two gw85_multi_switch_spear placements wait on the same scratch flag and each clears it after leaving the wait, so after one hit of the switch at tile (64,1D) the spear polled first consumes the trigger.",
+    "start": { "scene": 133, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "hit the switch at tile (64,1D) and watch both spears at tiles (64,19) and (65,19)",
+      "forced": "write byte $0A00 bit 4 := 1 and watch the spears",
+      "observe": [
+        "byte $0A00 bit 4 per frame",
+        "both spear frames (#1D to #1E) per frame",
+        "screenshot"
+      ]
+    },
+    "confirms": "both retract, or only one; the trial decides which and the actor order",
+    "refutes": "neither retracts",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-12",
+    "flag": 1,
+    "scope": { "scenes": [88] },
+    "priority": "P2",
+    "claim": "Scratch $01 of the Sky Garden descent is set by two producers (the sp58_missed_flight child after Neil's 'dropped a contact' line, the sp58_red_eye child after its first line) and read by three actors; no code clears it.",
+    "start": { "scene": 88, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load scene $58 and read byte $0A00 bits 1 and 2 every frame until the scene changes",
+      "forced": "none (observation only)",
+      "observe": [
+        "byte $0A00 bits 1-2 per frame",
+        "dialog timing",
+        "the frame at which sp58_red_eye leaves its loop"
+      ]
+    },
+    "confirms": "bit 1 rises once after the missed-flight dialog and the red-eye actor leaves its loop in the same frame, or later after its own child",
+    "refutes": "bit 1 rises twice or the red-eye actor leaves its loop before its own dialog",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-13",
+    "flag": 94,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Sam sets $5E only after GiveItem #0D succeeds: with a full inventory the flag stays clear and the talk repeats; on the next load Imas, Remus and Sam die at spawn when it is set.",
+    "start": { "scene": 71, "flags": [], "form": "Freedan", "state": null },
+    "trial": {
+      "control": "talk to Sam with a free slot after breaking the chain",
+      "forced": "fill the inventory first; then set $5E (byte $0A0B bit 6) and reload scene $47",
+      "observe": [
+        "byte $0A0B bit 6",
+        "actor list of scene $47",
+        "inventory"
+      ]
+    },
+    "confirms": "full inventory: no flag, no item; flag set: the three actors are gone",
+    "refutes": "the flag is set when the inventory is full",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-14",
+    "flag": 150,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Spine proposal gw_lance_lilly_reunion_done ($96): set by Lance at the end of the Great Wall reunion and cleared by wa78_glass_game; the Watermia readers behave as 'festival phase'.",
+    "start": { "scene": 121, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "finish the reunion and read byte $0A12 bit 6 on arrival in Watermia",
+      "forced": "play the glass game to its end and read the bit again",
+      "observe": [
+        "byte $0A12 bit 6",
+        "festival palette",
+        "Luke's house actors"
+      ]
+    },
+    "confirms": "set after the reunion and cleared after the glass game",
+    "refutes": "the glass game clears nothing, or the flag is set elsewhere before",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-15",
+    "flag": 157,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Spine proposals $9D (gw_trail_intro_seen) and $A7 (mt_kress_intro_seen) are set by the two entrance narrations and read by wa78_men (scenes 78, 7B, 7E) and eu9A_friezer, eu9A_max, eu9A_rudy.",
+    "start": { "scene": 130, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "load a scene that places wa78_men (Watermia) with $9D clear and note its actor list and dialog",
+      "forced": "set $9D (byte $0A13 bit 5) and reload; set $A7 (byte $0A14 bit 7) and load scene $9A",
+      "observe": [
+        "actor list and dialog of wa78_men",
+        "actor list of scene $9A"
+      ]
+    },
+    "confirms": "the readers change with the flags",
+    "refutes": "no visible change",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-16",
+    "flag": 249,
+    "scope": null,
+    "priority": "P3",
+    "claim": "$F9 is set by the table-driven ceremony of scene $FD (statue_reward_table row 1, match value 1) and read by sg55_mystic_statue.",
+    "start": { "scene": 85, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "defeat Viper and watch byte $0A1F",
+      "forced": "set $F9 (byte $0A1F bit 1) and load scene $55",
+      "observe": [
+        "byte $0A1F bits 0-5",
+        "sg55_mystic_statue branch (code_0ACE81)"
+      ]
+    },
+    "confirms": "bit 1 of $0A1F rises in scene $FD and the statue actor takes the post-ceremony branch when set",
+    "refutes": "another bit rises, or the flag is set before the ceremony",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL24-17",
+    "flag": 107,
+    "scope": null,
+    "priority": "P3",
+    "claim": "dm3E_intro plays the Sky Garden narration once per game: flag $6B is persistent and never cleared, unlike the shipped note's 'once per visit'.",
+    "start": { "scene": 76, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "enter scene $4C with $6B clear and read the dialog",
+      "forced": "leave and re-enter scene $4C",
+      "observe": [
+        "byte $0A0D bit 3",
+        "dialog on second entry"
+      ]
+    },
+    "confirms": "no second narration",
+    "refutes": "the narration repeats",
+    "needs": ["FR00"]
+  }
+]

@@ -1,0 +1,866 @@
+[
+ {
+  "flag": null,
+  "scope": null,
+  "queueId": "FL32-46",
+  "verdict": "CONTRADICTED",
+  "grade": "CONTRADICTED",
+  "effects": {
+   "set": "New Game through the title Start button (FC -> FA diary menu -> 08 church) sets no flag of the M01 list: $F4 stays clear until the first $10 (school lesson).",
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Observations, rows FL32-46: the continuous run from orig_S06_title.mss (flags first change at frame 2919, $10, scene 08); control run: 3200 idle frames set $F4 at frame 3481 (store 45265 by the COP at 772466) and queue scene 8C"
+ },
+ {
+  "flag": null,
+  "scope": null,
+  "queueId": "FL32-46",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "The 2516-tick idle path of the title sets $F4 (offset 772466) and queues scene 8C (prologue).",
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Observations (idle control run, raw/FR10_idle_control.txt)"
+ },
+ {
+  "flag": null,
+  "scope": null,
+  "queueId": "FL32-47",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "M02 flags $10 $11 $12 $13 $14 $15 $16 $17 are all set after the school lesson, the three house narrations, the cave intro and Kara's news (natural state orig_N02 holds them).",
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Timeline rows $10-$17; states-index orig_N02_wills_house_after_feast.mss"
+ },
+ {
+  "flag": 32,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": "FL32-47",
+  "verdict": "INCONCLUSIVE",
+  "grade": "INFERRED",
+  "effects": {
+   "set": null,
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md: $20 sc_cave_friends_idle (optional, marked * in the FL32 table) was not set on the natural route through the cave (no write to byte $0A04 bit 0 in the log)"
+ },
+ {
+  "flag": null,
+  "scope": null,
+  "queueId": "FL32-48",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "M03 flags $3D $1B $3E $1C $1D $35 are set in this order by the evening, dinner and morning scenes of scene 06, and key item $09 sits in inventory slot 0 afterwards.",
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Timeline rows scene 06; natural states N02 (before $35) and N03 (inventory slot 0 = $09)"
+ },
+ {
+  "flag": null,
+  "scope": null,
+  "queueId": "FL32-49",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "$3F is set by ec0A_left_guard at the castle gate (scene 0A) after the letter scene; the player is free afterwards at (504,704).",
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Timeline row frame 20619 and states-index orig_N03_castle_gate.mss"
+ },
+ {
+  "flag": null,
+  "scope": null,
+  "queueId": "FL32-50",
+  "verdict": "INCONCLUSIVE",
+  "grade": "INFERRED",
+  "effects": {
+   "set": null,
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md: the route stops at the castle gate; the throne room, prison and aqueduct are not reached"
+ },
+ {
+  "flag": null,
+  "scope": null,
+  "queueId": "FL41-01",
+  "verdict": "INCONCLUSIVE",
+  "grade": "INFERRED",
+  "effects": {
+   "set": null,
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Coverage: 0 of the 261 unreferenced bits (and no D3 bit of $019E-$01FF) changed in 20,079 frames over scenes FC FA 08 01 03 04 02 06 FE 0A; control fired (119 $36 writes and 119 NMI executions per 120 frames). One early-game route is not the whole game"
+ },
+ {
+  "flag": 0,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_town_player_south_strip_active",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 3 time(s) in scene $01, first at frame 4099 with the player at (236,592), by the COP at ROM offset 295903 (south_cape/south_cape/sc01_fisherman.asm:59)",
+   "clear": "cleared 2 time(s), first at frame 4286 with the player at (112,590), by the COP at ROM offset 295907 (south_cape/south_cape/sc01_fisherman.asm:63)"
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Timeline, rows of $00 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 2,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_town_hide_seek_walk_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 23 time(s) in scene $01, first at frame 3358 with the player at (192,176), by the COP at ROM offset 295098 (south_cape/south_cape/sc01_girl1.asm:23)",
+   "clear": "cleared 21 time(s), first at frame 3428 with the player at (198,144), by the COP at ROM offset 295111 (south_cape/south_cape/sc01_girl1.asm:27)"
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $02 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 3,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_town_hide_seek_wall_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 5 time(s) in scene $01, first at frame 3766 with the player at (250,336), by the COP at ROM offset 295250 (south_cape/south_cape/sc01_girl2.asm:30)",
+   "clear": "cleared 3 time(s), first at frame 3958 with the player at (480,474), by the COP at ROM offset 295265 (south_cape/south_cape/sc01_girl2.asm:35)"
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $03 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 17,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_seth_door_jar_seen",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $01, first at frame 4170 with the player at (112,590), by the COP at ROM offset 297490 (south_cape/south_cape/sc01_jar_door.asm:26)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $11 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 18,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_wills_house_narration_seen",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $01, first at frame 5600 with the player at (512,208), by the COP at ROM offset 310445 (south_cape/south_cape/sc01_house_intro.asm:34)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $12 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 19,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_lance_house_narration_seen",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $01, first at frame 4489 with the player at (288,584), by the COP at ROM offset 310494 (south_cape/south_cape/sc01_house_intro.asm:60)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $13 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 20,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_erik_house_narration_seen",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $01, first at frame 4926 with the player at (544,520), by the COP at ROM offset 310508 (south_cape/south_cape/sc01_house_intro.asm:70)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $14 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 23,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_exit_dark_narration_seen",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $01, first at frame 9817 with the player at (656,688), by the COP at ROM offset 310528 (south_cape/south_cape/sc01_house_intro.asm:81)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $17 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 39,
+  "scope": {
+   "scenes": [
+    1
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_guard_gate_open",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $01, first at frame 18945 with the player at (372,112), by the COP at ROM offset 296365 (south_cape/south_cape/sc01_guard.asm:72)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $27 in scene $01 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 1,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_lance_talk_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 6758 with the player at (96,160), by the COP at ROM offset 307598 (south_cape/coastal_cave/sc02_lance.asm:126)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $01 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 2,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_seth_talk_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 6880 with the player at (144,160), by the COP at ROM offset 308623 (south_cape/coastal_cave/sc02_seth.asm:141)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $02 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 3,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_news_react_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 7388 with the player at (144,160), by the COP at ROM offset 309511 (south_cape/coastal_cave/sc02_erik.asm:39)",
+   "clear": "cleared 1 time(s), first at frame 7568 with the player at (144,160), by the COP at ROM offset 309517 (south_cape/coastal_cave/sc02_erik.asm:41)"
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $03 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 4,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_exit_lock_active",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 6904 with the player at (144,160), by the COP at ROM offset 309461 (south_cape/coastal_cave/sc02_erik.asm:23)",
+   "clear": "cleared 1 time(s), first at frame 9599 with the player at (96,176), by the COP at ROM offset 307529 (south_cape/coastal_cave/sc02_lance.asm:86)"
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $04 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 5,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_demo_request_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 8103 with the player at (112,128), by the COP at ROM offset 308438 (south_cape/coastal_cave/sc02_seth.asm:62)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $05 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 6,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_statue_moved_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 8289 with the player at (160,176), by the COP at ROM offset 308491 (south_cape/coastal_cave/sc02_seth.asm:82)",
+   "clear": null
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR10_20261104.md Timeline, rows of $06 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 7,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_card_trick_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 8442 with the player at (96,160), by the COP at ROM offset 307647 (south_cape/coastal_cave/sc02_lance.asm:160)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $07 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 8,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_card_picked_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 9247 with the player at (96,176), by the COP at ROM offset 307204 (south_cape/coastal_cave/sc02_card.asm:68)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $08 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 9,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_erik_reaction_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 9335 with the player at (96,176), by the COP at ROM offset 309596 (south_cape/coastal_cave/sc02_erik.asm:64)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $09 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 10,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_seth_explain_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 9533 with the player at (96,176), by the COP at ROM offset 308533 (south_cape/coastal_cave/sc02_seth.asm:94)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $0A in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 11,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_lance_close_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 9599 with the player at (96,176), by the COP at ROM offset 307526 (south_cape/coastal_cave/sc02_lance.asm:85)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $0B in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 21,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_cave_intro_seen",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 6555 with the player at (120,192), by the COP at ROM offset 310849 (south_cape/coastal_cave/sc02_entry.asm:19)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $15 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 22,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": "FL20-02,FL30-08",
+  "record": "FL20: sc_cave_kara_news_done",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $02, first at frame 6904 with the player at (144,160), by the COP at ROM offset 309458 (south_cape/coastal_cave/sc02_erik.asm:22)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $16 in scene $02 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 1,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_pig_stops_will_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 11482 with the player at (112,400), by the COP at ROM offset 303744 (south_cape/wills_house/sc06_hamlet.asm:64)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $01 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 2,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_kara_first_line_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 11872 with the player at (112,400), by the COP at ROM offset 302605 (south_cape/wills_house/sc06_kara.asm:45)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $02 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 3,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_bill_talk_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 12728 with the player at (128,144), by the COP at ROM offset 300025 (south_cape/wills_house/sc06_bill.asm:172)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $03 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 4,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_lola_line_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 12818 with the player at (128,144), by the COP at ROM offset 301225 (south_cape/wills_house/sc06_lola.asm:41)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $04 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 5,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_scream_dialog_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 13198 with the player at (128,144), by the COP at ROM offset 299719 (south_cape/wills_house/sc06_bill.asm:45)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $05 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 6,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_bill_girl_line_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 13280 with the player at (128,144), by the COP at ROM offset 299760 (south_cape/wills_house/sc06_bill.asm:58)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $06 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 7,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_soldier_line_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 13813 with the player at (58,400), by the COP at ROM offset 304030 (south_cape/wills_house/sc06_main_soldier.asm:38)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $07 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 8,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_kara_reply_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 13923 with the player at (58,400), by the COP at ROM offset 302715 (south_cape/wills_house/sc06_kara.asm:82)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $08 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 9,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_hamlet_release_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 14339 with the player at (58,400), by the COP at ROM offset 302735 (south_cape/wills_house/sc06_kara.asm:88)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $09 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 10,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_lola_viaduct_talk_req",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 15152 with the player at (192,400), by the COP at ROM offset 301519 (south_cape/wills_house/sc06_lola.asm:172)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $0A in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 11,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_house_bill_prison_talk_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 15319 with the player at (192,400), by the COP at ROM offset 299898 (south_cape/wills_house/sc06_bill.asm:107)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $0B in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 27,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_kara_soldier_scene_done",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 14513 with the player at (58,400), by the COP at ROM offset 302749 (south_cape/wills_house/sc06_kara.asm:92)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $1B in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 28,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": "FL20-03,FL30-09",
+  "record": "FL20: sc_dinner_night_passed",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 15884 with the player at (0,512), by the COP at ROM offset 304280 (south_cape/wills_house/sc06_monologue.asm:39)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $1C in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 29,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_morning_narration_seen",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 16106 with the player at (160,120), by the COP at ROM offset 304317 (south_cape/wills_house/sc06_monologue.asm:53)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $1D in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 53,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_lola_melody_learned",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 16690 with the player at (192,400), by the COP at ROM offset 301451 (south_cape/wills_house/sc06_lola.asm:129)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $35 in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 61,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_kara_intro_done",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 12245 with the player at (112,400), by the COP at ROM offset 302679 (south_cape/wills_house/sc06_kara.asm:69)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $3D in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 62,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_dinner_invited",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $06, first at frame 15418 with the player at (192,400), by the COP at ROM offset 301387 (south_cape/wills_house/sc06_lola.asm:96)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $3E in scene $06 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 1,
+  "scope": {
+   "scenes": [
+    8
+   ]
+  },
+  "queueId": null,
+  "record": "FL20: sc_school_erik_line_ack",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $08, first at frame 2955 with the player at (80,160), by the COP at ROM offset 298412 (south_cape/church/sc08_erik.asm:20)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $01 in scene $08 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 16,
+  "scope": {
+   "scenes": [
+    8
+   ]
+  },
+  "queueId": "FL20-01,FL31-03,FL30-05,FL30-07",
+  "record": "FL20: sc_school_lesson_done",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $08, first at frame 2919 with the player at (80,160), by the COP at ROM offset 297683 (south_cape/church/sc08_priest.asm:45)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $10 in scene $08 (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ },
+ {
+  "flag": 63,
+  "scope": {
+   "scenes": [
+    10
+   ]
+  },
+  "queueId": "FL32-40",
+  "record": "FL21: ec_entrance_letter_shown",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "set 1 time(s) in scene $0A, first at frame 20619 with the player at (504,704), by the COP at ROM offset 311322 (edward_castle/edward_castle/ec0A_left_guard.asm:32)",
+   "clear": null
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR10_20261104.md Timeline, rows of $3F in scene $0A (raw/FR10_chain_log.txt, raw/FR10_timeline.json); the registry record's evidence lists the setter offset"
+ }
+]

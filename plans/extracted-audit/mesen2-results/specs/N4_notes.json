@@ -1,0 +1,57 @@
+{
+  "_note": "N4 draft (2026-11-09, ROM O, states S01r / S10 and warps from them). Apply pass only; investigation sessions run --dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/N4_notes.json --dry-run. Sources: mesen2-results/N4_20261109.md and raw/N4_*. LoopEnd yields after every pass but the last (3 passes = 2 yields, observed); the CameraPanUp BPL exit is the end of a pan to cameraOffsetY = 0 (observed in scene $6E); the two odd forced-walk stream codes alias the standard rows and the stream-code census is complete; ActorMidpointCalc's $06 = 0 case follows from AllocateActorAfter. No names spec: no label changes.",
+  "system/engine/cop_handlers_script_control.asm": {
+    "partNotes": {
+      "LoopEnd": {
+        "edit": [
+          {
+            "find": "so each iteration ends with a yield.",
+            "with": "so every iteration except the last ends with a yield: a LoopStart count of n runs the body in n consecutive frames and yields n - 1 times (observed with count 3: LoopEnd runs three times, yields twice and exits through the RTI on the third)."
+          }
+        ]
+      }
+    }
+  },
+  "actors/player/attack_ability_system.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "LoopStart/LoopEnd yield once per iteration, so LoopStart(#n) is an n-frame loop.",
+          "with": "LoopEnd yields after every iteration except the last, so LoopStart(#n) runs its body in n consecutive frames."
+        }
+      ]
+    }
+  },
+  "system/engine/cop_handlers_effects.asm": {
+    "partNotes": {
+      "CameraPanUp": {
+        "edit": [
+          {
+            "find": "If the step would exceed the current cameraTargetY the script resumes without storing it.",
+            "with": "If the step would exceed the current cameraTargetY the script resumes without storing it: this is how a pan to cameraTargetY = 0 ends. The call that brings the target to 0 stores 0 and yields; the next call finds step 6 > 0 and resumes (observed in scene $6E on a north pan: target 18, 12, 6, 0, then the call with target 0 resumes and the target stays 0)."
+          }
+        ]
+      }
+    }
+  },
+  "tables/scene_warps.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The two forced-walk entries of warp_def_03 use unusual first stream bytes ($04, $05); not traced: what the walk does with them.",
+          "with": "The 200 forced-walk streams use these step codes (walk_step_table rows): first byte $00 x99 (north), $02 x99 (south), $04 x1 and $05 x1 (the two entries of warp_def_03); final byte $01 x100, $03 x75, $08 x25. Rows $04 and $05 equal rows $02 and $00, so the two odd entries of warp_def_03 select the same animation and velocity chain as the standard south and north entries. Observed on a south walk in scene $E3 (first code $02, final code $03): the ForcedWalk actor shows animation 9 (up) and its chain at $2E cycles four nodes, moving it 1 px north every 4 frames (643 to 638 by frame 25); the stream offset is then added, and after the final code $03 the animation is 8 (down)."
+        }
+      ]
+    }
+  },
+  "functions/ActorMidpointCalc.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "whether callers guarantee a neighbour was not traced.",
+          "with": "AllocateActorAfter gives a child spawned by SpawnAfterMarked / SpawnAfterFlags $04 = its spawner and $06 = the spawner's old next link, which is 0 when the spawner was the list tail, so a child can start with $06 = 0. Not traced at run time: whether a caller ever runs in that state (none of the callers ran in the scenes tried)."
+        }
+      ]
+    }
+  }
+}

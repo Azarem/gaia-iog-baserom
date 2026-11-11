@@ -1,0 +1,143 @@
+{
+  "_note": "IT-06 engine factual defects (I001-I030). One spec, 8 files. Facts re-derived from the live extract:lt output (see IT06_apply.md). Wording of the hit counter (iframeCounter) in combat_collision: 'positive = hit-stun: non-player actors skip their tick, the player's tick still runs' / 'negative = recovery: counts up toward zero, the tick still runs'. Do not write the text of the literal 0x8000 constant in combat_collision (a transform rewrites it).",
+
+  "system/engine/tile_collision_physics.asm": {
+    "blockNote": { "edit": [
+      { "find": " AdvanceTileOffsetY actually steps +Y and AdvanceTileOffsetX steps +X: the names are swapped relative to their behavior (rename proposed).", "with": "" },
+      { "find": "What tile types $06/$09 represent is not decoded (audit OQ-16).", "with": "Collision types $06 and $09 are not traced to a purpose." }
+    ] }
+  },
+
+  "system/engine/combat_collision.asm": {
+    "blockNote": { "edit": [
+      { "find": "If set, assigns negative iframe counter $FFEF (recovery/stagger phase). If clear, assigns positive counter $0011 (17 frames of invincibility). Plays hit sound #05.",
+        "with": "If set, assigns iframeCounter = $FFEF (negative = recovery: counts up toward zero, the tick still runs). If clear, assigns $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs). The counter is handled by RunActors_Normal for actors without $10 bit 13 ($2000); a script-driven actor (bit 13 set) takes the script path and ignores it. Plays hit sound #05." }
+    ] },
+    "partNotes": {
+      "PlayerAttackHitTest": { "edit": [
+        { "find": "assigns iframe counter ($0011 normal or $FFEF for $0001 flag).",
+          "with": "assigns iframeCounter: $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs), or $FFEF (negative = recovery: counts up toward zero, the tick still runs) when $12 bit 0 ($0001) is set." },
+        { "find": "floating numbers (priority $2F00).", "with": "floating numbers (spawn flags $2F00)." }
+      ] },
+      "ApplyHitDamageToVictim": { "edit": [
+        { "find": "spawns damage digits (priority $2B00 with $1000 in spawned actor's $12)",
+          "with": "spawns damage digits (spawn flags $2B00, then $12 bit $1000 of the spawned actor is set: the display-filter qualifier that lets it run in RunActors_DisplayFiltered)" },
+        { "find": "Assigns iframes ($0011 or $FFEF).",
+          "with": "Assigns iframeCounter: $FFEF (negative = recovery: counts up toward zero, the tick still runs) when $12 bit 0 ($0001) is set, otherwise $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs)." }
+      ] },
+      "ApplyHitDamageToVictim_DamagePath": { "edit": [
+        { "find": "sets the iframe counter ($FFEF or $0011)",
+          "with": "sets iframeCounter ($FFEF = negative = recovery when $12 bit 0 ($0001) is set, otherwise $0011 = positive = hit-stun: non-player actors skip their tick, the player's tick still runs)" }
+      ] },
+      "ApplyInteractionDamage": { "edit": [
+        { "find": "Sets $0080 (iframe) flag, assigns 60-frame ($003C) iframe counter.",
+          "with": "Sets the $0080 (iframe) flag and assigns iframeCounter $003C (60; positive = hit-stun: non-player actors skip their tick, the player's tick still runs), longer than the $0011 that combat assigns." },
+        { "find": "spawns HitStaggerMain ($2400 priority)", "with": "spawns HitStaggerMain (spawn flags $2400)" }
+      ] }
+    },
+    "comments": {
+      "244729": { "text": "$0080 in the tested actor's $10 must be set (the bit a victim gets when hit, see iframeCounter); why this test requires it is not traced", "expect": "BIT" },
+      "245488": { "text": "$0001 in $12: set = $FFEF (negative = recovery), clear = $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs)", "expect": "BIT" },
+      "245765": { "text": "Spawn damage number with spawn flags $2B00; $12 bit $1000 (display-filter qualifier) is set on the spawned actor below", "expect": "SpawnListAppend" },
+      "245934": { "text": "$0001 in $12: set = $FFEF (negative = recovery), clear = $0011 (positive = hit-stun: non-player actors skip their tick, the player's tick still runs)", "expect": "LDA" },
+      "246920": { "text": "$003C = 60: positive = hit-stun counter (non-player actors skip their tick, the player's tick still runs); longer than combat's $0011", "expect": "LDA" }
+    }
+  },
+
+  "system/engine/cop_dispatch.asm": {
+    "blockNote": { "edit": [
+      { "find": ", but 19 handler labels differ from the script-side copdef names (listed in the table note).", "with": ", and every handler label is spelled the same as the copdef name of its id." }
+    ] },
+    "partNotes": {
+      "cop_dispatch_table": "227-entry handler pointer table: COP opcodes $00–$6D and $80–$E2 (209 valid; ids and handler label names match copdef.json) to short-address handler labels in 30 handler blocks. Opcodes $6E–$7F are an 18-entry #$0000 gap."
+    }
+  },
+
+  "system/engine/radar_map_screen.asm": {
+    "partNotes": {
+      "RadarPlotActors": "Walk the actor list (head $56, next at $0006,X) and plot dots by extendedFlags.\n\nBit 8 ($0100) routes to RadarPlotFriendlyActor, which plots the stat-bearing enemies, and bit 9 ($0200) to RadarPlotEnemyActor, which plots the Dark Space portals. Bit 8 is set by InitActorFromSceneData (actor_execution) for actors spawned with combat stats and an enemy number (they are counted in enemiesRemaining), so that dot marks the stat-bearing enemies still in the actor list. Bit 9 is set only by dark_space.asm (COP OrExtraFlags #$0200 in DarkSpacePortalInit), so that dot marks a Dark Space portal. Bit 8 is tested first, so an actor with both bits gets the enemy dot. Actors with neither bit are not plotted.",
+      "RadarPlotFriendlyActor": { "edit": [
+        { "find": "Plot one bit-8 actor (a stat-bearing enemy; the name is historical) as dot tile word $2AE7.", "with": "Plot one bit-8 actor (a stat-bearing enemy) as the enemy dot, tile word $2AE7." }
+      ] },
+      "RadarPlotEnemyActor": { "edit": [
+        { "find": "Plot one bit-9 actor (probably a Dark Space entrance, OQ-63; the name is historical) as dot tile word $280D.", "with": "Plot one bit-9 actor (a Dark Space portal) as dot tile word $280D." }
+      ] }
+    },
+    "comments": {
+      "229608": { "text": "Writing the destination arms the adhoc DMA; the size is stored after it (writers should store the size first)", "expect": "adhocVramDmaDest" },
+      "230177": { "text": "Bit 9 = set only by dark_space.asm (OrExtraFlags #$0200) → dot $280D, a Dark Space portal", "expect": "BIT" }
+    }
+  },
+
+  "system/inventory/inventory_menu.asm": {
+    "blockNote": { "edit": [
+      { "find": "StatusAbilityRow2/2/3", "with": "StatusAbilityRow0/1/2" }
+    ] },
+    "partNotes": {
+      "InventoryMenuInit": { "edit": [
+        { "find": "the three StatusCharRow actors (moveYAlt = the last one spawned, the top row)", "with": "the three StatusAbilityRow actors (spawned in the order StatusAbilityRow2, StatusAbilityRow1, StatusAbilityRow0; moveYAlt = the last one spawned, StatusAbilityRow0, the top row)" }
+      ] },
+      "DiscardAttempt": { "edit": [
+        { "find": "Discard attempt (label is an auto name). Consumes", "with": "Discard attempt. Consumes" }
+      ] },
+      "ComputeAbilityIndex": { "edit": [
+        { "find": "(The meaning of \"+1\" is inferred from the earlier note; entry 0 of the description table was not checked.)", "with": "The +1 means no slot selects entry 0: entry 0 of ability_menu_table and ability_name_table is the empty string and entry 0 of ability_description_table is 'Nothing' (system_strings)." }
+      ] },
+      "StatusAbilityRow0": "Ability row 0 actor (topmost, Y=$0048). Sprite = characterForm × 3 + $44.",
+      "StatusAbilityRow1": "Ability row 1 actor (middle, Y=$0060). Sprite = characterForm × 3 + $45.",
+      "StatusAbilityRow2": "Ability row 2 actor (bottom, Y=$0078). Sprite = characterForm × 3 + $46."
+    },
+    "comments": {
+      "189416": { "text": "Spawn the three StatusAbilityRow actors (Row2, Row1, Row0), one per ability row", "expect": "SpawnAfterFlags" },
+      "189954": { "text": "Refresh the source slot ($2E) actor sprite after swap", "expect": "LDY" },
+      "189971": { "text": "Refresh the target slot ($22) actor sprite after swap", "expect": "LDY" },
+      "189981": { "text": "Same: Y = the target slot actor after the call", "expect": "JSR" },
+      "190741": { "text": "Status row 0 (top) actor at X=$0098", "expect": "LDA" },
+      "190746": { "text": "Status row 0 Y=$0048", "expect": "LDA" },
+      "190760": { "text": "Row 0 portrait base sprite #$0044", "expect": "ADC" },
+      "190772": { "text": "Status row 1 (middle) actor at X=$0098", "expect": "LDA" },
+      "190777": { "text": "Status row 1 Y=$0060", "expect": "LDA" },
+      "190791": { "text": "Row 1 portrait base offset #$0045", "expect": "ADC" },
+      "190803": { "text": "Status row 2 (bottom) at X=$0098", "expect": "LDA" },
+      "190808": { "text": "Status row 2 Y=$0078", "expect": "LDA" },
+      "190822": { "text": "Row 2 portrait base offset #$0046", "expect": "ADC" }
+    }
+  },
+
+  "angkor_wat/angkor_outer_east/awB2_stair_climb.asm": {
+    "blockNote": [
+      "Psycho Slider glide trigger in the Angkor Wat outer east area.",
+      "",
+      "The actor waits until event flag $016B is set (WaitOnFlagWord, sense 1), stores $000A in $0E (the glide length, in units of 16 px: LockPlayerForClimb) and JumpFar's to slider_glide.SliderGlideTriggerNorthMain. From there it runs as a north Psycho Slider glide trigger (see the slider_glide block note)."
+    ]
+  },
+
+  "functions/DeathPaletteFadeThinker.asm": {
+    "blockNote": { "edit": [
+      { "find": "What the two bundles contain (the earlier 'desaturated death-screen fade' wording) was not decoded (OQ-I026-4).",
+        "with": "Bundle $10 is one strip of 8 frames of 16 colour words each, written to colour indices $81-$90 with 3 extra ticks per frame; its last frame is a pale blue / lavender set (for example $7E10 = R16 G16 B31, $7F18 = R24 G24 B31, $7BDE = R30 G30 B30) and its first frame begins $1080, $1008, $104A. Bundle $0E is a single frame of 15 words written to colour indices $F1-$FF: the same 15 colours as the first 15 words of that last frame. Which screen elements use those colour indices is not traced." }
+    ] }
+  },
+
+  "system/engine/thinker_execution.asm": {
+    "blockNote": { "edit": [
+      { "find": "the complement of A. MainLoop", "with": "the complement of RunThinkers_General. MainLoop" },
+      { "find": "so for scene thinkers C selects exactly A's set and D exactly B's.", "with": "so for scene thinkers RunThinkers_General_Light selects exactly the set of RunThinkers_General and RunThinkers_Hdma_Light exactly that of RunThinkers_Hdma." },
+      { "find": "runs only in the main loop (TypeA/B)", "with": "runs only in the main loop (RunThinkers_General / RunThinkers_Hdma)" }
+    ] },
+    "partNotes": {
+      "RunThinkers_Hdma": { "edit": [
+        { "find": "Same wait-counter dispatch as TypeA.", "with": "Same wait-counter dispatch as RunThinkers_General." }
+      ] },
+      "RunThinkers_Hdma_Light": { "edit": [
+        { "find": "it is TypeB's counterpart in the lighter frame routines", "with": "it is RunThinkers_Hdma's counterpart in the lighter frame routines" }
+      ] }
+    },
+    "comments": {
+      "250171": { "text": "Bit 2 ($0004): RunThinkers_General processes clear, RunThinkers_Hdma processes set", "expect": "BIT" },
+      "250219": { "text": "Bit 2 ($0004): RunThinkers_Hdma processes set, skips clear", "expect": "BIT" },
+      "250272": { "text": "Bit 2 ($0004): must be clear for RunThinkers_General_Light (set is RunThinkers_Hdma_Light's)", "expect": "BIT" },
+      "250277": { "text": "Same wait-counter test as RunThinkers_General", "expect": "DEC" }
+    }
+  }
+}

@@ -174,7 +174,7 @@ OpenInventoryScreen {
     STX $scrollOverrideH
     STX $forcedScrollOverride
     STX $scrollOverrideV  ; scrollOverrideV ($06CA) is zeroed here but was not saved, so its old value is lost
-    STX $06CC             ; Unnamed word $06CC, zeroed with the scroll state and never saved
+    STX $06CC             ; BG2 slot of the vertical scroll override (scrollOverrideV + 2, flag bit 7 of $06CD); zeroed with the scroll state, never saved
     STX $00B2             ; Unnamed DP word $00B2, outside the saved DP range, zeroed and never restored
     JSL $@vram_buffer_clear.ClearBg3TilemapBuffer_Full ; ClearBg3TilemapBuffer_Full — empty tile upload queue before actor spawn
     JSL $@actor_execution.InitActorPool ; InitActorPool — reset actor free list for inventory scene

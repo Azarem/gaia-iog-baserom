@@ -1,0 +1,140 @@
+{
+  "tables/item_get_dialog_table.asm": {
+    "blockNote": [
+      "Item name strings (Bank 01, 130340-130924): a 64-entry pointer table indexed by item ID ($00-$3F) plus the strings it points to, and five dialogue wrapper strings stored at the end of the block. The old note ('item acquisition dialog messages', 'stat increases', 'inventory-full messages, and defaults') was wrong: the 64 strings are the item NAMES (or a short found-message for a few items); the complete messages are the five wrappers.",
+      "",
+      "=== HOW IT IS READ ===",
+      "",
+      "The wrappers contain [ADR:&item_get_dialog_table,DB8]. DialogCmd_IndirectString (DialogStringRenderer) takes the item ID that GiveItemToPlayer stored at $0DB8 (ChestDialogueActor also restores it there) and renders the table entry for that ID in place, so one wrapper prints whichever item was just given. The table is read only through this tag.",
+      "",
+      "| Wrapper | Text | Used by |",
+      "|---------|------|---------|",
+      "| dialogstring_01FF1F | name, 255-frame pause, clear | GiveItem_StoreInSlot (inventory_mgmt): Y returned for a regular pickup |",
+      "| dialogstring_01FF02 | name, 'Your inventory's full!' | GiveItem_InventoryFull (inventory_mgmt), the item-pickup code of combat_collision (line 1563), and chests through GiveItemToPlayer's Y |",
+      "| dialogstring_01FF2D | name only | HandleChestInteraction (warps_interaction) overrides Y with it after a successful chest pickup |",
+      "| dialogstring_01FF36 | 'It is empty!' | flag-only chests (warps_interaction); no item name |",
+      "| dialogstring_01FF48 | 'The jewel box is tightly closed.' | chest tile without a scene_chest_table record (warps_interaction); no item name |",
+      "",
+      "The last two are not item strings; they are stored here next to the other chest dialogue. COP #D4 (cop_handlers_inventory) ignores the Y string, so scripts that give items show their own text.",
+      "",
+      "=== ENTRIES ===",
+      "",
+      "The IDs are the inventory item IDs of docs/ram_map.txt ($01 Red Jewel ... $28 Apple).",
+      "- Full sentence: $01 'You found a Red Jewel! ', $06 'You found an herb! ', $07 (diamond-shaped block), $0E (Crystal Ball), $13 (Rama's Statue), $14 (Magic Dust), $15-$19 (Teapot), $1A 'It's the Mushroom Drops!'.",
+      "- Bare name (the wrapper supplies the rest): $02 'Prison Key ', $03/$04 'Incan Statue A/B ', $05 'Incan Melody ', $08 'Wind Melody ', $09 'Lola's Melody ', $0A 'Large Roast ', $10 'Palace Key'.",
+      "- Mystic Statues: $38 'It's a Mystic Statue! ', then seven separate copies of 'Mystic Statue ' for $39-$3F.",
+      "- Blank (a single space): $00, $0B, $0C, $0D, $0F, $11, $12 and the 29 IDs $1B-$37, which share one string. These items print nothing through this table (OQ-I067-1).",
+      "- $15-$19 all point to the Teapot string, although ram_map names $15-$18 Blue Journal, Lance's Letter, Necklace Stones and Will (OQ-I067-2).",
+      "",
+      "Layout: 128 bytes of pointers + 456 bytes of strings and wrappers."
+    ],
+    "partNotes": {
+      "item_get_dialog_table": [
+        "64 word pointers indexed by item ID ($00-$3F), read through [ADR:&item_get_dialog_table,DB8] in the wrapper strings below. Entry contents: see the block note."
+      ],
+      "dialogstring_01FDA4": [
+        "Entry $00 (no item): a single space."
+      ],
+      "dialogstring_01FE7D": [
+        "Entries $15-$19: shared 'You found the Teapot!' (OQ-I067-2)."
+      ],
+      "dialogstring_01FEA6": [
+        "Entries $1B-$37 (29 IDs): shared single space; nothing is printed for these items."
+      ],
+      "dialogstring_01FF02": [
+        "Inventory-full message: [DEF] opens the default box, [DLY:1] sets the typing delay, [ADR] prints the item name from $0DB8, [N], 'Your inventory's full!', [END]. Returned in Y by GiveItem_InventoryFull; loaded by the pickup code of combat_collision."
+      ],
+      "dialogstring_01FF1F": [
+        "Pickup message for regular items: [DLY:5] slow typing (operand + 2 frames per character), [SFX:0] per-character sound 0, [ADR] the item name from $0DB8, [PAU:FF] waits 255 frames (DialogCmd_WaitFrames), [CLD] clears the box. Returned in Y by GiveItem_StoreInSlot."
+      ],
+      "dialogstring_01FF2D": [
+        "Chest pickup text: the item name only, ended by [END] (waits for a button). HandleChestInteraction loads it into Y after a successful GiveItemToPlayer."
+      ],
+      "dialogstring_01FF36": [
+        "'It is empty!' for a flag-only chest (scene_chest_table record byte 2 = 0). Used by HandleChestInteraction; not an item string."
+      ],
+      "dialogstring_01FF48": [
+        "'The jewel box is tightly closed.' when the player pushes a chest tile that has no scene_chest_table record. Used by HandleChestInteraction; not an item string."
+      ]
+    }
+  },
+  "tables/spriteset_will_projectile.asm": {
+    "blockNote": [
+      "Sprite set of the Dark Gaia fight projectiles (Bank 17, 1560576-1561584, 1008 bytes). The old note ('Will's Psycho Dash and Psycho Slide projectile sprites', 'ranged abilities') was wrong: the only user is the four Projectile* actors of player_character (ProjectileSouth/North/West/East), which the Attack* pieces spawn only in scene $E8 (flags $0602); Psycho Dash and Psycho Slide do not use it.",
+      "",
+      "Structure (the sprite-set format is documented once in the spriteset_freedan block note): 8 animations, 12 sprite groups of 9 sub-sprites each (76 bytes per group).",
+      "",
+      "| Index | Set | Frames (hold) | Used by |",
+      "|-------|-----|---------------|---------|",
+      "| $00 | sprite_set_17D010 | 3 (5, 2, 2) | ProjectileSouth launch, MoveY #09 |",
+      "| $01 | sprite_set_17D01E | 3 (5, 2, 2) | ProjectileNorth launch, MoveY #0A |",
+      "| $02 | sprite_set_17D02C | 3 (5, 2, 2) | ProjectileWest launch, MoveX #0A |",
+      "| $03 | sprite_set_17D03A | 3 (5, 2, 2) | ProjectileEast launch, MoveX #09 |",
+      "| $04-$07 | sprite_set_17D048, 17D04E, 17D054, 17D05A | 1 (9) each | looping travel pose of South/North/West/East, MoveY/MoveX #0F or #10 |",
+      "",
+      "Each travel animation holds a single frame that is the LAST group of its launch animation (e.g. $04 = sprite_group_17D3A4, the last frame of $00), so the projectile keeps its final launch pose while it flies; the 16 frame records therefore use only 12 groups. The ProjectileSouth/North/West/East actors die when they leave the screen, so the travel animation never ends on its own.",
+      "",
+      "Totals: pointer table 16 bytes, frame lists 80 bytes (4 x 14 + 4 x 6), groups 912 bytes. The tile graphics these sub-sprites draw were not traced (OQ-I067-3)."
+    ],
+    "partNotes": {
+      "spriteset_will_projectile": [
+        "8 pointers to the animation frame lists: $00-$03 = launch South/North/West/East, $04-$07 = travel loop in the same order."
+      ],
+      "sprite_set_17D010": [
+        "Animation $00, South launch: 3 frames (hold 5, 2, 2 ticks + 1 each). Used by ProjectileSouth (#00)."
+      ],
+      "sprite_set_17D01E": [
+        "Animation $01, North launch: 3 frames (hold 5, 2, 2). Used by ProjectileNorth (#01)."
+      ],
+      "sprite_set_17D02C": [
+        "Animation $02, West launch: 3 frames (hold 5, 2, 2). Used by ProjectileWest (#02)."
+      ],
+      "sprite_set_17D03A": [
+        "Animation $03, East launch: 3 frames (hold 5, 2, 2). Used by ProjectileEast (#03)."
+      ],
+      "sprite_set_17D048": [
+        "Animation $04, South travel loop: one frame (hold 9) = last group of animation $00."
+      ],
+      "sprite_set_17D04E": [
+        "Animation $05, North travel loop: one frame (hold 9) = last group of animation $01."
+      ],
+      "sprite_set_17D054": [
+        "Animation $06, West travel loop: one frame (hold 9) = last group of animation $02."
+      ],
+      "sprite_set_17D05A": [
+        "Animation $07, East travel loop: one frame (hold 9) = last group of animation $03."
+      ]
+    }
+  },
+  "tables/spriteset_ability_fx.asm": {
+    "blockNote": [
+      "Sprite set of the Dark Space transformation poses (Bank 0F, 1032192-1043845, 11653 bytes). The old note ('Psycho Dash, Psycho Slide, Dark Friar cast, Aura Barrier, Earthquaker', 'special abilities of all three characters') was wrong: body_table row $05 selects this set, and the only code that selects row $05 is the seven Transform_* scripts of sE6_gaia (SetPlayerSpriteDirect #05): Transform_WillToFreedan, _WillToFreedanAlt, _ShadowToFreedan, _FreedanToWill, _ShadowToWill, _WillToShadow and _FreedanToShadow. The tile graphics are abil_sprites_1B8000.",
+      "",
+      "Structure (format documented in the spriteset_freedan block note): 19 animations ($00-$12), 697 frame records, 148 printed sprite groups. Byte budget: 38 B pointer table + 2788 B frame records (697 x 4) + 38 B terminators + 8789 B of groups.",
+      "",
+      "The scripts stage animations $00-$03, $05-$0B, $0D-$10 and $12 (for example Transform_WillToFreedan: $00 once, $02 and $03 as loops, the palette thinker, $08 and $09 as loops, $0A once). Animations $04, $0C and $11 are not referenced by any of the seven scripts (OQ-I067-4).",
+      "",
+      "Extractor artefact: two groups that no frame list references are hidden inside the printed rows of sprite_group_0FCF27 and sprite_group_0FD5AA (see their part notes). The 8789 B group area only adds up when these two 69-byte groups are counted."
+    ],
+    "partNotes": {
+      "spriteset_ability_fx": [
+        "19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (sprite_set_0FC37E), $0C (sprite_set_0FC77C), $11 (sprite_set_0FCA0C)."
+      ],
+      "sprite_set_0FC37E": [
+        "Animation $04: not referenced by the Transform_* scripts (OQ-I067-4)."
+      ],
+      "sprite_set_0FC77C": [
+        "Animation $0C: not referenced by the Transform_* scripts (OQ-I067-4)."
+      ],
+      "sprite_set_0FCA0C": [
+        "Animation $11: not referenced by the Transform_* scripts (OQ-I067-4)."
+      ],
+      "sprite_group_0FCF27": [
+        "Real group: header + 7 sub-sprites (62 bytes, rows ;00-;06). Rows ;07-;10 are NOT sub-sprites: the extractor kept reading and printed the next, unreferenced group (69 bytes: header at 0FCF65 + 8 sub-sprites) as sub-sprite rows, one byte too long. The next printed group (0FCFAA) is correct."
+      ],
+      "sprite_group_0FD5AA": [
+        "Same extractor artefact as sprite_group_0FCF27, with identical rows: the first 7 are the real group, the trailing rows are an unreferenced 69-byte group that starts at 0FD5E8 (OQ-I067-5)."
+      ]
+    }
+  }
+}

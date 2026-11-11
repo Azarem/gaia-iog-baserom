@@ -2,12 +2,12 @@
 ; 
 ; === SPAWN ===
 ; 
-; SpawnAfterFlags ( field_reveal_object, #$0020 ) from EnemyDefeatDispatch (every kill but the last; the child's $26 = enemies remaining, nonzero), pyCC_mystic_ball (771837) and awB1_wall_walker (769369) (child $26 = 0). The spawn copies the spawner's position and statsPtr ($7F0020).
+; SpawnAfterFlags ( field_reveal_object, #$0020 ) from EnemyDefeatDispatch (every kill but the last; the child's $26 = enemies remaining, nonzero), pyCC_mystic_ball (771837) and awB1_wall_walker (769369). All three spawners store the enemies remaining (the victim's orbitAngle) in the child's $26, so the child's $26 is nonzero (measured: $0001 and $000B for pyCC_mystic_ball, $0006 and $0012 for awB1_wall_walker). The spawn copies the spawner's position and statsPtr ($7F0020).
 ; 
 ; === WHICH PICKUP ===
 ; 
 ; - $26 nonzero, or the room's clear reward already taken (TestFlag_0300(sceneCurrent) set), or tier 0: FieldRevealFromActorStats reads the byte at +3 of the spawner's stat table. & 3 = 0 dies at once; 1 / 2 / 3 = a gem pickup with anim $04 / $05 / $06 and item $83 / $84 / $85 (1 / 2 / 5 gems, given by GiveItemToPlayer).
-; - Otherwise enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item: 1 / 2 / 3 = anim $0C / $0D / $0E (the sprites of e_hp / e_str / e_def_increase) and item $80 / $81 / $82 (Max HP / STR / DEF + 1). These paths also store $FFFF in orbitAngle (no reader found). Nothing here sets scene flag $0300 (reward_actors does for the last-kill reward).
+; - Otherwise (only with $26 = 0, which none of the three spawners produces: the room-tier stores were never executed in the measured runs) enemy_clear_reward_table[sceneCurrent] & 3 picks the room's stat item: 1 / 2 / 3 = anim $0C / $0D / $0E (the sprites of e_hp / e_str / e_def_increase) and item $80 / $81 / $82 (Max HP / STR / DEF + 1). These paths also store $FFFF in orbitAngle (no reader found). Nothing here sets scene flag $0300 (reward_actors does for the last-kill reward).
 ; 
 ; === DROP AND LIFE ===
 ; 

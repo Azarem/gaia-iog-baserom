@@ -13,7 +13,7 @@
 ; === PHASES (WorldMapSplitEffect) ===
 ; 
 ; Spawn: offset := 0, InitSplitFill, then SetEntryHere. Every frame the thinker re-enters at the check below that. While worldMapChoiceId ($0D58) is nonzero and worldMapRouteId ($0D5A) is zero (destination chosen, no route playing yet) it only rebuilds and queues the tables with the current offset. Otherwise (no destination, or a route id is set) it runs the opening sequence once: 2 frames of rebuild + queue, then 40 frames in which the offset grows by 2 per frame (second line count $18 -> $68, boundary row 151 -> 231, i.e. off the bottom of the 224-line screen), then it parks on a final SetEntryHere that keeps rebuilding and queuing with offset 80.
-; What the strip below the boundary looks like on the world map (and whether it is the intended 'iris') is decoded from the tables, not observed.
+; Measured on the world map: below the boundary row the screen is black with the BG3 text (the destination menu) on top. The screen is in Mode 1 there (BGMODE $09), BG1 and the backdrop are the colour-math layers, and the white fixed colour is subtracted from them; the FF / 01 alternation of the COLDATA fill keeps the fixed colour white on every line, because the $01 writes select no colour plane. Above the boundary row the map is Mode 7. The boundary row (151 + 2 x offset step) is off the bottom of the 224-line screen from the 37th step, so about 37 frames after the route starts the whole picture is Mode 7.
 ---------------------------------------------
 
 !frameCounter                   0036

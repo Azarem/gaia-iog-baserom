@@ -117,7 +117,7 @@ Every struct has been given a descriptive kebab-case name. This table maps old n
 | `unk18`        | `camera-keyframe`                        | Camera drift/shake keyframe                |
 | `unk19`        | `statue-reward`                          | Mystic Statue inventory reward slot        |
 | `metaE`        | `meta-skip`                              | No-op scene command (skip 3 bytes)         |
-| `meta17`       | `char-tiles`                             | Direct VRAM character tile upload          |
+| `meta17`       | `char-tiles`                             | Direct VRAM upload of preformatted BG tilemap screens |
 
 
 ---
@@ -320,7 +320,7 @@ The `meta<>` type is a discriminated union used in scene metadata scripts. The f
 | 19   | `$13`  | `branch`       | `SceneCmd_Branch` | Flag-conditional jump                | `$13`             |
 | 20   | `$14`  | `label`        | `SceneCmd_Label`             | Named anchor / jump target           | `$14`             |
 | 21   | `$15`  | `jump`         | `SkipScriptCommands`       | Unconditional jump to label          | `$15`             |
-| 23   | `$17`  | `char-tiles`   | `SceneCmd_LoadCharTiles`   | Direct VRAM char/tile DMA            | —                 |
+| 23   | `$17`  | `char-tiles`   | `SceneCmd_LoadCharTiles`   | Direct VRAM tilemap-screen DMA       | —                 |
 
 **Undocumented dispatch slots:**
 Discriminators `$01`, `$07`–`$0D`, `$0F`, `$12`, `$16` all dispatch to `SceneCmd_Default` (no-op RTS) in the jump table. Discriminator `$12` has special significance in `SkipScriptCommands` as a skip-region terminator (end-of-skip marker).
@@ -559,11 +559,21 @@ Unconditional jump to label (discriminator 21).
 
 ### char-tiles
 
-Direct VRAM character tile upload (discriminator 23). Optionally LZ-decompresses binary data and DMAs to VRAM.
+Direct VRAM upload of preformatted data (discriminator 23). Despite the name, the one file used (`dmap_inventory_bg`) is four 32×32 BG tilemap screens, not tile graphics.
 
 
 | Field | Type    | Offset | Name  | Description                                                                          |
 | ----- | ------- | ------ | ----- | ------------------------------------------------------------------------------------ |
+| 0     | Byte    | +0     | flags | Bit 7 set: VRAM word address `(flags & $7F) << 10` (`$400` words per tilemap screen, `$80` = `$0000`). Bit 7 clear: bit 0 = `$1000`, bit 1 = `$1800` |
+| 1     | @Binary | +1     | data  | 3-byte pointer to a `.dmp` file: header `00 W 00 H` (W×H screens of 2048 bytes), size word, QuintetLZ data |
+
+**Layout:** `[Byte, @Binary]` (after discriminator)
+
+**Usage in scene_meta.asm:** 1 instance (scene `$FF`, inventory; scene `$FD` runs it through `jump < #11 >`)
+
+**Runtime handler:** `SceneCmd_LoadCharTiles` — decompresses the data to `$7E:7000` and DMAs it to VRAM at the address derived from the flags byte. Details: [dmap-inventory-bg](dmap-inventory-bg.md).
+
+----- | ------- | ------ | ----- | ------------------------------------------------------------------------------------ |
 | 0     | Byte    | +0     | param | Bit 7: VRAM addressing mode (`$80`=direct word address); bits 0–6: address parameter |
 | 1     | @Binary | +1     | data  | 3-byte pointer to tile data (optionally LZ-compressed)                               |
 

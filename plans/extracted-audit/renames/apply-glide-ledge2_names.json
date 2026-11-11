@@ -1,0 +1,6 @@
+[
+  { "address": 570770, "old": "pyD0_breakable_wall", "new": "pyD0_ledge_jump_trigger", "row": "LJ-21", "note": "Mesen2 (scene $D0): after two landings (pose $1C) near it, it draws two solid metatiles (#E8/#E9, collision $0E) north of the actor, applies BG change #70, and starts a ledge jump; no HP, no hit test, no debris" },
+  { "address": 563400, "old": "awB2_stair_climb", "new": "awB2_slider_glide_trigger", "row": "LJ-22", "note": "waits for flag $016B, sets $0E = $0A and JumpFar's to SliderGlideTriggerNorthMain: a Psycho Slider glide trigger, not a stair" },
+  { "address": 53384, "old": "LockPlayerForClimb", "new": "LockPlayerForGlide", "row": "LJ-23", "note": "called only by the five Psycho Slider glide triggers" },
+  { "address": 53422, "old": "UnlockPlayerAfterClimb", "new": "UnlockPlayerAfterGlide", "row": "LJ-24", "note": "called only by the four SliderGlide* routines" }
+]

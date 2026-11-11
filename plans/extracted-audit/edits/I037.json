@@ -1,0 +1,290 @@
+{
+  "actors/interaction_handlers.asm": {
+    "blockNote": [
+      "Runtime pull / collect interaction handlers (Bank 00): three small actor scripts spawned with SpawnAfterMarked as children of a gem or a movable solid (collect_handler_gem, push_handler_solid, push_handler_forceball).",
+      "",
+      "The child's $04 (prevActorLink) is the actor it was marked after, i.e. the object being moved (the 'parent'). The handler reads the player position ($0014 / $0016 of playerActor) and edits the parent's posX / posY ($14 / $16). Its own $14 / $16 start as a copy of the parent's (CopyActorState) and are used as the reference position for every distance test.",
+      "",
+      "=== SHARED STRUCTURE ===",
+      "",
+      "1. SetSavedPtr( &self ) keeps the idle entry in retPtr1 ($7F0004). RestoreSavedPtr later resumes there (and clears retPtr1), which re-arms the handler. Every 'Restore' label below is that exit.",
+      "2. SetEntryHereAndYield + BranchIfPressed( #$0031 ): bit 0 of the mask selects joypadRaw, and $0030 is the L / R shoulder pair (the guard / channel button; player_character BlockStopToIdle tests the same $0030 for 'L/R released'). Not held: RTL, poll again next frame.",
+      "3. BranchIfPlayerNear( #0F ): radius 15 tiles, a square |dx| and |dy| < 241 px. A coarse gate only.",
+      "4. BranchOnPlayerX( #$000F, ... ): the engine handler (cop_handlers_player_query) loads operand slot +2 when the player is more than 15 px WEST of the actor, +6 when more than 15 px EAST and +4 when within 15 px (including 0). The slot +4 operand is therefore 'player in the same column', and in this file it leads to the block that works on the Y axis ($0016, posY). BranchOnPlayerY does the same for the row and leads to the blocks that work on posX ($0014).",
+      "   (docs/cop/families/player_query.md and the copdef label the three operands West / East / Here, but the handler's order is West / Here / East; see OQ-I037-3.)",
+      "5. Each axis block computes d = player - own position. d < 0 means the player is above (Y blocks) or west of (X blocks) the object. |d| is needed, then GetPlayerFacingDirection must report that the player faces the object (codes 0 down, 1 up, 2 left, 3 right), then the object is moved ONE direction: toward the player. These handlers therefore pull the object to the player; the 'push' in the old names and header was a guess.",
+      "6. The label pairs are named after the wrong axis: *AlignWest / *MoveWest and *AlignEast / *MoveEast are the vertical blocks (player above / below), *AlignNorth / *MoveNorth and *AlignSouth / *MoveSouth are the horizontal ones (player west / east). Each block's second BPL after the first BPL is dead (N is still set), so the abs() always runs for d < 0.",
+      "",
+      "=== HANDLERS ===",
+      "",
+      "collect_handler_gem: no clearance test and no collision painting. Step count = |d| / 2 (kept in orbitAngle, $7F0010,X). After the first facing test it SetEntryHere's, so the following frames skip the button / facing tests and move the parent 2 px per frame (parent posY / posX -/+ 2, own copy updated too) until the count reaches zero, then restore idle. The old header said it nudges the player; it moves the parent (the gem) and only reads the player.",
+      "push_handler_solid: needs |d| >= $20 (32 px), BranchIfSolidOffset( dx, dy ) one tile toward the player clear (any lower-nibble bit set = blocked), ClearSolidHere, own pos -/+ $10, MarkSolidHere (collision moves at once), SFX $2C, then parent $12 bit $0010 is set (old state kept in $24) while LoopStart( $10 ) slides the parent 1 px per pass (16 passes = one tile), then the bit is restored. $12 bit $0010 is damage / stagger immunity in combat_collision (the wram map calls it push-in-progress). The check state skips a frame when the parent's $10 bit $0080 (victim iframe flag) is set and $12 bit $0010 is clear.",
+      "push_handler_forceball: same distance and facing tests, but additionally the player's sprite index ($28) must be $3A (player above the ball), $3B (below), $3D (west) or $3C (east), the poses that match down / up / left / right. It uses NudgePosition( dx, dy ) on its own position instead of Clear / MarkSolidHere, and while the button is not held it copies the parent's posX / posY every frame.",
+      "",
+      "Spawn sites (SpawnAfterMarked): collect_handler_gem - DarkGemDropSystem (3), field_reveal_object, ec0B_cell (prison cell); push_handler_solid - gw82_archer (2), ir26_statue, ir20_statue, ir1F_stone_lord, ir1F_stone_guard, ec0E_statue, sc02_seth, sg51_statue, sg4D_knight_armor (2); push_handler_forceball - mu60_force_ball.",
+      "UNVERIFIED-RUNTIME: that the object really moves toward the player in play and which in-game action the L / R + facing pose is."
+    ],
+    "partNotes": {
+      "collect_handler_gem": [
+        "Idle loop for a collectable gem: arm, poll L / R, gate on 15 tiles, then the same-column / same-row dispatch (see the block note)."
+      ],
+      "CollectGemAlignWest": [
+        "Same-column block (player above or below). d = player posY - own posY. d < 0: player above, so the facing code must be 0 (down); the gem then moves up 2 px per frame."
+      ],
+      "CollectGemAlignEast": [
+        "d >= 0: player at or below the gem; facing must be 1 (up); the gem moves down 2 px per frame."
+      ],
+      "CollectGemAlignNorth": [
+        "Same-row block (player west or east). d = player posX - own posX. d < 0: player west, facing must be 3 (right); the gem moves west 2 px per frame."
+      ],
+      "CollectGemAlignSouth": [
+        "d >= 0: player east of the gem; facing must be 2 (left); the gem moves east 2 px per frame."
+      ],
+      "push_handler_solid": [
+        "Idle loop for a pullable solid: same arm / poll / gate preamble as the gem handler."
+      ],
+      "PushSolidCheckState": [
+        "Skips this frame (RTL) while the parent has $10 bit $0080 (iframe-active per combat_collision) and does not carry $12 bit $0010."
+      ],
+      "PushSolidMoveWest": [
+        "Same-column block (player above or below the solid): needs |posY delta| >= $20, facing 0 (down), tile one row up free; the solid moves up one tile."
+      ],
+      "PushSolidMoveEast": [
+        "Player below the solid: facing 1 (up), tile one row down free; the solid moves down one tile."
+      ],
+      "PushSolidMoveNorth": [
+        "Same-row block (player west or east): needs |posX delta| >= $20, facing 3 (right), tile one column west free; the solid moves west one tile."
+      ],
+      "PushSolidMoveSouth": [
+        "Player east of the solid: facing 2 (left), tile one column east free; the solid moves east one tile."
+      ],
+      "PushSolidSetPushingFlag": [
+        "Parent $12 |= $0010 for the slide. The previous value of that bit goes to $24 (this handler's scratch); returns with RTS."
+      ],
+      "PushSolidClearPushingFlag": [
+        "Parent $12 = ($12 and $FFEF) or the saved bit in $24, i.e. restore the state from before the slide."
+      ],
+      "push_handler_forceball": [
+        "Force-ball variant: also needs the matching player pose ($28 = $3A..$3D) and mirrors the parent position while idle."
+      ]
+    },
+    "comments": {
+      "57685": {
+        "text": "Save the idle entry (&collect_handler_gem) in retPtr1; RestoreSavedPtr later resumes here to re-arm",
+        "expect": "SetSavedPtr"
+      },
+      "57691": {
+        "text": "Mask $0031: bit 0 = test joypadRaw, $0030 = L or R shoulder; not held -> RTL and poll again next frame",
+        "expect": "BranchIfPressed"
+      },
+      "57698": {
+        "text": "Radius $0F = 15 tiles (|dx| and |dy| < 241 px): coarse gate before the axis tests",
+        "expect": "BranchIfPlayerNear"
+      },
+      "57704": {
+        "text": "Slots: +2 player >15 px west, +4 within 15 px (same column), +6 >15 px east; slot +4 = vertical block",
+        "expect": "BranchOnPlayerX"
+      },
+      "57714": {
+        "text": "Same column: use the Y axis. d = player posY ($0016) - own posY ($16); negative = player above the gem",
+        "expect": "LDY $playerActor"
+      },
+      "57723": {
+        "text": "d >= 0 (player at or below the gem): south block",
+        "expect": "BPL CollectGemAlignEast"
+      },
+      "57725": {
+        "text": "Dead branch: N is still set here, so this is never taken and the abs() below always runs",
+        "expect": "BPL CollectGemNudgeWestHalf"
+      },
+      "57731": {
+        "text": "Step count = |d| / 2 (2-px steps), kept in orbitAngle ($7F0010,X)",
+        "expect": "LSR"
+      },
+      "57736": {
+        "text": "Facing codes: 0 down, 1 up, 2 left, 3 right; must be 0 (player above, looking down at the gem)",
+        "expect": "JSL $@GetPlayerFacingDirection"
+      },
+      "57745": {
+        "text": "Resume point: later frames skip the button and facing tests and keep nudging until the count runs out",
+        "expect": "SetEntryHere"
+      },
+      "57747": {
+        "text": "$04 = prevActorLink = the gem this handler was marked after; it is the actor that moves",
+        "expect": "LDY $04"
+      },
+      "57753": {
+        "text": "Gem posY -= 2 (up, toward the player); the next STA also mirrors it into own $16",
+        "expect": "SBC #$0002"
+      },
+      "57772": {
+        "text": "Count exhausted: back to idle",
+        "expect": "BEQ CollectGemRestoreWest"
+      },
+      "57775": {
+        "text": "RestoreSavedPtr resumes at the saved idle entry (or yields if none); the code below is not reached from here",
+        "expect": "RestoreSavedPtr"
+      },
+      "57777": {
+        "text": "South block (player below the gem): same steps with facing 1 (up) and gem posY += 2",
+        "expect": "LSR"
+      },
+      "57823": {
+        "text": "Not in the same column: within 15 px on Y (slot +4) takes the horizontal block, else idle",
+        "expect": "BranchOnPlayerY"
+      },
+      "57833": {
+        "text": "Same row: d = player posX ($0014) - own posX ($14); negative = player west, facing 3 (right), gem posX -= 2",
+        "expect": "LDY $playerActor"
+      },
+      "57896": {
+        "text": "East block: player east of the gem, facing 2 (left), gem posX += 2",
+        "expect": "LSR"
+      },
+      "57942": {
+        "text": "Same preamble as the gem handler: mask $0031 = L / R shoulder (not A, which is $0080); gate radius $0F tiles",
+        "expect": "SetSavedPtr"
+      },
+      "57961": {
+        "text": "Parent = actor at $04. If its $10 bit $0080 (iframe flag) is set and its $12 bit $0010 is clear, skip this frame",
+        "expect": "LDY $04"
+      },
+      "57979": {
+        "text": "NOP padding, no effect",
+        "expect": "NOP"
+      },
+      "57983": {
+        "text": "Slot +4 (|dx| <= $0F, same column) -> PushSolidMoveWest, which is the vertical block; +2 / +6 go to the Y test",
+        "expect": "BranchOnPlayerX"
+      },
+      "57993": {
+        "text": "Vertical block: d = player posY - own posY (negative = above). Needs |d| >= $20, facing 0 (down), tile one row up free",
+        "expect": "LDY $playerActor"
+      },
+      "58002": {
+        "text": "d >= 0 (player below): south half at PushSolidMoveEast",
+        "expect": "BPL PushSolidMoveEast"
+      },
+      "58004": {
+        "text": "Dead branch: N is still set here, so the abs() below always runs",
+        "expect": "BPL PushSolidDistWest"
+      },
+      "58010": {
+        "text": "Player must be at least 32 px away; the object stops pulling once it is closer",
+        "expect": "CMP #$0020"
+      },
+      "58024": {
+        "text": "Tile (dx 0, dy -1) from the object must be free (no lower-nibble type bit), else restore idle",
+        "expect": "BranchIfSolidOffset"
+      },
+      "58030": {
+        "text": "Remove the object's collision at the old position",
+        "expect": "ClearSolidHere"
+      },
+      "58035": {
+        "text": "Own posY -= $10 (one tile toward the player); MarkSolidHere then paints collision at the destination at once",
+        "expect": "SBC #$0010"
+      },
+      "58045": {
+        "text": "Parent $12 bit $0010 on for the slide (immune per combat_collision); old bit saved in $24",
+        "expect": "PushSolidSetPushingFlag"
+      },
+      "58048": {
+        "text": "16 passes x 1 px: the parent's sprite slides one tile toward the player (assumes LoopEnd yields per pass)",
+        "expect": "LoopStart"
+      },
+      "58067": {
+        "text": "South half: player below the solid, same checks with facing 1 (up), tile (0,+1), own posY += $10",
+        "expect": "CMP #$0020"
+      },
+      "58124": {
+        "text": "Within 15 px on Y (slot +4): horizontal block, else idle",
+        "expect": "BranchOnPlayerY"
+      },
+      "58134": {
+        "text": "Horizontal block: d = player posX - own posX (negative = west); facing 3 (right), tile (-1,0), own posX -= $10",
+        "expect": "LDY $playerActor"
+      },
+      "58143": {
+        "text": "d >= 0 (player east): east half at PushSolidMoveSouth",
+        "expect": "BPL PushSolidMoveSouth"
+      },
+      "58145": {
+        "text": "Dead branch: N is still set here, so the abs() below always runs",
+        "expect": "BPL PushSolidDistNorth"
+      },
+      "58208": {
+        "text": "East half: player east of the solid, facing 2 (left), tile (+1,0), own posX += $10",
+        "expect": "CMP #$0020"
+      },
+      "58265": {
+        "text": "Parent $12 |= $0010 for the slide; the previous bit is kept in $24 (own scratch)",
+        "expect": "LDY $04"
+      },
+      "58284": {
+        "text": "Restore the parent's $12 bit $0010 from $24 (clear it, then OR the saved bit)",
+        "expect": "LDY $04"
+      },
+      "58298": {
+        "text": "Same preamble; also needs the player sprite index ($28) to be the $3A-$3D pose that matches the side",
+        "expect": "SetSavedPtr"
+      },
+      "58310": {
+        "text": "Idle (button not held): mirror the parent's posX / posY into this handler every frame",
+        "expect": "LDY $04"
+      },
+      "58361": {
+        "text": "Player sprIdx: $3A when above the ball, $3B below, $3D west of it, $3C east of it",
+        "expect": "LDA $0028, Y"
+      },
+      "58384": {
+        "text": "Own posY -= $10 (collision is not repainted here, unlike push_handler_solid)",
+        "expect": "NudgePosition"
+      },
+      "58391": {
+        "text": "16 passes x 1 px: the parent slides one tile toward the player",
+        "expect": "LoopStart"
+      }
+    }
+  },
+  "functions/EnemyInitBasic.asm": {
+    "blockNote": [
+      "Shared init JSL used by only two actors: dm3F_laborer (code_0AA9E0, Diamond Mine) and fr32_kidnapper (Freejia). The older header said 'most enemy actors'.",
+      "",
+      "Sets $12 |= $0030 (TSB): in combat_collision $12 bit $0010 is damage / stagger immunity and bit $0020 is 'boss' (damage digits and the player-attack hit test are skipped). The older 'solid + interactable' label has no reader behind it.",
+      "Sets extendedFlags ($7F002A,X) |= $0080, which the OrExtraFlags notes in cop_handlers_callbacks identify as the boss bit (not 'enemy type'), points statsPtr ($7F0020,X) at enemy_stats_table and sets currentHp ($7F0026,X) = 1.",
+      "fr32_kidnapper overwrites currentHp with 5 right after the JSL. Whether the damage code replaces the HP with a stats-table lookup on the first hit was not traced (UNVERIFIED-RUNTIME)."
+    ],
+    "partNotes": {},
+    "comments": {
+      "697341": {
+        "text": "$12 |= $0030: bit $0010 = damage / stagger immune, bit $0020 = boss (combat_collision readers)",
+        "expect": "LDA #$0030"
+      },
+      "697350": {
+        "text": "extendedFlags $0080 = boss bit (OrExtraFlags notes), not an 'enemy type' marker",
+        "expect": "ORA #$0080"
+      },
+      "697364": {
+        "text": "currentHp = 1; fr32_kidnapper sets 5 right after this JSL",
+        "expect": "LDA #$0001"
+      }
+    }
+  },
+  "functions/RandomPlayerOffset.asm": {
+    "blockNote": [
+      "Actor entry code that places the actor at a random point within -128..+127 px of the player on each axis.",
+      "",
+      "Not a JSL helper: awB1_goldcap and pyDD_mummy_queen spawn it with SpawnAfterMarked( @RandomPlayerOffset, #$2000 ) and keep the child slot (TYA, then STA $26 / scratch1010+6).",
+      "posX ($14) = playerXPos + (RngByte - $80), posY ($16) = playerYPos + (RngByte - $80), then $08 = $3C. $08 is the wait counter (wram-memory-map), so the actor sleeps 60 frames; its entry pointer is never changed, so it should run this code again and re-roll the position: a marker that hops every 60 frames, not a '60-frame lifetime' as the older header said.",
+      "UNVERIFIED-RUNTIME: the rerun from the unchanged $00 after the wait. unused_random_position_noref is an unreferenced sibling without the player offset."
+    ],
+    "partNotes": {},
+    "comments": {
+      "720257": {
+        "text": "Wait counter $08 = 60 frames before the entry code runs again (a re-roll), not a lifetime",
+        "expect": "LDA #$003C"
+      }
+    }
+  }
+}

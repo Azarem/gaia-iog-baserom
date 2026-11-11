@@ -126,7 +126,7 @@ mu67_male_vampire [
   actor-def < #00, #00, #01, {
 
   code_0AF1FA:
-    COP [SpawnAfterFlags] ( @code_0AF53D, #$2800 )
+    COP [SpawnAfterFlags] ( @mu_color_window_setup, #$2800 )
     COP [SpawnAfterFlags] ( @func_0AF6E6, #$2000 )
     LDA #$FFFF
     STA $00FE
@@ -452,7 +452,10 @@ func_0AF50F {
     JMP $&func_0AF426
 }
 
-code_0AF53D {
+---------------------------------------------
+; Colour-window set-up of the Mu vampire lair, spawned by mu67_male_vampire at its start (address 717306) and run once: WOBJSEL = $30 (colour window 1 enabled and inverted), CGWSEL = $22 (colour math prevented inside the window area, the sub screen is the addend) and CGADSUB = $03 (add to BG1 and BG2). The window itself is the circle that circle_window_thinker_v2 builds from the parameters at $F6 / $FA / $FE: with the radius $FFFF the window is empty and no colour math runs; with a circle the fixed colour is added to BG1 and BG2 only inside it (measured with the parameters forced to centre ($80, $70) and radius $30: a 97 x 97 pixel round patch tinted by the fixed colour, nothing changed outside it).
+
+mu_color_window_setup {
     SEP #$20
     LDA #$30
     STA $WOBJSEL

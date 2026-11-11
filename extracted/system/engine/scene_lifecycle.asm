@@ -756,7 +756,7 @@ ScreenEnterTransition {
 ; Called by ExecuteSceneTransition after resolving the target scene. Performs a complete teardown and rebuild of the game world in a fixed sequence:
 ; 
 ; === PHASE 1: CLEAR STATE ===
-; Disables HDMA. Zeroes all critical game variables: joypad masks, cached HP, display mode, player flags, the first event-flag word ($0A00 = flags $00–$0F only), camera targets/deltas, scroll positions/overrides, player speeds, external velocities, enemy health timer, climb state, actor count, DMA skip flag. Sets invincibility timer to $FFFF (disabled). Clears backdrop colors and COLDATA. Resets BG3 tilemap base ($78 = VRAM $7800), the BG1/BG2 character base ($22), MOSAIC, and all window mask/logic registers. Clears event flag $FF (bit 7 of the $0A1F flag byte), which phase 3 sets again.
+; Disables HDMA. Zeroes all critical game variables: joypad masks, cached HP, display mode, player flags, the first event-flag word ($0A00 = flags $00–$0F only), camera targets/deltas, scroll positions/overrides, player speeds, external velocities, enemy health timer, climb state, actor count, the enemy counters enemiesRemaining ($0AEC) and enemiesRemainingBcd ($0AEE) (InitActorFromSceneData counts the scene's enemies up again), DMA skip flag. Sets invincibility timer to $FFFF (disabled). Clears backdrop colors and COLDATA. Resets BG3 tilemap base ($78 = VRAM $7800), the BG1/BG2 character base ($22), MOSAIC, and all window mask/logic registers. Clears event flag $FF (bit 7 of the $0A1F flag byte), which phase 3 sets again.
 ; 
 ; === PHASE 2: LOAD SCENE ===
 ; Calls subsystems in order:
@@ -804,7 +804,7 @@ ClearSceneState {
     STX $scrollOverrideH
     STX $forcedScrollOverride
     STX $scrollOverrideV
-    STX $06CC
+    STX $06CC             ; BG2 slot of the vertical scroll override (scrollOverrideV + 2)
     STX $mapScrollV
     STX $effectScrollV
     STX $bg1ScrollH
@@ -883,7 +883,7 @@ ClearSceneState {
     JSL $@thinker_execution.RunThinkers_Hdma
     JSL $@hdma_dma_spc.ResetHdmaState
     STZ $HDMAEN           ; Disable HDMA before sprite composition
-    COP [SetFlagByte] ( #FF ) ; Set event flag $FF (bit 7 of $0A1F, cleared at the top of this routine): scene-setup-complete signal — init-phase thinkers that loop on flag $FF (e.g. sE8_comet_display_config) exit (inferred)
+    COP [SetFlagByte] ( #FF ) ; Set event flag $FF (bit 7 of $0A1F, cleared at the top of this routine): scene-setup-complete signal that init-phase thinkers loop on (e.g. sE8_comet_display_config); measured: only thinkers test it
     LDA #$FF
     STA $oamComposeBuffer ; Write $FF sentinels to OAM compose buffer
     STA $oamComposeBuffer+1

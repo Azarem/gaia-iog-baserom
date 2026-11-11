@@ -1,0 +1,440 @@
+{
+  "_note": "IT-13 hygiene sweep 2: history narration and ledger ids in the I041-I060 files (A04 section 1 and A05 section 1 sets). One spec.",
+
+  "actors/debug_man.asm": {
+    "blockNote": { "edit": [
+      { "find": "; the old header said about 35 destinations, and the old labels for $32 (Gold Ship) and $3E (Diamond Coast) and the swapped $0A / $E5 comments were wrong.", "with": "." }
+    ] }
+  },
+
+  "actors/dialog_string_scanner.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old header called $BF02 a 'dialog string header marker'.", "with": "" },
+      { "find": " The old header and the inline notes had this reversed.", "with": "" },
+      { "find": "; the old 'banks $85 to $0B' (and the doc's '$85-$8C') do not match the code.", "with": "." }
+    ] }
+  },
+
+  "actors/unused_particle_rain_spawner.asm": {
+    "blockNote": { "edit": [
+      { "find": " (the old header said 'used for the ending credits particle rain'; docs/code/bank0B... lists it as unreferenced)", "with": "" },
+      { "find": " (the old note said the delay shrinks to 4 frames; the real minimum is 5)", "with": "" },
+      { "find": ": the old part note called this 'decelerating'; only the delay decelerates.", "with": " (the delay between spawns shrinks)." },
+      { "find": " to reach the steady rate. UNVERIFIED-RUNTIME.", "with": " to reach the steady rate (computed from the code, not run)." },
+      { "find": " (the old comments said 'X velocity 4, 6, 8, 10 / Y velocity 3, 5, 7, 9')", "with": "" },
+      { "find": " (UNVERIFIED-RUNTIME, OQ-I045-2)", "with": " (computed from the code, not run)" },
+      { "find": "docs/code/bank0B-late-bosses-system-cutscene-actors.md also says the particles 'rise via ReloadForceMove' from 'screen top'; they start above the screen and FALL.", "with": "The particles start above the screen and FALL." }
+    ] }
+  },
+
+  "actors/jeweler_gem.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old header called it 'game complete'.", "with": "" }
+    ] },
+    "partNotes": {
+      "JewelerDie": { "edit": [
+        { "find": "; the old note said 'game complete')", "with": ")" }
+      ] }
+    }
+  },
+
+  "actors/camera_scroll_controller.asm": {
+    "blockNote": { "edit": [
+      { "find": " There is no dead zone: the old note called the P - 128 centring a 'dead zone'.", "with": " There is no dead zone." },
+      { "find": " (OQ-I049-4).", "with": "." },
+      { "find": "; the old comment said BG2)", "with": ")" }
+    ] },
+    "comments": {
+      "60252": { "text": "t = Y - 128: same constant as X although the screen is 224 lines tall", "expect": "SBC" }
+    }
+  },
+
+  "actors/hit_stagger_controller.asm": {
+    "blockNote": { "edit": [
+      { "find": " (the old note said $0400 marks an enemy and that the old label HitStaggerReturnAI 're-enables AI for enemies'; HitStaggerReleasePlayer only ever handles the player)", "with": " (HitStaggerReleasePlayer only ever handles the player)" },
+      { "find": " (the old note spoke of a '3-deep stack-encoded direction index'; there is no such stack)", "with": "" },
+      { "find": "; the old doc had the axis flag the other way round)", "with": ")" },
+      { "find": "(purpose inferred, OQ-I046-3)", "with": "(purpose inferred)" }
+    ] },
+    "partNotes": {
+      "HitStaggerReleasePlayer": { "edit": [
+        { "find": " (the old label said HitStaggerReturnAI)", "with": "" }
+      ] }
+    }
+  },
+
+  "actors/overworld_exit.asm": {
+    "blockNote": { "edit": [
+      { "find": "; not checked (OQ-I042-5).", "with": "; not checked." },
+      { "find": " (OQ-I042-7)", "with": "" },
+      { "find": " (OQ-I042-6)", "with": "" },
+      { "find": "- The old header said the actor 'zeroes $0D60, stages the cursor and falls through to the exit handler'; that is right, but the handlers do not 'fall through': they JMP to OverworldExitFinalize.", "with": "- The handlers do not fall through into OverworldExitFinalize: they JMP to it." }
+    ] },
+    "comments": {
+      "51905": { "text": "gfxCacheIdxB := $0400 on every exit path (purpose of the value not traced)", "expect": "LDA" },
+      "51940": { "text": "Every success path clears $0D60, the first word of the world map's six-word companion array (effect not traced)", "expect": "STA" },
+      "51988": { "text": "Exit row: Y exactly $2D0 (equality, not a range)", "expect": "CMP" }
+    }
+  },
+
+  "actors/hit_switch.asm": {
+    "blockNote": { "edit": [
+      { "find": "; formerly named floor_button)", "with": ")" },
+      { "find": " The old text ('triggers puzzle state when the player or objects land on the plate', 'used in pyramid puzzle rooms') is wrong.", "with": "" },
+      { "find": " (the old docs say pyramid)", "with": "" },
+      { "find": " (OQ-I042-3)", "with": "" }
+    ] }
+  },
+
+  "actors/hidden_red_jewel.asm": {
+    "blockNote": { "edit": [
+      { "find": " (OQ-I041-7)", "with": "" }
+    ] }
+  },
+
+  "actors/town_door.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old docs say '16 scenes'.", "with": "" },
+      { "find": " The old header said 'A-button press'; the code tests the Up direction.", "with": " The code tests the Up direction." }
+    ] }
+  },
+
+  "actors/player/shadow_shimmer.asm": {
+    "blockNote": { "edit": [
+      { "find": "What the flag means is open (OQ-I030-1; here OQ-I048-1).", "with": "What the flag means is not traced." }
+    ] }
+  },
+
+  "functions/EnemyDefeatDispatch.asm": {
+    "blockNote": { "edit": [
+      { "find": " (the old note said 'Spawn stat gem reveal', and an earlier version of this note called the byte a HP / STR / DEF gem)", "with": "" },
+      { "find": " The old header said it 'decrements ... plays death SFX, spawns death flash, sets dungeon kill flag, optionally clears collision tile' which is right; it did not explain the field_reveal_object spawn or the callers.", "with": "" },
+      { "find": " (OQ-I046-4). UNVERIFIED-RUNTIME.", "with": ". Not traced: whether any caller can reach this with $0AEC = 0." }
+    ] },
+    "comments": {
+      "697407": { "text": "Exactly 1 means the last enemy (a count of 0 would wrap the counters)", "expect": "LDA" }
+    }
+  },
+
+  "functions/EnemyPositionSnap.asm": {
+    "blockNote": { "edit": [
+      { "find": "; the old header said it was 'called after spawning enemies'.", "with": "." }
+    ] }
+  },
+
+  "functions/ApplyOrbitalOffsetXY.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old header also listed statue_inventory_reward, which uses ApplyOrbitalOffsetFromRef instead.", "with": "" }
+    ] }
+  },
+
+  "functions/ApplyOrbitalOffsetFromRef.asm": {
+    "blockNote": { "edit": [
+      { "find": "\n\nThe old header said 'multiplied by orbitDiameter ... result updates actor $14/$16' without the sign, byte-width and rotation direction facts above. UNVERIFIED-RUNTIME (read from the code and the table headers).", "with": "" }
+    ] }
+  },
+
+  "functions/EnemyDropSystem.asm": {
+    "blockNote": { "edit": [
+      { "find": "The old names (DarkGemDropSystem, SpawnDarkGemType1 and so on) said 'dark gem', but what drops is a pickup", "with": "What drops is a pickup" },
+      { "find": " (see OQ-I049-3)", "with": " (combat_collision's player-attack phase skips actors with that bit; why the spawn flags set it first is not traced)" }
+    ] },
+    "comments": {
+      "57154": { "text": "Clear $10 bit $0400 that the $0420 spawn flags set (combat_collision's player-attack phase skips actors with it; why it is set first is not traced)", "expect": "TRB" }
+    }
+  },
+
+  "functions/SpawnDamageNumberEffect.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old name (SpawnAttackTrailEffect, 'attack trail') and the old text ('ghost copies interpolated between the previous and current position', '16 frames at position then 16 drifting upward', 'when the player or enemies take damage') do not describe it: there is one 16-iteration loop and no ghost copies.", "with": " There is one 16-iteration loop and no ghost copies." },
+      { "find": "; OQ-I041-5)", "with": ")" }
+    ] }
+  },
+
+  "functions/camera_drift.asm": {
+    "blockNote": { "edit": [
+      { "find": " is not established statically (OQ-I050-2).", "with": " is not established statically." },
+      { "find": " The old note said 'random +-1'.", "with": "" }
+    ] },
+    "comments": {
+      "53270": { "text": "$24 = $FFFF skips the delta update", "expect": "LDA" }
+    }
+  },
+
+  "functions/npc_wander_ai.asm": {
+    "blockNote": { "edit": [
+      { "find": " (the old note listed cases 4 to 7 as south / north / west / east; cases 4 and 5 are north and south, and cases 0 and 1 are the stand pair north and south)", "with": "" },
+      { "find": " (the old note said 'one-tile forced move')", "with": "" }
+    ] }
+  },
+
+  "functions/ApplyPlayerHitstun.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old header said 'damage in Y and knockback metadata on the stack' and that damage is halved; neither is true.", "with": "" },
+      { "find": ", not a priority as the old header says.", "with": "." },
+      { "find": "which skips them (OQ-I046-2).", "with": "which skips them. The stores are indexed by that Y; what they hit at $1FC0 plus the field offset is not traced." },
+      { "find": " (the old header said it masks joypad input 'for heavy hits or when the climbing flag is active')", "with": "" },
+      { "find": " The old docs say about 12 callers; there are 9.", "with": "" }
+    ] }
+  },
+
+  "system/inventory/inventory_mgmt.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old note called it a cap at $55.", "with": "" }
+    ] },
+    "comments": {
+      "258081": { "text": "Overflow: set $55 (a reset, not a cap; other values are unbounded)", "expect": "LDA" }
+    }
+  },
+
+  "system/statue_inventory/statue_inventory_reward.asm": {
+    "partNotes": {
+      "StatueRewardNotThisStatue": { "edit": [
+        { "find": " (The old label StatueRewardWrongTab borrowed 'tab' from the inventory slot logic; there is no tab in scene $FD.)", "with": "" }
+      ] }
+    }
+  },
+
+  "thinkers/global_ambient_dispatcher.asm": {
+    "blockNote": { "edit": [
+      { "find": ", not a direction press as the old header said.", "with": ", not a direction press." },
+      { "find": " The old comment called bit 11 an 'interaction ready flag'.", "with": "" },
+      { "find": "(GlobalAmbientFacingValid; the old label said Invalid)", "with": "(GlobalAmbientFacingValid)" },
+      { "find": "; the old ScanEast / ScanWest / ScanNorth / ScanSouth labels were rotated against these.", "with": "." },
+      { "find": "; it plays no sound, which the old label TalkSound suggested)", "with": "; it plays no sound)" },
+      { "find": "; the old comments called it SFX $2F)", "with": ")" }
+    ] },
+    "partNotes": {
+      "GlobalAmbientOnInteractPress": { "edit": [
+        { "find": " (the old label said direction press)", "with": "" }
+      ] },
+      "GlobalAmbientFacingValid": { "edit": [
+        { "find": "; the old label said Invalid)", "with": ")" }
+      ] },
+      "GlobalAmbientProbeDown": { "edit": [
+        { "find": " (the old label said ScanEast)", "with": "" }
+      ] },
+      "GlobalAmbientProbeUp": { "edit": [
+        { "find": " (the old label said ScanWest)", "with": "" }
+      ] },
+      "GlobalAmbientProbeLeft": { "edit": [
+        { "find": " (the old label said ScanNorth)", "with": "" }
+      ] },
+      "GlobalAmbientProbeRight": { "edit": [
+        { "find": " (the old label said ScanSouth)", "with": "" }
+      ] },
+      "GlobalAmbientAnimFacingHorizontal": { "edit": [
+        { "find": "; the old label said Vertical)", "with": ")" }
+      ] }
+    }
+  },
+
+  "thinkers/gold_ship_wreck_palette.asm": {
+    "blockNote": { "edit": [
+      { "find": "The old name (incan_ruins_transform_palette) and notes said 'Incan Ruins', but the three scene_thinkers lists that spawn it are", "with": "The three scene_thinkers lists that spawn it are" },
+      { "find": " The old doc claims about Larai Cliff / Angkor and scene indexes 34-36 are wrong.", "with": "" },
+      { "find": " The old note 'alternate between #34 and #33' is wrong: #34 plays once per latch cycle.", "with": " #34 plays once per latch cycle." },
+      { "find": " The old 'CGRAM entries $40-$5F' are buffer byte offsets.", "with": "" },
+      { "find": " (OQ-I044-1)", "with": "" }
+    ] }
+  },
+
+  "unused/DamageNumberShort_unused.asm": {
+    "blockNote": { "edit": [
+      { "find": " (formerly AttackTrailShort_unused)", "with": "" }
+    ] }
+  },
+
+  "actors/field_reveal_object.asm": {
+    "blockNote": { "edit": [
+      { "find": " (no reader found: OQ-I051-4)", "with": " (no reader found)" },
+      { "find": "for the last-kill reward): OQ-I051-5.", "with": "for the last-kill reward)." },
+      { "find": "inferred: OQ-I051-7)", "with": "inferred)" },
+      { "find": "The old header said it checks that all enemies are cleared and stages HP / STR / DEF gem sprites. The flag", "with": "The flag" }
+    ] },
+    "comments": {
+      "55986": { "text": "orbitAngle := $FFFF (no reader found)", "expect": "STA" },
+      "56118": { "text": "Collision byte $0E ends the scan at this row (its meaning is not traced)", "expect": "CMP" }
+    }
+  },
+
+  "actors/layer1_scroll_actors.asm": {
+    "blockNote": { "edit": [
+      { "find": "no reader found (OQ-I051-2).", "with": "no reader found." },
+      { "find": "The old header said the actors seed and integrate velocities for 'cutscene camera takeover' and that Layer1ParallaxRatio refines the other two every frame. The velocity decode", "with": "The velocity decode" }
+    ] },
+    "partNotes": {
+      "Layer1DriftUnbounded": { "edit": [
+        { "find": " (after the WaitByte, apparently without an own SetEntryHere: OQ-I051-1)", "with": " (after the WaitByte; the actor has no SetEntryHere of its own)" }
+      ] },
+      "Layer1ParallaxRatio": { "edit": [
+        { "find": "($06C8, no reader found: OQ-I051-2)", "with": "($06C8, no reader found)" }
+      ] }
+    },
+    "comments": {
+      "59675": { "text": "WaitByte #01 = 2 ticks (N + 1); the code below then runs every frame (no SetEntryHere in this actor)", "expect": "WaitByte" },
+      "59692": { "text": "X position with bit 15 set goes to forcedScrollOverride; no reader found", "expect": "STA" }
+    }
+  },
+
+  "actors/player_transition_handlers.asm": {
+    "blockNote": { "edit": [
+      { "find": " (it was first called PlayerItemRevealSpawn; OQ-I052-9)", "with": "" },
+      { "find": " They were first called PlayerFreedanRevealIdle / PlayerFreedanRevealExit; the callers do not identify the character as Freedan, so the pose names are neutral (OQ-I052-2).", "with": " The callers do not identify the character as Freedan, so the pose names are neutral." },
+      { "find": " (meaning open: OQ-I025-2)", "with": " (meaning not traced)" },
+      { "find": " (the old comment called it 'force layer priority')", "with": "" },
+      { "find": " (the old comment said $CFF0)", "with": "" },
+      { "find": "\n\nThe old header's 'item reveal with metasprite staging' is the ImpactSparkEffect spark.", "with": "" }
+    ] },
+    "partNotes": {
+      "PlayerIdleAnimLoop": { "edit": [
+        { "find": " What flag #00 means is open (OQ-I052-1).", "with": " What flag #00 means is not traced." }
+      ] },
+      "PlayerFallFromHeight": { "edit": [
+        { "find": "is not checked: OQ-I052-3.", "with": "is not checked." }
+      ] },
+      "PlayerAuraTransformEntry": { "edit": [
+        { "find": " (OQ-I052-4)", "with": "" }
+      ] },
+      "PlayerAuraLandOnSolid": { "edit": [
+        { "find": " (meaning open: OQ-I052-5)", "with": " (meaning not traced)" }
+      ] }
+    },
+    "comments": {
+      "50226": { "text": "Per-scene flag #00 set: anim $11, otherwise anim $01", "expect": "BranchOnFlagByte" },
+      "50633": { "text": "$10 |= $0002 for the landing slide (meaning not traced)", "expect": "TSB" }
+    }
+  },
+
+  "actors/dark_space.asm": {
+    "blockNote": { "edit": [
+      { "find": "; this answers part of OQ-I025-2)", "with": ")" },
+      { "find": "\n\n=== CORRECTIONS ===\n\nThe old header said the handler 'copies the player's position onto the portal' (it copies the portal's position onto the player), that the monitor 'triggers when the player is within 1 tile', that $3000 / $2000 are 'display mode bits' / 'display flags: variant 1 / 2' (they are the sprite priority bits of the OAM attribute word; the variant is the spawn parameter) and that $2000 on the player is a 'frozen flag' (it hides him). The $4000 test in DarkSpacePortalOpen is the off-screen flag and a no-op.", "with": "" }
+    ] },
+    "comments": {
+      "579278": { "text": "extendedFlags $0200: radar dot", "expect": "OrExtraFlags" }
+    }
+  },
+
+  "actors/boss_clear_reward_handler.asm": {
+    "blockNote": { "edit": [
+      { "find": " (the actor list predecessor): OQ-I051-3.", "with": " (the actor list predecessor); whether anything reads that link while the actor lives is not traced." },
+      { "find": "The old header called the HP effect a 'damage-flash timer'; $0B22 is the heal counter hpToHeal. The old routine comment said the flags are per enemy; the index is the scene id.", "with": "$0B22 is the heal counter hpToHeal. The flag index is the scene id (not an enemy)." }
+    ] },
+    "comments": {
+      "49907": { "text": "Range word into actor $04 (also the list predecessor link)", "expect": "STA" }
+    }
+  },
+
+  "functions/EscortFollowPathTracker.asm": {
+    "blockNote": { "edit": [
+      { "find": " (OQ-I052-7). The old header said '9-waypoint ring buffer' and 'each frame advances orbitAngle by 8'; the head advances only on frames where the player moved, and the first use of orbitAngle is a seed, not a timer.", "with": "; whether a caller can reach that case is not traced. The head advances only on frames where the player moved, and the first use of orbitAngle is a seed, not a timer." }
+    ] }
+  },
+
+  "functions/game_over_sequence.asm": {
+    "blockNote": { "edit": [
+      { "find": "=== CORRECTIONS ===", "with": "=== JOYPAD MASKS AND SOUND ===" },
+      { "find": " The first block starts with a 33-tick wait; 'sound #$0C' is the 16-bit pair $0C0C on both channels. In the revive case 100 gems are paid; the wramFlags are cleared only on a real game over; two different warp records are used.", "with": " 'sound #$0C' is the 16-bit pair $0C0C on both channels." }
+    ] }
+  },
+
+  "system/dark_space/sE6_gaia.asm": {
+    "blockNote": { "edit": [
+      { "find": " (the old notes called it the Gaia NPC link)", "with": "" },
+      { "find": " The old notes called the destination a camera position and $0101 a brightness fade.", "with": "" },
+      { "find": "; each is reached from two prompts (they were first called GaiaDontRecord and GaiaContinueJourney after the first prompt only, which made them look swapped for the second).", "with": "; each is reached from two prompts." },
+      { "find": "; the old header said it is unlocked at Ankor Wat)", "with": ")" },
+      { "find": "; the old header called byte 1 'ability index + statue type'.", "with": "." },
+      { "find": "\n\n=== CORRECTIONS ===\n\nReplaced claims: byte 1 of AbilitySceneTable is an ability bit, not an index with a statue nibble; the continue prompt's Yes / No were described the other way round; $06 is the voice sparkle, not the Gaia NPC, and $24 is its voice switch; 'Unmask D-pad and face buttons' ($0F00) is the D-pad only; hpToHeal 40 is a heal request (not 'damage flash ticks'); warpDestX / warpDestY and the $0B08-$0B12 values are the player's spawn position and source scene, not a camera; GaiaNpcSprite loops an idle animation (it is not a single frame); the Shadow flag $B4 is set by Neil, not at Ankor Wat; 'spriteset #05 (transformation frames)' is player body entry #05 and the 'transformation spriteset' of the exit effect is spriteset_pickups_effects; Transform_ShadowToFreedan uses SetEntryHereAndYield, not SetEntryExit.", "with": "" }
+    ] },
+    "partNotes": {
+      "DS_WillTransformRoom": { "edit": [
+        { "find": " (OQ-I056-3)", "with": "" }
+      ] },
+      "LookupAbilityForm": { "edit": [
+        { "find": " It was first called LookupStatueType after the old 'statue type' reading (there is no statue type).", "with": "" }
+      ] },
+      "FireflyParticle": { "edit": [
+        { "find": "; the old note said it rises (OQ-I056-2).", "with": "." }
+      ] }
+    }
+  },
+
+  "system/boot_logos/boot_logo_enix_palette_obj0.asm": {
+    "blockNote": { "edit": [
+      { "find": "\n\n=== CORRECTIONS ===\n\nThe three thinkers were first called boot_logo_palette_enix, boot_logo_palette_quintet and boot_logo_palette_third. Those were spawn-order names and read like three companies or three steps; they are one palette cycle, the Enix logo's, split over OBJ palettes 0, 1 and 2 (the old header's 'animates the Enix logo colors' was right for all three). The old header called this the first of three thinkers and the Quintet note said it runs 'after the Enix palette sequence'; they are spawned together and run in parallel. The logo is the second logo of scene $FB, the 4 x 4 emblem with a wordmark under it; I054 left the question of which logo uses OBJ palettes 0 and 1 open (OQ-I054-1) and the sprite tables answer it.", "with": "" }
+    ] }
+  },
+
+  "system/boot_logos/boot_logo_enix_palette_obj1.asm": {
+    "blockNote": { "edit": [
+      { "find": "\n\n=== CORRECTIONS ===\n\nThe old name was boot_logo_palette_quintet, a spawn-order name that read like a second company; this is the same Enix logo as the other two thinkers, on OBJ palette 1. The old header said it runs 'after the Enix palette sequence'; it runs at the same time. The I054 note gave the spawn param as #01; the three slots carry #01, #02 and #03 and this one is #02 (none is read). Which logo uses OBJ palette 1 (OQ-I054-1) is answered by the sprite tables: the second logo's emblem, the Enix logo.", "with": "" }
+    ] }
+  },
+
+  "system/boot_logos/boot_logo_enix_palette_obj2.asm": {
+    "blockNote": { "edit": [
+      { "find": "\n\n=== CORRECTIONS ===\n\nThe old name was boot_logo_palette_third (the third spawn slot). The old header called this the 'third and final logo palette thinker' that 'completes the boot logo palette rotation before gameplay begins' and described #56, #57 and #58 as palette animations. It is the third of three parallel thinkers, not a later step, #56 to #58 are palette bundles, and it animates only OBJ palette 2 of the second logo, the Enix logo.", "with": "" }
+    ] }
+  },
+
+  "system/diary_menu/sFA_diary_menu.asm": {
+    "blockNote": { "edit": [
+      { "find": " (OQ-I057-3)", "with": "" },
+      { "find": "is unverified (OQ-I057-1).", "with": "is unverified." }
+    ] },
+    "partNotes": {
+      "DiaryUnused24B_noref": { "edit": [
+        { "find": " (renames ledger R-I057-4)", "with": "" }
+      ] }
+    }
+  },
+
+  "system/diary_menu/diary_menu_window_dma.asm": {
+    "blockNote": { "edit": [
+      { "find": " (OQ-I057-3)", "with": "" }
+    ] }
+  },
+
+  "system/world_map/WorldMapSplitEffect.asm": {
+    "blockNote": { "edit": [
+      { "find": " (OQ-I058-1)", "with": "" }
+    ] }
+  },
+
+  "system/world_map/WorldMapController.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old comments called it elevation.", "with": "" }
+    ] },
+    "partNotes": {
+      "LookupMapNameMiss": { "edit": [
+        { "find": "(no match, OQ-I059-7)", "with": "(no match)" }
+      ] }
+    },
+    "comments": {
+      "238340": { "text": "Same palette reset thinker spawned a second time (reason not known)", "expect": "SpawnThinkerParam" },
+      "238372": { "text": "Child's animScratch2 |= $0804 (bits 2 and 11, the thinker filter flags; effect on an actor not verified)", "expect": "ORA" },
+      "238469": { "text": "Mode 7 divisor $B8 += delta (negative): about $0400 down to about $34, the view zooms out", "expect": "ADC" },
+      "239265": { "text": "Zero id byte = end; the table has no terminator entry, so a miss would run on into the strings", "expect": "BEQ" }
+    }
+  },
+
+  "system/world_map/world_map_options.asm": {
+    "blockNote": { "edit": [
+      { "find": ", which the old header read as flags, direction, spare and distance; that reading is wrong.", "with": "; they are not flags, direction, spare and distance bytes." },
+      { "find": " than the sums (OQ-I060-2).", "with": " than the sums." }
+    ] },
+    "partNotes": {
+      "dialogstring_03B928": { "edit": [
+        { "find": " Nothing references it (R-I060-3).", "with": " Nothing references it." }
+      ] }
+    }
+  },
+
+  "system/world_map/world_map_route_table.asm": {
+    "blockNote": { "edit": [
+      { "find": "\n\n=== CORRECTIONS ===\n\nThe old header read the four bytes as flags (animation / speed nibbles), direction (turn left / right), a spare byte and a pixel distance; that reading is wrong, there are no turn codes and byte 3 is a tick count, not a distance.", "with": "" }
+    ] }
+  }
+}

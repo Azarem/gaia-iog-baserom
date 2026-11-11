@@ -1,6 +1,6 @@
 ; Movable statue puzzle in the garden southwest area.
 ; 
-; Interactive statue that can be pushed by the player. Uses
+; Movable statue: push_handler_solid pulls it one tile (16 px) toward the player while the player holds L or R (the shoulder pair $0030) on the same row, at least 32 px away and facing it. Observed as Will with no ability item or form needed (from the west and the east side; pulling along the column did not move either statue in the tests). Uses
 ; position tracking and flag checks to determine when the
 ; statue is in the correct slot. No dialog — purely physical
 ; puzzle.

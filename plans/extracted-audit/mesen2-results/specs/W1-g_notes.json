@@ -1,0 +1,47 @@
+{
+  "_note": "W1-g (2026-11-08), see mesen2-results/W1-g_20261108.md. Measured in ROM O (SHA-1 38de0c84...): (1) the initial value CopyActorState stores in $0024 is read by 35 instructions in 16 routines, so 'reader of the initial value unknown' is wrong; (2) the scene $FF skip was exercised (42 spawns, both paths identical); (3) pyCC_blaster's second projectile uses speed 3, not 1; $0B02 is 0 in normal play; (4) 'No other code uses $7EDF00' is wrong: scene decompression, tilemap fill, palette and credits code read and write $7EDF00-$7EDF7F. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/W1-g_notes.json --dry-run. extracted/ carries line-tracking tags, so comments use 'expect' (the instruction text on that line). 'find' must occur exactly once in the stored note.",
+  "system/engine/actor_pool.asm": {
+    "comments": {
+      "45576": {
+        "text": "$0024 = spawner's slot: read as the parent reference by FlickerParentActor, hit_stagger_controller, SpawnDamageNumberEffect, StatueRewardOrbitalSparkle, camera_drift and eleven enemy, boss and prologue scripts; other actors reuse $24 as scratch (the player's walk and idle timers)",
+        "expect": "STA $0024, Y"
+      },
+      "45646": {
+        "text": "Scene $FF (inventory): the clear of extendedFlags and the callback block is skipped; in 42 measured spawns there both the spawner's and the new slot's extendedFlags and callbacks were already 0, so the skip changed nothing observable",
+        "expect": "LDA $sceneCurrent"
+      }
+    }
+  },
+  "actors/smooth_follow_child.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "($7F0014: 1 in pyCC_blaster and ec0C_ribber, 2 in awB1 and gw8A)",
+          "with": "($7F0014: 1 in ec0C_ribber and in the first pyCC_blaster projectile, 3 in the second pyCC_blaster projectile, 2 in awB1 and gw8A)"
+        },
+        {
+          "find": "pyDD uses the speed 4 + $0B02. In every case",
+          "with": "pyDD uses the speed 4 + $0B02 ($0B02 is the difficulty level, 0 in normal play, so the speed is 4; the dominant axis then moves exactly that many pixels per frame). In every case"
+        }
+      ]
+    }
+  },
+  "functions/EscortFollowPathTracker.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The spawner sets orbitAngle = initial facing + 1 (Lily: 4, so facing 3) or 0",
+          "with": "The spawner sets orbitAngle = initial facing + 1 (Lily in it1A_lily and the clerk in eu97_clerk2: 4, so facing 3; Lily in ir1C_lily: 3, so facing 2) or 0"
+        },
+        {
+          "find": "No other code uses $7EDF00.",
+          "with": "At the first idle frame the NPC shows orbitDiameter + the facing word of the head entry: seed 4 gives facing word 2 (animation $1C for Lily in it1A_lily), seed 3 gives facing word 3 (animation $1D for Lily in ir1C_lily). The region $7EDF00-$7EDF7F is shared: QuintetLzDecompress, FillHorizTilemapSeg, FillVertTilemapSeg, InterleaveTilesPriority and RenderPaletteTiles (scene_script), the credits copy in sF7_credits and the boot memory fill also read or write it."
+        },
+        {
+          "find": "whether a caller can reach that case is not traced.",
+          "with": "the carry was clear in every measured move (1016 facing writes: Lily and the clerk), so no run reached that case."
+        }
+      ]
+    }
+  }
+}

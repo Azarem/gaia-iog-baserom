@@ -25,7 +25,7 @@
 ; | $11 | 14 x 3 box at column 2, row $14 and the text 'Where do you go?' | 37 | the route menus ([TPL:11][SFX:0] Quit [N] ...) |
 ; | $12-$15 | the colours of $00, $01, $02 and $04 without the SFX tag (silent speaker colours) | 7 / 7 / 4 / 7 | Will:, Kara:, Will's mother:, Will's father: in the long cutscene strings |
 ; 
-; The speaker names come from the 'Name:' that follows the tag in the strings. Not traced: which of the two colour words is the glyph and which the outline. The table is 44 bytes, the 22 strings 229 bytes.
+; The speaker names come from the 'Name:' that follows the tag in the strings. The dialog glyph tiles are 2bpp with pixel value 1 for the body of each stroke (colour word 1, CGRAM $11, the lighter word), pixel value 2 for the top and bottom rows of the strokes (colour word 2, CGRAM $12, the darker word) and pixel value 3 (CGRAM $13, black unless a scene sets it) around the letters. The table is 44 bytes, the 22 strings 229 bytes.
 ---------------------------------------------
 
 ?BANK 01

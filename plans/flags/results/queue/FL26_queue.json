@@ -1,0 +1,132 @@
+[
+  {
+    "id": "FL26-01",
+    "flag": 141,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $8D (proposed wa_arrival_cutscene_started, bit 5 of byte $0A11) is set by wa78_intro at the start of the Watermia arrival cutscene; with it set the five av69 and five av6A party actors die at spawn and the Angel Village world-map exit (scene $69, tiles (29,0D)-(2C,0F)) offers menu $0A 'Quit / Watermia' instead of menu $15 'Quit only'.",
+    "start": {
+      "scene": 105,
+      "flags": [],
+      "form": "Will",
+      "state": "arrival scene not yet shown ($75 clear)"
+    },
+    "trial": {
+      "control": "load scene $69 with $8D and $75 clear; watch the five NPCs and the joypad lock; after the scene walk to tiles (29,0D)-(2C,0F)",
+      "forced": "write byte $0A11 |= $20 (the flag) before loading scene $69, then repeat; load scene $6A the same way",
+      "observe": [
+        "bit 5 of byte $0A11",
+        "actor list of scene $69 and $6A (five party actors present or absent)",
+        "world-map menu id staged by OverworldExitAngelVillageStage ($0A or $15)",
+        "screenshot of the menu"
+      ]
+    },
+    "confirms": "the flag is read by exactly these consumers: the ten party actors die and the exit menu includes Watermia",
+    "refutes": "any other behaviour at the exit, or party actors present with the flag set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL26-02",
+    "flag": 0,
+    "scope": { "scenes": [117] },
+    "priority": "P2",
+    "claim": "In scene $75 (Ishtar's test) the apprentice sets scratch $00 only when the scene starts with the player inside tiles (70,00)-(80,10), the fourth observation room; the player's idle, ladder and shimmy code then uses the alternate ('Shadow') sprite set, which is the 'The wind blew your hair around' difference of the last room.",
+    "start": {
+      "scene": 117,
+      "flags": [],
+      "form": "Will",
+      "state": "enter through warp #07 of scene $75 (lands at (0798,00B0)) and through warp #05 (lands at (0598,00B0), the third room, as a control)"
+    },
+    "trial": {
+      "control": "load scene $75 at the corridor (Y >= $F0), open door 0, stand still in the first room and read $0A00 bit 0 and the idle sprite",
+      "forced": "load scene $75 directly at pixel (0798,00B0) with $0AA6 = 7; repeat at (0598,00B0)",
+      "observe": [
+        "bit 0 of byte $0A00 after the apprentice's first tick",
+        "player idle sprite id (#00-#03 normal or #10-#13 alternate)",
+        "playerSpeedNs ($09B4) on the first frames",
+        "screenshot of Will standing in the room"
+      ]
+    },
+    "confirms": "$00 is set only in the fourth room and the idle sprite set changes there",
+    "refutes": "the byte is set in other rooms, or the idle sprite does not change",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL26-03",
+    "flag": 0,
+    "scope": { "scenes": [115] },
+    "priority": "P2",
+    "claim": "In scene $73 (waterfall tunnel) scratch $00 follows the player: set while the player stands in tiles (2A,17)-(2F,1D), clear elsewhere, and set at spawn (with the sound actor gone) when the player starts in tiles (00,00)-(40,10); the player code uses the alternate idle sprite set while it is set.",
+    "start": {
+      "scene": 115,
+      "flags": [],
+      "form": "Will",
+      "state": "enter from scene $72 (warp lands at (0080,01C0)) and from scene $74 (warps land at (0270,0060), (02E0,0060), (0350,0060))"
+    },
+    "trial": {
+      "control": "walk from the arrival point to tiles (2A,17)-(2F,1D) and back, reading $0A00 bit 0 every frame",
+      "forced": "load scene $73 directly at pixel (0100,0080) (inside the top-left start box)",
+      "observe": [
+        "bit 0 of byte $0A00 per frame",
+        "idle sprite id",
+        "whether APUIO0 ($2140) is written every fourth frame in the start-box case",
+        "screenshot inside the alcove"
+      ]
+    },
+    "confirms": "the byte toggles with the alcove box and the start box, and the idle sprite follows it",
+    "refutes": "the byte does not toggle or the sprite does not change",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL26-04",
+    "flag": 1,
+    "scope": { "scenes": [116] },
+    "priority": "P1",
+    "claim": "Using the Magic Dust (item #14) on Kara's picture sets scratch $01 of scene $74 and removes the item without testing $89; scratch $01 is lost on any scene load and av74_kara enters its rescue script only while the player carries item #14, so leaving scene $74 after using the dust (or using it before the test is passed) leaves the rescue unreachable.",
+    "start": {
+      "scene": 116,
+      "flags": [],
+      "form": "Will",
+      "state": "item #14 (Magic Dust) in the inventory, standing at tiles (07,08)-(09,0A); run once with av_ishtar_riddles_solved clear and once set"
+    },
+    "trial": {
+      "control": "with $89 set (flag 137, byte $0A11 bit 1), use the dust at (07,08)-(09,0A), interact with the picture, watch the rescue cutscene",
+      "forced": "with $89 clear, use the dust, walk out through any warp of scene $74 and back in, solve the test (or set $89 directly) and interact with the picture; also: with $89 set, use the dust, leave and re-enter before interacting",
+      "observe": [
+        "bit 1 of byte $0A00 (scratch $01) after each load",
+        "inventory slot of item #14",
+        "text printed by the picture's interact handler",
+        "bit 2 of byte $0A11 ($8A) and bit 4 ($8C)",
+        "screenshot of the picture handler text"
+      ]
+    },
+    "confirms": "the rescue is unreachable once the dust is spent without the kiss, or that another path restores it",
+    "refutes": "the item or the state survives the scene reload",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL26-05",
+    "flag": 1328,
+    "scope": null,
+    "priority": "P2",
+    "claim": "The word $0AA6 (aliasing global flag indices $0530-$053F) is reset to 0 by av6B_door when the village door opens, so Ishtar's test starts with 0; otherwise the value left by the tunnel scene (2) or by another cutscene is the start value of the door and room counter of scene $75.",
+    "start": {
+      "scene": 107,
+      "flags": [],
+      "form": "Will",
+      "state": "after the Angel Village arrival ($75 set); optionally set $0AA6 := 2 before loading scene $6B"
+    },
+    "trial": {
+      "control": "load scene $6B, open the village door, walk to scene $75 and read $0AA6 on entry",
+      "forced": "set $0AA6 := 5 and enter scene $75 through the scene-$74 warp (2A,06) without touching the door",
+      "observe": [
+        "word $0AA6 at scene $6B load, after the door opens and on entry to scene $75",
+        "which door of scene $75 responds first ('Don't hurry' versus opening)",
+        "screenshot of the corridor"
+      ]
+    },
+    "confirms": "the door reset gives 0 at test start and a stale value shifts which door opens first",
+    "refutes": "$0AA6 is reset elsewhere on the path or is ignored by the doors",
+    "needs": ["FR00"]
+  }
+]

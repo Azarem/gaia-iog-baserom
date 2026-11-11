@@ -1,0 +1,11 @@
+{
+  "system/engine/smooth_follow.asm": {
+    "partNotes": {
+      "SmoothFollowLookup": [
+        "Dither table for ComputeFollowStep: 17 rows (orbitAngle 0 = 45 degrees ... 16 = axis-aligned) of 16 words, each 0 or 1.",
+        "",
+        "ComputeFollowStep sums a window of loopCounter entries starting at the dither phase (orbitDiameter); that count is the minor-axis pixels moved this frame. Row 0 is all 1s (equal axes); later rows have fewer 1s as the aim gets closer to an axis."
+      ]
+    }
+  }
+}

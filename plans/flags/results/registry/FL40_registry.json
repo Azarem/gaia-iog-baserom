@@ -1,0 +1,352 @@
+{
+  "_note": "FL40 fragment: non-bitfield gates (items, form, counters). '_stateGates' is the stateGates section the FL40 task asks for; `npm run flags` rejects an unprefixed 'stateGates' key (top level accepts flags, proposals, domains; _ and $ keys are ignored), so the section is underscore-prefixed until the tool is extended. Sites are written as file:line {ROM offset}. Item ids are hex; names come from system_strings.item_name_table. 'key' = the item is tested by BranchIfHasItem / BranchIfItemEquipped or by its use handler to gate a door, NPC or scene.",
+  "flags": {},
+  "proposals": {
+    "180": [
+      {
+        "source": "FL40",
+        "scope": null,
+        "name": "da_neil_reunion_seen",
+        "summary": "Form gate: the Shadow statue in the Dark Space rooms stays locked while this flag is clear, and nothing in the statue code changes the form when the player is already Shadow.",
+        "kinds": ["gate-open", "form-latch"],
+        "roles": [
+          "test: system/dark_space/sE6_gaia.asm:1868 {586730}: BranchOnFlagByte #B4, #00 -> ShadowTransformLocked (clear = locked), then characterForm == 2 also returns",
+          "test: system/dark_space/sE6_gaia.asm:276 {579844}: DS_FreedanInputWait variant of the same room (FL30 lists three Dark Space tests of this flag)"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with the FL30 name da_neil_reunion_seen. FL40 adds only the form-gate role; the setter (daC8_neil) belongs to FL30/FL31."
+      }
+    ]
+  },
+  "_stateGates": {
+    "schema": 1,
+    "storage": {
+      "inventorySlots": "$0AB4-$0AC3: 16 bytes, one item id per byte, 0 = empty; GiveItemToPlayer fills the first empty slot",
+      "inventoryEquippedIndex": "$0AC4: slot index of the equipped item, $FFFF = none; BranchIfItemEquipped reads inventorySlots[$0AC4] (with $FFFF the read index wraps below the table: not verified at runtime)",
+      "inventoryEquippedType": "$0AC6",
+      "characterForm": "$0AD4: 0 Will, 1 Freedan, 2 Shadow",
+      "gemCount": "$0AD6, capped at 999",
+      "abilityBitmask": "$0AA2 = global flags $0510-$051F (Will slots 0-3 = bits 0-3, Freedan slots = bits 4-7); see FL15",
+      "hieroglyphSlots": "$0B28-$0B33: six words, $FFFF = empty, otherwise plate id 0-5"
+    },
+    "items": {
+      "1": {
+        "name": "Red Jewel", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": [
+          "actors/hidden_red_jewel.asm:67 {50829} (16 scenes: 01 03 13 15 30 39 6C 74 78 7B 91 9D AE C3 CC DF)",
+          "south_cape/south_cape/sc01_fisherman.asm:102 {296040}", "edward_castle/edward_castle/ec0A_right_guard.asm:51 {311822}",
+          "gold_ship/ship_wreck/gs2B_seth.asm:33 {366172}", "freejia/freejia/fr32_creep.asm:27 {374486}", "freejia/freejia/fr32_slaver2.asm:78 {374965}",
+          "watermia/lukes_house/wa79_lance.asm:87 {503071}", "euro/rolek_mansion/eu95_ann.asm:60 {515926}", "native_village/gorgon_hut/nvAE_stone_girl2.asm:50 {562093}",
+          "21 chest records (scene_chest_table, FL12)"
+        ],
+        "removedBy": [
+          "use: UseItem_RedJewel via RemoveEquippedItem (system/inventory/item_use_system.asm:208 {230617}), BCD jewelsCollected + 1",
+          "actors/jeweler_gem.asm:195 {577431} (hand-in loop)",
+          "fallback: wa7D_glass_opponent.asm:54 {495048}, wa79_kara.asm:62 {501175}, awBF_spirit_guide.asm:86 {564030}"
+        ],
+        "testedBy": ["actors/jeweler_gem.asm:158 {577374}, :196 {577434}", "fallback tests wa7D:46 {495029}, wa79_kara:57 {501165}, awBF:77 {564007}"],
+        "notes": "jewelsCollected ($0AB0, BCD) is also credited directly without an item: daC6_snake_panic.asm:149 {569368} (+2), dm40_trapped_slave.asm:95 {382947} (+3)."
+      },
+      "2": {
+        "name": "Prison Key", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["edward_castle/castle_prison/ec0B_cell.asm:133 {316205}"],
+        "removedBy": ["diamond_mine/mine_inner/dm47_sam.asm:56 {381562}, :66 {381578} (trade)"],
+        "testedBy": ["UseItem_PrisonKey (item_use_system.asm:288, doors flags $24 and $42 in scene $0B); not removed by use"],
+        "notes": "Persists from scene $0B until the Sam trade in scene $47."
+      },
+      "3": {
+        "name": "Incan Statue A", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["itory/itory_cave/it19_inca_statue_a.asm:26 {324467}"],
+        "removedBy": ["item_use_system.asm:358 {231095} (placed on the mantel in scene $1E, flag $30)"],
+        "testedBy": ["itory/lilys_house/it17_lily.asm:46 {321012} (dialog)", "itory/itory_village/it15_elder.asm:56 {321925} (dialog)"]
+      },
+      "4": {
+        "name": "Incan Statue B", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["itory/moon_tribe_cave/it1B_inca_statue_b.asm:26 {326367}"],
+        "removedBy": ["item_use_system.asm:440 {231373} (flag $31)"],
+        "testedBy": ["itory/moon_tribe_camp/it1A_lily.asm:94 {324848} (gate: sets flag $4A, offers the trip to the ruins)", "itory/itory_village/it15_elder.asm:55 {321920} (dialog)"]
+      },
+      "5": {
+        "name": "Incan Melody", "key": false, "grade": "UNKNOWN",
+        "givenBy": [],
+        "removedBy": [],
+        "testedBy": ["UseItem_IncanMelody (item_use_system.asm:483): in scene $18 sets flag $2E"],
+        "notes": "No giver: not a GiveItem operand, not a chest record, no constant $05 passed to GiveItemToPlayer (searches: 49 COP GiveItem operands, the 44 item chests, the 10 JSL GiveItemToPlayer sites including the pickup actors whose chatPtr ids are $80-$86). The use handler exists. Queued."
+      },
+      "6": {
+        "name": "Herb", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["freejia/freejia/fr32_herb.asm:25 {380727}", "actors/jeweler_gem.asm:269 {577563} (3-jewel tier, flag $E9)", "10 chest records (FL12)"],
+        "removedBy": ["use: UseItem_Herb via RemoveEquippedItem (item_use_system.asm:523 {231588}), hpToHeal = 8", "fallback: wa7D:72 {495080}, wa79_kara:91 {501224}, awBF:102 {564065}"],
+        "testedBy": ["fallback tests wa7D:47 {495034}, wa79_kara:58 {501170}, awBF:78 {564012}"]
+      },
+      "7": {
+        "name": "Blue Block", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["chest scene $1D (FL12)"],
+        "removedBy": ["item_use_system.asm:572 {231797} (UseItem_DiamondBlock_Place, flag $2F)"],
+        "testedBy": ["use handler tile and scene check only"]
+      },
+      "8": {
+        "name": "Wind Melody", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["incan_ruins/larai_cliff/ir1D_wind_melody.asm:47 {640443} (flag $32)"],
+        "removedBy": ["diamond_mine/mine_inner/dm47_sam.asm:67 {381581} (trade)"],
+        "testedBy": ["diamond_mine/mine_inner/dm47_sam.asm:54 {381553} (gate: trade branch)", "UseItem_WindFlute (Will only)"]
+      },
+      "9": {
+        "name": "Lola's Melody", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["south_cape/wills_house/sc06_lola.asm:184 {301538}"],
+        "removedBy": [],
+        "testedBy": ["south_cape/wills_house/sc06_lola.asm:122 {301439} (held: flag $35 and music)", "UseItem_LolaMelody (Will only; scenes $15, $11, $CD)"],
+        "notes": "No RemoveItem #09 in extracted code (search: all RemoveItem operands): the item stays for the rest of the game."
+      },
+      "10": {
+        "name": "Meat", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["edward_castle/edward_castle/ec0A_barrel_roast.asm:34 {315642}"],
+        "removedBy": ["item_use_system.asm:809 {232821} (scene $2F, needs flag $02, sets $03)"],
+        "testedBy": ["edward_castle/edward_castle/ec0A_kara.asm:171 {315278} (gate: Kara leaves the castle, flag $22, word $0119, QueueMapChange scene $06)"]
+      },
+      "11": {
+        "name": "Mine Key A", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["diamond_mine/mine_morgue/dm45_key.asm:35 {382160}"],
+        "removedBy": ["item_use_system.asm:843 {233010} (flag $5B)", "diamond_mine/mine_foyer/dm44_cell_door.asm:68 {382342}"],
+        "testedBy": ["diamond_mine/mine_foyer/dm44_cell_door.asm:31 {382283}"],
+        "notes": "Two redundant paths to the same flag: the use handler and the cell door actor."
+      },
+      "12": {
+        "name": "Mine Key B", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["diamond_mine/mine_main/dm3F_laborer.asm:119 {698197}"],
+        "removedBy": ["item_use_system.asm:871 {233139} (flag $5C)", "dm44_cell_door.asm:69 {382345}"],
+        "testedBy": ["dm44_cell_door.asm:36 {382290}"]
+      },
+      "13": {
+        "name": "Memory Melody", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["diamond_mine/mine_inner/dm47_sam.asm:83 {381614} (flag $5E)"],
+        "removedBy": ["item_use_system.asm:929 {233327} (UseItem_MemoryMelody_Effect, scratch flag $0F)"],
+        "testedBy": ["UseItem_MemoryMelody (Will only, flag $68 clear)"]
+      },
+      "14": {
+        "name": "Crystal Ball", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["4 chest records (scenes $4D, $50, $51, $53; FL12)"],
+        "removedBy": ["UseItem_CrystalBall via RemoveEquippedItem (flags $60-$63)"],
+        "testedBy": []
+      },
+      "15": {
+        "name": "Elevator Key", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["diamond_mine/mine_main/dm3F_laborer.asm:135 {698229}"],
+        "removedBy": ["item_use_system.asm:1023 {233707} (flag $69)", "diamond_mine/mine_main/dm3F_elevator_door.asm:36 {382574}"],
+        "testedBy": ["diamond_mine/mine_main/dm3F_elevator_door.asm:29 {382561} (BranchIfItemEquipped: must be the equipped item)"]
+      },
+      "16": {
+        "name": "Palace Key", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["seaside_palace/palace_main/sp5A_villagers.asm:126 {428789} (flag $85)"],
+        "removedBy": ["item_use_system.asm:1054 {233832} (flag word $0138)"],
+        "testedBy": []
+      },
+      "17": {
+        "name": "Purify Stone", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["seaside_palace/palace_coffins/sp5C_stone_coffin.asm:68 {430635}"],
+        "removedBy": ["item_use_system.asm:1086 {234036} (scratch flag $0E)"],
+        "testedBy": ["seaside_palace/palace_fountain/sp5D_fountain.asm:29 {431114} (gate: waits for scratch $0E)"]
+      },
+      "18": {
+        "name": "Statue of Hope", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["mu/mu_west/mu62_hope_statue.asm:29 {432312} (flag $79)", "mu/mu_west/mu62_hope_statue.asm:61 {432480} (flag $7F)"],
+        "removedBy": ["UseItem_StatueOfHope via RemoveEquippedItem (flags $7B, $7E)"],
+        "testedBy": []
+      },
+      "19": {
+        "name": "Rama Statue", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["2 chest records (scenes $5F, $60; FL12)"],
+        "removedBy": ["UseItem_RamaStatue via RemoveEquippedItem (flags $80, $81)"],
+        "testedBy": []
+      },
+      "20": {
+        "name": "Magic Dust", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["chest scene $74 (FL12)"],
+        "removedBy": ["item_use_system.asm:1205 {234430} (UseItem_MagicPowder, scene $74, scratch flag $01)"],
+        "testedBy": ["angel_village/angel_tunnel_rooms/av74_kara.asm:30 {446827} (gate: rescue sequence waits for scratch $01 and flag $8A)"]
+      },
+      "21": {
+        "name": "Blue Journal", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["watermia/lances_fathers_house/fireplace_journal.asm:31 {505053} (flag $8F set BEFORE the give)"],
+        "removedBy": [], "testedBy": [],
+        "notes": "A full inventory loses the item: overflow target is a bare RTL and flag $8F is already set."
+      },
+      "22": {
+        "name": "Lance's Letter", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["watermia/lukes_house/wa79_kara.asm:52 {501158}", "wa79_kara.asm:71 {501190} (retry)"],
+        "removedBy": [], "testedBy": []
+      },
+      "23": {
+        "name": "Necklace Stones", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["great_wall/gw82_necklace_stone.asm:46 {505307} (first stone only)"],
+        "removedBy": ["great_wall/wall_inner/gw8B_lance_lily.asm:76 {505858}"],
+        "testedBy": ["great_wall/gw82_necklace_stone.asm:45 {505302} (item is the first-stone latch; flags $98-$9F via SetFlagRaw for the others)"]
+      },
+      "24": {
+        "name": "Will", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["watermia/glass_players_house/wa7D_glass_opponent.asm:36 {495016}, :61 {495063}, :73 {495083}"],
+        "removedBy": [], "testedBy": [],
+        "notes": "Display-only item (UseItem_Will); discardable bit set (unexplained, see system_strings)."
+      },
+      "25": {
+        "name": "Teapot", "key": true, "grade": "INFERRED",
+        "givenBy": ["chest scene $A9 (FL12)"],
+        "removedBy": ["item_use_system.asm:1313 {235610} (flag $A8)"],
+        "testedBy": ["euro/geezer_central/eu92_rofsky.asm:35 {513551} (dialog variant)", "euro/geezer_central/eu92_erasquez.asm:22 {513962} (dialog variant)"],
+        "notes": "INFERRED because the two eu92 tests only choose a dialog template; the effect of the variant was not traced to a state change."
+      },
+      "26": {
+        "name": "Mushroom Drop", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["3 chest records (scenes $A4, $A6, $A7; FL12)"],
+        "removedBy": ["mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm:20 {518148}", "mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm:20 {518231}", "mtA5_mushroom_drop_gate_b.asm:19 {518314}"],
+        "testedBy": ["the use handler (UseItem_MushroomWater) sets scratch $01/$02; the gate actors wait on them and remove the item"]
+      },
+      "27": {
+        "name": "Bag of Gold (Prize Money)", "key": false, "grade": "UNKNOWN",
+        "givenBy": [], "removedBy": [], "testedBy": [],
+        "notes": "Display handler UseItem_PrizeMoney exists; no giver found (same searches as item 5). wa78_prize_kruk is a display actor."
+      },
+      "28": {
+        "name": "Black Glasses", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["angkor_wat/angkor_inner_courtyard/awBA_glasses.asm:35 {565153} (flag $BA)"],
+        "removedBy": [],
+        "testedBy": ["angkor_wat/angkor_shrine_crystal/awBC_blinding_light.asm:31 {563771}, :38 {563789}, :49 {563805} (equipped: suppresses the palette flash only)"]
+      },
+      "29": {
+        "name": "Gorgon Flower", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["angkor_wat/angkor_pinnacle/awBF_spirit_guide.asm:62 {563979}", ":93 {564045}", ":103 {564068}"],
+        "removedBy": ["item_use_system.asm:1439 {236081} only when flags $BF, $C0 and $C1 are all set"],
+        "testedBy": []
+      },
+      "30-35": {
+        "name": "Hieroglyph 1-6 (ids $1E-$23)", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["pyramid/heiroglyph_room/pyDA_lithograph1-6.asm (one each, flags $C2-$C7): {575408}, {575607}, {575775}, {575943}, {576111}, {576279}", "returned by GiveItemToPlayer: item_use_system plate swap, pyCD_puzzle.asm {576546} {576573} {576597} {576621} {576645} {576669}"],
+        "removedBy": ["UseItem_HieroglyphPlate via RemoveEquippedItem (item_use_system.asm:1542 {236319}); the plate id goes to hieroglyphSlots[$0AAC]"],
+        "testedBy": ["pyramid/puzzle_room/pyCD_explorer.asm:24-29 {573999} {574004} {574009} {574014} {574019} {574024} (any plate held: the explorer despawns)", "pyCD_puzzle.asm:25-139: slots 0..5 must hold plates 0..5 in order, then flag $D1"]
+      },
+      "36": {
+        "name": "Aura", "key": false, "grade": "INFERRED",
+        "givenBy": ["system/dark_space/sE6_gaia.asm:997 {580788} (GaiaHint_AuraItem, scene $CC hint, needs globalScriptIndex nonzero)", "sE6_gaia.asm:1469 {585559} (unreferenced AuraItemGrant)", "unused/dark_rewards.asm:206 {632864} (dead)"],
+        "removedBy": [],
+        "testedBy": ["sE6_gaia.asm:996 {580783}", "sE6_gaia.asm:1447 {585522}", "UseItem_Aura requires Shadow (form 2) (item_use_system.asm:1648 {236740})"],
+        "notes": "INFERRED: which Dark Space layout makes globalScriptIndex nonzero was read in sE6_gaia.asm:76-85 but not run."
+      },
+      "37": {
+        "name": "Lola's Letter", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["dao/dao/daC3_luggage_man.asm:70 {569774} (flag $B8)"], "removedBy": [], "testedBy": []
+      },
+      "38": {
+        "name": "Father's Journal", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["dao/dao/daC3_luggage_man.asm:71 {569779}"], "removedBy": [], "testedBy": []
+      },
+      "39": {
+        "name": "Crystal Ring", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["babel_tower/babel_lower_floors/btDF_crystal_ring.asm:120 {629335}"],
+        "removedBy": [],
+        "testedBy": ["btDF_crystal_ring.asm:38 {629147} (equipped), :42 {629162} (held): skip the ring event"],
+        "notes": "No flag is set when the ring is given: a preset that wants the event skipped must include item $27."
+      },
+      "40": {
+        "name": "Red Apple", "key": false, "grade": "VERIFIED-STATIC",
+        "givenBy": ["euro/euro/eu91_merchant_counter.asm:65 {508080} (no flag, only while none is held)"],
+        "removedBy": ["item_use_system.asm:1702 {237409} (eaten, hpToHeal = 1)", "euro/rolek_mansion/eu95_ann.asm:58 {515919}, :79 {515949} (trade for a Red Jewel, flags $E3, $E4, $E5)"],
+        "testedBy": ["eu91_merchant_counter.asm:63 {508071}", "eu95_ann.asm:50 {515897}"],
+        "notes": "The apple can be obtained repeatedly: the merchant gives one whenever the player holds none."
+      },
+      "56": {
+        "name": "Mystic Statue (ids $38-$3F share one name)", "key": true, "grade": "VERIFIED-STATIC",
+        "givenBy": ["chest scene $2E (FL12), item $38"],
+        "removedBy": ["gold_ship/ship_gold_interior/gs2E_crew2.asm:32 {362756}"],
+        "testedBy": ["gs2E_crew2.asm:21 {362736} (gate: ceremony in scene $FD)"],
+        "notes": "The other five statues are flags $F9-$FD set by the ceremony (statue_inventory_reward), not items."
+      }
+    },
+    "forms": [
+      { "scene": "0x12", "actor": "ec12_aqueduct_enemy", "site": "edward_castle/aqueduct_back/ec12_aqueduct_enemy.asm:19 {638738}", "form": "Will only", "effect": "Will: TSB $10 #$0200 at spawn; other forms skip it. What bit $0200 of the actor flags does is not traced.", "grade": "UNKNOWN" },
+      { "scene": "0x13", "actor": "ec13_lily", "site": "ec13_lily.asm:26 {638886}, :82 {639031}", "form": "not Will", "effect": "dialog, then Transform_FreedanToWill on the player actor", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x1C", "actor": "ir1C_lily", "site": "incan_ruins/incan_ruins_entrance/ir1C_lily.asm:98 {641728}", "form": "not Will", "effect": "Transform_FreedanToWill at spawn", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x29", "actor": "ir29_transform", "site": "incan_ruins/castoth_lair/ir29_transform.asm:38 {642989}", "form": "not Will", "effect": "dialog, Transform_FreedanToWill", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x29", "actor": "ir29_castoth", "site": "incan_ruins/ir29_castoth.asm:70 {694805}", "form": "not Shadow", "effect": "Transform_WillToShadow on boss start; Shadow skips it", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x8A", "actor": "gw8A_sand_fanger", "site": "great_wall/sand_fanger_lair/gw8A_sand_fanger.asm:71 {753708}", "form": "not Shadow", "effect": "Transform_WillToShadow on boss start", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x67", "actor": "mu67_vampires", "site": "mu/mu_vampire_lair/mu67_vampires.asm:50 {717160}", "form": "not Shadow", "effect": "Transform_WillToShadow on boss start", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x67", "actor": "mu67_bomb", "site": "mu/mu_vampire_lair/mu67_bomb.asm:42 {435259}", "form": "not Will", "effect": "after enemiesRemaining reaches 0: Transform_FreedanToWill", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x67", "actor": "mu67_erik", "site": "mu/mu_vampire_lair/mu67_erik.asm:18 {434881}", "form": "not Will", "effect": "$24 = $FFFF: the post-rescue line of Erik uses the other dialog string", "grade": "VERIFIED-STATIC" },
+      { "scene": "0xDD", "actor": "pyDD_mummy_queen", "site": "pyramid/mummy_queen_lair/pyDD_mummy_queen.asm:53 {763435}", "form": "not Shadow", "effect": "Transform_WillToShadow on boss start", "grade": "VERIFIED-STATIC" },
+      { "scene": "0xDD", "actor": "pyDD_mystic_statue", "site": "pyDD_mystic_statue.asm:44 {577115}", "form": "write", "effect": "STA characterForm = 0 (Will) before the ceremony warp", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x55", "actor": "sg55_viper", "site": "sky_garden/viper_lair/sg55_viper.asm:59 {708844}", "form": "not Shadow", "effect": "Transform_WillToShadow on boss start", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x55", "actor": "sg55_mystic_statue", "site": "sg55_mystic_statue.asm:67 {708254}", "form": "not Will", "effect": "Transform_FreedanToWill after the boss", "grade": "VERIFIED-STATIC" },
+      { "scene": "0xCD", "actor": "pyCD_jackal", "site": "pyramid/puzzle_room/pyCD_jackal.asm:92 {571627}", "form": "Freedan or Shadow", "effect": "form 1: Transform_FreedanToWill; form 2: Transform_ShadowToWill; Will: nothing", "grade": "VERIFIED-STATIC" },
+      { "scene": "0x85", "actor": "gw85_spin_dash_gate", "site": "great_wall/wall_rampway/gw85_spin_dash_gate.asm:25 {518415}", "form": "Will without Spin Dash", "effect": "form nonzero passes; Will passes with abilityBitmask bit 2; otherwise player field $14 := $03C0", "grade": "VERIFIED-STATIC" },
+      { "scene": "0xD4", "actor": "pyD4_falling_orb", "site": "pyramid/pyramid_trickle_a/pyD4_falling_orb.asm:52 {575278}", "form": "Freedan only", "effect": "the orb reacts only to Freedan in the player state tested ($7F0008 low byte $97, $28 = 1) near the orb: sets its raw flag (index $0E + $80) and falls", "grade": "INFERRED" },
+      { "scene": "any", "actor": "global_ambient_dispatcher", "site": "thinkers/global_ambient_dispatcher.asm:45 {49035}", "form": "all", "effect": "SwitchCase on $0AD4 picks the player palette at spawn", "grade": "VERIFIED-STATIC" },
+      { "scene": "any", "actor": "item_use_system", "site": "system/inventory/item_use_system.asm:589 {231834}, :680 {232356}, :888 {233239}", "form": "Will only", "effect": "Wind, Lola's and Memory Melody fail for Freedan and Shadow", "grade": "VERIFIED-STATIC" },
+      { "scene": "any", "actor": "item_use_system", "site": "system/inventory/item_use_system.asm:1648 {236740}", "form": "Shadow only", "effect": "UseItem_Aura fails for Will and Freedan", "grade": "VERIFIED-STATIC" },
+      { "scene": "0xE6", "actor": "sE6_gaia (Dark Space statues)", "site": "system/dark_space/sE6_gaia.asm:1214 {584236}, :1255 {584312}, :1557-1914, :1869 {586736}", "form": "all", "effect": "Freedan statue: first visit flag $F7; Shadow statue: needs flag $B4 and form != 2, first visit flag $DD; abilities acquired: Will ability returns to Will, Freedan ability makes Freedan", "grade": "VERIFIED-STATIC" },
+      { "scene": "writes", "actor": "game_over_sequence / WorldMapController / sE7 / sE8 / sF7 / unused", "site": "functions/game_over_sequence.asm:122 {54974}, :128 {54979}; system/world_map/WorldMapController.asm:103 {238327}; babel_tower/space_flight/sE7_space_flight_controller.asm:27 {847312}; babel_tower/comet_lair/sE8_dark_gaia.asm:357 {848330}; ending/ending_credits/sF7_credits_player.asm:24 {647176}", "form": "write", "effect": "real game over: Shadow in scene $E8, Will elsewhere; world map entry: Will; sE7 space flight: Shadow; sE8: Will; credits: Will", "grade": "VERIFIED-STATIC" }
+    ],
+    "formCops": "BranchIfBodyNe (COP #49, cop_handlers_actor_query.asm:206) compares characterForm to a byte operand; no script uses it (search: every COP [..] in extracted/). All form tests in scripts are direct LDA characterForm.",
+    "counters": {
+      "gemCount": {
+        "address": "$0AD6", "cap": 999,
+        "writers": ["system/inventory/inventory_mgmt.asm:135 {258052} (+1/+2/+5 gems via GiveItemToPlayer ids $83-$85)", "functions/game_over_sequence.asm:102 {54935} (-100 on revive), :116 {54957} (cleared on real game over)"],
+        "readers": ["system/engine/system_core.asm:437 {33364}, :446 {33382}, :490 {33481} (HUD digits)", "functions/game_over_sequence.asm:98 {54924} (>= 100 revives)", "edward_castle/castle_prison/ec0B_cell.asm:86 {316093}"],
+        "gates": "game over: 100 gems pays a revive at the last warp record, fewer gems resets form, HP and the 16 words of wramFlags", "grade": "VERIFIED-STATIC"
+      },
+      "jewelsCollected": {
+        "address": "$0AB0", "format": "BCD",
+        "writers": ["item_use_system.asm:213 {230628}", "actors/jeweler_gem.asm:191 {577427}", "wa7D:59 {495059}", "wa79_kara.asm:67 {501186}", "awBF_spirit_guide.asm:91 {564041}", "daC6_snake_panic.asm:152 {569375} (+2)", "dm40_trapped_slave.asm:98 {382954} (+3)"],
+        "readers": ["actors/jeweler_gem.asm:66-124 {577229...577340}: tiers 3, 5, 8, 12, 20, 30, 50"],
+        "gates": "jeweler tiers: 3 Herb ($E9), 5 DEF+1 ($EA), 8 MaxHP+1 ($EB), 12 STR+1 ($EC), 20 $0B16 = 1 ($ED), 30 $0B1C = 2 ($EE), 50 warp to scene $E9 (no flag, repeats on every talk)", "grade": "VERIFIED-STATIC"
+      },
+      "playerMaxHp": {
+        "address": "$0ACA",
+        "writers": ["system_core.asm:194 {32874} (init)", "inventory_mgmt.asm (item $80)", "jeweler_gem.asm:285 (tier 8)", "fr32_hp_jewel.asm:28 {380835} (flag $54)", "eu97_life_medicine.asm:43 {511272} (flag $F0)", "boss_clear_reward_handler.asm", "reward_actors.asm"],
+        "readers": ["edward_castle/aqueduct_entrance/ec0C_force_hint.asm:16 {318613}, :20 {318623}: the actor runs only while playerMaxHp == 8", "dc2F_adrift.asm:387 {367401}"],
+        "grade": "VERIFIED-STATIC"
+      },
+      "playerHp": {
+        "address": "$0ACE",
+        "gates": "dc2F_adrift.asm sets 8, 4, 1 at stages ({366456}, {366916}, {367305}); mu67_bomb.asm:180 {435978} sets 0 when the bomb countdown ends with enemies alive; wa78_glass_game.asm:617 {498377} sets 0 on the losing branch",
+        "grade": "VERIFIED-STATIC"
+      },
+      "playerStr/playerDef": { "address": "$0ADE / $0ADC", "writers": ["jeweler tiers 5 and 12", "boss_clear_reward_handler types 2, 3", "reward_actors", "eu93_found.asm:29 {517416} (STR +1)"], "grade": "VERIFIED-STATIC" },
+      "upgradeLevels": { "address": "$0B16 (Psycho Dash), $0B1A (Spin Dash, no writer), $0B1C (Dark Friar), $0B1E (Aura, no writer)", "writers": ["jeweler_gem.asm:312 {577626} ($0B16 = 1)", "jeweler_gem.asm:323 {577642} ($0B1C = 2)", "eu97_dark_medicine.asm:44 {511511} ($0B1C = 1 unless 2)"], "readers": ["actors/player/attack_ability_system.asm:440, 694, 729, 758, 1365"], "grade": "VERIFIED-STATIC" },
+      "abilityBitmask": { "address": "$0AA2", "writers": ["system/dark_space/sE6_gaia.asm:1291 {584382} (ORs the new ability)", "system_core.asm:219 {32946} (boot clear)"], "readers": ["attack_ability_system, player_character, gw85_spin_dash_gate, inventory status rows"], "gates": "see FL15 for the sixteen bits", "grade": "VERIFIED-STATIC" },
+      "dm3F_switch counter": { "address": "$0A01 (flag byte 1 = scratch flags $08-$0F)", "writers": ["dm3F_switch.asm:31 {380989} (STZ), :45 {381015} (INC per hit)"], "readers": ["dm3F_mine_collapse_trigger.asm:19 {381042}: == 4 sets flag word $0121"], "grade": "VERIFIED-STATIC" },
+      "kill byte $0A9F": { "address": "$0A9F (wramFlags byte 31, defeat bits of enemy slots)", "readers": ["great_wall/wall_tomb/gw88_tomb_dark_space.asm:18 {507380}: == $3F (six kills) opens the Dark Space"], "grade": "VERIFIED-STATIC" },
+      "plate bits $0A00": { "address": "$0A00 flags $01-$07", "readers": ["incan_ruins/stone_lord_plates/ir1F_plate_gate_opener.asm:19 {640148}: AND $1E == $1E (flags $01-$04)", "mu/mu_altar_room/mu66_rama_spirits.asm:89 {433951}: == $FE (flags $01-$07)"], "grade": "VERIFIED-STATIC" },
+      "enemiesRemaining": { "address": "$0AEC (binary) / $0AEE (BCD)", "writers": ["actor_execution.asm:1005 {249750} (INC per counted enemy)", "StandardEnemyDefeatHandler.asm, EnemyDefeatDispatch.asm, awB1_wall_walker, pyCC_mystic_ball (DEC)", "boss lairs STZ"], "readers": ["boss and lair scripts wait for 0 (ir29, mu67, pyDD, sg55, gw8A, it1B trial, sEA)"], "grade": "VERIFIED-STATIC" }
+    },
+    "stateWords": {
+      "$0AA6": {
+        "kind": "scene stage / bitmask word, saved with the game",
+        "users": [
+          "undersea tunnel scene $68: st68_campfire/erik/kara/lance/lily/mushrooms/neil read it into $0000 and SwitchCase (3 cases: 0, 1, 2); st68_erik {437836} and st68_lily {439643} INC it before QueueMapChange to the same scene; fr33_erik.asm:44 {380344} stores 7 (out of the case list range)",
+          "gold ship adrift scene $2F: dc2F_adrift SwitchCase #$0AA6, 7 cases, INC between stages ({366387} {366551} {367048} {367378} {367504} {367640})",
+          "angel tunnel test scene $75: av75_voice_rooms INC/DEC, av75_voice_doors compare, av75_apprentice LSR",
+          "Neil's cottage scene $49: na49_tank/wings/telescope/camera OR bits $01/$02/$04/$08; na49_neil reads and clears it",
+          "glass game (Watermia scene $78): wa78_glass_game ORs bits $01-$10 per round",
+          "sky garden $58/$59/$55: garden_crash_cutscene = 1 {238002}, sp58_descent_cutscene = 2 {426349}, sg55_mystic_statue = 0 {708341}; sp58_missed_flight, sp58_monologue, sp58_red_eye, sp58_descent_cutscene read it",
+          "clears: av6B_door {448378}, gs2B_erik {365289}, mu67_kara {436350}, na49_neil {383283}",
+          "item_use_system.asm:1541 {236316}: plate id while the plate handler runs"
+        ],
+        "grade": "VERIFIED-STATIC"
+      },
+      "$0AAC": {
+        "kind": "globalScriptIndex: general parameter word, not a flag",
+        "users": [
+          "Dark Space layout variant: actors/dark_space.asm:220 {579490} writes, sE6_gaia.asm:76 {579528} reads, :85 {579542} clears (the variant is kept in $0AB2)",
+          "statue ceremony index: gs2E_crew2 (0), sg55_mystic_statue (1), mu66_rama_spirits (2), gw8A_sand_fanger (3), pyDD_mystic_statue (4), btDE_olman (5); statue_inventory_reward.asm:107 {52674} compares, :136 {52743} reuses it as a 180-frame countdown",
+          "daC6_snake_panic: BCD snake counter ({569660} {569667}); compared with $51 at {569331}",
+          "sE6_gaia.asm:1192 {584192}: table index for the ability dialogue; :989 {580775} GaiaHint_AuraItem test",
+          "item_use_system.asm:1502-1532 {236258...236298} selects the plate slot 0-5; sFA_diary_menu.asm:365 {779274} restores it from $0AB2 after a load"
+        ],
+        "grade": "VERIFIED-STATIC"
+      },
+      "$0B02": { "kind": "read-only bias word", "users": ["13 reads in awB1_goldcap, ir1F_stone_guard, mtA1_fire_sprite, mu5F_cyclops, pyDD_mummy_queen, pyDD_queen_orb_shot, unused_mode7_boss"], "grade": "UNKNOWN", "notes": "No code writes it; meaning not established." },
+      "$0B06": { "kind": "saved scene id", "users": ["save_system.asm:52 {252197} stores sceneCurrent when saving; no extracted code reads $0B06 (search: every instruction operand $0B06 / $7E0B06 / $000B06). The diary slot picker shows sourceSceneId $0B12 instead, and a load always resumes in Dark Space scene $E6 with $0AB2 restored into $0AAC."], "grade": "VERIFIED-STATIC" },
+      "$0B08-$0B12": { "kind": "return record of the last warp / the ceremony trigger", "users": ["warps_interaction.asm:867-895 writes the warp rectangle and scroll bytes on every warp", "the six statue trigger scripts overwrite it with the return position", "sE6_gaia.asm:122-140 and statue_inventory_reward.asm:166-182 read it to return"], "grade": "VERIFIED-STATIC" },
+      "$0AF0-$0AF8": { "kind": "revive and save-point records", "users": ["sceneSaveData $0AF0/$0AF2 and reviveWarpPtr $0AF4/$0AF6 are written by every warp (warps_interaction.asm:852-855, :910-912) and by the SetSavePoint-style COP (cop_handlers_player_query.asm:101-105); boss lairs ir29_castoth, sEA_solid_arm, mu67_vampires and sg55_viper rewrite reviveWarpPtr/Bank; game_over_sequence.asm:107-110, :147-150 read them", "gameOverWakeupFlag $0AF8: INC at game_over_sequence.asm:170 {55055}, read by player_character.asm:99 {181156}, cleared at game_over_sequence.asm:236 {55196}"], "grade": "VERIFIED-STATIC" }
+    }
+  }
+}

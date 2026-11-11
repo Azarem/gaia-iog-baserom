@@ -42,10 +42,10 @@ ImpactSparkEffect {
     COP [AnimOnce]
     COP [Die]
 
-; Entered as the player's script. When per-scene flag #00 is set it stages anim $11 (PlayerIdleUseShadowSprite), otherwise anim $01, then loops AnimOnce until the caller redirects the player. What flag #00 means is not traced.
+; Entered as the player's script. When per-scene flag #00 is set it stages anim $11 (PlayerIdleFlaggedAnim), otherwise anim $01, then loops AnimOnce until the caller redirects the player. The choice depends only on the flag, not on the character form (measured: flag clear in scene $29 takes anim $01, flag set in scene $1D takes anim $11); scene_flag_init lists the scenes that set it.
 
   PlayerIdleAnimLoop:
-    COP [BranchOnFlagByte] ( #00, #01, &PlayerIdleUseShadowSprite ) ; Per-scene flag #00 set: anim $11, otherwise anim $01
+    COP [BranchOnFlagByte] ( #00, #01, &PlayerIdleFlaggedAnim ) ; Per-scene flag #00 set: anim $11, otherwise anim $01
     COP [StagePlayerSprite] ( #01 )
     BRA PlayerIdleAnimContinue
 }
@@ -53,7 +53,7 @@ ImpactSparkEffect {
 ---------------------------------------------
 ; Per-scene flag #00 set: stage anim $11 instead of $01.
 
-PlayerIdleUseShadowSprite {
+PlayerIdleFlaggedAnim {
     COP [StagePlayerSprite] ( #11 )
 
 ; Loop: SetEntryHere, AnimOnce, repeat. Each pass saves the loop as the re-entry point and plays the animation once.

@@ -1,0 +1,242 @@
+[
+  {
+    "id": "FL29-01",
+    "flag": 0,
+    "scope": { "scenes": [225] },
+    "priority": "P2",
+    "claim": "Scratch $00 (proposed bt_light_elevator_player_pose_cue) is set by btE1_light_elevator 239 ticks after the elevator starts; the eight idle / ladder / shimmy branches of player_character read it and take their alternate pose branch while it is set.",
+    "start": { "scene": 225, "flags": [], "form": "Will", "state": "player at the south end of the light elevator area, before the elevator tiles" },
+    "trial": {
+      "control": "step into the elevator tiles and watch the player sprite during the ride",
+      "forced": "set bit 0 of byte $0A00 while standing idle in any scene where the flag is clear and the joypad is idle",
+      "observe": ["bit 0 of byte $0A00", "player animation index while idle", "player sprite before and after the set"]
+    },
+    "confirms": "the idle pose changes when the byte is set and returns when it is clear",
+    "refutes": "the idle pose not changing with the byte",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL29-02",
+    "flag": 14,
+    "scope": { "scenes": [205] },
+    "priority": "P1",
+    "claim": "Scratch $0E (proposed py_melody_playable) is set when the Pyramid puzzle room loads (pyCD_jackal {571425}), so Lola's Melody has an effect on a first visit, before the six hieroglyph stones are collected: it sets $01 and the two flame statues fire.",
+    "start": { "scene": 205, "flags": [], "form": "Will", "state": "first entry to the puzzle room: $C2-$C7, $BB and $D0 clear, Lola's Melody in the inventory" },
+    "trial": {
+      "control": "use Lola's Melody in the puzzle room before any stone is taken",
+      "forced": "none (the first visit is the natural state)",
+      "observe": ["bit 6 of byte $0A01 ($0E) at room entry", "bit 1 of byte $0A00 ($01) after the melody", "the two flame statue actors", "the 'nothing happened' message"]
+    },
+    "confirms": "the melody works at once and the statues fire",
+    "refutes": "'nothing happened' on a first visit",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL29-03",
+    "flag": 15,
+    "scope": { "scenes": [214] },
+    "priority": "P2",
+    "claim": "Scratch $0F in scene $D6 (proposed py_vader_barrier_busy) is the shared busy interlock of the two Vader barriers: a hit sets it, swaps the solid row pair (y $2B-$2C and y $4B-$4C) through the counter at slot $1060 + $26 and clears it; a hit while it is set is ignored; neither file tests characterForm.",
+    "start": { "scene": 214, "flags": [], "form": "Will", "state": "scene $D6 entered, both barriers idle" },
+    "trial": {
+      "control": "hit the upper barrier with the sword and then the lower barrier a few frames later, in Will form and in Freedan form",
+      "forced": "set bit 7 of byte $0A01 ($0F) before the first hit: the hit is ignored",
+      "observe": ["bit 7 of byte $0A01", "the counter word of the barrier (slot offset $1060 + $26)", "solid rows y $2B-$2C and y $4B-$4C of the scene", "characterForm at each hit"]
+    },
+    "confirms": "the rows swap in every form and the interlock blocks the second hit",
+    "refutes": "any dependence on the player form, or the second hit not being ignored",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL29-04",
+    "flag": 242,
+    "scope": { "scenes": [212] },
+    "priority": "P1",
+    "claim": "Flag $F2 (proposed py_trickle_orbs_a_fallen) is set by whichever orb of the first group of scene $D4 triggers; the trigger needs the player in Freedan form (characterForm 1), body bank $97, animation index 1 and the player within the near zone #0C of the orb. The player action that stages bank $97 animation 1 is not traced.",
+    "start": { "scene": 212, "flags": ["$F2 clear"], "form": "Freedan", "state": "player next to the orb group at tiles (22,1B)-(24,1D)" },
+    "trial": {
+      "control": "stand next to an orb in Freedan form and try each Freedan action in turn",
+      "forced": "set the player animation index to 1 with body bank $97 while near an orb",
+      "observe": ["bit 2 of byte $0A1E ($F2)", "player animation index and body bank", "orb sprite y"]
+    },
+    "confirms": "the named action triggers the fall and sets the flag; the flag set makes the group fallen at the next load",
+    "refutes": "no Freedan action stages bank $97 animation 1, or a different form triggering",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL29-05",
+    "flag": 243,
+    "scope": { "scenes": [212] },
+    "priority": "P2",
+    "claim": "Flag $F3 (proposed py_trickle_orbs_b_fallen) is the same latch for the second orb group of scene $D4 (tiles (0C,4B)-(0E,4D), spawn byte #E7); the trigger is the one of $F2.",
+    "start": { "scene": 212, "flags": ["$F3 clear"], "form": "Freedan", "state": "player next to the second orb group" },
+    "trial": {
+      "control": "repeat the $F2 trial at the second group",
+      "forced": "set bit 3 of byte $0A1E before loading scene $D4: all four orbs of the group are drawn fallen",
+      "observe": ["bit 3 of byte $0A1E ($F3)", "orb sprites and collision at load with the flag forced"]
+    },
+    "confirms": "the second group uses $F3 and nothing else",
+    "refutes": "any shared use with $F2",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL29-06",
+    "flag": 212,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $D4 (bt_kara_following_will) is set when Kara joins in scene $DF (btDF_kara) and cleared by btDE_kara_missing when scene $E0 loads with $0178 set; with $D4 clear and $0178 set, the Kara of scene $E3 (btE3_kara) joins again when the player reaches (0080,01A0).",
+    "start": { "scene": 223, "flags": ["$D4 clear", "$0178 clear"], "form": "Will", "state": "Babel lower floors, player walking to tiles (70,09)-(72,0D)" },
+    "trial": {
+      "control": "meet Kara in scene $DF, walk to scene $E0, win the Neo Fanger fight (scene $F5, btF5_neo_fanger sets $0178) and re-enter scene $E0, then go to scene $E3",
+      "forced": "set bit 4 of byte $0A1A ($D4) and bit 0 of byte $0A2F ($0178), then load scene $E0: the dialog and the clear; load scene $E3 with $D4 clear: Kara joins",
+      "observe": ["bit 4 of byte $0A1A", "EscortFollowPathTracker actor in the list", "dialog 'Kara's not here...'", "btE3_kara state in scene $E3"]
+    },
+    "confirms": "the set / clear / re-join sequence",
+    "refutes": "$D4 staying set in scene $E0 or Kara joining in scene $E3 with $D4 set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL29-07",
+    "flag": 219,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $DB (proposed end_epilogue_first_half_done) is set by the first load of the epilogue (scene $E5) and never cleared in extracted/; it selects the second half on the next load. Whether it survives a load from a save made before the Dark Gaia fight (and a new game) is not traced.",
+    "start": { "scene": 232, "flags": ["$DB clear"], "form": "Will", "state": "Dark Gaia fight, final death callback about to run" },
+    "trial": {
+      "control": "win the fight and follow scene $E5 -> $90 -> $E5 -> $89 -> $F7 -> $F0; then load the save made before the fight and play the epilogue again",
+      "forced": "set bit 3 of byte $0A1B ($DB) and load scene $E5 from the debugger: the second half runs at once",
+      "observe": ["bit 3 of byte $0A1B", "scene id sequence", "which half of the epilogue plays on the replay"]
+    },
+    "confirms": "the flag selects the half and persists as read from the save",
+    "refutes": "the first half playing twice or the flag being reset by scene $F0 / a save",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL29-08",
+    "flag": 187,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine flag $BB (proposed py_jackal_scene_done) is set at the end of the Jackal's panic path in scene $CD; with it set the Jackal is a solid prop at tile (09,0B), Kara stands at (08,0B) waiting for $FC, and Lola's Melody prints 'nothing happened'.",
+    "start": { "scene": 205, "flags": ["$C2", "$C3", "$C4", "$C5", "$C6", "$C7"], "form": "Will", "state": "puzzle room with the six stones taken, $BB clear" },
+    "trial": {
+      "control": "enter the room, walk left as told, play Lola's Melody after the whisper, then leave and re-enter the room",
+      "forced": "set bit 3 of byte $0A17 ($BB) and load scene $CD",
+      "observe": ["bit 3 of byte $0A17", "Jackal and Kara positions at load", "melody message"]
+    },
+    "confirms": "the flag marks the finished scene and gates the three effects",
+    "refutes": "the flag being set earlier or the Jackal not turning into a prop",
+    "needs": ["FR00", "FL28-queue"]
+  },
+  {
+    "id": "FL29-09",
+    "flag": 208,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine flag $D0 (proposed py_kara_scene_done) is set by pyCD_kara after the flute-voice dialog (with $FC set) just before the scene change to $C8; with it set Kara of scene $CD dies at load.",
+    "start": { "scene": 205, "flags": ["$BB", "$FC"], "form": "Will", "state": "puzzle room after the Mummy Queen Mystic Statue ceremony" },
+    "trial": {
+      "control": "return to scene $CD after the ceremony and let Kara run",
+      "forced": "set bit 0 of byte $0A1A ($D0) and load scene $CD",
+      "observe": ["bit 0 of byte $0A1A", "Kara actor present or not", "scene id after the dialog"]
+    },
+    "confirms": "the setter and the die-at-load test",
+    "refutes": "Kara present with the flag set",
+    "needs": ["FR00", "FL28-queue"]
+  },
+  {
+    "id": "FL29-10",
+    "flag": 210,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine flag $D2 (proposed bt_entrance_monologue_seen) is set by btDE_monologue on the first load of scene $DE after the flight and makes the actor die on later loads.",
+    "start": { "scene": 222, "flags": ["$D2 clear"], "form": "Will", "state": "first arrival at the Babel entrance from scene $DC" },
+    "trial": {
+      "control": "arrive from the flight, read the monologue, leave and re-enter scene $DE",
+      "forced": "set bit 2 of byte $0A1A ($D2) before the arrival: no monologue",
+      "observe": ["bit 2 of byte $0A1A", "player lock during the monologue", "dialog 'The Tower of Babel was deathly quiet.'"]
+    },
+    "confirms": "once-only monologue gated by $D2",
+    "refutes": "the monologue replaying with the flag set",
+    "needs": ["FR00", "FL28-queue"]
+  },
+  {
+    "id": "FL29-11",
+    "flag": 255,
+    "scope": { "scenes": [232] },
+    "priority": "P1",
+    "claim": "Spine flag $FF (proposed sys_scene_setup_done): while it is clear, sE8_comet_display_config re-writes its register set every frame and the comet-lair HDMA thinkers re-run their init; once it is set they idle in the steady state.",
+    "start": { "scene": 232, "flags": [], "form": "Will", "state": "comet lair entering" },
+    "trial": {
+      "control": "enter scene $E8 and watch $FF and the display registers during the scene setup",
+      "forced": "clear bit 7 of byte $0A1F while the boss is idle: the display registers are re-written and the HDMA thinkers restart",
+      "observe": ["bit 7 of byte $0A1F", "the display register writes of sE8_comet_display_config per frame", "comet_lair_hdma_c_timed state"]
+    },
+    "confirms": "the latch behavior in this scene",
+    "refutes": "the thinkers ignoring $FF",
+    "needs": ["FR00", "FL10-queue"]
+  },
+  {
+    "id": "FL29-12",
+    "flag": 373,
+    "scope": { "scenes": [224] },
+    "priority": "P1",
+    "claim": "Spine flag $0175 (proposed bt_crystal_gate_a_open): the gate actor btE0_crystal_gate_a waits for it, then clears solid cells (71,38) and (72,38).",
+    "start": { "scene": 224, "flags": ["$0175 clear"], "form": "Will", "state": "Babel middle floors, player next to gate a" },
+    "trial": {
+      "control": "win the Neo Castoth fight (scene $F2, btF2_neo_castoth sets $0175) and walk to gate a",
+      "forced": "set bit 5 of byte $0A2E ($0175) with the player in the scene: the cells become passable",
+      "observe": ["bit 5 of byte $0A2E", "collision type at (71,38) and (72,38)", "the two crystal sprites"]
+    },
+    "confirms": "the gate opens on the flag alone",
+    "refutes": "any item or crystal requirement",
+    "needs": ["FR00", "FL22-queue"]
+  },
+  {
+    "id": "FL29-13",
+    "flag": 374,
+    "scope": { "scenes": [224] },
+    "priority": "P2",
+    "claim": "Spine flag $0176 (proposed bt_crystal_gate_b_open): btE0_crystal_gate_b waits for it, then clears solid cells (0D,28) and (0E,28).",
+    "start": { "scene": 224, "flags": ["$0176 clear"], "form": "Will", "state": "Babel middle floors, player next to gate b" },
+    "trial": {
+      "control": "win the Neo Viper fight (scene $F3, btF3_neo_viper sets $0176) and walk to gate b",
+      "forced": "set bit 6 of byte $0A2E ($0176) with the player in the scene",
+      "observe": ["bit 6 of byte $0A2E", "collision type at (0D,28) and (0E,28)"]
+    },
+    "confirms": "the gate opens on the flag alone",
+    "refutes": "any item or crystal requirement",
+    "needs": ["FR00", "FL24-queue"]
+  },
+  {
+    "id": "FL29-14",
+    "flag": 375,
+    "scope": { "scenes": [224] },
+    "priority": "P2",
+    "claim": "Spine flag $0177 (proposed bt_crystal_gate_c_open): btE0_crystal_gate_c waits for it, then clears solid cells (49,18) and (4A,18).",
+    "start": { "scene": 224, "flags": ["$0177 clear"], "form": "Will", "state": "Babel middle floors, player next to gate c" },
+    "trial": {
+      "control": "win the Neo Vampires fight (scene $F4, btF4_neo_female_vampire sets $0177) and walk to gate c",
+      "forced": "set bit 7 of byte $0A2E ($0177) with the player in the scene",
+      "observe": ["bit 7 of byte $0A2E", "collision type at (49,18) and (4A,18)"]
+    },
+    "confirms": "the gate opens on the flag alone",
+    "refutes": "any item or crystal requirement",
+    "needs": ["FR00", "FL25-queue"]
+  },
+  {
+    "id": "FL29-15",
+    "flag": 376,
+    "scope": { "scenes": [224, 222, 223, 225, 227] },
+    "priority": "P1",
+    "claim": "Spine flag $0178 (proposed bt_crystal_gate_d_open) has two readers in this scope: btE0_crystal_gate_d (clears solid cells (15,08) and (16,08)) and btDE_kara_missing (scene $E0 only: clears $D4 and prints 'Kara's not here...').",
+    "start": { "scene": 224, "flags": ["$0178 clear", "$D4 set"], "form": "Will", "state": "Babel middle floors with Kara following" },
+    "trial": {
+      "control": "win the Neo Fanger fight (scene $F5, btF5_neo_fanger sets $0178) and return to scene $E0",
+      "forced": "set bit 0 of byte $0A2F ($0178) and reload scene $E0 with $D4 set",
+      "observe": ["bit 0 of byte $0A2F", "bit 4 of byte $0A1A ($D4)", "collision at (15,08) and (16,08)", "dialog 'Kara's not here...'"]
+    },
+    "confirms": "one flag opens the gate and makes Kara vanish",
+    "refutes": "only one of the two effects",
+    "needs": ["FR00", "FL24-queue"]
+  }
+]

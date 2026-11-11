@@ -1,0 +1,769 @@
+[
+ {
+  "flag": 16,
+  "scope": {
+   "scenes": [
+    8
+   ]
+  },
+  "queueId": "FL32-20",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $08: arrival free (mask $0000, moves d+0+16 u+0+0 l-128+80 r+24+0)",
+   "clear": "Scene $08: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1330."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $08"
+ },
+ {
+  "flag": 21,
+  "scope": {
+   "scenes": [
+    2
+   ]
+  },
+  "queueId": "FL32-20",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $02: arrival free (mask $0000, moves d+0+16 u+0+0 l+536+480 r+0+0)",
+   "clear": "Scene $02: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $02"
+ },
+ {
+  "flag": 29,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": "FL32-20",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $06 with flag 22 and flag 61 set: arrival free (mask $0000); flags 29 and 37 alone leave the lock in place",
+   "clear": "Scene $06: with flag 22 set and the draft flags clear the Hamlet script locks the joypad (joypadMaskStd $CFF0) at arrival and the player does not move in the direction test (d+0+0 u+0+0 l+0+0 r+0+0)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $06"
+ },
+ {
+  "flag": 36,
+  "scope": {
+   "scenes": [
+    11
+   ]
+  },
+  "queueId": "FL32-21",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $0B: arrival free (mask $0000, moves d+0+16 u+0+0 l+0+0 r+0+0)",
+   "clear": "Scene $0B: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $0B"
+ },
+ {
+  "flag": 37,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": "FL32-20",
+  "verdict": "INCONCLUSIVE",
+  "grade": "INFERRED",
+  "effects": {
+   "set": "Scene $06 with flag 22 and flag 61 set: arrival free (mask $0000); flags 29 and 37 alone leave the lock in place",
+   "clear": "Scene $06: with flag 22 set and the draft flags clear the Hamlet script locks the joypad (joypadMaskStd $CFF0) at arrival and the player does not move in the direction test (d+0+0 u+0+0 l+0+0 r+0+0)."
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $06"
+ },
+ {
+  "flag": 41,
+  "scope": {
+   "scenes": [
+    233
+   ]
+  },
+  "queueId": "FL32-39",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $E9: arrival free (mask $0000, moves d+0+18 u+0+0 l+0+0 r+0+0)",
+   "clear": "Scene $E9: The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $E9"
+ },
+ {
+  "flag": 43,
+  "scope": {
+   "scenes": [
+    21
+   ]
+  },
+  "queueId": "FL32-22",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $15: arrival free (mask $0000, moves d+0+38 u+0-40 l-16+2 r+40+0)",
+   "clear": "Scene $15: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $15"
+ },
+ {
+  "flag": 61,
+  "scope": {
+   "scenes": [
+    6
+   ]
+  },
+  "queueId": "FL32-20",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $06 with flag 22 and flag 61 set: arrival free (mask $0000); flags 29 and 37 alone leave the lock in place",
+   "clear": "Scene $06: with flag 22 set and the draft flags clear the Hamlet script locks the joypad (joypadMaskStd $CFF0) at arrival and the player does not move in the direction test (d+0+0 u+0+0 l+0+0 r+0+0)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $06"
+ },
+ {
+  "flag": 63,
+  "scope": {
+   "scenes": [
+    10
+   ]
+  },
+  "queueId": "FL32-40",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $0A: arrival free (mask $0000, moves d+0+38 u+0-40 l-32+2 r+40+0)",
+   "clear": "Scene $0A: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 239 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 278."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $0A"
+ },
+ {
+  "flag": 73,
+  "scope": {
+   "scenes": [
+    26
+   ]
+  },
+  "queueId": "FL32-22",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $1A: arrival free (mask $0000, moves d+0+16 u+0-8 l-36+0 r+36+0)",
+   "clear": "Scene $1A: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 30 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $1A"
+ },
+ {
+  "flag": 75,
+  "scope": {
+   "scenes": [
+    28
+   ]
+  },
+  "queueId": "FL32-23",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $1C: arrival free (mask $0000, moves d+0+38 u+0-40 l-16+2 r+32+0)",
+   "clear": "Scene $1C: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 134."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $1C"
+ },
+ {
+  "flag": 76,
+  "scope": {
+   "scenes": [
+    44
+   ]
+  },
+  "queueId": "FL32-24",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $2C: arrival free (mask $0000, moves d+0+0 u+0+0 l-32+0 r+40+0)",
+   "clear": "Scene $2C: The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 378 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 398."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $2C"
+ },
+ {
+  "flag": 80,
+  "scope": {
+   "scenes": [
+    45
+   ]
+  },
+  "queueId": "FL32-24",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $2D: arrival free (mask $0000, moves d+0+16 u+8-40 l-8+8 r+40+0)",
+   "clear": "Scene $2D: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 98."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $2D"
+ },
+ {
+  "flag": 86,
+  "scope": {
+   "scenes": [
+    49
+   ]
+  },
+  "queueId": "FL32-25",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $31: arrival free (mask $0000, moves d+0+16 u+0+0 l-48-224 r+16+0)",
+   "clear": "Scene $31: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 212 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 662."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $31"
+ },
+ {
+  "flag": 88,
+  "scope": {
+   "scenes": [
+    57
+   ]
+  },
+  "queueId": "FL32-25",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $39: arrival free (mask $0000, moves d+0+16 u+0+0 l+0+0 r+552+96)",
+   "clear": "Scene $39: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 149 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 382."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $39"
+ },
+ {
+  "flag": 100,
+  "scope": {
+   "scenes": [
+    50
+   ]
+  },
+  "queueId": "FL32-25",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $32: arrival free (mask $0000, moves d+0+38 u+0-38 l-16+0 r+40+0)",
+   "clear": "Scene $32: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 61 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 374."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $32"
+ },
+ {
+  "flag": 106,
+  "scope": {
+   "scenes": [
+    62
+   ]
+  },
+  "queueId": "FL32-26",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $3E: arrival free (mask $0000, moves d+0+38 u+0-40 l-32+2 r+40+0)",
+   "clear": "Scene $3E: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50."
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $3E"
+ },
+ {
+  "flag": 107,
+  "scope": {
+   "scenes": [
+    76
+   ]
+  },
+  "queueId": "FL32-27",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $4C: arrival free (mask $0000, moves d+0+8 u+0-16 l-40+0 r+40+0)",
+   "clear": "Scene $4C: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $4C"
+ },
+ {
+  "flag": 108,
+  "scope": {
+   "scenes": [
+    29
+   ]
+  },
+  "queueId": "FL32-23",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $1D: arrival free (mask $0000, moves d+0+32 u+0-40 l-24+8 r+40+0)",
+   "clear": "Scene $1D: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $1D"
+ },
+ {
+  "flag": 110,
+  "scope": {
+   "scenes": [
+    90
+   ]
+  },
+  "queueId": "FL32-28",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $5A: arrival free (mask $0000, moves d+0+16 u+0-16 l-24+0 r+36+0)",
+   "clear": "Scene $5A: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $5A"
+ },
+ {
+  "flag": 112,
+  "scope": {
+   "scenes": [
+    93
+   ]
+  },
+  "queueId": "FL32-28",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $5D: arrival free (mask $0000, moves d+0+38 u+0-40 l-38+2 r+40+0)",
+   "clear": "Scene $5D: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $5D"
+ },
+ {
+  "flag": 117,
+  "scope": {
+   "scenes": [
+    105
+   ]
+  },
+  "queueId": "FL32-30",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $69: arrival free (mask $0000, moves d+0+13 u+0+5 l-256-32 r+0+0)",
+   "clear": "Scene $69: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 571."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $69"
+ },
+ {
+  "flag": 119,
+  "scope": {
+   "scenes": [
+    95
+   ]
+  },
+  "queueId": "FL32-29",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $5F: arrival free (mask $0000, moves d+0+38 u+0-40 l+0+0 r+0+0)",
+   "clear": "Scene $5F: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $5F"
+ },
+ {
+  "flag": 124,
+  "scope": {
+   "scenes": [
+    97
+   ]
+  },
+  "queueId": "FL32-29",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $61: arrival free (mask $0000, moves d+0+38 u+0-40 l-16+0 r+32+0)",
+   "clear": "Scene $61: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $61"
+ },
+ {
+  "flag": 130,
+  "scope": {
+   "scenes": [
+    102
+   ]
+  },
+  "queueId": "FL32-29",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $66: arrival free (mask $0000, moves d+0+16 u+0+0 l-40+0 r+40+0)",
+   "clear": "Scene $66: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $66"
+ },
+ {
+  "flag": 134,
+  "scope": {
+   "scenes": [
+    103
+   ]
+  },
+  "queueId": "FL32-41",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $67: arrival free (mask $0000, moves d+0+16 u+0+0 l-128-448 r+0+0)",
+   "clear": "Scene $67: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $67"
+ },
+ {
+  "flag": 141,
+  "scope": {
+   "scenes": [
+    120
+   ]
+  },
+  "queueId": "FL32-31",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $78: arrival free (mask $0000, moves d+0+38 u+0-38 l+0-14 r+0+0)",
+   "clear": "Scene $78: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 1526."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $78"
+ },
+ {
+  "flag": 145,
+  "scope": {
+   "scenes": [
+    121
+   ]
+  },
+  "queueId": "FL32-31",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $79: state dialog (mask $CFF0, displayModeFlags $2001)",
+   "clear": "Scene $79: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $79"
+ },
+ {
+  "flag": 149,
+  "scope": {
+   "scenes": [
+    125
+   ]
+  },
+  "queueId": "FL32-31",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $7D: arrival free (mask $0000, moves d+0+8 u+0+3 l+0+0 r+480+480)",
+   "clear": "Scene $7D: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $7D"
+ },
+ {
+  "flag": 157,
+  "scope": {
+   "scenes": [
+    130
+   ]
+  },
+  "queueId": "FL32-32",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $82: arrival free (mask $0000, moves d+0+16 u+0-32 l-40+0 r+40+0)",
+   "clear": "Scene $82: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $82"
+ },
+ {
+  "flag": 158,
+  "scope": {
+   "scenes": [
+    146
+   ]
+  },
+  "queueId": "FL32-33",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $92: arrival free (mask $0000, moves d+0+16 u+0+0 l+0+0 r+0+0)",
+   "clear": "Scene $92: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 74."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $92"
+ },
+ {
+  "flag": 165,
+  "scope": {
+   "scenes": [
+    145
+   ]
+  },
+  "queueId": "FL32-33",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $91: arrival free (mask $0000, moves d+0+38 u+0-40 l-38+2 r+40+0)",
+   "clear": "Scene $91: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 31 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 2462."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $91"
+ },
+ {
+  "flag": 167,
+  "scope": {
+   "scenes": [
+    160
+   ]
+  },
+  "queueId": "FL32-34",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $A0: arrival free (mask $0000, moves d+0+0 u+0+0 l-16+0 r+992+752)",
+   "clear": "Scene $A0: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $A0"
+ },
+ {
+  "flag": 169,
+  "scope": {
+   "scenes": [
+    106
+   ]
+  },
+  "queueId": "FL32-30",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $6A: arrival free (mask $0000, moves d+0+8 u+0-19 l+0+0 r+0+0)",
+   "clear": "Scene $6A: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $6A"
+ },
+ {
+  "flag": 171,
+  "scope": {
+   "scenes": [
+    150
+   ]
+  },
+  "queueId": "FL32-33",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $96: arrival free (mask $0000, moves d+0+16 u+0+0 l+888+384 r+16+0)",
+   "clear": "Scene $96: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 114."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $96"
+ },
+ {
+  "flag": 174,
+  "scope": {
+   "scenes": [
+    173
+   ]
+  },
+  "queueId": "FL32-35",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $AD: arrival free (mask $0000, moves d+0+16 u+0+0 l+0+0 r+0+0)",
+   "clear": "Scene $AD: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $AD"
+ },
+ {
+  "flag": 178,
+  "scope": {
+   "scenes": [
+    172
+   ]
+  },
+  "queueId": "FL32-35",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $AC: arrival free (mask $0000, moves d+0+38 u+0-40 l-38+2 r+40+0)",
+   "clear": "Scene $AC: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $AC"
+ },
+ {
+  "flag": 179,
+  "scope": {
+   "scenes": [
+    176
+   ]
+  },
+  "queueId": "FL32-36",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $B0: arrival free (mask $0000, moves d+0+38 u+0-40 l-38+2 r+40+0)",
+   "clear": "Scene $B0: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38."
+  },
+  "expectGrade": "INFERRED",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $B0"
+ },
+ {
+  "flag": 183,
+  "scope": {
+   "scenes": [
+    188
+   ]
+  },
+  "queueId": "FL32-36",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $BC: arrival free (mask $0000, moves d+0+38 u+0-40 l-8+0 r+16+0)",
+   "clear": "Scene $BC: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 29 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 38."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $BC"
+ },
+ {
+  "flag": 190,
+  "scope": {
+   "scenes": [
+    191
+   ]
+  },
+  "queueId": "FL32-36",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $BF: arrival free (mask $0000, moves d+0+38 u+0-40 l-8+0 r+16+0)",
+   "clear": "Scene $BF: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $BF"
+ },
+ {
+  "flag": 210,
+  "scope": {
+   "scenes": [
+    196,
+    200,
+    222
+   ]
+  },
+  "queueId": "FL32-37",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $C4: arrival free (mask $0000, moves d+0+16 u+0+0 l+24-32 r+32+0) Scene $C8: arrival free (mask $0000, moves d+0+16 u+0+0 l+120-16 r+34+0) Scene $DE: arrival free (mask $0000, moves d+0+38 u+0-40 l-38+2 r+40+0)",
+   "clear": "Scene $C4: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 26. Scene $C8: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 69 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 122. Scene $DE: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 51 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 62."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $C4, $C8, $DE"
+ },
+ {
+  "flag": 284,
+  "scope": {
+   "scenes": [
+    27
+   ]
+  },
+  "queueId": "FL32-22",
+  "verdict": "VERIFIED-RUNTIME",
+  "grade": "VERIFIED-RUNTIME",
+  "effects": {
+   "set": "Scene $1B: arrival free (mask $0000, moves d+0+16 u+0+0 l+0+0 r+0+0)",
+   "clear": "Scene $1B: The arrival locks the joypad (joypadMaskStd $065A = $CFF0) for 21 frames; a message box ($09EC bit $2000) then holds the player and does not close by itself within 1500 frames; with A pulses (physical A, 2 frames of every 12) the player is free from frame 50."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $1B"
+ },
+ {
+  "flag": 1280,
+  "scope": {
+   "scenes": [
+    41
+   ]
+  },
+  "queueId": "FL32-23",
+  "verdict": "CONTRADICTED",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $29: state locked (mask $EFF0, displayModeFlags $0000)",
+   "clear": "Scene $29: The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 171 frames; the player is free from frame 171 without input."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $29"
+ },
+ {
+  "flag": 1281,
+  "scope": {
+   "scenes": [
+    85
+   ]
+  },
+  "queueId": "FL32-27",
+  "verdict": "CONTRADICTED",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $55: state dialog (mask $FFF0, displayModeFlags $2000)",
+   "clear": "Scene $55: The arrival locks the joypad (joypadMaskStd $065A = $EFF0) for 82 frames; the player is free from frame 82 without input."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $55"
+ },
+ {
+  "flag": 1283,
+  "scope": {
+   "scenes": [
+    138
+   ]
+  },
+  "queueId": "FL32-32",
+  "verdict": "INCONCLUSIVE",
+  "grade": "VERIFIED-STATIC",
+  "effects": {
+   "set": "Scene $8A: arrival free (mask $0000, moves d+0+16 u+0-32 l-32+0 r+0+0)",
+   "clear": "Scene $8A: The arrival is free from the S01r story state (no lock reproduced)."
+  },
+  "expectGrade": "VERIFIED-STATIC",
+  "evidence": "FR40_20261106.md section Verdicts, scene rows $8A"
+ }
+]

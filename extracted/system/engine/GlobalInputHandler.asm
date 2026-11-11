@@ -1,6 +1,6 @@
 ; Main UI input dispatcher — menu, map, and item use button handling (229376–229567, Bank 03).
 ; 
-; Called once per frame from the main game loop (system_core) between warp/chest checks and actor execution. Handles the three primary UI buttons: Start (map/radar), Select (inventory), and the item-use button (Y $4000 in the vanilla game; this baserom's button-remap patch tests logical bit $0008 instead, applied through transforms.json).
+; Called once per frame from the main game loop (system_core) between warp/chest checks and actor execution. Handles the three primary UI buttons: Start (map/radar), Select (inventory), and the item-use button (logical $4000 in the vanilla game: physical B in the Type 1 map, physical Y in the identity map; this baserom's button-remap patch tests logical bit $0008 instead, applied through transforms.json, and physical B gives it).
 ; 
 ; === GUARD CONDITIONS ===
 ; 
@@ -17,7 +17,7 @@
 ; 
 ; - Start ($1000) → Map/Radar screen (toggle: stays up until Start is pressed again)
 ; - Select ($2000) → Inventory screen (OpenInventoryScreen)
-; - Item use (vanilla Y $4000, logical $0008 here) → Use equipped item (ItemUseDispatch)
+; - Item use (logical $4000 in the vanilla game, $0008 here) → Use equipped item (ItemUseDispatch)
 ; 
 ; === MAP/RADAR SCREEN ===
 ; 
@@ -31,7 +31,7 @@
 ; 
 ; === INVENTORY SCREEN ===
 ; 
-; Marks Select as consumed in joypadHeld ($2000 via TSB), syncs to VBlank, calls OpenInventoryScreen, then marks both Select ($2000) and vanilla Y ($4000) as consumed on return ($6000) to prevent an immediate re-trigger of the inventory or item use. This constant is not covered by the baserom's button-remap transforms, so the logical item-use bit $0008 is not consumed here.
+; Marks Select as consumed in joypadHeld ($2000 via TSB), syncs to VBlank, calls OpenInventoryScreen, then marks both Select ($2000) and logical $4000 (the vanilla item-use bit) as consumed on return ($6000) to prevent an immediate re-trigger of the inventory or item use. This constant is not covered by the baserom's button-remap transforms, so the logical item-use bit $0008 is not consumed here.
 ---------------------------------------------
 
 ?BANK 03
@@ -54,11 +54,11 @@
 
 ---------------------------------------------
 
-; Per-frame overworld UI input dispatcher — routes Start, Select, and Y buttons to map, inventory, and item use.
+; Per-frame overworld UI input dispatcher — routes the Start, Select and item-use buttons to map, inventory and item use.
 ; 
 ; Called from the main game loop each frame. Five guard conditions suppress input: pending scene transition (sceneNext nonzero), game over active ($0200), melody playing (IsMusicPlaying carry set), and guard/channel stance or script/ability lock ($2800) — though Start bypasses the $2800 guard.
 ; 
-; Button priority: Start ($1000) is checked first → map/radar. Then $2800 guard. Then Select ($2000) → inventory. Then the item-use button (vanilla Y $4000, logical $0008 here) → item use.
+; Button priority: Start ($1000) is checked first → map/radar. Then $2800 guard. Then Select ($2000) → inventory. Then the item-use button (logical $4000 in the vanilla game, $0008 here) → item use.
 ; 
 ; === MAP/RADAR PATH ===
 ; 
@@ -97,7 +97,7 @@ GlobalInputHandler {
     LDA $joypadCurrent    ; Check Select ($2000) → inventory screen
     BIT #$2000
     BNE loc_03803B
-    BIT #$0008            ; Item-use button: logical $0008 here (vanilla Y $4000) → use equipped item
+    BIT #$0008            ; Item-use bit: logical $0008 here (physical B gives $4008), $4000 in the vanilla game (physical B in Type 1) → use equipped item
     BEQ loc_038039
     JMP $&item_use_system.ItemUseDispatch ; JMP to ItemUseDispatch — control transfers without return address push
 
@@ -111,7 +111,7 @@ GlobalInputHandler {
     JSL $@vblank_joypad.VBlankWaitAndJoypad ; Sync to VBlank before opening inventory overlay
     JSL $@inventory_overlay.OpenInventoryScreen ; Open the full inventory screen UI
     JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMITIMEN = $01: NMI off, joypad auto-read stays on (OpenInventoryScreen already leaves it in this state)
-    LDA #$6000            ; $6000 = Select + vanilla Y: consume both on return so neither re-triggers at once (logical $0008 is not included)
+    LDA #$6000            ; $6000 = Select + logical $4000 (the vanilla item-use bit): consume both on return so neither re-triggers at once (logical $0008 is not included)
     TSB $joypadHeld
     PLP 
     RTL 

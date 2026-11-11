@@ -1,0 +1,277 @@
+[
+  {
+    "id": "FL21-01",
+    "flag": 33,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal ec_throne_room_done ($21): set by the fade-out helper of ec0A_throne_guard2 just before QueueMapChange #0B. With it set, scene $0A parks the left guard at (06,27) and the right, stair and Kara-door guards asleep, kills the prison guard, spawns the ten ec0A_torch1 and eleven ec0A_torch2 actors (they die when it is CLEAR), starts the red alarm palette (unless $22 is set), and Kara becomes the escort; scene $0E makes the two ec0E_statue actors inspectable instead of solid push blocks.",
+    "start": {
+      "scene": 10,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $0A with $21 clear (byte $0A04 bit 1) and list the actors: torches, guards, prison guard; screenshot the palette",
+      "forced": "set $21 and reload scene $0A; then load scene $0E with $21 clear and with $21 set and push the statue at tile (3D,11)",
+      "observe": [
+        "actor list of scene $0A (ec0A_torch1/2 present only when set; ec0A_prison_guard only when clear)",
+        "palette buffer (bundle #05 cycle) and COLDATA writes",
+        "left guard tile position and talk text",
+        "scene $0E statue: pushable or inspect dialog"
+      ]
+    },
+    "confirms": "torches, alarm palette and the parked guards appear only with $21 set; the prison guard only with it clear; the statue is a push block only with $21 clear",
+    "refutes": "torches exist with $21 clear, or the prison guard survives with $21 set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-02",
+    "flag": 36,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal ec_prison_cell_door_unlocked ($24): UseItem_PrisonKey sets it with word $0106 when Will uses the key inside door A's rectangle (0E,10)-(10,11) of scene $0B. With it set, the imprisonment scene never replays (ec0B_cell and ec0B_door die at spawn).",
+    "start": {
+      "scene": 11,
+      "flags": [35],
+      "form": "Will",
+      "state": "Prison Key (item #02) in the inventory, Will inside tiles (0E,10)-(10,11)"
+    },
+    "trial": {
+      "control": "use the Prison Key in door A and read byte $0A04 bit 4 and word flag $0106 (byte $0A20 bit 6)",
+      "forced": "save the state, set $24 only, and reload scene $0B",
+      "observe": [
+        "byte $0A04 bit 4 and byte $0A20 bit 6 after the use",
+        "actor list after reload (ec0B_cell, ec0B_door absent)",
+        "dialog on a second use ('The door is open.')"
+      ]
+    },
+    "confirms": "the key sets both bits; the reload with only $24 set has no cell and no door actor",
+    "refutes": "a cell or door actor still spawns with $24 set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-03",
+    "flag": 66,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal ec_prison_door_b_unlocked ($42): UseItem_PrisonKey sets it inside door B's rectangle (0A,17)-(0C,18) and clears the type nibble of tile (09,17); ec0B_guard repeats that ClearTypeAbs at every spawn while the flag is set.",
+    "start": {
+      "scene": 11,
+      "flags": [35],
+      "form": "Will",
+      "state": "Prison Key in the inventory, Will inside tiles (0A,17)-(0C,18)"
+    },
+    "trial": {
+      "control": "use the key there and read byte $0A08 bit 2 and the collision byte of tile (09,17) in $7FC000",
+      "forced": "set $42 only and reload scene $0B; read the collision byte of tile (09,17) before and after the reload",
+      "observe": [
+        "byte $0A08 bit 2",
+        "collision layer byte of tile (09,17) (type nibble)",
+        "the player's $0E word near the guard rectangle (0D,12)-(11,14): $3000 inside, $2000 outside"
+      ]
+    },
+    "confirms": "the type nibble of (09,17) is 0 after the use and after a reload with only $42 set",
+    "refutes": "the nibble is restored on reload",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-04",
+    "flag": 232,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal ma_solid_arm_intro_heard ($E8): sEA_solid_arm sets it before the intro dialog, not after the fight; actors/jeweler_gem dies in all six of its scenes once it is set. The shipped comment at jeweler_gem.asm:41 ('set by sEA_solid_arm after the Solid Arm fight') is wrong.",
+    "start": {
+      "scene": 234,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $EA with $E8 clear and watch byte $0A1D bit 0 from scene entry through the intro dialog to the first boss attack",
+      "forced": "set $E8 and load scene 1 (South Cape) and scene $32 (Freejia), then scene $EA again",
+      "observe": [
+        "byte $0A1D bit 0 at: entry, after WaitWord #$0120, after the dialog, at the boss's first shard rain",
+        "Jeweler Gem present or absent in the six scenes",
+        "intro dialog skipped on the second entry (music fade and dialog absent)"
+      ]
+    },
+    "confirms": "the bit turns on before the dialog and before any boss damage; the Gem is absent with it set; the second entry has no dialog",
+    "refutes": "the bit turns on only when the boss dies, or the Gem stays",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-05",
+    "flag": 255,
+    "scope": { "scenes": [10] },
+    "priority": "P3",
+    "claim": "Spine proposal sys_scene_setup_done ($FF) in scene $0A: edward_castle_alarm_palette sets $FF after each palette cycle (bundle #05) and waits for the engine to clear it; it runs only when $21 is set and $22 clear at spawn.",
+    "start": {
+      "scene": 10,
+      "flags": [33],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $0A with $21 set and $22 clear and watch byte $0A1F bit 7 every frame for 600 frames",
+      "forced": "open and close the inventory and watch the bit and the palette",
+      "observe": [
+        "byte $0A1F bit 7 per frame",
+        "palette colours animated by bundle #05",
+        "thinker list (edward_castle_alarm_palette alive)"
+      ]
+    },
+    "confirms": "the bit goes to 1 after the first cycle and returns to 0 only on scene setup or inventory use; the cycle restarts after each clear",
+    "refutes": "the thinker disappears or the bit clears without engine action",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-06",
+    "flag": 275,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal ec_aqueduct_door_open ($0113): set by ec11_button_voice on the on-time hit after Lola's Melody was played (scratch $02) and the countdown reached 3 (scratch $01); with it set the countdown and voice park and UseItem_LolaMelody does nothing in scene $11.",
+    "start": {
+      "scene": 17,
+      "flags": [],
+      "form": "Will",
+      "state": "Lola's Melody (item) in the inventory, Will within 3 tiles of tile (1C,07)"
+    },
+    "trial": {
+      "control": "play Lola's Melody, wait for the voice, hit the switch early (expect the 'Wait!' line and a restarted count), then hit it while the '3' digit shows",
+      "forced": "set word flag $0113 and play the melody again in scene $11",
+      "observe": [
+        "scratch bits 0-2 of byte $0A00 after each action",
+        "byte $0A22 bit 3 ($0113)",
+        "BG change #13 (the door)",
+        "dialog of the second melody use"
+      ]
+    },
+    "confirms": "$02 after the melody, $03 after the early hit, $01 only in the '3' window, $0113 and $02 cleared after the on-time hit; the second melody prints 'But nothing happened.'",
+    "refutes": "the door opens without $02, or $0113 is set by the early hit",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-07",
+    "flag": 281,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Spine proposal sc_wills_house_ransacked ($0119): the cellar helper of ec0A_kara sets it with $22 when Will presses the button on the steps with the yak roast; sc06_kara_return clears it later.",
+    "start": {
+      "scene": 10,
+      "flags": [33, 25, 26, 70],
+      "form": "Will",
+      "state": "yak roast (item #0A) in the inventory, Will in tiles (1E,2C)-(22,2D)"
+    },
+    "trial": {
+      "control": "press the button on the steps and read byte $0A23 bit 1 ($0119) and byte $0A04 bit 2 ($22) when scene $06 loads",
+      "forced": "repeat without the roast (expect the 'we should take food' line and no flag)",
+      "observe": [
+        "byte $0A23 bit 1 and byte $0A04 bit 2",
+        "scene $06 room art (ransacked or not)"
+      ]
+    },
+    "confirms": "both bits turn on at the same moment with the roast and neither without it",
+    "refutes": "$0119 is set by another actor first",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-08",
+    "flag": 67,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Owned flag $43 (ec_prison_door_c_open, UNKNOWN): ec0B_guard clears the type nibble of tile (14,17) when it is set; no static site sets it. Find out whether any play path sets byte $0A08 bit 3, and what tile (14,17) is.",
+    "start": {
+      "scene": 11,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "set a write breakpoint on $0A08 and play the prison, the escape and the following scenes; log every write with the mask and the PC",
+      "forced": "set $43 and reload scene $0B; read the collision byte of tile (14,17) before and after, and screenshot the tile",
+      "observe": [
+        "every write to $0A08 with the bit mask $08 (PC, scene)",
+        "collision byte of tile (14,17) in $7FC000 before and after the reload"
+      ]
+    },
+    "confirms": "either a writer is found (then the registry name is replaced) or none exists and the flag is dead code (grade stays UNKNOWN with a note)",
+    "refutes": "tile (14,17) is not touched by the forced reload",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-09",
+    "flag": 70,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Owned flag $46 (ec_castle_barrel_roast_taken, INFERRED): at scene load with $46 set, ec0A_barrel_roast runs code_04D0FF, which replays the pickup message ('You've found a large, yummy roast leg of yak!') and dies. The barrel is also armed by the pre-throne guard talk (scratch $01), so the roast might be reachable before the prison.",
+    "start": {
+      "scene": 10,
+      "flags": [33, 25, 26],
+      "form": "Will",
+      "state": "after the throne scene and the prison; Will in the castle, roast not yet taken"
+    },
+    "trial": {
+      "control": "talk to Kara, take the roast from the barrel, leave the castle by the front door (overworld) and come back; record whether the roast message and the fanfare play again at scene load",
+      "forced": "set $46 only and load scene $0A; repeat with $01-scratch armed pre-throne (flags clear except 63) and walk to the barrel at tile (28,3B)",
+      "observe": [
+        "message box and music #17 at scene load with $46 set",
+        "inventory count of item #0A before and after the reload",
+        "whether the barrel room is reachable before the throne scene"
+      ]
+    },
+    "confirms": "the message replays on load with $46 set; the roast is obtainable only after Kara's talk in the post-throne phase (or also pre-throne, to be recorded)",
+    "refutes": "the barrel dies silently when $46 is set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-10",
+    "flag": 0,
+    "scope": { "scenes": [11] },
+    "priority": "P3",
+    "claim": "Scratch $00 in scene $0B (row): the helper code_04DB00 of ec0B_cell re-issues AdhocVramDma (gfx_000000+A00 to VRAM $4700, $200 bytes) every frame while $00 is clear and nothing sets $00 in the scene.",
+    "start": {
+      "scene": 11,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $0B and watch VRAM $4700-$48FF writes and byte $0A00 bit 0 for 300 frames",
+      "forced": "open the inventory and close it, then watch the same",
+      "observe": [
+        "DMA count to VRAM $4700 per frame",
+        "byte $0A00 bit 0 before, during and after the inventory",
+        "whether the helper actor is still alive"
+      ]
+    },
+    "confirms": "one DMA per frame for the scene's life; bit 0 stays clear except inside the inventory overlay",
+    "refutes": "the DMA stops after the first frame, or $00 is set by a scene actor",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL21-11",
+    "flag": 1,
+    "scope": { "scenes": [10] },
+    "priority": "P3",
+    "claim": "Scratch $01 in scene $0A has two phases. Pre-throne, the Kara-door guard's talk sets it, which also arms ec0A_barrel_roast (its WaitOnFlagByte #01 is not gated on $21). Post-throne, Kara's talk sets it. Does the pre-throne arming make the roast reachable before the prison?",
+    "start": {
+      "scene": 10,
+      "flags": [63],
+      "form": "Will",
+      "state": "new game progress up to the letter; $21 clear"
+    },
+    "trial": {
+      "control": "talk once to the guard at Kara's door (tile (10,0C)), read byte $0A00 bit 1, then walk to the barrel at tile (28,3B) and press the action button",
+      "forced": "set scratch $01 by hand at scene load and try the barrel",
+      "observe": [
+        "byte $0A00 bit 1 after the guard talk",
+        "whether the barrel room is reachable and whether GiveItem #0A fires",
+        "$46 afterwards"
+      ]
+    },
+    "confirms": "either the barrel gives the roast early (a sequence break) or the room is blocked (then the arming is harmless)",
+    "refutes": "the bit is not set by the guard's talk",
+    "needs": ["FR00"]
+  }
+]

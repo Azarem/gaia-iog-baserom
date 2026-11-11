@@ -1,0 +1,1772 @@
+{
+  "_note": "FL12 fragment. flags: one full record per index of D4 that a chest record or a hidden_red_jewel placement reaches (46 chest flags $0201-$022E, 16 jewel flags $0280-$028F). No spine flags: every index of the range has users in one scene only. The old trace barrier_chest_flags (46 candidates $0201-$022E) is the chest list; there is no barrier table.",
+  "domains": {
+    "D4": {
+      "name": "chests and hidden Red Jewels",
+      "ranges": [
+        [
+          512,
+          767
+        ]
+      ],
+      "indexed": true,
+      "persistence": "save",
+      "lifecycle": "Bytes $0A40-$0A5F of the save block; no scene load, world-map entry or game over clears them (ClearSceneState zeroes only $0A00-$0A01, ClearAllWramFlags only $0A80-$0A9F) and no clear wrapper exists for the _0200 base, so a set bit stays for the life of the save. Chests use $0201-$022E (the record byte AND $7F, so the table can address only $0200-$027F); hidden Red Jewels use $0280-$028F (actor attribute >> 1 plus $80); the two ranges cannot collide. The other 194 indices have no reader and no writer.",
+      "access": "TestEventFlag_0200 (PlaceOpenedChestTiles, RadarPlotSceneMarkers, HiddenRedJewelInteract) and SetEventFlag_0200 (HandleChestInteraction twice, HiddenRedJewelInteract); no COP literal, no direct byte access and no other helper reaches $0200-$02FF."
+    }
+  },
+  "flags": {
+    "513": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_lockway_herb_chest_opened",
+          "area": "edward_castle",
+          "summary": "The Herb chest of scene $0E (aqueduct_lockway) at tile (04,1A) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:334 {110503}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_0E; record bytes 04 1A 06 01 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "514": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_treasure_red_jewel_chest_opened",
+          "area": "edward_castle",
+          "summary": "The Red Jewel chest of scene $10 (aqueduct_treasure) at tile (07,08) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:338 {110508}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_10; record bytes 07 08 01 02 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "515": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_back_red_jewel_chest_opened",
+          "area": "edward_castle",
+          "summary": "The Red Jewel chest of scene $12 (aqueduct_back) at tile (11,1E) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:342 {110513}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_12; record bytes 11 1E 01 03 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "516": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_larai_cliff_blue_block_chest_opened",
+          "area": "incan_ruins",
+          "summary": "The Blue Block chest of scene $1D (larai_cliff) at tile (06,06) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $07 (Blue Block), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:346 {110518}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_1D; record bytes 06 06 07 84 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "517": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_river_crossing_herb_chest_opened",
+          "area": "incan_ruins",
+          "summary": "The Herb chest of scene $21 (inca_river_crossing) at tile (02,17) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:350 {110523}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_21; record bytes 02 17 06 05 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "518": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_treasure_room_herb_chest_opened",
+          "area": "incan_ruins",
+          "summary": "The Herb chest of scene $26 (inca_treasure_room) at tile (10,1B) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:354 {110528}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_26; record bytes 10 1B 06 06 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "519": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ir_inca_treasure_room_red_jewel_chest_opened",
+          "area": "incan_ruins",
+          "summary": "The Red Jewel chest of scene $26 (inca_treasure_room) at tile (08,1F) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:355 {110532}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 1 of the scene list chest_list_scene_26; record bytes 08 1F 01 07 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "520": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gs_ship_gold_interior_mystic_statue_chest_opened",
+          "area": "gold_ship",
+          "summary": "The Mystic Statue chest of scene $2E (ship_gold_interior) at tile (25,19) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $38 (Mystic Statue), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:362 {110537}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_2E; record bytes 25 19 38 88 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "521": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "dm_mine_main_herb_chest_opened",
+          "area": "diamond_mine",
+          "summary": "The Herb chest of scene $3F (mine_main) at tile (38,27) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:366 {110542}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_3F; record bytes 38 27 06 09 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "522": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_east_crystal_ball_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Crystal Ball chest of scene $4D (garden_east) at tile (39,31) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $0E (Crystal Ball), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:373 {110547}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_4D; record bytes 39 31 0E 8A (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "523": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_east_herb_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Herb chest of scene $4D (garden_east) at tile (09,33) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:374 {110551}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 1 of the scene list chest_list_scene_4D; record bytes 09 33 06 0B (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "524": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_east_red_jewel_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Red Jewel chest of scene $4D (garden_east) at tile (34,05) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:375 {110555}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 2 of the scene list chest_list_scene_4D; record bytes 34 05 01 0C (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "525": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_southeast_underside_crystal_ball_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Crystal Ball chest of scene $50 (garden_southeast_underside) at tile (37,06) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $0E (Crystal Ball), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:379 {110560}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_50; record bytes 37 06 0E 8D (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "526": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_southwest_crystal_ball_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Crystal Ball chest of scene $51 (garden_southwest) at tile (03,2F) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $0E (Crystal Ball), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:383 {110565}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_51; record bytes 03 2F 0E 8E (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "527": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_southwest_underside_red_jewel_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Red Jewel chest of scene $52 (garden_southwest_underside) at tile (07,08) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:387 {110570}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_52; record bytes 07 08 01 0F (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "528": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_west_herb_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Herb chest of scene $53 (garden_west) at tile (35,32) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:391 {110575}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_53; record bytes 35 32 06 10 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "529": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sg_garden_west_crystal_ball_chest_opened",
+          "area": "sky_garden",
+          "summary": "The Crystal Ball chest of scene $53 (garden_west) at tile (31,36) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $0E (Crystal Ball), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:392 {110579}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 1 of the scene list chest_list_scene_53; record bytes 31 36 0E 91 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "530": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_palace_main_red_jewel_chest_opened",
+          "area": "seaside_palace",
+          "summary": "The Red Jewel chest of scene $5A (palace_main) at tile (37,1A) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:396 {110584}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_5A; record bytes 37 1A 01 12 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "531": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_palace_rooms_red_jewel_chest_opened",
+          "area": "seaside_palace",
+          "summary": "The Red Jewel chest of scene $5B (palace_rooms) at tile (07,07) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:400 {110589}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_5B; record bytes 07 07 01 13 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "532": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sp_palace_coffins_red_jewel_chest_opened",
+          "area": "seaside_palace",
+          "summary": "The Red Jewel chest of scene $5C (palace_coffins) at tile (09,17) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:404 {110594}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_5C; record bytes 09 17 01 14 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "533": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_entrance_rama_statue_chest_opened",
+          "area": "mu",
+          "summary": "The Rama Statue chest of scene $5F (mu_entrance) at tile (20,19) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $13 (Rama Statue), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:408 {110599}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_5F; record bytes 20 19 13 95 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "534": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_entrance_red_jewel_chest_opened",
+          "area": "mu",
+          "summary": "The Red Jewel chest of scene $5F (mu_entrance) at tile (2F,27) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:409 {110603}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 1 of the scene list chest_list_scene_5F; record bytes 2F 27 01 16 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "535": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_east_rama_statue_chest_opened",
+          "area": "mu",
+          "summary": "The Rama Statue chest of scene $60 (mu_east) at tile (2D,1C) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $13 (Rama Statue), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:417 {110612}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 1 of the scene list chest_list_scene_60; record bytes 2D 1C 13 97 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "536": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_south_empty_chest_opened",
+          "area": "mu",
+          "summary": "A flag-only chest (it shows \"It is empty!\" and grants nothing) of scene $61 (mu_south) at tile (0A,33) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: the flag-only chest shows \"It is empty!\", with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:424 {110617}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:362 {173901}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_61; record bytes 0A 33 00 18 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "537": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_river_red_jewel_chest_opened",
+          "area": "angel_village",
+          "summary": "The Red Jewel chest of scene $70 (angel_tunnel_river) at tile (07,28) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:428 {110622}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_70; record bytes 07 28 01 19 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "538": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_rooms_magic_dust_chest_opened",
+          "area": "angel_village",
+          "summary": "The Magic Dust chest of scene $74 (angel_tunnel_rooms) at tile (27,08) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $14 (Magic Dust), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:432 {110627}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_74; record bytes 27 08 14 9A (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "539": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_test_herb_chest_opened",
+          "area": "angel_village",
+          "summary": "The Herb chest of scene $75 (angel_tunnel_test) at tile (47,08) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:436 {110632}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_75; record bytes 47 08 06 1B (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "540": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_test_red_jewel_chest_opened",
+          "area": "angel_village",
+          "summary": "The Red Jewel chest of scene $75 (angel_tunnel_test) at tile (57,08) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:437 {110636}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 1 of the scene list chest_list_scene_75; record bytes 57 08 01 1C (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "541": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_dive_red_jewel_chest_opened",
+          "area": "great_wall",
+          "summary": "The Red Jewel chest of scene $83 (wall_dive) at tile (1A,59) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:441 {110641}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_83; record bytes 1A 59 01 1D (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "542": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "gw_wall_rampway_herb_chest_opened",
+          "area": "great_wall",
+          "summary": "The Herb chest of scene $85 (wall_rampway) at tile (05,1A) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:445 {110646}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_85; record bytes 05 1A 06 1E (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "543": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_crossroads_red_jewel_chest_opened",
+          "area": "mountain_temple",
+          "summary": "The Red Jewel chest of scene $A2 (kress_crossroads) at tile (18,36) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:449 {110651}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_A2; record bytes 18 36 01 1F (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "544": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_loop_mushroom_drop_chest_opened",
+          "area": "mountain_temple",
+          "summary": "The Mushroom Drop chest of scene $A4 (kress_loop) at tile (12,0B) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $1A (Mushroom Drop), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:453 {110656}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_A4; record bytes 12 0B 1A A0 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "545": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_mushrooms_mushroom_drop_chest_opened",
+          "area": "mountain_temple",
+          "summary": "The Mushroom Drop chest of scene $A6 (kress_mushrooms) at tile (05,08) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $1A (Mushroom Drop), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:457 {110661}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_A6; record bytes 05 08 1A A1 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "546": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_maze_mushroom_drop_chest_opened",
+          "area": "mountain_temple",
+          "summary": "The Mushroom Drop chest of scene $A7 (kress_maze) at tile (22,10) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $1A (Mushroom Drop), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:461 {110666}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_A7; record bytes 22 10 1A A2 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "547": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mt_kress_summit_teapot_chest_opened",
+          "area": "mountain_temple",
+          "summary": "The Teapot chest of scene $A9 (kress_summit) at tile (0E,05) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $19 (Teapot), with the fanfare (ChestOpeningActor). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:465 {110671}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_A9; record bytes 0E 05 19 A3 (flag byte bit 7 set: fanfare). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "548": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_outer_gate_red_jewel_chest_opened",
+          "area": "angkor_wat",
+          "summary": "The Red Jewel chest of scene $B1 (angkor_outer_gate) at tile (67,05) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:469 {110676}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_B1; record bytes 67 05 01 24 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "549": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_outer_west_herb_chest_opened",
+          "area": "angkor_wat",
+          "summary": "The Herb chest of scene $B5 (angkor_outer_west) at tile (07,4E) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:473 {110681}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_B5; record bytes 07 4E 06 25 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "550": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_inner_west_red_jewel_chest_opened",
+          "area": "angkor_wat",
+          "summary": "The Red Jewel chest of scene $B9 (angkor_inner_west) at tile (07,06) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:477 {110686}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_B9; record bytes 07 06 01 26 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "551": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_shrine_main_red_jewel_chest_opened",
+          "area": "angkor_wat",
+          "summary": "The Red Jewel chest of scene $BB (angkor_shrine_main) at tile (11,20) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:481 {110691}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_BB; record bytes 11 20 01 27 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "552": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "aw_angkor_shrine_upper_red_jewel_chest_opened",
+          "area": "angkor_wat",
+          "summary": "The Red Jewel chest of scene $BE (angkor_shrine_upper) at tile (05,16) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:485 {110696}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_BE; record bytes 05 16 01 28 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "553": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_meltdown_b_red_jewel_chest_opened",
+          "area": "pyramid",
+          "summary": "The Red Jewel chest of scene $D1 (pyramid_meltdown_b) at tile (37,59) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:489 {110701}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_D1; record bytes 37 59 01 29 (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "554": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_trickle_a_red_jewel_chest_opened",
+          "area": "pyramid",
+          "summary": "The Red Jewel chest of scene $D4 (pyramid_trickle_a) at tile (46,49) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:493 {110706}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_D4; record bytes 46 49 01 2A (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "555": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_vader_a_red_jewel_chest_opened",
+          "area": "pyramid",
+          "summary": "The Red Jewel chest of scene $D6 (pyramid_vader_a) at tile (47,09) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:497 {110711}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_D6; record bytes 47 09 01 2B (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "556": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_dangerslide_b_red_jewel_chest_opened",
+          "area": "pyramid",
+          "summary": "The Red Jewel chest of scene $D9 (pyramid_dangerslide_b) at tile (75,29) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $01 (Red Jewel), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:501 {110716}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_D9; record bytes 75 29 01 2C (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "557": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ma_mansion_herb_chest_opened",
+          "area": "mansion",
+          "summary": "The Herb chest of scene $E9 (mansion) at tile (37,16) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: GiveItemToPlayer gives item $06 (Herb), with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:505 {110721}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:405 {173994}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_E9; record bytes 37 16 06 2D (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "558": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "mu_mu_east_empty_chest_opened",
+          "area": "mu",
+          "summary": "A flag-only chest (it shows \"It is empty!\" and grants nothing) of scene $60 (mu_east) at tile (1E,18) has been opened.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "PlaceOpenedChestTiles draws the opened 2x2 pattern ($FE/$FF over $FC/$FD) at the record position on every scene build and inventory close; HandleChestInteraction does not trigger because the tile in front is no longer $F8/$F9, and the radar map omits the chest from its icons and its unopened count.",
+            "clear": "The chest is drawn closed; pushing up into it opens it: the flag-only chest shows \"It is empty!\", with the plain pickup dialogue (SFX #$2A). A full inventory leaves the flag clear and the chest closed."
+          },
+          "evidence": [
+            "extracted/tables/scene_chest_table.asm:416 {110608}",
+            "extracted/system/engine/warps_interaction.asm:169 {173575}",
+            "extracted/system/engine/radar_map_screen.asm:277 {230045}",
+            "extracted/system/engine/scene_lifecycle.asm:866 {253489}",
+            "extracted/system/inventory/inventory_overlay.asm:233 {192115}",
+            "extracted/system/engine/warps_interaction.asm:362 {173901}"
+          ],
+          "notes": "Chest record 0 of the scene list chest_list_scene_60; record bytes 1E 18 00 2E (flag byte bit 7 clear). The flag is the record byte AND $7F plus $0200; the offset is decoded from the ROM (the asm rows carry no line-tracking tag). The name is derived from the table, not from dialog text. Whether the scene map holds a closed chest tile pair ($F8/$F9) at the record position was not decoded."
+        }
+      ]
+    },
+    "640": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_lances_house_hidden_jewel_taken",
+          "area": "south_cape",
+          "summary": "The hidden Red Jewel of scene $03 (lances_house) at tile (07,18) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:960 {820090}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #04 of scene $03, attribute $01: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $0 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "641": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_south_cape_hidden_jewel_taken",
+          "area": "south_cape",
+          "summary": "The hidden Red Jewel of scene $01 (south_cape) at tile (08,0C) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:942 {819990}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #23 of scene $01, attribute $03: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $1 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "642": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "ec_aqueduct_exit_hidden_jewel_taken",
+          "area": "edward_castle",
+          "summary": "The hidden Red Jewel of scene $13 (aqueduct_exit) at tile (0D,18) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1235 {821950}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #03 of scene $13, attribute $05: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $2 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "643": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "it_itory_village_hidden_jewel_taken",
+          "area": "itory",
+          "summary": "The hidden Red Jewel of scene $15 (itory_village) at tile (25,28) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1261 {822094}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #11 of scene $15, attribute $07: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $3 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "644": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_oakton_hidden_jewel_taken",
+          "area": "freejia",
+          "summary": "The hidden Red Jewel of scene $30 (oakton) at tile (0F,0A) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1651 {824644}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #06 of scene $30, attribute $09: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $4 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "645": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "fr_freejia_hotel_hidden_jewel_taken",
+          "area": "freejia",
+          "summary": "The hidden Red Jewel of scene $39 (freejia_hotel) at tile (27,08) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:1759 {825252}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #07 of scene $39, attribute $0B: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $5 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "646": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_rooms_hidden_jewel_taken",
+          "area": "angel_village",
+          "summary": "The hidden Red Jewel of scene $6C (angel_rooms) at tile (23,09) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2647 {831326}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #18 of scene $6C, attribute $0D: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $6 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "647": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "av_angel_tunnel_rooms_hidden_jewel_taken",
+          "area": "angel_village",
+          "summary": "The hidden Red Jewel of scene $74 (angel_tunnel_rooms) at tile (15,09) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2805 {832420}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #04 of scene $74, attribute $0F: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $7 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "648": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_watermia_hidden_jewel_taken",
+          "area": "watermia",
+          "summary": "The hidden Red Jewel of scene $78 (watermia) at tile (12,38) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2874 {832865}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #2E of scene $78, attribute $11: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $8 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "649": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "wa_gambling_house_hidden_jewel_taken",
+          "area": "watermia",
+          "summary": "The hidden Red Jewel of scene $7B (gambling_house) at tile (1A,07) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:2908 {833054}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #0B of scene $7B, attribute $13: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $9 (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "650": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_euro_hidden_jewel_taken",
+          "area": "euro",
+          "summary": "The hidden Red Jewel of scene $91 (euro) at tile (27,32) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3263 {835411}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #39 of scene $91, attribute $15: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $A (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "651": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "eu_dark_chapel_hidden_jewel_taken",
+          "area": "euro",
+          "summary": "The hidden Red Jewel of scene $9D (dark_chapel) at tile (1E,1C) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3369 {835962}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #0B of scene $9D, attribute $17: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $B (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "652": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "nv_gorgon_hut_hidden_jewel_taken",
+          "area": "native_village",
+          "summary": "The hidden Red Jewel of scene $AE (gorgon_hut) at tile (03,0D) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:3707 {838418}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #08 of scene $AE, attribute $19: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $C (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "653": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "da_dao_hidden_jewel_taken",
+          "area": "dao",
+          "summary": "The hidden Red Jewel of scene $C3 (dao) at tile (28,05) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:4027 {840766}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #14 of scene $C3, attribute $1B: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $D (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "654": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "py_pyramid_main_hidden_jewel_taken",
+          "area": "pyramid",
+          "summary": "The hidden Red Jewel of scene $CC (pyramid_main) at tile (36,2A) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:4089 {841084}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #09 of scene $CC, attribute $1D: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $E (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    },
+    "655": {
+      "domain": "D4",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "bt_babel_lower_floors_hidden_jewel_taken",
+          "area": "babel_tower",
+          "summary": "The hidden Red Jewel of scene $DF (babel_lower_floors) at tile (3F,1A) has been picked up.",
+          "kinds": [
+            "reward-claimed"
+          ],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "HiddenRedJewelInteract returns without a message and gives nothing; the actor stays placed and idles.",
+            "clear": "Interacting gives item $01 (Red Jewel) through COP GiveItem and prints \"You found a Red Jewel!\", then sets the flag; a full inventory prints the full-inventory text and leaves the flag clear."
+          },
+          "evidence": [
+            "extracted/tables/scene_actors.asm:4481 {843922}",
+            "extracted/actors/hidden_red_jewel.asm:65 {50823}",
+            "extracted/actors/hidden_red_jewel.asm:72 {50844}",
+            "extracted/actors/hidden_red_jewel.asm:50 {50802}",
+            "extracted/system/engine/actor_execution.asm:962 {249662}",
+            "extracted/system/engine/actor_execution.asm:971 {249679}",
+            "extracted/system/engine/actor_execution.asm:972 {249680}"
+          ],
+          "notes": "Placement row #0A of scene $DF, attribute $1F: bit 0 set, so InitActorFromSceneData stores $0E = attribute >> 1 = $F (actor_execution.asm:970-972, offsets 249676-249680); the interact handler adds $80 and uses base $0200. The name is derived from the placement, not from dialog text. Not tested at spawn: the actor is always placed. No other scene row places hidden_red_jewel, and no COP spawns it."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,226 @@
+[
+  {
+    "id": "FL27-01",
+    "flag": 141,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $8D (proposed wa_arrival_cutscene_started, bit 5 of byte $0A11) is set in the middle of wa78_intro; the moving pad (wa78_moving_pad) and the camera-bob actor (wa78_lance_camera_pan, scenes $78 and $7F) wait for it, and with it set the Angel Village exit offers Watermia.",
+    "start": { "scene": 120, "flags": [], "form": "Will", "state": "first visit of scene $78 ($8D clear)" },
+    "trial": {
+      "control": "enter scene $78 with $8D clear and watch the intro, the pad at tile (4C,2E) and the camera Y",
+      "forced": "set byte $0A11 |= $20 before loading scene $78: the intro is skipped, the pad starts moving and the camera bobs from the first frame",
+      "observe": ["bit 5 of byte $0A11", "joypad lock ($065A) during the intro", "position of wa78_moving_pad over 600 frames", "cameraTargetY each frame"]
+    },
+    "confirms": "the intro is gated by $8D and the pad and camera actors wait for it",
+    "refutes": "the pad moving or the camera bobbing during the intro",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-02",
+    "flag": 148,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $94 (proposed wa_party_left_for_euro, bit 4 of byte $0A12) is set by wa79_neil on the departure talk; Neil, Erik, Kara and the prize Kruks die at spawn and the Watermia world-map exit offers menu $0E.",
+    "start": { "scene": 121, "flags": ["$97"], "form": "Will", "state": "after the glass game, $A5 clear" },
+    "trial": {
+      "control": "load scene $79 with $97 set, talk to Neil without talking to Lance first (Neil must say the 'You got Kruks?' text), then talk to Lance, then Neil again",
+      "forced": "set bit 4 of byte $0A12 before loading scene $79 and scene $78",
+      "observe": ["bit 4 of byte $0A12", "actor list of scene $79 (Neil, Erik, Kara present or absent)", "prize Kruks of scene $78", "world-map menu id at the Watermia exit ($0B/$0C/$0E)"]
+    },
+    "confirms": "the byte gates the four actors and the exit menu, and the Lance-then-Neil order matters (scratch $01 of scene $79)",
+    "refutes": "Neil starting the trip without the Lance talk",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-03",
+    "flag": 150,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $96 (proposed wa_festival_night_active, bit 6 of byte $0A12) is set by the Great Wall reunion (gw8B) and cleared by the end of the Russian Glass game; with it set scene $78 uses pal_watermia_dark (scene_meta gate), the festival thinker runs and wa78_glass_game spawns the ten game children.",
+    "start": { "scene": 120, "flags": ["$8D", "$91"], "form": "Will", "state": "after the exchange scene" },
+    "trial": {
+      "control": "load scene $78 with $96 clear and $97 clear, talk to the wandering glass actor ('On full moon nights...')",
+      "forced": "set bit 6 of byte $0A12 and reload scene $78: dark palette, festival palette flash, opponent at tile (48,0B); talk to the opponent and play the five rounds",
+      "observe": ["bit 6 of byte $0A12 and bit 7 of $0A12 ($97) before and after the game", "palette of scene $78", "actor list (ten children)", "$0AA6 bit pattern after each glass"]
+    },
+    "confirms": "$96 is cleared and $97 set at the end of the game, and it drives the palette, the thinker and the game actor",
+    "refutes": "any of the three effects missing with $96 set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-04",
+    "flag": 157,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $9D (proposed gw_trail_intro_seen, bit 5 of byte $0A13) is set by gw82_trail_intro; in scene $78 the wa78_men instance with spawn parameter #0B (Luke) dies when it is set.",
+    "start": { "scene": 120, "flags": [], "form": "Will", "state": "$9D clear" },
+    "trial": {
+      "control": "load scene $78 with $9D clear and talk to the man at tile (39,11) ('Luke: Take care of my house.')",
+      "forced": "set bit 5 of byte $0A13 and reload scene $78",
+      "observe": ["bit 5 of byte $0A13", "presence and collision of the man at (39,11)", "the other eleven wa78_men instances (scenes $78 $7B $7E) unchanged"]
+    },
+    "confirms": "only the Luke instance reads the flag",
+    "refutes": "any other instance disappearing",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-05",
+    "flag": 159,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $9F (proposed eu_mt_kress_marked_on_map, bit 7 of byte $0A13) is set by eu92_erasquez when the player holds the Teapot and talks to him; the Euro world-map exit then offers menu $10 (Quit / Mt.Temple / Watermia) instead of menu $0F.",
+    "start": { "scene": 146, "flags": ["$9E"], "form": "Will", "state": "Teapot (item $19) in the inventory, $AC clear" },
+    "trial": {
+      "control": "talk to Erasquez without the Teapot ('I feel the presence of evil...'), then walk to the Euro exit tiles (3F,42)-(40,48)",
+      "forced": "give the Teapot, talk to Erasquez ('At the right time, go to Mt.Kress...'), walk to the exit",
+      "observe": ["bit 7 of byte $0A13", "world-map menu id staged by OverworldExitEuroStage ($0F or $10)", "screenshot of the menu"]
+    },
+    "confirms": "the flag is set only with the Teapot and adds Mt.Temple to the menu",
+    "refutes": "the flag set without the Teapot",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-06",
+    "flag": 167,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $A7 (proposed mt_kress_intro_seen, bit 7 of byte $0A14) is set by mtA0_intro; Friezer, Max and Rudy in scene $9A die at spawn when it is set.",
+    "start": { "scene": 154, "flags": [], "form": "Will", "state": "$A7 clear" },
+    "trial": {
+      "control": "load scene $9A with $A7 clear and talk to the three explorers",
+      "forced": "set bit 7 of byte $0A14 and reload scene $9A",
+      "observe": ["bit 7 of byte $0A14", "presence of eu9A_friezer, eu9A_max, eu9A_rudy"]
+    },
+    "confirms": "the three actors read only $A7",
+    "refutes": "any of the three present with the flag set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-07",
+    "flag": 168,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Flag $A8 (proposed eu_teapot_used_in_mansion, bit 0 of byte $0A15) is set by UseItem_Teapot in scene $95 (tiles (28,09)-(2D,0D)); Neil's father and mother start the Moon Tribe reveal and die at the next spawn, and Neil switches to the emotional dialog.",
+    "start": { "scene": 149, "flags": ["$A5", "$A4"], "form": "Will", "state": "Teapot (item $19) in the inventory" },
+    "trial": {
+      "control": "enter scene $95 and talk to Neil, his father and his mother",
+      "forced": "use the Teapot inside the tile box; then repeat with the Teapot used outside the box",
+      "observe": ["bit 0 of byte $0A15", "joypad lock ($EFFC) on the father", "music change #1B then #04", "item $19 removed or not"]
+    },
+    "confirms": "$A8 is set only by the use inside the box and starts both waits",
+    "refutes": "a set outside the box or the waits not starting",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-08",
+    "flag": 172,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Flag $AC (proposed nv_party_arrived_native_village, bit 4 of byte $0A15) is set by nvAC_kara; Neil, Kara and Erik of the Euro guest room die at spawn and the Euro world-map exit offers menu $1A.",
+    "start": { "scene": 150, "flags": ["$AA", "$AB"], "form": "Will", "state": "$AC clear" },
+    "trial": {
+      "control": "load scene $96 with $AB set, talk to Kara (departure to scene $AC)",
+      "forced": "set bit 4 of byte $0A15 and reload scene $96 and the Euro exit",
+      "observe": ["bit 4 of byte $0A15", "actor list of scene $96", "world-map menu id ($0F, $10 or $1A)"]
+    },
+    "confirms": "the byte gates the three actors and the menu",
+    "refutes": "an actor present with the flag set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-09",
+    "flag": 0,
+    "scope": { "scenes": [120] },
+    "priority": "P3",
+    "claim": "In scene $78 scratch $00 is set at spawn by scene_flag_init and never cleared there; the player's idle sprites are the alternate (#10-#13) set for the whole visit.",
+    "start": { "scene": 120, "flags": [], "form": "Will", "state": "enter through the Angel Village or Great Wall exit" },
+    "trial": {
+      "control": "stand still in scene $78 and read bit 0 of $0A00 and the idle sprite id",
+      "forced": "clear bit 0 of $0A00 every frame and compare the idle sprite",
+      "observe": ["bit 0 of byte $0A00", "player idle sprite id (#00-#03 or #10-#13)", "screenshot of both poses"]
+    },
+    "confirms": "scratch $00 selects the alternate idle set in scene $78",
+    "refutes": "no sprite change when the byte is cleared",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-10",
+    "flag": 0,
+    "scope": { "scenes": [157] },
+    "priority": "P3",
+    "claim": "In scene $9D the altar actor sets scratch $00 while the player is inside tiles (0F,07)-(10,09); the idle sprites switch to the alternate set there.",
+    "start": { "scene": 157, "flags": [], "form": "Will", "state": "dark chapel, altar not yet opened" },
+    "trial": {
+      "control": "walk through tiles (0F,07)-(10,09) and watch bit 0 of $0A00 and the idle sprite",
+      "forced": "write the byte outside the box",
+      "observe": ["bit 0 of byte $0A00", "idle sprite id", "screenshot"]
+    },
+    "confirms": "the alternate pose appears exactly inside the box",
+    "refutes": "no pose change or a change outside the box",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-11",
+    "flag": 15,
+    "scope": { "scenes": [120] },
+    "priority": "P3",
+    "claim": "In the Russian Glass game the fifth glass (bit $01 of $0AA6, answer Yes writes playerHp := 0) can only be reached with scratch $0F set; the main actor sets $0F only before rounds 1-4.",
+    "start": { "scene": 120, "flags": ["$96"], "form": "Will", "state": "game started, rounds 1-4 played" },
+    "trial": {
+      "control": "play rounds 1-4 in order (glass, then opponent) and then the fifth glass; log bit 7 of $0A01 at every talk",
+      "forced": "write bit 7 of $0A01 ($0F) and talk to the fifth glass",
+      "observe": ["bit 7 of byte $0A01", "$0AA6 bit pattern", "playerHp after the Yes answer", "dialog printed for each glass"]
+    },
+    "confirms": "how the fifth glass is reached and when $0F is set or clear",
+    "refutes": "the fifth glass being usable before round 4",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-12",
+    "flag": 143,
+    "scope": null,
+    "priority": "P2",
+    "claim": "fireplace_journal sets $8F before GiveItem #15; with a full inventory GiveItem jumps to a bare RTL, the flag stays set and the journal cannot be taken again.",
+    "start": { "scene": 122, "flags": [], "form": "Will", "state": "inventory full (every slot used)" },
+    "trial": {
+      "control": "interact with the fireplace with a free slot: the journal is given, bit 7 of $0A11 set",
+      "forced": "fill the inventory, interact; leave and re-enter scene $7A",
+      "observe": ["bit 7 of byte $0A11", "inventory list", "presence of the fireplace actor after the reload", "dialog text"]
+    },
+    "confirms": "the journal is lost when the inventory is full",
+    "refutes": "the actor surviving the reload or the journal being given later",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-13",
+    "flag": 146,
+    "scope": null,
+    "priority": "P3",
+    "claim": "wa79_kara's inventory-full branch falls through into code_07A5B7 (RemoveItem #01 and +1 on jewelsCollected) when the player holds neither a Red Jewel nor a Herb.",
+    "start": { "scene": 121, "flags": ["$91"], "form": "Will", "state": "inventory full without item $01 and $06, $0AB0 known" },
+    "trial": {
+      "control": "talk to Kara with a Red Jewel in the full inventory: the jewel is removed and $0AB0 +1, Lance's Letter given",
+      "forced": "repeat with neither item: read $0AB0 before and after",
+      "observe": ["$0AB0 (BCD)", "inventory list", "bit 2 of byte $0A12 ($92)"]
+    },
+    "confirms": "whether the fall-through adds a jewel without removing an item",
+    "refutes": "no change of $0AB0 in the empty case",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL27-14",
+    "flag": 229,
+    "scope": null,
+    "priority": "P3",
+    "claim": "eu95_ann removes the third apple before GiveItem #01; with a full inventory the flag $E5 stays clear and the apple is spent.",
+    "start": { "scene": 149, "flags": ["$D6", "$E3", "$E4"], "form": "Will", "state": "inventory full, one Red Apple (item $28) held" },
+    "trial": {
+      "control": "give the third apple with a free slot: jewel given, bit 5 of byte $0A1C ($E5) set",
+      "forced": "repeat with a full inventory",
+      "observe": ["bit 5 of byte $0A1C", "item $28 count", "dialog texts"]
+    },
+    "confirms": "the apple is spent and $E5 stays clear on a full inventory",
+    "refutes": "the apple kept or $E5 set",
+    "needs": ["FR00"]
+  }
+]

@@ -1,6 +1,6 @@
 ; South (+Y) movement collision dispatch and grid alignment (185206-186076, Bank 02).
 ; 
-; Entered from PlayerMovementTick (player_move_main) with $24 > 0, after the horizontal (EW) phase has run (so $20 is already zero), unless $AA bit $0400 is set (nothing sets it). Everything here works on sub-pixels (4 per pixel): $22/$26 are the X/Y position, $24 the Y velocity (positive = south, Y grows downward). A 16-pixel tile is 64 sub-pixels, so AND #$FFC0 floors to a tile line.
+; Entered from PlayerMovementTick (player_move_main) with $24 > 0, after the horizontal (EW) phase has run (so $20 is already zero), unless $AA bit $0400 ($AB bit 2, set by the wall-slide variant entries) is set. Everything here works on sub-pixels (4 per pixel): $22/$26 are the X/Y position, $24 the Y velocity (positive = south, Y grows downward). A 16-pixel tile is 64 sub-pixels, so AND #$FFC0 floors to a tile line.
 ; 
 ; === CONVENTIONS ===
 ; 

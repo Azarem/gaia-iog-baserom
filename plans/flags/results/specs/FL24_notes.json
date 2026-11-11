@@ -1,0 +1,223 @@
+{
+  "_note": "FL24 notes spec: corrections of shipped block and part notes of diamond_mine, great_wall, sky_garden and item_use_system that the extracted asm contradicts. Run with --dry-run first.",
+  "diamond_mine/mine_main/dm3F_switch.asm": {
+    "blockNote": [
+      "Hittable switch block in the mine main chamber — a hit counter.",
+      "",
+      "Displays as enemy sprite frame #0F with stat entry 118 and $FF HP. Each of the four placements zeroes the byte $0A01 when it spawns, so the counter starts at 0 in every visit. When attacked (hit callback) it shows the pressed sprite frame #11 and adds 1 to $0A01 (the scratch flags $08-$0F of scene $3F read as one byte); HP resets to $FF every frame so it can be hit repeatedly.",
+      "",
+      "The counter is not tied to a particular switch or laborer: dm3F_mine_collapse_trigger fires when the byte equals 4."
+    ]
+  },
+  "diamond_mine/mine_main/dm3F_mine_collapse_trigger.asm": {
+    "blockNote": [
+      "Cave-in trigger in the mine main chamber — collapses the tunnel entrance on the 4th switch hit.",
+      "",
+      "Dies at once when flag word $0121 is set. Otherwise it checks each frame whether the hit counter byte $0A01 (written by dm3F_switch) equals 4. On the frame it does, it sets $0121, applies BG change #21 to redraw the collapsed tunnel entrance and plays rumble sound #0E on both channels; the actor then marks itself for death."
+    ]
+  },
+  "diamond_mine/mine_inner/dm47_sam.asm": {
+    "blockNote": [
+      "Sam — chained slave who teaches the Memory Melody after he is freed.",
+      "",
+      "Spawns as a chain prop (dm_mine_static_prop) with solid collision and dies at spawn when flag $5E is set. Before the chain breaks (status bit $0040 of the prop) the interact handler says \"Cut the chain!\". After it breaks the handler tells Will about a song that restores lost memories. When $5E is still clear it then gives item #0D (Memory Melody) and sets $5E; with a full inventory it prints the inventory-full message and leaves $5E clear. A repeat talk after $5E is set says \"I'll never forget you!\".",
+      "",
+      "Sam's main script waits on WaitOnFlagByte ( #5E, #01 ), locks the joypad, starts music #1E, waits #77 ticks and polls APUIO1 for $FF (the track has finished). If Will holds the Wind Melody (#08), Sam asks for it and the Prison Key as souvenirs and removes #02 and #08; otherwise he asks for the Prison Key and removes #02. The joypad is then unlocked. Imas and Remus read $5E only once, at spawn."
+    ]
+  },
+  "diamond_mine/mine_inner/dm47_imas.asm": {
+    "blockNote": [
+      "Imas — chained slave in the mine inner room (map $47).",
+      "",
+      "Spawns as a chain prop (dm_mine_static_prop) with solid collision and dies at spawn when flag $5E is set (tested once, not waited on). Before the chain breaks (status bit $0040 of the prop) the interact handler says \"Cut the chain!\". After it breaks he says that his homeland has people turned to stone and sick with unknown diseases. One of three chained slaves with Remus and Sam; Sam's talk handler sets $5E when he gives the Memory Melody, not the freeing of the third slave."
+    ]
+  },
+  "diamond_mine/mine_inner/dm47_remus.asm": {
+    "blockNote": [
+      "Remus — chained slave in the mine inner room (map $47).",
+      "",
+      "Same structure as Imas: chain prop, \"Cut the chain!\" before the chain breaks, a thank-you dialog after. He asks Will to visit his home village across the ocean and help the villagers regain their strength. Dies at spawn when flag $5E is set (tested once, not waited on); Sam's talk handler sets $5E."
+    ]
+  },
+  "diamond_mine/mine_collapsed_tunnel/dm40_trapped_slave.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "each frame. When the player is in tiles 8-14 range, sets a proximity",
+          "until": "After rescue,",
+          "with": "each frame. Scratch flag $00 is set while the player stands in tiles (08,14)-(0A,17) and cleared otherwise. A hit while playerFlags bit $0002 is set (RunAttackFlagSetup: Psycho Slider, Psycho Dash or run attack) frees him: debris burst, then the rescue below.\n"
+        }
+      ]
+    }
+  },
+  "diamond_mine/mine_promise_passage/dm3D_breakable_wall.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Tracks player proximity in an 8×14",
+          "until": "When broken:",
+          "with": "Scratch flag $00 is set while the player stands in tiles (05,03)-(07,07) and cleared otherwise. "
+        },
+        {
+          "find": "clears the proximity flag, and sets flag word $0133.",
+          "with": "clears scratch flag $00 and sets flag word $0133."
+        }
+      ]
+    }
+  },
+  "diamond_mine/mine_entrance/dm3E_intro.asm": {
+    "blockNote": [
+      "Will's inner monologue on first entering the Diamond Mine and the Sky Garden.",
+      "",
+      "Locks the joypad ($CFFC) and branches on sceneCurrent. Scene $3E (mine entrance) plays the \"Diamond Mine was as quiet as a tomb\" narration under flag $6A; scene $4C (Sky Garden) plays the \"strange garden floating in the sky over Nazca\" narration under flag $6B. With the flag clear the actor sets it, waits #1D ticks and prints the dialog; with it set, or in any other scene, the actor unlocks the joypad and dies. Both flags are persistent and never cleared, so each narration plays once per game. The Freejia slave market actors also read $6A."
+    ]
+  },
+  "actors/hit_switch.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "| 87 | scene 87 (no area folder in extracted/) | 2F,28 | 1F | $0F | none in the scene's spawn list |",
+          "with": "| 87 | great_wall/wall_switchback | 2F,28 | 1F | $0F | the six gw87_statue_archer enemies (gw82_archer) |"
+        },
+        {
+          "find": "In scene 87 the flag $0F has no waiter among the scene's actors (the gw82_wall_spear actors it spawns use timers only); $0F is also used as an unrelated flag in Babel Tower and Freejia scripts.",
+          "with": "In scene 87 each of the six gw87_statue_archer enemies tests flag $0F every frame (gw82_archer) and switches to its live archer script once it is set; the gw82_wall_spear actors of the scene use timers only. The same index has other meanings in other scenes (scratch flags are scoped per scene)."
+        }
+      ]
+    }
+  },
+  "great_wall/wall_dive/gw83_switch.asm": {
+    "blockNote": [
+      "Plug mechanism at the Great Wall dive entrance, released by a hit switch.",
+      "",
+      "Dies at spawn when flag word $0152 is set. Otherwise it waits on WaitOnFlagByte ( #01, #01 ), the scratch flag raised by the hit_switch placed on the same tile (35,1B). It then shows frame #29 of spriteset_pickups_effects, clears $10 bit $2000, moves toward pixel ($0278,$0190) (StageMove ( #29, #04, #FF ), TickMove), spawns a debris burst, applies BG change #52 and sets $0152. The scratch flag is not cleared."
+    ]
+  },
+  "great_wall/wall_dive/gw83_lily.asm": {
+    "blockNote": [
+      "Lilly at the Great Wall dive entrance — cutscene when Will reaches the ledge.",
+      "",
+      "Dies at spawn when flag $93 is set. Otherwise it watches for the player in tiles (3B,08)-(3D,0B). On entry it enters display-filter mode (displayModeFlags $0080), sets $93, locks the joypad ($EFFC), prints \"Wait!\", walks Lilly in (sprite loops #33) and then toward the player, prints \"Are you looking for Lance? I'll go with you!\" and her closing line, restores the joypad and display mode and dies. The actor sets no party or escort state; the only persistent effect is flag $93."
+    ]
+  },
+  "great_wall/wall_rampway/gw85_retractable_gate.asm": {
+    "blockNote": [
+      "Retractable gate on the Great Wall rampway (scene $85).",
+      "",
+      "Solid gate at frame #1D (MarkSolidHere and MarkSolidOffset ( #00, #03 )). It waits on WaitOnFlagByte ( #01, #01 ), the scratch flag raised by the hit_switch at tile (18,1A), and clears the flag (one-shot trigger). It then clears its solid tiles, shows the retract frame #1E with $10 bit $0100 set during the animation, waits #77 ticks and closes again, so every later hit re-opens it."
+    ]
+  },
+  "great_wall/wall_rampway/gw85_short_switch_spear.asm": {
+    "blockNote": [
+      "Switch spear on the Great Wall rampway driven by scratch flag $02.",
+      "",
+      "Same script as the retractable gate: solid frame #1D, WaitOnFlagByte ( #02, #01 ) for the hit_switch placements at tiles (3B,29) and (29,2B), ClearFlagByte of the same flag, retract frame #1E, WaitByte ( #77 ), then back to solid. The retract time is the same #77 ticks as in the other three rampway actors; the names \"short\" and \"long\" only distinguish the switch flag."
+    ]
+  },
+  "great_wall/wall_rampway/gw85_long_switch_spear.asm": {
+    "blockNote": [
+      "Switch spear on the Great Wall rampway driven by scratch flag $03.",
+      "",
+      "Solid frame #1F, WaitOnFlagByte ( #03, #01 ) for the hit_switch at tile (37,2C), ClearFlagByte of the same flag, retract frame #20, WaitByte ( #77 ), then back to solid. The retract time equals the other rampway actors; the script differs only in flag and frames."
+    ]
+  },
+  "great_wall/wall_rampway/gw85_multi_switch_spear.asm": {
+    "blockNote": [
+      "Switch spear on the Great Wall rampway driven by scratch flag $04; two placements share it.",
+      "",
+      "Solid frame #1D, WaitOnFlagByte ( #04, #01 ) for the hit_switch at tile (64,1D), ClearFlagByte of the same flag, retract frame #1E, WaitByte ( #77 ), then back to solid. The two placements at tiles (64,19) and (65,19) wait on the same flag and each clears it after leaving the wait, so the spear that is polled first consumes the trigger; whether the second one also retracts depends on the actor update order (not traced)."
+    ]
+  },
+  "sky_garden/garden_southwest_underside/sg52_switch.asm": {
+    "blockNote": [
+      "Knight-armor plate on the garden southwest underside (scene $52).",
+      "",
+      "While flag word $012E is clear it tests each frame whether scene actor #3 (the pushable sg4F_knight_armor2, spawned at tile (38,33)) stands at pixel ($0258,$0330), the tile of the plate itself; when the player stands near it prints \"When you step on this tile it makes a sound...\". When the armor is there it applies BG change #2E and sets $012D and $012E. With $012E set (also at load) it places that actor exactly at ($0258,$0330), clears the solid mark at tile (38,32) and then idles."
+    ]
+  },
+  "sky_garden/garden_west_underside/sg54_pressure_switch.asm": {
+    "blockNote": [
+      "Knight-armor plate on the garden west underside (scene $54).",
+      "",
+      "Dies at spawn when flag word $012F is set. Otherwise it tests each frame whether scene actor #3 (the pushable sg4F_knight_armor4, spawned at tile (3A,2F)) stands at pixel ($0348,$02E0), the tile of the plate itself. When it does it applies BG change #2F, sets $012F and dies. The latch is permanent; nothing resets it when the armor is pushed away."
+    ]
+  },
+  "sky_garden/garden_southwest_underside/sg52_blocker_enemy_a.asm": {
+    "blockNote": [
+      "Toggle block A on the garden southwest underside (scene $52) — a hit switch, not an enemy to kill.",
+      "",
+      "Two placements. Solid enemy sprite with stat entry 118; HP resets to $FF every frame, so it never dies. Each hit swaps between two states: frame #0F with BG change #90 and $0125/$0126 cleared, and frame #10 with BG change #26 and $0125/$0126 set. Both placements test $0126 every frame, so the one that was not hit follows the other and the two always show the same state. The state at spawn follows $0126."
+    ]
+  },
+  "sky_garden/garden_southwest_underside/sg52_blocker_enemy_b.asm": {
+    "blockNote": [
+      "Toggle block B on the garden southwest underside (scene $52) — a hit switch, not an enemy to kill.",
+      "",
+      "One placement. Solid enemy sprite with stat entry 118; HP resets to $FF every frame, so it never dies. Each hit swaps between frame #0F (BG change #28, sets $0127/$0128, clears $0129/$012A) and frame #10 (BG change #2A, sets $0129/$012A, clears $0127/$0128). At spawn it starts in frame #0F when $0127 is set and in frame #10 otherwise, without applying a BG change."
+    ]
+  },
+  "sky_garden/garden_southwest/sg51_statue.asm": {
+    "blockNote": [
+      "Pushable statue in the garden southwest area (scene $51).",
+      "",
+      "Two placements, at tiles (30,33) and (30,34). Solid, with a push handler (interaction_handlers.push_handler_solid); HP resets to $FF every frame. A hit while playerFlags bit $0002 is set (RunAttackFlagSetup: Psycho Slider, Psycho Dash or run attack) jumps to StandardEnemyDefeatHandler and destroys it; any other hit leaves it standing. It reads and writes no event flag and tests no slot position."
+    ]
+  },
+  "mountain_temple/kress_crossroads/mtA2_mushroom_drop_gate.asm": {
+    "blockNote": [
+      "Mushroom Drop gate of the Kress crossroads (scene $A2).",
+      "",
+      "Dies at spawn when flag word $0159 is set. Otherwise it waits on WaitOnFlagByte ( #01, #01 ), the scratch flag that UseItem_MushroomWater raises when Will pours the item on the stem in tiles (14,08)-(16,09). It then locks the joypad ($EFFC), removes item #1A (Mushroom Drop) and plays sound #0F on channel 1 before each of the six BG changes #54-#59, sets $0159 and unlocks the joypad."
+    ]
+  },
+  "mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_a.asm": {
+    "blockNote": [
+      "Mushroom Drop gate A of the Kress circuit (scene $A5).",
+      "",
+      "Dies at spawn when flag word $015F is set. Otherwise it waits on WaitOnFlagByte ( #01, #01 ), raised by UseItem_MushroomWater at stem A (tiles (2E,12)-(30,13)). It then locks the joypad, removes item #1A and plays sound #0F on channel 1 before each of the six BG changes #5A-#5F, sets $015F, unlocks the joypad and dies."
+    ]
+  },
+  "mountain_temple/kress_circuit/mtA5_mushroom_drop_gate_b.asm": {
+    "blockNote": [
+      "Mushroom Drop gate B of the Kress circuit (scene $A5).",
+      "",
+      "Dies at spawn when flag word $0167 is set. Otherwise it waits on WaitOnFlagByte ( #02, #01 ), raised by UseItem_MushroomWater at stem B (tiles (28,24)-(2A,25)). It then locks the joypad, removes item #1A and plays sound #0F on channel 1 before each BG change of the sequence #60, #61, #61, #62-#67, sets $0167, unlocks the joypad and dies."
+    ]
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_MineKeyA": {
+        "edit": [
+          {
+            "find": "Mine Key A — unlock the mine entrance (scene $44).",
+            "with": "Mine Key A — use on the cell door of the mine foyer (scene $44); dm44_cell_door opens once this key and Mine Key B have both been used."
+          }
+        ]
+      },
+      "UseItem_MineKeyB": {
+        "edit": [
+          {
+            "find": "Mine Key B — unlock the mine entrance (scene $44).",
+            "with": "Mine Key B — use on the cell door of the mine foyer (scene $44); see Mine Key A."
+          }
+        ]
+      },
+      "UseItem_CrystalBall": {
+        "edit": [
+          {
+            "find": "Crystal Ball — place in pedestals in Mu (scene $4C).",
+            "with": "Crystal Ball — place on the four pedestals of the Sky Garden main area (scene $4C); each flag releases one sg4C_platform actor."
+          }
+        ]
+      },
+      "UseItem_ElevatorKey": {
+        "edit": [
+          {
+            "find": "Elevator Key — activate the mine elevator (scene $3F).",
+            "with": "Elevator Key — open the elevator door of the mine main chamber (scene $3F); dm3F_elevator_door waits on the flag."
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "tables/spriteset_npc_props.asm": {
+    "blockNote": [
+      "Sprite set of small scene props (Bank 0E, 973312-974144, 832 bytes): the town door, a bone pile, spirits, a sign, flames, a campfire and three single-frame props. The old note ('town furniture, signs, chests, and decorative elements') was too broad: no chest uses it (chests are map tiles drawn by warps_interaction), and there is no furniture.",
+      "",
+      "Structure (format in the spriteset_freedan block note): 11 animations, 20 sprite groups. 22 B pointer table + 102 B frame lists (8 one-frame lists of 6 B, 3 four-frame lists of 18 B) + 708 B groups.",
+      "",
+      "| Index | Set | Frames (hold) | Users (actors selecting it) |",
+      "|-------|-----|---------------|-----------------------------|",
+      "| $00 | sprite_set_0EDA16 | 1 | town_door, open frame (1 sub-sprite) |",
+      "| $01 | sprite_set_0EDA1C | 1 | town_door closed frame (6 sub-sprites); fr32_guide |",
+      "| $02 | sprite_set_0EDA22 | 1 | bone pile: gs2B_bones, nvAC_bones, eu9D_bones; also btDE_olman and pyCD_jackal |",
+      "| $03 | sprite_set_0EDA28 | 1 | no actor |",
+      "| $04 | sprite_set_0EDA2E | 4 (5 each) | spirits: awBF_spirit_guide, btDF_spirits, btE3_dao_travel_spirit, btE4_olman, daC3_babel_travel_spirit, ec10_dp_hint_spirit, mu66_rama_spirits, sE5_epilogue, btDE_olman |",
+      "| $05 | sprite_set_0EDA40 | 1 | av69_signs |",
+      "| $06 | sprite_set_0EDA46 | 4 (3 each) | flames: av6B_flame, ec0A_torch1, ec0A_torch2 |",
+      "| $07 | sprite_set_0EDA58 | 1 | freejia_street_prop |",
+      "| $08 | sprite_set_0EDA5E | 4 (3 each) | st68_campfire |",
+      "| $09 | sprite_set_0EDA70 | 1 | no actor |",
+      "| $0A | sprite_set_0EDA76 | 1 | btE4_kara |",
+      "",
+      "Users were found by searching for SetMetasprite ( @spriteset_npc_props ) and reading the Stage* operand that follows it (E2); the images were not viewed, so the descriptions of $02, $05, $07 and $0A come from the actor names (OQ-I068-1). Animations $03 and $09 have no user (OQ-I068-2)."
+    ],
+    "partNotes": {
+      "spriteset_npc_props": [
+        "11 pointers to the animation frame lists ($00-$0A); see the block note for the user of each index."
+      ],
+      "sprite_set_0EDA28": [
+        "Animation $03: no actor selects it (OQ-I068-2)."
+      ],
+      "sprite_set_0EDA70": [
+        "Animation $09: no actor selects it (OQ-I068-2)."
+      ]
+    }
+  },
+  "tables/display_preset_table.asm": {
+    "blockNote": [
+      "PPU display presets (Bank 01, 98304-98868): 47 word pointers ($00-$2E) and the 47 ten-byte records they point to. A scene script picks one with scene command $02 (SceneCmd_ConfigDisplay, scene_script); the old note said 'selected by scene metadata', which is not what the code does. SceneCmd_ConfigDisplay documents what each byte does; this note adds what the 47 records contain.",
+      "",
+      "Record (in the order they are applied): +0 TM and TMW (main-screen layers), +1 TS and TSW (sub-screen layers), +2 CGWSEL, +3 CGADSUB, +4 layer flags, +5 layerPriorityFlag, +6 BGMODE, +7 scroll/HUD flags, +8 and +9 unused.",
+      "",
+      "| Byte | Values in the 47 records |",
+      "|------|--------------------------|",
+      "| +0 | $17 x34 (BG1+BG2+BG3+OBJ), $15 x10 (BG1+BG3+OBJ), $11 x2 (BG1+OBJ), $13 x1 (BG1+BG2+OBJ) |",
+      "| +1 | $00 x22, $02 x8, $12 x6, $11 x4, $03 x3, $01 x2, $16 x2 |",
+      "| +2 | $80 x23, $82 x13, $00 x4, $02 x4, $12 x3 (bit 1 = sub screen is the math addend) |",
+      "| +3 | 18 distinct values; bits 0-3 BG1-BG4, bit 4 OBJ, bit 5 backdrop, bit 6 half, bit 7 subtract. Most common: $A1 x6, $41 x5, $A3 x5, $00 x5 |",
+      "| +4 | $E4 x13, $A4 x12, $24 x10, $64 x6, $14 x2, $A5, $A6, $65, $66 x1 each: 21 records have bit 6 set (visible height $100), 26 have it clear ($E0); 20 have bit 7 clear |",
+      "| +5 | $05 x25, $85 x12, $01 x5, $00 x2, $80, $81, $84 x1 each |",
+      "| +6 | $09 x45 (BG mode 1 with BG3 priority), $07 x2 (mode 7: presets $19 and $2D) |",
+      "| +7 | $00 x35, $04 x6, $01 x2, $10 x2, $1C x2 (the two mode-7 presets); bit 7 never set, so no preset disables the HUD |",
+      "| +8, +9 | $00 in all 47 records (closes OQ-5 of the first audit pass) |",
+      "",
+      "The pointers run in order: record n is at $01805E + 10 x n, so the table is 94 bytes and the records 470 bytes. Which scenes use which preset was not traced (OQ-I068-3)."
+    ],
+    "partNotes": {
+      "display_preset_table": [
+        "47 word pointers ($00-$2E) to the 10-byte records below, in order (record n at $01805E + 10 x n). The operand of scene command $02 indexes this table."
+      ],
+      "display_preset_018158": [
+        "Preset $19: mode 7 (BGMODE $07). TM $15 (BG1+BG3+OBJ), CGWSEL $80, CGADSUB $A1, scroll flags $1C."
+      ],
+      "display_preset_018220": [
+        "Preset $2D: mode 7 (BGMODE $07). TM $11 (BG1+OBJ), TS $01, CGWSEL $82, CGADSUB $10, scroll flags $1C."
+      ]
+    }
+  },
+  "tables/scene_warps.asm": {
+    "blockNote": [
+      "Warp table of all scenes (Bank 01, 98868-108894, 10026 bytes): 255 word pointers, indexed by scene ID ($00-$FE, sceneTableIndex $0646), to 200 `warp-def` lists. InitWarpTable (warps_interaction) reads it when a scene is set up; CheckWarpRectangles tests the player against it every frame. The old note described the second list as 'staircase warps with climb-animation offsets'; it holds forced-walk warps (see below), although all of them are vertical walks.",
+      "",
+      "=== LIST FORMAT ===",
+      "",
+      "A list is `[scene-warps] $FF [forced-walk warps] $FF`. Both terminators are the single byte $FF (a negative byte 0 ends a list in InitWarpTable, $FF in CheckWarpRectangles); the extractor does not print them, so an empty list is 2 bytes. 200 lists hold 543 scene-warps x 12 B + 200 forced-walk warps x 13 B + 400 B of terminators = 9516 B, and 255 x 2 = 510 B of pointers, which is exactly the 10026 bytes. Pointers share lists: 51 scene IDs point at the empty list warp_def_018432, $E6-$E9 share warp_def_01A94A and $EB-$ED share warp_def_01A95A; 8 lists are empty.",
+      "",
+      "Both kinds start with the trigger rectangle (bytes +0 X tile, +1 Y tile, +2 width, +3 height, in 16-pixel tiles). The player triggers it when playerXTile/YTile fall inside the rectangle AND the pixel position lies in the first (16 x size - 15) pixels (ConvertWarpToPixels).",
+      "",
+      "=== scene-warp (12 bytes): change scene (ExecuteWarp) ===",
+      "",
+      "+4 destination scene (sceneNext $0642), +5 word destination X pixel, +7 word destination Y pixel (warpDestX/Y), +9 facing (warpFacing $0650; the low bits index direction_velocity_table, bit 7 = save warp: ExecuteWarp also stores the entry in sceneSaveData as the game-over reload point), +10 word packed camera window (warpScrollParams $0652: low byte = offsetY<<4 | offsetX, high byte = boundsY<<4 | boundsX, in 256-pixel units; read by InitCameraBounds). Example: warp_def_018434 entry ;00 `< #11, #0D, #02, #02, #08, #$01B8, #$0080, #00, #$1200 >` = trigger tiles ($11,$0D) 2 x 2, go to scene $08 at pixel (440, 128), facing 0, camera window $1200.",
+      "",
+      "Data facts: facing is $00 x225, $03 x229, $06 x32, $07 x32 and $01 x2, plus bit 7 on 23 entries (11 x $80, 9 x $83, 2 x $87, 1 x $86). All 543 entries carry a nonzero camera window (61 distinct values; $1100 x86 and $4400 x84 are the commonest), so the 'normal bounds' path of InitCameraBounds is never taken from this table. 36 entries lead to scene $E6 (sE6_gaia, the Dark Space scene) and all use destination (120, 192), facing 0 and window $1100.",
+      "",
+      "=== forced-walk warp (13 bytes; the extractor type is `stair-warp`) ===",
+      "",
+      "Not a scene change: ExecuteForcedWalkWarp keeps the player in the scene, pans the camera and walks the player by script. Layout by BYTE (the extractor splits it into words at the wrong boundaries): +4/+5 camera window (same packing as above, warpScrollParams), +6 direction and pan list (scrollStepTableBase: bit 7 = north, bits 4/5 = east/west, otherwise south; the low nibble indexes forced_walk_sequence_table), +7..+12 a 6-byte walk stream `[direction byte][X offset word][Y offset word][final direction byte]` (the pointer to +7 goes to warpFacing; ForcedWalk* in forced_walk adds the offsets to the player position). Example: warp_def_01A8CC `stair-warp < #29, #27, #02, #02, #$4430, #$0240, #$0000, #08, #$0301 >` = bytes 29 27 02 02 | 30 44 | 40 | 02 00 00 08 01 03: window $4430, south (bit 6 is not decoded), pan list $00, stream: direction 2, X offset 0, Y offset +$0108 (264 px), final direction 3. The next entry ;01 goes back (byte 6 $80 = north, Y offset $FF10 = -240 px).",
+      "",
+      "Data facts: all 200 are vertical, 100 north (bit 7) and 100 south (bit 6 only, the default). East/West (bits 4/5) never occur, so ForcedWalkEast/West are not reachable from this table. The pan list index in the low nibble of byte 6 is $00 for 143 entries (256-pixel pan), $03 x11, $02 x10, $01 x5, $0D x5, $0E x5 and 21 more spread over $04-$0C and $0F (answers part of OQ-I064-1). Which warp uses which list was still not mapped one by one.",
+      "",
+      "=== OTHER NOTES ===",
+      "",
+      "GameOverSequence reloads a warp from the entry+4 pointer stored in $0AF4 (every warp) and sceneSaveData (save warps). The two forced-walk entries of warp_def_0184BC use unusual first stream bytes ($04, $05) (OQ-I068-4). Sampled about 18% by reading (header and pointer table, lists $00-$05, $61-$64, $E1-$E3 and the tail); the counts above were computed over the whole file."
+    ],
+    "partNotes": {
+      "scene_warps": [
+        "255 word pointers to the `warp-def` lists, indexed by scene ID $00-$FE (sceneTableIndex $0646). InitWarpTable stores the selected pointer in $00D4 and finds the forced-walk list at the byte after the first $FF terminator ($00D6). 51 IDs share the empty list warp_def_018432."
+      ],
+      "warp_def_018432": [
+        "Shared empty list (two $FF terminators): 51 scene IDs point here; they have no scene warps and no forced-walk warps."
+      ],
+      "warp_def_01A94A": [
+        "Shared by scenes $E6, $E7, $E8 and $E9 (four pointers)."
+      ]
+    }
+  }
+}

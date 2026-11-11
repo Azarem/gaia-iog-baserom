@@ -2,7 +2,7 @@
 ; 
 ; Bit 9 flips every 512 frames, so cameraDeltaY ramps up 512 steps and back down 512 steps (about 8.5 s per half at 60 Hz): a slow vertical drift.
 ; cameraDeltaX / Y are not the camera itself: camera_tilemap copies them into effectScrollH / V in layer-1 delta mode ($06EF bit 2), and camera_scroll actors compute them as parallax ratios of cameraTargetX / Y.
-; No extracted script references this actor by label (no spawn or entry reference found), so it is either unused or spawned from data.
+; No extracted script references this actor by label and the ROM holds no 16-bit or 24-bit pointer to its header or entry (no scene actor record, spawn operand, table word or instruction operand), so nothing spawns it.
 ---------------------------------------------
 
 !frameCounter                   0036

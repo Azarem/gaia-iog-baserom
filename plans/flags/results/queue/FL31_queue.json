@@ -1,0 +1,308 @@
+[
+  {
+    "id": "FL31-01",
+    "flag": 255,
+    "scope": null,
+    "claim": "After the inventory closes, thinkers parked on WaitOnFlagByte(#FF, #00) resume: the first UpdateFrameRender of the close path runs the restored thinker list while $FF is still clear, so the palette loops replay their bundle and the HDMA / PPU-register thinkers re-initialise.",
+    "priority": "P1",
+    "start": {
+      "scene": 1,
+      "flags": [
+        22
+      ],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "in scene $01 with $16 set and $1C clear, let flag_gated_palette_warm apply bundle #02; log CGRAM writes (palette buffer $7F0A00) and the COP stream of the thinker for 120 frames",
+      "forced": "open the inventory (Select) and close it; repeat in scene $2F (gold_ship_wreck_palette) and in scene $E8 (sE8_comet_display_config rewrites TM/TS/BG1SC)",
+      "observe": [
+        "PaletteStart executes for the thinker in the first frame after the close ({192186})",
+        "the thinker sets $0A1F bit 7 again before the overlay sets it at {192190}",
+        "no replay while the inventory is open"
+      ]
+    },
+    "confirms": "the wake at inventory close described in sys_scene_setup_done (set and clear effects)",
+    "refutes": "no PaletteStart / register rewrite in the close frame (the thinkers would stay parked)",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-02",
+    "flag": 255,
+    "scope": null,
+    "claim": "Only two code sites clear $FF: the direct write at scene_lifecycle.asm:844 {253423} and at inventory_overlay.asm:133 {191819}.",
+    "priority": "P2",
+    "start": {
+      "scene": "any scene",
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "write breakpoint on $0A1F with a condition on bit 7 going 1 -> 0, play title -> South Cape -> inventory -> another scene -> Dark Space for several minutes",
+      "forced": "none",
+      "observe": [
+        "PC of every write that clears bit 7",
+        "count per scene change and per inventory open"
+      ]
+    },
+    "confirms": "the absence claim in sys_scene_setup_done (no other clearer)",
+    "refutes": "a third PC that clears bit 7",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-03",
+    "flag": 16,
+    "scope": {
+      "scenes": [
+        8,
+        251
+      ]
+    },
+    "claim": "The South Cape church lesson flag and the boot-logo latch are the same bit and never meet: after a boot (or reset) $10 is clear when the title is reached, and Load Game replaces the array.",
+    "priority": "P2",
+    "start": {
+      "scene": 251,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "cold boot; watch $0A02 bit 0 through the first logo, the second logo, the title and New Game; then play the South Cape church lesson",
+      "forced": "load a save written after the lesson ($10 set), then reach the title again by reset and choose New Game",
+      "observe": [
+        "$0A02 bit 0 at each step",
+        "whether the lesson plays on New Game after a loaded game and a reset",
+        "whether any path reaches the title without a boot (scene $FC queue sites)"
+      ]
+    },
+    "confirms": "both scoped meanings of $10 and the \"cannot meet\" claim",
+    "refutes": "the flag set on arrival at New Game (lesson skipped) or the first logo skipped",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-04",
+    "flag": 150,
+    "scope": null,
+    "claim": "Flag $96 is true from the end of the Lance/Lilly reunion on the Great Wall until the Russian Glass game ends in Watermia.",
+    "priority": "P2",
+    "start": {
+      "scene": 139,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "play gw8B_lance_lily to the end; read $0A12 bit 6 before and after; enter Watermia (scene $78)",
+      "forced": "set and clear $96 with the debugger in scene $78",
+      "observe": [
+        "$96 at the setter {505825}",
+        "dark palette (pal_watermia_dark) while set",
+        "glass game spawns while set; flag cleared at {496163}"
+      ]
+    },
+    "confirms": "wa_festival_night_active (set interval, name)",
+    "refutes": "the flag staying set after the glass game",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-05",
+    "flag": 244,
+    "scope": null,
+    "claim": "Flag $F4 is set by the title idle timeout and cleared in pr8C_prologue1 (first pass of scene $8C); the second pass (pr8C_prologue5) runs with it clear.",
+    "priority": "P2",
+    "start": {
+      "scene": 252,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "idle on the title for 2516 ticks; read $0A1E bit 4 at the transition and in each pass of scene $8C",
+      "forced": "none",
+      "observe": [
+        "$F4 value at scene $8C entry, after pr8C_prologue1, at the second entry",
+        "which map the scene-meta gate loads in each pass (map_prologue_prophecy_2 first)"
+      ]
+    },
+    "confirms": "pr_prophecy_first_pass_active (set = first pass)",
+    "refutes": "the flag set in the second pass",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-06",
+    "flag": 179,
+    "scope": null,
+    "claim": "Flag $B3 is set at the end of the Angkor Wat entrance narration and then removes the Native Village Hamlet NPC and switches the scene $AC music.",
+    "priority": "P3",
+    "start": {
+      "scene": 172,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "enter scene $AC with $B3 clear: Hamlet present, bgm_ominous_whispers",
+      "forced": "set $B3 with the debugger and reload scene $AC",
+      "observe": [
+        "Hamlet dies at spawn",
+        "bgm_blessing_of_nature plays"
+      ]
+    },
+    "confirms": "aw_entrance_intro_seen (once-latch and the two readers)",
+    "refutes": "Hamlet present or the old music with $B3 set",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-07",
+    "flag": 187,
+    "scope": null,
+    "claim": "Flag $BB is set at the end of the Pyramid Jackal sequence (scene $CD); it stands the Jackal and Kara up, refuses Lola's Melody in scene $CD and kills the Dao hotel Kara while $D0 is clear.",
+    "priority": "P2",
+    "start": {
+      "scene": 205,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "in scene $CD with $BB clear, play the Jackal sequence; read $0A17 bit 3 before and after",
+      "forced": "set $BB and reload scene $CD and scene $C4",
+      "observe": [
+        "Jackal solid prop at tile (09,0B)",
+        "Kara at tile (08,0B)",
+        "Lola's Melody message in $CD",
+        "Dao Kara dies at spawn"
+      ]
+    },
+    "confirms": "py_jackal_scene_done and its readers",
+    "refutes": "any reader that does not change with $BB",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-08",
+    "flag": 64,
+    "scope": {
+      "scenes": [
+        21
+      ]
+    },
+    "claim": "Flag $40 is set by Lola's Melody in the Itory meadow; Lily starts the reveal when it is set, and the melody refuses to play twice.",
+    "priority": "P2",
+    "start": {
+      "scene": 21,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "play Lola's Melody in scene $15 with $40 clear; read $0A08 bit 0",
+      "forced": "set $40 and talk to Lily; try the melody again",
+      "observe": [
+        "setter {232527}",
+        "it15_lily reveal (palette flash thinker 18, camera pan)",
+        "refusal text at {232406}",
+        "any tile change in the village"
+      ]
+    },
+    "confirms": "it_meadow_lola_melody_played (setter, readers, refusal)",
+    "refutes": "a tile change with the flag (a lifted barrier) or a reachable set-branch at {232521}",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-09",
+    "flag": 377,
+    "scope": null,
+    "claim": "Flag $0179 is set by the Neo Queen watcher in the Babel boss lair (scene $F6) and opens the crystal gate in scene $E3; the Mummy Queen does not set it.",
+    "priority": "P2",
+    "start": {
+      "scene": 246,
+      "flags": [],
+      "form": "Shadow",
+      "state": null
+    },
+    "trial": {
+      "control": "fight btF6_neo_queen to the end with a write watch on $0A2F bit 1",
+      "forced": "defeat the Mummy Queen in the Pyramid (scene $DD) with the same watch",
+      "observe": [
+        "write at {763546} only in scene $F6",
+        "btE3_crystal_gate dies and its cells open when $0179 is set"
+      ]
+    },
+    "confirms": "bt_crystal_gate_e_open (Neo Queen setter)",
+    "refutes": "the flag set by the Mummy Queen fight",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-10",
+    "flag": 75,
+    "scope": null,
+    "claim": "Flag $4B is set after Lily's Elder-quote dialog at the Incan ruins entrance (scene $1C); with it set Kara and Lily start in their post state and it15_kara in Itory dies.",
+    "priority": "P3",
+    "start": {
+      "scene": 28,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "enter scene $1C with $4B clear and walk into tiles (1A,0F)-(1B,11)",
+      "forced": "set $4B and reload scene $1C and scene $15",
+      "observe": [
+        "Kara and Lily at tiles (15,13), (16,13)",
+        "Freedan form returned to Will",
+        "it15_kara absent in Itory"
+      ]
+    },
+    "confirms": "ir_entrance_kara_catchup_done effects",
+    "refutes": "post state not reached with the flag set",
+    "needs": [
+      "FR00"
+    ]
+  },
+  {
+    "id": "FL31-11",
+    "flag": 165,
+    "scope": null,
+    "claim": "Flag $A5 is set by the Euro arrival narration (scene $91) and changes three Watermia actors and the Euro intro.",
+    "priority": "P3",
+    "start": {
+      "scene": 145,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "play eu91_intro; read $0A14 bit 5",
+      "forced": "set $A5 and enter scenes $79 and $7A",
+      "observe": [
+        "wa79_lily and wa79_lance post lines",
+        "Lance gives the Red Jewel once ($E2)",
+        "wa7A_lances_father line"
+      ]
+    },
+    "confirms": "eu_arrival_cutscene_played effects",
+    "refutes": "any Watermia actor unchanged with the flag set",
+    "needs": [
+      "FR00"
+    ]
+  }
+]

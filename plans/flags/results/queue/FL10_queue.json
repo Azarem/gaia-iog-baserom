@@ -1,0 +1,316 @@
+[
+  {
+    "id": "FL10-01",
+    "flag": null,
+    "bytes": "$0A00-$0A01 (flags $0000-$000F)",
+    "scope": null,
+    "claim": "Every scene load zeroes exactly flags $0000-$000F (STX $eventFlags with X = $0000, 16-bit) and leaves $0A02 and up untouched; the call site is ExecuteSceneTransition only.",
+    "priority": "P0",
+    "start": { "scene": "any town or dungeon scene", "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "write $FF to $0A02 and $0A03, take a scene exit, read $0A00-$0A03 after the new scene is running",
+      "forced": "write $FF to $0A00 and $0A01 first, take the same exit",
+      "observe": ["$0A00-$0A03 after the transition", "break on write to $0A00 with the PC at 253291 (ClearSceneState)"]
+    },
+    "confirms": "$0A00 and $0A01 read $00 (except bits the new scene sets) and $0A02/$0A03 keep $FF",
+    "refutes": "any other bit of $0A00-$0A01 survives, or $0A02 changes",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-02",
+    "flag": null,
+    "bytes": "$0A00-$0A01 and bit 7 of $0A1F",
+    "scope": { "scenes": [255] },
+    "claim": "The inventory overlay pushes the flags word $0A00, zeroes it (the overlay exit flag is flag $0000), clears flag $FF, and on close restores the word and sets flag $FF again.",
+    "priority": "P1",
+    "start": { "scene": "any scene with $0A00/$0A01 written to $A5/$5A", "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "open the inventory without touching the flags",
+      "forced": "write $A5 to $0A00 and $5A to $0A01, open and close the inventory",
+      "observe": ["$0A00-$0A01 while the overlay is open (expect 0 until the menu sets bit 0)", "$0A00-$0A01 after close (expect $A5/$5A)", "bit 7 of $0A1F open (clear) and close (set)"]
+    },
+    "confirms": "values zero during the overlay and return unchanged",
+    "refutes": "values leak into the overlay or are not restored",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-03",
+    "flag": null,
+    "bytes": "$0A80-$0A9F (flags $0400-$04FF)",
+    "scope": null,
+    "claim": "The kill-flag block is zeroed only by world-map entry (WorldMapController), st68_kara, sp58_red_eye and a real game over; ordinary scene changes, a revive, a save and a load keep it.",
+    "priority": "P0",
+    "start": { "scene": "a dungeon scene", "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "write $FF to $0A80-$0A9F, take an ordinary scene exit, read the block",
+      "forced": "same start, then (a) enter the world map, (b) die with 100 gems or more (revive), (c) die with fewer than 100 gems (real game over), (d) save and load",
+      "observe": ["$0A80-$0A9F after each step", "execution of ClearAllWramFlags (46284) and of the loop at 54988"]
+    },
+    "confirms": "block unchanged after the control, (b) and (d); zero after (a) and (c)",
+    "refutes": "any other reset point, or a reset at the control",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-04",
+    "flag": 255,
+    "scope": null,
+    "claim": "Spine flag $00FF is the scene-setup-complete latch: cleared at the top of ClearSceneState and at overlay open, set after setup; thinkers that set it and park on a clear wait resume only when the next clear happens.",
+    "priority": "P1",
+    "start": { "scene": 1, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "watch bit 7 of $0A1F across a scene load",
+      "forced": "open and close the inventory in scene $01 (flag_gated_palette_warm active) and in scene $0A (alarm palette)",
+      "observe": ["bit 7 of $0A1F per frame", "whether the palette bundle replays after close"]
+    },
+    "confirms": "latch pattern clear, set; palette replays after close in the thinker scenes",
+    "refutes": "no replay (the thinker does not resume) or a clear from another writer",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-05",
+    "flag": null,
+    "bytes": "$0A01",
+    "scope": { "scenes": [63] },
+    "claim": "In scene $3F byte $0A01 is the laborer counter: each hit on a dm3F_switch increments it, dm3F_mine_collapse_trigger fires at exactly 4.",
+    "priority": "P2",
+    "start": { "scene": 63, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "hit one switch and read $0A01",
+      "forced": "hit the four switches, then watch flag $0121 and the BG change",
+      "observe": ["$0A01", "flag $0121 ($0A24 bit 1)", "screenshot"]
+    },
+    "confirms": "counter reaches 4 and the cave-in runs",
+    "refutes": "a D1 flag in $08-$0F set by another actor in scene $3F changes the count",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-06",
+    "flag": null,
+    "bytes": "$0A00 low byte",
+    "scope": { "scenes": [102] },
+    "claim": "Rama gives the Mystic Statue only when the low byte of $0A00 equals $FE (flags $0001-$0007 set, flag $0000 clear), checked by LDA $eventFlags; AND #$00FF; CMP #$00FE.",
+    "priority": "P2",
+    "start": { "scene": 102, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "set $0A00 = $7E (flag $0007 missing) and talk to Rama",
+      "forced": "set $0A00 = $FE and talk to Rama; repeat with $FF",
+      "observe": ["dialog shown (dialogstring_069FE3 or _069F45)", "flag $000F ($0A01 bit 7)"]
+    },
+    "confirms": "only $FE gives the statue dialog and sets flag $000F",
+    "refutes": "$FF or $7E also pass",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-07",
+    "flag": null,
+    "bytes": "$0A00 bits 1-4",
+    "scope": { "scenes": [31] },
+    "claim": "The plate gate opener fires when bits 1-4 of $0A00 (flags $0001-$0004, one per gold tile) are all set (AND #$001E equals $001E).",
+    "priority": "P3",
+    "start": { "scene": 31, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "set $0A00 = $0C (two tiles) and wait 60 frames",
+      "forced": "set $0A00 = $1E",
+      "observe": ["BG change #08", "flag $0108 ($0A21 bit 0) and flag $003C ($0A07 bit 4)"]
+    },
+    "confirms": "gate opens only for $1E",
+    "refutes": "a subset opens it",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-08",
+    "flag": null,
+    "bytes": "$0A9F",
+    "scope": { "scenes": [136] },
+    "claim": "The tomb Dark Space portal (gw88_tomb_dark_space) appears when byte $0A9F equals $3F: kill flags $04F8-$04FD (the six stone archers) set and $04FE/$04FF clear.",
+    "priority": "P2",
+    "start": { "scene": 136, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "kill five of the six stone archers",
+      "forced": "kill all six",
+      "observe": ["$0A9F", "BG change #74", "flag $0174 ($0A2E bit 4)"]
+    },
+    "confirms": "portal only after six kills ($0A9F = $3F)",
+    "refutes": "portal after five, or $0A9F has other bits set in normal play",
+    "needs": ["FR30"]
+  },
+  {
+    "id": "FL10-09",
+    "flag": 33,
+    "scope": null,
+    "claim": "Scene-meta gate: scene $06 loads the main-character sprite set (meta_label_23) when flag $21 is set and $4C is clear.",
+    "priority": "P2",
+    "start": { "scene": 6, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to scene $06 with $21 and $4C clear",
+      "forced": "warp with $21 set; then with $4C set (and $21 clear); then both set",
+      "observe": ["sprite set loaded (spm_sc06_castle_actors, spm_sc02_main_characters or the South Cape set)", "actor list"]
+    },
+    "confirms": "$21 alone selects the main characters, $4C wins over $21",
+    "refutes": "any other sprite set",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-10",
+    "flag": 76,
+    "scope": null,
+    "claim": "Scene-meta gate: scene $06 loads the shared South Cape interior art (meta_label_01) when flag $4C is set; meaning of the flag in story terms is not established.",
+    "priority": "P2",
+    "start": { "scene": 6, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to scene $06 with $4C clear",
+      "forced": "warp with $4C set",
+      "observe": ["tilesets and sprite set", "story point where gs2C_descent sets $4C"]
+    },
+    "confirms": "interior art and sprites change with $4C",
+    "refutes": "no change",
+    "needs": ["FR00", "FR40"]
+  },
+  {
+    "id": "FL10-11",
+    "flag": 112,
+    "scope": null,
+    "claim": "Scene-meta gate: scenes $5A and $5C skip the prison-enemy sprites and load the Freejia sprite set (meta_label_0C of scene $32) when flag $70 is set.",
+    "priority": "P2",
+    "start": { "scene": 90, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to $5A and $5C with $70 clear",
+      "forced": "warp with $70 set",
+      "observe": ["sprite VRAM and OAM (prison enemies versus Freejia sprites)", "screenshot"]
+    },
+    "confirms": "sprite set switches; enemies placed in the scene render with the other set",
+    "refutes": "same sprites in both cases",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-12",
+    "flag": 123,
+    "scope": null,
+    "claim": "Scene-meta gates: flag $7B loads the half-drained Mu effect tilemap in scenes $5F, $60, $61, $62; set by the west pedestal of the Statue of Hope.",
+    "priority": "P1",
+    "start": { "scene": 95, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to $5F-$62 with $7B and $7E clear",
+      "forced": "warp with $7B set; then with $7E set; then both",
+      "observe": ["effect-layer tilemap", "screenshot"]
+    },
+    "confirms": "half effect for $7B, drained for $7E, drained when both",
+    "refutes": "$7B overrides $7E",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-13",
+    "flag": 126,
+    "scope": null,
+    "claim": "Scene-meta gates: flag $7E loads the drained Mu effect tilemap in scenes $5F, $60, $61, $62, $64, $65; set by the east pedestal of the Statue of Hope.",
+    "priority": "P1",
+    "start": { "scene": 100, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to $64 and $65 with $7E clear",
+      "forced": "warp with $7E set",
+      "observe": ["effect-layer tilemap (map_mu_connector_effect_half versus map_mu_drained_effect)"],
+      "note": "scenes $64 and $65 have no $7B gate"
+    },
+    "confirms": "drained tilemap in all six scenes",
+    "refutes": "a scene keeps the undrained tilemap",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-14",
+    "flag": 136,
+    "scope": null,
+    "claim": "Scene-meta gate: scene $67 loads the Nazca sprite set (meta_label_22 of scene $49) instead of the vampire sprites when flag $88 is set.",
+    "priority": "P2",
+    "start": { "scene": 103, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to $67 with $88 clear",
+      "forced": "warp with $88 set",
+      "observe": ["sprite VRAM, vampire actors (they use the vampire sprites)", "screenshot"]
+    },
+    "confirms": "sprite set switches",
+    "refutes": "vampires still render",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-15",
+    "flag": 150,
+    "scope": null,
+    "claim": "Scene-meta gate: scene $78 loads pal_watermia_dark when flag $96 is set (pal_watermia otherwise).",
+    "priority": "P2",
+    "start": { "scene": 120, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to $78 with $96 clear",
+      "forced": "warp with $96 set",
+      "observe": ["CGRAM palette 0", "screenshot"]
+    },
+    "confirms": "dark palette only with $96",
+    "refutes": "no palette change",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-16",
+    "flag": 179,
+    "scope": null,
+    "claim": "Scene-meta gate: scene $AC plays bgm_blessing_of_nature when flag $B3 is set, bgm_ominous_whispers otherwise.",
+    "priority": "P2",
+    "start": { "scene": 172, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to $AC with $B3 clear",
+      "forced": "warp with $B3 set",
+      "observe": ["music track id (SPC port)"]
+    },
+    "confirms": "track changes with $B3",
+    "refutes": "same track",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-17",
+    "flag": 244,
+    "scope": null,
+    "claim": "Scene-meta gate: scene $8C loads map_prologue_prophecy_2 when flag $F4 is set, map_prologue_prophecy otherwise.",
+    "priority": "P3",
+    "start": { "scene": 140, "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "warp to $8C with $F4 clear",
+      "forced": "warp with $F4 set",
+      "observe": ["BG1 tilemap", "screenshot"]
+    },
+    "confirms": "second map with $F4",
+    "refutes": "same map",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-18",
+    "flag": null,
+    "bytes": "$0AA4-$0AA5, $0AA8-$0AAB, $0AAE-$0AAF, $0AA1, $0A31-$0A3F, $0A46-$0A4F, $0A52-$0A5F",
+    "scope": null,
+    "claim": "Bytes with no static site ('unassigned') are never written during a normal playthrough.",
+    "priority": "P2",
+    "start": { "scene": "new game", "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "a write watch on $0A02-$0AB3 that logs PC and value, with a positive control (write to $0A02 by a script)",
+      "forced": "play through the early game and a full dungeon, open menus, die, save, load",
+      "observe": ["write log by address", "bytes written by an indirect or dynamic path"]
+    },
+    "confirms": "no write to the listed bytes",
+    "refutes": "a write names its code path and may reveal an unlisted owner",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL10-19",
+    "flag": null,
+    "bytes": "$0A00-$0AB3",
+    "scope": null,
+    "claim": "The new-game path (DiaryNewGameStart, 779502-779557) writes no byte of the flag array, so a new game starts with whatever the array holds; after boot that is all zero.",
+    "priority": "P2",
+    "start": { "scene": "title screen", "flags": [], "form": "Will", "state": null },
+    "trial": {
+      "control": "cold boot, choose new game, read $0A00-$0AB3 (expect all zero)",
+      "forced": "load a save with many flags set, return to the title screen by any available path (soft reset or menu), choose new game, read the array",
+      "observe": ["$0A00-$0AB3 after the new-game start", "whether any path returns to the title without the boot clear"]
+    },
+    "confirms": "array zero after new game, or no path back to the title without the clear",
+    "refutes": "stale flags survive a new game",
+    "needs": ["FR00"]
+  }
+]

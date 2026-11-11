@@ -1,0 +1,136 @@
+{
+  "_note": "FL22 draft: shipped block notes that the code contradicts (Itory, Moon Tribe, Incan Ruins). Every block note is a full-text replacement (the spec format has no partial edit). Apply in the apply pass after a fresh extract:lt. Notes outside this scope (item_use_system, ec_proximity_door_toggle, cop_handlers_movement) are listed in the report, section 7.",
+  "itory/itory_village/itory_village_fog.asm": {
+    "blockNote": [
+      "Position-dependent fog overlay for Itory Village's west side.",
+      "",
+      "Waits with WaitOnFlagByte(#2B, #01) until flag $2B (Lilly's arrival cutscene is done) is set; before that it does nothing, so the fog is off during the cutscene. After that it runs every frame via SetEntryHere: it reads the player actor's X coordinate and compares it against threshold #$01B0 (432 pixels). West of the threshold it writes #$50 to CGADSUB ($2131) for halftone subscreen color addition fog; east of it, it clears CGADSUB to #$00."
+    ]
+  },
+  "incan_ruins/larai_cliff_back/ir1E_cliff_mantel_a.asm": {
+    "blockNote": [
+      "Statue prop on the Larai Cliff back side, variant A (mantel tiles $37-$38, $12-$13; scene row at tile (37,14)).",
+      "",
+      "Spawns hidden (the third actor-def byte #30 sets $2000 in $10), nudges its position by (08,FE), sets sprite priority #30 and waits with WaitOnFlagByte(#30, #01). When flag $30 (Incan Statue A placed on the mantel by UseItem_IncaStatueA) is set it clears $2000 in $10, which shows the statue sprite, and idles. With the flag already set at scene load the wait passes at once."
+    ]
+  },
+  "incan_ruins/larai_cliff_back/ir1E_cliff_mantel_b.asm": {
+    "blockNote": [
+      "Statue prop on the Larai Cliff back side, variant B (mantel tiles $26-$27, $15-$16; scene row at tile (26,17)).",
+      "",
+      "Same script as variant A with flag $31 (Incan Statue B placed on the mantel by UseItem_IncaStatueB): it spawns hidden, waits with WaitOnFlagByte(#31, #01), then shows the statue sprite and idles. Sprite priority #30."
+    ]
+  },
+  "incan_ruins/larai_cliff_back/ir1E_cliff_slide_trigger.asm": {
+    "blockNote": [
+      "Cliff slide event of the Larai Cliff back scene ($1E).",
+      "",
+      "Until flags $30 and $31 (both Incan statues on their mantels) are set, it runs every frame: SetFlagByte #00 while playerYPos is below $0110 and ClearFlagByte #00 otherwise (scratch flag $00, read by the player's idle sprite code). When both flags are set it sets scratch $00 for good, plays sound $1616 and polls BranchIfPlayerAt for the exact pixels (01E8,0120) and (01E7,0120). On a match it locks the joypad ($EFFC), plays sound $1616, spawns 40 debris helpers (LoopStart #28 passes, one every 8 ticks; code_09C51B starts each at X $02A0, Y $0090 plus a random byte and moves it along X, then dies), writes $FFF8 to playerSpeedEw, unlocks the joypad, waits #3B and polls again."
+    ]
+  },
+  "incan_ruins/inca_entryway/ir25_ceiling_tile.asm": {
+    "blockNote": [
+      "Falling ceiling tile of the Incan Ruins entryway (scene $25). Six copies at tiles (08,1A), (08,1C), (08,1E), (0A,1A), (0A,1C), (0A,1E).",
+      "",
+      "Spawns hidden (the third actor-def byte #23 sets $2000 in $10) and nudges its position by (08,00). With flag $2F (the Blue Block was fitted into the slot by UseItem_DiamondBlock_Place) set at spawn it runs code_09C38D at once: it shows the tile, sets sprite priority to the minimum, clears collision on its tile, releases the joypad bits $CFFC and idles. With $2F clear it waits with WaitOnFlagByte(#2F, #01). When the flag turns on it locks the joypad ($CFFC), waits #3B, plays sound $1515, spawns camera_drift.CameraDriftLoopSimple for screen shake, waits #B3, stores a random byte in $08, yields once, subtracts $100 from its Y, shows the tile, sets the priority to the maximum and falls (StageSpriteLoopMoveY #18, #02, #0F). On landing it plays sound $1515, ends on frame #35 and runs code_09C38D."
+    ]
+  },
+  "incan_ruins/inca_entryway/ir25_block_slot.asm": {
+    "blockNote": [
+      "Block slot of the Incan Ruins entryway (scene $25), scene row at tile (0E,1C).",
+      "",
+      "Spawns hidden (the third actor-def byte #23 sets $2000 in $10) and nudges its position by (08,00). With flag $2F (the Blue Block was fitted into the slot by UseItem_DiamondBlock_Place) set at spawn it runs code_09C3B3: it clears $2000 in $10, which shows the block, and idles. With $2F clear it waits with WaitOnFlagByte(#2F, #01), plays sound #2C on channel 2 and then runs the same show-block code."
+    ]
+  },
+  "incan_ruins/incan_ruins_entrance/ir1C_lily.asm": {
+    "blockNote": [
+      "Lilly at the Incan Ruins entrance (scene $1C): one escort scene in two states.",
+      "",
+      "Flag $4B clear: she locks the joypad ($CFFC), waits #1D, prints the entrance dialog (the Elder's story of the Incan Gold Ship), marks tiles (06,19) and (07,19) solid, unlocks, spawns EscortFollowPathTracker and polls scratch flag $01. When ir1C_kara sets $01 she kills the tracker, clears both solid tiles, waits for scratch $03, faces the player, prints the Lilly and Kara dialog (09CCD0), sets scratch $02 and waits for it to clear. Then she walks, prints the Elder-quote dialog (the statue on the Larai Cliff), sets $4B and unlocks the joypad.",
+      "",
+      "Flag $4B set at spawn: she stands at tile (16,13), solid, with the Elder-quote dialog as her talk handler. When characterForm is not 0 (Will) she also sets the player actor's code pointer to sE6_gaia.Transform_FreedanToWill and sets playerFlags bit $0800. The file has no Dark Space or scene $4C code."
+    ]
+  },
+  "incan_ruins/larai_cliff/ir1D_wind_melody.asm": {
+    "blockNote": [
+      "Wind Melody event at Larai Cliff (scene $1D).",
+      "",
+      "With flag $32 set at spawn the actor dies. Otherwise it polls BranchIfPlayerAt for the exact pixel (0050,0170). On a match it locks the joypad ($EFFC), waits #1D, starts music #1B, waits #77, plays sound #16 on channel 1, prints 'The wind in the valley plays a melody. The statue seems to be singing...', starts music #1A, waits #77 and then polls APUIO1 until it reads $FF. Then it calls GiveItem #08 (Wind Melody): on success it prints 'You've learned the Melody of the Wind!' and sets $32; with a full inventory it prints the 'inventory is full' text and leaves $32 clear, so the event repeats on the next visit. Both paths unlock the joypad and die."
+    ]
+  },
+  "incan_ruins/inca_secret_hallway/ir20_statue.asm": {
+    "blockNote": [
+      "Gold statue of the Inca secret hallway (scene $20): a solid enemy-type actor that blocks the passage.",
+      "",
+      "With flag $B9 set at spawn it dies. Otherwise it points statsPtr at enemy_stats_table, marks its tile solid and spawns interaction_handlers.push_handler_solid as a child (that child pulls the statue one tile toward the player on a shoulder-button press plus facing; see interaction_handlers). The main loop keeps currentHp at $FF. After a hit (HP below $FF): when playerFlags bit $0002 is set it sets $B9 and jumps to StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop, so the statue is destroyed; otherwise it decrements the actor word $24 and restores HP to $FF once the word goes negative. The script has no position test."
+    ]
+  },
+  "incan_ruins/inca_treasure_room/ir26_statue.asm": {
+    "blockNote": [
+      "Gold statue of the Inca treasure room (scene $26): same script as ir20_statue without the flag.",
+      "",
+      "Solid enemy-type actor: it points statsPtr at enemy_stats_table, marks its tile solid and spawns interaction_handlers.push_handler_solid as a child (that child pulls the statue one tile toward the player on a shoulder-button press plus facing). The main loop keeps currentHp at $FF. After a hit: when playerFlags bit $0002 is set it jumps to StandardEnemyDefeatHandler.EnemyDefeatFlashAndDrop, so the statue is destroyed; otherwise it decrements the actor word $24 and restores HP to $FF once the word goes negative. It sets no event flag, so a destroyed statue is back on the next scene load. The script has no form test."
+    ]
+  },
+  "incan_ruins/castoth_lair/ir29_transform.asm": {
+    "blockNote": [
+      "Aftermath actor of the Castoth fight (scene $29, scene row ;04).",
+      "",
+      "With flag word $011F set at spawn it dies. Otherwise it waits until enemiesRemaining ($0AEC) is 0, locks the joypad ($EFFC), applies BG change #1F, sets $011F, fades to music #1B and waits #77. When characterForm is 0 (Will) it only unlocks the joypad. For any other form it locks the joypad ($CFFC), waits #59, prints 'After the demon disappears, Will returns to his original shape...', unlocks, sets the player actor's code pointer to sE6_gaia.Transform_FreedanToWill, sets playerFlags bit $0800, waits until that bit clears and unlocks the joypad ($EFFC)."
+    ]
+  },
+  "incan_ruins/ir29_castoth.asm": {
+    "blockNote": [
+      "Castoth — first major boss of the game (~1,150 lines).",
+      "",
+      "Two variants: btF2_neo_castoth (Tower of Babel rematch, scene $F2)",
+      "and ir29_castoth (original, scene $29). Both share the same combat",
+      "logic. Boss has rotating arm segments using ApplyOrbitalOffsetFromRef",
+      "with orbit angle/diameter for circular motion. Vulnerable only at",
+      "the central face. Arms cycle through open/closed states, blocking",
+      "attacks when closed. Phase transitions increase attack speed and",
+      "arm pattern complexity. Spawns camera_drift for screen shake on",
+      "impacts. On defeat the scene $29 variant leaves the aftermath to the",
+      "separate actor ir29_transform (flag word $011F); the scene $F2 variant",
+      "spawns code_0A9AB9, which sets flag word $0175 and queues scene $E0.",
+      "Uses StandardEnemyDefeatHandler for the win sequence."
+    ]
+  },
+  "incan_ruins/stone_lord_plates/ir1F_gold_tile.asm": {
+    "blockNote": [
+      "Gold floor tile of the four-plate puzzle in scene $1F. Four copies; the spawn parameter bytes #03, #05, #07 and #09 give the actor word $0E = 1, 2, 3, 4.",
+      "",
+      "With flag $3C set at spawn it dies. Otherwise it nudges its position by (08,08) and tests every frame BranchIfPlayerNear(#01) and BranchIfActorNear(slot, #01) for the actors in slots #02-#05 of the scene's actor list (the four stone lords), each with radius 1. When nothing stands on the tile it calls flag_helpers.ClearFlagRaw with A = $0E; when something does it calls flag_helpers.SetFlagRaw with A = $0E, so each tile owns scratch flag $01-$04. The first time the player steps on a tile in a visit it prints 'Stepping on a gold tile emits a sound. There are four gold tiles. Stand on each of the four tiles at the same time.' (latched by scratch flag $0F). ir1F_plate_gate_opener reads eventFlags AND $001E (bits 1-4) to see that all four tiles are occupied."
+    ]
+  },
+  "incan_ruins/ceiling_trap_room/ir28_ceiling_trap_trigger.asm": {
+    "blockNote": [
+      "Ceiling trap controller of scene $28 (Incan Ruins ceiling trap room).",
+      "",
+      "Invisible actor that polls six BranchIfPlayerInAbsTiles rectangles every frame: (1A,0C)-(1C,0E), (1A,16)-(1C,18), (12,24)-(14,26), (08,24)-(0A,26), (10,1C)-(12,1E) and (12,16)-(14,18). Each rectangle has its own latch, scratch flag $01-$06 (set on entry and zeroed at every scene load, so a zone fires once per visit). A zone that fires spawns falling-tile helpers of ec_proximity_door_toggle at absolute pixel positions with SpawnAfterAbsFlags: zones 1-3 spawn one code_09C2DB helper each ((01A8,0130), (01C8,01C0), (00E8,0260)); zones 4-6 spawn two code_09C2E4 helpers each, with a WaitByte #0E between them ((0088,0220) and (0088,0200), (0088,01C0) and (0088,01A0), (0128,0160) and (0128,0140)). code_09C2DB marks the landing tile solid and code_09C2E4 clears its collision. After every zone check the actor plays sound $2C2C and polls again."
+    ]
+  },
+  "itory/itory_village/it15_elder.asm": {
+    "blockNote": [
+      "The Elder of Itory Village (scene $15), story NPC.",
+      "",
+      "With flag $41 clear he waits for the player in tiles (04,1C)-(07,1E), prints 'Strange Voice: You've come, Will...', sets $41, then waits for tiles (08,19)-(0D,1A) and prints 'Elder: I'm here. In the flowers.'; with $41 set at spawn he skips both triggers. Then he gets the talk handler code_04E97A and the solid sprite helper code_04E96A.",
+      "",
+      "The handler tests in this order: flag $44 set repeats the legend dialog with its Yes/No loop; item #04 held prints 'It's said that the Moon Tribe has one more. Have Lilly guide you there.'; item #03 held prints the Incan Statue legend and asks 'Understand?' (Yes prints the Moon Tribe line and sets $44; No or cancel repeats the legend); flag $47 set repeats the entrust dialog; scratch $0E set asks 'Do you plan to go?'; scratch $0F set asks 'Were you summoned by your father?'. Otherwise he prints the long family dialog (the barrier, Shira, Bill and Lola) and asks 'Were you summoned by your father?'. Yes prints 'That fulfills Lola's prophesy.' and asks 'Do you plan to go?': Yes prints the entrust dialog for the Incan Statue and sets $47; No or cancel prints 'A disobedient son, unlike your father.' and sets scratch $0E. A No or cancel to the first question prints 'What? If you weren't....That's a bad sign....' and sets scratch $0F. Scratch flags are zeroed at every scene load."
+    ]
+  },
+  "itory/itory_village/it15_bill.asm": {
+    "blockNote": [
+      "Grandpa Bill NPC in Itory Village (scene $15), solid.",
+      "",
+      "The default talk handler (code_04EFA4) prints 'Meet with the Elder. He knows something.' With flag $47 set at spawn the handler is code_04EFA9, which asks whether Will found a shiny silver stone when he fought the demon at Edward Castle (100 of them give a revive). With $47 clear and $3B clear he waits with WaitOnFlagByte(#3B, #01), shows frame #2C, waits for scratch flag $05 and returns to frame #2A."
+    ]
+  },
+  "itory/moon_tribe_cave/it1B_trial.asm": {
+    "blockNote": [
+      "Moon Tribe trial in their cave (scene $1B).",
+      "",
+      "With flag word $011C set at spawn the actor dies. Otherwise it locks the joypad ($CFFC), prints the challenge (the creatures touched by the comet's light; destroy them within 20 seconds to get the Incan Statue), unlocks, and runs a decimal countdown from 20 (orbitAngle = $20; orbitDiameter counts #3C ticks per second; sound #10 each second) drawn as digit sprites next to the player. When enemiesRemaining reaches 0 in time it locks the joypad ($FFFC), prints the success dialog, plays sound $0F0F, applies BG change #1C and sets $011C. When the countdown ends first it prints 'In that case, I can't give you the statue.' The trial grants no item itself; the statue is handed out by it1B_inca_statue_b (GiveItem #04)."
+    ]
+  }
+}

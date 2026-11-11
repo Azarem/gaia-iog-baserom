@@ -1,0 +1,1141 @@
+{
+  "actors/ramps.asm": {
+    "blockNote": [
+      "Four ramp-jump launcher actors (ramp_east, ramp_west, ramp_north, ramp_south; Bank 00, 53971-54829). Each one watches the player; when the player runs into its window the ramp takes the player's script over, locks the controls and carries the player a fixed distance along one axis. East/west ramps spawn a child actor that adds a precomputed vertical arc, so the player leaps; north/south ramps just move the player vertically for a number of animation cycles. Earlier notes called them collision tiles; they are actors placed through scene_actors.",
+      "",
+      "=== PER-FRAME WATCH (two stages) ===",
+      "",
+      "All four are actor-def <#00,#00,#20> and follow one pattern, mirrored per direction:",
+      "1. Stage 1 (every frame): RampCheckPlayerSpeed passes when |speed| on the ramp's axis (playerSpeedEw for east/west, playerSpeedNs for north/south) is at least 6 and playerFlags bit $0800 (script lock) is clear. Then the player must be inside the ramp's window (table below). When both hold the ramp executes SetEntryHere and enters stage 2.",
+      "2. Stage 2: every frame the ramp compares the player's position on the ramp's axis with its own. When the two are EXACTLY equal it fires the launch. If the distance grows to $10 or more it goes back to stage 1 with JumpNextFrame. Speed and lock are not rechecked in stage 2.",
+      "",
+      "| Ramp | Axis | Window (player minus ramp) | Direction of the climb | Exit speed |",
+      "|------|------|----------------------------|------------------------|------------|",
+      "| ramp_east  | X, |dy| <= $18 | +2 .. +15 (player just east) | west (-8 per frame) | $FFF8 |",
+      "| ramp_west  | X, |dy| <= $18 | -16 .. -2 (player just west) | east (+8 per frame) | $0008 |",
+      "| ramp_north | Y, |dx| <= $10 | +2 .. +15 (player just south) | north (-8 per frame) | $FFF8 on playerSpeedNs |",
+      "| ramp_south | Y, |dx| <= $10 | -16 .. -2 (player just north) | south (+8 per frame) | $0008 on playerSpeedNs |",
+      "",
+      "The direction of the speed is not tested: any |speed| >= 6 on the axis arms the ramp. The names describe the side the ramp sits on relative to the player. Chain $10 / $0F of movement_delta_table are the constant -8 / +8 per frame movements used by StagePlayerMoveXY. The ramp keeps its temporary window edge in the global words $0018 (east/west) and $001C (south) rather than in its own direct page; nothing yields between writing and using them.",
+      "",
+      "=== LAUNCH (RampBeginPlayerControl) ===",
+      "",
+      "The ramp writes the climb routine's address into the player's entry pointer ($00 / $02 of playerActor), then calls RampBeginPlayerControl: it zeroes playerSpeedEw and playerSpeedNs, stores the ramp's own $0E (the spawn-record type byte >> 1) into the player's statsPtr, zeroes the player's $2C / $2E, masks the D-pad ($0F00 into joypadMaskStd) and sets playerFlags $0800. The ramp itself then restarts at stage 1 and stays blocked by the $0800 lock until RestorePlayerControl clears it. The $0E value is the ramp's parameter: the arc selector for east/west and the loop count for north/south.",
+      "",
+      "=== EAST / WEST CLIMB (RampPlayerClimbEast, loc_00D4F5) ===",
+      "",
+      "Runs as the player. COP [SpawnAfter] func_00D5C0 creates the arc child right after the player (the child's $04 link is the player, the player's $06 link is the child); the player then writes the exit speed ($FFF8 east ramp, $0008 west ramp) into the child's orbitDiameter, clears $0008 in its own $10 (collision-aware movement off) and sets $0200, and loops StagePlayerMoveXY plus AnimOnce forever: animation $21 with X chain $10 (-8 per frame) for east, animation $24 with chain $0F (+8) for west. The loop ends because the child restores the player's entry.",
+      "func_00D5C0 reads the player's statsPtr (0 or 1), multiplies by 3 to index ramp_motion_curves (pointer + frame count), and from then on adds one sign-extended byte of the chosen curve to the player's Y ($16) each frame (ramp_motion_curve_step). After the last frame it copies orbitDiameter into playerSpeedEw, calls stair_climb.RestorePlayerControl, sets slopeStepCounter = 0 and decelStepCounter = 7 and dies.",
+      "Spawn type byte 1 ($0E = 0) selects ramp_curve_arc_64: 64 frames, rising up to 204 pixels (peak at frame 28) and returning to the start height (sum 0), about 512 pixels of horizontal travel. Spawn type 3 ($0E = 1) selects ramp_curve_arc_32: 32 frames, peak rise 50 pixels, ending 8 pixels lower (sum +8), about 256 pixels of travel. Only the Itory ramp pair (scene 15) uses type 1; every other east/west ramp uses type 3. These distances are static estimates (8 px x frames); they were not measured at runtime.",
+      "",
+      "=== NORTH / SOUTH CLIMB (loc_00D518, RampPlayerClimbSouth) ===",
+      "",
+      "No child and no arc. The player's loopCounter is set to statsPtr (the ramp's $0E: type $09 = 4, $0B = 5, $11 = 8, $03 = 1) and each loop iteration is StagePlayerMoveXY plus AnimOnce, i.e. one full animation cycle of Y movement at -8 (north, animation $1E, chain $10) or +8 (south, animation $19, chain $0F) per frame. After the loop playerSpeedNs = $FFF8 (north) or $0008 (south), RestorePlayerControl runs and the two step counters are reset as above. LoopEnd decrements before testing, so a count of 0 would run 65536 iterations; the placed ramps never use 0.",
+      "",
+      "=== PLACEMENT ===",
+      "",
+      "58 actor-spawn lines in scene_actors: 26 ramp_east, 22 ramp_west, 6 ramp_north, 4 ramp_south, in scenes 15, 1E, 21, 23, 4F, 53, 82, 83, 85 (Great Wall wall_rampway), 88, A1-A3, A5, A7 (A1, A2 and A5 are in mountain_temple/), B3, B5, CE, CF and D6 (pyramid/). East/west ramps use type 3 except the Itory pair; north uses type 9 (one type 3 in scene 21); south uses type $0B in scene 21 and $11 elsewhere.",
+      "",
+      "=== QUIRKS ===",
+      "",
+      "- Two label pairs are swapped relative to the direction: ramp_east_step is the loop head of the NORTH climb and ramp_north_step the loop head of the SOUTH climb; loc_00D518 is the north entry and loc_00D4F5 the west entry.",
+      "- The launch needs exact equality of the player and ramp coordinates on the axis in stage 2. Whether the player's step size always hits it was not checked at runtime.",
+      "- RampPlayerClimbEast stores the exit speed through LDX $06 without checking that SpawnAfter succeeded; if the actor pool were full the climb loop would never end. No evidence that this happens in practice.",
+      "- The player's $10 bit $0200 is set here and by stair_climb; its reader is unknown (see OQ-I032-5)."
+    ],
+    "partNotes": {
+      "code_00D2D5": [
+        "ramp_east stage 1 (re-entered by JumpNextFrame). Scratch $0018 = ramp X + 8, then the speed, row (|dy| <= $18) and column (player X - ramp X in 2..15) checks. RTL leaves the ramp at this entry for the next frame."
+      ],
+      "loc_00D316": [
+        "ramp_east stage 2: SetEntryHere again, then compare player X with ramp X each frame. Equal: loc_00D334 launches. Distance >= $10: back to stage 1. Otherwise keep waiting."
+      ],
+      "loc_00D334": [
+        "ramp_east launch: point the player's entry at RampPlayerClimbEast, run RampBeginPlayerControl, return to stage 1."
+      ],
+      "code_00D34D": [
+        "ramp_west stage 1. Scratch $0018 = ramp X - 8; the window is player X - ramp X in -16..-2."
+      ],
+      "loc_00D388": [
+        "ramp_west stage 2 (same structure as ramp_east)."
+      ],
+      "loc_00D3A6": [
+        "ramp_west launch: the player's entry becomes loc_00D4F5 (the west climb)."
+      ],
+      "code_00D3BF": [
+        "ramp_north stage 1: axis Y. Checks playerSpeedNs, |player X - ramp X| <= $10 and player Y - ramp Y in 2..15."
+      ],
+      "loc_00D3F6": [
+        "ramp_north stage 2: compare player Y with ramp Y each frame."
+      ],
+      "loc_00D414": [
+        "ramp_north launch: the player's entry becomes loc_00D518 (the north climb)."
+      ],
+      "code_00D42D": [
+        "ramp_south stage 1: scratch $001C = ramp Y - $10; the window is player Y - ramp Y in -16..-2 with |dx| <= $10."
+      ],
+      "loc_00D464": [
+        "ramp_south stage 2: compare player Y with ramp Y each frame."
+      ],
+      "loc_00D482": [
+        "ramp_south launch: the player's entry becomes RampPlayerClimbSouth."
+      ],
+      "RampBeginPlayerControl": [
+        "Takes the player over: zero both speeds, statsPtr = ramp $0E (curve index or loop count), zero player $2C / $2E, mask the D-pad ($0F00) and set playerFlags $0800. Y = player actor on entry; X = the ramp."
+      ],
+      "RampCheckPlayerSpeed": [
+        "A = signed speed on the ramp's axis. Carry clear = |speed| >= 6 and playerFlags $0800 clear; carry set otherwise."
+      ],
+      "RampPlayerClimbEast": [
+        "East-ramp climb (runs as the player): spawn the arc child, give it the exit speed $FFF8, then loop animation $21 with X chain $10 (-8 per frame) until the child restores control."
+      ],
+      "loc_00D4F5": [
+        "West-ramp climb (unnamed in the original): same as RampPlayerClimbEast with exit speed $0008, animation $24 and X chain $0F (+8 per frame)."
+      ],
+      "loc_00D518": [
+        "North-ramp climb entry: loopCounter = statsPtr, loop head ramp_east_step. Clears $0008 / sets $0200 in the player's $10."
+      ],
+      "ramp_east_step": [
+        "Loop head of the NORTH climb (the name is swapped): animation $1E, Y chain $10 (-8 per frame), one animation cycle per iteration; after the last iteration playerSpeedNs = $FFF8 and control is restored."
+      ],
+      "RampPlayerClimbSouth": [
+        "South-ramp climb entry: loopCounter = statsPtr, loop head ramp_north_step, SetEntryHere, clears $0008 / sets $0200 in the player's $10."
+      ],
+      "ramp_north_step": [
+        "Loop head of the SOUTH climb (the name is swapped): animation $19, Y chain $0F (+8 per frame), one animation cycle per iteration; after the last iteration playerSpeedNs = $0008 and control is restored."
+      ],
+      "func_00D5C0": [
+        "Arc driver child of the east/west climbs. X = $04 link = the player. Selects the curve from the player's statsPtr, sets loopCounter = frame count and orbitAngle = byte offset of the curve, then runs ramp_motion_curve_step once per frame. At the end: playerSpeedEw = orbitDiameter (exit speed), RestorePlayerControl, step counters reset, COP Die."
+      ],
+      "ramp_motion_curve_step": [
+        "One frame of the arc: read the next signed byte of the curve (orbitAngle + frame index $2A), sign-extend and add it to the player's Y at $16. LoopEnd repeats it once per frame for the curve's frame count."
+      ]
+    },
+    "comments": {
+      "53971": {
+        "text": "Idle stage 1 re-entry point",
+        "expect": "COP [SetEntryHere]"
+      },
+      "53973": {
+        "text": "Ramp X ...",
+        "expect": "LDA $14"
+      },
+      "53976": {
+        "text": "... + 8 ...",
+        "expect": "ADC #$0008"
+      },
+      "53979": {
+        "text": "... into global scratch $0018",
+        "expect": "STA $0018"
+      },
+      "53982": {
+        "text": "Player's horizontal speed",
+        "expect": "LDA $playerSpeedEw"
+      },
+      "53985": {
+        "text": "Carry clear = |speed| >= 6 and no script lock",
+        "expect": "JSR $&RampCheckPlayerSpeed"
+      },
+      "53988": {
+        "text": "Armed speed: continue with the position checks",
+        "expect": "BCC loc_00D2E7"
+      },
+      "53990": {
+        "text": "Too slow or locked: wait for the next frame",
+        "expect": "RTL"
+      },
+      "53994": {
+        "text": "Player Y ...",
+        "expect": "LDA $0016, Y"
+      },
+      "53998": {
+        "text": "... minus ramp Y = dy",
+        "expect": "SBC $16"
+      },
+      "54002": {
+        "text": "Absolute value of dy",
+        "expect": "EOR #$FFFF"
+      },
+      "54006": {
+        "text": "|dy| <= $18?",
+        "expect": "CMP #$0019"
+      },
+      "54011": {
+        "text": "Not in the ramp's row",
+        "expect": "RTL"
+      },
+      "54012": {
+        "text": "Player X ...",
+        "expect": "LDA $0014, Y"
+      },
+      "54016": {
+        "text": "... minus 8 ...",
+        "expect": "SBC #$0008"
+      },
+      "54020": {
+        "text": "... minus (ramp X + 8) = player X - ramp X - 16",
+        "expect": "SBC $0018"
+      },
+      "54023": {
+        "text": "Negative: player X - ramp X < 16",
+        "expect": "BMI loc_00D30A"
+      },
+      "54025": {
+        "text": "Player 16 or more pixels east of the ramp: wait",
+        "expect": "RTL"
+      },
+      "54032": {
+        "text": "Window: player X - ramp X between 2 and 15 pixels",
+        "expect": "CMP #$000F"
+      },
+      "54037": {
+        "text": "Too close (< 2) or too far: wait",
+        "expect": "RTL"
+      },
+      "54038": {
+        "text": "Stage 2: armed, wait for exact alignment",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54043": {
+        "text": "Player X ...",
+        "expect": "LDA $0014, Y"
+      },
+      "54047": {
+        "text": "... minus ramp X",
+        "expect": "SBC $14"
+      },
+      "54049": {
+        "text": "Exactly aligned: launch",
+        "expect": "BEQ loc_00D334"
+      },
+      "54056": {
+        "text": "Absolute distance",
+        "expect": "INC"
+      },
+      "54057": {
+        "text": "Still within 15 pixels?",
+        "expect": "CMP #$0010"
+      },
+      "54062": {
+        "text": "Keep waiting; speed and lock are not rechecked",
+        "expect": "RTL"
+      },
+      "54063": {
+        "text": "Moved 16 or more pixels away: disarm and restart stage 1",
+        "expect": "COP [JumpNextFrame] ( @code_00D2D5 )"
+      },
+      "54068": {
+        "text": "Player entry = RampPlayerClimbEast ...",
+        "expect": "LDA #$&RampPlayerClimbEast"
+      },
+      "54071": {
+        "text": "... low word ...",
+        "expect": "STA $0000, Y"
+      },
+      "54077": {
+        "text": "... and bank",
+        "expect": "STA $0002, Y"
+      },
+      "54080": {
+        "text": "Lock the player: zero speeds, statsPtr = arc index, D-pad masked, $0800 set",
+        "expect": "JSR $&RampBeginPlayerControl"
+      },
+      "54083": {
+        "text": "Back to stage 1 (blocked by the $0800 lock until control is restored)",
+        "expect": "COP [JumpNextFrame] ( @code_00D2D5 )"
+      },
+      "54091": {
+        "text": "Idle stage 1 re-entry point",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54093": {
+        "text": "Ramp X ...",
+        "expect": "LDA $14"
+      },
+      "54096": {
+        "text": "... - 8 ...",
+        "expect": "SBC #$0008"
+      },
+      "54099": {
+        "text": "... into global scratch $0018",
+        "expect": "STA $0018"
+      },
+      "54102": {
+        "text": "Player's horizontal speed",
+        "expect": "LDA $playerSpeedEw"
+      },
+      "54105": {
+        "text": "Carry clear = |speed| >= 6 and no script lock",
+        "expect": "JSR $&RampCheckPlayerSpeed"
+      },
+      "54110": {
+        "text": "Too slow or locked: wait for the next frame",
+        "expect": "RTL"
+      },
+      "54114": {
+        "text": "Player Y ...",
+        "expect": "LDA $0016, Y"
+      },
+      "54118": {
+        "text": "... minus ramp Y = dy",
+        "expect": "SBC $16"
+      },
+      "54122": {
+        "text": "Absolute value of dy",
+        "expect": "EOR #$FFFF"
+      },
+      "54126": {
+        "text": "|dy| <= $18?",
+        "expect": "CMP #$0019"
+      },
+      "54131": {
+        "text": "Not in the ramp's row",
+        "expect": "RTL"
+      },
+      "54132": {
+        "text": "Player X ...",
+        "expect": "LDA $0014, Y"
+      },
+      "54136": {
+        "text": "... + 8 ...",
+        "expect": "ADC #$0008"
+      },
+      "54140": {
+        "text": "... minus (ramp X - 8) = player X - ramp X + 16",
+        "expect": "SBC $0018"
+      },
+      "54143": {
+        "text": "Non-negative: player at most 16 pixels west of the ramp",
+        "expect": "BPL loc_00D382"
+      },
+      "54145": {
+        "text": "Further west: wait",
+        "expect": "RTL"
+      },
+      "54146": {
+        "text": "Window: player X - ramp X between -16 and -2",
+        "expect": "CMP #$000F"
+      },
+      "54151": {
+        "text": "Too close (> -2) or too far: wait",
+        "expect": "RTL"
+      },
+      "54152": {
+        "text": "Stage 2: armed, wait for exact alignment",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54157": {
+        "text": "Player X ...",
+        "expect": "LDA $0014, Y"
+      },
+      "54161": {
+        "text": "... minus ramp X",
+        "expect": "SBC $14"
+      },
+      "54163": {
+        "text": "Exactly aligned: launch",
+        "expect": "BEQ loc_00D3A6"
+      },
+      "54167": {
+        "text": "Absolute distance",
+        "expect": "EOR #$FFFF"
+      },
+      "54171": {
+        "text": "Still within 15 pixels?",
+        "expect": "CMP #$0010"
+      },
+      "54176": {
+        "text": "Keep waiting; speed and lock are not rechecked",
+        "expect": "RTL"
+      },
+      "54177": {
+        "text": "Moved 16 or more pixels away: disarm and restart stage 1",
+        "expect": "COP [JumpNextFrame] ( @code_00D34D )"
+      },
+      "54182": {
+        "text": "Player entry = west climb (loc_00D4F5) ...",
+        "expect": "LDA #$&loc_00D4F5"
+      },
+      "54185": {
+        "text": "... low word ...",
+        "expect": "STA $0000, Y"
+      },
+      "54191": {
+        "text": "... and bank",
+        "expect": "STA $0002, Y"
+      },
+      "54194": {
+        "text": "Lock the player: zero speeds, statsPtr = arc index, D-pad masked, $0800 set",
+        "expect": "JSR $&RampBeginPlayerControl"
+      },
+      "54197": {
+        "text": "Back to stage 1 (blocked by the $0800 lock until control is restored)",
+        "expect": "COP [JumpNextFrame] ( @code_00D34D )"
+      },
+      "54205": {
+        "text": "Idle stage 1 re-entry point",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54207": {
+        "text": "Player's vertical speed",
+        "expect": "LDA $playerSpeedNs"
+      },
+      "54210": {
+        "text": "Carry clear = |speed| >= 6 and no script lock",
+        "expect": "JSR $&RampCheckPlayerSpeed"
+      },
+      "54215": {
+        "text": "Too slow or locked: wait for the next frame",
+        "expect": "RTL"
+      },
+      "54219": {
+        "text": "Player X ...",
+        "expect": "LDA $0014, Y"
+      },
+      "54223": {
+        "text": "... minus ramp X = dx",
+        "expect": "SBC $14"
+      },
+      "54227": {
+        "text": "Absolute value of dx",
+        "expect": "EOR #$FFFF"
+      },
+      "54231": {
+        "text": "|dx| <= $10?",
+        "expect": "CMP #$0011"
+      },
+      "54236": {
+        "text": "Not in the ramp's column",
+        "expect": "RTL"
+      },
+      "54237": {
+        "text": "Player Y ...",
+        "expect": "LDA $0016, Y"
+      },
+      "54241": {
+        "text": "... minus $10 ...",
+        "expect": "SBC #$0010"
+      },
+      "54245": {
+        "text": "... minus ramp Y = player Y - ramp Y - 16",
+        "expect": "SBC $16"
+      },
+      "54247": {
+        "text": "Negative: player Y - ramp Y < 16",
+        "expect": "BMI loc_00D3EA"
+      },
+      "54249": {
+        "text": "16 or more pixels south of the ramp: wait",
+        "expect": "RTL"
+      },
+      "54256": {
+        "text": "Window: player Y - ramp Y between 2 and 15 pixels",
+        "expect": "CMP #$000F"
+      },
+      "54261": {
+        "text": "Too close (< 2) or too far: wait",
+        "expect": "RTL"
+      },
+      "54262": {
+        "text": "Stage 2: armed, wait for exact alignment",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54267": {
+        "text": "Player Y ...",
+        "expect": "LDA $0016, Y"
+      },
+      "54271": {
+        "text": "... minus ramp Y",
+        "expect": "SBC $16"
+      },
+      "54273": {
+        "text": "Exactly aligned: launch",
+        "expect": "BEQ loc_00D414"
+      },
+      "54277": {
+        "text": "Absolute distance",
+        "expect": "EOR #$FFFF"
+      },
+      "54281": {
+        "text": "Still within 15 pixels?",
+        "expect": "CMP #$0010"
+      },
+      "54286": {
+        "text": "Keep waiting; speed and lock are not rechecked",
+        "expect": "RTL"
+      },
+      "54287": {
+        "text": "Moved 16 or more pixels away: disarm and restart stage 1",
+        "expect": "COP [JumpNextFrame] ( @code_00D3BF )"
+      },
+      "54292": {
+        "text": "Player entry = north climb (loc_00D518) ...",
+        "expect": "LDA #$&loc_00D518"
+      },
+      "54295": {
+        "text": "... low word ...",
+        "expect": "STA $0000, Y"
+      },
+      "54301": {
+        "text": "... and bank",
+        "expect": "STA $0002, Y"
+      },
+      "54304": {
+        "text": "Lock the player: zero speeds, statsPtr = loop count, D-pad masked, $0800 set",
+        "expect": "JSR $&RampBeginPlayerControl"
+      },
+      "54307": {
+        "text": "Back to stage 1 (blocked by the $0800 lock until control is restored)",
+        "expect": "COP [JumpNextFrame] ( @code_00D3BF )"
+      },
+      "54315": {
+        "text": "Idle stage 1 re-entry point",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54317": {
+        "text": "Ramp Y ...",
+        "expect": "LDA $16"
+      },
+      "54320": {
+        "text": "... - $10 ...",
+        "expect": "SBC #$0010"
+      },
+      "54323": {
+        "text": "... into global scratch $001C",
+        "expect": "STA $001C"
+      },
+      "54326": {
+        "text": "Player's vertical speed",
+        "expect": "LDA $playerSpeedNs"
+      },
+      "54329": {
+        "text": "Carry clear = |speed| >= 6 and no script lock",
+        "expect": "JSR $&RampCheckPlayerSpeed"
+      },
+      "54334": {
+        "text": "Too slow or locked: wait for the next frame",
+        "expect": "RTL"
+      },
+      "54338": {
+        "text": "Player X ...",
+        "expect": "LDA $0014, Y"
+      },
+      "54342": {
+        "text": "... minus ramp X = dx",
+        "expect": "SBC $14"
+      },
+      "54346": {
+        "text": "Absolute value of dx",
+        "expect": "EOR #$FFFF"
+      },
+      "54350": {
+        "text": "|dx| <= $10?",
+        "expect": "CMP #$0011"
+      },
+      "54355": {
+        "text": "Not in the ramp's column",
+        "expect": "RTL"
+      },
+      "54356": {
+        "text": "Player Y ...",
+        "expect": "LDA $0016, Y"
+      },
+      "54360": {
+        "text": "... minus (ramp Y - $10) = player Y - ramp Y + 16",
+        "expect": "SBC $001C"
+      },
+      "54365": {
+        "text": "Further than 16 pixels north of the ramp: wait",
+        "expect": "RTL"
+      },
+      "54366": {
+        "text": "Window: player Y - ramp Y between -16 and -2",
+        "expect": "CMP #$000F"
+      },
+      "54371": {
+        "text": "Too close (> -2) or too far: wait",
+        "expect": "RTL"
+      },
+      "54372": {
+        "text": "Stage 2: armed, wait for exact alignment",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54377": {
+        "text": "Player Y ...",
+        "expect": "LDA $0016, Y"
+      },
+      "54381": {
+        "text": "... minus ramp Y",
+        "expect": "SBC $16"
+      },
+      "54383": {
+        "text": "Exactly aligned: launch",
+        "expect": "BEQ loc_00D482"
+      },
+      "54387": {
+        "text": "Absolute distance",
+        "expect": "EOR #$FFFF"
+      },
+      "54391": {
+        "text": "Still within 15 pixels?",
+        "expect": "CMP #$0010"
+      },
+      "54396": {
+        "text": "Keep waiting; speed and lock are not rechecked",
+        "expect": "RTL"
+      },
+      "54397": {
+        "text": "Moved 16 or more pixels away: disarm and restart stage 1",
+        "expect": "COP [JumpNextFrame] ( @code_00D42D )"
+      },
+      "54402": {
+        "text": "Player entry = RampPlayerClimbSouth ...",
+        "expect": "LDA #$&RampPlayerClimbSouth"
+      },
+      "54405": {
+        "text": "... low word ...",
+        "expect": "STA $0000, Y"
+      },
+      "54411": {
+        "text": "... and bank",
+        "expect": "STA $0002, Y"
+      },
+      "54414": {
+        "text": "Lock the player: zero speeds, statsPtr = loop count, D-pad masked, $0800 set",
+        "expect": "JSR $&RampBeginPlayerControl"
+      },
+      "54417": {
+        "text": "Back to stage 1 (blocked by the $0800 lock until control is restored)",
+        "expect": "COP [JumpNextFrame] ( @code_00D42D )"
+      },
+      "54422": {
+        "text": "No horizontal speed ...",
+        "expect": "STZ $playerSpeedEw"
+      },
+      "54425": {
+        "text": "... and no vertical speed",
+        "expect": "STZ $playerSpeedNs"
+      },
+      "54428": {
+        "text": "Ramp's $0E = spawn type byte >> 1",
+        "expect": "LDA $0E"
+      },
+      "54431": {
+        "text": "X = player actor (Y was set by the caller)",
+        "expect": "TYX"
+      },
+      "54432": {
+        "text": "Player statsPtr = arc index (east/west) or loop count (north/south)",
+        "expect": "STA $statsPtr, X"
+      },
+      "54439": {
+        "text": "Clear player $2C ...",
+        "expect": "STA $002C, X"
+      },
+      "54442": {
+        "text": "... and $2E",
+        "expect": "STA $002E, X"
+      },
+      "54445": {
+        "text": "Restore X = the ramp",
+        "expect": "PLX"
+      },
+      "54449": {
+        "text": "Mask the D-pad bits",
+        "expect": "TSB $joypadMaskStd"
+      },
+      "54455": {
+        "text": "Script lock: playerFlags $0800",
+        "expect": "TSB $playerFlags"
+      },
+      "54459": {
+        "text": "Absolute value of the speed",
+        "expect": "BPL loc_00D4C1"
+      },
+      "54465": {
+        "text": "|speed| >= 6?",
+        "expect": "CMP #$0006"
+      },
+      "54470": {
+        "text": "Player flags",
+        "expect": "LDA $playerFlags"
+      },
+      "54473": {
+        "text": "Script lock set?",
+        "expect": "BIT #$0800"
+      },
+      "54478": {
+        "text": "Armed: carry clear",
+        "expect": "CLC"
+      },
+      "54480": {
+        "text": "Not armed: carry set",
+        "expect": "SEC"
+      },
+      "54482": {
+        "text": "Spawn the arc driver right after the player in the actor list",
+        "expect": "COP [SpawnAfter] ( @func_00D5C0 )"
+      },
+      "54488": {
+        "text": "X = the new child (the player's $06 link)",
+        "expect": "LDX $06"
+      },
+      "54490": {
+        "text": "Exit speed -8 (west) ...",
+        "expect": "LDA #$FFF8"
+      },
+      "54493": {
+        "text": "... into the child's orbitDiameter",
+        "expect": "STA $orbitDiameter, X"
+      },
+      "54497": {
+        "text": "X = the player again",
+        "expect": "PLX"
+      },
+      "54501": {
+        "text": "Player $10 bit 3 off: collision-aware movement disabled",
+        "expect": "TRB $10"
+      },
+      "54506": {
+        "text": "Player $10 bit $0200 on (reader unknown)",
+        "expect": "TSB $10"
+      },
+      "54508": {
+        "text": "Animation $21, X chain $10 (constant -8 per frame), no Y chain",
+        "expect": "COP [StagePlayerMoveXY] ( #21, #10, #00 )"
+      },
+      "54513": {
+        "text": "Wait one frame for the animation",
+        "expect": "COP [AnimOnce]"
+      },
+      "54515": {
+        "text": "Repeat until the child restores the player's entry",
+        "expect": "BRA loc_00D4EC"
+      },
+      "54517": {
+        "text": "Spawn the arc driver right after the player in the actor list",
+        "expect": "COP [SpawnAfter] ( @func_00D5C0 )"
+      },
+      "54523": {
+        "text": "X = the new child (the player's $06 link)",
+        "expect": "LDX $06"
+      },
+      "54525": {
+        "text": "Exit speed +8 (east) ...",
+        "expect": "LDA #$0008"
+      },
+      "54528": {
+        "text": "... into the child's orbitDiameter",
+        "expect": "STA $orbitDiameter, X"
+      },
+      "54532": {
+        "text": "X = the player again",
+        "expect": "PLX"
+      },
+      "54536": {
+        "text": "Player $10 bit 3 off: collision-aware movement disabled",
+        "expect": "TRB $10"
+      },
+      "54541": {
+        "text": "Player $10 bit $0200 on (reader unknown)",
+        "expect": "TSB $10"
+      },
+      "54543": {
+        "text": "Animation $24, X chain $0F (constant +8 per frame), no Y chain",
+        "expect": "COP [StagePlayerMoveXY] ( #24, #0F, #00 )"
+      },
+      "54548": {
+        "text": "Wait one frame for the animation",
+        "expect": "COP [AnimOnce]"
+      },
+      "54550": {
+        "text": "Repeat until the child restores the player's entry",
+        "expect": "BRA loc_00D50F"
+      },
+      "54552": {
+        "text": "statsPtr = ramp's loop count ...",
+        "expect": "LDA $statsPtr, X"
+      },
+      "54556": {
+        "text": "... into loopCounter",
+        "expect": "STA $loopCounter, X"
+      },
+      "54560": {
+        "text": "LoopEnd returns to ramp_east_step (the north loop head)",
+        "expect": "LDA #$&ramp_east_step"
+      },
+      "54563": {
+        "text": "Loop return address",
+        "expect": "STA $retPtr2, X"
+      },
+      "54570": {
+        "text": "Player $10 bit 3 off: collision-aware movement disabled",
+        "expect": "TRB $10"
+      },
+      "54575": {
+        "text": "Player $10 bit $0200 on (reader unknown)",
+        "expect": "TSB $10"
+      },
+      "54577": {
+        "text": "Animation $1E, Y chain $10 (constant -8 per frame), no X chain",
+        "expect": "COP [StagePlayerMoveXY] ( #1E, #00, #10 )"
+      },
+      "54582": {
+        "text": "One full animation cycle",
+        "expect": "COP [AnimOnce]"
+      },
+      "54584": {
+        "text": "Loop until the count is used up (decrements before testing)",
+        "expect": "COP [LoopEnd]"
+      },
+      "54586": {
+        "text": "Exit speed -8 ...",
+        "expect": "LDA #$FFF8"
+      },
+      "54589": {
+        "text": "... on the vertical axis",
+        "expect": "STA $playerSpeedNs"
+      },
+      "54592": {
+        "text": "Give the controls back: idle entry, $10 bit 3 on and $0200 off, D-pad unmasked, $0800 cleared",
+        "expect": "JSR $&stair_climb.RestorePlayerControl"
+      },
+      "54598": {
+        "text": "No slope step in progress",
+        "expect": "STA $slopeStepCounter"
+      },
+      "54604": {
+        "text": "Deceleration step counter = 7",
+        "expect": "STA $decelStepCounter"
+      },
+      "54607": {
+        "text": "Back to the actor runner",
+        "expect": "RTL"
+      },
+      "54608": {
+        "text": "statsPtr = ramp's loop count ...",
+        "expect": "LDA $statsPtr, X"
+      },
+      "54612": {
+        "text": "... into loopCounter",
+        "expect": "STA $loopCounter, X"
+      },
+      "54616": {
+        "text": "LoopEnd returns to ramp_north_step (the south loop head)",
+        "expect": "LDA #$&ramp_north_step"
+      },
+      "54619": {
+        "text": "Loop return address",
+        "expect": "STA $retPtr2, X"
+      },
+      "54623": {
+        "text": "Re-entry point for the climb",
+        "expect": "COP [SetEntryHere]"
+      },
+      "54628": {
+        "text": "Player $10 bit 3 off: collision-aware movement disabled",
+        "expect": "TRB $10"
+      },
+      "54633": {
+        "text": "Player $10 bit $0200 on (reader unknown)",
+        "expect": "TSB $10"
+      },
+      "54635": {
+        "text": "Animation $19, Y chain $0F (constant +8 per frame), no X chain",
+        "expect": "COP [StagePlayerMoveXY] ( #19, #00, #0F )"
+      },
+      "54640": {
+        "text": "One full animation cycle",
+        "expect": "COP [AnimOnce]"
+      },
+      "54642": {
+        "text": "Loop until the count is used up (decrements before testing)",
+        "expect": "COP [LoopEnd]"
+      },
+      "54644": {
+        "text": "Exit speed +8 ...",
+        "expect": "LDA #$0008"
+      },
+      "54647": {
+        "text": "... on the vertical axis",
+        "expect": "STA $playerSpeedNs"
+      },
+      "54650": {
+        "text": "Give the controls back: idle entry, $10 bit 3 on and $0200 off, D-pad unmasked, $0800 cleared",
+        "expect": "JSR $&stair_climb.RestorePlayerControl"
+      },
+      "54656": {
+        "text": "No slope step in progress",
+        "expect": "STA $slopeStepCounter"
+      },
+      "54662": {
+        "text": "Deceleration step counter = 7",
+        "expect": "STA $decelStepCounter"
+      },
+      "54665": {
+        "text": "Back to the actor runner",
+        "expect": "RTL"
+      },
+      "54720": {
+        "text": "Save the child's slot",
+        "expect": "PHX"
+      },
+      "54721": {
+        "text": "X = $04 link = the spawner (the player)",
+        "expect": "LDX $04"
+      },
+      "54723": {
+        "text": "Player statsPtr = curve index (0 or 1)",
+        "expect": "LDA $statsPtr, X"
+      },
+      "54729": {
+        "text": "Index x 3: ramp_motion_curves entries are 3 bytes",
+        "expect": "ADC $statsPtr, X"
+      },
+      "54733": {
+        "text": "X = byte offset of the entry",
+        "expect": "TAX"
+      },
+      "54734": {
+        "text": "Entry byte +2 = frame count",
+        "expect": "LDA $@hdma_ramp_tables.ramp_motion_curves+2, X"
+      },
+      "54741": {
+        "text": "Y = frame count",
+        "expect": "TAY"
+      },
+      "54742": {
+        "text": "Entry word +0 = curve address",
+        "expect": "LDA $@hdma_ramp_tables.ramp_motion_curves, X"
+      },
+      "54747": {
+        "text": "Make it an offset from the start of ramp_motion_curves",
+        "expect": "SBC #$&hdma_ramp_tables.ramp_motion_curves"
+      },
+      "54750": {
+        "text": "X = the child again",
+        "expect": "PLX"
+      },
+      "54751": {
+        "text": "Child orbitAngle = curve offset",
+        "expect": "STA $orbitAngle, X"
+      },
+      "54756": {
+        "text": "Child loopCounter = frame count",
+        "expect": "STA $loopCounter, X"
+      },
+      "54760": {
+        "text": "Frame index = 0",
+        "expect": "STZ $2A"
+      },
+      "54765": {
+        "text": "LoopEnd returns to ramp_motion_curve_step each frame",
+        "expect": "STA $retPtr2, X"
+      },
+      "54769": {
+        "text": "Save the child's slot",
+        "expect": "PHX"
+      },
+      "54770": {
+        "text": "Curve offset ...",
+        "expect": "LDA $orbitAngle, X"
+      },
+      "54775": {
+        "text": "... + frame index",
+        "expect": "ADC $2A"
+      },
+      "54777": {
+        "text": "Next frame",
+        "expect": "INC $2A"
+      },
+      "54780": {
+        "text": "Curve byte: signed Y delta in pixels",
+        "expect": "LDA $@hdma_ramp_tables.ramp_motion_curves, X"
+      },
+      "54787": {
+        "text": "Negative byte?",
+        "expect": "BIT #$0080"
+      },
+      "54792": {
+        "text": "Sign-extend to 16 bits",
+        "expect": "ORA #$FF00"
+      },
+      "54795": {
+        "text": "X = the player",
+        "expect": "LDX $04"
+      },
+      "54798": {
+        "text": "Player Y + delta ...",
+        "expect": "ADC $0016, X"
+      },
+      "54801": {
+        "text": "... stored back",
+        "expect": "STA $0016, X"
+      },
+      "54804": {
+        "text": "X = the child again",
+        "expect": "PLX"
+      },
+      "54805": {
+        "text": "One iteration per frame for the curve's frame count",
+        "expect": "COP [LoopEnd]"
+      },
+      "54807": {
+        "text": "Exit speed given by the climb",
+        "expect": "LDA $orbitDiameter, X"
+      },
+      "54811": {
+        "text": "Player horizontal speed = exit speed",
+        "expect": "STA $playerSpeedEw"
+      },
+      "54814": {
+        "text": "Give the controls back: idle entry, $10 bit 3 on and $0200 off, D-pad unmasked, $0800 cleared",
+        "expect": "JSR $&stair_climb.RestorePlayerControl"
+      },
+      "54820": {
+        "text": "No slope step in progress",
+        "expect": "STA $slopeStepCounter"
+      },
+      "54826": {
+        "text": "Deceleration step counter = 7",
+        "expect": "STA $decelStepCounter"
+      },
+      "54829": {
+        "text": "Arc finished: remove the child",
+        "expect": "COP [Die]"
+      }
+    }
+  },
+  "system/hdma_ramp_tables.asm": {
+    "partNotes": {
+      "ramp_motion_curves": [
+        "Two arc entries (3 bytes each: curve address, frame count) used by func_00D5C0 in ramps.asm. The ramp's arc child reads the player's statsPtr (0 or 1, set from the ramp's spawn type byte) x 3, then adds one sign-extended curve byte per frame to the PLAYER's Y ($16, confirmed: the child's $04 link is the spawner, the player). Values are pixel deltas. Entry 0: 64 frames, rises up to 204 pixels (frame 28) and returns, net 0. Entry 1: 32 frames, rises up to 50 pixels (frame 14), net +8 (ends 8 pixels lower). Both curves repeat most values twice in a row."
+      ],
+      "ramp_curve_arc_64": [
+        "Entry 0 of ramp_motion_curves: 64 signed Y deltas in pixels, one per frame, -16 at the start, 0 around frames 29-36 and +16 at the end. Cumulative rise peaks at -204 (up) at frame 28; the sum is 0. Used by the Itory ramp pair (spawn type 1)."
+      ],
+      "ramp_curve_arc_32": [
+        "Entry 1 of ramp_motion_curves: 32 signed Y deltas in pixels, -8 at the start, 0 at frames 15-17 and +8 at the end. Cumulative rise peaks at -50 (up) at frame 14; the sum is +8, so the player lands 8 pixels lower. Used by all other east/west ramps (spawn type 3)."
+      ]
+    }
+  },
+  "thinkers/flag_gated_palette_warm.asm": {
+    "blockNote": [
+      "Spawn-time-gated palette swap for the South Cape area after the Kara-news cutscene (Bank 00, 46530-46558). Spawned in scene 01 (South Cape) and scene 30 (Oakton).",
+      "",
+      "=== GATE ===",
+      "",
+      "Two BranchOnFlagByte checks run once when the thinker spawns: kill itself if event flag $1C is set, kill itself if event flag $16 is clear. Flag $16 is set by sc02_erik (the coastal-cave Kara-news cutscene) and $1C by sc06_monologue (Will's end-of-day narration), so the thinker lives in the window between those two events. The loop target is after the gate, so the flags are not checked again.",
+      "",
+      "=== BODY ===",
+      "",
+      "PaletteStart #02 plus PaletteStep applies palette bundle $02: a single 1-frame step that writes 80 colours starting at colour index $30 (decoded from the bundle table, delay 0).",
+      "The thinker then sets event flag $FF itself and WaitOnFlagByte ( #FF, #00 ) parks until $FF is clear. $FF is the scene-setup-complete latch: scene_lifecycle clears it at the top of scene setup and again sets it at the end, and the inventory overlay clears it on open; both set it again when their setup finishes. The thinker list is rebuilt on every scene change, so within one scene visit the loop normally plays the bundle once; whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+      "The spawn-record parameter byte is ignored (the bundle id is an immediate). Setting $FF early is a side effect on a shared flag; no other flag-$FF watcher was found in the lists of these scenes.",
+      "In Oakton (scene 30) flag $1C is expected to be set already (it is never cleared in extracted/), so there the gate kills the thinker at once - inferred, not run.",
+      "",
+      "The earlier notes ('kills itself when conditions flip', 'many interior and Dark Space scenes') were wrong: the gate is evaluated only at spawn and only the scenes listed above spawn this thinker."
+    ],
+    "partNotes": {
+      "FlagGatedPaletteWarmKill": [
+        "Target of the gate: KillThinker, then RTL. Reached only at spawn."
+      ],
+      "loc_00B5CE": [
+        "Palette loop: apply bundle $02 once, set flag $FF, wait until $FF is clear, then repeat (the gate above is not re-evaluated)."
+      ]
+    },
+    "comments": {
+      "46530": {
+        "text": "Gate: flag $1C (end-of-day narration) already set: die",
+        "expect": "COP [BranchOnFlagByte] ( #1C, #01, &FlagGatedPaletteWarmKill )"
+      },
+      "46536": {
+        "text": "Gate: flag $16 (Kara-news cutscene) not yet set: die",
+        "expect": "COP [BranchOnFlagByte] ( #16, #00, &FlagGatedPaletteWarmKill )"
+      },
+      "46542": {
+        "text": "Select palette bundle $02",
+        "expect": "COP [PaletteStart] ( #02 )"
+      },
+      "46545": {
+        "text": "Apply the bundle (one step)",
+        "expect": "COP [PaletteStep]"
+      },
+      "46547": {
+        "text": "Set the scene-setup latch $FF ourselves",
+        "expect": "COP [SetFlagByte] ( #FF )"
+      },
+      "46550": {
+        "text": "Park until flag $FF is cleared (next scene setup or inventory open)",
+        "expect": "COP [WaitOnFlagByte] ( #FF, #00 )"
+      },
+      "46554": {
+        "text": "Then play the bundle again",
+        "expect": "BRA loc_00B5CE"
+      },
+      "46556": {
+        "text": "Gate failed: remove this thinker",
+        "expect": "COP [KillThinker]"
+      }
+    }
+  },
+  "thinkers/flag_gated_palette_cool.asm": {
+    "blockNote": [
+      "Spawn-time-gated palette swap for the South Cape interiors after the Kara-news cutscene (Bank 00, 46561-46589). Spawned in scenes 03-08 (Lance's, Eric's, Seth's and Will's houses, Chef's house and the church).",
+      "",
+      "=== GATE ===",
+      "",
+      "Two BranchOnFlagByte checks run once when the thinker spawns: kill itself if event flag $1C is set, kill itself if event flag $16 is clear. Flag $16 is set by sc02_erik (the coastal-cave Kara-news cutscene) and $1C by sc06_monologue (Will's end-of-day narration), so the thinker lives in the window between those two events. The loop target is after the gate, so the flags are not checked again.",
+      "",
+      "=== BODY ===",
+      "",
+      "PaletteStart #4C plus PaletteStep applies palette bundle $4C: a single 1-frame step that writes 7 colours starting at colour index $19 (decoded from the bundle table, delay 0).",
+      "The thinker then sets event flag $FF itself and WaitOnFlagByte ( #FF, #00 ) parks until $FF is clear. $FF is the scene-setup-complete latch: scene_lifecycle clears it at the top of scene setup and again sets it at the end, and the inventory overlay clears it on open; both set it again when their setup finishes. The thinker list is rebuilt on every scene change, so within one scene visit the loop normally plays the bundle once; whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+      "The spawn-record parameter byte is ignored (the bundle id is an immediate). Setting $FF early is a side effect on a shared flag; no other flag-$FF watcher was found in the lists of these scenes.",
+      "",
+      "The earlier notes ('kills itself when conditions flip', 'many interior and Dark Space scenes') were wrong: the gate is evaluated only at spawn and only the scenes listed above spawn this thinker."
+    ],
+    "partNotes": {
+      "FlagGatedPaletteCoolKill": [
+        "Target of the gate: KillThinker, then RTL. Reached only at spawn."
+      ],
+      "loc_00B5ED": [
+        "Palette loop: apply bundle $4C once, set flag $FF, wait until $FF is clear, then repeat (the gate above is not re-evaluated)."
+      ]
+    },
+    "comments": {
+      "46561": {
+        "text": "Gate: flag $1C (end-of-day narration) already set: die",
+        "expect": "COP [BranchOnFlagByte] ( #1C, #01, &FlagGatedPaletteCoolKill )"
+      },
+      "46567": {
+        "text": "Gate: flag $16 (Kara-news cutscene) not yet set: die",
+        "expect": "COP [BranchOnFlagByte] ( #16, #00, &FlagGatedPaletteCoolKill )"
+      },
+      "46573": {
+        "text": "Select palette bundle $4C",
+        "expect": "COP [PaletteStart] ( #4C )"
+      },
+      "46576": {
+        "text": "Apply the bundle (one step)",
+        "expect": "COP [PaletteStep]"
+      },
+      "46578": {
+        "text": "Set the scene-setup latch $FF ourselves",
+        "expect": "COP [SetFlagByte] ( #FF )"
+      },
+      "46581": {
+        "text": "Park until flag $FF is cleared (next scene setup or inventory open)",
+        "expect": "COP [WaitOnFlagByte] ( #FF, #00 )"
+      },
+      "46585": {
+        "text": "Then play the bundle again",
+        "expect": "BRA loc_00B5ED"
+      },
+      "46587": {
+        "text": "Gate failed: remove this thinker",
+        "expect": "COP [KillThinker]"
+      }
+    }
+  }
+}

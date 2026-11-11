@@ -33,7 +33,7 @@
 ; 
 ; NorthProbeRedirect: reached from DispatchNorthMove when future TL is $09 (X flush) or the east cell is $09. Its MapCellDown + ReadCollisionNibble have no effect (MapCellDown only changes X, the nibble is dropped and MapCellLeft at loc_02D208 reads $00 again), so the chain starts from the cell recorded in $00.
 ; 
-; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
+; Runtime check of the dead pair (five entries into NorthProbeRedirect, scene $01): the $00 word, the stack pointer, D and DBR are equal at the entry and at loc_02D208. MapCellDown only adds $10 to X, ReadCollisionNibble only sets A and the flags, and MapCellLeft overwrites X and A from $00, so the pair changes nothing the chain uses. The rest of the arithmetic is read from the code.
 ---------------------------------------------
 
 ?BANK 02

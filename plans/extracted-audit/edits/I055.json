@@ -1,0 +1,154 @@
+{
+  "system/boot_logos/boot_logo_palette_third.asm": {
+    "blockNote": [
+      "Boot-logo palette thinker (Bank 00, 47207-47226): the third of the three thinkers that scene $FB's thinker list (thinker_spawn_0CEB1D, slot 2, param #03, never read) spawns together with boot_logo_palette_enix and boot_logo_palette_quintet. All three run side by side in BOTH visits of the scene (sFB_boot_logo reloads the scene for the second logo).",
+      "",
+      "It plays palette bundles $56, $57 and $58 in order (PaletteStart selects a bundle, PaletteStep runs it to its end), then KillThinker. The bundles write CGRAM colors $A1 to $AF, colors 1 to 15 of OBJ palette 2 (30 bytes per frame, 8 frames per bundle, 1 extra tick per frame, 33 on the last frame of $58).",
+      "$56: starts black and fills the 15 colors with the flat purple $68DA one at a time (colors 1 to 8 over the 8 frames).",
+      "$57: continues the fill from 9 colors to all 15 (the last two frames are both full).",
+      "$58: starts all purple; a darker dip opens around color 7 and gets wider and deeper each frame, ending in a V-shaped ramp from $64B9 at the ends down to $3C4F in the middle (colors 14 and 15 stay $68DA / $70DC), which is held for 34 ticks.",
+      "This is read from the colour values (not run).",
+      "",
+      "=== WHERE THE COLOURS LAND ===",
+      "",
+      "OBJ palette 2 is used only by the 4 x 2 block of 16 x 16 parts under the emblem in sprite_group_000010 (parts $10 to $17 of the second logo, see spm_boot_logos). The first logo is on OBJ palette 3, which no thinker touches, so in the first visit this thinker runs unseen.",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header called this the 'third and final logo palette thinker' that 'completes the boot logo palette rotation before gameplay begins' and described #56, #57 and #58 as palette animations. It is the third of three parallel thinkers, not a later step, #56 to #58 are palette bundles, and it animates only OBJ palette 2 of the second logo."
+    ],
+    "partNotes": {
+      "boot_logo_palette_third": "Thinker: bundles $56, $57 and $58 on OBJ palette 2 (CGRAM colors $A1 to $AF): a purple fill, then a deepening dip in the middle of the ramp.",
+      "code_00B869": "Entry. Three PaletteStart / PaletteStep pairs (bundles $56, $57, $58), then KillThinker and RTL."
+    },
+    "comments": {
+      "47209": { "text": "Bundle $56: purple fills colors 1 to 8 of 15, one per step", "expect": "PaletteStart" },
+      "47212": { "text": "Runs the whole bundle (the op continues when it ends)", "expect": "PaletteStep" },
+      "47214": { "text": "Bundle $57: the fill continues to all 15 colors", "expect": "PaletteStart" },
+      "47219": { "text": "Bundle $58: a darker dip opens in the middle; the last frame holds 33 extra ticks", "expect": "PaletteStart" }
+    }
+  },
+  "system/boot_logos/boot_logo_palette_enix.asm": {
+    "blockNote": [
+      "Boot-logo palette thinker (Bank 00, 47167-47186). Scene $FB's thinker list (thinker_spawn_0CEB1D, slot 0, param #01) spawns it together with boot_logo_palette_quintet and boot_logo_palette_third. All three start with the scene and run side by side, in BOTH visits of scene $FB (sFB_boot_logo reloads the scene for the second logo), so each visit animates OBJ palettes 0, 1 and 2 at once. Only the second logo (sprite_group_000010 in spm_boot_logos) uses those palettes, so only it changes colour; the first logo is on OBJ palette 3, which no thinker touches, so in the first visit these thinkers run unseen.",
+      "",
+      "This thinker plays palette bundles $50, $52 and $54 in order: PaletteStart selects a bundle and PaletteStep runs it to its end (the op continues only when the bundle is finished), three times, then KillThinker. The param byte #01 is never read (PaletteStart overwrites animScratch+2 with the bundle ID). Header word $0800: bit 11 keeps it running in the lighter frame routines, bit 2 is clear (runs before the actors).",
+      "",
+      "=== THE BUNDLES (palette_bundles, bank $16) ===",
+      "",
+      "Each bundle has 8 sub-entries of one frame each. A frame is 15 colors (30 bytes) written to CGRAM colors $81 to $8F, i.e. colors 1 to 15 of OBJ palette 0 (the Quintet thinker writes $91 to $9F, OBJ palette 1, and the third thinker $A1 to $AF, OBJ palette 2). There is 1 extra tick between frames in $50 and $52 and 3 in $54.",
+      "$50: starts all black; a 13-color ramp from dark purple ($2C4B) to white ($7FFF) grows across colors 1 to 13, its white tip moving from color 1 to color 13 with the darker colors trailing it; colors 14 and 15 stay 0.",
+      "$52: the ramp turns white from its bright end towards its dark end until all 13 colors are white, while colors 14 and 15 brighten from $18C6 / $2108 to $4E73 / $6739.",
+      "$54: starts all white and fades back down to the ramp (steps through $777D, $6AFA, ... to $2C4B ... $7FFF) while colors 14 and 15 darken to $1425 / $2449.",
+      "So the logo's palette sweeps in, flashes to white and settles on a rainbow ramp: a shine effect. This is read from the colour values (not run).",
+      "",
+      "=== WHERE THE COLOURS LAND ===",
+      "",
+      "In sprite_group_000010 (the second logo, spm_boot_logos) OBJ palette 0 colours 8 of the 16 parts of the 4 x 4 emblem block (parts $05 to $0A, $0E, $0F: the lower two rows), OBJ palette 1 the other 8 (parts $00 to $04, $0B to $0D: the upper two rows). Both get the same shine at the same time, so the emblem sweeps in, flashes white and settles.",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header said it is the first of three thinkers and 'animates the Enix logo colors'; the Quintet note said it runs 'after the Enix palette sequence'. They are spawned together and run in parallel. The names come from the spawn order only: the thinker belongs to the second logo's emblem, and which company's logo that is was not checked against the tile art (OQ-I055-1). I054 left the question of which logo uses OBJ palettes 0 and 1 open (OQ-I054-1); the sprite tables answer it."
+    ]
+  },
+  "system/boot_logos/boot_logo_palette_quintet.asm": {
+    "blockNote": [
+      "Boot-logo palette thinker (Bank 00, 47187-47206): the twin of boot_logo_palette_enix. Spawned together with it and boot_logo_palette_third by scene $FB's thinker list (thinker_spawn_0CEB1D, slot 1, param #02, never read) and run in parallel with them in both visits of the scene.",
+      "",
+      "Plays palette bundles $51, $53 and $55 in order (PaletteStart + PaletteStep each), then KillThinker. The bundles hold exactly the same colour frames as $50, $52 and $54 (see boot_logo_palette_enix) but write them to CGRAM colors $91 to $9F, colors 1 to 15 of OBJ palette 1, with the same 1 / 1 / 3 extra ticks. So the effect is a black to rainbow-ramp reveal, a white flash and a settle.",
+      "OBJ palette 1 colours 8 of the 16 parts of the 4 x 4 emblem block of the second logo (parts $00 to $04 and $0B to $0D of sprite_group_000010: the upper two rows); the Enix thinker does the other 8 with palette 0. The first logo does not use it.",
+      "",
+      "=== CORRECTIONS ===",
+      "",
+      "The old header said it runs 'after the Enix palette sequence'; it runs at the same time. The I054 note gave the spawn param as #01; the three slots carry #01, #02 and #03 and this one is #02 (none is read). Which logo uses OBJ palette 1 (OQ-I054-1) is answered by the sprite tables: the second logo's emblem. Which company's logo that is was not checked (OQ-I055-1)."
+    ]
+  },
+  "system/boot_logos/sFB_boot_logo.asm": {
+    "blockNote": [
+      "Boot logo sequence actor - scene $FB master controller (the first scene of the game). Scene $FB is entered TWICE at power-on and shows one logo per visit; the second logo then hands over to the title screen scene $FC.",
+      "",
+      "=== SEQUENCE ===",
+      "",
+      "1. BootLogoInit (both visits): sets displayModeFlags bit 14 (no reader found, OQ-I034-1), clears colour 0 of the palette staging buffer, enables FastROM (MEMSEL = $01), puts only the sprite layer on the main screen (TM = $10, bit 4 = OBJ; no BG is shown), masks the joypad, then reads STAT78 bit 4: 0 = 60 Hz NTSC continues, 1 = 50 Hz PAL jumps to BootLogoPalTextFallback.",
+      "2. First visit (event flag $10 clear): nudge the actor Y -16, play sprite animation #01 (sprite_group_000112, a 96 x 48 logo on OBJ palette 3) for 2 passes of 60 ticks = 120 ticks, set event flag $10, QueueMapChange to scene $FB itself, Die.",
+      "3. Second visit (flag set): BootLogoSecondPhase plays animation #00 (sprite_group_000010, an emblem with a wordmark under it, OBJ palettes 0, 1, 2 and 4) for 120 ticks, clears flag $10 and queues scene $FC (title screen), Die.",
+      "Event flag $10 is not one of the flags the scene load zeroes (only $00 to $0F are), which is why it survives the reload; it is cleared again at the end because the South Cape church scripts (sc08_*) use the same flag.",
+      "",
+      "The three boot_logo_palette_* thinkers are spawned by the scene's thinker list in both visits and animate OBJ palettes 0, 1 and 2, i.e. only the second logo (see boot_logo_palette_enix).",
+      "",
+      "=== PAL LOCKOUT ===",
+      "",
+      "A 50 Hz console never sees a logo: BootLogoPalTextFallback draws the region warning text (consolestring_01D9D8) on BG3 and then yields forever at SetEntryHere + RTL. The game cannot be started on a PAL console.",
+      "",
+      "=== POSITION ===",
+      "",
+      "The scene's actor-spawn places the actor at tile (7, 8) and InitActorFromSceneData adds 8 pixels of X for normal actors; the first NudgePosition adds another 8, so the actor ends at X = 128, the centre of the 256-pixel screen. The sprite groups are laid out around that origin. QueueMapChange's last operand $1100 is the packed camera-bounds override (InitCameraBounds).",
+      "",
+      "=== SPRITES (spm_boot_logos.sprite.asm) ===",
+      "",
+      "The scene's spritemap card loads spm_boot_logos ($018F bytes) to $7E4000; its two entries are the animation indexes of StageSpriteLoop: #00 = sprite_set_000004 (second logo), #01 = sprite_set_00000A (first logo). Each sprite-set is one frame record (hold $003B = 60 ticks per pass, group pointer) closed by the hidden $FFFF delimiter.",
+      "First logo, sprite_group_000112: 96 x 48 px, 16 parts of 16 x 16 in rows of 6, 6 and 4, all OBJ palette 3.",
+      "Second logo, sprite_group_000010: 122 x 156 px, 35 parts: a 4 x 4 block (64 x 64) on OBJ palette 1 (upper two rows) and 0 (lower two rows), a 4 x 2 block below it on palette 2, and a row of 11 parts 12 px apart on palette 4. Palettes 0 to 2 are the ones the boot_logo_palette_* thinkers animate; palette 4 is static.",
+      "Sprite-part = 7 bytes: size flag, X offset and mirrored X, Y offset and mirrored Y, OAM tile word (high byte vhppPPPN, PPP = OBJ palette). Sprite-group = 12 header bytes (X extents left / right, Y extents above / below, 8 bytes nothing reads, identical in both groups), the part count, then the parts. The palettes come from pal_boot_logos (80 colours, OBJ palettes 0 to 4, loaded at CGRAM colour 128). Which company's logo each group draws was not checked against the tile art (OQ-I055-1).",
+      "",
+      "=== NOTES ===",
+      "",
+      "The joypad mask in the ROM is $FFFC (db-us/transforms.json rewrites $FFF0 to $FFFC for this block), which hides every pad bit including Start and Select, so no logo can be skipped. The old header said TM = $10 puts BG1 on the main screen and that the mask is $FFF0; TM bit 4 is the OBJ layer and the shipped mask is $FFFC."
+    ],
+    "partNotes": {
+      "BootLogoInit": "Entry, both visits. Display set-up (bit 14 of displayModeFlags, black backdrop, FastROM, TM = OBJ only, joypad mask), then STAT78 bit 4 decides: 60 Hz falls through to loc_0BC8EA, 50 Hz jumps to BootLogoPalTextFallback.",
+      "loc_0BC8EA": "NTSC path. Centres the actor (X +8), then splits on event flag $10: set = second visit (BootLogoSecondPhase); clear = first visit: Y -16, animation #01 for 2 passes, set the flag, reload scene $FB, Die.",
+      "BootLogoSecondPhase": "Second visit: animation #00 (the emblem logo) for 2 passes of 60 ticks, clear event flag $10, QueueMapChange to scene $FC (title screen) with the same $1100 camera-bounds operand, Die.",
+      "BootLogoPalTextFallback": "PAL lockout screen. Copies the first 8 colours of pal_ending_comet into staging colours 0 to 7, forces colour 0 to black, draws the region warning (consolestring_01D9D8) on BG3 and sets TM = $04 (BG3 only). The actor then yields every frame at the SetEntryHere / RTL pair and never leaves. Only the warning is drawn: PUSH START and the copyright string belong to the title scene."
+    },
+    "comments": {
+      "772248": { "text": "First 8 colours of pal_ending_comet into staging colours 0-7 (the text palette)", "expect": "CopyPalette" },
+      "772259": { "text": "Colour 0 of the palette staging buffer = black backdrop", "expect": "STA $cgramPalette" },
+      "772263": { "text": "Draw the region warning text (consolestring_01D9D8) on BG3", "expect": "RunBg3Script" },
+      "772277": { "text": "Re-entry point is the RTL below: yields every frame, the lockout screen is never left", "expect": "SetEntryHere" },
+      "772285": { "text": "Bit 14 of displayModeFlags: no reader found (OQ-I034-1)", "expect": "LDA #$4000" },
+      "772291": null,
+      "772294": { "text": "Colour 0 of the palette staging buffer = black backdrop", "expect": "STA $cgramPalette" },
+      "772305": { "text": "TM = $10: only the sprite layer (bit 4 = OBJ) on the main screen, no BG", "expect": "LDA #$10" },
+      "772312": { "text": "Joypad mask: the ROM has $FFF0 and transforms.json widens it, hiding every pad bit incl. Start and Select", "expect": "LDA #$FFFC" },
+      "772320": { "text": "STAT78 ($213F): PPU2 version and refresh rate", "expect": "LDA $STAT78" },
+      "772332": { "text": "X +8: with the +8 added at spawn the actor stands at X = 128, the screen centre", "expect": "NudgePosition" },
+      "772336": { "text": "Event flag $10 set = second visit: branch to BootLogoSecondPhase", "expect": "BranchOnFlagByte" },
+      "772346": { "text": "Animation #01 (first logo): 2 passes of 60 ticks", "expect": "StageSpriteLoop" },
+      "772350": { "text": "Plays the loop and yields until both passes are done (120 ticks)", "expect": "AnimLoop" },
+      "772352": { "text": "Set event flag $10: it survives the scene reload", "expect": "SetFlagByte" },
+      "772355": { "text": "Reload scene $FB for the second logo ($1100 = camera-bounds override)", "expect": "QueueMapChange" },
+      "772367": { "text": "Animation #00 (second logo): 2 passes of 60 ticks", "expect": "StageSpriteLoop" },
+      "772373": { "text": "Clear event flag $10 again: scene loads zero only $00-$0F and the South Cape church scripts use it", "expect": "ClearFlagByte" }
+    }
+  },
+  "system/engine/system_core.asm": {
+    "partNotes": {
+      "SystemInit": [
+        "Full system boot sequence and main game loop.",
+        "",
+        "Boot phase:",
+        "1. Native 65816 mode, 16-bit registers",
+        "2. Direct page $0000, stack $01FF, data bank $81",
+        "3. MEMSEL = 1 (but InitHardwareRegisters writes MEMSEL = 0 afterwards: boot stays SlowROM until sFB_boot_logo enables FastROM)",
+        "4. InitHardwareRegisters, InitSystemVariables, SpcLoadBuiltinEngine, EnterForcedBlank (the display stays off until the first scene transition)",
+        "5. Sets worldReadyFlag bit 7 (permits scene loading)",
+        "6. Reads the byte at $000100 and compares it with $83, but both outcomes leave Y = 0, so sceneNext = 0 for the first ExecuteSceneTransition: no scene is selected. No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).",
+        "7. Gameplay defaults: max speed 9 per axis, HP 8/8, Str 1, Def 0, slope curve pointers, the six hieroglyph plate slots ($0B28-$0B32) = $FFFF, abilityBitmask = 0",
+        "8. sceneNext = $FB (the boot-logo scene, sFB_boot_logo, which hands over to the title screen $FC), then falls into the main loop",
+        "",
+        "Main loop (infinite):",
+        "1. VBlankWaitAndJoypad, DisableNmiKeepJoypad",
+        "2. General thinkers, scene transition check, warp/chest check, global input, UpdateFrameCounters",
+        "3. RunActors_Normal, OAM terminator, depth sort, combat/interaction collision, death check, dodge callbacks",
+        "4. CameraSmoothScroll for layer 0 (BG1), then layer 1 (BG2)",
+        "5. ResetHdmaState, HDMA-phase thinkers, ComposeAllSprites, UpdateHUD",
+        "6. LoadMusicFromTransitionState (blocking SPC upload when a track ID is staged)",
+        "7. EnableNmiAndJoypad and loop"
+      ]
+    },
+    "comments": {
+      "32939": { "text": "Scene $FB = boot logos (sFB_boot_logo), which hands over to the title screen $FC", "expect": "LDA #$FB" }
+    }
+  }
+}

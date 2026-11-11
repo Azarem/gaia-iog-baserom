@@ -1,0 +1,15 @@
+{
+  "_note": "F2 draft (2026-11-08, ROM O, state S01r, Freedan form by quick warp). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/F2_notes.json --dry-run. Source: mesen2-results/F2_20261108.md and raw/F2_oam.txt. One entry: two rows ($4A, $4B) appended to the index table of the spriteset_freedan part note, below the $48/$49 row. It does not touch the sentence that specs/F1_notes.json replaces (the '$3E-$41, $4A and $4B: no player script stages them...' sentence), so both specs apply in either order. No names spec: the lone set already carries the live name freedan_anim_4B.",
+  "tables/spriteset_freedan.asm": {
+    "partNotes": {
+      "spriteset_freedan": {
+        "edit": [
+          {
+            "find": "| $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |",
+            "with": "| $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |\n| $4A, $4B | one-frame poses facing left, hold 0 (measured: $4A has the hand at the head, group $0EC177; $4B holds the sword low, group $0EC393 with 9 sub-sprites); $4B is the last list of the table, the first sprite group follows its list (list $0E86AE, 6 bytes, then group $0E86B4); no player script stages either with an immediate operand | 1 frame |"
+          }
+        ]
+      }
+    }
+  }
+}

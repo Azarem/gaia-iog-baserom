@@ -1,0 +1,99 @@
+{
+  "_note": "M3 (2026-11-09), see mesen2-results/M3_20261109.md. Draft only, dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/M3_notes.json --dry-run. Three edits replace hedges (not checked, unread transition word, lookup miss) with the measured fact; three correct the pieces-of-one-vehicle reading of animations #07-#0A (CONTRADICTED by the Watermia to Euro screenshot); four correct the route-step wording (n + 1 deltas are right, but a step spans n frames, not n + 1). The apply pass (Z1) decides.",
+  "actors/overworld_exit.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "If the player can skip that row the exit never fires; not checked.",
+          "with": "Measured walking south from the castle gate: playerYPos ($09A4) stepped 2 px per frame from $2C0 to $2D0 and the compare fired on that frame; with the actor shifted one pixel (odd Y) the last step before the exit was +1 and playerYPos still stopped at $2D0, so the row is reached from either parity (the player does not move below it; the clamp that holds it there was not traced)."
+        },
+        {
+          "find": "5. OverworldExitFinalize sets gfxCacheIdxB := $0400, SetEntryHere and RTL: the actor then idles at the RTL until the scene changes.",
+          "with": "5. OverworldExitFinalize sets gfxCacheIdxB := $0400, SetEntryHere and RTL: the actor then idles at the RTL until the scene changes. The word is the transition speed: the low byte ($00, the fastest fade) is read by ScreenExitTransition (16 fade steps measured) and the high byte ($04, a delay of 4 between steps) by ScreenEnterTransition (15 reads measured), then the scene loader clears the word."
+        }
+      ]
+    }
+  },
+  "system/world_map/world_map_scene_names.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "so an id that is not listed would run on into string bytes",
+          "with": "so an id that is not listed runs on past the 37 entries into the string bytes (measured with the start scene set to $02: LookupMapName took the miss path after entry 37 and the world map then stopped running frames)"
+        }
+      ]
+    }
+  },
+  "system/world_map/WorldMapController.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "so these look like the pieces of one vehicle (not checked at runtime).",
+          "with": "so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow)."
+        }
+      ]
+    },
+    "partNotes": {
+      "RouteAnimationEngine": {
+        "edit": [
+          {
+            "find": "then a tick count n (the step runs n + 1 ticks)",
+            "with": "then a tick count n (the step applies n + 1 deltas and spans n frames)"
+          }
+        ]
+      },
+      "RouteDeltaTables": {
+        "edit": [
+          {
+            "find": "so the step applies its deltas n + 1 times, once per tick.",
+            "with": "so the step applies its deltas n + 1 times in n frames: the actor yields after every delta except the last, and the first delta of the next step is applied in the same frame (measured on 37 routes)."
+          }
+        ]
+      }
+    }
+  },
+  "system/world_map/spm_overworld_sprites.sprite.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "so these four look like the pieces of one vehicle (not traced: what the four animations draw).",
+          "with": "so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow)."
+        }
+      ]
+    },
+    "partNotes": {
+      "spm_overworld_sprites": {
+        "edit": [
+          {
+            "find": "#07-#0A four pieces of one multi-part sprite",
+            "with": "#07-#0A four separate multi-part figures"
+          }
+        ]
+      }
+    }
+  },
+  "system/world_map/world_map_route_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Byte 3: tick count n; the step runs n + 1 ticks",
+          "with": "Byte 3: tick count n; the step applies n + 1 deltas and spans n frames (its last delta and the next step first delta share one frame)"
+        }
+      ]
+    }
+  },
+  "system/world_map/world_map_options.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "and a tick count n (the step runs n + 1 ticks)",
+          "with": "and a tick count n (the step applies n + 1 deltas and spans n frames)"
+        },
+        {
+          "find": "the engine applies n + 1 deltas per step (the step runs n + 1 ticks), one more per active axis than the sums.",
+          "with": "the engine applies n + 1 deltas per step (the step spans n frames; its last delta and the first delta of the next step share one frame), one more per active axis than the sums."
+        }
+      ]
+    }
+  }
+}

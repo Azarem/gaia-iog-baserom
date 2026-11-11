@@ -1,0 +1,18 @@
+{
+  "_note": "R3 draft (2026-11-10, ROM O). Apply pass only; investigation sessions run --dry-run. Sources: raw/R3_scan_20261110.txt (ROM byte scans of the pointers to the unreferenced labels).",
+  "actors/camera_delta_oscillator.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "(no spawn or entry reference found), so it is either unused or spawned from data.",
+          "with": "and the ROM holds no 16-bit or 24-bit pointer to its header or entry (no scene actor record, spawn operand, table word or instruction operand), so nothing spawns it."
+        }
+      ]
+    }
+  },
+  "system/title_screen/sFC_title_intro.asm": {
+    "partNotes": {
+      "TitlePaletteStep_noref": "Palette-animation stub: PaletteStart #2D (45 decimal), one PaletteStep, then Die. No spawn operand, table word or instruction operand anywhere in the ROM points to it, and the routine before it ends in RTL, so it never runs."
+    }
+  }
+}

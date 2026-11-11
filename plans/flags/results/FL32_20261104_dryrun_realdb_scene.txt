@@ -1,0 +1,102 @@
+
+> @gaialabs/iog-baserom@0.2.7 flags
+> node src/index.ts flags scene-flags plans/flags/results/specs/FL32_scene-flags.json --dry-run
+
+Scene flags: 228 entr(ies): +0 added, ~0 changed, =0 unchanged, x44 rejected
+  ! scene 2: flag 21 ($0015) is not in the registry yet
+  ! scene 6: flag 29 ($001D) is not in the registry yet
+  ! scene 6: flag 37 ($0025) is not in the registry yet
+  ! scene 6: flag 61 ($003D) is not in the registry yet
+  ! scene 8: flag 16 ($0010) is not in the registry yet
+  ! scene 10: flag 63 ($003F) is not in the registry yet
+  ! scene 11: flag 36 ($0024) is not in the registry yet
+  ! scene 21: flag 43 ($002B) is not in the registry yet
+  ! scene 26: flag 73 ($0049) is not in the registry yet
+  ! scene 27: flag 284 ($011C) is not in the registry yet
+  ! scene 28: flag 75 ($004B) is not in the registry yet
+  ! scene 29: flag 108 ($006C) is not in the registry yet
+  ! scene 41: flag 1280 ($0500) is not in the registry yet
+  ! scene 44: flag 76 ($004C) is not in the registry yet
+  ! scene 45: flag 80 ($0050) is not in the registry yet
+  ! scene 49: flag 86 ($0056) is not in the registry yet
+  ! scene 50: flag 100 ($0064) is not in the registry yet
+  ! scene 57: flag 88 ($0058) is not in the registry yet
+  ! scene 62: flag 106 ($006A) is not in the registry yet
+  ! scene 76: flag 107 ($006B) is not in the registry yet
+  ! scene 85: flag 1281 ($0501) is not in the registry yet
+  ! scene 90: flag 110 ($006E) is not in the registry yet
+  ! scene 93: flag 112 ($0070) is not in the registry yet
+  ! scene 95: flag 119 ($0077) is not in the registry yet
+  ! scene 97: flag 124 ($007C) is not in the registry yet
+  ! scene 102: flag 130 ($0082) is not in the registry yet
+  ! scene 103: flag 134 ($0086) is not in the registry yet
+  ! scene 105: flag 117 ($0075) is not in the registry yet
+  ! scene 106: flag 169 ($00A9) is not in the registry yet
+  ! scene 120: flag 141 ($008D) is not in the registry yet
+  ! scene 121: flag 145 ($0091) is not in the registry yet
+  ! scene 125: flag 149 ($0095) is not in the registry yet
+  ! scene 130: flag 157 ($009D) is not in the registry yet
+  ! scene 138: flag 1283 ($0503) is not in the registry yet
+  ! scene 145: flag 165 ($00A5) is not in the registry yet
+  ! scene 146: flag 158 ($009E) is not in the registry yet
+  ! scene 150: flag 171 ($00AB) is not in the registry yet
+  ! scene 160: flag 167 ($00A7) is not in the registry yet
+  ! scene 172: flag 178 ($00B2) is not in the registry yet
+  ! scene 173: flag 174 ($00AE) is not in the registry yet
+  ! scene 176: flag 179 ($00B3) is not in the registry yet
+  ! scene 188: flag 183 ($00B7) is not in the registry yet
+  ! scene 191: flag 190 ($00BE) is not in the registry yet
+  ! scene 196: flag 210 ($00D2) is not in the registry yet
+  ! scene 200: flag 210 ($00D2) is not in the registry yet
+  ! scene 222: flag 210 ($00D2) is not in the registry yet
+  ! scene 233: flag 41 ($0029) is not in the registry yet
+
+Nothing written (fix the errors and re-run).
+
+Errors:
+  X scene 2: name 'sc_cave_intro_seen' is not in the registry
+  X scene 6: name 'sc_morning_narration_seen' is not in the registry
+  X scene 6: name 'sc_lily_met_in_house' is not in the registry
+  X scene 6: name 'sc_kara_intro_done' is not in the registry
+  X scene 10: name 'ec_entrance_letter_shown' is not in the registry
+  X scene 11: name 'ec_prison_cell_door_unlocked' is not in the registry
+  X scene 21: name 'it_village_lily_intro_done' is not in the registry
+  X scene 26: name 'it_moon_camp_gate_opened' is not in the registry
+  X scene 27: name 'it_moon_tribe_trial_done' is not in the registry
+  X scene 28: name 'ir_entrance_kara_catchup_done' is not in the registry
+  X scene 29: name 'ir_larai_monologue_seen' is not in the registry
+  X scene 41: name 'ir_castoth_reward_claimed' is not in the registry
+  X scene 44: name 'gs_ship_descent_done' is not in the registry
+  X scene 45: name 'gs_wreck_interior_wakeup_done' is not in the registry
+  X scene 49: name 'fr_oakton_departure_agreed' is not in the registry
+  X scene 50: name 'fr_freejia_arrival_intro_done' is not in the registry
+  X scene 57: name 'fr_hotel_reunion_done' is not in the registry
+  X scene 62: name 'dm_mine_entrance_intro_done' is not in the registry
+  X scene 76: name 'sg_garden_arrival_narration_seen' is not in the registry
+  X scene 85: name 'sg_viper_reward_claimed' is not in the registry
+  X scene 90: name 'sp_arrival_monologue_seen' is not in the registry
+  X scene 93: name 'sp_fountain_purified_done' is not in the registry
+  X scene 95: name 'mu_arrival_monologue_seen' is not in the registry
+  X scene 97: name 'mu_water_lowered_remark_seen' is not in the registry
+  X scene 102: name 'mu_altar_burial_ground_seen' is not in the registry
+  X scene 103: name 'mu_lair_erik_cry_seen' is not in the registry
+  X scene 105: name 'av_entrance_arrival_scene_done' is not in the registry
+  X scene 106: name 'av_annex_reunion_done' is not in the registry
+  X scene 120: name 'wa_arrival_cutscene_started' is not in the registry
+  X scene 121: name 'wa_lance_lily_exchange_done' is not in the registry
+  X scene 125: name 'wa_glass_will_delivered' is not in the registry
+  X scene 130: name 'gw_trail_intro_seen' is not in the registry
+  X scene 138: name 'gw_sand_fanger_reward_claimed' is not in the registry
+  X scene 145: name 'eu_arrival_cutscene_played' is not in the registry
+  X scene 146: name 'eu_geezers_argument_seen' is not in the registry
+  X scene 150: name 'eu_hamlet_morning_scene_done' is not in the registry
+  X scene 160: name 'mt_kress_intro_seen' is not in the registry
+  X scene 172: name 'nv_hamlet_cutscene_done' is not in the registry
+  X scene 173: name 'nv_vacant_hut_checked' is not in the registry
+  X scene 176: name 'aw_entrance_intro_seen' is not in the registry
+  X scene 188: name 'aw_crystal_shrine_intro_seen' is not in the registry
+  X scene 191: name 'aw_gorgon_flower_given' is not in the registry
+  X scene 196: name 'bt_entrance_monologue_seen' is not in the registry
+  X scene 200: name 'bt_entrance_monologue_seen' is not in the registry
+  X scene 222: name 'bt_entrance_monologue_seen' is not in the registry
+  X scene 233: name 'ma_mansion_intro_seen' is not in the registry

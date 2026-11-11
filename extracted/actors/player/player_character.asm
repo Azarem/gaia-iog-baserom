@@ -7,7 +7,7 @@
 ; Actor flag word $10 (this file): $0008 normal collision-aware movement (cleared during a ledge jump, a ladder climb or a shimmy, restored on exit), $0020 block marker (set by the block loop, cleared by PlayerIdleEntry), $0080 hit-reaction counter active (actor_execution), $0200 ignore enemy contact (set while the Psycho Slider, the lunge, the Aura Barrier and the Spin Dash run, and on death), $4000 off-screen (set by sprite_composition), $0100 vulnerable stance (set by PlayerIdleEntry; while it is set the player is skipped as attacker source and enemy contact hurts it; block, attack and run-attack clear it, and in a forced run with it cleared the enemy took the hit and Will none), $2000 hidden (set on the player by StartForcedWalk, DarkSpaceMonitorStartWarp, PlayerFallFromHeight, PlayerSkyGardenJumpLanding and PlayerAuraDescendToFloor; cleared by SyncPlayerToCamera, by the player_transition_handlers routines that set it, and by the actor pool rebuild).
 ; 
 ; 1. CORE IDLE + WALKING (181132–181790)
-;    PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (8 directional × Shadow variants), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.
+;    PlayerCharacterDef, PlayerIdleEntry, PlayerIdleDispatchTable, IdleStand* (4 directions, each with a variant for flag byte #00 set: IdleStand*Flagged), WalkSouth/North/West/East, CheckAttackWhileWalking, WalkAbortToIdle, WalkRestoreSaved, SetAutoWalkTimer.
 ;    The idle dispatch uses a facing × input matrix: GetPlayerFacing (0–3) × Multiply8x8Unsigned by 14 selects a row of 7 entries in PlayerIdleDispatchTable. Input priority: attack button > D-pad cardinal > L/R block > idle stand.
 ;    Walk pieces stage the walk sprite (#08–#0B) and call SetAutoWalkTimer, which writes 13 to $040C (mnemonic invincibilityTimer; UpdateFrameCounters decrements it every frame, $FFFF = closed). A walk entered while the player already faces that way (PlayerIdleEntry leaves the facing index in $24) with the window still open ($040C >= 0) closes the window, sets the axis speed to ±3 and yields once before re-dispatching: a run start. docs/ram_map.txt describes $040C the same way ("running-allowed timer"); the invincibilityTimer mnemonic name is stale. Holding L/R during a walk enters the block stance unless playerFlags $1000 (on slope) is set.
 ; 
@@ -37,7 +37,7 @@
 ; 
 ; 8. LUNGE + PROJECTILES (184138–184272)
 ;    RangedAttackSouth/North/West/East, RangedSetForceX/Y, ProjectileSouth/North/West/East.
-;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, abilityDamageBonus = 1 (the ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads); the exits clear $0200 and $0040 again. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_darkgaia_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set.
+;    The Ranged* pieces are a Will-only follow-up lunge, not a projectile launch: RangedSetForce* stages force move #46 (six frames of 0, 19 of 3, 4 of 1, then 0), sets playerFlags $0800, abilityDamageBonus = 1 (the ability damage bonus combat_collision adds), actor flag $0200 and extendedFlags $0040 (the bounce flag tile_collision_physics reads: the first wall contact clears it, sets $6000 in $12 and the rest of the curve runs backwards, so the lunge rebounds; a south lunge from a wall-adjacent spot went 3 px per tick down, hit the wall and came back up the remaining 14 steps of 3 and 4 of 1); the exits clear $0200 and $0040 again. The bonus is real: a bat with defence 0 lost 1 HP to the swing and 2 HP to the lunge. North and west add the direction-negate bits $2000 / $4000 to $12 so the same curve runs in the opposite direction. The Projectile* actors are spawned only by the Attack* pieces in scene $E8 (flags $0602); they use the spriteset_darkgaia_projectile metasprite with a two-phase animation (initial + looping) and die when bit $4000 of $10 (off-screen) is set.
 ---------------------------------------------
 
 ?BANK 02
@@ -229,46 +229,46 @@ PlayerIdleDispatchTable [
 ]
 
 IdleStandSouth {
-    COP [BranchOnFlagByte] ( #00, #01, &IdleStandSouthShadow ) ; South idle: check Shadow flag byte → select normal (#00) or Shadow (#10) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandSouthFlagged ) ; South idle: flag byte #00 clear stages sprite #00, set stages #10 (either character form)
     COP [StagePlayerSprite] ( #00 )
     BRA loc_02C4BD
 }
 
-IdleStandSouthShadow {
-    COP [StagePlayerSprite] ( #10 ) ; Shadow south idle sprite (#10)
+IdleStandSouthFlagged {
+    COP [StagePlayerSprite] ( #10 ) ; Flag #00 set: south idle sprite #10
     BRA loc_02C4BD
 }
 
 IdleStandNorth {
-    COP [BranchOnFlagByte] ( #00, #01, &IdleStandNorthShadow ) ; North idle: normal (#01) or Shadow (#11) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandNorthFlagged ) ; North idle: flag byte #00 clear stages sprite #01, set stages #11
     COP [StagePlayerSprite] ( #01 )
     BRA loc_02C4BD
 }
 
-IdleStandNorthShadow {
-    COP [StagePlayerSprite] ( #11 ) ; Shadow north idle sprite (#11)
+IdleStandNorthFlagged {
+    COP [StagePlayerSprite] ( #11 ) ; Flag #00 set: north idle sprite #11
     BRA loc_02C4BD
 }
 
 IdleStandWest {
-    COP [BranchOnFlagByte] ( #00, #01, &IdleStandWestShadow ) ; West idle: normal (#02) or Shadow (#12) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandWestFlagged ) ; West idle: flag byte #00 clear stages sprite #02, set stages #12
     COP [StagePlayerSprite] ( #02 )
     BRA loc_02C4BD
 }
 
-IdleStandWestShadow {
-    COP [StagePlayerSprite] ( #12 ) ; Shadow west idle sprite (#12)
+IdleStandWestFlagged {
+    COP [StagePlayerSprite] ( #12 ) ; Flag #00 set: west idle sprite #12
     BRA loc_02C4BD
 }
 
 IdleStandEast {
-    COP [BranchOnFlagByte] ( #00, #01, &IdleStandEastShadow ) ; East idle: normal (#03) or Shadow (#13) sprite
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandEastFlagged ) ; East idle: flag byte #00 clear stages sprite #03, set stages #13
     COP [StagePlayerSprite] ( #03 )
     BRA loc_02C4BD
 }
 
-IdleStandEastShadow {
-    COP [StagePlayerSprite] ( #13 ) ; Shadow east idle sprite (#13)
+IdleStandEastFlagged {
+    COP [StagePlayerSprite] ( #13 ) ; Flag #00 set: east idle sprite #13
 
   loc_02C4BD:
     COP [AnimOneFrame]    ; Shared idle animation loop — animate, check for speed or any button press to exit idle
@@ -632,7 +632,7 @@ LedgeJumpDropAttack {
 }
 
 LedgeJumpDropLand {
-    LDA #$0002            ; Drop landing: load anim table B entry 2, check scene $DD skip, spawn terrain shake + camera shake
+    LDA #$0002            ; Drop landing: A = 2, Freedan ability record 2 (Earthquaker) for LoadAbilityDamageB, check scene $DD skip, spawn terrain shake + camera shake
     JSR $&attack_ability_system.LoadAbilityDamageB
     LDA $sceneCurrent
     AND #$00FF
@@ -680,8 +680,8 @@ CameraShakeActor {
 ; Per-frame camera shake offset calculation.
 ; 
 ; Two paths based on layerPriorityFlag bit 9 ($0200), the bit camera_scroll_controller treats as camera-frozen:
-; - Clear: zero the saved camera copies ($7F100C/E), then add random offsets to the camera targets using one RNG byte: (RNG & 3) - 1 to X, ((RNG >> 2) & 3) - 1 to Y. Each offset is -1, 0, +1 or +2.
-; - Set: save the original camera target in actor WRAM on the first call ($7F100C/E), restore it before applying the offsets each later call, so the shake stays centred on the frozen position.
+; - Clear: zero the saved camera copies ($7F100C/E), then add random offsets to the camera targets using one RNG byte: (RNG & 3) - 1 to X, ((RNG >> 2) & 3) - 1 to Y. Each offset is -1, 0, +1 or +2. The controller stores the target before the shake runs in the same frame, so the offsets do not accumulate: measured over a drop-attack landing (61 ticks, one per frame, layerPriorityFlag bit $0200 clear on every tick) the target differs from the player-derived value by exactly that frame's offset (mean +0.4 per axis) and is back on it the frame after the last tick.
+; - Set: save the original camera target in actor WRAM on the first call ($7F100C/E), restore it before applying the offsets each later call, so the shake stays centred on the frozen position. The controller does not run while the camera is frozen, so the last tick leaves the target at the original plus that tick's offset (measured with the bit set from the landing: 61 ticks, final target = original + (+1, -1)).
 
 CameraShakeFrame {
     LDA $layerPriorityFlag ; Camera shake tick: layerPriorityFlag $0200 set (camera frozen) saves/restores the original target; clear zeroes the saved copies
@@ -1375,7 +1375,7 @@ SpeedThresholdNS {
 ; Both paths: RunAttackFlagSetup (set $0200 actor flag, consume attack, set $0802 playerFlags), loop with AnimLoop for slide distance, RunAttackCleanup, restore saved ptr.
 
 RunAttackNS {
-    LDA #$0001            ; Psycho Slider NS: load anim table A entry 1, set body sprite #04; south or north by speed sign
+    LDA #$0001            ; Psycho Slider NS: Will damage table entry 1 (the Psycho Slider record, level word $0B18: 5 / 8 into abilityDamageBonus), then body sprite #04; south or north by speed sign
     JSR $&attack_ability_system.LoadAbilityDamageA
     COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedNs
@@ -1410,7 +1410,7 @@ RunAttackNS {
 }
 
 RunAttackEW {
-    LDA #$0001            ; Psycho Slider EW: same structure for horizontal axis
+    LDA #$0001            ; Psycho Slider EW: the same damage table entry 1 (Psycho Slider record) for the horizontal axis
     JSR $&attack_ability_system.LoadAbilityDamageA
     COP [SetPlayerSpriteDirect] ( #04 )
     LDA $playerSpeedEw
@@ -1502,7 +1502,7 @@ AttackSouth {
     LDA $playerXPos
     AND #$000F
     BEQ loc_02CD04
-    COP [BranchIfSolidOffset] ( #01, #01, &AttackSouthWallPush ) ; Freedan wall-adjacent south: also check X alignment for diagonal solid offset
+    COP [BranchIfSolidOffset] ( #01, #01, &AttackSouthWallPush ) ; Freedan wall-adjacent south: for an unaligned X the cell one column right in the actor's own row (x >> 4 + 1, y >> 4) also selects #48 (measured with x = 204; the cell two rows above gives #36)
     BRA loc_02CD04
 }
 
@@ -1561,11 +1561,11 @@ AttackNorth {
     LDA $characterForm
     CMP #$0001
     BNE loc_02CD85
-    COP [BranchIfSolidSouth] ( &AttackNorthWallPush ) ; Tests solid SOUTH although this is the north attack; AttackSouth uses the same op
+    COP [BranchIfSolidSouth] ( &AttackNorthWallPush ) ; Tests the same cell as AttackSouth: BranchIfSolidSouth reads the collision cell (x >> 4, y >> 4) of the actor's own tile row, not a wall north of Freedan. Measured with one painted cell: a solid cell there gives #49, the cells one row above and one row below give #37
     LDA $playerXPos
     AND #$000F
     BEQ loc_02CD85
-    COP [BranchIfSolidOffset] ( #01, #FF, &AttackNorthWallPush )
+    COP [BranchIfSolidOffset] ( #01, #FF, &AttackNorthWallPush ) ; Cell one column right and two rows above (x >> 4 + 1, y >> 4 - 2) of an unaligned X: solid gives #49 (measured with x = 204; the cell (x >> 4 + 1, y >> 4) gives #37)
     BRA loc_02CD85
 }
 
@@ -1786,7 +1786,7 @@ AttackInit {
 ---------------------------------------------
 ; Will-only lunge follow-up — south direction.
 ; 
-; Reached from AttackSouth when Will (form 0) holds the facing direction during the swing. Calls RangedSetForceY (force move #46, playerFlags $0800, abilityDamageBonus = 1, actor flag $0200, extendedFlags $0040), shows sprite #44, animates once, then clears actor flag $0200 and extendedFlags $0040 (AndExtraFlags #$FFBF) and restores the saved ptr.
+; Reached from AttackSouth when Will (form 0) presses the facing direction anew while the swing plays. Holding it from the attack press does not lunge: AttackInit consumes the held direction in joypadHeld, so only a fresh press reaches the BranchIfPressed #$0400 (the lunge started on the tick of that press, with the D-pad released for the first five ticks of the swing). Calls RangedSetForceY (force move #46, playerFlags $0800, abilityDamageBonus = 1, actor flag $0200, extendedFlags $0040), shows sprite #44, animates once, then clears actor flag $0200 and extendedFlags $0040 (AndExtraFlags #$FFBF) and restores the saved ptr.
 ; 
 ; North/West/East variants mirror this with sprites #45/#46/#47. North sets $2000 and west sets $4000 in $12, the direction-negate bits tile_collision_physics uses to flip the Y / X delta; the east and south variants need no flip. No projectile is spawned here.
 

@@ -1,0 +1,1303 @@
+{
+  "_note": "FL20 Prologue and South Cape (dirs prologue, south_cape; scenes $01-$08, $8C-$8F). Fragment contract of plan 3.1: `flags` holds the records of the flags this iteration owns (scratch rows keyed by scene, persistent single-area flags); `proposals` holds the 9 spine flags (FL31 writes their records). Evidence strings carry file:line plus the decimal ROM offset in braces. Scratch scopes use `actors` where one scene runs two unrelated handshake protocols with the same index; scene 6 index $02 and $04 carry two protocol meanings with the same scope (listed in `notes` with their gating flags) because the scope field has no phase.",
+  "flags": {
+    "0": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [1] },
+          "name": "sc_town_player_south_strip_active",
+          "area": "south_cape",
+          "summary": "The player stood at Y $0250 or more the last time sc01_fisherman ran; the player idle code reads the same scratch bit as its alternate-idle-sprite selector.",
+          "kinds": ["idiom", "engine"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "player_character stages the second idle sprite set (#10-#13 instead of #00-#03) for the four idle directions, the ladder and shimmy idle poses pick their alternate variants, and shadow_shimmer runs its active branch (its spawn check ends it for non-Shadow forms).",
+            "clear": "The player idle code stages the normal idle sprites (#00-#03)."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_fisherman.asm:59 {295903}",
+            "extracted/south_cape/south_cape/sc01_fisherman.asm:63 {295907}",
+            "extracted/actors/player/player_character.asm:232 {181375}",
+            "extracted/actors/player/player_character.asm:243 {181391}",
+            "extracted/actors/player/player_character.asm:254 {181407}",
+            "extracted/actors/player/player_character.asm:265 {181423}",
+            "extracted/actors/player/shadow_shimmer.asm:47 {176698}"
+          ],
+          "notes": "Writer: sc01_fisherman, once per actor loop pass, after the RNG-chosen layout is placed: Y >= $0250 -> SetFlagByte #00, else ClearFlagByte #00 (the scene load also zeroes it). Reader meaning outside this scope: the same index is the 'Shadow' selector set by scene_flag_init in 26 other scenes (FL30 owns that question). What Will form shows with sprites #10-#13 is not known from code; queued as FL20-11. The name states what the fisherman measures."
+        }
+      ]
+    },
+    "1": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [140] },
+          "name": "pr_prophecy_camera_pan_done",
+          "area": "prologue",
+          "summary": "The camera-pan actor of the first prophecy page has finished its pan; the five star sprites stop moving.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Each code_0BCAB1 sprite leaves its BranchOnFlagByte loop and dies.",
+            "clear": "Each sprite plays StageSpriteMoveX #8B once per pass and branches back."
+          },
+          "evidence": [
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:106 {772867}",
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:73 {772791}"
+          ],
+          "notes": "Producer: code_0BCABF after its countdown ($24, start $03FC) goes negative. Consumers: the five sprites spawned at 772625-772681. Only the F4-set pass runs this script (pr8C_prologue1 dies when F4 is clear)."
+        },
+        {
+          "scope": { "scenes": [8] },
+          "name": "sc_school_erik_line_ack",
+          "area": "south_cape",
+          "summary": "Erik has printed his first line after the lesson; Seth leaves the classroom.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc08_seth continues past its WaitOnFlagByte(#01, #01) and runs its leaving script.",
+            "clear": "sc08_seth stands still after the lesson flag $10 is set."
+          },
+          "evidence": [
+            "extracted/south_cape/church/sc08_erik.asm:20 {298412}",
+            "extracted/south_cape/church/sc08_seth.asm:17 {298369}"
+          ],
+          "notes": "Producer: sc08_erik after it waited for $10 and printed dialogstring_048DD1. Consumer: sc08_seth (waits $10 first, then this flag). Erik releases the joypad lock the priest set (TRB $joypadMaskStd at 298444) after his second line."
+        },
+        {
+          "scope": { "scenes": [2], "actors": ["sc02_lance", "sc02_erik"] },
+          "name": "sc_cave_lance_talk_req",
+          "area": "south_cape",
+          "summary": "Will has talked to Lance in the coastal cave ('Wait a minute').",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "With scratch $02 also set, sc02_erik leaves its waits and starts the Kara-news cutscene.",
+            "clear": "sc02_erik keeps waiting (it also needs $02)."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:126 {307598}",
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:20 {309450}"
+          ],
+          "notes": "Producer: Lance's first interact handler code_04B18E (set before the dialog). Consumer: sc02_erik. Pairs with scratch $02 of scene 2.",
+          "pairsWith": ["$0002"]
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_hamlet", "sc06_kara"] },
+          "name": "sc_house_pig_stops_will_req",
+          "area": "south_cape",
+          "summary": "Hamlet has stopped Will at the foot of the stairs (the joypad is locked and Will is pinned at X $38, Y $01A0); Kara starts her first conversation.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_kara leaves WaitOnFlagByte(#01, #01), clears actor bit $2000 and prints dialogstring_049EB4.",
+            "clear": "sc06_kara stays hidden at its spawn state."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_hamlet.asm:64 {303744}",
+            "extracted/south_cape/wills_house/sc06_kara.asm:21 {302529}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set", "$003D set"],
+          "notes": "Active in the evening phase (flag $16 set, $3D and $1B clear). Producer: sc06_hamlet code_04A238 when the player is on X $38 and Y $019C-$01A0. Other scene-6 protocol with this index: sc_house_kara_talk_req (after $21)."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_kara_return", "sc06_lily"] },
+          "name": "sc_house_kara_talk_req",
+          "area": "south_cape",
+          "summary": "Will has talked to Kara in the house after the castle visit.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "While $25 is clear, sc06_lily leaves WaitOnFlagByte(#01, #01), locks the joypad ($CFFC) and walks in, and sc06_kara_return moves on to its WaitOnFlagByte(#02, #01).",
+            "clear": "Both actors keep waiting; the door-block actor e_sc06_actor_04AF48 keeps the front door shut."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:164 {304954}",
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:170 {304962}",
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:72 {304737}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:21 {305934}"
+          ],
+          "requires": ["$0021 set", "$0025 clear"],
+          "notes": "Both interact handlers of Kara (code_04A736 before $25, code_04A73E after it) set the flag; only the first phase waits on it. Other scene-6 protocol with this index: sc_house_pig_stops_will_req (evening phase)."
+        }
+      ]
+    },
+    "2": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [1], "actors": ["sc01_girl1", "sc01_girl2", "sc01_girl3"] },
+          "name": "sc_town_hide_seek_walk_req",
+          "area": "south_cape",
+          "summary": "The counting girl is facing away counting; the two other girls may walk (Red Light, Green Light).",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_girl2 and sc01_girl3 leave WaitOnFlagByte(#02, #01) and walk west (StageSpriteLoopMoveX #20, 2 steps each pass).",
+            "clear": "Both girls stand solid and wait."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_girl1.asm:23 {295098}",
+            "extracted/south_cape/south_cape/sc01_girl1.asm:27 {295111}",
+            "extracted/south_cape/south_cape/sc01_girl2.asm:19 {295229}",
+            "extracted/south_cape/south_cape/sc01_girl2.asm:34 {295262}",
+            "extracted/south_cape/south_cape/sc01_girl3.asm:18 {295345}"
+          ],
+          "notes": "Producer: sc01_girl1 sets it after 6 ticks of animation #32 and clears it after $46 ticks of animation #34 (her 'counting' pose, interact handler = 1..2..3..4..5..). sc01_girl2 also clears it at the end of its run back. Pairs with scratch $03 of scene 1.",
+          "pairsWith": ["$0003"]
+        },
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_seth_talk_req",
+          "area": "south_cape",
+          "summary": "Will has talked to Seth in the coastal cave ('I'm going to win again').",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "With scratch $01 also set, sc02_erik starts the Kara-news cutscene.",
+            "clear": "sc02_erik keeps waiting."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:141 {308623}",
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:21 {309454}"
+          ],
+          "notes": "Producer: Seth's first interact handler code_04B58F (it falls into the dialog code_04B592). Pairs with scratch $01 of scene 2.",
+          "pairsWith": ["$0001"]
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_kara", "sc06_hamlet"] },
+          "name": "sc_house_kara_first_line_ack",
+          "area": "south_cape",
+          "summary": "Kara has printed her first line to Will; Hamlet stops waiting and becomes a solid obstacle.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_hamlet leaves its BranchOnFlagByte loop (code_04A288) and runs MarkSolidHere.",
+            "clear": "Hamlet loops in code_04A288."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara.asm:45 {302605}",
+            "extracted/south_cape/wills_house/sc06_hamlet.asm:71 {303757}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set", "$003D set"],
+          "notes": "Evening phase. Producer: sc06_kara after dialogstring_049F09. Index $02 has two more meanings in scene 6 (see sc_house_lily_intro_req and sc_house_kara_depart_line_req)."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_lily", "sc06_kara_return"] },
+          "name": "sc_house_lily_intro_req",
+          "area": "south_cape",
+          "summary": "Lily has printed her first line in the house and waits for Kara's reply.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_kara_return leaves WaitOnFlagByte(#02, #01) (after $01), walks, prints dialogstring_04A945, clears the flag, sets $25 and clears $0119.",
+            "clear": "Lily resumes after her wait at WaitOnFlagByte(#02, #00) (she prints two more lines)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_lily.asm:48 {306017}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:49 {306020}",
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:73 {304741}",
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:83 {304770}"
+          ],
+          "requires": ["$0021 set", "$0025 clear"],
+          "notes": "Phase 1 after the castle (set by Lily, cleared by Kara). Same scope as sc_house_kara_depart_line_req (phase 2, $25 set and $26 clear, set by Kara and cleared by Lily); the scope field cannot separate them."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_lily", "sc06_kara_return"] },
+          "name": "sc_house_kara_depart_line_req",
+          "area": "south_cape",
+          "summary": "Kara has printed her first line of the departure scene (dialogstring_04A9F8); Lily answers.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_lily leaves WaitOnFlagByte(#02, #01), walks, prints dialogstring_04AEC1 and clears the flag.",
+            "clear": "Lily waits; Kara resumes after her WaitOnFlagByte(#02, #00)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:109 {304826}",
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:110 {304829}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:85 {306107}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:89 {306121}"
+          ],
+          "requires": ["$0025 set"],
+          "excludes": ["$0026 set"],
+          "notes": "Phase 2 (set by Kara, cleared by Lily). Follows sc_house_depart_confirm_req."
+        }
+      ]
+    },
+    "3": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [1], "actors": ["sc01_girl1", "sc01_girl2", "sc01_girl3"] },
+          "name": "sc_town_hide_seek_wall_ack",
+          "area": "south_cape",
+          "summary": "The walking girl has hit the west wall (BranchIfSolidWest) and runs back east; the game resets when it clears.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_girl3 leaves its walk loop and runs back east; sc01_girl1 changes her interact handler to 'Mmmm. Only me...' and waits for the flag to clear.",
+            "clear": "sc01_girl1 branches back to code_0480B4 and counts again; sc01_girl3 keeps walking west when $02 is set."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_girl2.asm:30 {295250}",
+            "extracted/south_cape/south_cape/sc01_girl2.asm:35 {295265}",
+            "extracted/south_cape/south_cape/sc01_girl1.asm:35 {295136}",
+            "extracted/south_cape/south_cape/sc01_girl1.asm:37 {295146}",
+            "extracted/south_cape/south_cape/sc01_girl3.asm:23 {295360}"
+          ],
+          "notes": "Producer and clearer: sc01_girl2. Pairs with scratch $02 of scene 1.",
+          "pairsWith": ["$0002"]
+        },
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_news_react_req",
+          "area": "south_cape",
+          "summary": "Erik has finished his news about the runaway princess and the friends react for $B3 (179) ticks.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_lance leaves its card-game idle loop (code_04B087) and sc02_seth leaves code_04B488; both turn to Erik.",
+            "clear": "Lance and Seth return to their next wait ($05 for Lance, the player-seat test for Seth); the flag is clear before Lance's second line."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:39 {309511}",
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:41 {309517}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:31 {307340}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:38 {307361}",
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:35 {308365}",
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:43 {308389}"
+          ],
+          "notes": "Producer and clearer: sc02_erik (set after dialogstring_04B9F2, WaitByte #B3, clear). The idle loops branch on 'clear'; the wait after the loop branches on the flag clearing again."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_bill", "sc06_lola"] },
+          "name": "sc_house_bill_talk_req",
+          "area": "south_cape",
+          "summary": "Will has talked to Grandpa Bill upstairs during the evening opera; Lola starts her line.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_lola leaves WaitOnFlagByte(#03, #01), plays loop animation #0D for $1E ticks, prints dialogstring_049A3F and sets $04.",
+            "clear": "Lola waits upstairs (frame #0A, interact handler code_0499C0)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_bill.asm:172 {300025}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:37 {301211}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set"],
+          "notes": "Producer: Bill's interact handler code_0493F5, which also locks the joypad ($CFFC) after printing dialogstring_0494B1. The whole evening chain ($04 onward) therefore starts with Will talking to Bill."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_kara_return", "sc06_lily"] },
+          "name": "sc_house_kara_second_line_req",
+          "area": "south_cape",
+          "summary": "Kara has printed her second departure line (dialogstring_04AA0D); Lily answers.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_lily leaves WaitOnFlagByte(#03, #01), prints dialogstring_04AEF7 and clears the flag.",
+            "clear": "Kara resumes after WaitOnFlagByte(#03, #00), walks and sets $26."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:114 {304843}",
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:115 {304846}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:90 {306124}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:92 {306132}"
+          ],
+          "requires": ["$0025 set"],
+          "excludes": ["$0026 set"],
+          "notes": "Phase 2 of the departure."
+        }
+      ]
+    },
+    "4": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_exit_lock_active",
+          "area": "south_cape",
+          "summary": "The friends' chain after Erik's news is running; the cave exit tile only answers with Lance's 'Going home already?' line.",
+          "kinds": ["gate-open", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_entry at Y $00D0 shows Lance's line (dialogstring_04BF35) when the $0400 pad bit is pressed and does not queue scene $01.",
+            "clear": "sc02_entry at Y $00D0 queues scene $01 at ($0290,$02B0)."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:23 {309461}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:86 {307529}",
+            "extracted/south_cape/coastal_cave/sc02_entry.asm:37 {310882}"
+          ],
+          "notes": "Set by sc02_erik right after $16 (before the news cutscene); cleared by sc02_lance at the end of the card chain ($0B). When $16 is already set at scene load nobody sets it, so the exit stays open."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_lola", "sc06_bill", "sc06_kara", "sc06_hamlet", "sc06_main_soldier", "sc06_wills_pet"] },
+          "name": "sc_house_lola_line_ack",
+          "area": "south_cape",
+          "summary": "Lola has printed her opera line downstairs; the arrest chain (Bill's scream, Kara, the soldier and the pet) starts.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_bill leaves WaitOnFlagByte(#04, #01) and starts its scream scene; sc06_kara, sc06_main_soldier and sc06_wills_pet leave their waits and move into the room; sc06_hamlet leaves its loop (code_04A2B5) and walks to tile (0D,1A).",
+            "clear": "All five actors stay in their previous state."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_lola.asm:41 {301225}",
+            "extracted/south_cape/wills_house/sc06_bill.asm:37 {299693}",
+            "extracted/south_cape/wills_house/sc06_kara.asm:73 {302686}",
+            "extracted/south_cape/wills_house/sc06_hamlet.asm:87 {303802}",
+            "extracted/south_cape/wills_house/sc06_main_soldier.asm:17 {303977}",
+            "extracted/south_cape/wills_house/sc06_wills_pet.asm:13 {304184}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set"],
+          "notes": "One producer (sc06_lola, after dialogstring_049A3F) and five consumers; evening phase."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_lily", "sc06_kara_return"] },
+          "name": "sc_house_lily_talk_ack",
+          "area": "south_cape",
+          "summary": "Will has talked to Lily once after her arrival; her interact handler changes.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_lily leaves WaitOnFlagByte(#04, #01) at 306056 and switches its interact handler to code_04ABE4.",
+            "clear": "Lily keeps the first handler code_04ABDC, which prints dialogstring_04AD69 and sets the flag."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_lily.asm:103 {306144}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:60 {306056}"
+          ],
+          "requires": ["$0021 set"],
+          "excludes": ["$0025 set"],
+          "notes": "Phase 1 after the castle; no other reader. Same scope as sc_house_depart_confirm_req (phase 2)."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_lily", "sc06_kara_return"] },
+          "name": "sc_house_depart_confirm_req",
+          "area": "south_cape",
+          "summary": "Will answered Yes to Lily's 'Are you ready to go?' and the joypad is locked ($EFFC); the departure scene starts.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_kara_return leaves WaitOnFlagByte(#04, #01) at 304804 and sc06_lily leaves its wait at 306089; both start walking.",
+            "clear": "Both actors keep waiting; Lily's handler code_04ABE9 offers the Yes/No question again."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_lily.asm:132 {306184}",
+            "extracted/south_cape/wills_house/sc06_lily.asm:79 {306089}",
+            "extracted/south_cape/wills_house/sc06_kara_return.asm:102 {304804}"
+          ],
+          "requires": ["$0025 set"],
+          "excludes": ["$0026 set"],
+          "notes": "Producer: Lily's Yes branch code_04ABFE (option index 1 of DialogueOptions at 306157). Phase 2."
+        }
+      ]
+    },
+    "5": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_demo_request_ack",
+          "area": "south_cape",
+          "summary": "Will sat down at the cave table (player at X $0078, Y $0090) and the friends asked him to show his power.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_lance leaves WaitOnFlagByte(#05, #01) and switches to code_04B19B; sc02_erik leaves its wait at 309564 and switches to code_04B99A.",
+            "clear": "Both actors keep their previous interact handler and wait."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:62 {308438}",
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:56 {309564}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:42 {307374}"
+          ],
+          "notes": "Producer: sc02_seth code_04B4BD, entered by BranchIfPlayerAt( #$0078, #$0090 ) (exact pixel); it locks the joypad, faces the player, prints dialogstring_04B652, unlocks and sets the flag."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_bill", "sc06_lola"] },
+          "name": "sc_house_scream_dialog_ack",
+          "area": "south_cape",
+          "summary": "Bill's 'A scream from downstairs!' text has finished; Lola reacts.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_lola leaves WaitOnFlagByte(#05, #01) at 301228, waits $0B ticks and plays her reaction animations.",
+            "clear": "Lola stands at tile (07,09)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_bill.asm:45 {299719}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:42 {301228}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set"],
+          "notes": "Producer: sc06_bill after dialogstring_04953E, music #06 and a $59-tick wait; the next line (dialogstring_04956D) follows the flag."
+        }
+      ]
+    },
+    "6": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_statue_moved_ack",
+          "area": "south_cape",
+          "summary": "The statue object spawned after Seth (e_sc02_actor_04B051, pushed by Will's power) has moved from its stored position; Lance says 'It moved!!'.",
+          "kinds": ["handshake", "cutscene-stage", "puzzle-state"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "sc02_lance leaves WaitOnFlagByte(#06, #01), nods (code_04B16A) and switches to the card-trick handler code_04B1BB; sc02_erik leaves its wait at 309572 and nods.",
+            "clear": "Both actors keep waiting; Seth keeps comparing the object position."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:82 {308491}",
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:58 {309572}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:44 {307382}"
+          ],
+          "notes": "Producer: sc02_seth compares fields $0014/$0016 of the actor behind its own list link ($06 = nextActorLink) with the values it stored; a change prints dialogstring_04B75D ('Lance: Oh! It moved!!') and sets the flag. The link is the statue only because SpawnAfterAbsFlags at 308312 inserts the spawned object directly after Seth; that ordering is not verified at runtime (queue FL20-12)."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_bill", "sc06_lola"] },
+          "name": "sc_house_bill_girl_line_ack",
+          "area": "south_cape",
+          "summary": "Bill has said 'It's that girl screaming!!' and unlocked the joypad; Lola leaves for the lower room.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_lola leaves WaitOnFlagByte(#06, #01) at 301263, sets actor bit $0800 and walks to tile (03,19).",
+            "clear": "Lola stays upstairs."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_bill.asm:58 {299760}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:53 {301263}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set"],
+          "notes": "Producer: sc06_bill after dialogstring_04956D (it also clears its interact handler and the $CFFC joypad lock)."
+        }
+      ]
+    },
+    "7": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_card_trick_req",
+          "area": "south_cape",
+          "summary": "Will talked to Lance after the statue moved; Lance starts the card trick.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_lance leaves WaitOnFlagByte(#07, #01), locks the joypad ($CFFC), spawns four card actors (sc02_card.code_04AFBF), prints dialogstring_04B2F0 and unlocks.",
+            "clear": "Lance keeps the handler code_04B1BB, which prints dialogstring_04B27E and sets the flag."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:160 {307647}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:166 {307655}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:47 {307394}"
+          ],
+          "notes": "Producer and consumer are the same actor; the repeat handler code_04B1C3 sets the flag again."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_main_soldier", "sc06_kara"] },
+          "name": "sc_house_soldier_line_ack",
+          "area": "south_cape",
+          "summary": "The soldier has said 'Princess! I've been looking for you!' and Kara has answered 'I don't know you. Be gone!' (one dialog); Kara's own reply follows.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_kara leaves WaitOnFlagByte(#07, #01) at 302701 and prints dialogstring_04A0D7.",
+            "clear": "Kara waits at tile (0D,19)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_main_soldier.asm:38 {304030}",
+            "extracted/south_cape/wills_house/sc06_kara.asm:78 {302701}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set"],
+          "notes": "Producer: sc06_main_soldier code_04A386 (player inside tiles (04,19)-(0E,1D); locks the joypad, waits $1D ticks)."
+        }
+      ]
+    },
+    "8": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_card_picked_ack",
+          "area": "south_cape",
+          "summary": "Will picked up a card (the Ace of Diamonds) and the joypad is locked.",
+          "kinds": ["handshake", "cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "A card actor that is out of the player's reach at loc_04AFF6 switches to the idle entry code_04AFFD instead of looping; sc02_lance, sc02_seth and sc02_erik leave their waits and continue the chain.",
+            "clear": "Each card actor tests the player position (within 8 px in X and Y) and the A button every pass."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_card.asm:68 {307204}",
+            "extracted/south_cape/coastal_cave/sc02_card.asm:57 {307190}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:74 {307487}",
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:85 {308502}",
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:61 {309584}"
+          ],
+          "notes": "Producer: sc02_card.code_04B000 (prints dialogstring_04B00F, sets the flag, TSB $joypadMaskStd, dies); the card sites run the same code for every one of the four cards. Lance later releases the joypad (TRB at 307535)."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_kara", "sc06_main_soldier", "sc06_wills_pet"] },
+          "name": "sc_house_kara_reply_ack",
+          "area": "south_cape",
+          "summary": "Kara has answered the soldier ('What do I care if you lose your head?') and the soldier and the pet leave.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_main_soldier leaves WaitOnFlagByte(#08, #01), walks off and falls into its Die; sc06_wills_pet leaves its wait at 304202, waits $3F ticks, walks off and dies.",
+            "clear": "Both actors stand in the room."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara.asm:82 {302715}",
+            "extracted/south_cape/wills_house/sc06_main_soldier.asm:39 {304033}",
+            "extracted/south_cape/wills_house/sc06_wills_pet.asm:19 {304202}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set"],
+          "notes": "Producer: sc06_kara after dialogstring_04A0D7; it waits $1F ticks and walks before it sets $09."
+        }
+      ]
+    },
+    "9": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_erik_reaction_ack",
+          "area": "south_cape",
+          "summary": "Erik has said 'I'm speechless... This is some type of psychic power, right?'",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_seth leaves WaitOnFlagByte(#09, #01), moves, prints dialogstring_04B7DE and sets $0A.",
+            "clear": "Seth keeps waiting."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:64 {309596}",
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:88 {308514}"
+          ],
+          "notes": "Producer: sc02_erik after dialogstring_04BC16 (it waited for $08 and nodded)."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_kara", "sc06_hamlet"] },
+          "name": "sc_house_hamlet_release_req",
+          "area": "south_cape",
+          "summary": "Kara has taken the soldier's order; Hamlet may leave the room.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_hamlet leaves its loop (code_04A2C6), sets actor bit $0800 and falls through to its Die.",
+            "clear": "Hamlet stays at tile (0D,1A)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara.asm:88 {302735}",
+            "extracted/south_cape/wills_house/sc06_hamlet.asm:94 {303819}"
+          ],
+          "requires": ["$0016 set"],
+          "excludes": ["$001B set"],
+          "notes": "Producer: sc06_kara, right after $08 and before dialogstring_04A15A; $1B follows."
+        }
+      ]
+    },
+    "10": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_seth_explain_ack",
+          "area": "south_cape",
+          "summary": "Seth has explained Will's 'sixth sense' ('some kind of psychic power thing').",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_lance leaves WaitOnFlagByte(#0A, #01), prints dialogstring_04B344 and dialogstring_04B386, then sets $0B and clears $04.",
+            "clear": "Lance keeps waiting."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:94 {308533}",
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:78 {307503}"
+          ],
+          "notes": "Producer: sc02_seth after dialogstring_04B7DE."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_lola", "sc06_bill"] },
+          "name": "sc_house_lola_viaduct_talk_req",
+          "area": "south_cape",
+          "summary": "Will talked to Lola after the arrest scene (dialogstring_049B18: the viaduct under Edward Castle) and the joypad is locked.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_bill leaves WaitOnFlagByte(#0A, #01) at 299864 and prints the architect and prison lines.",
+            "clear": "Bill stands at tile (0A,1A) with handler code_049413."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_lola.asm:172 {301519}",
+            "extracted/south_cape/wills_house/sc06_bill.asm:96 {299864}"
+          ],
+          "requires": ["$001B set"],
+          "excludes": ["$003E set"],
+          "notes": "Producer: Lola's interact handler code_0499C5 (locks the joypad with TSB $CFFC at 301516, then sets the flag)."
+        }
+      ]
+    },
+    "11": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [2] },
+          "name": "sc_cave_lance_close_ack",
+          "area": "south_cape",
+          "summary": "Lance has said 'Seth. Let's play one more game.' and released the joypad; the chain ends.",
+          "kinds": ["handshake"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_seth leaves WaitOnFlagByte(#0B, #01) and falls into its idle state code_04B551.",
+            "clear": "Seth waits after his explanation."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:85 {307526}",
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:103 {308557}"
+          ],
+          "notes": "Producer: sc02_lance; the same pass clears $04 (exit lock) and TRBs the $CFFC joypad mask."
+        },
+        {
+          "scope": { "scenes": [6], "actors": ["sc06_bill", "sc06_lola"] },
+          "name": "sc_house_bill_prison_talk_ack",
+          "area": "south_cape",
+          "summary": "Bill has finished his architect and prison talk; Lola invites Will to dinner.",
+          "kinds": ["handshake", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_lola leaves WaitOnFlagByte(#0B, #01) at 301379, prints dialogstring_049B82, sets $3E and unlocks the joypad.",
+            "clear": "Lola waits at tile (0C,1B)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_bill.asm:107 {299898}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:94 {301379}"
+          ],
+          "requires": ["$001B set"],
+          "excludes": ["$003E set"],
+          "notes": "Producer: sc06_bill after dialogstring_0495C9 and dialogstring_0495EB."
+        }
+      ]
+    },
+    "15": {
+      "domain": "D1",
+      "meanings": [
+        {
+          "scope": { "scenes": [140, 141, 142, 143] },
+          "level": "row",
+          "name": "pr_text_fade_out_done",
+          "area": "prologue",
+          "summary": "Set by the palette thinker e_pr_thinker_0BD039 (bundle $76 plus one PaletteStep) before it kills itself; no actor of scenes $8C-$8F reads it.",
+          "kinds": ["unknown"],
+          "grade": "INFERRED",
+          "effects": {
+            "set": "No effect found in these scenes.",
+            "clear": "No effect found in these scenes."
+          },
+          "evidence": [
+            "extracted/prologue/pr_thinkers.asm:17 {774206}"
+          ],
+          "notes": "Absence search: no BranchOnFlag*/WaitOnFlag* of index $000F in prologue/ (fl_scope sites, 202 rows) and no direct access to byte $0A01 in any file of the inventory (fl_query byte 0A01 shows COP rows only). The name states when the flag is set (after the thinker's step), not what it is for; other scenes use scratch $0F for other handshakes. Queue FL20-13."
+        }
+      ]
+    },
+    "17": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_seth_door_jar_seen",
+          "area": "south_cape",
+          "summary": "The jar-throwing scene at Seth's front door has started once.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_jar_door dies at spawn (code_048A46).",
+            "clear": "sc01_jar_door draws its door metatiles and waits for the player at X $0078, Y $025E; there it sets the flag, locks the joypad ($CFFC) for $1D ticks, plays sound #1E and the jar sprite move (StageSpriteMoveY #3F), unlocks and prints dialogstring_048A48 ('a jar came flying out!')."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_jar_door.asm:18 {297473}",
+            "extracted/south_cape/south_cape/sc01_jar_door.asm:26 {297490}"
+          ],
+          "notes": "The flag is set before the lock and the dialog, so leaving during the scene counts as seen. Name from the actor name and dialogstring_048A48."
+        }
+      ]
+    },
+    "18": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_wills_house_narration_seen",
+          "area": "south_cape",
+          "summary": "The 'This is my house' narration has been shown once at Will's front door.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_house_intro goes straight to QueueMapChange scene $06 ($0058,$01C0) when the player stands on the door tile.",
+            "clear": "The narration (dialogstring_04BD1B) prints, then the same scene change follows."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:33 {310439}",
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:34 {310445}",
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:49 {310474}",
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:50 {310480}"
+          ],
+          "notes": "Two of the four sites (310474, 310480) are in code_04BCCA, which no instruction references (rg of the label finds only its definition); it repeats the same test. The narration is skipped without setting the flag when $21 is set and $26 is clear (code_04BC9B, 310427-310433)."
+        }
+      ]
+    },
+    "19": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_lance_house_narration_seen",
+          "area": "south_cape",
+          "summary": "The 'This is Lance's house' narration has been shown once.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_house_intro skips the narration at the Lance's-house door tile (X $0128, Y $0258).",
+            "clear": "dialogstring_04BD5F prints once and the flag is set."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:59 {310488}",
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:60 {310494}"
+          ],
+          "notes": "The town door itself (town_door actor) is outside this flag."
+        }
+      ]
+    },
+    "20": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_erik_house_narration_seen",
+          "area": "south_cape",
+          "summary": "The 'My friend Erik lives here' narration has been shown once.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_house_intro skips the narration at either Erik's-house door tile (X $0228 Y $0218, X $0218 Y $0178).",
+            "clear": "dialogstring_04BD9B prints once and the flag is set."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:69 {310502}",
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:70 {310508}"
+          ],
+          "notes": "Two door tiles share one latch."
+        }
+      ]
+    },
+    "21": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_cave_intro_seen",
+          "area": "south_cape",
+          "summary": "The coastal-cave arrival narration has been shown once.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc02_entry skips the narration, the joypad lock and the wait and goes straight to its exit-tile watcher (code_04BE57).",
+            "clear": "sc02_entry sets the flag, locks the joypad ($CFFC), waits $1D ticks, prints dialogstring_04BE87, unlocks and then falls into the same exit-tile watcher."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_entry.asm:18 {310843}",
+            "extracted/south_cape/coastal_cave/sc02_entry.asm:19 {310849}"
+          ],
+          "notes": "The shipped fisherman header names flag $15 for the fishing sidequest; the fisherman does not read it."
+        }
+      ]
+    },
+    "23": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_cave_exit_dark_narration_seen",
+          "area": "south_cape",
+          "summary": "The 'It was already dark by the time Will left the cave' narration has been shown once.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_house_intro ignores the tile at X $0298, Y $02C0.",
+            "clear": "With $16 set, the actor sets the flag, locks the joypad ($CFFC), waits $1D ticks, prints dialogstring_04BE05 and unlocks."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:79 {310516}",
+            "extracted/south_cape/south_cape/sc01_house_intro.asm:81 {310528}"
+          ],
+          "notes": "The second test (310522) is on $16 (clear skips the narration). The tile lies next to where sc02_entry queues scene $01 ($0290,$02B0)."
+        }
+      ]
+    },
+    "27": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_kara_soldier_scene_done",
+          "area": "south_cape",
+          "summary": "Kara has told Will who she is and the arrest scene in Will's house is over.",
+          "kinds": ["quest-done", "cutscene-stage"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_kara, sc06_hamlet, sc06_main_soldier and sc06_wills_pet die at spawn; sc06_bill uses code_049349 and sc06_lola code_049934 (viaduct and prison talk, then dinner); a Bill and a Lola that were waiting for it continue (299816, 301327).",
+            "clear": "The evening chain ($16 set) or the plain homecoming states run."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara.asm:18 {302511}",
+            "extracted/south_cape/wills_house/sc06_kara.asm:92 {302749}",
+            "extracted/south_cape/wills_house/sc06_hamlet.asm:16 {303578}",
+            "extracted/south_cape/wills_house/sc06_main_soldier.asm:16 {303971}",
+            "extracted/south_cape/wills_house/sc06_wills_pet.asm:12 {304178}",
+            "extracted/south_cape/wills_house/sc06_bill.asm:24 {299662}",
+            "extracted/south_cape/wills_house/sc06_bill.asm:77 {299816}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:22 {301175}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:75 {301327}"
+          ],
+          "notes": "Writer: sc06_kara after dialogstring_04A15A ('I'm King Edward's daughter, Kara') and the actor then falls through to its Die. sc06_bill releases the joypad lock the soldier set (TRB at 299846) after its walk. Name from the structure and that dialog; the story reading ('Kara taken home by the soldier') is not in code. The shipped sc06_main_soldier header says the soldier sets the flag; it does not."
+        }
+      ]
+    },
+    "29": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_morning_narration_seen",
+          "area": "south_cape",
+          "summary": "The 'And the next morning something began to happen...' narration has been shown after the dinner night.",
+          "kinds": ["once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_monologue dies at spawn.",
+            "clear": "With $1C set, sc06_monologue locks the joypad ($CFFC) at spawn, waits $3B ticks, sets the flag, prints dialogstring_04A582 and unlocks."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_monologue.asm:20 {304228}",
+            "extracted/south_cape/wills_house/sc06_monologue.asm:53 {304317}"
+          ],
+          "notes": "The lock at spawn has no position test, so scene $06 locks the player on every load while $1C is set and this flag is clear (scene entry, section 'Scene entry')."
+        }
+      ]
+    },
+    "32": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_cave_friends_idle",
+          "area": "south_cape",
+          "summary": "Lance, Seth and Erik skip the coastal-cave chain and take their idle states; no code in extracted/ sets it.",
+          "kinds": ["unknown"],
+          "grade": "UNKNOWN",
+          "effects": {
+            "set": "sc02_lance goes to code_04B15C (interact handler code_04B1A0), sc02_seth to code_04B583 (handler code_04B59C) and sc02_erik to code_04B95F (it stays at its placement tile (08,12) with the handler code_04B995 set before the test; the $16 branch would move it to tile (08,09)).",
+            "clear": "The $16 tests decide: clear starts the interact-gated chain, set places the post-chain idle states."
+          },
+          "evidence": [
+            "extracted/south_cape/coastal_cave/sc02_lance.asm:22 {307314}",
+            "extracted/south_cape/coastal_cave/sc02_seth.asm:26 {308339}",
+            "extracted/south_cape/coastal_cave/sc02_erik.asm:18 {309438}"
+          ],
+          "notes": "Three readers, no writer: searches run: fl_scope.mjs index 0020 (all COP and helper sites of the inventory), fl_query.mjs byte 0A04 (no direct access), unresolved dynamic helper inputs (0 rows). The name states the effect only. Queue FL20-10."
+        }
+      ]
+    },
+    "39": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_guard_gate_open",
+          "area": "south_cape",
+          "summary": "Will has talked to the South Cape gate guard after the letter: the guard steps aside and the town exit is open.",
+          "kinds": ["gate-open", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_guard spawns in code_04859B (solid at its tile, handler 'Be careful.'); a guard that is waiting at 296312 clears the solid tiles (17,06) and (18,06) and walks aside.",
+            "clear": "The guard blocks the exit: with $35 clear it says 'Hold it! Many demons are prowling...', with $35 set its handler sets the flag after 'King Edward has summoned you to the castle?'."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_guard.asm:17 {296244}",
+            "extracted/south_cape/south_cape/sc01_guard.asm:45 {296312}",
+            "extracted/south_cape/south_cape/sc01_guard.asm:72 {296365}"
+          ],
+          "notes": "Writer: handler code_0485A9 (only installed when $35 is set). The player-Y test at 296254 (Y < $00B0) makes the guard walk the opening route before it settles."
+        }
+      ]
+    },
+    "53": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_lola_melody_learned",
+          "area": "south_cape",
+          "summary": "Lola's Melody (item $09) is in Will's inventory and Lola has played the 'You've learned Lola's melody!' scene.",
+          "kinds": ["quest-done", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "The guard installs the 'King Edward has summoned you' handler and waits for $27; Bill prints dialogstring_04977F instead of dialogstring_049828; Lola's handler code_0499E8 says 'Be careful'; Lola's idle poll stops.",
+            "clear": "The guard says 'Hold it!'; Lola's handler gives the letter dialog and GiveItem #09; her idle loop polls BranchIfHasItem(#09)."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_lola.asm:120 {301431}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:122 {301439}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:129 {301451}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:182 {301528}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:184 {301538}",
+            "extracted/south_cape/wills_house/sc06_bill.asm:179 {300035}",
+            "extracted/south_cape/south_cape/sc01_guard.asm:34 {296295}",
+            "extracted/tables/system_strings.asm:20"
+          ],
+          "notes": "Writer: sc06_lola code_049985, reached when BranchIfHasItem(#09) finds the item in the inventory; it locks the joypad ($FFFC), sets the flag, plays music #19 and prints dialogstring_049D29, then unlocks after music #1C. Item $09 = Lola's Melody (system_strings.asm:20). The shipped sc01_guard header calls the flag the Edward Castle summons; the code ties it to the melody, which Lola gives in the same dialog as the letter (dialogstring_049BE5). Name from dialogstring_049D29."
+        }
+      ]
+    },
+    "61": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_kara_intro_done",
+          "area": "south_cape",
+          "summary": "Kara's first conversation with Will in the house is finished and the joypad is released.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc06_kara respawns at tile (0A,19) and sc06_hamlet at (0B,19), both solid with interact handlers, and wait for $04; the intro dialog is not replayed.",
+            "clear": "With $16 set and $1B clear both actors run the intro (Hamlet's lock, Kara's talk) on the next load."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_kara.asm:19 {302517}",
+            "extracted/south_cape/wills_house/sc06_kara.asm:69 {302679}",
+            "extracted/south_cape/wills_house/sc06_hamlet.asm:17 {303584}"
+          ],
+          "notes": "Writer: sc06_kara after dialogstring_04A04C ('Anyway, is there a piano here?'), right after TRB $CFFC."
+        }
+      ]
+    },
+    "62": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_dinner_invited",
+          "area": "south_cape",
+          "summary": "Lola has invited Will to the snail pie dinner upstairs.",
+          "kinds": ["cutscene-stage", "quest-guard"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "On the next load Bill (code_0493D9) and Lola (code_04995B) start in their dinner states at tile (0A,1A) / (0C,1B); Bill's stair trigger (tiles (03,17)-(04,19)) fades out and reloads scene $06 at ($0000,$0200).",
+            "clear": "Bill and Lola keep the arrest-aftermath states."
+          },
+          "evidence": [
+            "extracted/south_cape/wills_house/sc06_lola.asm:21 {301169}",
+            "extracted/south_cape/wills_house/sc06_lola.asm:96 {301387}",
+            "extracted/south_cape/wills_house/sc06_bill.asm:23 {299656}"
+          ],
+          "notes": "Writer: sc06_lola after dialogstring_049B82 ('Let's eat dinner...'), followed by TRB $CFFC. sc06_monologue runs the dinner narration that sets $1C when the player stands at exactly ($0008,$0210) (BranchIfPlayerAt); how the reload target ($0000,$0200) of Bill's QueueMapChange maps to that position is not traced."
+        }
+      ]
+    },
+    "215": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "sc_fisherman_pot_jewel_claimed",
+          "area": "south_cape",
+          "summary": "Will took the Red Jewel (item $01) out of the fisherman's strange pot.",
+          "kinds": ["reward-claimed", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "sc01_fisherman never picks the pot layout (RNG >= $F0 takes the layout at (0B,33) instead) and e_sc01_pot returns without giving anything.",
+            "clear": "With RNG >= $F0 the fisherman stands at (29,30) with the pot spawned beside him; the pot's interact handler gives item #01, prints 'You've found a Red Jewel!' and sets the flag."
+          },
+          "evidence": [
+            "extracted/south_cape/south_cape/sc01_fisherman.asm:42 {295850}",
+            "extracted/south_cape/south_cape/sc01_fisherman.asm:101 {296034}",
+            "extracted/south_cape/south_cape/sc01_fisherman.asm:102 {296040}",
+            "extracted/south_cape/south_cape/sc01_fisherman.asm:104 {296049}",
+            "extracted/tables/system_strings.asm:20"
+          ],
+          "notes": "GiveItem fails to the inventory-full message (hidden_red_jewel.HiddenRedJewelInventoryFull) before the flag is set, so a full inventory leaves it clear. Item $01 = Red Jewel (system_strings.asm:20). FL12 lists this site among the D2 Red Jewel sources owned by the scene groups."
+        }
+      ]
+    },
+    "380": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "pr_legends_page_1_shown",
+          "area": "prologue",
+          "summary": "Page 1 of the legends prologue (scene $8D) has been spawned in this attract cycle; also the 'more pages follow' test at the end of every visit.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Spawn skips page 1 and tests $017D; event block $7C draws picture 1 at (1E,1E) on scene load; the end test at 773365 reloads scene $8D (visits 1-4).",
+            "clear": "Visit 1 spawns page 1 and sets it; on visit 5 it is cleared before the end test, so the end test queues scene $8E."
+          },
+          "evidence": [
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:29 {772960}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:30 {772967}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:75 {773135}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:199 {773365}",
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:125 {772907}"
+          ],
+          "notes": "Same name as the FL11 record (event block $7C); this fragment adds the scene-script side: visits 1-4 each set one page flag and reload $8D, visit 5 (all four set) spawns the last page, clears $017C and leaves for $8E. pr8C_prologue1 clears all four before the first $8D load. $017D-$017F stay set after visit 5 until the next attract cycle's pr8C_prologue1.",
+          "pairsWith": ["$017D", "$017E", "$017F"]
+        }
+      ]
+    },
+    "381": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "pr_legends_page_2_shown",
+          "area": "prologue",
+          "summary": "Page 2 of the legends prologue (scene $8D) has been spawned in this attract cycle.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Spawn skips page 2 and tests $017E; event block $7D draws picture 2 on scene load.",
+            "clear": "Visit 2 spawns page 2 and sets it."
+          },
+          "evidence": [
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:41 {773002}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:42 {773009}",
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:126 {772911}"
+          ],
+          "notes": "Agrees with FL11. Not cleared at the end of visit 5 (only $017C is)."
+        }
+      ]
+    },
+    "382": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "pr_legends_page_3_shown",
+          "area": "prologue",
+          "summary": "Page 3 of the legends prologue (scene $8D) has been spawned in this attract cycle.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Spawn skips page 3 and tests $017F; event block $7E draws picture 3 on scene load.",
+            "clear": "Visit 3 spawns page 3 and sets it."
+          },
+          "evidence": [
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:52 {773044}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:53 {773051}",
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:127 {772915}"
+          ],
+          "notes": "Agrees with FL11."
+        }
+      ]
+    },
+    "383": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "scope": null,
+          "name": "pr_legends_page_4_shown",
+          "area": "prologue",
+          "summary": "Page 4 of the legends prologue (scene $8D) has been spawned in this attract cycle.",
+          "kinds": ["cutscene-stage", "once-latch"],
+          "grade": "VERIFIED-STATIC",
+          "effects": {
+            "set": "Spawn skips page 4 and runs the fifth page (code_0BCC08); event block $7F draws picture 4 on scene load.",
+            "clear": "Visit 4 spawns page 4 and sets it."
+          },
+          "evidence": [
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:63 {773086}",
+            "extracted/prologue/prologue_legends/pr8D_prologue2.asm:64 {773093}",
+            "extracted/prologue/prologue_prophecy/pr8C_prologue1.asm:128 {772919}"
+          ],
+          "notes": "Agrees with FL11."
+        }
+      ]
+    }
+  },
+  "proposals": {
+    "16": [
+      {
+        "source": "FL20",
+        "scope": { "scenes": [8] },
+        "name": "sc_school_lesson_done",
+        "summary": "The opening lesson in the South Cape church is over: Lance, Seth and Erik are gone from the classroom on later loads and the priest stands as a plain NPC.",
+        "kinds": ["quest-done", "once-latch"],
+        "roles": [
+          "setter: sc08_priest.asm:45 {297683}, after dialogstring_048C01 and a $3B-tick wait",
+          "test: sc08_priest.asm:21 {297626} (clear = lock the joypad $CFFC and run the lesson)",
+          "test: sc08_lance.asm:14 {298280} (clear = solid NPC, set = Die)",
+          "test: sc08_erik.asm:15 {298392} (set = Die), wait: sc08_erik.asm:16 {298398}",
+          "test: sc08_seth.asm:13 {298353} (set = Die), wait: sc08_seth.asm:14 {298359}",
+          "outside this scope: boot logo latch in scene $FB (sFB_boot_logo.asm:72 {772336}, :76 {772352}, :88 {772373}), same index, different meaning"
+        ],
+        "confidence": "high",
+        "notes": "Index reuse: the boot logo (scene $FB) sets $10 in its first phase (sFB_boot_logo.asm:76) and clears it in its second phase (:88), so $10 is clear whenever the title is reached after a boot. The church treats $10 as a persistent latch; no code in scope clears it after the lesson. New Game does not zero the flag array (FL10 question FL10-19), so the lesson plays on a New Game only when $10 is clear at that point."
+      }
+    ],
+    "22": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "sc_cave_kara_news_done",
+        "summary": "Erik's runaway-princess news in the coastal cave has started (set before the cutscene dialog): the evening begins.",
+        "kinds": ["quest-done", "cutscene-stage"],
+        "roles": [
+          "setter: sc02_erik.asm:22 {309458} (after $01 and $02 are set by Will's talks with Lance and Seth, before the music and dialogs)",
+          "test: sc02_erik.asm:19 {309444}, sc02_lance.asm:23 {307320}, sc02_seth.asm:27 {308345} (set = post-news idle states)",
+          "test: sc01_house_intro.asm:80 {310522} (clear = skip the 'already dark' narration)",
+          "test: sc06_bill.asm:25 {299668}, sc06_lola.asm:23 {301181} (set = evening opera chain), sc06_kara.asm:20 {302523}, sc06_hamlet.asm:18 {303590} (clear = Die)",
+          "outside this scope: thinkers/flag_gated_palette_warm.asm:24 {46536} and flag_gated_palette_cool.asm:23 {46567} (clear = Die)"
+        ],
+        "confidence": "high",
+        "notes": "Matches the shipped thinker notes ('Flag $16 is set by sc02_erik'). The flag is set at the start of the cutscene, so a reload during it already counts as done."
+      }
+    ],
+    "28": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "sc_dinner_night_passed",
+        "summary": "The dinner night is over: scene $06 reloads at ($00A0,$0078) as the next morning and the evening palette thinkers stop.",
+        "kinds": ["quest-done", "cutscene-stage"],
+        "roles": [
+          "setter: sc06_monologue.asm:39 {304280}, after dialogstring_04A4CC (snail pie feast, the dream) and before QueueMapChange scene $06 at ($00A0,$0078)",
+          "test: sc06_monologue.asm:21 {304234} (set = run the morning narration, which sets $1D)",
+          "test: sc06_bill.asm:22 {299650} (set = code_0493E1, dialog by $35), sc06_lola.asm:20 {301163} (set = code_049968: letter and Lola's melody)",
+          "test: sc02_lance.asm:143 {307622} ('It's a day off from school')",
+          "outside this scope: thinkers/flag_gated_palette_warm.asm:23 {46530} and flag_gated_palette_cool.asm:22 {46561} (set = Die)"
+        ],
+        "confidence": "high",
+        "notes": "Name from dialogstring_04A4CC and dialogstring_04A582; the thinkers' own note calls it the end-of-day narration."
+      }
+    ],
+    "33": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "ec_throne_room_done",
+        "summary": "The throne-room scene in Edward Castle is over; South Cape actors switch to their post-castle states.",
+        "kinds": ["quest-done"],
+        "roles": [
+          "setter (outside scope): edward_castle/edward_castle/ec0A_throne_guards.asm:126 {313156}",
+          "test: sc08_priest.asm:51 {297689} (set = dialogstring_048CDB instead of dialogstring_048C98)",
+          "test: sc02_erik.asm:109 {309663} (set = 'You're not acting like the same old Will')",
+          "test: sc01_house_intro.asm:29 {310433} (set with $26 clear = skip the house narration)",
+          "test: sc06_bill.asm:21 {299644} and sc06_lola.asm:19 {301157} (set = Die), sc06_kara_return.asm:21 {304574} and sc06_lily.asm:20 {305928} (clear = Die)",
+          "scene_meta gate for scene $06 (tables/scene_meta.asm:388, FL10)"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with the FL10 proposal name. In scope the flag is the entry condition of the Kara/Lily scenes of Will's house (sc06_kara_return phase 1)."
+      }
+    ],
+    "37": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "sc_lily_met_in_house",
+        "summary": "Kara and Lily have met in Will's house after the castle; the front door is free and the departure scene is next.",
+        "kinds": ["cutscene-stage", "gate-open"],
+        "roles": [
+          "setter: sc06_kara_return.asm:84 {304773}, after dialogstring_04A945 and clearing scratch $02",
+          "test: sc06_kara_return.asm:20 {304568} (set = phase 2 at tile (0C,1B)), sc06_lily.asm:19 {305922} (set = phase 2 at tile (08,1B))",
+          "test: sc06_kara_return.asm:205 {307026} (the door-block actor e_sc06_actor_04AF48: set = free tiles (05,1D) and (06,1D) and Die; clear = solid with 'I suspect there's a clue in the house...')",
+          "test: sc02_lance.asm:142 {307616} ('You look so gloomy'), sc02_seth.asm:155 {308636} ('Why do I keep losing...?')",
+          "outside this scope: actors/overworld_exit.asm:161 {51931}"
+        ],
+        "confidence": "medium",
+        "notes": "Name from dialogs and the door-block actor; the Itory link (Lily's village) comes from the $26 phase."
+      }
+    ],
+    "38": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "sc_itory_trip_started",
+        "summary": "Will, Kara and Lily have left Will's house for Itory village (QueueMapChange scene $15 after the world-map move).",
+        "kinds": ["quest-done", "cutscene-stage"],
+        "roles": [
+          "setter: sc06_kara_return.asm:122 {304868}, after the second scratch handshake and before the joypad unlock and the last dialog",
+          "test: sc06_kara_return.asm:19 {304562} and sc06_lily.asm:18 {305916} (set = Die)",
+          "test: sc01_house_intro.asm:28 {310427} (set = show the house narration)",
+          "outside this scope: actors/overworld_exit.asm:160 {51925}, itory/itory_village/it15_kara.asm:25 {319627}, it15_lily.asm:33 {320185}"
+        ],
+        "confidence": "medium",
+        "notes": "Set before the final dialog and the scene change, so a reload there would already count."
+      }
+    ],
+    "76": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "gs_ship_descent_done",
+        "summary": "Gold Ship departure has finished; the cave friends have boarded and are absent from the coastal cave.",
+        "kinds": ["cutscene-stage", "once-latch"],
+        "roles": [
+          "test: sc02_erik.asm:16 {309428}, sc02_lance.asm:18 {307301}, sc02_seth.asm:21 {308323} (set = Die; the first test of each actor script)",
+          "outside this scope: gs2C_descent.asm:26 {360828} and :69 {360944}, gs2C_crow_crew.asm:31 {361525}, scene_meta gate for scene $06 (tables/scene_meta.asm:387 {885060})"
+        ],
+        "confidence": "high",
+        "notes": "Agrees with FL10 and FL23. The cave actors check it before $20 and $16."
+      }
+    ],
+    "244": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "pr_prophecy_first_pass_active",
+        "summary": "Scene $8C runs its first pass (pr8C_prologue1 with map_prologue_prophecy_2); the flag is cleared during that pass, so the second pass (pr8C_prologue5) sees it clear.",
+        "kinds": ["cutscene-stage"],
+        "roles": [
+          "setter (outside scope): system/title_screen/sFC_title_intro.asm:49 {772466} before QueueMapChange scene $8C",
+          "test: pr8C_prologue1.asm:27 {772619} (clear = Die), pr8C_prologue5.asm:24 {773756} (set = Die)",
+          "clearer: pr8C_prologue1.asm:122 {772898}, in the same routine that clears $017C-$017F and queues scene $8D",
+          "scene_meta gate for scene $8C: tables/scene_meta.asm:1901 {891790} (set = map_prologue_prophecy_2, clear = map_prologue_prophecy)"
+        ],
+        "confidence": "high",
+        "notes": "CONTRADICTS the FL10 proposal pr_prophecy_second_page_active: the set state is the FIRST pass (title idle -> $8C -> $8D x5 -> $8E -> $8F -> $8C again with the flag cleared -> title $FC). The map names (_2 for the set pass) do not mean pass order."
+      }
+    ],
+    "281": [
+      {
+        "source": "FL20",
+        "scope": null,
+        "name": "sc_wills_house_ransacked",
+        "summary": "Scene $06 shows the ransacked room (event block $19, whole-room copy from (00,30)) while this flag is set; sc06_kara_return clears it once Lily has appeared.",
+        "kinds": ["puzzle-state", "gate-open"],
+        "roles": [
+          "setter (outside scope): edward_castle/edward_castle/ec0A_kara.asm:186 {315306}",
+          "clearer: sc06_kara_return.asm:85 {304776}, at the end of the first Kara and Lily scene right after $25 is set"
+        ],
+        "confidence": "medium",
+        "notes": "Agrees with FL11 (event block $19: scene $06, source (00,30), 16x32 copied to (00,00); system/event_block_table.asm entry ;19). The clear takes effect on the next load of scene $06."
+      }
+    ]
+  }
+}

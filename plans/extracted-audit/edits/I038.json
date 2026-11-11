@@ -1,0 +1,304 @@
+{
+  "system/player/player_move_ramps.asm": {
+    "blockNote": [
+      "Slope physics for eastward player movement (186435-187085, Bank 02). The four handlers are entered ONLY from DispatchEastMove (player_move_east); the diagonal dispatcher has its own ramp code (DiagRampUpLeft and friends) and does not call here. The older header said 'shared between east and diagonal dispatchers'.",
+      "",
+      "They call back into player_move_diag (DiagClearReturnFlags), player_move_east (EastWallNorthDiag / EastWallSouthDiag), player_move_south (SnapYSouthCollision) and player_move_ns (SnapYNorthCollision).",
+      "",
+      "=== ENTRY MAP ===",
+      "",
+      "  EastRampDown : ProbeLeftTiles found $0A (carry clear)",
+      "  WestRampUp   : ProbeLeftTiles found $05 (carry set)",
+      "  EastRampUp   : ProbeCurrentBL read $0A (late path of DispatchEastMove)",
+      "  WestRampDown : ProbeCurrentBL read $05",
+      "",
+      "(The header of player_move_east says the $05 ProbeLeftTiles result goes to WestRampDown; its code jumps to WestRampUp.)",
+      "",
+      "Tile types: $0A (east-facing) is a surface that falls toward the east, Y grows with X; $05 (west-facing) rises toward the east. Both direct paths agree: $0A adds the X velocity to Y ($26 += $20), $05 subtracts it. 'Up' / 'Down' in the names is not the Y direction: EastRampUp's direct path also descends.",
+      "",
+      "=== COORDINATES ===",
+      "",
+      "$1A is the probe pixel X and $1E the probe pixel Y (tile_collision convention). '$1A -= 8' therefore moves the probe 8 px WEST; it is not 'Y up' as many older inline comments said. ProbeCurrentTR leaves $1A = X + 8 and $1E = Y - 16 (hitbox top row); ProbeCurrentBR leaves $1A = X + 8 and $1E = Y (bottom + 1); ProbeCurrentBL leaves $1A = X - 8 and $1E = Y. The -8 / +8 therefore lands on the hitbox centre column X. FutureTR minus 9 is one pixel west of the post-step centre column.",
+      "",
+      "=== COMMON FLOW ===",
+      "",
+      "1. DiagClearReturnFlags zeroes the word at $05,S, the vertical velocity PlayerMovementTick parked on its stack, so the NS phase later does nothing and these handlers own the Y movement.",
+      "2. Probe the slope type in several cells (listed in each handler note). No slope: the Redirect handlers (FutureTR $09 -> EastWallNorthDiag, FutureBR $06 -> EastWallSouthDiag) or ApplyMovementDeltas.",
+      "3. Slope found:",
+      "   - direct entries (the first samples hit the slope cell or the cell next to it, no crossing test): $26 -/+= $20, the X velocity copied 1:1 into Y (a 45-degree slope).",
+      "   - after the future probe: CheckTileBoundaryXor (Z clear = this step crosses a 16-px column line). No crossing: plain ApplyMovementDeltas. Crossing: n = ((X + step) in px) AND $0F, the pixels past the line. EastRampDown: $26 += 4n; WestRampUp: $26 -= 4n; then +4 / -4 (one pixel; positions are quarter pixels) when bit 2 of ($26 + $20 + $22) is set (a Y position plus X values, as in the original). EastRampUp / WestRampDown instead set $24 = $20 - 4n / 4n - $20, which ApplyMovementDeltas applies.",
+      "4. playerFlags |= $1000 (on slope / ramp), then the FutureTR and FutureBR wall check ($0E+ = solid): both open -> ApplyMovementDeltas; TR open and BR solid -> SnapYSouthCollision; TR solid and BR open -> SnapYNorthCollision; both solid -> corner snap.",
+      "5. Corner snap: X = (left edge of the post-step position, floored to a 16-px column line) + 8, so it only ever moves west; $26 += old X + $20 - new X (the distance pulled back); $20, $24 and playerSpeedEw are zeroed and SetActorCollisionFlag is called. The Y compensation has the same sign in the $0A and $05 handlers (OQ-I038-2).",
+      "",
+      "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code."
+    ],
+    "partNotes": {
+      "EastRampDown": [
+        "Entered when ProbeLeftTiles found $0A: descend while moving east. Samples: TR probe at (X, top row); the cell below it; FutureTR at (X + step - 1); the cell below that. Hits on the first two take the direct step (code_02D8C7); hits on the last two take the column-crossing test; no hit -> EastRedirectToNorth. See the block note."
+      ],
+      "EastRampUp": [
+        "Entered from DispatchEastMove when ProbeCurrentBL read $0A. Samples (X, bottom + 1); not $0A -> ApplyMovementDeltas. $0A with no column crossing -> the direct step (Y += $20); with a crossing $24 = $20 - 4n (n = pixels past the column line after the step). Finishes at code_02D8CE."
+      ],
+      "WestRampUp": [
+        "Entered when ProbeLeftTiles found $05. Mirror of EastRampDown: BR probe at (X, bottom + 1), MapCellUp on the first retry, FutureTR at (X + step - 1) then MapCellDown, and negated Y (crossing: $26 -= 4n with a -4 bias; direct: $26 -= $20). Finishes at code_02DA19 with the same snaps."
+      ],
+      "WestRampDown": [
+        "Entered from DispatchEastMove when ProbeCurrentBL read $05. Samples (X, bottom + 1) for $05; no crossing -> code_02DA0E (Y -= $20); crossing: $24 = 4n - $20 (n as in EastRampUp), negative (upward) while 4n < $20. Y grows downward, so the older 'positive, producing upward displacement' was wrong. Finishes at code_02DA19."
+      ]
+    },
+    "comments": {
+      "186435": {
+        "text": "Zero the word at $05,S (vertical velocity parked by PlayerMovementTick): the NS phase does nothing, this handler owns Y",
+        "expect": "DiagClearReturnFlags"
+      },
+      "186438": {
+        "text": "TR probe: $1A = X + 8 (right edge + 1), $1E = Y - 16 (hitbox top row)",
+        "expect": "ProbeCurrentTR"
+      },
+      "186441": {
+        "text": "$1A is the probe pixel X (not Y): 8 px west of the right edge = the hitbox centre column; $1E keeps the top row",
+        "expect": "LDA $1A"
+      },
+      "186449": {
+        "text": "Slope sample at (X, top row): type $0A takes the direct step",
+        "expect": "TileProbeMain"
+      },
+      "186460": {
+        "text": "No $0A there: step the map index in $00 one row down and read that cell",
+        "expect": "MapCellDown"
+      },
+      "186478": {
+        "text": "Probe at the post-step position: $1A = X + step + 8",
+        "expect": "ProbeFutureTR"
+      },
+      "186481": {
+        "text": "$1A -= 9: one pixel west of the post-step centre column (X pixels, not Y)",
+        "expect": "LDA $1A"
+      },
+      "186489": {
+        "text": "Post-step sample must be $0A for the slope to continue",
+        "expect": "TileProbeMain"
+      },
+      "186500": {
+        "text": "Or the cell one row below the post-step sample",
+        "expect": "MapCellDown"
+      },
+      "186518": {
+        "text": "No $0A slope in any probe: EastRedirectToNorth (north-wall fallback)",
+        "expect": "EastRedirectToNorth"
+      },
+      "186521": {
+        "text": "Z clear = this step crosses a 16-px column line",
+        "expect": "CheckTileBoundaryXor"
+      },
+      "186529": {
+        "text": "n = ((step + X) >> 2) AND $0F = pixels past the column line after the step (not a mean X); Y gets 4n quarter-pixels",
+        "expect": "LDA $20"
+      },
+      "186542": {
+        "text": "$26 += 4n: Y follows the slope by the part of the step inside the new column",
+        "expect": "ADC $26"
+      },
+      "186552": {
+        "text": "Three LSRs: the carry out of the third is bit 2 of ($26 + $20 + $22), a Y position plus X values as in the original",
+        "expect": "LSR"
+      },
+      "186557": {
+        "text": "Carry set: $26 += 4 (one pixel; positions are quarter pixels, so not a half-pixel)",
+        "expect": "LDA $26"
+      },
+      "186567": {
+        "text": "Direct step: $26 += $20, the X velocity copied 1:1 into Y (45-degree slope); used when the sample or the cell below is $0A",
+        "expect": "LDA $20"
+      },
+      "186599": {
+        "text": "TR open, BR solid -> code_02D92F (SnapYSouthCollision)",
+        "expect": "JMP $&code_02D92F"
+      },
+      "186614": {
+        "text": "Both blocked: save $22, then X' = post-step left edge floored to a 16-px column line, + 8 (centre), in quarter pixels",
+        "expect": "LDA $22"
+      },
+      "186622": {
+        "text": "Left edge = (X + step) px - 8; floor to a 16-px line unless already flush; +8 and x4 give the new centre X (west moves only)",
+        "expect": "SEC"
+      },
+      "186643": {
+        "text": "A = new X - old X, minus $20, negated below: $26 += the distance pulled back (same sign as WestRampUp)",
+        "expect": "SBC $01, S"
+      },
+      "186658": {
+        "text": "Zero the X velocity ($20), Y velocity ($24) and playerSpeedEw after the snap",
+        "expect": "STZ $20"
+      },
+      "186671": {
+        "text": "TR open, BR solid: SnapYSouthCollision (the old text said TR-only and SnapXEastCollision)",
+        "expect": "REP #$20"
+      },
+      "186679": {
+        "text": "TR solid, BR open: SnapYNorthCollision (the old text said BR-only)",
+        "expect": "REP #$20"
+      },
+      "186690": {
+        "text": "$1A (probe pixel X) = BL probe X - 8; +8 below makes it the centre column X; $1E = bottom + 1 from the BL probe",
+        "expect": "LDA $1A"
+      },
+      "186698": {
+        "text": "Sample at (X, bottom + 1) must be $0A, else movement proceeds unchanged",
+        "expect": "TileProbeMain"
+      },
+      "186712": {
+        "text": "Z clear = this step crosses a 16-px column line",
+        "expect": "CheckTileBoundaryXor"
+      },
+      "186717": {
+        "text": "No crossing: direct step $26 += $20 (a descent along $0A despite the Up name)",
+        "expect": "JMP $&code_02D8C7"
+      },
+      "186720": {
+        "text": "Crossing: n = ((step px) + X) AND $0F; $24 = $20 - 4n replaces the vertical velocity",
+        "expect": "LDA $20"
+      },
+      "186732": {
+        "text": "4n - $20, negated by EOR / INC below, so $24 = $20 - 4n",
+        "expect": "SEC"
+      },
+      "186741": {
+        "text": "Finish: set the slope flag and run the FutureTR / FutureBR wall check",
+        "expect": "JMP $&code_02D8CE"
+      },
+      "186761": {
+        "text": "BR probe: $1A = X + 8, $1E = Y (bottom + 1)",
+        "expect": "ProbeCurrentBR"
+      },
+      "186764": {
+        "text": "$1A is the probe pixel X: -8 below moves it west to the centre column (not Y)",
+        "expect": "LDA $1A"
+      },
+      "186772": {
+        "text": "Sample at (X, bottom + 1) must be $05: direct step",
+        "expect": "TileProbeMain"
+      },
+      "186783": {
+        "text": "No $05: step the map index in $00 one row up and read that cell",
+        "expect": "MapCellUp"
+      },
+      "186801": {
+        "text": "Post-step probe (TR here, BR for the first sample): $1A = X + step + 8",
+        "expect": "ProbeFutureTR"
+      },
+      "186804": {
+        "text": "$1A -= 9: one pixel west of the post-step centre column (X pixels, not Y)",
+        "expect": "LDA $1A"
+      },
+      "186812": {
+        "text": "Post-step sample must be $05 for the slope to continue",
+        "expect": "TileProbeMain"
+      },
+      "186852": {
+        "text": "n as in EastRampDown; $26 -= 4n (EOR / INC below negates)",
+        "expect": "LDA $20"
+      },
+      "186879": {
+        "text": "Carry out of the third LSR = bit 2 of ($26 + $20 + $22); set -> $26 -= 4 (one pixel)",
+        "expect": "LSR"
+      },
+      "186884": {
+        "text": "Carry set: $26 -= 4 (one pixel, not a half-pixel)",
+        "expect": "LDA $26"
+      },
+      "186894": {
+        "text": "Direct step: $26 -= $20, the X velocity mirrored into Y (the surface rises toward the east)",
+        "expect": "LDA $20"
+      },
+      "186930": {
+        "text": "TR open, BR solid -> code_02DA7A (SnapYSouthCollision)",
+        "expect": "JMP $&code_02DA7A"
+      },
+      "186940": {
+        "text": "TR solid, BR open -> code_02DA82 (SnapYNorthCollision)",
+        "expect": "JMP $&code_02DA82"
+      },
+      "186943": {
+        "text": "Both blocked: same corner snap as EastRampDown (identical code, same Y sign)",
+        "expect": "REP #$20"
+      },
+      "187002": {
+        "text": "TR open, BR solid: SnapYSouthCollision (the old text said TR-only and SnapXEastCollision)",
+        "expect": "REP #$20"
+      },
+      "187010": {
+        "text": "TR solid, BR open: SnapYNorthCollision (the old text said BR-only)",
+        "expect": "REP #$20"
+      },
+      "187021": {
+        "text": "$1A (probe pixel X) = BL X - 8; +8 below makes it the centre column X (not Y); $1E = bottom + 1",
+        "expect": "LDA $1A"
+      },
+      "187029": {
+        "text": "Sample at (X, bottom + 1) must be $05, else movement proceeds unchanged",
+        "expect": "TileProbeMain"
+      },
+      "187043": {
+        "text": "Z clear = this step crosses a 16-px column line",
+        "expect": "CheckTileBoundaryXor"
+      },
+      "187048": {
+        "text": "No crossing: direct step $26 -= $20 (the surface rises toward the east)",
+        "expect": "JMP $&code_02DA0E"
+      },
+      "187051": {
+        "text": "Crossing: n = ((step px) + X) AND $0F; $24 = 4n - $20 (negative = upward while 4n < $20)",
+        "expect": "LDA $20"
+      },
+      "187068": {
+        "text": "Finish: set the slope flag and run the FutureTR / FutureBR wall check",
+        "expect": "JMP $&code_02DA19"
+      }
+    }
+  },
+  "actors/camera_delta_oscillator.asm": {
+    "blockNote": [
+      "Per-frame actor: cameraDeltaX = cameraTargetX, and bit 9 ($0200) of the frame counter $0036 (incremented once per frame in the NMI) selects INC (bit set) or DEC (bit clear) of cameraDeltaY.",
+      "",
+      "Bit 9 flips every 512 frames, so cameraDeltaY ramps up 512 steps and back down 512 steps (about 8.5 s per half at 60 Hz): a slow vertical drift, not the 'subtle wobble' the older header claimed.",
+      "cameraDeltaX / Y are not the camera itself: camera_tilemap copies them into effectScrollH / V in layer-1 delta mode ($06EF bit 2), and camera_scroll actors compute them as parallax ratios of cameraTargetX / Y.",
+      "No extracted script references this actor by label (no spawn or entry reference found), so it is either unused or spawned from data; the claim in docs/code/bank08-native-dao-pyramid-actors.md that it is used during pyramid scroll sequences is unsupported (OQ-I038-4). UNVERIFIED-RUNTIME."
+    ],
+    "partNotes": {},
+    "comments": {
+      "570754": {
+        "text": "Frame counter $0036 (2 bytes, INC per frame in the NMI)",
+        "expect": "LDA $frameCounter"
+      },
+      "570762": {
+        "text": "Bit set: cameraDeltaY += 1 per frame",
+        "expect": "INC $cameraDeltaY"
+      },
+      "570766": {
+        "text": "Bit clear: cameraDeltaY -= 1 per frame",
+        "expect": "DEC $cameraDeltaY"
+      }
+    }
+  },
+  "functions/ActorMidpointCalc.asm": {
+    "blockNote": [
+      "Midpoint of two actors: posX ($14) and posY ($16) of the actor at DP $04 (A) and the actor at DP $06 (B), each summed and halved with a signed ROR (CLC / BPL / SEC before the ROR keeps the sign), stored into the caller's own $14 / $16. X is saved with PHX / PLX; Y is clobbered. Needs 16-bit A and index registers.",
+      "",
+      "$04 and $06 are the actor's prevActorLink / nextActorLink (wram-memory-map). mtA0_acid_spider (code_0BA2BE) and awB0_zombie call it every frame from a SetEntryHere loop without setting either, so the child sits midway between its list neighbours; dm3D_flayzer calls it once to place a shot.",
+      "Callers: mtA0_acid_spider (2 sites), awB0_zombie, av6E_draco (2), dm3D_flayzer, unused_mode7_boss. combat_collision does not call it; the older 'used by combat collision to find the hit point' was wrong.",
+      "OQ-I038-3: when $06 is 0 (no successor) the B reads would hit low RAM at $0014 / $0016; whether callers guarantee a neighbour was not traced."
+    ],
+    "partNotes": {},
+    "comments": {
+      "697373": {
+        "text": "Y = actor at $04 (A); $04 / $06 are prevActorLink / nextActorLink unless the caller loaded them",
+        "expect": "LDY $04"
+      },
+      "697375": {
+        "text": "X = actor at $06 (B); X was saved by the PHX above",
+        "expect": "LDX $06"
+      }
+    }
+  }
+}

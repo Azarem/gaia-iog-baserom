@@ -2,7 +2,7 @@
     "freejia_tilefx_3FE0": "Animation 0: groups 14C028, 14C03C, 14C050, 14C064 (tile bytes 0 to 3), each held 7 (8 ticks); the hidden $FFFF terminator wraps the loop. Streamed to VRAM word $3FE0.",
     "freejia_tilefx_3FF0": "Animation 1: groups 14C078, 14C08C, 14C0A0, 14C0B4 (tile bytes 4 to 7), each held 6 (7 ticks). Streamed to VRAM word $3FF0.",
     "snake_pit_fx_frame_0": "Frame 0: tile byte $00 = the first 128 bytes of misc_fx_1CD380. snake_pit_fx_frame_1, snake_pit_fx_frame_2 and snake_pit_fx_frame_3 differ only by the tile byte ($04, $08, $0C).",
-    "spm_overworld_sprites": "Animation table (14 entries). The index is the party-array word WorldMapController writes to actor field $28: #00-#06 single figures, #07-#0A four pieces of one multi-part sprite, #0B-#0D scripted-trip leaders.",
+    "spm_overworld_sprites": "Animation table (14 entries). The index is the party-array word WorldMapController writes to actor field $28: #00-#06 single figures, #07-#0A four separate multi-part figures, #0B-#0D scripted-trip leaders.",
     "sprite_group_148544": "Example group: Shadow idle south, the only frame of animation $00. Header: extents X 16 / 16, Y 45 / 8, default attack and body boxes, 6 sub-sprites of 16x16 (tile words $0000, $0020, $0102, $0100, $0022, $000E; $0102 and $0100 use the second name table, bit 8).",
     "sprite_group_adrift_wave_0": "Frame 0: one sprite-part, word $0A00 (art offset 0 in the streamed source).",
     "sprite_group_adrift_wave_1": "Frame 1: one sprite-part, word $0A04 (art offset 4 tiles = 128 bytes).",

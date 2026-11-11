@@ -1,0 +1,44 @@
+[
+    { "address": 258431, "old": "FacingData_WillAlt", "new": "FacingData_WillAbilities", "row": "A01-36 / U1" },
+    { "address": 258458, "old": "FacingData_AbilityFx", "new": "FacingData_TransformPoses", "row": "A01-36 / U1" },
+
+    { "address": 250198, "old": "RunThinkers_TypeA_Next", "new": "RunThinkers_General_Next", "row": "A02-02" },
+    { "address": 250246, "old": "RunThinkers_TypeB_Next", "new": "RunThinkers_Hdma_Next", "row": "A02-02" },
+    { "address": 250299, "old": "RunThinkers_TypeC_Next", "new": "RunThinkers_General_Light_Next", "row": "A02-02" },
+    { "address": 250350, "old": "RunThinkers_TypeD_Next", "new": "RunThinkers_Hdma_Light_Next", "row": "A02-02" },
+
+    { "address": 41089, "old": "StagePlayerSpriteMoveX", "new": "StagePlayerMoveX", "row": "A01-F5 / U2" },
+    { "address": 41127, "old": "StagePlayerSpriteMoveY", "new": "StagePlayerMoveY", "row": "A01-F5 / U2" },
+    { "address": 41165, "old": "StagePlayerSpriteMoveXY", "new": "StagePlayerMoveXY", "row": "A01-F5 / U2" },
+
+    { "address": 59187, "old": "FollowChaseDiagQuadrantNE", "new": "FollowChaseDominantXGreaterUpLeft", "row": "A01-64" },
+    { "address": 59190, "old": "FollowChaseDiagQuadrantSW", "new": "FollowChaseHeadNNE", "row": "A01-64" },
+    { "address": 59210, "old": "FollowChaseHeadNNE", "new": "FollowChaseApplyNNE", "row": "A01-64" },
+    { "address": 59235, "old": "FollowChaseDiagQuadrantNW", "new": "FollowChaseHeadENE", "row": "A01-64" },
+    { "address": 59255, "old": "FollowChaseHeadENE", "new": "FollowChaseApplyENE", "row": "A01-64" },
+
+    { "address": 61052, "old": "ResolveFollowDirection", "new": "ResolveFacingFromAxisBase", "row": "A01-64" },
+    { "address": 61068, "old": "ResolveFollowDirectionAlt", "new": "ResolveFacingFromDiagonalBase", "row": "A01-64" },
+    { "address": 61082, "old": "ResolveFollowDirMoveXOnly", "new": "ResolveFacingOffset0", "row": "A01-64" },
+    { "address": 61090, "old": "ResolveFollowDirMoveDiagonal", "new": "ResolveFacingOffset1", "row": "A01-64" },
+    { "address": 61098, "old": "ResolveFollowDirMoveYOnly", "new": "ResolveFacingOffset2", "row": "A01-64" },
+    { "address": 61104, "old": "ResolveFollowDirAdvanceFrame", "new": "ResolveFacingCompare", "row": "A01-64" },
+    { "address": 61152, "old": "ResolveFollowDirAltWrapNeg", "new": "ResolveFacingCompareNegative", "row": "A01-64" },
+    { "address": 61169, "old": "ResolveFollowDirAltDecFrame", "new": "ResolveFacingStepCounterclockwise", "row": "A01-64" },
+    { "address": 61195, "old": "ResolveFollowDirAltIncFrame", "new": "ResolveFacingStepClockwise", "row": "A01-64" },
+    { "address": 61212, "old": "ResolveFollowDirAltSnapFrame", "new": "ResolveFacingSnapToDesired", "row": "A01-64" },
+    { "address": 61225, "old": "ResolveFollowDirAltApplyFrame", "new": "ResolveFacingSetSpawnerAnim", "row": "A01-64" },
+    { "address": 61248, "old": "ResolveFollowDirAltSkipAnimUpdate", "new": "ResolveFacingRefreshSpawnerSprite", "row": "A01-64" },
+    { "address": 61266, "old": "ResolveFollowDirAltUpdateAnim", "new": "ResolveFacingDispatch", "row": "A01-64" },
+    { "address": 61290, "old": "ResolveFollowDirAltLoadTable", "new": "ResolveFacingLoadHandler", "row": "A01-64" },
+
+    { "address": 39745, "old": "BranchIfCollisionTypeNe", "new": "BranchIfCollisionTypeEq", "row": "A14-C01 (copdef id $62)" },
+    { "address": 34464, "old": "QueueDma", "new": "QueueHdmaDirect", "row": "A14-C02 (copdef id $02)" },
+    { "address": 39386, "old": "ResetSpriteState", "new": "SetTileStreamAnim", "row": "A14-C03 (copdef id $55)" },
+    { "address": 38659, "old": "WorldMapStream3", "new": "DrawMetatileStream", "row": "A14-C06 (copdef id $4D)" },
+    { "address": 38772, "old": "WorldMapStream4", "new": "DrawMetatileStreamDelay", "row": "A14-C06 (copdef id $4E)" },
+    { "address": 42905, "old": "ReloadMoveDurations", "new": "ReloadMoveChains", "row": "A14-C07 (copdef id $B1)" },
+    { "address": 42771, "old": "ForceDirSW", "new": "SetMoveNegateX", "row": "A14-C08 (copdef id $AD)" },
+    { "address": 42801, "old": "ForceDirNE", "new": "SetMoveNegateY", "row": "A14-C08 (copdef id $AE)" },
+    { "address": 42831, "old": "ForceDirBoth", "new": "SetMoveNegateXY", "row": "A14-C08 (copdef id $AF)" }
+]

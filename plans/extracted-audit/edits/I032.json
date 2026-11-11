@@ -1,0 +1,352 @@
+{
+  "actors/player/slope_ramp_physics.asm": {
+    "blockNote": [
+      "Slope/ramp terrain physics and flat-ground deceleration - SpawnAfter companion of the player actor (177195-178099, Bank 02).",
+      "",
+      "PlayerCharacterDef spawns it with SpawnAfter, so it sits right behind the player actor in the actor list and runs every frame after the player's own scripts. It never moves the player. It only edits playerSpeedEw / playerSpeedNs (and the playerFlags $1000 latch); player_move_controller turns those speeds into movement (speed x 4 plus external velocity) on the next pass.",
+      "",
+      "=== FRAME FLOW (SlopePhysicsEntry) ===",
+      "",
+      "1. Gate: if the player actor's $10 has bit $0080 or bit $0040 set (hit marker / orb state) and iframeCounter is not negative, slope detection is skipped and only SlopeFlatDecelerate runs.",
+      "2. Speed nonzero (EW or NS): probe the collision tile at (actor X, actor Y - 8) with TileProbeMain, look the type up in SlopeTileDispatch and jump to the handler. A type with no handler goes to the transition-tile test (below), otherwise to SlopeFlatExit.",
+      "3. Speed zero and playerFlags $1000 set: reset both step counters and probe four cells (below). A slope found runs its handler, none goes to SlopeFlatExit.",
+      "4. Speed zero and no latch: SlopeFlatDecelerate.",
+      "A slope handler adds one curve value to one axis (ApplySlopeCurve*) and returns through ClampSpeeds.",
+      "",
+      "=== TILE TYPES (SlopeTileDispatch) ===",
+      "",
+      "| Type | Handler | Pushes the player | Curve |",
+      "|------|---------|-------------------|-------|",
+      "| $03  | SlopeType03Handler | south (NS +) | slopeCurvePtrB |",
+      "| $05  | SlopeType05Handler | west (EW -) | slopeCurvePtrA, negated |",
+      "| $0A  | SlopeType0AHandler | east (EW +) | slopeCurvePtrA |",
+      "| $0C  | SlopeType0CHandler | north (NS -) | slopeCurvePtrB, negated |",
+      "",
+      "All other types (0-2, 4, 6-9, B, D-F) have a zero entry: no slope. The table holds the handler addresses; the dispatch does DEC, PHA, RTS so that the RTS lands on the handler. Whether a handler pushes DOWNHILL was not checked against the map art; the direction column is what the code does to the speed.",
+      "",
+      "=== CURVES ===",
+      "",
+      "slopeCurvePtrA ($09BA, east-west) and slopeCurvePtrB ($09BC, north-south) both point at the start of the math_lookup_tables block, and decelCurvePtr ($09C2) at that block + $20; system_core sets them once at boot. Each curve is 16 words, read as (counter & $0F) x 2 bytes from the pointer. Default slope curve: $0001 at steps 0, 4, 8 and 12, otherwise 0, i.e. +1 speed unit every fourth frame. Default deceleration curve: $0001 at steps 7 and 15. slopeStepCounter ($09B6) advances once per frame on a slope and is cleared when the slope speed reaches zero, when SlopeFlatExit runs and on every frame of the stopped probe (so a slope always starts at step 0). decelStepCounter ($09B8) advances on EVERY ReadDecelerationStep call, including calls that return 0. maxSpeedEw / maxSpeedNs ($09C8 / $09CA) are set to 9 in system_core and not written again in the extracted code; ClampSpeeds limits |speed| to max - 1 = 8.",
+      "",
+      "=== THE $1000 ON-SLOPE LATCH (playerFlags) ===",
+      "",
+      "Set by the ramp walkers (player_move_ramps, player_move_diag) while the player traverses a ramp and by these handlers when a slope curve brings an axis speed to exactly zero. Cleared by player_move_controller whenever the EW or the NS speed is nonzero, and by SlopeFlatDecelerate when EW speed is zero. While it is set player_move_controller drops the joypad velocity, DecelerateEW / DecelerateNS return at once, the Aura Barrier cannot be used and the walk code skips its L/R block check. By this reading a player at rest on the latch gets no joypad movement: the four-cell probe finds the slope again, the first curve step (+1 or -1) gives a nonzero speed, and the next controller pass clears the latch.",
+      "",
+      "=== TRANSITION TILES $06 AND $09 ===",
+      "",
+      "If the tile under the probe has no handler but is type $06 or $09, the code looks at two other cells with MapCellDown (one map row below the probe tile) and then MapCellUp (one row above), both relative to the index TileProbeMain left in $00. A type $05 or $0A in either cell runs that handler; otherwise SlopeFlatExit. The earlier text said \"right and left adjacent cells\"; MapCellDown/Up step by rows (+/-$10), MapCellRight/Left by columns.",
+      "",
+      "=== STOPPED-ON-SLOPE PROBE ===",
+      "",
+      "Four cells are tested in this order: the probe cell, the cell to its RIGHT (MapCellRight), the cell BELOW it (MapCellDown) and the cell below-right (MapCellRight from the new base; the code stores the new index in $00 after MapCellDown). The first slope type found runs its handler. The probe point here is playerXPos / playerYPos (camera_scroll_controller writes actor X - 8 and actor Y - $10 there), while the moving probe uses (actor X, actor Y - 8); the two phases therefore look at different points (open question).",
+      "",
+      "=== DECELERATION (SlopeFlatDecelerate, DecelerateEW / DecelerateNS) ===",
+      "",
+      "SlopeFlatDecelerate decelerates the EW axis when EW speed is nonzero and then returns; the NS axis is only handled on a frame in which EW speed is already zero (after clearing the $1000 latch). Per axis: skipped while the latch is set; |speed| < 3 is set to zero at once (the step counter is not reset); otherwise a D-pad bit for the direction of travel suppresses deceleration, else one curve value is subtracted (added for negative speeds) and, whether that step was applied or returned 0, a D-pad bit for the opposite direction applies a second curve value (braking). Reaching zero resets decelStepCounter in the EW routine; the NS routine resets slopeStepCounter instead (probable copy slip, open question).",
+      "",
+      "=== OTHER QUIRKS (open questions) ===",
+      "",
+      "ClampSpeeds examines the NS speed only when EW speed is zero. ReadDecelerationStepNS is a byte-for-byte copy of ReadDecelerationStep (same counter, same curve). slopeFracAccum ($09C6) is the sub-pixel accumulator of the north/south slope walkers (player_move_south, player_move_ns); this file only clears it (SlopeFlatExit), as player_move_controller does when the NS speed is zero."
+    ],
+    "partNotes": {
+      "SlopePhysicsEntry": [
+        "Per-frame entry of the companion actor (see the block note for the four paths). X is saved around the player-flag gate. When the actor has speed it saves D, sets D = 0 for TileProbeMain's work area ($1A = pixel X, $1E = pixel Y, tile index in $00) and probes (actor X, actor Y - 8). The collision type, doubled, indexes SlopeTileDispatch: a nonzero entry is the handler (DEC, PHA, RTS dispatch), zero means no slope. For types $06 and $09 the cells one row below and one row above the probe tile are tested for $05 / $0A. With zero speed and the $1000 latch it clears slopeStepCounter and decelStepCounter, probes the current, right, below and below-right cells at playerXPos / playerYPos and dispatches the first slope found; otherwise it ends in SlopeFlatExit."
+      ],
+      "SlopeType03Handler": [
+        "Collision type $03: apply the positive NS curve (slopeCurvePtrB) to playerSpeedNs, then ClampSpeeds, PLD, PLX, RTL. Pushes the player south."
+      ],
+      "SlopeType05Handler": [
+        "Collision type $05: apply the negated EW curve (slopeCurvePtrA) to playerSpeedEw. Pushes the player west (eastward speed shrinks, westward speed grows). Shares the exit loc_02B54A (ClampSpeeds, PLD, PLX, RTL) with the other three handlers."
+      ],
+      "SlopeType0AHandler": [
+        "Collision type $0A: apply the positive EW curve (slopeCurvePtrA) to playerSpeedEw. Pushes the player east. The next label SlopeType0CHandler (type $0C, negated NS curve of slopeCurvePtrB, pushes north) lives inside this block; the common exit loc_02B54A calls ClampSpeeds and returns with PLD, PLX, RTL."
+      ],
+      "SlopeFlatExit": [
+        "No slope under the player: ClampSpeeds, clear slopeFracAccum and slopeStepCounter, restore D and X (pushed in SlopePhysicsEntry) and fall straight into SlopeFlatDecelerate, which returns with RTL. There is no RTL in this block."
+      ],
+      "SlopeFlatDecelerate": [
+        "Flat-ground deceleration entry (also reached directly from the frozen gate and the zero-speed path). EW speed nonzero: DecelerateEW and RTL, so the NS axis is not touched on that frame. EW speed zero: clear playerFlags $1000 if it is set (the player has come to rest), then DecelerateNS if the NS speed is nonzero. RTL."
+      ],
+      "SlopeTileDispatch": [
+        "16-word table indexed by collision type x 2. Types $03, $05, $0A and $0C hold the address of a slope handler; the rest are $0000. SlopePhysicsEntry reads it with a long-indexed LDA, then DEC, PHA, RTS dispatches (the table stores the handler address itself; the DEC makes the RTS land on it)."
+      ],
+      "ApplySlopeCurveNegEW": [
+        "Read the curve word at slopeCurvePtrA + (slopeStepCounter & $0F) x 2, negate it and add it to playerSpeedEw. A result of exactly zero jumps to loc_02B5D8 (shared by all four curve routines: clear slopeStepCounter and set the $1000 latch); otherwise slopeStepCounter is incremented. Default curve: +1 every fourth step.",
+        "ApplySlopeCurvePosEW, ApplySlopeCurvePosNS and ApplySlopeCurveNegNS are the same routine for the positive EW curve, the positive NS curve (slopeCurvePtrB, playerSpeedNs) and the negated NS curve."
+      ],
+      "ApplySlopeCurvePosEW": [
+        "Positive EW curve (slopeCurvePtrA): add the curve word to playerSpeedEw (eastward). Speed zero -> loc_02B5D8 (clear slopeStepCounter, set $1000); otherwise slopeStepCounter + 1. The label loc_02B5D8 sits in this block but is also the target of the three sibling routines."
+      ],
+      "ApplySlopeCurvePosNS": [
+        "Positive NS curve (slopeCurvePtrB): add the curve word to playerSpeedNs (southward). Speed zero -> loc_02B5D8; otherwise slopeStepCounter + 1."
+      ],
+      "ApplySlopeCurveNegNS": [
+        "Negated NS curve (slopeCurvePtrB): subtract the curve word from playerSpeedNs (northward). Speed zero -> loc_02B5D8; otherwise slopeStepCounter + 1."
+      ],
+      "ClampSpeeds": [
+        "Limit |speed| to maxSpeed - 1 (8 with the default maximum of 9). EW first: nonzero speed is compared (negated when negative) and clamped; the routine then returns without looking at NS. NS is only examined when the EW speed is zero. Called after every slope handler and from SlopeFlatExit."
+      ],
+      "DecelerateEW": [
+        "EW flat-ground deceleration (details in the block note). Return at once while the $1000 latch is set. |speed| < 3 -> speed = 0 (decelStepCounter not reset). Positive speed: D-pad right ($0100) held -> return; otherwise one ReadDecelerationStep value is subtracted (speed 0 -> reset decelStepCounter, return), then, also when that value was 0, D-pad left ($0200) held applies a second step. Negative speed mirrors this with left suppressing and right braking. Each ReadDecelerationStep call advances decelStepCounter, so braking uses the curve twice per frame."
+      ],
+      "ReadDecelerationStep": [
+        "Return in A the curve word at decelCurvePtr + (decelStepCounter & $0F) x 2 (flags set from A: zero = no deceleration this step) and increment decelStepCounter, whether or not the word is zero. Default curve: $0001 at steps 7 and 15."
+      ],
+      "DecelerateNS": [
+        "NS counterpart of DecelerateEW: same latch test, |speed| < 3 snap, same-direction suppression (down $0400 for positive speed, up $0800 for negative), one step plus a braking step for the opposite D-pad direction. Difference: when the speed reaches zero it clears slopeStepCounter (loc_02B76C) where DecelerateEW clears decelStepCounter, so after an NS stop the deceleration curve keeps its position."
+      ],
+      "ReadDecelerationStepNS": [
+        "Exact copy of ReadDecelerationStep for the NS routine: same decelStepCounter, same decelCurvePtr, same result. It could simply be a JSR to ReadDecelerationStep."
+      ]
+    },
+    "comments": {
+      "177197": {
+        "text": "Gate: bit $0080 (hit marker) or $0040 (orb state) in the player actor's $10",
+        "expect": "PHX"
+      },
+      "177209": {
+        "text": "Negative iframe counter (recovery) lets slope physics run; positive = hit-stun",
+        "expect": "LDA $iframeCounter, X"
+      },
+      "177216": {
+        "text": "Hit-stun or orb state: skip slope detection, only decelerate",
+        "expect": "JMP $&SlopeFlatDecelerate"
+      },
+      "177237": {
+        "text": "Probe X = player actor X ($14)",
+        "expect": "LDA $0014, Y"
+      },
+      "177246": {
+        "text": "Probe Y = player actor Y ($16) - 8",
+        "expect": "SBC #$0008"
+      },
+      "177251": {
+        "text": "TileProbeMain: map index into $00, collision type in A (actor solid marks read as $0F)",
+        "expect": "JSR $&tile_collision.TileProbeMain"
+      },
+      "177263": {
+        "text": "Zero table entry = type without a slope handler; nonzero falls through to the dispatch",
+        "expect": "BEQ loc_02B474"
+      },
+      "177265": {
+        "text": "The table holds the handler address; DEC so that the return below lands on it",
+        "expect": "DEC"
+      },
+      "177283": {
+        "text": "Transition tile: test the cell one map row BELOW the probe tile (MapCellDown = +1 row)",
+        "expect": "JSR $&tile_collision.MapCellDown"
+      },
+      "177288": {
+        "text": "Read the collision type at map index X",
+        "expect": "JSR $&tile_collision.ReadCollisionNibble"
+      },
+      "177304": {
+        "text": "Cell below is type $0A: east handler",
+        "expect": "CMP #$000A"
+      },
+      "177312": {
+        "text": "Cell below is no slope: test the cell one row ABOVE the probe tile (MapCellUp)",
+        "expect": "JSR $&tile_collision.MapCellUp"
+      },
+      "177341": {
+        "text": "Neither the cell below nor the cell above is a slope",
+        "expect": "JMP $&SlopeFlatExit"
+      },
+      "177355": {
+        "text": "Stopped on the latch: both counters restart every frame, so a slope always starts at step 0",
+        "expect": "STZ $slopeStepCounter"
+      },
+      "177366": {
+        "text": "Probe point = playerXPos / playerYPos (camera_scroll_controller: actor X - 8, actor Y - $10)",
+        "expect": "LDA $playerXPos"
+      },
+      "177396": {
+        "text": "Probe 2: the cell to the RIGHT (+1 column from the probe cell)",
+        "expect": "JSR $&tile_collision.MapCellRight"
+      },
+      "177417": {
+        "text": "Probe 3: the cell BELOW (+1 row from the probe cell; $00 still holds the probe index)",
+        "expect": "JSR $&tile_collision.MapCellDown"
+      },
+      "177420": {
+        "text": "Make the cell below the base index for probe 4",
+        "expect": "STX $00"
+      },
+      "177440": {
+        "text": "Probe 4: the cell below-right (+1 column from probe 3)",
+        "expect": "JSR $&tile_collision.MapCellRight"
+      },
+      "177464": {
+        "text": "Type $03: positive NS curve, pushes the player south",
+        "expect": "JSR $&ApplySlopeCurvePosNS"
+      },
+      "177469": {
+        "text": "Type $05: negated EW curve, pushes the player west (eastward speed shrinks, westward grows)",
+        "expect": "JSR $&ApplySlopeCurveNegEW"
+      },
+      "177474": {
+        "text": "Type $0A: positive EW curve, pushes the player east",
+        "expect": "JSR $&ApplySlopeCurvePosEW"
+      },
+      "177479": {
+        "text": "Type $0C: negated NS curve, pushes the player north",
+        "expect": "JSR $&ApplySlopeCurveNegNS"
+      },
+      "177488": {
+        "text": "Flat exit: clamp speeds, clear the slope fractional accumulator and the slope step counter",
+        "expect": "JSR $&ClampSpeeds"
+      },
+      "177498": {
+        "text": "No RTL: execution falls into SlopeFlatDecelerate",
+        "expect": "PLX"
+      },
+      "177499": {
+        "text": "EW speed nonzero: decelerate EW and return (NS waits until EW is zero)",
+        "expect": "LDA $playerSpeedEw"
+      },
+      "177508": {
+        "text": "EW speed is zero: clear the $1000 latch if it is set",
+        "expect": "LDA $playerFlags"
+      },
+      "177576": {
+        "text": "Curve word: table at slopeCurvePtrA, read through the data bank",
+        "expect": "LDA $0000, Y"
+      },
+      "177694": {
+        "text": "Clamp to +-(max - 1); NS is only examined when the EW speed is zero",
+        "expect": "LDA $playerSpeedEw"
+      },
+      "177781": {
+        "text": "Return at once while the $1000 on-slope latch is set",
+        "expect": "LDA $playerFlags"
+      },
+      "177804": {
+        "text": "Zero speed: decelStepCounter is not reset on this path",
+        "expect": "STZ $playerSpeedEw"
+      },
+      "177840": {
+        "text": "After the first step (applied or zero): west D-pad held -> second, braking step",
+        "expect": "LDA $joypadCurrent"
+      },
+      "177896": {
+        "text": "After the first step (applied or zero): east D-pad held -> second, braking step",
+        "expect": "LDA $joypadCurrent"
+      },
+      "177999": {
+        "text": "After the first step (applied or zero): north D-pad ($0800) held -> braking step",
+        "expect": "LDA $joypadCurrent"
+      },
+      "178028": {
+        "text": "NS stopped: clears slopeStepCounter (the EW routine clears decelStepCounter), probably a copy slip",
+        "expect": "STZ $slopeStepCounter"
+      },
+      "178055": {
+        "text": "After the first step (applied or zero): south D-pad held -> second, braking step",
+        "expect": "LDA $joypadCurrent"
+      },
+      "178080": {
+        "text": "Exact copy of ReadDecelerationStep: the same decelStepCounter and curve",
+        "expect": "LDA $decelStepCounter"
+      }
+    }
+  },
+  "functions/StopPlayerOnDeathAssign.asm": {
+    "blockNote": [
+      "Helper called once by CheckPlayerDeath (combat_collision) when playerHp reaches zero (Bank 00, RTL). Y = the player actor's address (CheckPlayerDeath loads it with LDY playerActor) and A is 16 bits wide.",
+      "",
+      "CheckPlayerDeath has already set playerFlags $0200 (game over) and replaced the player actor's entry point ($00/$02) with GameOverSequence before it calls this routine. This routine then zeroes playerSpeedEw and playerSpeedNs (the player stops moving), zeroes the actor's $08 (the wait counter that the actor runner decrements before running a script, so a pending hold time cannot delay GameOverSequence) and ORs $0200 into the player actor's own flag word $10.",
+      "",
+      "Two different $0200 bits: playerFlags $0200 = game over, set by the caller before this call (it is what CheckPlayerDeath and GlobalInputHandler test); bit $0200 of the actor's $10, set here, is a different bit. No code that reads the actor bit was found (the Psycho Slider sets and clears the same bit), so the old claim that it \"freezes movement\" is unverified. docs/wram-memory-map.md lists \"$0200 deathFlag, set by StopPlayerOnDeathAssign\" as a WRAM address; that entry confuses a bit mask with an address."
+    ],
+    "partNotes": {
+      "StopPlayerOnDeathAssign": [
+        "Zero playerSpeedEw, playerSpeedNs and the actor's $08, then set $0200 in the actor's $10 and return. In: Y = player actor address, 16-bit A."
+      ]
+    },
+    "comments": {
+      "62387": {
+        "text": "A = 0",
+        "expect": "LDA #$0000"
+      },
+      "62390": {
+        "text": "Stop east-west movement",
+        "expect": "STA $playerSpeedEw"
+      },
+      "62393": {
+        "text": "Stop north-south movement",
+        "expect": "STA $playerSpeedNs"
+      },
+      "62396": {
+        "text": "Zero the actor's wait counter ($08) so GameOverSequence runs on the next tick",
+        "expect": "STA $0008, Y"
+      },
+      "62399": {
+        "text": "Actor flag word $10",
+        "expect": "LDA $0010, Y"
+      },
+      "62402": {
+        "text": "Set actor bit $0200 (not the playerFlags game-over bit; no reader of this actor bit found)",
+        "expect": "ORA #$0200"
+      },
+      "62408": {
+        "text": "Return to CheckPlayerDeath",
+        "expect": "RTL"
+      }
+    }
+  },
+  "thinkers/sine_hdma_slow_wave.asm": {
+    "blockNote": [
+      "Slow horizontal ripple thinker (Bank 00): one sine-wave HDMA table feeding BG1HOFS, started and animated once the scene has finished loading.",
+      "",
+      "Spawned by scene $32 (Freejia) and scenes $E9 / $EA (the mansion), spawn parameter $00 (unused). Dao has its own copy, dao_sine_hdma_slow. The old description (\"8-step wave on channel $8800, 40-byte table, vertical distortion, Dao and ending-comet scenes\") mixed up the operands:",
+      "  - $7F0008,X = 8 is the wave AMPLITUDE (BuildSineHdmaTable multiplies the sine table by it).",
+      "  - InitSineHdma ( #$8800, #40 ): $8800 is the WRAM table base ($7E8800), $40 = 64 is the wave period in scanlines per HDMA entry. Each of its four tables therefore has 256 / 64 = 4 repeat-mode entries (count $C0, 64 lines each) that all point at the same 64 data words at table + $0100.",
+      "  - TickSineHdma ( #01, #02 ): #01 is the delay, so the phase advances once every 2 calls (every other frame); #02 is a byte offset into the camera scroll words (cameraTargetX / cameraTargetY + 2) that the table builder uses.",
+      "  - BindSineHdma ( $7E8800, #0D ): #0D is the hdma_channel_config entry for register $210D, BG1HOFS (one register written twice), so the table makes BG1 scroll horizontally by a different amount on every scanline: a horizontal ripple, not a vertical distortion. Odd frames bind the table at +$0200 (double buffer).",
+      "",
+      "Flow: the script initialises, then SetEntryHereAndYield sets the re-entry point to the flag test. Every following frame it tests event flag $FF: clear (the scene setup has not finished; scene_lifecycle clears the flag first and sets it again at the end) jumps back to the init label, which restores the amplitude, rebuilds the tables and resets the phase; set runs TickSineHdma and BindSineHdma and ends the frame with RTL, to resume at the flag test next frame."
+    ],
+    "partNotes": {
+      "sine_hdma_slow_wave": [
+        "Thinker script: amplitude 8, InitSineHdma, yield; each later frame: wait for event flag $FF (re-initialise while it is clear), TickSineHdma, BindSineHdma, RTL."
+      ],
+      "code_00BE1A": [
+        "Init label: set the amplitude ($7F0008,X = 8) and build the four sine tables at $7E8800 (period 64); reached on the first frame and again whenever the flag test finds event flag $FF clear."
+      ]
+    },
+    "comments": {
+      "48666": {
+        "text": "Amplitude 8 ...",
+        "expect": "LDA #$0008"
+      },
+      "48669": {
+        "text": "... stored in the actor's amplitude field ($7F0008,X)",
+        "expect": "STA $7F0008, X"
+      },
+      "48673": {
+        "text": "Table base $7E8800, wave period $40 = 64 scanlines (four tables of 4 repeat entries)",
+        "expect": "COP [InitSineHdma] ( #$8800, #40 )"
+      },
+      "48678": {
+        "text": "Yield; next frame the thinker resumes at the flag test below",
+        "expect": "COP [SetEntryHereAndYield]"
+      },
+      "48680": {
+        "text": "Event flag $FF clear (scene setup not finished): back to the init label (amplitude, tables, phase 0)",
+        "expect": "COP [BranchOnFlagByte] ( #FF, #00, &code_00BE1A )"
+      },
+      "48686": {
+        "text": "Phase + 1 every 2nd call (delay #01); camera words at cameraTargetX/Y + 2 feed the table",
+        "expect": "COP [TickSineHdma] ( #01, #02 )"
+      },
+      "48690": {
+        "text": "Bind the table at $7E8800 (+$0200 on odd frames) to config #0D: BG1HOFS ($210D)",
+        "expect": "COP [BindSineHdma] ( $7E8800, #0D )"
+      },
+      "48696": {
+        "text": "End of this frame's turn; resumes at the flag test next frame",
+        "expect": "RTL"
+      }
+    }
+  }
+}

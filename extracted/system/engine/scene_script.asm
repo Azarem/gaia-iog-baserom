@@ -23,7 +23,7 @@
 ; | $13 | SceneCmd_Branch | Conditional execution based on game flag |
 ; | $14 | SceneCmd_Label | Label: no-op that skips its id byte; the position is what jump ($15) and branch ($13) continue at |
 ; | $15 | SkipScriptCommands | Skip remaining commands in current scene block |
-; | $17 | SceneCmd_LoadCharTiles | Load character/object tiles with flexible VRAM targeting |
+; | $17 | SceneCmd_LoadCharTiles | Load preformatted screens straight to VRAM (the one file is four BG tilemaps): header [00 W 00 H], size word, LZ or raw data |
 ; 
 ; Opcodes $00-$01, $07-$0D, $0F, $12, $16 all map to SceneCmd_Default (RTS, no-op).
 ; 
@@ -58,7 +58,7 @@
 ; - Reads width ($00/$01) and height ($02/$03) from script data
 ; - StoreMapAndDecompress sets map row stride, computes total map byte count via Multiply8x8Unsigned, and decompresses tilemap data to the layer's tilemap base address
 ; - WriteMapBounds stores computed dimensions to mapBoundsX/mapBoundsY for the camera system
-; - Dual-layer support: flag bit 0 selects layer 0 (primary tilemap at $7E:A000), flag bit 1 selects layer 1 (overlay at $7E:C000); bit 7 alone means "tileset only" (DmaLowVramTileset)
+; - Dual-layer support: flag bit 0 selects layer 0 (primary tilemap at $7E:A000), flag bit 1 selects layer 1 (overlay at $7E:C000); bit 7 alone means "tileset only" (DmaLowVramTileset); no scene record uses it (the layer operands of command $06 are $01 x225 and $02 x158) and none of the 231 loadable scenes reaches DmaLowVramTileset
 ; 
 ; === TILEMAP ATTRIBUTE SYSTEM ===
 ; 
@@ -288,7 +288,7 @@ SceneCmd_Default {
 }
 
 ---------------------------------------------
-; Scene command $03: load BG tile graphics to VRAM. Script operands: start byte, end byte (each x$200 into $0664/$0666 = byte window inside the decompressed data), VRAM page byte ($0668), 3-byte source pointer, mode byte. The mode adds a fixed VRAM word-address base to the page (0 = +$2000 via slot $066C/$066F chosen by page bit 4, 1 = +$4000 via slot $0672/$0675, 2 = +$6000 with no source-cache check, 3 = whole $4000-byte 4bpp page via Load4bppPage). CheckSourceCacheHit returning a hit ends the command. On a miss: DeinterleavePlanarTiles when layerPriorityFlag $0800 is set and slot is $066C; else GraphicsCacheLookup -> RestoreCachedVram on a VRAM-cache hit; otherwise decompress via QuintetLZ to $7E:7000, DMA through SceneDmaTileShim, then SaveVramToRingBuffer.
+; Scene command $03: load BG tile graphics to VRAM. Script operands: start byte, end byte (each x$200 into $0664/$0666 = byte window inside the decompressed data), VRAM page byte ($0668), 3-byte source pointer, mode byte. The mode adds a fixed VRAM word-address base to the page (0 = +$2000 via slot $066C/$066F chosen by page bit 4, 1 = +$4000 via slot $0672/$0675, 2 = +$6000 with no source-cache check, 3 = whole $4000-byte 4bpp page via Load4bppPage; no scene record has mode 3 (the operands of command $03 are 0 x255, 1 x62 and 2 x2) and no other code calls Load4bppPage). CheckSourceCacheHit returning a hit ends the command. On a miss: DeinterleavePlanarTiles when layerPriorityFlag $0800 is set and slot is $066C; else GraphicsCacheLookup -> RestoreCachedVram on a VRAM-cache hit; otherwise decompress via QuintetLZ to $7E:7000, DMA through SceneDmaTileShim, then SaveVramToRingBuffer.
 
 SceneCmd_LoadBgTiles {
     PHP 
@@ -1398,7 +1398,13 @@ SceneCmd_LoadSpriteTiles {
 }
 
 ---------------------------------------------
-; Load character/object tiles with flexible VRAM targeting. Reads flags $066A and source pointer; reads width×height words, Multiply8x8Unsigned, then ×8 for tile byte size in $0666. Decompresses to $7000 if compressed pointer non-null. VRAM destination from flags: bit 7 = (flags & $7F)×4 absolute address; bit 0 = $1000 (PEA+RTS chains to bit 1 check); bit 1 = $1800; neither bit → return without DMA. Transfer: mode $01, B-bus $18, size $0666.
+; Opcode $17 (char-tiles < flags, @file >): DMAs a preformatted block to VRAM. Despite the name it loads whole BG tilemap screens: the only file, dmap_inventory_bg, is four 32x32 hardware tilemaps (see docs/dmap-inventory-bg.md).
+; 
+; File layout: 4-byte header [00 W 00 H], a 2-byte size word, then the data. Columns = b0|b3 and rows = b1|b2 (the header is read as two words and merged with XBA+ORA); Multiply8x8Unsigned gives the screen count, and XBA + ASL x3 turns it into the DMA size in $0666 (screens x 2048 bytes).
+; 
+; Size word: the decompressed length, stored in $78 for QuintetLzDecompress, which writes to $7E:7000. After the two INC $3E the BEQ tests the INC result, which is never zero, so in the original game the raw path is dead and the file is always decompressed. MenuBGLoad.patch.asm adds CMP #$0000 / BEQ / BMI, so a zero or negative size word (the rebuilt ROM stores $E000) skips the decompressor and DMAs the raw data from ROM.
+; 
+; VRAM destination from flags ($066A): bit 7 set = (flags & $7F) << 10 words (one 32x32 tilemap screen is $400 words, so each unit is one screen; $80 = $0000). Otherwise bit 0 = $1000 and bit 1 = $1800; with both bits the same data is uploaded twice (PEA+RTS into code_028CB0), with neither bit nothing is uploaded. Transfer: general DMA channel 0, mode $01, B-bus $18 (VMDATAL), size $0666.
 
 SceneCmd_LoadCharTiles {
     PHP 
@@ -1406,30 +1412,30 @@ SceneCmd_LoadCharTiles {
     STA $gfxLayerFlags
     LDX #$003E
     JSR $&LoadScriptPointer
-    REP #$20              ; Read width and height from source data as paired bytes
+    REP #$20              ; Read the 4-byte header [00 W 00 H] as two words (W and H = screens of 256 pixels)
     LDA [$3E]
     STA $00
     INC $3E
     INC $3E
     LDA [$3E]
-    XBA                   ; Combine width/height via XBA+ORA for dimension value
+    XBA                   ; Merge the words: low byte = b0|b3 (columns), high byte = b1|b2 (rows)
     ORA $00
     INC $3E
     INC $3E
     SEP #$20
-    JSL $@hardware_math.Multiply8x8Unsigned ; Compute tile byte count via Multiply8x8Unsigned
+    JSL $@hardware_math.Multiply8x8Unsigned ; columns x rows = number of 32x32 tilemap screens
     REP #$20
     STA $00
     XBA 
-    ASL                   ; Convert to VRAM transfer size: XBA+ASL×3 → $0666
+    ASL                   ; screens << 11 (2048 bytes per screen) = DMA byte count, stored in $0666
     ASL 
     ASL 
     STA $gfxSrcEnd
-    LDA [$3E]             ; Read compressed tile pointer from source
+    LDA [$3E]             ; Read the size word after the header (decompressed byte count); the pointer steps past it
     INC $3E
     INC $3E
-    BEQ loc_028C81        ; Null pointer = skip to uncompressed path
-    STA $78               ; Compressed: decompress to staging buffer $7000
+    BEQ loc_028C81        ; Dead branch: BEQ tests the INC result (never zero), so raw data is never used; MenuBGLoad.patch.asm adds CMP/BEQ/BMI
+    STA $78               ; Size word = output length: decompress to WRAM $7E:7000 and DMA from there
     SEP #$20
     LDX #$7000
     STX $7A
@@ -1447,7 +1453,7 @@ SceneCmd_LoadCharTiles {
 
   loc_028C87:
     LDA $gfxLayerFlags    ; Parse VRAM destination from flags byte
-    BPL loc_028C9A        ; Bit 7 set: absolute VRAM address = (flags & $7F) × 4
+    BPL loc_028C9A        ; Bit 7 set: VRAM word address = (flags & $7F) << 10 ($400 words per tilemap screen)
     AND #$7F
     XBA 
     LDA #$00
@@ -1470,7 +1476,7 @@ SceneCmd_LoadCharTiles {
 }
 
 ---------------------------------------------
-; Continuation of SceneCmd_LoadCharTiles VRAM targeting (reached via PEA+RTS from bit-0 path). Tests flag bit 1 for VRAM $1800, else restores flags and returns without DMA; shared loc_028CC4 performs HDMA-style VRAM upload setup.
+; Second half of the flag-bit VRAM targeting of SceneCmd_LoadCharTiles, reached by the BEQ when bit 0 is clear or by the PEA+RTS after the $1000 upload. Bit 1 set: VRAM $1800 and the same data is uploaded again; bit 1 clear: PLP + RTS without a DMA. loc_028CC4 is the shared DMA setup (general DMA channel 0).
 
 code_028CB0 {
     REP #$20

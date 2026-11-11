@@ -31,7 +31,7 @@
 ; | $04-$07 | the same four groups again; no StagePlayerSprite or RunPlayerAnim operand names them; the Psycho Dash stages #04-#07 (StageSpriteMoveY / StageSpriteMoveX) after SetPlayerSpriteDirect #04, so against spriteset_will_abilities (body_table row $04), not this table | 1 frame |
 ; | $08-$0B | walk south / north / west / east | 4 frames, hold 7 (8 ticks) |
 ; | $0C-$0F | the 'Moving' cycles of the momentum code: MovingToSouth $0C, MovingNorthSouth $0D (north), MovingToWest $0E, MovingEastWest $0F (east) | |
-; | $10-$13 | idle south / north / west / east; StagePlayerSprite stages them only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleUseShadowSprite) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table | |
+; | $10-$13 | idle south / north / west / east; StagePlayerSprite stages them only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleFlaggedAnim) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table | |
 ; | $18 | first pose of the ledge jump (StagePlayerMoveXY) | |
 ; | $19, $1A, $1B | ledge-jump fall cycle $1A, $1B, $19, repeating | |
 ; | $2A, $2B | ladder idle north, south ($2E, $2F: Shadow) | |
@@ -43,8 +43,9 @@
 ; | $42, $43 | attack against a wall west / east (forms 0 and 1) | |
 ; | $44-$47 | Will's lunge south / north / west / east (form 0 only; the Freedan table still has entries) | |
 ; | $48, $49 | attack against a wall south / north (Freedan only: the Will table stops at $47) | |
+; | $4A, $4B | one-frame poses facing left, hold 0 (measured: $4A has the hand at the head, group $0EC177; $4B holds the sword low, group $0EC393 with 9 sub-sprites); $4B is the last list of the table, the first sprite group follows its list (list $0E86AE, 6 bytes, then group $0E86B4); no player script stages either with an immediate operand | 1 frame |
 ; 
-; $14-$17 are staged in the player scripts only by the Psycho Slider (player_character RunAttackNS / RunAttackEW, slider_glide), against spriteset_will_abilities. $1C-$29 are staged by player_transition_handlers, player_character, ramps, sF7_credits_player and sE5_epilogue; the body row active at each site is not traced. $3E-$41, $4A and $4B: no player script stages them with an immediate operand.
+; $14-$17 are staged in the player scripts only by the Psycho Slider (player_character RunAttackNS / RunAttackEW, slider_glide), against spriteset_will_abilities. $1C-$29 are staged by player_transition_handlers, player_character, ramps, sF7_credits_player and sE5_epilogue; the body row active at each site is not traced. $3E-$41, $4A and $4B: no player script stages them with an immediate operand. Measured by forcing the first frame of each list on the player: $1C shows the body from the front with the sword out to its left; $1D-$1F and $26-$29 show it from behind with the cape spread; $20 and $23 show it facing left, $21 and $22 diving to the left, $24 and $25 diving to the right; $3E-$41 are sword poses (south, north, west, east) and $4A and $4B are one-frame poses.
 
 spriteset_freedan [
   &freedan_anim_00_idle_south   ;00

@@ -1,0 +1,33 @@
+{
+  "_note": "FL12 draft: one wrong line in the scene_chest_table block note (the fanfare marker of the Kress mushroom chests) and three inline comments of warps_interaction that the code contradicts (chest trigger input, meaning of actor field $26, meaning of actor field $20). Apply in the apply pass (plan section 7); re-run extract:lt first. The docs/flags wording 'barriers' lives in db-us/flags.json and src/flags.ts (domain D4 name, lifecycle and access text) and cannot go through merge: see the report, section 'Contradictions'.",
+  "tables/scene_chest_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Mushroom Drop, $20 / $21 / $22 F",
+          "with": "Mushroom Drop, $20 F / $21 F / $22 F"
+        }
+      ]
+    }
+  },
+  "system/engine/warps_interaction.asm": {
+    "comments": {
+      "173541": {
+        "text": "No warp hit: test for a chest in front of the player (Up pushed against a closed chest tile)",
+        "expect": "JSR"
+      },
+      "173968": {
+        "text": "Track number $17 goes into actor field $26; ChestOpeningActor passes $26 + 1 to the music upload child",
+        "expect": "LDA"
+      },
+      "173976": {
+        "text": "Forward the dialogue pointer to $24 of the opening actor; the item ID follows in $20",
+        "expect": "STA"
+      },
+      "173982": {
+        "text": "Item ID (stored at $0DB8 by GiveItemToPlayer) goes to $20; ChestDialogueActor restores it for the item-name text",
+        "expect": "STA"
+      }
+    }
+  }
+}

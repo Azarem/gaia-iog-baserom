@@ -1,0 +1,41 @@
+{
+  "_note": "C1 (2026-10-30). Shipped text shown wrong by the C1 runs and the static reading, see mesen2-results/C1_20261030.md. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/C1_notes.json --dry-run. Comments are replaced through expectOld because extracted/ carries no line-tracking tags; the apply pass should run extract:lt first and may switch to expect. 'find' must occur exactly once in the stored note.",
+  "system/engine/hdma_dma_spc.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Writers must store the size before the destination (the destination arms the transfer).",
+          "with": "The destination word is the pending flag: the NMI runs the transfer when it is nonzero. Both writers (RadarScreenSetup and the AdhocVramDma COP handler) store the destination before the size; no NMI can run between the two stores because both execute with NMITIMEN = $01 (NMI off). Measured: hardware NMI enable clear and zero NMIs between the two stores in every radar-screen and credits-scene transfer. A writer that runs with the NMI on has to store the size first."
+        }
+      ]
+    }
+  },
+  "system/engine/radar_map_screen.asm": {
+    "comments": {
+      "229608": {
+        "text": "Destination word = pending flag for the next NMI; the NMI is off here (NMITIMEN = $01), so it cannot run before the size store below",
+        "expectOld": "Writing the destination arms the adhoc DMA; the size is stored after it (writers should store the size first)"
+      }
+    }
+  },
+  "system/engine/cop_handlers_vram.asm": {
+    "partNotes": {
+      "AdhocVramDma": {
+        "edit": [
+          {
+            "find": "The destination word is written before the size word, but the NMI fires on a nonzero destination.",
+            "with": "The destination word is written before the size word; no NMI can run between the two stores because actors execute with NMITIMEN = $01 (NMI off), also inside UpdateFrameFull, which switches the NMI off first."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/system_core.asm": {
+    "comments": {
+      "33215": {
+        "text": "NMITIMEN = $01 (NMI off, joypad auto-read on) for the partial V-Blank pass; EnableNmiAndJoypad at the end turns the NMI back on",
+        "expectOld": "Enable NMI for partial V-Blank during music transition"
+      }
+    }
+  }
+}

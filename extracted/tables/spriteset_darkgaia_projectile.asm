@@ -12,7 +12,7 @@
 ; 
 ; Each travel animation holds a single frame that is the LAST group of its launch animation (e.g. $04 = sprite_group_17D3A4, the last frame of $00), so the projectile keeps its final launch pose while it flies; the 16 frame records therefore use only 12 groups. The ProjectileSouth/North/West/East actors die when they leave the screen, so the travel animation never ends on its own.
 ; 
-; Totals: pointer table 16 bytes, frame lists 80 bytes (4 x 14 + 4 x 6), groups 912 bytes. Not traced: the tile graphics these sub-sprites draw.
+; Totals: pointer table 16 bytes, frame lists 80 bytes (4 x 14 + 4 x 6), groups 912 bytes. The sub-sprites draw tiles $40-$6F of sprite name table 0 (VRAM word $4400-$46FF): LoadPlayerGraphics copies 1536 bytes (48 tiles) of misc_fx_1CCA80 there when sceneCurrent is $E8 and playerFlags bit 3 is clear. The art is a flame bird. The East and West groups (tile words $4440-$4464 and $0440-$0464) show it from the side with the 16x16 tiles $40, $42, $44, $46 and the 8x8 tiles $60-$64; the North and South groups (tile words $0448-$044E, $0468, $0469 and their flipped forms) show it from the front with the 16x16 tiles $48, $4A, $4C, $4E (the last one twice, mirrored) and the 8x8 tiles $68 and $69 (each twice, mirrored). The three frames of a launch animation use the same tiles; only the sub-sprite offsets grow. The palette is OBJ palette 2 (CGRAM colours $A0-$AF, loaded from palette_1E6273 by scene_meta_00E8); the tiles $65-$67 and $6A-$6F are loaded but drawn by no group. The art that scene_meta_00E8 loads into VRAM word $5000 (gfx_0D2D78, sprite name table 1) is not used by these sub-sprites.
 ---------------------------------------------
 
 ?BANK 17

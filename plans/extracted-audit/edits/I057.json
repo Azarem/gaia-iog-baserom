@@ -1,0 +1,843 @@
+{
+  "system/title_screen/sFC_title_intro.asm": {
+    "blockNote": [
+      "Title scene $FC intro actor (Bank 0B, 772391-772487, plus the comet actor and an unreferenced palette-fade stub below it). Spawned with sFC_title_start_handler by scene_event_0CE56D, the title scene's actor list.",
+      "",
+      "Loads the title palette, spawns TitleCometSpriteActor, shows two BG3 text strings on a timer and, after a ~42-second idle period ($09D3 frames), sets event flag $F4 and queues scene $8C (the prologue). Flag $F4 is tested by pr8C_prologue1 (BranchOnFlagByte, branch when clear) and pr8C_prologue5 (branch when set) and cleared again in pr8C_prologue1, so it marks 'the prologue was started by the title's idle timeout'.",
+      "",
+      "=== DISPLAY LAYERS ===",
+      "",
+      "TM starts at $10 (OBJ only: the comet sprites are the first thing on screen; the title picture is not on a main-screen layer yet). TitleCometSpriteActor later writes TM = $16 (BG2 + BG3 + OBJ) after its sprite animation, which brings in the title picture and the BG3 text layer.",
+      "",
+      "=== TEXT TIMING ===",
+      "",
+      "Two BG3 text scripts are shown in sequence:",
+      "- consolestring_01DA5E after $B3 frames (179 frames, ~3 seconds)",
+      "- consolestring_01DA47 after $77 more frames (119 frames, ~2 seconds)"
+    ],
+    "partNotes": {
+      "TitleIntroInit": [
+        "Actor entry: set the display flags, load the palettes (pal_title over CGRAM colours 0-31, then pal_ending_comet over colours 0-7), spawn the comet, set TM = $10, then run the timed text sequence and the idle wait that ends in the queued change to the prologue scene."
+      ],
+      "TitleCometSpriteActor": [
+        "Title comet sprite actor (spawned by TitleIntroInit at ($80,$50)). Runs animation #00 for 240 loop cycles in place, then 64 loop cycles with X speed 2 (StageSpriteLoopMoveX), waits 59 frames, switches TM to $16 and parks on SetEntryHere. Its frames come from spm_title_actors."
+      ],
+      "TitlePaletteFadeStep": [
+        "Palette-animation stub: PaletteStart #2D (45 decimal), one PaletteStep, then Die. No spawn or pointer to it exists anywhere in extracted/ (UNVERIFIED-RUNTIME whether anything reaches it)."
+      ]
+    },
+    "comments": {
+      "772391": { "text": "displayModeFlags: bit 14 = HUD off, bit 0 = full BG3 upload request", "expect": "LDA #$4001" },
+      "772405": { "text": "pal_ending_comet: 8 colours over CGRAM colours 0-7 (replaces the first 8 title colours)", "expect": "pal_ending_comet" },
+      "772413": { "text": "Colour 0 (backdrop) := black in the palette staging", "expect": "LDA #$0000" },
+      "772433": { "text": "TM = $10: OBJ only (comet sprites first)", "expect": "LDA #$10" },
+      "772440": { "text": "gfxCacheIdxB = $0804: transition speed bytes (exit $04, enter $08)", "expect": "LDA #$0804" },
+      "772466": { "text": "Set event flag $F4 (read by pr8C_prologue1/5; cleared in pr8C_prologue1)", "expect": "SetFlagByte" },
+      "772469": { "text": "Speed bytes again for the fade into the prologue (exit $04, enter $08)", "expect": "LDA #$0804" },
+      "772488": { "text": "Sprite priority $10", "expect": "SetSpritePriority" },
+      "772491": { "text": "Animation #00, 240 loop cycles (held in place)", "expect": "StageSpriteLoop" },
+      "772497": { "text": "Animation #00, 64 loop cycles, X speed 2 (the sweep)", "expect": "StageSpriteLoopMoveX" },
+      "772509": { "text": "TM = $16: BG2 + BG3 + OBJ (adds the title picture and the BG3 text layer)", "expect": "LDA #$16" },
+      "772519": { "text": "Palette animation #2D (45)", "expect": "PaletteStart" }
+    }
+  },
+  "system/diary_menu/diary_menu_window_dma.asm": {
+    "blockNote": [
+      "Diary-menu highlight-band thinker for scene $FA (Bank 00, 48049-48203; spawned through thinker_spawn_0CEB18, the scene-$FA slot of the scene thinker table).",
+      "",
+      "Every frame it chooses HDMA tables for the PPU window-1 position registers WH0/WH1 ($2126/$2127; the operand #26 of COP QueueDma is that B-bus register, see hdma_channel_config) from three cursor words kept by sFA_diary_menu, where a negative value means 'none': $0D92 = slot cursor, $0D96 = copy-target slot, $0D98 = tab / settings-row cursor. DiaryMenuInit sets WOBJSEL = $22 (window 1 is the colour window) and CGWSEL = $82 (main screen black inside it), so each table lays a band over the rows under a cursor; the band appearance is decoded from the registers, not observed (OQ-I057-3).",
+      "",
+      "=== TABLES ===",
+      "",
+      "Each dma-channel entry is one HDMA step: line count, WH0 (left), WH1 (right); the assembler appends the $00 terminator, so an array is 3n + 1 bytes and an empty array is a lone terminator (no band). WH0 = $FF with WH1 = $00 is an empty window (left > right), i.e. no band on those lines.",
+      "- No part notes on dma_channel_00BC4C / dma_channel_00BC4D on purpose: the transforms.json rule for this block swaps those two labels with a regex that needs them adjacent, and a note line between them stops it matching (the ROM then loses a byte). dma_channel_00BC4C is the empty table (terminator only, no band); dma_channel_00BC4D is the slot-1 band.",
+      "- Slot bands (31 lines tall, x = $10-$F0): dma_channel_00BC4D starts at line 79 (slot 1), dma_channel_00BC57 at line 111 (slot 2), dma_channel_00BC61 at line 143 (slot 3; two empty entries of $10 + $7F lines because one count cannot exceed $7F).",
+      "- Tab / row bands (15 lines tall, x = $30-$D0): dma_channel_00BC6F at line 79, dma_channel_00BC79 at 95, dma_channel_00BC83 at 111, dma_channel_00BC8D at 127. dma_channel_00BC4C and dma_channel_00BC6E are the empty tables.",
+      "",
+      "=== SELECTION ===",
+      "",
+      "1. Slot cursor $0D92 (first QueueDma): negative writes WH0/WH1 = $FF/$00 directly and queues the empty table; 0 / 1 / 2+ queue the slot-1 / slot-2 / slot-3 band. While a copy target is set ($0D96 >= 0) this band is only queued on odd frames (even frames queue the empty table), so the source row flickers at 30 Hz.",
+      "2. Target cursor $0D96 (second QueueDma): same mapping, always queued.",
+      "3. Tab cursor $0D98 (third QueueDma): negative = empty table, 0 / 1 / 2 / 3+ = the four narrow bands.",
+      "Each COP QueueDma takes its own direct-table HDMA channel, so the three tables overlay each other on the same registers."
+    ],
+    "partNotes": {
+      "diary_menu_window_dma": [
+        "Thinker definition: one QueueDma per cursor word per frame, then RTL (the thinker re-runs every frame)."
+      ],
+      "code_00BBB1": [
+        "Slot cursor band. D96 >= 0 and an even frame: queue the empty table (flicker); otherwise fall into loc_00BBBC."
+      ],
+      "loc_00BBBC": [
+        "Dispatch on the slot cursor $0D92; a negative cursor clears the window registers directly and queues the empty table."
+      ],
+      "loc_00BBC7": [
+        "Queue the empty table dma_channel_00BC4C (no band) and continue with the target cursor."
+      ],
+      "loc_00BBCF": [
+        "Slot cursor 0 -> dma_channel_00BC4D (band at line 79); other values continue the compare chain."
+      ],
+      "loc_00BBD9": [
+        "Slot cursor 1 -> dma_channel_00BC57 (band at line 111)."
+      ],
+      "loc_00BBE4": [
+        "Slot cursor 2 or higher -> dma_channel_00BC61 (band at line 143)."
+      ],
+      "loc_00BBEC": [
+        "Target cursor $0D96: negative clears the window registers directly and queues the empty table."
+      ],
+      "loc_00BBFF": [
+        "Target cursor 0 -> dma_channel_00BC4D."
+      ],
+      "loc_00BC09": [
+        "Target cursor 1 -> dma_channel_00BC57."
+      ],
+      "loc_00BC14": [
+        "Target cursor 2 or higher -> dma_channel_00BC61."
+      ],
+      "loc_00BC1C": [
+        "Tab / row cursor $0D98: negative -> empty table dma_channel_00BC6E, then RTL."
+      ],
+      "loc_00BC28": [
+        "Tab 0 -> dma_channel_00BC6F (band at line 79), RTL."
+      ],
+      "loc_00BC31": [
+        "Tab 1 -> dma_channel_00BC79 (band at line 95), RTL."
+      ],
+      "loc_00BC3B": [
+        "Tab 2 -> dma_channel_00BC83 (band at line 111), RTL."
+      ],
+      "loc_00BC45": [
+        "Tab 3 or higher -> dma_channel_00BC8D (band at line 127), RTL."
+      ],
+      "dma_channel_00BC4D": null,
+      "dma_channel_00BC4C": null,
+      "dma_channel_00BC57": [
+        "Slot-2 band: 111 empty lines, 31 lines of window x = $10-$F0, 96 empty lines."
+      ],
+      "dma_channel_00BC61": [
+        "Slot-3 band: 143 empty lines (as $10 + $7F), 31 lines of window x = $10-$F0, 96 empty lines."
+      ],
+      "dma_channel_00BC6E": [
+        "Empty table (terminator only): no tab band."
+      ],
+      "dma_channel_00BC6F": [
+        "Tab-0 band: 79 empty lines, 15 lines of window x = $30-$D0, 96 empty lines."
+      ],
+      "dma_channel_00BC79": [
+        "Tab-1 band: 95 empty lines, 15 lines of window x = $30-$D0, 96 empty lines."
+      ],
+      "dma_channel_00BC83": [
+        "Tab-2 band: 111 empty lines, 15 lines of window x = $30-$D0, 96 empty lines."
+      ],
+      "dma_channel_00BC8D": [
+        "Tab-3 band: 127 empty lines, 15 lines of window x = $30-$D0, 96 empty lines."
+      ]
+    },
+    "comments": {
+      "48049": { "text": "Target cursor set?", "expect": "LDA $0D96" },
+      "48054": { "text": "Odd frames only draw the slot band while a target is set (flicker)", "expect": "LDA $frameCounter" },
+      "48060": { "text": "Slot cursor", "expect": "LDA $0D92" },
+      "48065": { "text": "No slot cursor: window registers WH0 = $FF, WH1 = $00 (empty window)", "expect": "LDA #$00FF" },
+      "48071": { "text": "Empty table: no band (#26 = WH0/WH1)", "expect": "dma_channel_00BC4C" },
+      "48108": { "text": "Target cursor", "expect": "LDA $0D96" },
+      "48156": { "text": "Tab / row cursor", "expect": "LDA $0D98" }
+    }
+  },
+  "system/diary_menu/sFA_diary_menu.asm": {
+    "blockNote": [
+      "Diary / save menu actor for scene $FA (Bank 0B, 778810-783347 plus the dialog strings): the 4-tab menu shown after the title screen - Start Journey, Erase Trip Diary, Copy Trip Diary, Change Snd/Buttons - over the three save slots.",
+      "",
+      "Entry: TitleToDiaryTransition (sFC_title_start_handler) queues scene $FA at ($100,$370); the prologue scenes $8C-$8F also spawn the Start-poll actor sFC_actor_0BC9BD, so Start there lands here too. The scene background is the overworld map (scene_meta_00FA: display-mode #08, set_overworld / map_overworld_main, music bgm_beautiful_world). DiaryCameraPan scrolls it to the location stored in diary_entry_table for the highlighted slot's source scene.",
+      "",
+      "=== DISPLAY SETUP (DiaryMenuInit) ===",
+      "",
+      "TM = $01 (BG1), TS = $04 (BG3 on the sub screen), so the BG3 text is colour-math-blended over BG1: CGWSEL = $82 (main screen forced black inside the colour window, addend = sub screen), CGADSUB = $41 (add, half intensity, BG1 only). WOBJSEL = $22 enables window 1 for the colour window and the OBJ window; WH0/WH1 are fed by diary_menu_window_dma, which draws the highlight bands (see that file). W34SEL = $88 enables window 2 for BG3/BG4. The camera starts at ($80,$300); displayModeFlags |= $4001 (bit 14 = HUD off, bit 0 = full BG3 upload). Start and Select are masked out of joypadCurrent ($3000 in joypadMaskStd), playerFlags $2800 (script lock $0800 + guard stance $2000) is set until the menu leaves, and the D-pad auto-repeats ($0F00 in joypadMaskInv). The black-inside-window look is decoded from the registers, not observed (OQ-I057-3).",
+      "RunBg3Script consolestring_01EADC draws the button legend box (A Button: Enter / B Button: Cancel).",
+      "",
+      "=== DIARY STATE BLOCK ($0D74-$0D9E) ===",
+      "",
+      "| Address | Purpose |",
+      "|---------|---------|",
+      "| $0D74/76/78 | Source scene ID (sourceSceneId $0B12 of the slot's save page) for slots 1/2/3; 0 = empty or invalid |",
+      "| $0D7A/7C/7E | Max HP (playerMaxHp $0ACA) for slots 1/2/3 |",
+      "| $0D80/82/84 | DEF (playerDef $0ADC) for slots 1/2/3 |",
+      "| $0D86/88/8A | STR (playerStr $0ADE) for slots 1/2/3 |",
+      "| $0D8C | Active / last-used slot (0-2), mirrored in SRAM $306000 |",
+      "| $0D8E | Button type setting (0 = Type 1, 1 = Type 2); saved in the slot page at $0B26 |",
+      "| $0D90 | Sound setting (0 = stereo, 1 = mono); saved in the slot page at $0B24 |",
+      "| $0D92 | Slot cursor (0-2, $FFFF = none); drives the slot band |",
+      "| $0D94 | Slot being edited (Snd/Buttons editor, arrangement screen, erase prompt) |",
+      "| $0D96 | Copy target slot ($FFFF = none); drives a second slot band |",
+      "| $0D98 | Tab cursor (0-3) or settings-row cursor (0-2), $FFFF = none; drives the narrow band |",
+      "| $0D9A/9C/9E | BCD scratch for the stat strings: HP / STR / DEF |",
+      "",
+      "=== SRAM LAYOUT ===",
+      "",
+      "$306000 holds the last-used slot (0-2). Slot n's page is $306200 + n*512: a copy of WRAM $0A00-$0BFB (508 bytes). Its additive checksum is at $3063FC + n*512 and its XOR checksum at $3063FE + n*512 (both seeded with $3652, computed by save_system.ComputeSaveChecksum with X = n*512). The two settings live inside the page at $0B24 (sound) and $0B26 (button type).",
+      "",
+      "=== BUTTON TYPES ===",
+      "",
+      "ApplySoundAndRemap (run when a game starts) reads sound $0B24 and button type $0B26. Type 1 (0) sets remapA = $8000, remapB = $4000, remapX = 0, remapY = $0040; Type 2 (1) only sets remapX = 0 and leaves the other remaps at their current values (the engine defaults). The on-screen legend (dialogstring_0BF63F / 0BF653) reads 'Type 1: A, B, SEL, Y' and 'Type 2: B, Y, SEL, A' against the rows Attack/Talk, Item/Cancel, Item palette, Not used. This baserom's system_init transform changes the default remaps (remapA $8080, remapB $4008, remapY $0040, remapX $0004) and the menu's own button tests ($8000 confirm, $4000 cancel), so what Type 2 does here is unverified (OQ-I057-1).",
+      "The erase prompt temporarily remaps B/Y in vanilla; transforms.json strips those stubs from the plain extraction, but multi-line rules do not apply under extract:lt (OQ-I026-1), so the stubs stay visible in the line-tracked text.",
+      "",
+      "=== UNREFERENCED CODE ===",
+      "",
+      "Nine routines carry the _noref suffix and have no callers: a BG3 cursor engine (DiaryCursorNav_noref; its helpers DiaryCursorApplyMove ... DiaryClearAllCursors and table_0BED3C are only reached from it), a controller-2 debug set at 782712-783013 (DiaryJoypadFilter_noref, DiaryResetCounter_noref, DiaryIncCounter_noref, DiaryDigitDisplay_noref, DiaryUnused24B_noref, DiaryReadJoy2_noref, DiaryNullHandler_noref, DiaryAwaitButtonRelease_noref). DiaryMenuVBlankHandler is a copy of VBlankWaitAndJoypad whose only caller is the unreferenced DiaryAwaitButtonRelease_noref; the live menu uses the engine's VBlankWaitAndJoypad and its remap."
+    ],
+    "partNotes": {
+      "DiaryMenuInit": [
+        "Scene $FA actor entry: black backdrop and no layers, all three cursors set to none ($FFFF), display configured as described in the block note, main-menu text and button legend printed, the three SRAM slots scanned, then a poll of worldReadyFlag until the scene is ready, after which it joins the tab loop at loc_0BE2D0."
+      ],
+      "loc_0BE2CA": [
+        "Scene ready: skip the menu reprint (init already drew it) and join the tab-select setup at loc_0BE2D0."
+      ],
+      "loc_0BE2D0": [
+        "Reset the cursors for the tab loop: slot cursor ($0D92) off, tab cursor ($0D98) = 0."
+      ],
+      "DiaryTabSelectLoop": [
+        "Tab loop: redraw the legend, re-enter every frame, Up/Down move the tab cursor (which drives the narrow window band), A confirms."
+      ],
+      "loc_0BE302": [
+        "Store the wrapped tab cursor, then consume the current buttons in joypadHeld so the press does not repeat until auto-repeat fires."
+      ],
+      "loc_0BE31E": [
+        "Store the wrapped tab cursor, then consume the current buttons in joypadHeld."
+      ],
+      "code_list_0BE34C": [
+        "SwitchCase targets for DiaryTabConfirm, indexed by the tab cursor: 0 = Start Journey, 1 = Erase, 2 = Copy, 3 = Change Snd/Buttons."
+      ],
+      "DiaryStartSlotLoop": [
+        "Slot-list loop of Start Journey: every frame set the pan speed, run DiaryCameraPan toward the highlighted slot's location, re-arm this loop, then poll Up/Down (move), A (load) and B (back)."
+      ],
+      "DiaryStartSlotUp": [
+        "Slot cursor up (wraps 0 -> 2); plays the cursor SFX and consumes the press."
+      ],
+      "loc_0BE3A4": [
+        "Store the slot cursor and consume the current buttons in joypadHeld."
+      ],
+      "DiaryStartSlotDown": [
+        "Slot cursor down (wraps 2 -> 0); plays the cursor SFX and consumes the press."
+      ],
+      "loc_0BE3C0": [
+        "Store the slot cursor and consume the current buttons in joypadHeld."
+      ],
+      "DiaryStartCancel": [
+        "B on the slot list: clear the text and return to the main menu."
+      ],
+      "DiaryNewGameSettingsLoop": [
+        "Loop of the 'Arrangement OK?' screen: A / Left / Right act on the row (DiarySettingsToggle), Up / Down move the row cursor, B goes back to the slot list."
+      ],
+      "DiaryNewGameCancel": [
+        "B on the arrangement screen: row cursor off, restore the slot cursor from $0D94 and show the slot list again."
+      ],
+      "DiarySettingsToggle": [
+        "A / Left / Right on the arrangement screen. Row 0 (Start Journey): only A acts (loc_0BE4E7 -> DiaryNewGameStart). Row 1 (Sound): toggle $0D90 and redraw its text. Row 2 (Button Type): toggle $0D8E (loc_0BE4C5) and redraw its legend."
+      ],
+      "loc_0BE4C5": [
+        "Row 2 (Button Type): toggle $0D8E, redraw the type legend and return to the loop."
+      ],
+      "loc_0BE4E7": [
+        "Row 0 (or no value row): A starts the game."
+      ],
+      "DiaryNewGameStart": [
+        "New game confirmed on the arrangement screen: store the sound / button settings in $0B24 / $0B26, apply them (ApplySoundAndRemap), queue scene $08 (its spawn list holds sc08_priest, sc08_lance, sc08_seth and sc08_erik) at ($50,$A0), clear the playerFlags bits set by the menu and Die."
+      ],
+      "DiaryCameraPan": [
+        "Camera pan toward the highlighted slot's map location, one call per frame (called with COP CallNear). The slot's scene ID ($0D74,Y) indexes diary_entry_table; the entry is a name string ended by $CA followed by two words, the camera target X and Y. |dx| / |dy| and their signs go to $7F100C / $7F100E and animScratch, then a Bresenham walk moves cameraTargetX/Y one pixel per step along the longer axis, $free101C steps per frame (12 from the slot loop). Mid-pan it re-arms itself with SetEntryHere; when the target is reached (or was already there) RestoreSavedPtr returns to the CallNear caller."
+      ],
+      "loc_0BE53D": [
+        "Scan the entry's name string up to its $CA terminator; the next two words are the camera target."
+      ],
+      "loc_0BE56E": [
+        "dx negative: |dx| = -dx, sign = -1."
+      ],
+      "loc_0BE57D": [
+        "Same for dy: |dy| and its sign (0 when dy = 0)."
+      ],
+      "loc_0BE590": [
+        "Store the dy sign (+1, or 0 when dy = 0)."
+      ],
+      "loc_0BE596": [
+        "dy negative: |dy| = -dy, sign = -1 (0 when |dy| = 0)."
+      ],
+      "loc_0BE5A3": [
+        "Store the dy sign."
+      ],
+      "loc_0BE5A7": [
+        "Choose the major axis: |dx| >= |dy| steps X (below), otherwise Y (loc_0BE612)."
+      ],
+      "loc_0BE5D1": [
+        "X-major step loop: cameraTargetX += sign(dx); error -= |dy|; when it goes negative, error += |dx| and cameraTargetY += sign(dy). $0000 holds this frame's step budget ($free101C)."
+      ],
+      "loc_0BE5FF": [
+        "Count the step; stop after |dx| steps, otherwise continue until the frame's step budget is spent, then yield (RTL resumes at the SetEntryHere above)."
+      ],
+      "loc_0BE610": [
+        "Pan finished: RestoreSavedPtr returns to the CallNear caller."
+      ],
+      "loc_0BE612": [
+        "Y-major setup: step counter = |dy|, error = |dy| / 2, minor delta = |dx|, then SetEntryHere and the same per-frame budget."
+      ],
+      "loc_0BE632": [
+        "Y-major step loop (mirror of loc_0BE5D1 with the axes swapped)."
+      ],
+      "loc_0BE660": [
+        "Count the step; stop after |dy| steps or when the frame's step budget is spent."
+      ],
+      "loc_0BE671": [
+        "Pan finished (Y-major): RestoreSavedPtr."
+      ],
+      "ApplySoundAndRemap": [
+        "Apply the saved sound and button settings when a game starts (called from DiaryStartLoadConfirm and DiaryNewGameStart). Clears $0B04 and menuModeFlag. Sound: $0B24 = 0 sends SPC command $91 (stereo), nonzero sends $90 (mono) through APUIO0. Buttons: $0B26 = 0 (Type 1) sets remapA = $8000, remapB = $4000, remapX = 0, remapY = $0040; nonzero (Type 2) only clears remapX and leaves the other remaps unchanged."
+      ],
+      "loc_0BE68C": [
+        "Mono: SPC command $90."
+      ],
+      "loc_0BE695": [
+        "Button type: 0 = Type 1 remaps below, nonzero = Type 2 (loc_0BE6B3)."
+      ],
+      "loc_0BE6B3": [
+        "Type 2: only remapX := 0; remapA / remapB / remapY keep their current values."
+      ],
+      "DiarySndBtnSlotLoop": [
+        "Slot picker of the Snd/Buttons tab; it shares the Erase tab's Up/Down handlers. A opens the editor for a used slot, B returns to the main menu."
+      ],
+      "DiarySndBtnCancel": [
+        "B on the slot picker: clear the text and return to the main menu."
+      ],
+      "DiarySndBtnSlotConfirm": [
+        "A on a slot: plays SFX #12; an empty slot (scene ID 0) is ignored. Otherwise remember the slot in $0D94, load its sound / button settings (ReadSramSettings) and show the editor (End Changes / Sound / Button Type)."
+      ],
+      "loc_0BE714": [
+        "Used slot: confirm SFX, remember the slot, load its settings and draw the editor."
+      ],
+      "DiarySndBtnEditLoop": [
+        "Editor loop: A / Left / Right act on the row (DiarySndBtnOptionToggle), Up / Down move the row cursor ($0D98, rows 0-2), B abandons the edit."
+      ],
+      "DiarySettingsUp": [
+        "Row cursor up (rows 0-2, wraps); shared by the arrangement screen and the Snd/Buttons editor."
+      ],
+      "loc_0BE770": [
+        "Store the wrapped row cursor."
+      ],
+      "DiarySettingsDown": [
+        "Row cursor down (rows 0-2, wraps); shared with the arrangement screen."
+      ],
+      "loc_0BE78C": [
+        "Store the wrapped row cursor."
+      ],
+      "DiarySndBtnEditCancel": [
+        "B in the editor: discard the edit and return to the slot picker (DiarySndBtnTab)."
+      ],
+      "DiarySndBtnOptionToggle": [
+        "A / Left / Right in the editor. Row 1 toggles sound ($0D90), row 2 toggles the button type ($0D8E) (loc_0BE7CC); on row 0 (End Changes) A saves (loc_0BE7EE)."
+      ],
+      "loc_0BE7CC": [
+        "Row 2 (Button Type): toggle $0D8E, redraw its legend and return to the editor loop."
+      ],
+      "loc_0BE7EE": [
+        "Row 0 (End Changes): A saves via DiarySndBtnSaveConfirm."
+      ],
+      "DiarySndBtnSaveConfirm": [
+        "Save: write both settings into the slot's SRAM page (WriteSramSettings), recompute both checksums and store them at $3063FC / $3063FE + slot*512, then redraw the slot picker with the cursor back on that slot."
+      ],
+      "loc_0BE85C": [
+        "Store the sound setting (values >= 2 were clamped to 0) and continue with the button type."
+      ],
+      "loc_0BE876": [
+        "Store the button type (values >= 2 were clamped to 0)."
+      ],
+      "loc_0BE8D4": [
+        "At least one slot is empty: start the copy flow with the source cursor on slot 1."
+      ],
+      "DiaryCopySourceLoop": [
+        "Source-slot loop: prints 'Move which Diary?' (the string that heads the Copy tab), redraws the stats and the legend, then polls Up / Down / A / B."
+      ],
+      "DiaryCopySourceUp": [
+        "Source cursor up (wraps 0 -> 2)."
+      ],
+      "loc_0BE911": [
+        "Store the source cursor and consume the current buttons."
+      ],
+      "DiaryCopySourceDown": [
+        "Source cursor down (wraps 2 -> 0)."
+      ],
+      "loc_0BE92D": [
+        "Store the source cursor."
+      ],
+      "DiaryCopyCancel": [
+        "B on the source list: consume the press, clear the text and return to the main menu."
+      ],
+      "DiaryCopySourceConfirm": [
+        "A on the source slot: ignored when the slot is empty. Otherwise find the first empty slot (scene ID 0), put the target cursor ($0D96) on it and enter the target loop."
+      ],
+      "loc_0BE960": [
+        "Used source: search the three slots for the first empty one."
+      ],
+      "loc_0BE963": [
+        "Search loop over $0D74,Y (Y = slot * 2)."
+      ],
+      "loc_0BE972": [
+        "Found an empty slot (Y = its offset): the target cursor = Y / 2, then yield into the target loop."
+      ],
+      "DiaryCopyTargetUp": [
+        "Target cursor up: steps back (wrapping over 3 slots) until it lands on an empty slot other than the source."
+      ],
+      "loc_0BE998": [
+        "Step the target cursor back by one (wraps 0 -> 2)."
+      ],
+      "loc_0BE99E": [
+        "Store the target cursor; skip the source slot and occupied slots."
+      ],
+      "DiaryCopyTargetDown": [
+        "Target cursor down: steps forward (wrapping over 3 slots) until it lands on an empty slot other than the source."
+      ],
+      "loc_0BE9BD": [
+        "Step the target cursor forward by one (wraps 2 -> 0)."
+      ],
+      "loc_0BE9C6": [
+        "Store the target cursor; skip the source slot and occupied slots."
+      ],
+      "DiaryCopyTargetCancel": [
+        "B on the target list: clear the target cursor ($FFFF) and go back to the source list."
+      ],
+      "DiaryCopyExecute": [
+        "A on the target slot: copy the source slot's whole 512-byte SRAM page (data plus both checksums) to the target with the RAM block-move stub at $0402 (MVN, banks $30 -> $30), move the cursor to the new slot, rescan the slots and show the source list again."
+      ],
+      "loc_0BEA04": [
+        "Target is empty (the normal path): do the copy."
+      ],
+      "DiaryEraseSelectLoop": [
+        "Redraw the Erase title, stats and legend; slot cursor := 0."
+      ],
+      "DiaryEraseInputLoop": [
+        "Erase slot list: Up / Down move (shared handlers with the Snd/Buttons slot picker), A selects, B returns to the main menu."
+      ],
+      "DiaryEraseSlotUp": [
+        "Slot cursor up (wraps 0 -> 2); shared with the Snd/Buttons slot picker."
+      ],
+      "loc_0BEA92": [
+        "Store the slot cursor and consume the current buttons."
+      ],
+      "DiaryEraseSlotDown": [
+        "Slot cursor down (wraps 2 -> 0); shared with the Snd/Buttons slot picker."
+      ],
+      "loc_0BEAAE": [
+        "Store the slot cursor and consume the current buttons."
+      ],
+      "DiaryEraseCancel": [
+        "B on the erase list: clear the text and return to the main menu."
+      ],
+      "DiaryEraseSlotConfirm": [
+        "A on a slot. An empty slot is cleared at once with ClearSaveSlot (no prompt). A used slot opens the 'Erase diary? No / Yes' prompt: the slot name via table_0BF6D9, its HP / STR / DEF via table_0BF6AD, and COP DialogueOptions with the targets in code_list_0BEB46."
+      ],
+      "loc_0BEAF0": [
+        "Used slot: remember it in $0D94, redraw, format its HP / DEF / STR to BCD and open the Yes / No prompt."
+      ],
+      "code_list_0BEB46": [
+        "DialogueOptions targets, indexed by the returned value (index + 1, 0 = cancel): cancel and 'No' -> DiaryEraseDecline, 'Yes' -> DiaryEraseExecute."
+      ],
+      "DiaryEraseDecline": [
+        "No / cancel: consume the press and return to the Erase tab. The vanilla button-remap restore that follows in the line-tracked text is stripped from the plain extraction by transforms.json."
+      ],
+      "DiaryEraseExecute": [
+        "Yes: erase SFX #13, ClearSaveSlot for the slot in $0D94, wait 29 frames, rescan the slots, clear the text and return to the Erase list. The vanilla remap-restore stub at the top is stripped from the plain extraction by transforms.json."
+      ],
+      "loc_0BEBAF": [
+        "Slot 2 stat line (skipped when the slot is empty)."
+      ],
+      "loc_0BEBD3": [
+        "Slot 3 stat line (skipped when the slot is empty)."
+      ],
+      "loc_0BEBF7": [
+        "Done: RestoreSavedPtr returns to the CallNear caller."
+      ],
+      "DiaryCursorNav_noref": [
+        "Unreferenced BG3 cursor engine entry (DP $14 = menu index into table_0BED3C, $18 = blink counter, $1A = cursor position). A confirms, $0020 cancels, Up / Down move by one, Left / Right move by two when the menu index is below 2. Returns A = position with carry clear while choosing, carry set once confirmed (or cancelled with A = $FFFF)."
+      ],
+      "loc_0BEC31": [
+        "No button: advance the blink counter ($18) and redraw the cursor every 16 frames."
+      ],
+      "DiaryCursorApplyMove": [
+        "Apply a move: wrap $1A (DiaryClearAllCursors blanks every position), reset the blink counter, consume the D-pad press and play SFX #10."
+      ],
+      "loc_0BEC53": [
+        "Blink: counter bit 4 clear draws the cursor tile, set erases it."
+      ],
+      "loc_0BEC5F": [
+        "Erase phase: blank the cursor tile and request a full BG3 upload."
+      ],
+      "DiaryCursorMoveUp": [
+        "$1A -= 1, then DiaryCursorApplyMove."
+      ],
+      "DiaryCursorMoveDown": [
+        "$1A += 1, then DiaryCursorApplyMove."
+      ],
+      "DiaryCursorPageUp": [
+        "$1A -= 2, then DiaryCursorApplyMove."
+      ],
+      "DiaryCursorPageDown": [
+        "$1A += 2, then DiaryCursorApplyMove."
+      ],
+      "DiaryCursorConfirm": [
+        "Confirm: draw the cursor, SFX #11, consume the press, return A = $1A with carry set."
+      ],
+      "DiaryCursorCancel": [
+        "Cancel: consume the press, return A = $FFFF with carry set."
+      ],
+      "loc_0BED12": [
+        "Wrap $1A into 0 .. count-1 (count = first word of the menu's list)."
+      ],
+      "loc_0BED1D": [
+        "Store the wrapped position, then blank every cursor position of the menu."
+      ],
+      "loc_0BED27": [
+        "Blank loop: write tile $2040 at each BG3 tilemap offset of the menu."
+      ],
+      "table_0BED3C": [
+        "Menu table of the unreferenced cursor engine: four word pointers (menu index $14 = 0-3) to word lists [count, BG3 tilemap byte offsets of the cursor positions]."
+      ],
+      "word_0BED44": [
+        "Menu 0: 4 positions at BG3 tilemap offsets $014A, $01CA, $0160, $01E0 (rows 5 and 7, columns 5 and 16 of the 32-tile map)."
+      ],
+      "word_0BED4E": [
+        "Menu 1: 2 positions at offsets $01CE and $01D8 (row 7, columns 7 and 12)."
+      ],
+      "word_0BED54": [
+        "Menu 2: 3 positions at offsets $02CA, $044A, $05CA (column 5, rows 11, 17 and 23)."
+      ],
+      "word_0BED5C": [
+        "Menu 3: 3 positions at offsets $034A, $03CA, $044A (column 5, rows 13, 15 and 17)."
+      ],
+      "DiaryScanSramSlots": [
+        "Scan the three SRAM slots into the diary state block. The scene-ID, HP and DEF fields ($0D74-$0D84) are zeroed first (the second block of three stores repeats $0D80-$0D84, so the STR fields $0D86-$0D8A are never zeroed; they are only shown for slots with a nonzero scene ID, which overwrites them). Reads $306000 (last-used slot, reset to 0 when >= 3) into $0D8C. For slots 2, 1, 0 it recomputes both checksums and, when they match, copies sourceSceneId ($0B12), playerMaxHp ($0ACA), playerDef ($0ADC) and playerStr ($0ADE) from the slot page; $26 collects one validity bit per slot (bit n = slot n)."
+      ],
+      "DiaryScanSramLoop": [
+        "Per-slot loop: $24 = slot (2 down to 0), X = slot * 512."
+      ],
+      "loc_0BEDA3": [
+        "Store the last-used slot in $0D8C."
+      ],
+      "loc_0BEE11": [
+        "Checksum mismatch: slot stays empty (carry clear)."
+      ],
+      "loc_0BEE12": [
+        "Shift this slot's validity bit (carry) into $26 and move to the next slot."
+      ],
+      "loc_0BEE1E": [
+        "All three slots scanned."
+      ],
+      "DiaryJoypadFilter_noref": [
+        "Unreferenced debug input filter for controller 2 ($E0 = pad word, $E2 = held mask): keeps only newly pressed buttons in $E0 and, on a fresh X ($0040), toggles bit 3 ($0008) of the player actor's $10 field."
+      ],
+      "loc_0BF1A1": [
+        "Return."
+      ],
+      "DiaryResetCounter_noref": [
+        "Unreferenced: $DE := 0."
+      ],
+      "DiaryIncCounter_noref": [
+        "Unreferenced: $DE += 1."
+      ],
+      "DiaryDigitDisplay_noref": [
+        "Unreferenced debug display: while controller 2's B ($8000 in $E0) is held, show $DE as BCD digit sprites (ComposeDigitSprites_AtCursor) at the BG1 scroll + ($10, $70)."
+      ],
+      "loc_0BF1B3": [
+        "B held: format $DE as BCD and compose the digit sprites."
+      ],
+      "loc_0BF1F8": [
+        "Hundreds: subtract 100 repeatedly, counting in $0000."
+      ],
+      "loc_0BF206": [
+        "Move the hundreds count to the high byte of $0000, then switch to 8-bit A for the tens."
+      ],
+      "loc_0BF222": [
+        "Tens: subtract 10 repeatedly, counting in $0000 (it starts at 5 when the remainder was 50 or more)."
+      ],
+      "loc_0BF22E": [
+        "Pack tens:ones into the low byte, merge the hundreds byte, replace the saved input on the stack with the result and restore $0000."
+      ],
+      "loc_0BF245": [
+        "Value >= 1000: restore $0000, return the input unchanged with carry set."
+      ],
+      "DiaryUnused24B_noref": [
+        "Unreferenced bytes extracted as code with the wrong register width. Read with 8-bit A they are LDA $E1 / BIT #$40 / BEQ (to the RTL) / LDA #$04 / JSL $82:81C9 (WaitFrames) / RTL: holding Y ($4000 in the $E0 word) on controller 2 adds a 4-frame wait (slow motion). An overrides.json M = 1 entry at 782923 would extract it correctly (renames ledger R-I057-4)."
+      ],
+      "DiaryReadJoy2_noref": [
+        "Unreferenced: read controller 2 (JOY2L/JOY2H, $421A/$421B) into $E0 for the debug routines above."
+      ],
+      "DiaryNullHandler_noref": [
+        "Unreferenced stub (RTL)."
+      ],
+      "DiaryAwaitButtonRelease_noref": [
+        "Unreferenced pause helper: if A is down ($0080 in joypadRaw) wait for it to be released, then for a fresh press, then for the release again, running the diary VBlank handler each frame - a press-A-to-pause toggle."
+      ],
+      "loc_0BF269": [
+        "Wait for A to be released."
+      ],
+      "loc_0BF27D": [
+        "Wait for a new A press (paused)."
+      ],
+      "loc_0BF291": [
+        "Wait for A to be released again."
+      ],
+      "loc_0BF2A5": [
+        "Return."
+      ],
+      "DiaryMenuVBlankHandler": [
+        "Copy of the engine's VBlankWaitAndJoypad: waits for VBlank (RDNMI), uploads the Mode 7 registers when scrollModeFlags bit 3 is set, honours joypadInject, builds joypadRemapped from the D-pad plus each remap word (remapStart ... remapR), publishes it to joypadCurrent / joypadRaw, and applies the consumption mask, the 12-frame auto-repeat on joypadMaskInv and joypadMaskStd. Its only caller is the unreferenced DiaryAwaitButtonRelease_noref, so the live menu never runs it."
+      ],
+      "loc_0BF2B0": [
+        "Poll RDNMI until bit 7 (VBlank) is set."
+      ],
+      "loc_0BF309": [
+        "Joypad part: honour joypadInject, otherwise remap."
+      ],
+      "loc_0BF319": [
+        "Start remapped joypad word: D-pad bits from joypadRaw, then Start."
+      ],
+      "loc_0BF335": [
+        "Select remap: when remapSelect is nonzero and the raw bit is down, OR it in."
+      ],
+      "loc_0BF348": [
+        "B remap (remapB, raw bit $8000)."
+      ],
+      "loc_0BF35B": [
+        "Y remap (remapY, raw bit $4000)."
+      ],
+      "loc_0BF36E": [
+        "A remap (remapA, raw bit $0080)."
+      ],
+      "loc_0BF381": [
+        "X remap (remapX, raw bit $0040)."
+      ],
+      "loc_0BF394": [
+        "L remap (remapL, raw bit $0020)."
+      ],
+      "loc_0BF3A7": [
+        "R remap (remapR, raw bit $0010)."
+      ],
+      "loc_0BF3BA": [
+        "Publish the remapped word to joypadCurrent / joypadRaw, update the consumption mask and start the auto-repeat counter for masked directions."
+      ],
+      "loc_0BF3E2": [
+        "Reset the auto-repeat counter."
+      ],
+      "loc_0BF3E5": [
+        "Remove consumed buttons and joypadMaskStd from joypadCurrent."
+      ],
+      "table_0BF6AD": [
+        "Pointer table indexed by $0D94: the three slot stat-line strings (dialogstring_0BF4C3 / 0BF4EA / 0BF511) for the erase prompt."
+      ],
+      "dialogstring_0BF3F4": [
+        "Main menu: the four tab names (Start Journey / Erase Trip Diary / Copy Trip Diary / Change Snd/Buttons)."
+      ],
+      "dialogstring_0BF437": [
+        "Start Journey slot list: 'Which Diary?' and three rows, each naming the slot's location via diary_entry_table indexed by $0D74 / $0D76 / $0D78. The other slot-list titles JMP into its rows."
+      ],
+      "dialogstring_0BF476": [
+        "Snd/Buttons slot picker title ('Change Snd/Button'), then the shared slot rows."
+      ],
+      "dialogstring_0BF48C": [
+        "'Move which Diary?': the title of the Copy tab's source list, then the shared slot rows."
+      ],
+      "dialogstring_0BF4A7": [
+        "'Erase which Diary?': the title of the Erase list, then the shared slot rows."
+      ],
+      "dialogstring_0BF4C3": [
+        "Slot-1 stat line: HP / STR / DEF as BCD from $0D9A / $0D9C / $0D9E."
+      ],
+      "dialogstring_0BF4EA": [
+        "Slot-2 stat line (same fields, one slot row lower)."
+      ],
+      "dialogstring_0BF511": [
+        "Slot-3 stat line (same fields, one slot row lower)."
+      ],
+      "dialogstring_0BF538": [
+        "Snd/Buttons editor screen: rows End Changes / Sound / Button Type with the legend of the four button rows (Attack/Talk, Item/Cancel, Item palette, Not used)."
+      ],
+      "dialogstring_0BF5AD": [
+        "'Arrangement OK?' screen shown for a new game: rows Start Journey / Sound / Button Type with the same legend."
+      ],
+      "dialogstring_0BF625": [
+        "Current sound value: table_0BF667 indexed by $0D90."
+      ],
+      "dialogstring_0BF630": [
+        "Current button type legend: table_0BF63B indexed by $0D8E."
+      ],
+      "table_0BF63B": [
+        "Button-type legend strings: Type 1 (0) and Type 2 (1)."
+      ],
+      "dialogstring_0BF63F": [
+        "Type 1 legend: A, B, SEL, Y against Attack/Talk, Item/Cancel, Item palette, Not used."
+      ],
+      "dialogstring_0BF653": [
+        "Type 2 legend: B, Y, SEL, A against the same four rows."
+      ],
+      "table_0BF667": [
+        "Sound value strings: Stereo (0), Mono (1)."
+      ],
+      "dialogstring_0BF679": [
+        "Shown by the Copy tab when all three slots are used: 'Diary not empty / Erase and select'."
+      ],
+      "dialogstring_0BF6A4": [
+        "Stat line of the slot being erased: table_0BF6AD indexed by $0D94."
+      ],
+      "dialogstring_0BF6B3": [
+        "Erase prompt: the slot name (table_0BF6D9 indexed by $0D94) then 'Erase diary? / No / Yes'."
+      ],
+      "table_0BF6D9": [
+        "Slot-name strings for the erase prompt, indexed by $0D94."
+      ]
+    },
+    "comments": {
+      "778810": { "text": "A = 0: colour 0 (backdrop) := black in the palette staging; also TM = 0 below", "expect": "LDA #$0000" },
+      "778836": { "text": "displayModeFlags: bit 14 = HUD off, bit 0 = full BG3 upload request", "expect": "LDA #$4001" },
+      "778844": { "text": "W34SEL: window 2 enabled for BG3 and BG4", "expect": "LDA #$88" },
+      "778849": { "text": "WOBJSEL: window 1 enabled for OBJ and for the colour window", "expect": "LDA #$22" },
+      "778884": { "text": "CGWSEL: main screen black inside the colour window, addend = sub screen", "expect": "LDA #$82" },
+      "778889": { "text": "CGADSUB: add, half intensity, BG1 only", "expect": "LDA #$41" },
+      "778914": { "text": "Mask Start + Select out of joypadCurrent", "expect": "LDA #$3000" },
+      "778920": { "text": "playerFlags: script/ability lock ($0800) + guard stance ($2000)", "expect": "LDA #$2800" },
+      "778926": { "text": "Draw the button legend box (A Button: Enter / B Button: Cancel)", "expect": "RunBg3Script" },
+      "778944": { "text": "Clear $18 (blink counter of the unreferenced cursor code)", "expect": "STZ $18" },
+      "778948": { "text": "Wait for the scene to be ready, then join the tab loop at loc_0BE2D0", "expect": "LDA $worldReadyFlag" },
+      "778960": { "text": "Slot cursor off", "expect": "LDA #$FFFF" },
+      "778966": { "text": "Tab cursor := first tab", "expect": "LDA #$0000" },
+      "779066": { "text": "Tab index for SwitchCase", "expect": "AND #$0003" },
+      "779072": { "text": "Tab cursor off (hides the narrow band)", "expect": "LDA #$FFFF" },
+      "779119": { "text": "Pan speed: 12 steps (pixels) per frame", "expect": "LDA #$000C" },
+      "779130": { "text": "Re-arm the slot loop (DiaryCameraPan set its own entry while panning)", "expect": "SetEntryFar" },
+      "779262": { "text": "Verify both checksums, then copy the slot's 508 bytes to $0A00", "expect": "LoadGameState_Scene" },
+      "779271": { "text": "$0AB2 = Dark Space layout variant saved in the slot", "expect": "LDA $0AB2" },
+      "779283": { "text": "warpDestX = 120 px", "expect": "LDA #$0078" },
+      "779289": { "text": "warpDestY = 144 px", "expect": "LDA #$0090" },
+      "779295": { "text": "warpFacing = 3 (facing byte of the warp)", "expect": "LDA #$0003" },
+      "779301": { "text": "warpScrollParams = $1100 (scroll/transition word)", "expect": "LDA #$1100" },
+      "779307": { "text": "Clear $0800 + $2000 (set in DiaryMenuInit)", "expect": "LDA #$2800" },
+      "779315": { "text": "Slot the player picked (empty or failed the checksum)", "expect": "LDA $0D92" },
+      "779327": { "text": "New-game defaults: button type 0 ($0D8E) and stereo ($0D90)", "expect": "LDA #$0000" },
+      "779339": { "text": "'Arrangement OK?' screen: Start Journey / Sound / Button Type", "expect": "dialogstring_0BF5AD" },
+      "779343": { "text": "Current sound text", "expect": "dialogstring_0BF625" },
+      "779347": { "text": "Current button-type legend", "expect": "dialogstring_0BF630" },
+      "779356": { "text": "Row cursor := row 0 (Start Journey)", "expect": "LDA #$0000" },
+      "779364": { "text": "A / Left / Right: act on the current row", "expect": "BranchIfPressed" },
+      "779370": { "text": "Up: previous row", "expect": "BranchIfPressed" },
+      "779376": { "text": "Down: next row", "expect": "BranchIfPressed" },
+      "779382": { "text": "B: back to the slot list", "expect": "BranchIfPressed" },
+      "779407": { "text": "Restore the slot cursor", "expect": "LDA $0D94" },
+      "779425": { "text": "Row 0 (Start Journey): only A acts", "expect": "BEQ loc_0BE4E7" },
+      "779433": { "text": "Row 1 (Sound): toggle 0 / 1", "expect": "LDA $0D90" },
+      "779467": { "text": "Row 2 (Button Type): toggle 0 / 1", "expect": "LDA $0D8E" },
+      "779535": { "text": "Scene $08 (spawn list: sc08_priest, sc08_lance, sc08_seth, sc08_erik)", "expect": "LDA #$0008" },
+      "779551": { "text": "Clear $0800 + $2000 (set in DiaryMenuInit)", "expect": "LDA #$2800" },
+      "779559": { "text": "Save X (actor slot); pulled again after the table lookup", "expect": "PHX" },
+      "779560": { "text": "Slot cursor -> Y = slot * 2", "expect": "LDA $0D92" },
+      "779565": { "text": "Scene ID of the slot", "expect": "LDA $0D74, Y" },
+      "779570": { "text": "Entry pointer for that scene (one word per scene)", "expect": "diary_entry_table" },
+      "779586": { "text": "Skip the name string up to its $CA terminator", "expect": "CMP #$CA" },
+      "779592": { "text": "Entry word 1 = camera target X", "expect": "diary_entry_table" },
+      "779597": { "text": "Entry word 2 = camera target Y", "expect": "diary_entry_table" },
+      "779601": { "text": "X = actor slot again", "expect": "PLX" },
+      "779602": { "text": "Stash target Y at $7F100E", "expect": "STA $7F100E, X" },
+      "779607": { "text": "Stash target X at $7F100C", "expect": "STA $7F100C, X" },
+      "779612": { "text": "dx = target X - cameraTargetX", "expect": "SBC $cameraTargetX" },
+      "779617": { "text": "$7F100C := |dx|", "expect": "STA $7F100C, X" },
+      "779624": { "text": "X sign (+1) in animScratch", "expect": "STA $animScratch, X" },
+      "779641": { "text": "X sign (-1) in animScratch", "expect": "STA $animScratch, X" },
+      "779650": { "text": "dy = target Y - cameraTargetY", "expect": "SBC $cameraTargetY" },
+      "779655": { "text": "$7F100E := |dy|", "expect": "STA $7F100E, X" },
+      "779664": { "text": "Y sign (+1, or 0 when dy = 0) in animScratch+2", "expect": "STA $animScratch+2, X" },
+      "779683": { "text": "Y sign (-1, or 0 when dy = 0) in animScratch+2", "expect": "STA $animScratch+2, X" },
+      "779691": { "text": "|dx| < |dy|: Y-major loop at loc_0BE612", "expect": "CMP $7F100E, X" },
+      "779701": { "text": "|dx| = 0 means also |dy| = 0: already there", "expect": "BEQ loc_0BE610" },
+      "779703": { "text": "Step counter = |dx|", "expect": "STA $scratch1010+4, X" },
+      "779708": { "text": "Error accumulator = |dx| / 2", "expect": "STA $scratch1010, X" },
+      "779716": { "text": "Minor delta = |dy|", "expect": "STA $scratch1010+2, X" },
+      "779720": { "text": "Resume here each frame while panning", "expect": "SetEntryHere" },
+      "779722": { "text": "Step budget for this frame ($free101C)", "expect": "LDA $free101C, X" },
+      "779734": { "text": "cameraTargetX += sign(dx)", "expect": "ADC $cameraTargetX" },
+      "779745": { "text": "error -= |dy|", "expect": "SBC $scratch1010+2, X" },
+      "779756": { "text": "Error went negative: error += |dx| and step Y", "expect": "ADC $7F100C, X" },
+      "779769": { "text": "cameraTargetY += sign(dy)", "expect": "ADC $cameraTargetY" },
+      "779791": { "text": "Budget spent: yield, resume at the SetEntryHere above", "expect": "RTL" },
+      "779792": { "text": "Done: return to the CallNear caller", "expect": "RestoreSavedPtr" },
+      "779800": { "text": "Step counter = |dy|", "expect": "STA $scratch1010+4, X" },
+      "779805": { "text": "Error accumulator = |dy| / 2", "expect": "STA $scratch1010+2, X" },
+      "779813": { "text": "Minor delta = |dx|", "expect": "STA $scratch1010, X" },
+      "779831": { "text": "cameraTargetY += sign(dy)", "expect": "ADC $cameraTargetY" },
+      "779842": { "text": "error -= |dx|", "expect": "SBC $scratch1010, X" },
+      "779853": { "text": "Error went negative: error += |dy| and step X", "expect": "ADC $7F100E, X" },
+      "779866": { "text": "cameraTargetX += sign(dx)", "expect": "ADC $cameraTargetX" },
+      "779888": { "text": "Budget spent: yield, resume at the SetEntryHere above", "expect": "RTL" },
+      "779889": { "text": "Done: return to the CallNear caller", "expect": "RestoreSavedPtr" },
+      "779907": { "text": "SPC command $91: stereo ($32 := 0 in the SPC engine)", "expect": "LDA #$91" },
+      "779918": { "text": "SPC command $90: mono ($32 := 1 in the SPC engine)", "expect": "LDA #$90" },
+      "779930": { "text": "Type 1: remapA := the attack/confirm bit (physical A)", "expect": "LDA #$8000" },
+      "779936": { "text": "Type 1: remapB := $4000 (physical B = item/cancel bit)", "expect": "LDA #$4000" },
+      "779942": { "text": "Type 1: remapX := 0 (X unused)", "expect": "LDA #$0000" },
+      "779948": { "text": "Type 1: remapY := $0040", "expect": "LDA #$0040" },
+      "779955": { "text": "Type 2: only remapX := 0; remapA / B / Y keep their values", "expect": "LDA #$0000" },
+      "780046": { "text": "Scene ID 0 = empty slot: ignored", "expect": "LDA $0D74, Y" },
+      "780058": { "text": "Slot being edited", "expect": "STA $0D94" },
+      "780061": { "text": "Load that slot's $0B24 / $0B26 into $0D90 / $0D8E", "expect": "ReadSramSettings" },
+      "780298": { "text": "Store $0D90 / $0D8E into the slot page (A = slot)", "expect": "WriteSramSettings" },
+      "780308": { "text": "Recompute both checksums (X = slot * 512)", "expect": "ComputeSaveChecksum" },
+      "780315": { "text": "Additive checksum -> slot page + $1FC", "expect": "STA $3063FC, X" },
+      "780322": { "text": "XOR checksum -> slot page + $1FE", "expect": "STA $3063FE, X" },
+      "780360": { "text": "$0B24 (sound) minus $0A00 = offset inside the slot page", "expect": "ADC #$0B24" },
+      "780372": { "text": "Clamp: values of 2 or more become 0", "expect": "CMP #$0002" },
+      "780386": { "text": "$0B26 (button type) minus $0A00 = offset inside the slot page", "expect": "ADC #$0B26" },
+      "780420": { "text": "$0B24 (sound) minus $0A00 = offset inside the slot page", "expect": "ADC #$0B24" },
+      "780438": { "text": "$0B26 (button type) minus $0A00 = offset inside the slot page", "expect": "ADC #$0B26" },
+      "780471": { "text": "All slots used: pre-select tab 2 (Erase)", "expect": "LDA #$0002" },
+      "780480": { "text": "'Diary not empty / Erase and select'", "expect": "dialogstring_0BF679" },
+      "780509": { "text": "'Move which Diary?' (title of the Copy tab)", "expect": "dialogstring_0BF48C" },
+      "780640": { "text": "Search for the first empty slot", "expect": "LDY #$0000" },
+      "780643": { "text": "Scene ID 0 = empty", "expect": "LDA $0D74, Y" },
+      "780657": { "text": "No empty slot: nothing to do", "expect": "RTL" },
+      "780660": { "text": "Target cursor := first empty slot", "expect": "STA $0D96" },
+      "780705": { "text": "Skip the source slot", "expect": "CMP $0D92" },
+      "780715": { "text": "Occupied target: keep stepping", "expect": "BNE DiaryCopyTargetUp" },
+      "780745": { "text": "Skip the source slot", "expect": "CMP $0D92" },
+      "780755": { "text": "Occupied target: keep stepping", "expect": "BNE DiaryCopyTargetDown" },
+      "780796": { "text": "Target must be empty (the cursor skips used slots)", "expect": "LDA $0D74, Y" },
+      "780801": { "text": "Target used (not reachable via the cursor): treat as a source confirm", "expect": "JMP $&DiaryCopySourceConfirm" },
+      "780804": { "text": "Copy SFX", "expect": "PlaySoundCh2" },
+      "780826": { "text": "Source page offset in bank $30: $6200 + slot * 512", "expect": "ADC #$6200" },
+      "780839": { "text": "Destination page offset in bank $30: $6200 + slot * 512", "expect": "ADC #$6200" },
+      "780845": { "text": "MVN source bank = $30 (SRAM)", "expect": "LDA #$30" },
+      "780850": { "text": "MVN destination bank = $30 (SRAM)", "expect": "LDA #$30" },
+      "780857": { "text": "512 bytes - 1 (whole page including both checksums)", "expect": "LDA #$01FF" },
+      "780860": { "text": "RAM block-move stub at $0402 (PHB, MVN, PLB, return)", "expect": "JSR $0402" },
+      "780864": { "text": "Cursor follows the copy to the new slot", "expect": "LDA $0D96" },
+      "780876": { "text": "Rescan so the new slot shows its stats", "expect": "DiaryScanSramSlots" },
+      "781027": { "text": "Empty slot: SFX #12, cleared without a prompt", "expect": "PlaySoundCh2" },
+      "781033": { "text": "Clear the slot (A = slot)", "expect": "ClearSaveSlot" },
+      "781055": { "text": "'Erase diary? No / Yes' with the slot name", "expect": "dialogstring_0BF6B3" },
+      "781069": { "text": "Max HP of the slot -> BCD -> $0D9A", "expect": "LDA $0D7A, Y" },
+      "781080": { "text": "DEF of the slot -> BCD -> $0D9E", "expect": "LDA $0D80, Y" },
+      "781091": { "text": "STR of the slot -> BCD -> $0D9C", "expect": "LDA $0D86, Y" },
+      "781102": { "text": "Stat line of the slot being erased", "expect": "dialogstring_0BF6A4" },
+      "781120": { "text": "Yes / No prompt: index + 1 returned (0 = cancel)", "expect": "DialogueOptions" },
+      "781165": { "text": "Erase SFX", "expect": "PlaySoundCh2" },
+      "781177": { "text": "Wait 29 frames", "expect": "WaitByte" },
+      "781227": { "text": "Slot 1 stat line", "expect": "dialogstring_0BF4C3" },
+      "781263": { "text": "Slot 2 stat line", "expect": "dialogstring_0BF4EA" },
+      "781299": { "text": "Slot 3 stat line", "expect": "dialogstring_0BF511" },
+      "781708": { "text": "$24 = slot counter, 2 down to 0", "expect": "LDA #$0002" },
+      "781713": { "text": "$26 = validity bit mask (bit n = slot n)", "expect": "STZ $26" },
+      "781715": { "text": "Last-used slot (reset to 0 when 3 or more)", "expect": "LDA $306000" },
+      "781699": { "text": "Repeats $0D80-$0D84; $0D86-$0D8A are not cleared", "expect": "STA $0D80" },
+      "781746": { "text": "Additive checksum vs stored $3063FC + slot * 512", "expect": "CMP $3063FC, X" },
+      "781755": { "text": "XOR checksum vs stored $3063FE + slot * 512", "expect": "CMP $3063FE, X" },
+      "781768": { "text": "sourceSceneId ($0B12) -> $0D74,Y", "expect": "ADC #$0B12" },
+      "781786": { "text": "playerMaxHp ($0ACA) -> $0D7A,Y", "expect": "ADC #$0ACA" },
+      "781804": { "text": "playerDef ($0ADC) -> $0D80,Y", "expect": "ADC #$0ADC" },
+      "781822": { "text": "playerStr ($0ADE) -> $0D86,Y", "expect": "ADC #$0ADE" },
+      "781838": { "text": "Carry set = valid slot", "expect": "SEC" },
+      "781842": { "text": "Shift the validity bit into $26", "expect": "ROL $26" }
+    }
+  }
+}

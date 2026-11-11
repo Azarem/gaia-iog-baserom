@@ -1,0 +1,223 @@
+[
+  {
+    "id": "FL20-01",
+    "flag": 16,
+    "scope": { "scenes": [8] },
+    "priority": "P1",
+    "claim": "Spine proposal sc_school_lesson_done ($10): scene $08 with the flag clear locks the joypad ($CFFC) at spawn and plays the lesson (sc08_priest); the flag is set after the closing dialog (Erik and Seth then leave and Erik releases the lock); with the flag set at load the priest does not lock the joypad and Lance, Erik and Seth are absent.",
+    "start": { "scene": 8, "flags": [], "form": "Will", "state": "byte $0A02 bit 0 clear before the load; New Game or any state that reaches scene $08" },
+    "trial": {
+      "control": "load scene $08 with $10 clear and watch joypadMaskStd ($065A) and byte $0A02 bit 0 from spawn until the lesson ends",
+      "forced": "set $10 (byte $0A02 bit 0) by memory write and load scene $08 again",
+      "observe": ["joypadMaskStd $065A", "byte $0A02 bit 0", "actor list of scene $08 (sc08_lance, sc08_erik, sc08_seth, sc08_priest)", "screenshot"]
+    },
+    "confirms": "control: joypad locked at spawn, $10 set after the closing dialog; forced: joypad free, only the priest present",
+    "refutes": "the joypad is locked with $10 set, or Lance, Erik or Seth stay with $10 set",
+    "flagNames": { "16": "sc_school_lesson_done" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-02",
+    "flag": 22,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal sc_cave_kara_news_done ($16): in scene $02 sc02_erik sets $16 and scratch $04 after Will has talked to Lance and Seth (scratch $01, $02), and Lance, Seth and Erik take their post-news states when $16 is set at load; in scene $06 the evening actors (Bill, Lola, Kara, Hamlet) need $16 set, and the palette thinkers die when it is clear.",
+    "start": { "scene": 2, "flags": [], "form": "Will", "state": "byte $0A02 bit 6 clear; $4C clear; $20 clear; talk to Lance and Seth in either order" },
+    "trial": {
+      "control": "load scene $02 with $16 clear, talk to Lance, then Seth, and watch byte $0A02 bit 6, scratch bits $0A00 bits 1-4 and the joypad",
+      "forced": "set $16 and load scene $02, then scene $06",
+      "observe": ["byte $0A02 bit 6", "byte $0A00 bits 0-7", "joypadMaskStd $065A", "actor list of scenes $02 and $06", "screenshot of scene $06"]
+    },
+    "confirms": "control: $16 and scratch $04 set after the second talk; forced: Lance, Seth and Erik skip the chain and scene $06 starts the Hamlet intro",
+    "refutes": "the chain runs with $16 set, or the scene $06 evening actors are absent with $16 set",
+    "flagNames": { "22": "sc_cave_kara_news_done" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-03",
+    "flag": 28,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal sc_dinner_night_passed ($1C): scene $06 with $1C set and $1D clear locks the joypad at spawn, waits $3B ticks, sets $1D and prints the morning narration; Bill and Lola use their morning handlers; the evening palette thinkers die.",
+    "start": { "scene": 6, "flags": [], "form": "Will", "state": "bytes $0A02 bit 6 set and $0A03 bits 4 set, $0A03 bit 5 clear; scene $06 entered from the town door" },
+    "trial": {
+      "control": "load scene $06 with $16 set, $1C clear and $3E set, climb the stairs trigger and watch the dinner night end",
+      "forced": "set $1C (byte $0A03 bit 4), clear $1D, load scene $06",
+      "observe": ["byte $0A03 bits 4-5", "joypadMaskStd $065A", "dialog box text", "Bill and Lola interact text", "palette thinker presence"]
+    },
+    "confirms": "control: $1C set before the reload at ($00A0,$0078); forced: morning narration plays once and $1D is set",
+    "refutes": "the narration does not run, or it replays after $1D is set",
+    "flagNames": { "28": "sc_dinner_night_passed", "29": "sc_morning_narration_seen" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-04",
+    "flag": 33,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal ec_throne_room_done ($21): scene $06 with $21 set and $25, $26 clear runs sc06_kara_return and sc06_lily (joypad lock, door-block actor, Jackal dialog) and kills Bill, Lola; the scene_meta gate selects the main-characters graphics when $4C is clear.",
+    "start": { "scene": 6, "flags": [], "form": "Will", "state": "byte $0A04 bit 1 set by memory write; $0A04 bits 5 and 6 clear; byte $0A03 bit 3 set" },
+    "trial": {
+      "control": "load scene $06 with $21 clear (any state) and record the actor list",
+      "forced": "set $21 (byte $0A04 bit 1) and load scene $06",
+      "observe": ["byte $0A04 bits 1, 5, 6", "actor list of scene $06", "joypadMaskStd $065A", "VRAM graphics set for the castle actors", "screenshot"]
+    },
+    "confirms": "forced: Bill and Lola absent, Kara and Lily present, joypad locked at spawn, door tiles (05,1D) and (06,1D) solid",
+    "refutes": "Bill or Lola present with $21 set, or no door-block actor",
+    "flagNames": { "33": "ec_throne_room_done" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-05",
+    "flag": 37,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal sc_lily_met_in_house ($25): sc06_kara_return sets $25 and clears $0119 after the Lily introduction (scratch $01, $02 handshakes); the door-block actor then frees tiles (05,1D) and (06,1D); on a reload Kara and Lily take their departure positions (tiles (0C,1B), (08,1B)).",
+    "start": { "scene": 6, "flags": [], "form": "Will", "state": "$21 set, $25 and $26 clear (as FL20-04); talk to Kara once so that scratch $01 is set" },
+    "trial": {
+      "control": "from the FL20-04 forced state talk to Kara and watch bytes $0A04 bit 5 and $0A23 bit 1 and scratch bits $0A00 bits 1-2",
+      "forced": "set $25 by memory write and reload scene $06",
+      "observe": ["byte $0A04 bit 5", "byte $0A23 bit 1", "byte $0A00 bits 1-4", "door tile solidity (05,1D) (06,1D)", "actor positions after the reload"]
+    },
+    "confirms": "control: $25 set and $0119 cleared after the Kara and Lily dialog; forced: departure positions and the door open",
+    "refutes": "$25 is set without the dialog, or the door stays solid after the reload",
+    "flagNames": { "37": "sc_lily_met_in_house", "281": "sc_wills_house_ransacked" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-06",
+    "flag": 38,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal sc_itory_trip_started ($26): sc06_kara_return sets $26 after the second departure handshake (scratch $02, $03), unlocks the joypad and, after Lily's question and the Yes answer, queues the world-map move and scene $15; with $26 set at load Kara and Lily die and the house narration of sc01_house_intro replays once.",
+    "start": { "scene": 6, "flags": [], "form": "Will", "state": "$21 and $25 set, $26 clear; scratch bits clear" },
+    "trial": {
+      "control": "talk to Lily, answer Yes and watch bytes $0A04 bit 6, joypadMaskStd and scratch bits $0A00 bits 1-4",
+      "forced": "set $26 and load scenes $06 and $01 (house door tile)",
+      "observe": ["byte $0A04 bit 6", "byte $0A00 bits 1-4", "joypadMaskStd $065A", "scene id after the sequence", "actor list of scene $06"]
+    },
+    "confirms": "control: scratch $04 set at the Yes answer, $26 set later, scene $15 loads; forced: Kara and Lily absent",
+    "refutes": "scene $15 does not load, or Kara and Lily stay with $26 set",
+    "flagNames": { "38": "sc_itory_trip_started" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-07",
+    "flag": 76,
+    "scope": { "scenes": [2] },
+    "priority": "P3",
+    "claim": "Spine proposal gs_ship_descent_done ($4C): scene $02 with the flag set kills sc02_erik, sc02_lance and sc02_seth at their first instruction; cross-checked by FL23-01 for the Gold Ship side.",
+    "start": { "scene": 2, "flags": [], "form": "Will", "state": "byte $0A09 bit 4 clear, then set by memory write" },
+    "trial": {
+      "control": "load scene $02 with $4C clear and record the actor list",
+      "forced": "set $4C (byte $0A09 bit 4) and load scene $02",
+      "observe": ["byte $0A09 bit 4", "actor list of scene $02 (sc02_erik, sc02_lance, sc02_seth)", "screenshot"]
+    },
+    "confirms": "forced: the three friends are absent; control: they are present",
+    "refutes": "any of the three is present with $4C set",
+    "flagNames": { "76": "gs_ship_descent_done" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-08",
+    "flag": 244,
+    "scope": { "scenes": [140] },
+    "priority": "P1",
+    "claim": "Spine proposal pr_prophecy_first_pass_active ($F4): title idle sets it and queues scene $8C; pr8C_prologue1 (first pass, $F4 set) clears it and $017C-$017F and queues scene $8D; scene $8D runs five visits (one page flag per visit, $017C cleared on the fifth), then $8E, $8F, a second $8C pass with $F4 clear (pr8C_prologue5) and the title scene $FC.",
+    "start": { "scene": 252, "flags": [], "form": "Will", "state": "title screen idle; byte $0A1E bit 4 clear; bytes $0A2F bits 4-7 clear" },
+    "trial": {
+      "control": "leave the title idle for 42 s and record the scene id, byte $0A1E bit 4 and byte $0A2F bits 4-7 at each scene change until the title returns",
+      "forced": "set $F4 and load scene $8C directly, then again with $F4 clear",
+      "observe": ["scene id sequence", "byte $0A1E bit 4", "byte $0A2F bits 4-7", "map in use for scene $8C (map_prologue_prophecy_2 or map_prologue_prophecy)", "pictures at (1E,1E) in scene $8D"]
+    },
+    "confirms": "control: sequence $8C, $8D x5, $8E, $8F, $8C, $FC with $F4 set only during the first $8C pass and pictures accumulating one per visit; forced: pr8C_prologue1 runs only with $F4 set",
+    "refutes": "$F4 is set in the second pass, or $017D-$017F are cleared at the end of visit 5",
+    "flagNames": { "244": "pr_prophecy_first_pass_active", "380": "pr_legends_page_1_shown", "381": "pr_legends_page_2_shown", "382": "pr_legends_page_3_shown", "383": "pr_legends_page_4_shown" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-09",
+    "flag": 281,
+    "scope": { "scenes": [6] },
+    "priority": "P2",
+    "claim": "Spine proposal sc_wills_house_ransacked ($0119): event block $19 copies the 16x32 region at (00,30) over (00,00) of scene $06 while the flag is set at load, and sc06_kara_return clears it after the Lily introduction.",
+    "start": { "scene": 6, "flags": [], "form": "Will", "state": "byte $0A23 bit 1 clear, then set by memory write" },
+    "trial": {
+      "control": "load scene $06 with $0119 clear and take a screenshot",
+      "forced": "set $0119 (byte $0A23 bit 1) and load scene $06, then clear it and reload",
+      "observe": ["byte $0A23 bit 1", "screenshot of scene $06 with and without the flag", "BG1 tilemap region (00,00)-(0F,1F)"]
+    },
+    "confirms": "forced: the room shows the ransacked layout; clear: the normal room",
+    "refutes": "the tilemap is identical in both states",
+    "flagNames": { "281": "sc_wills_house_ransacked" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-10",
+    "flag": 32,
+    "scope": null,
+    "priority": "P3",
+    "claim": "$20 has readers in sc02_lance, sc02_seth, sc02_erik and no writer in the inventory; with the flag set at load of scene $02 the three friends skip the chain and take their idle states.",
+    "start": { "scene": 2, "flags": [], "form": "Will", "state": "byte $0A04 bit 0 clear, then set by memory write; $16 clear; $4C clear" },
+    "trial": {
+      "control": "load scene $02 with $20 clear and record Lance, Seth and Erik interact text",
+      "forced": "set $20 (byte $0A04 bit 0) and load scene $02, then watch whether any code changes the bit during a full play-through of the scene",
+      "observe": ["byte $0A04 bit 0 (write watchpoint over a play-through)", "interact text of the three friends", "actor list"]
+    },
+    "confirms": "forced: idle states with the post-chain handlers; the write watchpoint never fires in the scene",
+    "refutes": "the watchpoint fires (a writer exists outside the inventory)",
+    "flagNames": { "32": "sc_cave_friends_idle" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-11",
+    "flag": 0,
+    "scope": { "scenes": [1] },
+    "priority": "P3",
+    "claim": "Scratch $00 in scene $01 is set by sc01_fisherman while the player's Y position is $0250 or more and read by the player idle code (player_character.asm:232 and following), which stages the second idle sprite set (#10-#13).",
+    "start": { "scene": 1, "flags": [], "form": "Will", "state": "byte $0A00 bit 0 clear; player on the south shore of the town (Y >= $0250)" },
+    "trial": {
+      "control": "stand idle at Y < $0250 and at Y >= $0250 in scene $01 and record byte $0A00 bit 0 and the idle sprite staged",
+      "forced": "set and clear byte $0A00 bit 0 by memory write while standing idle",
+      "observe": ["byte $0A00 bit 0", "player sprite frame (#00-#03 or #10-#13)", "screenshot"]
+    },
+    "confirms": "bit follows the Y threshold; the idle sprite set changes with the bit",
+    "refutes": "the sprite does not change with the bit, or the bit does not follow Y",
+    "flagNames": { "0": "sc_town_player_south_strip_active" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-12",
+    "flag": 6,
+    "scope": { "scenes": [2] },
+    "priority": "P3",
+    "claim": "Scratch $06 in scene $02 is set by sc02_seth when the actor behind its list link ($06 = nextActorLink) changes position, and that actor is the statue object spawned by SpawnAfterAbsFlags at 308312.",
+    "start": { "scene": 2, "flags": [], "form": "Will", "state": "scratch $05 set (Will sat at ($0078,$0090)); $16 set by the chain" },
+    "trial": {
+      "control": "after the 'Everyone's here' dialog, read DP $06 of the Seth slot and the actor behind it, then push the statue with the L or R button",
+      "forced": "none",
+      "observe": ["Seth slot field $06 and the actor code pointer it names", "fields $14/$16 of that actor", "byte $0A00 bit 6"]
+    },
+    "confirms": "the actor behind the link is e_sc02_actor_04B051 and its position change sets the bit",
+    "refutes": "the link names another actor, or the bit is set without the statue moving",
+    "flagNames": { "6": "sc_cave_statue_moved_ack" },
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL20-13",
+    "flag": 15,
+    "scope": { "scenes": [140, 141, 142, 143] },
+    "priority": "P3",
+    "claim": "Scratch $0F is set by e_pr_thinker_0BD039 in scenes $8C-$8F and no actor of those scenes reads it.",
+    "start": { "scene": 140, "flags": [], "form": "Will", "state": "title idle prologue pass with byte $0A01 bit 7 clear" },
+    "trial": {
+      "control": "watch byte $0A01 bit 7 through scenes $8C-$8F with a read watchpoint",
+      "forced": "none",
+      "observe": ["byte $0A01 bit 7 (write and read watchpoints)", "reader code addresses if any"]
+    },
+    "confirms": "one write and no read per scene",
+    "refutes": "any read of the bit during scenes $8C-$8F",
+    "flagNames": { "15": "pr_text_fade_out_done" },
+    "needs": ["FR00"]
+  }
+]

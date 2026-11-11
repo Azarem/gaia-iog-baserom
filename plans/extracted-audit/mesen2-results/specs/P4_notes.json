@@ -1,0 +1,67 @@
+{
+ "_note": "P4 draft (2026-11-09, ROM O, states S01r-family, N01, P03, P06, P14 and the new orig_P4_s01_freedan_ledge-north). Apply pass only; investigation sessions run --dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/P4_notes.json --dry-run. Sources: mesen2-results/P4_20261109.md and raw/P4_*. Measured: actor $12 bit 12 is the display-filter qualifier (player frozen, camera actor running under displayModeFlags bit 7); X and Y give the same packed ratio for the same spawn byte (#11,#11 -> $0101 on both axes, #21,#21 -> $0201 on both); the player actor Y minus mapScrollV is 128 on every unclamped frame; camera_drift and CameraShakeFrame offsets are applied after camera_scroll_controller's store in the same frame and do not accumulate; with layerPriorityFlag bit $0200 set the shake ends on the original target plus the last tick's offset. The OQ-57 (a) / forcedScrollOverride edits are in W1-b_notes.json. No names spec: no label changes.",
+ "system/engine/camera_scroll.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "($12; the meaning of that bit was not verified)",
+     "with": "($12; the display / overlay-active qualifier: while displayModeFlags bit 7 is set only actors with this bit in $10 or $12 run, so the camera actor keeps running while the player stands still, measured over 40 frames)"
+    },
+    {
+     "find": "The −8 px X offset makes the X multiplier one less than the Y one for the same spawn byte.",
+     "with": "X and Y give the same packed word for the same spawn byte, so the −8 px X offset does not lower the X multiplier (measured: #11, #11 packs to $0101 on both axes, #21, #21 to $0201 on both; the delta equals the target x lo / hi on every call)."
+    }
+   ]
+  },
+  "comments": {
+   "59731": {
+    "text": "Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes",
+    "expect": "TSB"
+   },
+   "60060": {
+    "text": "Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes",
+    "expect": "TSB"
+   }
+  }
+ },
+ "actors/camera_scroll_controller.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "vertically the target puts the player 128 lines below the top of a 224-line screen, 16 lines below the middle.",
+     "with": "vertically the target puts the player actor's Y 128 lines below the top of a 224-line screen, 16 lines below the middle (measured: the actor Y minus mapScrollV is 128 on every unclamped frame; the sprite is drawn above that point: its pieces span OAM Y 91 to 135 for Will and 80 to 130 for Freedan, so the body sits near the middle of the screen)."
+    }
+   ]
+  }
+ },
+ "functions/camera_drift.asm": {
+  "blockNote": {
+   "edit": [
+    {
+     "find": "unless $24 = $FFFF, to cameraDeltaY (clamped to 0)",
+     "with": "unless $24 = $FFFF, to cameraDeltaY (clamped to 0; CopyActorState sets the new actor's $24 to the spawner's slot and none of the five shipped spawn sites changes it, so the skip is not taken there: $24 read $1090 in Danger Slide and $11E0 / $1210 in the Castoth room)"
+    },
+    {
+     "find": "Whether the offsets added here survive the recompute is not established statically.",
+     "with": "The drift actors run after camera_scroll_controller has stored the target in the same frame (CameraDriftLoopSimple and CameraDriftPatterned both ran after the controller's X and Y stores), so each offset is applied on top of the freshly recomputed target and cameraDeltaX / Y, and the scroll follows it (measured with CameraDriftPatterned in Danger Slide and in the Castoth room: mapScrollV equals the drifted target on that frame, BG1VOFS on the next). The offsets do not accumulate: the next frame the controller derives the target from the player again."
+    }
+   ]
+  }
+ },
+ "actors/player/player_character.asm": {
+  "partNotes": {
+   "CameraShakeFrame": {
+    "edit": [
+     {
+      "find": "Each offset is -1, 0, +1 or +2.",
+      "with": "Each offset is -1, 0, +1 or +2. The controller stores the target before the shake runs in the same frame, so the offsets do not accumulate: measured over a drop-attack landing (61 ticks, one per frame, layerPriorityFlag bit $0200 clear on every tick) the target differs from the player-derived value by exactly that frame's offset (mean +0.4 per axis) and is back on it the frame after the last tick."
+     },
+     {
+      "find": "so the shake stays centred on the frozen position.",
+      "with": "so the shake stays centred on the frozen position. The controller does not run while the camera is frozen, so the last tick leaves the target at the original plus that tick's offset (measured with the bit set from the landing: 61 ticks, final target = original + (+1, -1))."
+     }
+    ]
+   }
+  }
+ }
+}

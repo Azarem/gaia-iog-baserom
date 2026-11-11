@@ -14,12 +14,12 @@
 ; |------|-----------|------------|
 ; | $00B8 | Starting divisor ('scale'). The quotient is abs(cos) / divisor in 8.8 fixed point, so $80 is about 1:1 ($7FFF / $80 = $FF), a smaller divisor zooms out and a larger one zooms in. Init sets $0400 | Cutscene controllers (future vision $001C up to $0080, prologue $0020), WorldMapController (adds gravity deltas) |
 ; | $00B6 | Divisor increment per scanline, 8.8 fixed point. 0 gives a flat plane without perspective. Init sets 0 | Prologue controllers ($0280 / $0200 counted down towards 0), future vision (INC), WorldMapController (descent loop subtracts $10 per frame) |
-; | $00BC | Rotation index. ($BC AND $01FF) x 2 indexes the 512-step sine and cosine tables (0.703 degrees per step). Init sets 0 | Cutscenes INC it; WorldMapController route steps add their third delta axis to it (its own comments call that axis elevation) |
+; | $00BC | Rotation index. ($BC AND $01FF) x 2 indexes the 512-step sine and cosine tables (0.703 degrees per step; measured: increasing $BC turns the map clockwise on the screen). Init sets 0 | Cutscenes INC it; WorldMapController route steps add their third delta axis to it (its own comments call that axis elevation) |
 ; | $00CA / $00CC | Mode 7 centre X / Y (copied to M7X / M7Y by the NMI). Init takes them from worldMapPlayerX / Y ($0D54 / $0D56) | Init, the cutscene controllers, WorldMapController |
 ; 
 ; === ONE-TIME TABLE FILL ===
 ; 
-; The first tick writes 224 entries of {count 1, data word 0} plus a $00 terminator into $7E7000 (M7A), $7E7800 (M7B) and $7E8000 (M7C): 673 bytes each. A count of 1 with bit 7 clear is a one-scanline, non-repeat entry. COP SetEntryHere follows, so only the data words are rewritten on later frames.
+; The first tick writes 224 entries of {count 1, data word untouched} plus a $00 terminator into $7E7000 (M7A), $7E7800 (M7B) and $7E8000 (M7C): each table is 673 bytes long and the fill stores 225 of them (the 224 count bytes and the terminator). The data words are not cleared: the area is the scene loader's decompression scratch, so they hold stale bytes (measured right after the fill: 50, 54 and 38 of the 224 words are nonzero) until the first computation overwrites them (measured: the tables hold computed values within 4 frames of the fill). A count of 1 with bit 7 clear is a one-scanline, non-repeat entry. COP SetEntryHere follows, so only the data words are rewritten on later frames.
 ; 
 ; === PER-FRAME COMPUTATION ===
 ; 
@@ -49,7 +49,7 @@
 ; - $B6 is the per-scanline divisor increment, not a rotation angle; the rotation is $BC.
 ; - STY $WRDIVB with 16-bit Y also writes $4207 (HTIMEL) with the divisor high byte, which is 0 here. No H-IRQ use was checked.
 ; - Quadrants 3 and 4 use 4 NOPs where 1 and 2 use 6: the extra LDA #0 / SEC before the SBC fill the divider's 16-cycle delay (derived from cycle counts, not run).
-; - The three tables live at $7E7000, $7E7800 and $7E8000, the same addresses as tileStagingBuffer and as buffers of scanline_band_hdma_thinker (its buffers are $7000, $7400, $7800, $7C00, $8000 and $8400). Not traced: whether any scene runs both.
+; - The three tables live at $7E7000, $7E7800 and $7E8000, the same addresses as tileStagingBuffer and as buffers of scanline_band_hdma_thinker (its buffers are $7000, $7400, $7800, $7C00, $8000 and $8400). Measured in the four scenes that run Mode7PerspectiveUpdate ($FE world map, $8C prologue, $59 Sky Garden crash, $C0 Angkor Wat vision): after the first table fill nothing else writes $7E7000-$8FFF, and no DMA from this area runs while the scene is active. Before the fill the scene loader's decompressor (QuintetLzDecompress, the literal and back-reference stores) uses the area as scratch.
 ; - Init writes $FFFF to the words $7F0B22 and $7F0B24. No reader was found in extracted/.
 ---------------------------------------------
 
@@ -81,7 +81,7 @@ Mode7PerspectiveInit [
     LDA #$80              ; M7SEL $80: outside the 1024x1024 map is transparent (no repeat, no tile-0 fill), no flip
     STA $M7SEL
     REP #$20
-    LDA #$FFFF            ; $7F0B22 and $7F0B24 := $FFFF (no reader found in extracted/)
+    LDA #$FFFF            ; $7F0B22 and $7F0B24 := $FFFF: palette staging words for CGRAM colors $91 and $92 ($7F0A00 + 2 x color); UploadCgramPalette's DMA of the staging buffer reads them every frame
     STA $7F0B22
     LDA #$FFFF
     STA $7F0B24
@@ -118,10 +118,10 @@ Mode7PerspectiveUpdate {
     LDA #$E0              ; 224 entries, one per scanline
     STA $0E
 
-; Fill loop: one entry per scanline in all three tables (count byte 1, data bytes left 0), 224 times, then $00 terminators.
+; Fill loop: one entry per scanline in all three tables (count byte 1; the data bytes are not written), 224 times, then $00 terminators.
 
   Mode7FillTableLoop:
-    LDA #$01              ; Per entry: count byte 1 (one scanline, no repeat) in all three tables; the data word stays 0 until the first computation
+    LDA #$01              ; Per entry: count byte 1 (one scanline, no repeat) in all three tables; the data word is not written and keeps its stale bytes until the first computation
     STA $tileStagingBuffer, X
     STA $7E7800, X
     STA $7E8000, X

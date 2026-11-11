@@ -1,0 +1,3 @@
+[
+  { "address": 187549, "old": "DiagWallNorthFromDL", "new": "DiagWallNorthShim", "row": "CT-7", "note": "mirror of DiagWallSouthShim (CT-3): 'DL' abbreviated the old DiagLadderTile; this is only the entry shim of the code_02DC9F wall handler" }
+]

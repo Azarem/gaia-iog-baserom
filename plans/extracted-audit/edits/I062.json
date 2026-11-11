@@ -1,0 +1,155 @@
+{
+  "tables/ability_anim_tables.asm": {
+    "blockNote": [
+      "Attack ability damage tables (Bank 01, 121255-121278): one table per player form, three abilities each. Despite the old name and header they hold no animation, sprite-frame or hitbox data: each record is { word $0000, word pointer to the ability's upgrade-level word in WRAM, one damage byte per upgrade level }.",
+      "",
+      "LoadAbilityAnimTableA (Will, will_ability_anim_table) and LoadAbilityAnimTableB (Freedan, freedan_ability_anim_table) in attack_ability_system take the ability index in A, follow the table pointer to the record, read the level from the WRAM word the record points to, and store record[4 + level] in climbStateData ($09E0 for Will, $09E2 for Freedan). combat_collision adds that value to the hit strength.",
+      "",
+      "| Table | Ability | Level word | Damage by level |",
+      "|-------|---------|-----------|------------------|",
+      "| Will | 0 Psycho Dash | $0B16 | 5 / 10 |",
+      "| Will | 1 Psycho Slider | $0B18 | 5 / 8 |",
+      "| Will | 2 Spin Dash | $0B1A | 4 / 7 |",
+      "| Freedan | 0 Dark Friar | $0B1C | 5 / 8 / 12 |",
+      "| Freedan | 1 Aura Barrier | $0B1E | 5 / 9 |",
+      "| Freedan | 2 Earthquaker | $0B20 | 0 / 7 |",
+      "",
+      "The level word is written by the jeweler_gem rewards (Psycho Dash level 1 at 20 jewels, Dark Friar level 2 at 30) and read by the ability code. The first word of every record is $0000 and no code reads it (OQ-I062-2). Dark Friar is the only 7-byte record (three levels); the other five are 6 bytes.",
+      "",
+      "Checked: all six records decoded byte by byte against both loaders (attack_ability_system lines 1628-1672) and against the table note in attack_ability_system and the jeweler_gem rewards. The values as damage bonuses come from those notes; not traced at runtime (UNVERIFIED-RUNTIME)."
+    ],
+    "partNotes": {
+      "will_ability_anim_table": [
+        "Will's three abilities: 3 word pointers (index 0 Psycho Dash, 1 Psycho Slider, 2 Spin Dash) to the damage records below. Read by LoadAbilityAnimTableA; the loader turns each pointer into a record offset by subtracting the table base."
+      ],
+      "binary_01D9AD": [
+        "Psycho Dash: $0000, level word $0B16, damage 5 (level 0) / 10 (level 1)."
+      ],
+      "binary_01D9B3": [
+        "Psycho Slider: $0000, level word $0B18, damage 5 / 8."
+      ],
+      "binary_01D9B9": [
+        "Spin Dash: $0000, level word $0B1A, damage 4 / 7."
+      ],
+      "freedan_ability_anim_table": [
+        "Freedan's three abilities: 3 word pointers (index 0 Dark Friar, 1 Aura Barrier, 2 Earthquaker) to the damage records below. Read by LoadAbilityAnimTableB."
+      ],
+      "binary_01D9C5": [
+        "Dark Friar: $0000, level word $0B1C, damage 5 / 8 / 12 (7 bytes, the only three-level record)."
+      ],
+      "binary_01D9CC": [
+        "Aura Barrier: $0000, level word $0B1E, damage 5 / 9."
+      ],
+      "binary_01D9D2": [
+        "Earthquaker: $0000, level word $0B20, damage 0 / 7."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/spriteset_field_fx.asm": {
+    "blockNote": [
+      "Spriteset of the adrift-sequence wave effect (Bank 14, 14C0CA-14C12B): one animation of four single-sprite frames. Its only user is gold_ship/adrift/dc2F_adrift_fx, one of the four tile-streaming effect actors (cop_handlers_sprite): it sets the art source with SetScratchPointer ( misc_fx_1CD180 ), passes spriteset_field_fx to SetMetasprite, starts animation 0 with ResetSpriteState ( #00, #$2010 ) and loops AdvanceSpriteAnim. Each AdvanceSpriteAnim stages one frame of art from the source to VRAM word $2010 (the NMI does the DMA) and takes the hold time from this table. That file's header describes the result as ocean waves over the adrift scene. The old header called it a set of non-combat environmental particles.",
+      "",
+      "Structure (same as every spriteset): spriteset_field_fx is the animation-index table (one word pointer here); sprite_set_14C0CA is that animation's frame list of 4-byte records < hold word, &sprite-group > ended by a hidden $FFFF; each sprite-group is a 13-byte header followed by one 7-byte sprite-part. All four frames hold $0007 (8 ticks each, 32 ticks per loop) and have identical headers. The last word of the sprite-part ($0A00, $0A04, $0A08, $0A0C) is the only difference: for a tile-streaming animation its low byte is the art offset in 32-byte tiles (AdvanceSpriteAnim copies from animScratch + 32 x byte at +$12 of the frame data), and because the sprite-part's first byte is nonzero each frame is 128 bytes (four tiles), so the four frames are consecutive 128-byte pictures at offsets 0, 128, 256 and 384 of misc_fx_1CD180. The high byte $0A is not interpreted by the streaming code (open, OQ-I062-1).",
+      "",
+      "Checked: file decoded against the sprite-set / sprite-group / sprite-part structs, the cop_handlers_sprite description of ResetSpriteState / AdvanceSpriteAnim, the only consumer read in full, and a whole-extraction search for spriteset_field_fx and sprite_set_14C0CA (no other reference). Not traced at runtime (UNVERIFIED-RUNTIME): what the frames look like and the exact bytes the DMA moves."
+    ],
+    "partNotes": {
+      "spriteset_field_fx": [
+        "Animation-index table: one entry, animation 0 = sprite_set_14C0CA. dc2F_adrift_fx starts it with ResetSpriteState ( #00, #$2010 ): animation index 0, VRAM word address $2010."
+      ],
+      "sprite_set_14C0CA": [
+        "Animation 0, four frames of 8 ticks each (hold word $0007), looping through sprite_group_14C0DC, 14C0F0, 14C104, 14C118."
+      ],
+      "sprite_group_14C0DC": [
+        "Frame 0: one sprite-part, word $0A00 (art offset 0 in the streamed source)."
+      ],
+      "sprite_group_14C0F0": [
+        "Frame 1: one sprite-part, word $0A04 (art offset 4 tiles = 128 bytes)."
+      ],
+      "sprite_group_14C104": [
+        "Frame 2: one sprite-part, word $0A08 (art offset 8 tiles = 256 bytes)."
+      ],
+      "sprite_group_14C118": [
+        "Frame 3: one sprite-part, word $0A0C (art offset 12 tiles = 384 bytes)."
+      ]
+    },
+    "comments": {}
+  },
+  "tables/movement_delta_table.asm": {
+    "blockNote": [
+      "Movement delta chains (Bank 01, 110726-115587): 85 word pointers ($00-$54) to chains of delta-nodes, followed by the 1,173 nodes (4,692 bytes, 01B130-01C383). Every movement index in the game is an index into this table: COP movement operands (StageMoveX/Y/XY, StageSpriteMove*, the player Move ops), direction_velocity_table (forced walks), the world map route steps and the hit stagger all name a chain, not a distance or a speed.",
+      "",
+      "=== NODE AND CHAIN ===",
+      "",
+      "A delta-node is { signed word value, &next }. The value is a per-frame position delta in pixels; the link is the next node. An actor holds the current node pointer in $2C (X chain) or $2E (Y chain): actor_pool.AnimFrameLookup turns an index into the head pointer (table + index x 2), and ApplyMovement / ApplyMovementWithCollision (tile_collision_physics) add the node's value to $14 / $16 once per frame (negated when $12 bit 14 / bit 13 flips the axis) and move the pointer to the link. A zero pointer means no chain: the actor then uses its per-actor scratch delta (moveScratch1/2). The raw index stays in moveXAlt / moveYAlt ($7F0018 / $7F001A).",
+      "",
+      "Each chain ends in exactly one of three ways (counted over the whole file; 85 chains = 1 + 58 + 26):",
+      "- null link ($0000): 1 chain, entry $00. The value 0 is applied once and the pointer is cleared.",
+      "- link to itself: 58 chains. The last node repeats forever (constant speed, or 0 = stand still after a one-shot curve).",
+      "- link back to an earlier node: 26 chains. The chain loops (fractional speeds, oscillations, periodic pulses).",
+      "",
+      "=== FAMILIES (indices) ===",
+      "",
+      "- $00: null chain (value 0, link 0).",
+      "- $01-$10: constant +/-1 .. +/-8 pixels per frame, one self-linked node each; odd index = positive, even = negative ($01 = +1, $02 = -1, $03 = +2 ... $0F = +8, $10 = -8).",
+      "- $11-$14: fractional constant speeds as 2- and 4-node cycles: $11 +1,0 (+1/2 average), $12 -1,0 (-1/2), $13 +1,0,0,0 (+1/4), $14 -1,0,0,0 (-1/4).",
+      "- $15-$54: programmed curves of 1 to 57 nodes: delayed starts (runs of 0), acceleration and deceleration ramps, out-and-back arcs that sum to 0, periodic pulses and pauses (e.g. $3C = +8,0,0,0 repeating, $53 = 16 frames still then 16 frames at -1, repeating). Chain lengths: 1 node ($00-$10, $1F, $20, $37), 2 ($11, $12), 3 ($3F), 4 ($13, $14, $16, $17, $3C), 5 ($51, $52), 6 ($1D, $1E), longest $21 (57), $4C (43), $3D (37), $4D and $4E (33). $16 and $17 are 4-node cycles of +1 / -1 and behave exactly like $01 / $02; $1F, $20 and $37 are a single 0 node that links to itself.",
+      "- Node values range from -8 to +12; 0 is the commonest (302 of 1,173 nodes), then +1 (183), -1 (156), +2 (126).",
+      "",
+      "=== USERS ===",
+      "",
+      "- COP movement operands via AnimFrameLookup (cop_handlers_force_move, cop_handlers_sprite, cop_handlers_player_sprite), for example $36 in attack_ability_system and $0F / $10 in ramps.",
+      "- forced_walk: direction_velocity_table byte 1 ($00, $11-$14).",
+      "- WorldMapController route steps: three indices per step (X $00CA, Y $00CC, rotation $00BC), see world_map_options.",
+      "- hit_stagger_controller: $22 (tier 0, 48 px) and $23 (tier 1 and above, 32 px).",
+      "- unused_particle_rain_spawner: indices 3-10.",
+      "",
+      "The old header said 'simple entries ($00-$11) are single constants' ($11 is a 2-node cycle, $00 a null chain) and that camera scrolling uses the table; no camera code reads it (AnimFrameLookup is called only from the three COP handler files, and the world map sets the camera from the route position).",
+      "",
+      "Checked: table, chain-end counts, node counts and all 85 chain lengths over the whole file; consumers ApplyMovement, AnimFrameLookup, both ReadDirSprite helpers, WorldMapController, hit_stagger_controller, ramps, unused_particle_rain_spawner and the COP handler headers read; SAMPLED 50 of the 85 chains node by node ($00-$17 read or dumped, $18-$27, $36, $37, $3C, $3D, $3F, $4C, $51-$54 dumped; the other 35 are only counted). Not traced at runtime (UNVERIFIED-RUNTIME): that one node is consumed per frame, and what the long curves look like in motion."
+    ],
+    "partNotes": {
+      "movement_delta_table": [
+        "85 word pointers, indexed by the movement index ($00-$54), each the head of a delta-node chain. AnimFrameLookup returns table[index x 2]; callers store it in actor field $2C (X) or $2E (Y). See the block note for the node format, the chain endings and the index families."
+      ],
+      "delta_node_01B130": [
+        "Entry $00: value 0, link $0000 (null). ApplyMovement adds 0, stores $0000 in $2C / $2E and the actor falls back to its per-actor scratch delta. The only chain with a null link."
+      ],
+      "delta_node_01B134": [
+        "Entries $01-$10 (01B134-01B170): one node each, linked to itself. $01 = +1, $02 = -1, $03 = +2, $04 = -2 ... $0F = +8, $10 = -8 pixels per frame."
+      ],
+      "delta_node_01B174": [
+        "Entry $11: +1, 0 repeating (average +1/2 per frame). The next three entries are the same idea: $12 (01B17C) -1, 0; $13 (01B184) +1, 0, 0, 0 (+1/4); $14 (01B194) -1, 0, 0, 0 (-1/4). direction_velocity_table uses all four for the slow forced walks."
+      ],
+      "delta_node_01B1A4": [
+        "Entry $15: -4 -4 -2 -2 -1 -1, four 0, +1 +1 +2 +2 +4 +4, then 0 held (17 nodes). A decelerating then accelerating swing: 14 pixels one way and back again, net 0."
+      ],
+      "delta_node_01B1E8": [
+        "Entry $16: four +1 nodes in a cycle (the same motion as $01). Entry $17 (01B1F8) is the same with -1 (the same as $02)."
+      ],
+      "delta_node_01B208": [
+        "Entry $18: a 32-node closed loop: ten 0, -2 x3, -1 x4, eight 0, +1 x4, +2 x3 (net 0), the last node links back to the head, so the actor bobs out and back forever."
+      ],
+      "delta_node_01B4D0": [
+        "Entry $22: 4 4 5 5 5 5 4 4 3 3 2 2 1 1 0 (15 nodes, 48 pixels, then 0 held). The tier 0 hit stagger knockback (hit_stagger_controller). Verified against the nodes."
+      ],
+      "delta_node_01B50C": [
+        "Entry $23: 3 3 4 4 3 3 2 2 2 2 1 1 1 1 0 (15 nodes, 32 pixels, then 0 held). The hit stagger knockback for tier 1 and above, which includes the player."
+      ],
+      "delta_node_01B9F8": [
+        "Entry $36: eight 0, then 4 4 7 7 9 9 12 12 (64 pixels out), 0 0, eight -8 (64 pixels back), then 0 held (27 nodes). An out-and-back curve; attack_ability_system names index $36 in its movement notes. Verified against the nodes."
+      ],
+      "delta_node_01BB78": [
+        "Entry $3C: +8, 0, 0, 0 repeating (4 nodes; average +2 per frame in jumps of 8 pixels). Entry $3F (01BC78) is +8, 0, 0 repeating (3 nodes)."
+      ],
+      "delta_node_01C284": [
+        "Entry $53: sixteen 0, then sixteen -1, and the last node links back to the head: -1 pixel per frame for 16 frames, still for 16, repeating."
+      ],
+      "delta_node_01C304": [
+        "Entry $54, the last chain: sixteen 0, then the $15 swing (-4 -4 -2 -2 -1 -1, four 0, +1 +1 +2 +2 +4 +4), 32 nodes, the last node links back to the head: a periodic back-and-forth, net 0."
+      ]
+    },
+    "comments": {}
+  }
+}

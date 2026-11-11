@@ -34,7 +34,7 @@
 ; === TIMELINE ===
 ; 
 ; 1. WorldMapController (WorldMapControllerEntry): characterForm := 0, two palette-reset thinkers (bundle $0B: Will's normal sprite colours, CGRAM $81-$8F), ClearAllWramFlags, mask the buttons, spawn ArrivalAndTravelSetup as a child (flags $3800). With no choice id it dies here; otherwise it gives the child animScratch2 |= $0804, saves DeferSceneTransition with SetSavedPtr and runs world_map_options[choice & $1F] (menu and handler).
-; 2. ArrivalAndTravelSetup, 44 passes of a loop that yields twice per pass (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks. It places itself (the leader's dot) at the start position, centres the camera, then each pass adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8. The divisor falls from $0400 to about $34 (hand-computed), a zoom-out from 8x in to a wide view.
+; 2. ArrivalAndTravelSetup, 44 passes of a loop that yields twice per pass (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks. It places itself (the leader's dot) at the start position, centres the camera, then each pass adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8. The divisor falls from $0400 to $54 (measured), a zoom-out from 8x in to a wide view. Only 43 passes count: the first pass runs in the tick in which Mode7PerspectiveInit stores $0400 into $B8, so its add (-$20) is overwritten; the other 43 deltas run from -$20 to -2 and sum to -940.
 ; 3. Menu trips only: wait 16 ticks (WaitByte #0F), spawn WorldMapSplitEffect, then poll $0D5A every frame (RTL = try again next frame) while the menu is open. Choosing Quit leaves it at 0: the handler has already queued the scene you came from and DeferSceneTransition just dies, so this actor idles until the scene changes.
 ; 4. Tilt phase (TiltPhaseStart), 93 ticks: shows the start-area name (see world_map_scene_names), adds the TickGravity delta ((t * (t >> 1)) >> 7, growing) to $B6 and 1 to $B8. $B6 ends at about $03F0, so the flat map tilts into a strong perspective view. Then the name is cleared ($00DA := 0).
 ; 5. Companion dots: the party array is scanned from $0D62, N companions pick entry N of companion_formation_tables, and one CompanionDotMovement actor per companion is spawned. RouteAnimationEngine is spawned and this actor becomes the leader's dot.
@@ -45,7 +45,7 @@
 ; 
 ; The spritemap (scene_meta_00FE, $1238 bytes, gfx_overworld_actors, palette pal_overworld_sprites at colour $90) has 14 animations; the spm_overworld_sprites block note lists them. The leader and companion dots use the animation index from the party array as actor field $28.
 ; - 0-5: 4-frame cycles (hold 7), one per party slot value (art identity not checked). 6: one 16 x 16 part in 4 frames.
-; - 7-A: four 5-frame sets. wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg (menu handlers set only $0D60 := 7), so these look like the pieces of one vehicle (not checked at runtime).
+; - 7-A: four 5-frame sets. wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg (menu handlers set only $0D60 := 7), so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow).
 ; - B: 3 frames of hold 1, a 79 x 48 px box of 24 parts, used as the leader by daC8_neil (Dao to Over Babel). C: the same box with 27 parts, no writer found. D: 4 frames of hold 9, 48-64 x 64 px, used as the leader by wa78_men (Watermia to South Cape).
 ; 
 ; === KEY ROUTINES ===
@@ -160,12 +160,12 @@ ArrivalAndTravelSetup {
     SEC 
     SBC #$0070            ; Camera target Y = player Y − $70 (center 224px screen)
     STA $cameraTargetY
-    COP [InitGravity] ( #20, #05, #00 ) ; v0 = $20, shift 5: delta of pass t = ((t * (t >> 1)) >> 5) - $20, negative for all 44 passes (sum about -970)
+    COP [InitGravity] ( #20, #05, #00 ) ; v0 = $20, shift 5: delta of pass t = ((t * (t >> 1)) >> 5) - $20, negative in all 44 passes (sum -972, the first one is overwritten by Init)
     COP [LoopStart] ( #2C ) ; 44 passes of zoom-out; each pass yields twice (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks
     COP [TickGravity]     ; moveScratch2 := the gravity-curve delta for this tick
     LDA $moveScratch2, X  ; Add this tick's TickGravity delta (moveScratch2) to $B8 below
     CLC 
-    ADC $00B8             ; Mode 7 divisor $B8 += delta (negative): about $0400 down to about $34, the view zooms out
+    ADC $00B8             ; Mode 7 divisor $B8 += delta (negative): $0400 down to $54, the view zooms out
     STA $00B8
     COP [SetEntryHereAndYield] ; Yield 1 of 2 in each pass: the actor resumes after this COP on the next tick
     COP [LoopEnd]         ; Yield 2 of 2: a non-final LoopEnd sets $00 to the loop head and yields; the 44th pass falls through into the next line in the same tick
@@ -392,7 +392,7 @@ formation_leader_plus_1 #78808880
 formation_leader_plus_4 #80807090909068A098A0
 
 ---------------------------------------------
-; Interpreter for the route bytes of world_map_route_table[$0D5A]. A step is four bytes: move_chain_table indices for X ($CA), Y ($CC) and rotation ($BC), then a tick count n (the step runs n + 1 ticks). Index 0 is null (that axis stands still). $FF ends the route, $FE calls a subroutine (2-byte target, one level). Each tick adds the next delta of each active axis and sets cameraTargetX/Y = centre - ($80, $70). The delta chains come from move_chain_table (constants +-1.. and half-speed alternations).
+; Interpreter for the route bytes of world_map_route_table[$0D5A]. A step is four bytes: move_chain_table indices for X ($CA), Y ($CC) and rotation ($BC), then a tick count n (the step applies n + 1 deltas and spans n frames). Index 0 is null (that axis stands still). $FF ends the route, $FE calls a subroutine (2-byte target, one level). Each tick adds the next delta of each active axis and sets cameraTargetX/Y = centre - ($80, $70). The delta chains come from move_chain_table (constants +-1.. and half-speed alternations).
 
 RouteAnimationEngine {
     PHX                   ; Load route pointer: world_map_route_table[$0D5A × 2] → $2C/$2E
@@ -422,7 +422,7 @@ RouteAnimationEngine {
     BNE RouteDeltaTables
     JMP $&RouteSubroutineCall
 
-; Normal step: byte 0 (the X chain index, already read) and bytes 1 and 2 (the Y and rotation chain indices) select the delta chains in move_chain_table ($18, $1A, $1C), and byte 3, the tick count n, is stored in $24. SetEntryHere only saves the re-entry point (it does not yield); the actor adds the next delta of each active axis and yields at the RTL in RouteCountTick, so the step applies its deltas n + 1 times, once per tick.
+; Normal step: byte 0 (the X chain index, already read) and bytes 1 and 2 (the Y and rotation chain indices) select the delta chains in move_chain_table ($18, $1A, $1C), and byte 3, the tick count n, is stored in $24. SetEntryHere only saves the re-entry point (it does not yield); the actor adds the next delta of each active axis and yields at the RTL in RouteCountTick, so the step applies its deltas n + 1 times in n frames: the actor yields after every delta except the last, and the first delta of the next step is applied in the same frame (measured on 37 routes).
 
   RouteDeltaTables:
     ASL                   ; Byte 0 (X chain index) x 2 = word index into move_chain_table for the X delta source

@@ -1,7 +1,7 @@
 ; Pushable gold statue in the Inca treasure room — variant of ir20_statue.
 ; 
 ; Same mechanics as the secret hallway statue: solid enemy with
-; push_handler_solid, $FF HP, requires Freedan's power to move.
+; push_handler_solid, $FF HP, is moved by the L / R pull of push_handler_solid, which tests only the shoulder buttons and the player's facing (no form test; the sg51 statue, which uses the same handler, was pulled as Will; this room was not run).
 ; No destruction flag — stays as a movable obstacle.
 ---------------------------------------------
 

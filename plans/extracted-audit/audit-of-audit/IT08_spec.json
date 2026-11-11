@@ -1,0 +1,90 @@
+{
+  "_note": "IT-08: factual defects I041-I050 (A04-01, A04-04, A04-05, A04-06 + A02-02 + A03-12, A04-07). Block notes by partial edit, comments by full text with an expect guard.",
+
+  "functions/SpawnItemSparkleEffect.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": " The old text ('four tile entries flanking the hit position', 'spawned during inventory-screen hit feedback') is wrong: it writes two compose-buffer entries per frame and its only spawn site is GiveItemToPlayer.",
+        "with": " It writes two compose-buffer entries per frame and its only spawn site is GiveItemToPlayer."
+      },
+      {
+        "find": "The child copies position from the actor whose slot is in X when the item is given (the in-line comment there says the player; not verified). No item id of $86 or more was found in the chest tables or GiveItem operands of extracted/, so whether this path is reachable in the shipped game is open (OQ-I042-1).",
+        "with": "The child copies its position from the spawner: GiveItemToPlayer sets D := X before the spawn (PHD / TXA / TCD), so the sparkle appears at the actor whose slot is in X when the item is given. Item id $86 is reachable: DropBodyHeal5 in EnemyDropSystem stores $0086 in chatPtr (rows 00, 06 and 0B of drop_threshold_by_hp select it, one row per HP tier), and when the player overlaps that pickup (flag $0020 in its $10) combat_collision.InteractionDamage_NPCChat runs TYX and calls GiveItemToPlayer with chatPtr, so the sparkle appears at the pickup actor."
+      },
+      {
+        "find": "What tiles $7A / $7B look like was not checked (OQ-I042-2).",
+        "with": "Not traced: what tiles $7A / $7B look like."
+      }
+    ] }
+  },
+
+  "actors/jeweler_gem.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "runs JewelerInteract when the player presses B facing him.",
+        "with": "runs JewelerInteract when the player presses the interact button (A in this build) facing him."
+      }
+    ] },
+    "comments": {
+      "577218": {
+        "text": "chatPtr = JewelerInteract: run by the talk handler in global_ambient_dispatcher when the player presses the interact button (A in this build) facing Gem",
+        "expect": "SetInteractHandler"
+      },
+      "577559": {
+        "text": "Message: \"You've collected more than three Jewels!\", then \"According to the list, you get the herb!\"",
+        "expect": "PrintDialogString"
+      }
+    }
+  },
+
+  "functions/EnemyDefeatDispatch.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "and the $12 |= $1000 priority boost on the flash is not applied.",
+        "with": "and the flash does not get the $12 bit $1000 (the display-filter qualifier that lets an actor run in RunActors_DisplayFiltered; StandardEnemyDefeatHandler sets it on its flash)."
+      }
+    ] }
+  },
+
+  "thinkers/mode7_perspective.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "Bit 2 puts the thinker into RunThinkers_TypeB, which runs after ResetHdmaState every frame;",
+        "with": "Bit 2 puts the thinker into RunThinkers_Hdma, which runs after ResetHdmaState every frame;"
+      },
+      {
+        "find": " The old notes said 'repeat'.",
+        "with": ""
+      },
+      {
+        "find": "as buffers of parallax_thinker. No check was made for scenes that use both (OQ-I041-3).",
+        "with": "as buffers of scanline_band_hdma_thinker (its buffers are $7000, $7400, $7800, $7C00, $8000 and $8400). Not traced: whether any scene runs both."
+      },
+      {
+        "find": "No reader was found in extracted/ (OQ-I041-1).",
+        "with": "No reader was found in extracted/."
+      }
+    ] },
+    "comments": {
+      "239947": {
+        "text": "$7F0B22 and $7F0B24 := $FFFF (no reader found in extracted/)",
+        "expect": "LDA"
+      }
+    }
+  },
+
+  "actors/dialog_string_scanner.asm": {
+    "blockNote": { "edit": [
+      {
+        "find": "$0100 = the scan offset after a hit, $0102 = a 16-bit copy of the stack top (the bank byte plus the low byte of the pointer).",
+        "with": "$0100 = the hit offset + 1 (the offset of the $BF signature byte: the INY after the operand read runs before TYA / STA $0100), $0102 = a 16-bit copy of the stack top (the bank byte plus the low byte of the pointer). The scan resumes at the hit offset + 4, the Y that PHY pushes after three more INY."
+      }
+    ] },
+    "comments": {
+      "778768": {
+        "text": "$0100 = hit offset + 1 (Y after the INY above); the resume offset, hit + 4, is pushed later by PHY",
+        "expect": "STA"
+      }
+    }
+  }
+}

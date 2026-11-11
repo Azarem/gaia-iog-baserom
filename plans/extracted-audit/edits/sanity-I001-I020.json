@@ -1,0 +1,122 @@
+{
+    "system/engine/actor_pool.asm": {
+        "comments": {
+            "45401": "Load the movement delta chain head pointer from movement_delta_table[index] (not a frame duration)"
+        }
+    },
+    "system/engine/system_core.asm": {
+        "comments": {
+            "33232": {
+                "text": "Run the overlay-only actor pass; UpdateFrameFull is driven from the NMI while the blocking SPC music upload runs",
+                "expect": "RunActors_OverlayOnly"
+            }
+        }
+    },
+    "system/engine/actor_execution.asm": {
+        "blockNote": [
+            "Actor execution loop system (248565–250157, Bank 03).",
+            "",
+            "Contains the complete actor update pipeline — five distinct execution contexts that the main game loop calls to process active actors each frame, plus actor/thinker pool initialization and scene actor spawning infrastructure.",
+            "",
+            "=== EXECUTION CONTEXTS ===",
+            "",
+            "Five actor processing modes selected by game state flags:",
+            "",
+            "1. RunActors_Normal (248565): Standard gameplay. Strips the attack button ($0080) from joypadCurrent while playerFlags bit 3 (combat lock, $0008) is set, then checks playerFlags for terrain shake ($0010) → PauseFiltered, or displayModeFlags ($0080) → DisplayFiltered. Processes each actor in the linked list ($56 head → $06 next). For each actor: sets DP/X to slot, runs either the script-driven path ($10 bit 13 set) or the iframe-managed path (bit 13 clear), dispatches to the actor's script via the RTL trick ($00:$02), then applies post-tick movement. Callers: main loop (system_core), scene_lifecycle (two settle ticks) and inventory_overlay (two layout ticks).",
+            "",
+            "2. RunActors_DisplayFiltered (248739): Active when displayModeFlags bit 7 set. Only processes actors with bit 12 ($1000) set in primary ($10) or secondary ($12) flags.",
+            "",
+            "3. RunActors_PauseFiltered (248893): Active when playerFlags bit 4 ($0010, terrain shake) set. Only processes actors with $12 bits 12|2 ($1004) or $10 bits 12|10 ($1400). Has a special iframe-only tail for non-immune actors.",
+            "",
+            "4. RunActors_CutsceneOnly (249087): Cutscene playback. Only processes actors with $10 bit 11 ($0800). Clears bit 2 each frame. Called only from system_core's re-entrant frame helper (used by COP handlers that must keep the screen alive).",
+            "",
+            "5. RunActors_OverlayOnly (249198): Overlay rendering. Checks display filter first. Only processes actors with $12 bit 12 ($1000). Always uses simple ApplyMovement (no collision). Called only from system_core's UpdateFrameFull, which the NMI runs while the blocking SPC music upload is in progress (so overlay actors keep animating during the upload).",
+            "",
+            "=== COP SCRIPT DISPATCH ===",
+            "",
+            "All contexts use the same indirect call mechanism: PHK / PEA PostTick-1 / SEP #$20 / LDA $02 (bank) / PHA / REP #$20 / LDA $00 (addr-1) / PHA / RTL. This pushes a return address and a target address; RTL pops the target and jumps. The -1 adjustments account for RTL adding 1.",
+            "",
+            "=== IFRAME COUNTER ($7F0028,X) ===",
+            "",
+            "Signed hit counter, handled only when bit 7 ($0080) of $10 is set and (in RunActors_Normal/DisplayFiltered/PauseFiltered) bit 13 ($2000) is clear. Positive = hit-stun (set by ApplyPlayerHitstun to $3C and by combat_collision to $0011): each tick DECs it and every actor except the player skips the rest of its tick (no script, no wait-counter, no movement), so hit victims freeze; the player is exempt here (its own movement code applies the freeze). Negative = recovery/invincibility (written as $FFC4, $FFE2, $FFEF, $FFF4 by the hit code): each tick INCs it toward zero while the actor keeps running, and combat_collision skips victims whose counter is negative. When the counter is zero the tick clears $0080. docs/wram-memory-map.md describes the same sign convention (\"positive = stunned, absolute value = frames remaining\").",
+            "",
+            "=== ACTOR/THINKER POOL (InitActorPool, 249308) ===",
+            "",
+            "Initializes both pools. Actor pool: 84 slots of $30 bytes at $1000–$1FBF (the slot address is the actor's direct page); free list at $0E00 addressed by the long pointer $4E/$50 ($50 = bank 0, not a count). Per-slot extended data is indexed by the slot address: $7F:0000+slot (= $7F1000–$7F1FBF; scratch, spriteset, stats, enemyNum, HP, iframes) and $7F:1000+slot (= $7F2000–$7F2FBF; onHit/onDeath/onCollide callbacks and scratch). Thinker pool: 16 slots of $10 bytes at $0F00–$0FFF; free list at $7E:3000 (long pointer $52/$54). Scene $FF (the inventory screen, see inventory_overlay) uses a simplified clear that skips $7F2000 and $7F3000.",
+            "",
+            "ThinkerPoolAlloc reads the next free thinker slot via indirect long [$52], returns it in Y with carry clear, or returns carry set if the pool is exhausted. Called by SpawnSceneThinkers (thinker_execution) and COP handlers (SpawnThinker/SpawnThinkerParam).",
+            "",
+            "=== SCENE SPAWNING (SpawnSceneActors, 249505) ===",
+            "",
+            "Reads the scene_actors table (indexed by sceneTableIndex = scene × 2) to spawn actors. Each actor: allocate slot via ActorPoolAllocator, link into doubly-linked list ($04/$06), call InitActorFromSceneData to parse the binary record.",
+            "",
+            "=== DEFEATED ENEMY HANDLING (AdvanceSceneDataAndFree, 249588) ===",
+            "",
+            "Called when CheckEnemyDefeatedFlag determines an actor was already killed (flag set in wramFlags). Advances the scene data pointer past the 9-byte record, then either re-uses the same slot for the next record (if more actors follow: branches back into InitActorFromSceneData) or, when the list ends, returns the allocated slot to the free list, unlinks it from the actor chain, and decrements activeActorCount.",
+            "",
+            "=== ACTOR RECORD FORMAT (InitActorFromSceneData, 249627) ===",
+            "",
+            "Variable-length record: 7 bytes without stats, 9 bytes when byte 6 is nonzero. Byte 0-1 = X/Y tile (×16→pixels), byte 2 = type flags (bit 0 = addressing mode), bytes 3-4 = code pointer, byte 5 = bank, byte 6 = stats index (0 = no stats, record ends here), byte 7 = enemy number, byte 8 = event-block index (stored as deathActionIdx; the name is historical — see CheckEnemyDefeatedFlag and StageBgChangeFromDeathIdx). Player actors (bit 15 of $10) get special init: load character form body table, set spriteset, compute camera centering.",
+            "",
+            "Enemies with nonzero enemyNum are checked against the enemy-defeat flags in wramFlags (CheckEnemyDefeatedFlag). The flags are cleared only when the world map is entered, at a few scripted points and on game over, not at every scene change (see flag_helpers, OQ-67). Already-defeated actors are freed via AdvanceSceneDataAndFree and their event block tiles are swapped."
+        ],
+        "partNotes": {
+            "CheckEnemyDefeatedFlag": [
+                "Check if an enemy was already defeated, via its enemy-defeat flag bit (wramFlags at $0A80; set by SetDungeonKillFlag/SetWramFlag when the enemy dies). The flags persist until ClearAllWramFlags runs (world map entry, st68_kara, sp58_red_eye) or game over clears them, so whether they survive a room change is still open (OQ-67).",
+                "",
+                "Converts enemy number A to a byte index (÷8 → Y) and bit position (AND #$07 → X). Looks up a bitmask from BitMaskTable_Wram ($01/$02/$04/$08/$10/$20/$40/$80) and ANDs it with the WRAM flag byte at $0A80,Y.",
+                "",
+                "If the bit is set (enemy defeated): checks for an associated event block swap. Reads the event block index (record byte 8) from the scene data at the saved Y offset. If nonzero, calls event_blocks.LookupEventBlock and event_blocks.SwapEventBlockTiles to update the tilemap for the defeated enemy's area (e.g., removing a barrier or revealing a passage). Returns carry set.",
+                "",
+                "If the bit is clear (enemy alive): returns carry clear."
+            ],
+            "RunActors_DisplayFiltered_PostTick": "Post-tick of the display-filtered pass: clears $10 bit 2 (per-frame solid-contact flag), then moves the actor with ApplyMovementWithCollision when $10 bit 3 is set, else plain ApplyMovement. Loops to the next actor while $06 is non-zero, otherwise falls into _Exit.",
+            "RunActors_DisplayFiltered_Exit": "Common exit of the display-filtered pass: PLD, PLP, RTL.",
+            "RunActors_DisplayFiltered_CopPostTick": "Post-tick entry for script-driven actors ($10 bit 13): they skip the movement step unless $12 bit 3 (movement request) is set; all others take RunActors_DisplayFiltered_PostTick.",
+            "RunActors_PauseFiltered_PostTick": "Post-tick of the pause-filtered pass: same bit-2 clear and movement choice as the other passes, then ends the pass when $06 is zero or re-enters the list body for the next actor.",
+            "RunActors_PauseFiltered_Exit": "Exit of the pause-filtered pass (PLD, PLP, RTL). The code after the RTL (loc_03CCCD) is the iframe-only tail for non-immune paused actors: a positive iframeCounter is decremented, a negative one incremented toward zero, and when it reaches zero $10 bit 7 ($0080) is cleared, so recovery keeps ticking while the world is paused.",
+            "RunActors_PauseFiltered_CopPostTick": "Post-tick entry for script-driven actors in the pause-filtered pass: movement only when $12 bit 3 is set, otherwise straight to the loop tail.",
+            "RunActors_CutsceneOnly_PostTick": "Post-tick of the cutscene pass: movement via ApplyMovementWithCollision ($10 bit 3 set) or ApplyMovement; the bit-2 clear already happened at the top of the actor loop. Ends at $06 = 0.",
+            "RunActors_CutsceneOnly_CopPostTick": "Post-tick entry for script-driven actors in the cutscene pass: movement only when $12 bit 3 is set.",
+            "RunActors_OverlayOnly_PostTick": "Post-tick of the overlay pass: always the plain ApplyMovement (no tile collision), then the next actor while $06 is non-zero.",
+            "RunActors_OverlayOnly_CopPostTick": "Post-tick entry for script-driven actors in the overlay pass: movement only when $12 bit 3 is set."
+        }
+    },
+    "system/engine/cop_handlers_dungeon_switch.asm": {
+        "blockNote": [
+            "Dungeon kill-tracking and switch-case COP handlers (44162–44225, Bank 00).",
+            "",
+            "- SetDungeonKillFlag (COP #D8): records the current enemy's defeat in the wramFlags bitfield ($0A80). That field is cleared only on world map entry, by two scripts and on game over, so a kill can outlive the room (OQ-67).",
+            "- SwitchCase (COP #D9): computed jump through a word table in the script bank.",
+            "",
+            "Both handlers return to the script by storing the next script address in the saved COP stack frame ($02,S) and executing RTI."
+        ],
+        "partNotes": {
+            "SetDungeonKillFlag": "COP #D8 with no script operands. Reads the actor's enemyNum ($7F:0022,X — the dungeon enemy number used for kill tracking) as a flag index and, when its low byte is non-zero, calls SetWramFlag to set that bit in the wramFlags bitfield ($0A80), recording the kill (cleared only as described in flag_helpers, OQ-67). Index 0 is ignored."
+        }
+    },
+    "system/engine/combat_collision.asm": {
+        "partNotes": {
+            "CombatCollision_Exit": "Common exit of the combat pipeline: PLB, PLP, RTL.",
+            "PlayerAttackHitTest_End": "Tail of PlayerAttackHitTest: resets the direct page to 0 (TCD) and returns with RTS.",
+            "EnemyHitPlayer_Epilogue": [
+                "Mid-routine label inside EnemyHitPlayerHandler, not a real epilogue. Its first two instructions (TXY, RTS) are the landing target of the PEA epilogue−1 RTS trick that finishes the push/knockback path of the handler (Y = X on return). The rest of the part, entered at loc_03BF86 when $24 is zero, is the combat-damage path: totalStr = playerStr + bonus + climbStateData, rawDamage = max(1, totalStr − victim DEF), netDamage = rawDamage + characterForm, victim HP clamped at 0.",
+                "",
+                "Then it spawns the damage digits (skipped for $12 bit 5 bosses), marks the victim $0080, resolves death inline (onDeathCallback or StandardEnemyDefeatHandler) or spawns HitStaggerMain, dispatches and clears onHitCallback, sets the iframe counter ($FFEF or $0011), plays hit sound #05, updates the HUD HP registers and finally handles the onCollideCallback of the attacker. A player with the invincible flag ($10 bit 4) is diverted to InvinciblePlayerHit."
+            ],
+            "InteractionCollision_Exit": "Common exit of the interaction pipeline: PLB, PLP, RTL.",
+            "InteractionCollision_FriendlyMode": "Interaction pass for friendly NPCs: walks actorRenderList and skips every actor with any of $3540 set in $10, requires $0020 (friendly) to be set, then tests the probe box in $18–$1E against the actor's hitbox bytes (metasprite +4..+7) without horizontal mirroring. The first overlap calls ApplyInteractionDamage and returns, so at most one actor is processed per call."
+        }
+    },
+    "system/engine/DialogStringRenderer.asm": {
+        "partNotes": {
+            "DialogCmd_InfiniteLoop": "Command that spins on a BRA to itself, deliberately halting the dialogue engine (NOPs pad the loop).",
+            "DialogCmd_WaitFrames": "Command with a 1-byte operand: waits that many frames through WaitNFrames_Entry, then skips the operand byte.",
+            "DialogCmd_AdvanceCursor": "Command with a 1-byte operand: the amount is rounded down to an even byte count (whole tile words) and added to the VRAM buffer cursor X, which is also stored to $0998. An amount of 0 or 1 does nothing.",
+            "DialogCmd_InsertRemoteString": "Command with a 3-byte operand (address, bank): saves the cursor to $0998, switches DBR to the operand bank, calls DialogStringRenderer recursively on that string, then restores the cursor and DBR and skips the operand.",
+            "DialogCmd_JumpToAddress": "Command with a 2-byte operand: loads it into Y so the character loop continues at that address in the current bank.",
+            "DialogCmd_SetSfx": "Command with a 1-byte operand: stores it as the per-character sound effect ID in $0996.",
+            "WaitNFrames_Loop": "Counts A down, calling UpdateFrameDialogue once per frame (the lightweight tick: audio and display, no game logic)."
+        }
+    }
+}

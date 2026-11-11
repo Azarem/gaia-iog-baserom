@@ -1,0 +1,120 @@
+{
+  "_note": "FL25 notes spec: corrections of shipped block and part notes of seaside_palace, mu and item_use_system that the extracted asm contradicts. Run with --dry-run first.",
+  "mu/mu_tint_and_wave.asm": {
+    "blockNote": [
+      "Mu underwater visual effects — tint and HDMA wave.",
+      "",
+      "Thinker of the Mu scenes $5F, $60, $61, $62, $64 and $65 (not the prayer room $63, the altar room $66 or the vampire lair $67). While scene setup flag $FF is clear it writes the COLDATA colour pair every frame: #$2A and #$44, or #$28 and #$41 when flag $7B (Statue of Hope on the west pedestal) is set. It then starts a sine HDMA (InitSineHdma) and, once $FF is set, ticks the wave and binds the two wave tables $7E8800 and $7E8C00 each frame."
+    ]
+  },
+  "seaside_palace/palace_coffins/sine_hdma_dual_channel.asm": {
+    "blockNote": [
+      "Dual-channel sine HDMA wave of the Seaside Palace.",
+      "",
+      "Thinker of the palace scenes $5A, $5B and $5C and of scene $6F. It starts a sine HDMA (InitSineHdma #$8800, #08) and restarts it every frame while scene setup flag $FF is clear; once $FF is set it ticks the wave (TickSineHdma #02, #02) and binds the wave tables $7E8800 and $7E8C00 (BindSineHdma, #0F and #10) each frame."
+    ]
+  },
+  "seaside_palace/palace_coffins/palace_coffin_hdma_table.asm": {
+    "blockNote": [
+      "HDMA table thinker of the Seaside Palace coffin scene ($5C).",
+      "",
+      "On its first pass it fills 17 three-byte rows ($90 and the pointer $7100) of the staging buffer $7E7000 and a table of zero words at $7E7100, queues the buffer with QueueHdma (#21), yields and sets scene setup flag $FF. From then on it queues the same buffer every frame while $FF is set and rebuilds the table if $FF is clear."
+    ]
+  },
+  "seaside_palace/palace_fountain/palace_fountain_palette.asm": {
+    "blockNote": [
+      "Fountain palette animation of the Seaside Palace fountain room (scene $5D).",
+      "",
+      "Thinker that sets scene setup flag $FF and then steps a palette every frame: palette #25 while the fountain is not purified (flag $70 clear), palette #1A once $70 is set. While scratch $0F is set (the fountain actor is fading the backdrop) it parks until $0F clears."
+    ]
+  },
+  "mu/mu_west/mu62_hope_statue.asm": {
+    "blockNote": [
+      "Statue of Hope pickups of the Mu west room (scene $62) and the Mu maze (scene $65).",
+      "",
+      "mu62_hope_statue sets flag $78 as soon as it spawns, installs an interact handler and dies once flag $79 is set. The handler does nothing while music is playing; otherwise it calls GiveItem #12 (Statue of Hope), sets $79 and shows \"You've found the Statue of Hope! ... Was there a room with the same name...?\". A full inventory prints the inventory-is-full message and leaves $79 clear. mu62_hope_statue2 (the maze) does the same with flag $7F and the text \"Was there another room with the same name...?\".",
+      "",
+      "The statue is a key item: UseItem_StatueOfHope consumes it on a pedestal of the prayer room (scene $63). It gives no stat boost."
+    ]
+  },
+  "mu/mu_prayer_room/mu63_spirits.asm": {
+    "blockNote": [
+      "Statue of Hope pedestal show in the Mu prayer room (scene $63).",
+      "",
+      "A player standing inside tiles (10,00)-(20,10) when the actor spawns selects the east branch (flag $7E, pedestal at pixel (0180,0058)); otherwise the west branch runs (flag $7B, pedestal at (0080,0058)). With the branch's flag already set the actor only spawns the placed-statue sprite and dies. Otherwise it waits for UseItem_StatueOfHope to set the flag, spawns the sprite, locks the joypad ($CFFC), plays music #1B, fades the backdrop in and spawns ten helper sprites (six of code_069C14, four of code_069BDA). It then prints the single text \"The Sun god... Rama... The ocean holds a power...\", sets scratch $02 so that every helper sprite leaves, fades the backdrop out, unlocks the joypad and dies."
+    ]
+  },
+  "mu/mu_altar_room/mu66_altar1.asm": {
+    "blockNote": [
+      "Statue sprite and scene reload of the first altar in the Mu altar room (scene $66).",
+      "",
+      "Waits for flag $80 (Rama Statue placed on the first pedestal by UseItem_RamaStatue), shows its statue frame #2D and waits for $81. When both flags are set and the player stands outside tiles (00,00)-(20,20) it locks the joypad ($CFFC), waits #1D ticks and queues a map change to scene $66 at pixel (00F8,01D8). It sets no flag."
+    ]
+  },
+  "mu/mu_altar_room/mu66_altar2.asm": {
+    "blockNote": [
+      "Statue sprite of the second altar in the Mu altar room (scene $66).",
+      "",
+      "Waits for flag $81 (Rama Statue placed on the second pedestal by UseItem_RamaStatue), then shows its statue frame #2D and idles. It sets no flag."
+    ]
+  },
+  "mu/mu_vampire_lair/mu67_bomb.asm": {
+    "blockNote": [
+      "Bomb of the Mu vampire lair (scene $67) — a two-wire question and a countdown.",
+      "",
+      "The bomb stands solid next to Erik. Its interact handler asks \"There's a red wire and a blue wire sticking out of the bomb... Cut which one?\"; either answer prints \"The red wire is cut!\" or \"The blue wire is cut!\" and sets scratch $01, so the choice has no consequence. Once enemiesRemaining is 0 the main script changes the player back to Will if needed, applies BG changes #46 and #47 and sets $0146 and $0147; then it waits for $01. After the wire is cut it locks the joypad, plays music #1B and sound #2C, prints \"Will: The bomb has been defused...\" with Erik's and Lilly's lines, sets scratch $03 (Neil's cue), applies BG change #93, unlocks the joypad and dies.",
+      "",
+      "A second actor spawned at the start is the countdown. It waits for scratch $02 (the fight has started), counts down from BCD $0140 by one per #3C ticks (paused while displayModeFlags bit $2000 is set), shows the digits with ComposeDigitSprites and dies when $01 is set. If the count passes zero while a vampire is alive, playerHp is set to 0; with both vampires dead it prints \"It was a dud. I'm saved...\"."
+    ]
+  },
+  "mu/mu_vampire_lair/mu67_vampires.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Two-phase boss: first the Vampire, then the Vampiress.",
+          "with": "Boss pair: the Vampire and the Vampiress are two enemy actors spawned together (scene $67 rows $03 and $04); the Vampiress waits for scratch $02, which the Vampire sets after the intro scene, and both then fight at the same time."
+        }
+      ]
+    }
+  },
+  "seaside_palace/palace_coffins/sp5C_key_coffin.asm": {
+    "blockNote": [
+      "Key coffin of the Seaside Palace (scene $5C) — Lilly looks inside; no item is given.",
+      "",
+      "Dies at spawn when word flag $013A is set. Otherwise it installs an interact handler and waits for scratch $01. The handler prints \"Will: The coffins are lined up...\" while flag $6F is clear; with $6F set it prints \"Will: I can't seem to open the lid... Lilly: Wait a minute. Isn't there a hole in the coffin?...\" and sets $01. The main script then locks the joypad ($CFFC), moves a sprite (frame #33 of spriteset_pickups_effects) from the player to the coffin, applies BG change #3A, sets $013A, prints \"Lilly: Strange... There's a key fastened inside this coffin. No wonder it didn't open.\", moves the sprite back to the player, unlocks the joypad and dies."
+    ]
+  },
+  "seaside_palace/palace_coffins/sp5C_stone_coffin.asm": {
+    "blockNote": [
+      "Stone coffin of the Seaside Palace (scene $5C) — Lilly finds the Purification Stone (~151 lines).",
+      "",
+      "Dies at spawn when word flag $013B is set. The interact handler prints \"Will: The coffins are lined up...\" while flag $6F is clear; with $6F set it prints the \"Isn't there a hole in the coffin?\" dialog and sets scratch $02. The main script then locks the joypad ($CFFC), moves a sprite (frame #33 of spriteset_pickups_effects) from the player to the coffin, applies BG change #3B, sets $013B and calls GiveItem #11 (Purification Stone): Lilly says \"I found a strange stone inside this coffin.\" and \"You've found the Purification Stone!\" is shown. When GiveItem fails (inventory full) the script prints \"...But your inventory is full...\"; when it fails or music is playing it clears $013B and $02, moves the sprite back and waits for the next talk."
+    ]
+  },
+  "seaside_palace/palace_fountain/sp5D_fountain.asm": {
+    "blockNote": [
+      "Demon fountain of the Seaside Palace (scene $5D) — the Purification Stone cutscene (~112 lines).",
+      "",
+      "Dies at spawn when flag $70 is set, when $6F is clear or when the player does not hold item #11 (Purification Stone). Otherwise it locks the joypad, prints \"Lilly: What!! It's a strange fountain... Could there be a connection between this and the rock...?\", unlocks and waits for scratch $0E, which UseItem_PurificationStone sets inside tiles (0A,11)-(17,1A). It then locks the joypad ($EFFC), plays sound #25, moves its sprite from the player toward pixel (0100,0160), fades the backdrop out (scratch $0F is set while this runs), sets $70 (fountain purified), clears the fountain's solid tile (0D,0F) and unlocks the joypad."
+    ]
+  },
+  "seaside_palace/palace_main/sp5A_voice.asm": {
+    "blockNote": [
+      "Strange voice and room hints of the Seaside Palace (scene $5A).",
+      "",
+      "While flag $70 is clear it checks five trigger boxes each frame; each box prints its text once and sets its latch. (37,28)-(38,29) with $71: \"Strange Voice: This is the Palace of Vampires... The fountain in this palace produces demons continuously...\". (0E,38)-(0F,39) with $72: \"In the basement of the castle is a strange fountain. The stone is there... Hurry! Hurry!\". (2B,59)-(2C,5A) with $73: \"The Purification Stone... in the castle...\". (36,07)-(3B,0B) with $83: \"Will: What? A sign of life from the right-hand room...\". (08,18)-(0B,1A) with $84: the same remark for the left-hand room."
+    ]
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_SeasidePalaceKey": {
+        "edit": [
+          {
+            "find": "Seaside Palace Key — open the palace entrance (scene $5A).",
+            "with": "Seaside Palace Key — open the door to the Mu passageway on the top floor of the palace (scene $5A)."
+          }
+        ]
+      }
+    }
+  }
+}

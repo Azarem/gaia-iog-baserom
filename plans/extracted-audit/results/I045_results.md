@@ -1,0 +1,58 @@
+# I045 results
+
+Files: `system/player/player_move_main.asm` (Bank 02), `functions/ApplyOrbitalOffsetFromRef.asm` (Bank 00), `actors/particle_rain_spawner.asm` (Bank 0B).
+Spec: [edits/I045.json](../edits/I045.json). New proposals: [renames/I045_renames.md](../renames/I045_renames.md). New questions: [questions/I045_questions.md](../questions/I045_questions.md).
+
+Conventions (unchanged): verdicts **P/M/F/NA**; dispositions **FIXED / PROPOSED / DEFERRED-EVIDENCE / NOFIX**; evidence **E1** code trace, **E2** cross-reference, **E3** docs, **E4** hardware, **E5** runtime (always UNVERIFIED-RUNTIME, no Mesen2 in this session). Q1 comment density, Q2 value, Q3 accuracy, Q4 mnemonic/address accuracy, Q5 mnemonic opportunity, Q6 part naming, Q7 evidence quality.
+
+### File 1: system/player/player_move_main.asm (Bank 02)
+
+Evidence: E1 (the whole file; `player_move_controller` in full for the call, the scratch words and the write-back; `tile_collision` for the probes, `SetActorCollisionFlag`, `ApplyMovementDeltas` and the `$000A` contract; the verified headers of `player_move_ns`, `player_move_south`, `player_move_east` for the stack contract and the `$AA` / `$AB` bits; `actor_execution` is not involved), E2 (`rg` for every read and write of `$AA` / `$AB` in `extracted/`; all callers of `AutoAlignEW`, `ComputeYSnapOffset`, `NudgeToLowerGrid`, `NudgeToUpperGrid`, `DiagSnapCompute_Unused`), E3 (`docs/code/bank02/player-movement.md`).
+
+| Q | Verdict | Findings and evidence | Disposition |
+|---|---------|-----------------------|-------------|
+| Q1 | M | A long header, but only a handful of inline comments, none on the helper arithmetic of `AutoAlignEW`, the nudges or the unused routine | FIXED (block note, 19 part notes, 197 comments covering every instruction) |
+| Q2 | M | A reader could not tell what X is at entry, what the scratch words hold or why the stack is used | FIXED (entry contract, scratch-word map, stack contract, flag table in the block note) |
+| Q3 | **F** | (a) **X at entry is the controller's slot, not the player actor**: `PlayerMoveController` does `STX $000A / TXY / JSL`; the tick clears and later sets bit `$0004` in the controller's own `$10`, and the controller copies it to the player. (b) **`$AA` bit `$0040` is not a "diagonal" flag**: it is set before both horizontal dispatches and means "the horizontal phase ran this tick" (read by `AutoAlignEW` and `AutoAlignEW_South`). (c) **`$AA` bits `$0800` / `$0400` ("south wall", "east wall") are never set**: `rg` finds only tests here and `TRB` in `player_move_west`, so the two gates always pass. (d) **`$22` / `$26` are positions, not deltas**: the old comments said "sub-pixel X delta"; the controller loads them with `x * 4` and the tick stores `>> 2` back as the pixel position. (e) **`ComputeYSnapOffset` returns 1..16, not 0..15**: `16 - (Y and $0F)`, so a flush probe gives `$10` (the header example "`$00` gives `$0000`" is wrong) and `$1E` is a pixel Y. (f) **`AutoAlignEW` ranges**: east first for n >= 6 (the old text said "6-8"), west for n < 9 (the old text said "1-8, via 9+ check"), exclusion types `$06` (east) and `$09` (west). (g) **`DiagSnapCompute_Unused`**: `$06` / `$09` are the undecoded wall-like types, not a "slope / transition" type; the `OR #$C000` only sign-extends a negative `$24`; no `DispatchDiag*` system exists. (h) **Nudge helpers**: `NudgeToLowerGrid` is +8 (east or south), `NudgeToUpperGrid` is -8, both clamp flush to the `$40` line; the `-$20 / +$20` around each call moves the reference to the left edge | FIXED |
+| Q4 | M | Operands `$20` ... `$26`, `$AA`, `$000A`, `#$FFC0` had no unit or meaning | FIXED (comments on every operand; scratch map in the block note) |
+| Q5 | M | The bare DP words `$20`-`$26`, `$AA`, `$AB`, `$1A`, `$1E` repeat across all six `player_move_*` files and `tile_collision` | PROPOSED (R-I045-3) |
+| Q6 | M | `AutoAlignEW` hides that it is the north variant (the south one is `AutoAlignEW_South`); the nudge names suggest screen directions; three `loc_` labels are the phase anchors | PROPOSED (R-I045-1, R-I045-2, R-I045-4) |
+| Q7 | M | E1 + E2; the purpose of publishing the pixel position between the phases, the dead `$AA` gates and the wall types are not runtime-verified | DEFERRED-EVIDENCE (OQ-I045-1, OQ-I045-3) |
+
+### File 2: functions/ApplyOrbitalOffsetFromRef.asm (Bank 00)
+
+Evidence: E1 (the whole file; `Multiply8x8Unsigned` in `hardware_math` for operand order and for carry / Y preservation; the headers of `sine_table_8bit` and `signed_cosine_table_8bit` in `math_lookup_tables`; the sibling `ApplyOrbitalOffsetXY` header, already audited, for the elliptical variant), E2 (all 21 JSL sites counted per file and per entry with `rg -F`; `SpiralStep` in `cop_handlers_effects` for the reference-actor convention; `mtA1_fire_sprite` for a caller of the second entry that sets `$14` / `$16` itself), E3 (`docs/code/README.md`).
+
+| Q | Verdict | Findings and evidence | Disposition |
+|---|---------|-----------------------|-------------|
+| Q1 | M | A four-line header and one comment (misplaced on the first instruction) | FIXED (block note, 6 part notes, 46 comments) |
+| Q2 | M | The header did not say that the angle and diameter are bytes, what the offset range is, which way the angle turns or what the second entry is for | FIXED |
+| Q3 | **F** | (a) **Byte-sized inputs**: only the low byte of `orbitAngle` and of `orbitDiameter` is read (256 steps per turn, diameter <= 255). (b) **Offset = about +/- diameter / 2** (table peak `$7F`, product `>> 8`), so "diameter" is the circle's full width; the old header called it multiplied "by orbitDiameter" without scale. (c) **Direction**: angle 0 is directly below the centre, `$40` east, `$80` north, `$C0` west: counter-clockwise on screen. (d) **Second entry** `code_00F3D3` adds to the current `$14` / `$16` and has 5 of the 21 JSL sites (`mtA1_fire_sprite` 2, `attack_ability_system`, `pyDD_queen_spirit_attack`, `unused_mode7_boss`); the first entry has 16. (e) **Call-site count**: 21 sites in 11 files (the "15+" is imprecise); the old part note said "Lily orbit effects, player attack orbs" which is right for `ec0E_lily` and `attack_ability_system`. (f) The carry flag carries the sign across `Multiply8x8Unsigned`, which preserves carry and Y | FIXED |
+| Q4 | P | Operands and the table references are accurate; `$orbitAngle` and `$orbitDiameter` are the existing mnemonics | NOFIX |
+| Q5 | NA | `orbitAngle` / `orbitDiameter` already exist (this routine's callers also use them as plain words, see R-I046-5 for the hit-stagger reuse) | NOFIX |
+| Q6 | M | `code_00F3D3` is the second entry of a documented routine and is called from 5 sites by its address name | PROPOSED (R-I045-5) |
+| Q7 | M | E1 + E2; no runtime trace of the circle direction or of a caller whose centre was not set before the second entry | DEFERRED-EVIDENCE (OQ-I045-5) |
+
+### File 3: actors/particle_rain_spawner.asm (Bank 0B)
+
+Evidence: E1 (the whole file; `WaitByte` and the `waitCounter` handling in `actor_execution` for the N + 1 tick rule; `SetEntryHereAndYield`; `StageMoveX/Y/XY`, `ReloadMoveDurations`, `AnimOnce` and `SetSpritePriority` handlers; `movement_delta_table` entries `$00`-`$0A`; `sprite_set_0EE0A6` for animation list 2; `EnemyDeathFlash` header for "a hold of n shows a frame for n + 1 ticks"), E2 (`rg` for `particle_rain_spawner`, `ParticleRain`, the address range `0BD2A`-`0BD2B` and the block and name files: no scene, script or thinker references it), E3 (`docs/code/bank0B-late-bosses-system-cutscene-actors.md` already lists it as an unreferenced development remnant).
+
+| Q | Verdict | Findings and evidence | Disposition |
+|---|---------|-----------------------|-------------|
+| Q1 | M | A paragraph header, 11 comments, no explanation of the numbers | FIXED (block note, 6 part notes, 37 comments covering every instruction) |
+| Q2 | M | The header claimed a use and mis-described the motion | FIXED |
+| Q3 | **F** | (a) **The values `4, 6, 8, 10` and `3, 5, 7, 9` stored in `moveXAlt` / `moveYAlt` are movement-delta indices, not velocities**: odd = `+n`, even = `-n` pixels per frame (index 3 = +2, 4 = -2 ...), so the drop moves X by -2, -3, -4 or -5 and Y by +2, +3, +4 or +5: **diagonally down-left at 45 degrees**. (b) **The delay**: the wait counter resumes after N + 1 ticks, so the first interval is 120 ticks and the sequence is 120, 119 ... 5, then 5 forever (the old text said the minimum is 4); the rain gets denser (the old part note said "decelerates"); the ramp is 7,250 ticks. (c) **Not used**: no reference to the spawner exists in `extracted/`, so "Used for the ending credits particle rain" is unsupported. (d) **The death test runs once per animation pass (21 ticks), not per frame**, and is an unsigned compare; the numbers say every drop passes its first check. (e) The anim is list 2 of `spriteset_enemies` (7 frames, hold 2) and the operand `#30` of `SetSpritePriority` is the pre-shifted value for OAM priority 3. (f) The X start is `$C4-$2C2` in steps of 2 and shares its random byte with the speed pick | FIXED |
+| Q4 | M | `$24` was the delay but unnamed; `#$1802` is the child's flags word | FIXED (comments, block note) |
+| Q5 | NA | `moveXAlt` / `moveYAlt` exist; the semantics (movement indices) are in the comments | NOFIX |
+| Q6 | M | The block is an unused actor but has no `unused_` prefix like `unused_mode7_boss` | PROPOSED (R-I045-6) |
+| Q7 | M | E1 + E2; the on-screen look, the first-pass survival and the lack of any runtime path to the spawner are not verified | DEFERRED-EVIDENCE (OQ-I045-2, OQ-I045-4) |
+
+### Shared gate (I045)
+
+`npm run merge -- plans/extracted-audit/edits/I045.json --dry-run` reported 3 block notes (all updated), 31 part notes (23 new, 8 updated) and 280 comments (204 new, 76 updated). Per file: `player_move_main` 19 parts (13 new, 6 updated) and 197 comments (134 new, 63 updated); `ApplyOrbitalOffsetFromRef` 6 parts (all new) and 46 comments (44 new, 2 updated); `particle_rain_spawner` 6 parts (4 new, 2 updated) and 37 comments (26 new, 11 updated). After the real merge, `npm run extract:lt` and the repeated dry run reported 0 files to change. `npm run rebuild` finished successfully and `artifacts/crc.json` reads checksum 223006080, crc 2083230829, totalSize 3062204 (unchanged). The I046 spec was merged in the same session (see its results file).
+
+Docs that repeat the old claims (not edited, `docs/` is outside the allowed folder): `docs/code/bank02/player-movement.md` lines 17-21, 68, 82-175 and 1042 (`$AA` as "direction flags" with "suppressed" directions, `$22` / `$26` as committed "deltas", `DiagSnapCompute_Unused` described as mirroring the wall-slide code with `ComputeWallSlidePush` as its "active equivalent", the `AutoAlignEW` step table); `docs/code/bank00/README.md` lines 722 and 869 ("15+ refs" / "~15"; 21 sites) and `docs/code/bank00/functions-camera-motion.md`; `docs/code/bank0B-late-bosses-system-cutscene-actors.md` lines 466-468 and 619 (particles "rise via `ReloadForceMove`" from the "screen top"; they fall); `docs/cop/families/force_move.md` line 376 ("reapplies velocity each tick": it reloads the chains once per 21-tick animation pass) and `docs/cop/families/oam_attribs.md` line 199 (a "weather" effect that is not used).
+
+Suggested commit message: `audit(I045): document PlayerMovementTick (controller-slot entry, scratch words, parked vertical velocity, $AA flags that are never set, AutoAlignEW ranges, nudge clamps), ApplyOrbitalOffsetFromRef (byte inputs, r = diameter/2, counter-clockwise from below, 21 call sites) and the unused particle_rain_spawner (movement indices = diagonal 45-degree fall, 120..5 tick ramp)`
+
+Please commit when you're ready.

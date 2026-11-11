@@ -2,11 +2,11 @@
 ; 
 ; === SPAWN AND PARAMETERS ===
 ; 
-; SpawnAfterFlags ( EscortFollowPathTracker, #$2000 ) (#$2800 in btDE_kara_missing) in ec0A_kara, it1A_lily, ir1C_lily, eu97_clerk2, btDF_kara, btDE_kara_missing and btE3_kara. The child sits right behind its parent in the actor list, so its $04 (prevActorLink) is the NPC. The spawner sets orbitAngle = initial facing + 1 (Lily: 4, so facing 3) or 0 (use the player's current facing), and orbitDiameter = the NPC's base animation index (Lily: $1A).
+; SpawnAfterFlags ( EscortFollowPathTracker, #$2000 ) (#$2800 in btDE_kara_missing) in ec0A_kara, it1A_lily, ir1C_lily, eu97_clerk2, btDF_kara, btDE_kara_missing and btE3_kara. The child sits right behind its parent in the actor list, so its $04 (prevActorLink) is the NPC. The spawner sets orbitAngle = initial facing + 1 (Lily in it1A_lily and the clerk in eu97_clerk2: 4, so facing 3; Lily in ir1C_lily: 3, so facing 2) or 0 (use the player's current facing), and orbitDiameter = the NPC's base animation index (Lily: $1A).
 ; 
 ; === RING BUFFER at $7EDF00 ===
 ; 
-; Eight-byte entries: X word, Y word, facing word, unused. The setup writes 9 entries (offsets $00-$40): a trail that starts at the NPC and steps 2 px per entry along the table row of the facing index. The row is the OPPOSITE direction and the entry's facing word the opposite facing (EscortFollowPathDeltaTable: facing 0 South steps Y -2, 1 North Y +2, 2 West X +2, 3 East X -2). Only 8 entries are ever read: every access masks orbitAngle with $3F, so the byte offset runs $00-$38 and the ninth entry ($7EDF40) is unreachable. No other code uses $7EDF00.
+; Eight-byte entries: X word, Y word, facing word, unused. The setup writes 9 entries (offsets $00-$40): a trail that starts at the NPC and steps 2 px per entry along the table row of the facing index. The row is the OPPOSITE direction and the entry's facing word the opposite facing (EscortFollowPathDeltaTable: facing 0 South steps Y -2, 1 North Y +2, 2 West X +2, 3 East X -2). Only 8 entries are ever read: every access masks orbitAngle with $3F, so the byte offset runs $00-$38 and the ninth entry ($7EDF40) is unreachable. At the first idle frame the NPC shows orbitDiameter + the facing word of the head entry: seed 4 gives facing word 2 (animation $1C for Lily in it1A_lily), seed 3 gives facing word 3 (animation $1D for Lily in ir1C_lily). The region $7EDF00-$7EDF7F is shared: QuintetLzDecompress, FillHorizTilemapSeg, FillVertTilemapSeg, InterleaveTilesPriority and RenderPaletteTiles (scene_script), the credits copy in sF7_credits and the boot memory fill also read or write it.
 ; 
 ; === PER FRAME (after SetEntryHereAndYield) ===
 ; 
@@ -14,7 +14,7 @@
 ; - Player moved: the NPC jumps to the head entry (written 8 recorded frames ago), the head entry is overwritten with the player's current X / Y, and when the head entry's facing differs from $0E the NPC gets animation orbitDiameter + facing + 4 ($28; $2A and $08 cleared). Then the head entry's facing is refreshed with the player's current facing and the head advances by 8.
 ; - Player still: the NPC shows animation orbitDiameter + facing of the head entry (no +4); its position is untouched, the head does not advance and $0E := $FFFF so the next move restarts the walk animation.
 ; 
-; Edge: GetPlayerFacingDirection returns carry set and A >= 4 for an unknown facing; the table index then runs past the four rows; whether a caller can reach that case is not traced. The head advances only on frames where the player moved, and the first use of orbitAngle is a seed, not a timer.
+; Edge: GetPlayerFacingDirection returns carry set and A >= 4 for an unknown facing; the table index then runs past the four rows; FacingDirectionLookup holds 4 at the player animation frames $4A-$4F and $54-$57, and the Will ability table holds 4 at frames $18-$1A; the tracker tests neither the carry nor the range. The carry was clear in every measured move (1016 facing writes: Lily and the clerk), so no run reached that case. The head advances only on frames where the player moved, and the first use of orbitAngle is a seed, not a timer.
 ---------------------------------------------
 
 ?INCLUDE 'GetPlayerFacingDirection'

@@ -1,0 +1,1512 @@
+{
+  "actors/hit_stagger_controller.asm": {
+    "blockNote": [
+      "Hit knockback and recovery controller (Bank 00, 55415-55927). One short-lived actor is spawned per hit. It slides the victim along one axis for 16 frames by moving ITSELF (collision-checked movement) and copying its position to the victim every frame, then either hands control back (player) or resolves the hit (enemy: HP check, hit / death callback). It has no sprite and is never placed by a scene.",
+      "",
+      "=== SPAWN CONTRACT ===",
+      "",
+      "Four spawn sites: ApplyPlayerHitstun and combat_collision.ApplyInteractionDamage (flags word $2400, victim = the player) and the two enemy-hit paths in combat_collision (flags $2000). The flags word becomes the child's $10: $2000 = script-driven run path (own wait counter; actor_execution moves such an actor only while $12 bit 3 is set), $0400 = 'the victim is the player': the controller tests it to choose HitStaggerReturnAI instead of HitStaggerResolveHit (the old note said $0400 marks an enemy and that ReturnAI 're-enables AI for enemies'; ReturnAI only ever handles the player). CopyActorState gives the child the victim's position, anim index, $12 (without $1000) and, in $24, the victim's slot. The spawner then stores a direction code in the child's $28 and zeroes its $2C / $2E, and copies the victim's extendedFlags bit $0020 ('hitstun skip' in the WRAM map) into the child.",
+      "Direction code in $28: 0 = south, 1 = north, 2 = west, 3 = east (CalcKnockbackDirection), 4 or more = no knockback. free101C ($7F101C) of the victim is a knockback TIER: 0 for ordinary actors, 1 for the player (player_character init) and mu5F_cyclops; the only writers in extracted/ are CopyActorState (zero), those three and this file (copy to the child).",
+      "",
+      "=== HitStaggerMain ===",
+      "",
+      "$10 |= $0008 (collision-checked movement) unless the victim has extendedFlags $0020; $12 |= $0008 (movement request for a script-driven actor). If $12 bit $0010 is set (inherited from the victim: stagger-immune in combat_collision) or the direction code is 4 or more, there is no knockback: WaitByte #$0F (16 ticks), then ReturnAI (player) or ResolveHit. Otherwise the victim's pixel X / Y are saved in orbitAngle / orbitDiameter ($7F0010 / $7F0012: no orbit here, the words are reused as the START position), the tier is copied, and the direction code is decoded by chained DEC / BMI (the old note spoke of a '3-deep stack-encoded direction index'; there is no such stack): 0 = Y chain (carry set), 1 = Y chain with ForceDirBoth (negated), 2 = X chain with ForceDirBoth, 3 = X chain (carry clear). Each branch first clears the inherited ForceDir bits ($6000 of $12). The branches JSR HitStaggerApplyKnockbackDelta, which pushes HitStaggerStoreMovementDelta as a return address; that routine stores the movement chain head in $2E (carry set, $26 := 0, vertical) or $2C (carry clear, $26 := 1, horizontal; the old doc had the axis flag the other way round). The RTS chain ends in HitStaggerDirection (pushed by Main).",
+      "Curves (movement_delta_table, one delta per frame, pixels): tier 0 uses entry $22 = 4 4 5 5 5 5 4 4 3 3 2 2 1 1 0 (sum 48 px = 3 tiles); tier 1 and above use entry $23 = 3 3 4 4 3 3 2 2 2 2 1 1 1 1 0 (sum 32 px = 2 tiles). The player is tier 1.",
+      "",
+      "=== HitStaggerDirection (the 16-frame slide loop) ===",
+      "",
+      "SetEntryHereAndYield, then LoopStart #$10: 16 frames in which the child's $14 / $16 are copied into the victim. After the loop: the player ($10 bit $0400) goes to ReturnAI. An enemy without $10 bit $0008 goes straight to ResolveHit. Otherwise the distance travelled along the axis ($26 = 0: Y, else X) is d = |start - current|: d = 0 resolves at once; if d is a multiple of 16 HitStaggerCheckKnockbackDistance compares it with the tier threshold (tier 0 $30, tier 1 $20, tier 2 and above $40) and carry CLEAR (equal = the full slide happened) resolves; any other d is a CUT-SHORT slide (a wall stopped it): the victim's chain pointer and delta word on the knocked axis are zeroed ($2E and $7F002E for a vertical slide, $2C and $7F002C for a horizontal one) and its wait counter $08 is zeroed when it has no chain on the other axis, so its script resumes immediately (purpose inferred, OQ-I046-3). The thresholds equal the curve sums (48 and 32), which is why a full slide matches exactly; tiers 2 and 3 use the 32-px curve with a $40 threshold and could never match (no actor uses them).",
+      "",
+      "=== HitStaggerResolveHit (enemy) ===",
+      "",
+      "HP ($7F0026) nonzero: if onHitCallback ($7F1000) is set it becomes the victim's entry address (low word only, the bank word is unchanged) and is cleared; the victim's iframe counter becomes $FFF4 (-12, recovery). HP zero: the victim's $10 gets $0040 (dead) unless it already has it, its entry becomes onDeathCallback / onDeathCallbackBank when set (and $08, $2C, $2E are zeroed) or StandardEnemyDefeatHandler in the same bank. Finally X := D (the child) and COP Die, because the COP needs X = the actor slot.",
+      "",
+      "=== HitStaggerReturnAI (player only) ===",
+      "",
+      "Unless playerFlags has $0A00 (game over / script lock) the player's entry address becomes player_character.PlayerIdleEntry. The player's iframe counter is set to $FFE2 (-30) and the D-pad bits $0F00 of joypadMaskStd are cleared (shown again). Because a positive counter freezes the player controller, overwriting the $003C that ApplyPlayerHitstun wrote ends the stun after the 16-frame slide (about 17 ticks), not after 60; a heavy hit's -60 is likewise shortened to -30.",
+      "",
+      "=== Helpers ===",
+      "",
+      "HitStaggerCheckKnockbackDistance stores d in the absolute scratch $0000 and pushes HitStaggerKnockbackCallbackPass - 1, so the CMP's RTS lands in CallbackPass, which turns Z into carry (CLC when equal, SEC otherwise). All operands written with four hex digits ($0000, $002C, $002E, $0008 ...) are absolute addresses; $0000 is the global scratch word, the others are the slot fields indexed by X.",
+      "",
+      "Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic and flow are read from the code and the movement_delta_table nodes."
+    ],
+    "partNotes": {
+      "HitStaggerMain": [
+        "Entry of the child. Sets the movement flags, saves the victim's start position and tier, decodes the direction code (0 S, 1 N, 2 W, 3 E; 4+ or a stagger-immune victim = no knockback) and chains into the slide loop."
+      ],
+      "loc_00D885": [
+        "Request movement for this script-driven actor ($12 bit 3), then test for the no-knockback cases."
+      ],
+      "loc_00D8C6": [
+        "No knockback: wait 16 ticks, then ReturnAI when the victim is the player ($10 bit $0400), else ResolveHit."
+      ],
+      "loc_00D8D3": [
+        "Enemy, no knockback: resolve the hit."
+      ],
+      "loc_00D8D6": [
+        "Direction 0 (south): clear the ForceDir bits, SEC (vertical chain), JSR the delta setup; the RTS chain continues into HitStaggerDirection."
+      ],
+      "loc_00D8E0": [
+        "Direction 1 (north): negate both deltas with ForceDirBoth, SEC (vertical chain)."
+      ],
+      "loc_00D8ED": [
+        "Direction 2 (west): negate both deltas with ForceDirBoth, CLC (horizontal chain)."
+      ],
+      "loc_00D8FA": [
+        "Direction 3 (east): no negation, CLC (horizontal chain)."
+      ],
+      "HitStaggerDirection": [
+        "The 16-frame slide loop (not a direction picker): the child moves, the victim copies its position every frame. Afterwards: player to ReturnAI, enemy to the distance check and ResolveHit."
+      ],
+      "loc_00D921": [
+        "Enemy with the movement flag: measure the vertical distance from the saved start Y when $26 is 0, else take the horizontal branch."
+      ],
+      "loc_00D93B": [
+        "Vertical distance d: a multiple of 16 goes to the threshold check (carry clear = full slide = resolve), anything else is a cut-short slide."
+      ],
+      "loc_00D945": [
+        "Cut-short vertical slide: wake the victim if it has no X chain, then clear its Y chain and Y delta."
+      ],
+      "loc_00D94F": [
+        "Clear the victim's Y chain pointer and Y delta word, then jump into the HP check."
+      ],
+      "loc_00D95B": [
+        "Horizontal branch: distance from the saved start X."
+      ],
+      "loc_00D96A": [
+        "Horizontal distance d: a multiple of 16 goes to the threshold check, anything else is a cut-short slide."
+      ],
+      "loc_00D974": [
+        "Cut-short horizontal slide: wake the victim if it has no Y chain, then clear its X chain and X delta."
+      ],
+      "loc_00D97E": [
+        "Clear the victim's X chain pointer and X delta word, then fall into HitStaggerResolveHit."
+      ],
+      "HitStaggerResolveHit": [
+        "Enemy resolution: HP zero routes the victim to its death callback or StandardEnemyDefeatHandler; HP left runs the hit callback and sets a -12 recovery counter. Ends with Die on the child."
+      ],
+      "loc_00D98A": [
+        "HP check (X = victim): zero HP means the victim dies, otherwise the hit callback path."
+      ],
+      "loc_00D9BC": [
+        "No death callback: the victim's script becomes StandardEnemyDefeatHandler (same bank)."
+      ],
+      "loc_00D9D0": [
+        "Victim survives: run onHitCallback (becomes the entry address, cleared) and set the iframe counter to $FFF4."
+      ],
+      "loc_00D9E0": [
+        "Recovery: iframe counter $FFF4 (-12) on the victim."
+      ],
+      "loc_00D9E7": [
+        "Remove the child: X := D, then COP Die."
+      ],
+      "HitStaggerReturnAI": [
+        "Player only: PlayerIdleEntry as the entry address (unless game over or script lock), iframe counter $FFE2, D-pad shown again, Die. Despite the name nothing 'AI' is restored."
+      ],
+      "loc_00DA03": [
+        "Set the player's iframe counter to $FFE2, restore the D-pad and remove the child."
+      ],
+      "HitStaggerCheckKnockbackDistance": [
+        "A = distance travelled. Compares it with the threshold of the victim's tier (0: $30, 1: $20, 2 and above: $40); the RTS lands in CallbackPass, which returns carry CLEAR when equal."
+      ],
+      "loc_00DA26": [
+        "Tier 1: threshold $20."
+      ],
+      "loc_00DA30": [
+        "Tier 2: threshold $40."
+      ],
+      "loc_00DA3A": [
+        "Tier 3 and above: threshold $40."
+      ],
+      "HitStaggerKnockbackCallbackPass": [
+        "Return trampoline of the distance check: carry CLEAR when the compare was equal, SET otherwise."
+      ],
+      "loc_00DA45": [
+        "Not equal: carry SET."
+      ],
+      "HitStaggerApplyKnockbackDelta": [
+        "Pushes HitStaggerStoreMovementDelta as the next return address and selects the table offset by tier: $44 (entry $22, 48 px curve) for tier 0, $46 (entry $23, 32 px curve) for every other tier. Carry (from the caller) is preserved for the store."
+      ],
+      "loc_00DA54": [
+        "Tier 1: offset $46."
+      ],
+      "loc_00DA5B": [
+        "Tier 2: offset $46."
+      ],
+      "loc_00DA62": [
+        "Tier 3 and above: offset $46."
+      ],
+      "HitStaggerStoreMovementDelta": [
+        "Reads the chain head from movement_delta_table + Y. Carry set: Y chain in $2E and $26 := 0 (vertical). Carry clear: X chain in $2C and $26 := 1 (horizontal)."
+      ],
+      "loc_00DA73": [
+        "Vertical: store the chain head in $2E and clear the axis flag $26."
+      ]
+    },
+    "comments": {
+      "55415": {
+        "text": "Victim's extendedFlags (copied into the child by the spawner)",
+        "expect": "LDA $extendedFlags, X"
+      },
+      "55419": {
+        "text": "Bit $0020: 'hitstun skip'",
+        "expect": "BIT #$0020"
+      },
+      "55422": {
+        "text": "Set: no collision-checked movement",
+        "expect": "BNE loc_00D885"
+      },
+      "55424": {
+        "text": "Collision-checked movement for this actor",
+        "expect": "LDA #$0008"
+      },
+      "55427": {
+        "text": "$10 bit 3: the knockback stops at walls",
+        "expect": "TSB $10"
+      },
+      "55429": {
+        "text": "Movement request for a script-driven actor",
+        "expect": "LDA #$0008"
+      },
+      "55432": {
+        "text": "$12 bit 3: the engine applies the chains although $2000 is set",
+        "expect": "TSB $12"
+      },
+      "55434": {
+        "text": "$12 as inherited from the victim by CopyActorState",
+        "expect": "LDA $12"
+      },
+      "55436": {
+        "text": "Bit $0010: stagger-immune (combat_collision)",
+        "expect": "BIT #$0010"
+      },
+      "55439": {
+        "text": "Immune: no knockback",
+        "expect": "BNE loc_00D8C6"
+      },
+      "55441": {
+        "text": "Keep the child slot",
+        "expect": "PHX"
+      },
+      "55442": {
+        "text": "Y := the victim (CopyActorState wrote its slot into $24)",
+        "expect": "LDY $24"
+      },
+      "55444": {
+        "text": "Victim's pixel X",
+        "expect": "LDA $0014, Y"
+      },
+      "55447": {
+        "text": "Start X saved in orbitAngle (word reused, no orbit)",
+        "expect": "STA $orbitAngle, X"
+      },
+      "55451": {
+        "text": "And as the child's own X",
+        "expect": "STA $14"
+      },
+      "55453": {
+        "text": "Victim's pixel Y",
+        "expect": "LDA $0016, Y"
+      },
+      "55456": {
+        "text": "Start Y saved in orbitDiameter (word reused)",
+        "expect": "STA $orbitDiameter, X"
+      },
+      "55460": {
+        "text": "And as the child's own Y",
+        "expect": "STA $16"
+      },
+      "55462": {
+        "text": "X := the victim",
+        "expect": "TYX"
+      },
+      "55463": {
+        "text": "Victim's knockback tier (free101C)",
+        "expect": "LDA $free101C, X"
+      },
+      "55467": {
+        "text": "X := the child again",
+        "expect": "PLX"
+      },
+      "55468": {
+        "text": "Tier for the child (selects curve and distance threshold)",
+        "expect": "STA $free101C, X"
+      },
+      "55472": {
+        "text": "Direction code stored by the spawner",
+        "expect": "LDA $0028, X"
+      },
+      "55475": {
+        "text": "4 or more = no knockback",
+        "expect": "CMP #$0004"
+      },
+      "55478": {
+        "text": "No knockback",
+        "expect": "BCS loc_00D8C6"
+      },
+      "55480": {
+        "text": "Return address: the RTS chain ends in HitStaggerDirection",
+        "expect": "PEA $&HitStaggerDirection-1"
+      },
+      "55483": {
+        "text": "Code 0?",
+        "expect": "DEC"
+      },
+      "55484": {
+        "text": "Yes: south",
+        "expect": "BMI loc_00D8D6"
+      },
+      "55486": {
+        "text": "Code 1?",
+        "expect": "DEC"
+      },
+      "55487": {
+        "text": "Yes: north",
+        "expect": "BMI loc_00D8E0"
+      },
+      "55489": {
+        "text": "Code 2?",
+        "expect": "DEC"
+      },
+      "55490": {
+        "text": "Yes: west",
+        "expect": "BMI loc_00D8ED"
+      },
+      "55492": {
+        "text": "Code 3: east",
+        "expect": "BRA loc_00D8FA"
+      },
+      "55494": {
+        "text": "No knockback: wait 16 ticks",
+        "expect": "COP [WaitByte] ( #0F )"
+      },
+      "55497": {
+        "text": "Child flags",
+        "expect": "LDA $10"
+      },
+      "55499": {
+        "text": "Bit $0400: the victim is the player",
+        "expect": "BIT #$0400"
+      },
+      "55502": {
+        "text": "Enemy",
+        "expect": "BEQ loc_00D8D3"
+      },
+      "55504": {
+        "text": "Player: hand control back",
+        "expect": "JMP $&HitStaggerReturnAI"
+      },
+      "55507": {
+        "text": "Enemy: resolve the hit",
+        "expect": "JMP $&HitStaggerResolveHit"
+      },
+      "55510": {
+        "text": "Both ForceDir bits",
+        "expect": "LDA #$6000"
+      },
+      "55513": {
+        "text": "Clear the flips inherited from the victim",
+        "expect": "TRB $12"
+      },
+      "55515": {
+        "text": "Carry set: vertical chain ($2E)",
+        "expect": "SEC"
+      },
+      "55516": {
+        "text": "Load the chain for the tier (returns through StoreMovementDelta)",
+        "expect": "JSR $&HitStaggerApplyKnockbackDelta"
+      },
+      "55519": {
+        "text": "Continue into HitStaggerDirection",
+        "expect": "RTS"
+      },
+      "55520": {
+        "text": "Both ForceDir bits",
+        "expect": "LDA #$6000"
+      },
+      "55523": {
+        "text": "Clear the inherited flips",
+        "expect": "TRB $12"
+      },
+      "55525": {
+        "text": "Negate both deltas: moves north",
+        "expect": "COP [ForceDirBoth] ( #01 )"
+      },
+      "55528": {
+        "text": "Carry set: vertical chain",
+        "expect": "SEC"
+      },
+      "55529": {
+        "text": "Load the chain for the tier",
+        "expect": "JSR $&HitStaggerApplyKnockbackDelta"
+      },
+      "55532": {
+        "text": "Continue into HitStaggerDirection",
+        "expect": "RTS"
+      },
+      "55533": {
+        "text": "Both ForceDir bits",
+        "expect": "LDA #$6000"
+      },
+      "55536": {
+        "text": "Clear the inherited flips",
+        "expect": "TRB $12"
+      },
+      "55538": {
+        "text": "Negate both deltas: moves west",
+        "expect": "COP [ForceDirBoth] ( #01 )"
+      },
+      "55541": {
+        "text": "Carry clear: horizontal chain ($2C)",
+        "expect": "CLC"
+      },
+      "55542": {
+        "text": "Load the chain for the tier",
+        "expect": "JSR $&HitStaggerApplyKnockbackDelta"
+      },
+      "55545": {
+        "text": "Continue into HitStaggerDirection",
+        "expect": "RTS"
+      },
+      "55546": {
+        "text": "Both ForceDir bits",
+        "expect": "LDA #$6000"
+      },
+      "55549": {
+        "text": "Clear the inherited flips",
+        "expect": "TRB $12"
+      },
+      "55551": {
+        "text": "Carry clear: horizontal chain, not negated: east",
+        "expect": "CLC"
+      },
+      "55552": {
+        "text": "Load the chain for the tier",
+        "expect": "JSR $&HitStaggerApplyKnockbackDelta"
+      },
+      "55555": {
+        "text": "Continue into HitStaggerDirection",
+        "expect": "RTS"
+      },
+      "55556": {
+        "text": "Yield; resume here next frame (the child starts moving)",
+        "expect": "COP [SetEntryHereAndYield]"
+      },
+      "55558": {
+        "text": "16 frames",
+        "expect": "COP [LoopStart] ( #10 )"
+      },
+      "55561": {
+        "text": "Y := the victim",
+        "expect": "LDY $24"
+      },
+      "55563": {
+        "text": "Child's X (moved by the engine)",
+        "expect": "LDA $14"
+      },
+      "55565": {
+        "text": "Victim X := child X",
+        "expect": "STA $0014, Y"
+      },
+      "55568": {
+        "text": "Child's Y",
+        "expect": "LDA $16"
+      },
+      "55570": {
+        "text": "Victim Y := child Y",
+        "expect": "STA $0016, Y"
+      },
+      "55573": {
+        "text": "One frame per iteration",
+        "expect": "COP [LoopEnd]"
+      },
+      "55575": {
+        "text": "Child flags",
+        "expect": "LDA $10"
+      },
+      "55577": {
+        "text": "Bit $0400: the victim is the player",
+        "expect": "BIT #$0400"
+      },
+      "55580": {
+        "text": "Enemy",
+        "expect": "BEQ loc_00D921"
+      },
+      "55582": {
+        "text": "Player: restore control",
+        "expect": "JMP $&HitStaggerReturnAI"
+      },
+      "55585": {
+        "text": "Child flags",
+        "expect": "LDA $10"
+      },
+      "55587": {
+        "text": "Bit $0008: collision-checked knockback",
+        "expect": "BIT #$0008"
+      },
+      "55590": {
+        "text": "Clear: no distance check, resolve",
+        "expect": "BEQ HitStaggerResolveHit"
+      },
+      "55592": {
+        "text": "Axis flag: 0 = vertical, nonzero = horizontal",
+        "expect": "LDA $26"
+      },
+      "55594": {
+        "text": "Horizontal",
+        "expect": "BNE loc_00D95B"
+      },
+      "55596": {
+        "text": "Start Y",
+        "expect": "LDA $orbitDiameter, X"
+      },
+      "55600": {
+        "text": "Start minus current",
+        "expect": "SEC"
+      },
+      "55601": {
+        "text": "Current Y",
+        "expect": "SBC $16"
+      },
+      "55603": {
+        "text": "Did not move: resolve",
+        "expect": "BEQ HitStaggerResolveHit"
+      },
+      "55605": {
+        "text": "Positive: keep",
+        "expect": "BPL loc_00D93B"
+      },
+      "55607": {
+        "text": "Negative: absolute value",
+        "expect": "EOR #$FFFF"
+      },
+      "55610": {
+        "text": "(two's complement)",
+        "expect": "INC"
+      },
+      "55611": {
+        "text": "Distance a multiple of 16?",
+        "expect": "BIT #$000F"
+      },
+      "55614": {
+        "text": "No: cut-short slide",
+        "expect": "BNE loc_00D945"
+      },
+      "55616": {
+        "text": "Compare with the tier threshold (carry clear = equal)",
+        "expect": "JSR $&HitStaggerCheckKnockbackDistance"
+      },
+      "55619": {
+        "text": "Full slide: resolve",
+        "expect": "BCC HitStaggerResolveHit"
+      },
+      "55621": {
+        "text": "X := the victim",
+        "expect": "LDX $24"
+      },
+      "55623": {
+        "text": "Victim's X chain (the other axis)",
+        "expect": "LDA $002C, X"
+      },
+      "55626": {
+        "text": "Has one: do not wake it",
+        "expect": "BNE loc_00D94F"
+      },
+      "55628": {
+        "text": "No X chain: zero its wait counter so its script resumes",
+        "expect": "STZ $0008, X"
+      },
+      "55631": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "55634": {
+        "text": "Clear the victim's Y chain pointer",
+        "expect": "STA $002E, X"
+      },
+      "55637": {
+        "text": "And its Y delta word ($7F002E)",
+        "expect": "STA $moveScratch2, X"
+      },
+      "55641": {
+        "text": "HP check",
+        "expect": "BRA loc_00D98A"
+      },
+      "55643": {
+        "text": "Start X",
+        "expect": "LDA $orbitAngle, X"
+      },
+      "55647": {
+        "text": "Start minus current",
+        "expect": "SEC"
+      },
+      "55648": {
+        "text": "Current X",
+        "expect": "SBC $14"
+      },
+      "55650": {
+        "text": "Did not move: resolve",
+        "expect": "BEQ HitStaggerResolveHit"
+      },
+      "55652": {
+        "text": "Positive: keep",
+        "expect": "BPL loc_00D96A"
+      },
+      "55654": {
+        "text": "Negative: absolute value",
+        "expect": "EOR #$FFFF"
+      },
+      "55657": {
+        "text": "(two's complement)",
+        "expect": "INC"
+      },
+      "55658": {
+        "text": "Distance a multiple of 16?",
+        "expect": "BIT #$000F"
+      },
+      "55661": {
+        "text": "No: cut-short slide",
+        "expect": "BNE loc_00D974"
+      },
+      "55663": {
+        "text": "Compare with the tier threshold (carry clear = equal)",
+        "expect": "JSR $&HitStaggerCheckKnockbackDistance"
+      },
+      "55666": {
+        "text": "Full slide: resolve",
+        "expect": "BCC HitStaggerResolveHit"
+      },
+      "55668": {
+        "text": "X := the victim",
+        "expect": "LDX $24"
+      },
+      "55670": {
+        "text": "Victim's Y chain (the other axis)",
+        "expect": "LDA $002E, X"
+      },
+      "55673": {
+        "text": "Has one: do not wake it",
+        "expect": "BNE loc_00D97E"
+      },
+      "55675": {
+        "text": "No Y chain: zero its wait counter so its script resumes",
+        "expect": "STZ $0008, X"
+      },
+      "55678": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "55681": {
+        "text": "Clear the victim's X chain pointer",
+        "expect": "STA $002C, X"
+      },
+      "55684": {
+        "text": "And its X delta word ($7F002C); falls into ResolveHit",
+        "expect": "STA $moveScratch1, X"
+      },
+      "55688": {
+        "text": "X := the victim",
+        "expect": "LDX $24"
+      },
+      "55690": {
+        "text": "Current HP",
+        "expect": "LDA $currentHp, X"
+      },
+      "55694": {
+        "text": "Alive: hit callback path",
+        "expect": "BNE loc_00D9D0"
+      },
+      "55696": {
+        "text": "Victim's flags",
+        "expect": "LDA $0010, X"
+      },
+      "55699": {
+        "text": "Bit $0040: already dead",
+        "expect": "BIT #$0040"
+      },
+      "55702": {
+        "text": "Yes: only remove the child",
+        "expect": "BNE loc_00D9E7"
+      },
+      "55704": {
+        "text": "Mark it dead",
+        "expect": "ORA #$0040"
+      },
+      "55707": {
+        "text": "Store the flags",
+        "expect": "STA $0010, X"
+      },
+      "55710": {
+        "text": "Death callback address (0 = none)",
+        "expect": "LDA $onDeathCallback, X"
+      },
+      "55714": {
+        "text": "None: standard defeat",
+        "expect": "BEQ loc_00D9BC"
+      },
+      "55716": {
+        "text": "Victim's entry address := death callback",
+        "expect": "STA $0000, X"
+      },
+      "55719": {
+        "text": "Death callback bank",
+        "expect": "LDA $onDeathCallbackBank, X"
+      },
+      "55723": {
+        "text": "Victim's entry bank",
+        "expect": "STA $0002, X"
+      },
+      "55726": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "55729": {
+        "text": "Victim's wait counter: run at once",
+        "expect": "STA $0008, X"
+      },
+      "55732": {
+        "text": "Clear its X chain",
+        "expect": "STA $002C, X"
+      },
+      "55735": {
+        "text": "Clear its Y chain",
+        "expect": "STA $002E, X"
+      },
+      "55738": {
+        "text": "Remove the child",
+        "expect": "BRA loc_00D9E7"
+      },
+      "55740": {
+        "text": "Bank of StandardEnemyDefeatHandler",
+        "expect": "LDA #$*StandardEnemyDefeatHandler"
+      },
+      "55743": {
+        "text": "Victim's entry bank",
+        "expect": "STA $0002, X"
+      },
+      "55746": {
+        "text": "Address of StandardEnemyDefeatHandler",
+        "expect": "LDA #$&StandardEnemyDefeatHandler"
+      },
+      "55749": {
+        "text": "Victim's entry address",
+        "expect": "STA $0000, X"
+      },
+      "55752": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "55755": {
+        "text": "Victim's wait counter: run at once",
+        "expect": "STA $0008, X"
+      },
+      "55758": {
+        "text": "Remove the child",
+        "expect": "BRA loc_00D9E7"
+      },
+      "55760": {
+        "text": "Hit callback address (0 = none)",
+        "expect": "LDA $onHitCallback, X"
+      },
+      "55764": {
+        "text": "None",
+        "expect": "BEQ loc_00D9E0"
+      },
+      "55766": {
+        "text": "Victim's entry address := hit callback (low word only)",
+        "expect": "STA $0000, X"
+      },
+      "55769": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "55772": {
+        "text": "Callback consumed",
+        "expect": "STA $onHitCallback, X"
+      },
+      "55776": {
+        "text": "-12: recovery counter",
+        "expect": "LDA #$FFF4"
+      },
+      "55779": {
+        "text": "Victim's iframe counter",
+        "expect": "STA $iframeCounter, X"
+      },
+      "55783": {
+        "text": "A := D (the child's slot)",
+        "expect": "TDC"
+      },
+      "55784": {
+        "text": "X := the child: COP needs X = actor slot",
+        "expect": "TAX"
+      },
+      "55785": {
+        "text": "Remove the child",
+        "expect": "COP [Die]"
+      },
+      "55787": {
+        "text": "Keep the child slot",
+        "expect": "PHX"
+      },
+      "55788": {
+        "text": "X := the player",
+        "expect": "LDX $playerActor"
+      },
+      "55791": {
+        "text": "Player flags",
+        "expect": "LDA $playerFlags"
+      },
+      "55794": {
+        "text": "Game over ($0200) or script lock ($0800)?",
+        "expect": "BIT #$0A00"
+      },
+      "55797": {
+        "text": "Yes: leave the player's script alone",
+        "expect": "BNE loc_00DA03"
+      },
+      "55799": {
+        "text": "Bank of PlayerIdleEntry",
+        "expect": "LDA #$*player_character.PlayerIdleEntry"
+      },
+      "55802": {
+        "text": "Player's entry bank",
+        "expect": "STA $0002, X"
+      },
+      "55805": {
+        "text": "Address of PlayerIdleEntry",
+        "expect": "LDA #$&player_character.PlayerIdleEntry"
+      },
+      "55808": {
+        "text": "Player's entry address",
+        "expect": "STA $0000, X"
+      },
+      "55811": {
+        "text": "-30: recovery counter (ends the positive stun counter)",
+        "expect": "LDA #$FFE2"
+      },
+      "55814": {
+        "text": "Player's iframe counter",
+        "expect": "STA $iframeCounter, X"
+      },
+      "55818": {
+        "text": "X := the child",
+        "expect": "PLX"
+      },
+      "55819": {
+        "text": "D-pad bits",
+        "expect": "LDA #$0F00"
+      },
+      "55822": {
+        "text": "Clear them in the hidden-button mask: D-pad usable again",
+        "expect": "TRB $joypadMaskStd"
+      },
+      "55825": {
+        "text": "Remove the child",
+        "expect": "COP [Die]"
+      },
+      "55827": {
+        "text": "Distance in the global scratch word $0000",
+        "expect": "STA $0000"
+      },
+      "55830": {
+        "text": "Return through CallbackPass (turns Z into carry)",
+        "expect": "PEA $&HitStaggerKnockbackCallbackPass-1"
+      },
+      "55833": {
+        "text": "Tier",
+        "expect": "LDA $free101C, X"
+      },
+      "55837": {
+        "text": "Not 0",
+        "expect": "BNE loc_00DA26"
+      },
+      "55839": {
+        "text": "Tier 0: distance",
+        "expect": "LDA $0000"
+      },
+      "55842": {
+        "text": "Threshold $30 (48 px, the tier-0 curve sum)",
+        "expect": "CMP #$0030"
+      },
+      "55845": {
+        "text": "Return to CallbackPass",
+        "expect": "RTS"
+      },
+      "55846": {
+        "text": "Tier 1?",
+        "expect": "DEC"
+      },
+      "55847": {
+        "text": "No",
+        "expect": "BNE loc_00DA30"
+      },
+      "55849": {
+        "text": "Tier 1: distance",
+        "expect": "LDA $0000"
+      },
+      "55852": {
+        "text": "Threshold $20 (32 px, the tier-1 curve sum)",
+        "expect": "CMP #$0020"
+      },
+      "55855": {
+        "text": "Return to CallbackPass",
+        "expect": "RTS"
+      },
+      "55856": {
+        "text": "Tier 2?",
+        "expect": "DEC"
+      },
+      "55857": {
+        "text": "No",
+        "expect": "BNE loc_00DA3A"
+      },
+      "55859": {
+        "text": "Tier 2: distance",
+        "expect": "LDA $0000"
+      },
+      "55862": {
+        "text": "Threshold $40 (64 px)",
+        "expect": "CMP #$0040"
+      },
+      "55865": {
+        "text": "Return to CallbackPass",
+        "expect": "RTS"
+      },
+      "55866": {
+        "text": "Tier 3 and above: distance",
+        "expect": "LDA $0000"
+      },
+      "55869": {
+        "text": "Threshold $40 (64 px)",
+        "expect": "CMP #$0040"
+      },
+      "55872": {
+        "text": "Return to CallbackPass",
+        "expect": "RTS"
+      },
+      "55873": {
+        "text": "Carry clear for equal",
+        "expect": "CLC"
+      },
+      "55874": {
+        "text": "Not equal",
+        "expect": "BNE loc_00DA45"
+      },
+      "55876": {
+        "text": "Equal: carry clear",
+        "expect": "RTS"
+      },
+      "55877": {
+        "text": "Not equal: carry set",
+        "expect": "SEC"
+      },
+      "55878": {
+        "text": "Return to the caller of the check",
+        "expect": "RTS"
+      },
+      "55879": {
+        "text": "Return address: HitStaggerStoreMovementDelta",
+        "expect": "PEA $&HitStaggerStoreMovementDelta-1"
+      },
+      "55882": {
+        "text": "Tier",
+        "expect": "LDA $free101C, X"
+      },
+      "55886": {
+        "text": "Not 0",
+        "expect": "BNE loc_00DA54"
+      },
+      "55888": {
+        "text": "Tier 0: table offset $44 = entry $22 (48 px curve)",
+        "expect": "LDY #$0044"
+      },
+      "55891": {
+        "text": "Run the store",
+        "expect": "RTS"
+      },
+      "55892": {
+        "text": "Tier 1?",
+        "expect": "DEC"
+      },
+      "55893": {
+        "text": "No",
+        "expect": "BNE loc_00DA5B"
+      },
+      "55895": {
+        "text": "Tier 1: offset $46 = entry $23 (32 px curve)",
+        "expect": "LDY #$0046"
+      },
+      "55898": {
+        "text": "Run the store",
+        "expect": "RTS"
+      },
+      "55899": {
+        "text": "Tier 2?",
+        "expect": "DEC"
+      },
+      "55900": {
+        "text": "No",
+        "expect": "BNE loc_00DA62"
+      },
+      "55902": {
+        "text": "Tier 2: offset $46",
+        "expect": "LDY #$0046"
+      },
+      "55905": {
+        "text": "Run the store",
+        "expect": "RTS"
+      },
+      "55906": {
+        "text": "Tier 3 and above: offset $46",
+        "expect": "LDY #$0046"
+      },
+      "55909": {
+        "text": "Run the store",
+        "expect": "RTS"
+      },
+      "55910": {
+        "text": "Chain head from movement_delta_table (carry still the caller's)",
+        "expect": "LDA $&movement_delta_table, Y"
+      },
+      "55913": {
+        "text": "Carry set: vertical",
+        "expect": "BCS loc_00DA73"
+      },
+      "55915": {
+        "text": "Horizontal: X chain",
+        "expect": "STA $2C"
+      },
+      "55917": {
+        "text": "Axis flag 1 = horizontal",
+        "expect": "LDA #$0001"
+      },
+      "55920": {
+        "text": "Read by HitStaggerDirection",
+        "expect": "STA $26"
+      },
+      "55922": {
+        "text": "Return (to the caller's RTS, then HitStaggerDirection)",
+        "expect": "RTS"
+      },
+      "55923": {
+        "text": "Vertical: Y chain",
+        "expect": "STA $2E"
+      },
+      "55925": {
+        "text": "Axis flag 0 = vertical",
+        "expect": "STZ $26"
+      },
+      "55927": {
+        "text": "Return (to the caller's RTS, then HitStaggerDirection)",
+        "expect": "RTS"
+      }
+    }
+  },
+  "functions/ApplyPlayerHitstun.asm": {
+    "blockNote": [
+      "Player damage and knockback entry (Bank 00, 50071-50198), called by JSL from enemy attack scripts. Registers: A = damage with bit 15 as a 'heavy hit' flag, Y = knockback direction code (0 south, 1 north, 2 west, 3 east, 4 or more = none). The old header said 'damage in Y and knockback metadata on the stack' and that damage is halved; neither is true.",
+      "",
+      "=== STEPS ===",
+      "",
+      "1. $0000 := Y (absolute scratch, kept for later) and $0002 := 0. ASL moves bit 15 of A into carry: when set, $0002 := $FFC4 (the heavy-hit counter). LSR restores the damage with bit 15 cleared; it is NOT halved (ASL then LSR cancel out).",
+      "2. playerHp := max(0, playerHp - damage). D and X become the player actor.",
+      "3. Player flags $10 |= $0080 (hit reaction); the iframe counter ($7F0028) := $0002 if nonzero, else $003C. A positive counter is hit-stun, a negative one is recovery / invincibility (see actor_execution).",
+      "4. If playerFlags bit $0800 (script / ability lock) is set, no stagger is spawned: only the D-pad bits $0F00 of joypadMaskStd are cleared. Otherwise HitStaggerMain is spawned with COP SpawnListAppend ( entry, 0, 0, #$2400 ): $2400 is the child's FLAGS word ($2000 script-driven, $0400 player victim), not a priority as the old header says. Y = the child slot afterwards.",
+      "5. Y = $1FC0 means the actor pool was full and the spawn failed: the D-pad bits $0F00 are cleared (some callers hide them first; the child that would have restored them does not exist). The code still falls through to the child-setup stores below with Y = $1FC0, unlike ApplyInteractionDamage, which skips them (OQ-I046-2).",
+      "6. Child setup: extendedFlags bit $0020 of the player is copied to the child, the direction code from $0000 goes into the child's $28, and its $2C / $2E are zeroed. Hit sound: PlaySoundCh2 #07 (always the Will sound; combat_collision picks #08 for Freedan and Shadow).",
+      "",
+      "The function never HIDES the D-pad (the old header said it masks joypad input 'for heavy hits or when the climbing flag is active'): it only reveals it on the two no-stagger paths. Callers such as gw82_archer and ir1F_stone_guard hide it themselves (TSB #$0F00) before the JSL, and HitStaggerReturnAI reveals it when the stagger ends.",
+      "",
+      "Because HitStaggerReturnAI overwrites the iframe counter with $FFE2 when the slide ends, the $003C written here only lasts until then (about 17 ticks).",
+      "",
+      "=== CALL SITES (9, in 3 files) ===",
+      "",
+      "| File | A | Y |",
+      "|------|---|---|",
+      "| gw82_archer (2 sites) | 2, 2 | 3 (east), 2 (west) |",
+      "| gw83_asp (3 sites) | 1, 1, $8001 (heavy) | 4, 4, 4 (no knockback) |",
+      "| ir1F_stone_guard (4 sites) | $0B02 + 2, $0B02 + 2, 2, 2 | 0, 1, 3, 2 |",
+      "",
+      "$0B02 is the difficulty level (ram_map.txt), so the stone guard's two strongest hits add it to a base of 2. The old docs say about 12 callers; there are 9. Combat hits from the player's own attacks and from contact use combat_collision's inline code instead.",
+      "",
+      "Everything here is UNVERIFIED-RUNTIME (no emulator trace); read from the code."
+    ],
+    "partNotes": {
+      "ApplyPlayerHitstun": [
+        "Subtract the damage (A bit 15 = heavy), set the hit reaction and iframe counter on the player, and spawn HitStaggerMain with the direction code Y unless a script lock is active."
+      ],
+      "loc_00C3AA": [
+        "Damage = A with bit 15 cleared (not halved); subtract it from playerHp, clamped at 0."
+      ],
+      "loc_00C3B8": [
+        "Store the HP, switch D / X to the player actor, flag the hit reaction and choose the iframe counter ($003C or $FFC4)."
+      ],
+      "loc_00C3CD": [
+        "Store the iframe counter, then spawn the stagger controller unless playerFlags bit $0800 is set."
+      ],
+      "loc_00C3ED": [
+        "Configure the child: copy extendedFlags $0020, direction code to $28, zero $2C / $2E."
+      ],
+      "loc_00C40A": [
+        "Hit sound #07, restore D and X, return."
+      ],
+      "loc_00C410": [
+        "Script lock active: no stagger; clear the D-pad bits of the hidden-button mask and finish with the sound."
+      ]
+    },
+    "comments": {
+      "50071": {
+        "text": "Save X (the caller's actor)",
+        "expect": "PHX"
+      },
+      "50072": {
+        "text": "Save D",
+        "expect": "PHD"
+      },
+      "50073": {
+        "text": "$0002 := 0 (absolute scratch: iframe override, 0 = default)",
+        "expect": "STZ $0002"
+      },
+      "50076": {
+        "text": "$0000 := Y, the knockback direction code",
+        "expect": "STY $0000"
+      },
+      "50079": {
+        "text": "Carry := bit 15 of A (heavy-hit flag)",
+        "expect": "ASL"
+      },
+      "50080": {
+        "text": "Not heavy",
+        "expect": "BCC loc_00C3AA"
+      },
+      "50082": {
+        "text": "Keep A (the shifted damage)",
+        "expect": "PHA"
+      },
+      "50083": {
+        "text": "Heavy: -60 iframe counter",
+        "expect": "LDA #$FFC4"
+      },
+      "50086": {
+        "text": "$0002 := $FFC4",
+        "expect": "STA $0002"
+      },
+      "50089": {
+        "text": "Restore A",
+        "expect": "PLA"
+      },
+      "50090": {
+        "text": "Back to the damage with bit 15 cleared (not halved)",
+        "expect": "LSR"
+      },
+      "50091": {
+        "text": "Negate the damage",
+        "expect": "EOR #$FFFF"
+      },
+      "50094": {
+        "text": "(two's complement)",
+        "expect": "INC"
+      },
+      "50095": {
+        "text": "Add to the HP",
+        "expect": "CLC"
+      },
+      "50096": {
+        "text": "HP minus damage",
+        "expect": "ADC $playerHp"
+      },
+      "50099": {
+        "text": "Still >= 0: keep",
+        "expect": "BPL loc_00C3B8"
+      },
+      "50101": {
+        "text": "Clamp at 0",
+        "expect": "LDA #$0000"
+      },
+      "50104": {
+        "text": "New player HP",
+        "expect": "STA $playerHp"
+      },
+      "50107": {
+        "text": "Player actor slot",
+        "expect": "LDA $playerActor"
+      },
+      "50110": {
+        "text": "D := the player actor (COP needs X = D = slot)",
+        "expect": "TCD"
+      },
+      "50111": {
+        "text": "X := the player actor",
+        "expect": "TAX"
+      },
+      "50112": {
+        "text": "Hit-reaction flag",
+        "expect": "LDA #$0080"
+      },
+      "50115": {
+        "text": "Player $10 |= $0080 (also read by the blink code)",
+        "expect": "TSB $10"
+      },
+      "50117": {
+        "text": "Iframe override ($FFC4 for a heavy hit, else 0)",
+        "expect": "LDA $0002"
+      },
+      "50120": {
+        "text": "Heavy: use it",
+        "expect": "BNE loc_00C3CD"
+      },
+      "50122": {
+        "text": "Default: +60 ticks of hit-stun",
+        "expect": "LDA #$003C"
+      },
+      "50125": {
+        "text": "Player iframe counter ($7F0028): positive = stun, negative = recovery",
+        "expect": "STA $iframeCounter, X"
+      },
+      "50129": {
+        "text": "Player flags",
+        "expect": "LDA $playerFlags"
+      },
+      "50132": {
+        "text": "Bit $0800: script / ability lock",
+        "expect": "BIT #$0800"
+      },
+      "50135": {
+        "text": "Locked: no stagger",
+        "expect": "BNE loc_00C410"
+      },
+      "50137": {
+        "text": "Spawn HitStaggerMain; flags $2400 = script-driven + player victim; Y = the child",
+        "expect": "COP [SpawnListAppend] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 )"
+      },
+      "50146": {
+        "text": "Y = $1FC0: the actor pool was full",
+        "expect": "CPY #$1FC0"
+      },
+      "50149": {
+        "text": "Spawned",
+        "expect": "BNE loc_00C3ED"
+      },
+      "50151": {
+        "text": "Spawn failed: D-pad bits",
+        "expect": "LDA #$0F00"
+      },
+      "50154": {
+        "text": "Reveal the D-pad (no child will do it)",
+        "expect": "TRB $joypadMaskStd"
+      },
+      "50157": {
+        "text": "Player's extendedFlags",
+        "expect": "LDA $extendedFlags, X"
+      },
+      "50161": {
+        "text": "Keep bit $0020 only",
+        "expect": "AND #$0020"
+      },
+      "50164": {
+        "text": "Keep the player slot",
+        "expect": "PHX"
+      },
+      "50165": {
+        "text": "X := the child",
+        "expect": "TYX"
+      },
+      "50166": {
+        "text": "Child's extendedFlags bit $0020 := the player's",
+        "expect": "STA $extendedFlags, X"
+      },
+      "50170": {
+        "text": "X := the player again",
+        "expect": "PLX"
+      },
+      "50171": {
+        "text": "Direction code saved from Y",
+        "expect": "LDA $0000"
+      },
+      "50174": {
+        "text": "Child's $28: 0 S, 1 N, 2 W, 3 E, 4+ none",
+        "expect": "STA $0028, Y"
+      },
+      "50177": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "50180": {
+        "text": "Child's X chain",
+        "expect": "STA $002C, Y"
+      },
+      "50183": {
+        "text": "Child's Y chain",
+        "expect": "STA $002E, Y"
+      },
+      "50186": {
+        "text": "Hit sound #07",
+        "expect": "COP [PlaySoundCh2] ( #07 )"
+      },
+      "50189": {
+        "text": "Restore D",
+        "expect": "PLD"
+      },
+      "50190": {
+        "text": "Restore X",
+        "expect": "PLX"
+      },
+      "50191": {
+        "text": "Return to the caller",
+        "expect": "RTL"
+      },
+      "50192": {
+        "text": "Script lock: D-pad bits",
+        "expect": "LDA #$0F00"
+      },
+      "50195": {
+        "text": "Reveal the D-pad (no stagger will do it)",
+        "expect": "TRB $joypadMaskStd"
+      },
+      "50198": {
+        "text": "Hit sound and return",
+        "expect": "BRA loc_00C40A"
+      }
+    }
+  },
+  "functions/EnemyDefeatDispatch.asm": {
+    "blockNote": [
+      "Enemy defeat dispatcher with a kill counter (Bank 0A, 697407-697568). A trimmed variant of StandardEnemyDefeatHandler used as a death callback by three enemies: gw82_fire_bug (SetDeathCallback code_0B8DB9), av6D_dive_bat (code_0AEF2E) and gw8A_sand_fanger (JumpFar), each reaching it with COP JumpFar. $0AEC is the number of enemies left on the map (hex) and $0AEE the same count in BCD (ram_map.txt).",
+      "",
+      "=== FLOW ===",
+      "",
+      "- $0AEC = 1 (this is the last enemy): clear the ForceDir bits ($6000 of $12), halt movement (StageMoveXY #0, #0 selects the zero chain; moveScratch1 / 2 = $7F002C / $7F002E cleared) and JumpFar into StandardEnemyDefeatHandler, which decrements the counters itself, plays the full defeat and gives the clear reward (EnemyStatBonusReward when the remaining count reaches 0).",
+      "- Otherwise: CallNear code_0AA474 (below), then SpawnAfterFlags ( @field_reveal_object, #$0020 ), store the remaining count (orbitAngle, saved by the subroutine) in the child's $26 and Die. field_reveal_object treats a nonzero $26 as 'use this enemy's own stats': FieldRevealFromActorStats reads the low two bits of the stat-table byte at +3 (0 none, 1-3 a HP / STR / DEF gem) of the defeated enemy, so every kill but the last can drop its own stat gem (the old note: 'Spawn stat gem reveal').",
+      "",
+      "code_0AA474 (a CallNear subroutine, returns with RestoreSavedPtr): death sound #03 (the standard handler uses #06), BCD decrement of $0AEE, hex decrement of $0AEC stored also in orbitAngle ($7F0010,X) for the spawned actors, halt movement, spawn EnemyDeathFlash (flags $0302), SetDungeonKillFlag (the actor's enemyNum bit in the wramFlags bitfield), $10 |= $2000 (script-driven run path), ClearSolidHere when extendedFlags bit $0008 is set, and the field-reveal bookkeeping: when deathActionIdx ($7F0024) is nonzero and event flag $0100 + idx is not yet set (TestFlag_0100 carry clear), set it and spawn SpawnFieldRevealEffect (flags $0342) with the index copied into the child's deathActionIdx.",
+      "",
+      "Differences from StandardEnemyDefeatHandler: no boss / stat-table checks (the three callers are ordinary enemies), no WaitByte, no EnemyGemDropRouter call (a field_reveal_object child is spawned instead; it reads the same stat-table byte at +3), and the $12 |= $1000 priority boost on the flash is not applied. The old header said it 'decrements ... plays death SFX, spawns death flash, sets dungeon kill flag, optionally clears collision tile' which is right; it did not explain the field_reveal_object spawn or the callers.",
+      "",
+      "Edge case: the test is for exactly 1. If $0AEC were 0 the counters would wrap to $FFFF / $99 (BCD) and $26 would be nonzero (OQ-I046-4). UNVERIFIED-RUNTIME."
+    ],
+    "partNotes": {
+      "EnemyDefeatDispatch": [
+        "Entry (X = defeated actor). Last enemy ($0AEC = 1): halt and JumpFar to StandardEnemyDefeatHandler. Otherwise run code_0AA474, spawn field_reveal_object with the remaining count in $26, and Die."
+      ],
+      "loc_0AA460": [
+        "Not the last enemy: per-enemy death processing, then the stat-gem reveal child, then Die."
+      ],
+      "code_0AA474": [
+        "Per-enemy death processing (CallNear): sound #03, BCD and hex counter decrements, halt, death flash, kill flag, collision clear, optional field-reveal effect; returns with RestoreSavedPtr."
+      ],
+      "loc_0AA4B8": [
+        "Field-reveal bookkeeping: skip when deathActionIdx is 0 or its $0100-base event flag is already set; otherwise set it and spawn SpawnFieldRevealEffect with the index."
+      ],
+      "loc_0AA4E0": [
+        "Return to the caller of the CallNear subroutine."
+      ]
+    },
+    "comments": {
+      "697407": {
+        "text": "Enemies left on the map (hex)",
+        "expect": "LDA $enemiesRemaining"
+      },
+      "697410": {
+        "text": "Is this the last one?",
+        "expect": "CMP #$0001"
+      },
+      "697413": {
+        "text": "No: normal death",
+        "expect": "BNE loc_0AA460"
+      },
+      "697415": {
+        "text": "Both ForceDir bits",
+        "expect": "LDA #$6000"
+      },
+      "697418": {
+        "text": "Clear the movement flips",
+        "expect": "TRB $12"
+      },
+      "697420": {
+        "text": "Movement indices 0 and 0: the zero chains, so the corpse stops",
+        "expect": "COP [StageMoveXY] ( #00, #00 )"
+      },
+      "697424": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "697427": {
+        "text": "X delta word ($7F002C)",
+        "expect": "STA $moveScratch1, X"
+      },
+      "697431": {
+        "text": "Y delta word ($7F002E)",
+        "expect": "STA $moveScratch2, X"
+      },
+      "697435": {
+        "text": "Last enemy: the full standard defeat (it decrements the counters itself)",
+        "expect": "COP [JumpFar] ( @StandardEnemyDefeatHandler )"
+      },
+      "697440": {
+        "text": "Per-enemy death processing as a near subroutine",
+        "expect": "COP [CallNear] ( &code_0AA474 )"
+      },
+      "697444": {
+        "text": "Spawn the stat-gem reveal child with flags $0020",
+        "expect": "COP [SpawnAfterFlags] ( @field_reveal_object, #$0020 )"
+      },
+      "697451": {
+        "text": "Remaining enemies (stored by code_0AA474)",
+        "expect": "LDA $orbitAngle, X"
+      },
+      "697455": {
+        "text": "Child's $26: nonzero selects FieldRevealFromActorStats",
+        "expect": "STA $0026, Y"
+      },
+      "697458": {
+        "text": "Remove the defeated enemy",
+        "expect": "COP [Die]"
+      },
+      "697460": {
+        "text": "Death sound #03",
+        "expect": "COP [PlaySoundCh1] ( #03 )"
+      },
+      "697463": {
+        "text": "Decimal mode for the BCD counter",
+        "expect": "SED"
+      },
+      "697464": {
+        "text": "Enemies left (BCD)",
+        "expect": "LDA $enemiesRemainingBcd"
+      },
+      "697467": {
+        "text": "Subtract 1",
+        "expect": "SEC"
+      },
+      "697468": {
+        "text": "(decimal)",
+        "expect": "SBC #$0001"
+      },
+      "697471": {
+        "text": "Store the BCD count",
+        "expect": "STA $enemiesRemainingBcd"
+      },
+      "697474": {
+        "text": "Back to binary mode",
+        "expect": "CLD"
+      },
+      "697475": {
+        "text": "Enemies left (hex)",
+        "expect": "LDA $enemiesRemaining"
+      },
+      "697478": {
+        "text": "One fewer",
+        "expect": "DEC"
+      },
+      "697479": {
+        "text": "Store the hex count",
+        "expect": "STA $enemiesRemaining"
+      },
+      "697482": {
+        "text": "Remaining count also in orbitAngle, read by the caller",
+        "expect": "STA $orbitAngle, X"
+      },
+      "697486": {
+        "text": "Zero movement chains: halt the corpse",
+        "expect": "COP [StageMoveXY] ( #00, #00 )"
+      },
+      "697490": {
+        "text": "Zero",
+        "expect": "LDA #$0000"
+      },
+      "697493": {
+        "text": "X delta word",
+        "expect": "STA $moveScratch1, X"
+      },
+      "697497": {
+        "text": "Y delta word",
+        "expect": "STA $moveScratch2, X"
+      },
+      "697501": {
+        "text": "Spawn the death flash effect (flags $0302)",
+        "expect": "COP [SpawnListAppend] ( @EnemyDeathFlash, #00, #00, #$0302 )"
+      },
+      "697510": {
+        "text": "Set this enemy's kill bit (its enemyNum)",
+        "expect": "COP [SetDungeonKillFlag]"
+      },
+      "697512": {
+        "text": "Script-driven run path",
+        "expect": "LDA #$2000"
+      },
+      "697515": {
+        "text": "$10 |= $2000",
+        "expect": "TSB $10"
+      },
+      "697517": {
+        "text": "Extended flags",
+        "expect": "LDA $extendedFlags, X"
+      },
+      "697521": {
+        "text": "Bit $0008: the enemy marked solid collision cells",
+        "expect": "BIT #$0008"
+      },
+      "697524": {
+        "text": "No mark to clear",
+        "expect": "BEQ loc_0AA4B8"
+      },
+      "697526": {
+        "text": "Clear the solid mark under the enemy",
+        "expect": "COP [ClearSolidHere]"
+      },
+      "697528": {
+        "text": "Field-reveal action index (0 = none)",
+        "expect": "LDA $deathActionIdx, X"
+      },
+      "697532": {
+        "text": "None",
+        "expect": "BEQ loc_0AA4E0"
+      },
+      "697534": {
+        "text": "Has this reveal already been triggered? (carry set = yes)",
+        "expect": "JSL $@flag_helpers.TestFlag_0100"
+      },
+      "697538": {
+        "text": "Yes: skip",
+        "expect": "BCS loc_0AA4E0"
+      },
+      "697540": {
+        "text": "Action index",
+        "expect": "LDA $deathActionIdx, X"
+      },
+      "697544": {
+        "text": "Mark it triggered",
+        "expect": "JSL $@flag_helpers.SetFlag_0100"
+      },
+      "697548": {
+        "text": "Spawn the room-reveal effect (flags $0342)",
+        "expect": "COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )"
+      },
+      "697557": {
+        "text": "Keep the enemy slot",
+        "expect": "PHX"
+      },
+      "697558": {
+        "text": "Action index",
+        "expect": "LDA $deathActionIdx, X"
+      },
+      "697562": {
+        "text": "X := the effect actor",
+        "expect": "TYX"
+      },
+      "697563": {
+        "text": "Effect's deathActionIdx := the index",
+        "expect": "STA $deathActionIdx, X"
+      },
+      "697567": {
+        "text": "X := the enemy again",
+        "expect": "PLX"
+      },
+      "697568": {
+        "text": "Return from the CallNear subroutine",
+        "expect": "COP [RestoreSavedPtr]"
+      }
+    }
+  }
+}

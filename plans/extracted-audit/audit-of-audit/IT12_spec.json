@@ -1,0 +1,608 @@
+{
+  "_note": "IT-12 hygiene sweep 1: history narration and ledger ids in the I001-I040 files. One spec.",
+  "system/engine/hdma_dma_spc.asm": {
+    "blockNote": { "edit": [
+      { "find": "OQ-61 is answered here: SpcFadeOutHandshake's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (whether the fade is audible before the following $01/$F0 commands is OQ-I021-2).", "with": "SpcFadeOutHandshake's $F1 IS the fade-out request, performed inside the SPC engine, not by 65816 code (not traced: whether the fade is audible before the following $01/$F0 commands)." },
+      { "find": "(the destination arms the transfer; OQ-64)", "with": "(the destination arms the transfer)" }
+    ] },
+    "partNotes": {
+      "SpcFadeOutHandshake": { "edit": [
+        { "find": "fade counters $30/$31 = $FF; answers OQ-61)", "with": "fade counters $30/$31 = $FF)" },
+        { "find": "Whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later is OQ-I021-2.", "with": "Not traced: whether the fade is audible before SpcTransferMusicData's $F0 stop arrives one or two frames later." }
+      ] }
+    },
+    "comments": {
+      "254380": "Port command $F1 = SPC engine CmdFadeOut (fade counters $30/$31 = $FF)"
+    }
+  },
+  "system/engine/actor_execution.asm": {
+    "blockNote": { "edit": [
+      { "find": "the name is historical — see CheckEnemyDefeatedFlag and StageBgChangeFromDeathIdx", "with": "the field holds an event-block index, not a death action: see CheckEnemyDefeatedFlag and StageBgChangeFromDeathIdx" },
+      { "find": "(see flag_helpers, OQ-67)", "with": "(see flag_helpers)" }
+    ] },
+    "partNotes": {
+      "InitActorPool": { "edit": [
+        { "find": "the role of $7F3000 is not traced (see audit OQ-15)", "with": "the role of $7F3000 is not traced" }
+      ] },
+      "CheckEnemyDefeatedFlag": { "edit": [
+        { "find": "or game over clears them, so whether they survive a room change is still open (OQ-67).", "with": "or game over clears them; no reset at ordinary scene changes was found in extracted/ (see flag_helpers)." }
+      ] }
+    }
+  },
+  "system/engine/combat_collision.asm": {
+    "blockNote": { "edit": [
+      { "find": "(role unresolved, OQ-8)", "with": "(role unresolved)" }
+    ] },
+    "partNotes": {
+      "CombatCollision_EnemyLoop": { "edit": [
+        { "find": "(role unresolved, OQ-8)", "with": "(role unresolved)" }
+      ] }
+    }
+  },
+  "system/engine/radar_map_screen.asm": {
+    "blockNote": { "edit": [
+      { "find": "so these are probably Dark Space entrances: OQ-63)", "with": "so these are probably Dark Space entrances)" }
+    ] },
+    "partNotes": {
+      "RadarScreenSetup": { "edit": [
+        { "find": "what the icon shows is unverified (OQ-63).", "with": "what the icon shows is unverified." }
+      ] }
+    },
+    "comments": {
+      "229930": "2×2 reward icon in the frame interior: tiles $32E8-$32EB (INC between stores); meaning unverified",
+      "229960": "Tile $32E5 at $7F0626 (purpose unverified)"
+    }
+  },
+  "system/engine/warps_interaction.asm": {
+    "blockNote": { "edit": [
+      { "find": "so the name is a misnomer (see the audit rename proposals).", "with": "so the name is a misnomer." }
+    ] }
+  },
+  "system/engine/event_blocks.asm": {
+    "blockNote": { "edit": [
+      { "find": "(PLP restores them, OQ-62)", "with": "(PLP restores them)" }
+    ] },
+    "partNotes": {
+      "QueueVisibleTileVram": { "edit": [
+        { "find": "(Z is inherited from the caller's flags, OQ-62)", "with": "(Z is inherited from the caller's flags)" }
+      ] }
+    }
+  },
+  "system/engine/DisplaySceneTitle.asm": {
+    "blockNote": { "edit": [
+      { "find": "(inferred; there is no clamp for N > 18, OQ-58)", "with": "(inferred; there is no clamp for N > 18)" }
+    ] }
+  },
+  "system/engine/forced_walk.asm": {
+    "partNotes": {
+      "SyncPlayerToCamera": { "edit": [
+        { "find": "$10 with $0008 set and $0200 cleared (OQ-60)", "with": "$10 with $0008 set (collision-aware movement) and $0200 cleared" }
+      ] }
+    },
+    "comments": {
+      "60334": "Clear $2008 in own $10 ($0008 = collision-aware movement, $2000 = skipped by SortActorsByDepth)",
+      "60819": "Set $0008 in the player's $10 (collision-aware movement)"
+    }
+  },
+  "system/engine/camera_scroll.asm": {
+    "blockNote": { "edit": [
+      { "find": "for the same spawn byte (OQ-57).", "with": "for the same spawn byte." }
+    ] },
+    "partNotes": {
+      "ScrollCameraInit": { "edit": [
+        { "find": "was found in extracted/ (OQ-57).", "with": "was found in extracted/." }
+      ] },
+      "ScrollCameraVertical": { "edit": [
+        { "find": "so they compute nothing (OQ-57).", "with": "so they compute nothing." }
+      ] }
+    },
+    "comments": {
+      "59780": "Store in forcedScrollOverride ($06C8); no reader outside layer1_scroll_actors was found"
+    }
+  },
+  "system/engine/flag_helpers.asm": {
+    "blockNote": { "edit": [
+      { "find": "so these flags outlive a single scene (OQ-67).", "with": "so these flags outlive a single scene." },
+      { "find": "outside the cleared block (OQ-68).", "with": "outside the cleared block." }
+    ] },
+    "partNotes": {
+      "TestWramFlag_Offset100": { "edit": [
+        { "find": "that ClearAllWramFlags clears (OQ-68).", "with": "that ClearAllWramFlags clears." }
+      ] },
+      "ClearAllWramFlags": { "edit": [
+        { "find": "was found (OQ-67).", "with": "was found." }
+      ] }
+    },
+    "comments": {
+      "45154": "Index $0100+n → byte wramFlags+$20 = $0AA0 (flags $0500-$0507), outside the block ClearAllWramFlags clears"
+    }
+  },
+  "system/engine/actor_pool.asm": {
+    "blockNote": { "edit": [
+      { "find": "stores the spawner's slot in $0024 (OQ-65).", "with": "stores the spawner's slot in $0024." }
+    ] },
+    "partNotes": {
+      "UnlinkActor": { "edit": [
+        { "find": "leaves actorListLast ($58) stale (OQ-66).", "with": "leaves actorListLast ($58) stale." }
+      ] },
+      "CopyActorState": { "edit": [
+        { "find": "(bit meanings: OQ-60)", "with": "(bit meanings: $2000 hides the actor from SortActorsByDepth, $0001 / $0002 are the depth-sort priority bits of SetPriorityMin / SetPriorityMax, $0800 not traced)" },
+        { "find": "$0024 receives the spawner's slot (OQ-65).", "with": "$0024 receives the spawner's slot." }
+      ] }
+    },
+    "comments": {
+      "45538": "Force $2000 on (not 'preserve'); AND #$F7FC below clears $0803 ($0001 / $0002 = depth-sort priority bits, $0800 not traced)",
+      "45576": "$0024 = spawner's slot (scripts later use $24 as scratch; reader of the initial value unknown)"
+    }
+  },
+  "system/engine/cop_handlers_dungeon_switch.asm": {
+    "blockNote": { "edit": [
+      { "find": "so a kill can outlive the room (OQ-67).", "with": "so a kill can outlive the room." }
+    ] },
+    "partNotes": {
+      "SetDungeonKillFlag": { "edit": [
+        { "find": "(cleared only as described in flag_helpers, OQ-67)", "with": "(cleared only as described in flag_helpers)" }
+      ] }
+    }
+  },
+  "system/engine/cop_handlers_script_control.asm": {
+    "blockNote": { "edit": [
+      { "find": "they are the thinker variants (rename proposal 90).", "with": "they are the thinker variants." }
+    ] },
+    "partNotes": {
+      "SetInteractHandler": { "edit": [
+        { "find": "; 'SetOnInteract' is only a stale name in the docs.", "with": "." }
+      ] }
+    },
+    "comments": {
+      "43518": "Entry bank → $02 (16-bit store: $03 also receives stack junk from $0D)"
+    }
+  },
+  "system/engine/cop_handlers_dialog.asm": {
+    "comments": {
+      "43174": "Set displayModeFlags bit 13 ($2000); no reader of this bit was found",
+      "43211": "Clear it so RunActors_CutsceneOnly skips this actor while the menu runs (inferred)",
+      "43295": "Clear it for the duration of the text (inferred reason)"
+    }
+  },
+  "system/engine/cop_handlers_actor_flags.asm": {
+    "blockNote": { "edit": [
+      { "find": ", despite the \"Ne\" (not-equal) in the COP name (audit rename proposal).", "with": "." }
+    ] }
+  },
+  "system/engine/cop_handlers_sprite.asm": {
+    "blockNote": { "edit": [
+      { "find": "right after SetHMirror; OQ-I022-1)", "with": "right after SetHMirror)" }
+    ] },
+    "partNotes": {
+      "ProcessAnimFlag": { "edit": [
+        { "find": "across later Stage ops (OQ-I022-1).", "with": "across later Stage ops." }
+      ] }
+    }
+  },
+  "system/engine/cop_handlers_vram.asm": {
+    "partNotes": {
+      "AdhocVramDma": { "edit": [
+        { "find": "on a nonzero destination (see OQ-45).", "with": "on a nonzero destination." }
+      ] }
+    }
+  },
+  "system/engine/cop_handlers_movement.asm": {
+    "blockNote": { "edit": [
+      { "find": "the actor does not move (OQ-56).", "with": "the actor does not move." },
+      { "find": "roughly halving the speed (OQ-55).", "with": "roughly halving the speed." }
+    ] }
+  },
+  "system/engine/cop_handlers_audio.asm": {
+    "blockNote": { "edit": [
+      { "find": "(answers OQ-61; whether it is audible before the following $01/$F0 commands is OQ-I021-2)", "with": "(not traced: whether it is audible before the following $01/$F0 commands)" }
+    ] },
+    "partNotes": {
+      "FadeThenStartMusic": { "edit": [
+        { "find": "OQ-61 answered in I021; audibility of the fade is OQ-I021-2.", "with": "Whether the fade is audible before the following $01/$F0 commands is not traced." }
+      ] }
+    },
+    "comments": {
+      "34610": "Clear $1000 in the child's $10 (mask $EFFF clears bit 12, not $0800); meaning of that bit not traced"
+    }
+  },
+  "system/engine/system_core.asm": {
+    "comments": {
+      "32830": "Read the byte at $000100 (the 'warmboot signature'); no writer of $83 there was found",
+      "32904": "$09C0, $09BE, $09C4 get the same pointer; no other reference to them was found",
+      "33408": "Timer preset $19 (25); overwritten with $3C below, so it never takes effect",
+      "33443": "$1E (30) is overwritten by the STZ enemyHealthTimer below: no 30-frame fadeout exists"
+    }
+  },
+  "system/engine/system_init.asm": {
+    "blockNote": { "edit": [
+      { "find": "sin(0) = $00; the older comment said slope_curve_table)", "with": "sin(0) = $00)" }
+    ] }
+  },
+  "system/engine/map_coords.asm": {
+    "blockNote": { "edit": [
+      { "find": "; the old comments called them MapCellLeft/Right)", "with": ")" }
+    ] }
+  },
+  "system/engine/cop_handlers_oam_attribs.asm": {
+    "blockNote": { "edit": [
+      { "find": "is the depth sort; older docs call them 'collision priority', which the code does not support.", "with": "is the depth sort; no collision role was found for them." }
+    ] }
+  },
+  "system/player/tile_collision.asm": {
+    "blockNote": { "edit": [
+      { "find": "(undecoded, audit OQ-16 in tile_collision_physics), $0E and above solid. The earlier 'layer-priority override' wording for the high nibble is wrong.", "with": "(meaning not decoded; see tile_collision_physics), $0E and above solid." }
+    ] }
+  },
+  "system/player/player_move_west.asm": {
+    "blockNote": { "edit": [
+      { "find": "whose meaning is undecoded (audit OQ-16 in tile_collision_physics); this file", "with": "whose meaning is undecoded; this file" }
+    ] },
+    "partNotes": {
+      "WallSlidePushDown": { "edit": [
+        { "find": " The original player_move_east comments called this push 'slide upward'; the arithmetic says downward and the east notes now agree (UNVERIFIED-RUNTIME, OQ-I029-4).", "with": "" }
+      ] }
+    },
+    "comments": {
+      "187288": "Type $06 at the current TL goes to the code_02DC4B wall-slide handler (type meaning undecoded)",
+      "187300": "Type $09 at the current BL goes to the code_02DC9F wall-slide handler (type meaning undecoded)",
+      "187757": "Mix the X sub-pixels into the Y sum: the following bit-2 test adds one more pixel of Y (purpose unclear)",
+      "188111": "Mix the X sub-pixels into the Y sum: the following bit-2 test removes one pixel of Y (purpose unclear)"
+    }
+  },
+  "system/player/player_move_ramps.asm": {
+    "blockNote": { "edit": [
+      { "find": " The older header said 'shared between east and diagonal dispatchers'.", "with": "" },
+      { "find": "read $05\n\n(The header of player_move_east says the $05 FindSlopeForEastMove result goes to WestRampDown; its code jumps to WestRampUp.)", "with": "read $05" },
+      { "find": "it is not 'Y up' as many older inline comments said.", "with": "it does not move the probe in Y." },
+      { "find": "in the $0A and $05 handlers (OQ-I038-2).", "with": "in the $0A and $05 handlers." }
+    ] },
+    "partNotes": {
+      "WestRampDown": { "edit": [
+        { "find": "negative (upward) while 4n < $20. Y grows downward, so the older 'positive, producing upward displacement' was wrong.", "with": "negative (upward, since Y grows downward) while 4n < $20." }
+      ] }
+    },
+    "comments": {
+      "186671": "TR open, BR solid: SnapYSouthCollision",
+      "186679": "TR solid, BR open: SnapYNorthCollision",
+      "187002": "TR open, BR solid: SnapYSouthCollision",
+      "187010": "TR solid, BR open: SnapYNorthCollision"
+    }
+  },
+  "system/player/player_move_east.asm": {
+    "blockNote": { "edit": [
+      { "find": "are undecoded wall-like types (OQ-I029-5), so", "with": "are undecoded wall-like types, so" },
+      { "find": " The old header sent $05 to WestRampDown.", "with": "" },
+      { "find": " The old header put the MapCellDown read in the aligned case; it is the straddling case.", "with": "" },
+      { "find": " (the old header had WestRampUp for $05)", "with": "" },
+      { "find": "nothing reads those bits (OQ-I029-3).", "with": "nothing reads those bits." },
+      { "find": " The old headers had aligned / not aligned the wrong way round.", "with": "" },
+      { "find": "(player_move_west, OQ-I029-4)", "with": "(player_move_west)" },
+      { "find": " The old header and comments said the opposite for both.", "with": "" },
+      { "find": " (not an 'EW velocity' as the old note said)", "with": "" }
+    ] },
+    "partNotes": {
+      "EastWallPushDown": { "edit": [
+        { "find": "(positive $24); the old text said up (OQ-I029-4). See", "with": "(positive $24). See" }
+      ] },
+      "EastWallPushUp": { "edit": [
+        { "find": "(negative $24); the old text said down.", "with": "(negative $24)." }
+      ] }
+    },
+    "comments": {
+      "186083": "Carry set = $05 -> WestRampUp (the probe is the centre column)",
+      "186088": "WestRampUp",
+      "186130": "Y flush and future TR $06 -> EastWallSouthFlag; anything else goes on to the ladder test",
+      "186094": "Current TR type $09 -> EastWallPushDown (undecoded wall type)",
+      "186104": "Current BR type $06 -> EastWallPushUp (undecoded wall type)",
+      "186267": "Set $AB bit 7: wall-slide flag, no reader found",
+      "186351": "Set $AB bit 7: wall-slide flag, no reader found",
+      "186334": "WallSlidePushDown: positive $24 (Y grows), so the player is pushed SOUTH",
+      "186426": "WallSlidePushUp: negative $24 (Y shrinks), so the player is pushed NORTH",
+      "187099": "High nibble nonzero = an actor solid mark ($F0): no nudge"
+    }
+  },
+  "system/player/player_move_south.asm": {
+    "blockNote": { "edit": [
+      { "find": " Several older comments in this file had the two cases the wrong way round.", "with": "" },
+      { "find": "undecoded wall-like types (audit OQ-16, OQ-I033-4).", "with": "undecoded wall-like types." },
+      { "find": " The old header called this a '64px grid'; it is a 16-pixel row line expressed in sub-pixels.", "with": "" },
+      { "find": " The old header described the first two cases as 'applies movement deltas directly' (it was the other way round).", "with": "" },
+      { "find": "(effective slow-down unverified, OQ-I033-3)", "with": "(effective slow-down unverified)" },
+      { "find": "is not decoded here; the older 'right-descending / left-descending' wording is unverified.", "with": "is not decoded here." },
+      { "find": "Earlier text called the East variant a slide 'toward the east edge'; the 'East' / 'West' in those names names the side the wall is on.", "with": "The 'East' / 'West' in the FineAdjustX* names names the side the wall is on." }
+    ] },
+    "partNotes": {
+      "SouthStairsTile": { "edit": [
+        { "find": " (an older comment said the cell below)", "with": "" }
+      ] },
+      "SouthSlopeLeft": { "edit": [
+        { "find": "alternating full and tiny steps (OQ-I033-3).", "with": "alternating full and tiny steps." }
+      ] },
+      "SouthWallSouthInteract": { "edit": [
+        { "find": "after the floor; see OQ-I033-2.", "with": "after the floor." }
+      ] },
+      "FineAdjustXEast": { "edit": [
+        { "find": ", not east as the old header said.", "with": ", not east." },
+        { "find": "this routine does not (OQ-I033-1).", "with": "this routine does not." }
+      ] },
+      "AutoAlignEW_South": { "edit": [
+        { "find": " The old text had the ranges as '6-8' and '1-5'.", "with": "" }
+      ] }
+    },
+    "comments": {
+      "185346": "64 sub-pixels = 16 pixels = one tile row",
+      "185218": "Type $03 slope under the left foot: SouthSlopeRight (slope geometry undecoded)",
+      "185710": "SnapYNorthCollision floors then adds $40, one row further south than SnapYSouthCollision would",
+      "185970": "t > 16: $02 = 16 - $02. For $02 above $10 this goes negative and the ORA below wraps X"
+    }
+  },
+  "system/player/player_move_ns.asm": {
+    "blockNote": { "edit": [
+      { "find": "are undecoded wall-like types (audit OQ-16, OQ-I029-5), so", "with": "are undecoded wall-like types, so" },
+      { "find": "\n\nThe older header had step 4 reversed ('sub-tile aligned: MapCellRight'); the code runs the MapCellRight probe only when X is NOT flush.", "with": "" },
+      { "find": " The old text called d < 8 the 'upper half'.", "with": "" },
+      { "find": "are undecoded (OQ-I033-3); the old part notes called the same types 'descending' and 'ascending' inconsistently.", "with": "are undecoded." },
+      { "find": "and NorthWallHandler west; the old headers said the opposite.", "with": "and NorthWallHandler west." },
+      { "find": "; the old text called it a 'wall interaction flag from a prior collision pass'.", "with": "." },
+      { "find": "recorded in $00 (OQ-I039-4).", "with": "recorded in $00." }
+    ] },
+    "partNotes": {
+      "NorthSlopeRight": { "edit": [
+        { "find": "undecoded (OQ-I033-3).", "with": "undecoded." }
+      ] },
+      "NorthProbeRedirect": { "edit": [
+        { "find": "with the cell in $00 (OQ-I039-4).", "with": "with the cell in $00." }
+      ] }
+    },
+    "comments": {
+      "184383": "Current TL type $06 -> SouthWallHandler (undecoded wall type: 'south wall' is a handler name)",
+      "184390": "Current TL type $03 -> NorthSlopeRight (slope direction undecoded)",
+      "184462": "That east cell solid ($0E and above): blocked path",
+      "184891": "Result unused"
+    }
+  },
+  "system/player/player_move_main.asm": {
+    "blockNote": { "edit": [
+      { "find": "own actor slot (the old note said the player actor):", "with": "own actor slot:" },
+      { "find": " The old comments called this bit a 'diagonal flag'; it only records that the horizontal phase ran this tick.", "with": "" },
+      { "find": "not deltas as the old comments said)", "with": "not deltas)" },
+      { "find": " (the old comments called them 'south wall' and 'east wall' contact),", "with": "," },
+      { "find": "always pass (OQ-I045-1).", "with": "always pass." },
+      { "find": " The old text gave the east range as '6-8' and the west range as 'offset 1-8, via 9+ check'.", "with": "" },
+      { "find": " The old header said an aligned probe gives $0000; the code (OR #$FFF0, EOR #$FFFF, INC) gives $10.", "with": " The computation is OR #$FFF0, EOR #$FFFF, INC." },
+      { "find": " (the same wall-like types as the north handlers; the old text called $06 a 'slope / transition' type and mentioned a DispatchDiag* system that does not exist)", "with": " (the same wall-like types as the north handlers)" }
+    ] },
+    "comments": {
+      "184352": "Bit $0800: never set anywhere, so the gate always passes",
+      "184364": "Bit $0400: never set anywhere, so the gate always passes"
+    }
+  },
+  "system/boot_logos/sFB_boot_logo.asm": {
+    "blockNote": { "edit": [
+      { "find": "(no reader found, OQ-I034-1)", "with": "(bit 14 of the word is bit 6 of hudDisableFlag at $09ED, the HUD-off bit that UpdateHUD tests)" },
+      { "find": " The old header said TM = $10 puts BG1 on the main screen and that the mask is $FFF0; TM bit 4 is the OBJ layer and the shipped mask is $FFFC.", "with": " TM = $10 is bit 4, the OBJ layer; it puts no BG on the main screen." }
+    ] },
+    "comments": {
+      "772285": "Bit 14 of the displayModeFlags word = bit 6 of hudDisableFlag ($09ED): HUD off"
+    }
+  },
+  "system/inventory/inventory_overlay.asm": {
+    "blockNote": { "edit": [
+      { "find": "\nThe older text called $0E00 'hardware shadow registers', $7E:3000 the 'actor pool', $0F00 a 'variable / script page' and $7F:0F00 a 'WRAM scratch page'; the pool code shows the real roles above.", "with": "" },
+      { "find": " (The older text said 'EnableDisplay'; no such call exists.)", "with": "" },
+      { "find": "bit 14 has no reader, OQ-I034-1)", "with": "bit 14 is bit 6 of hudDisableFlag at $09ED, the HUD-off bit)" },
+      { "find": "; the older note said 'warp / barrier markers')", "with": ")" },
+      { "find": "read by BuildSineLookupTable; the older text said 'dialogue')", "with": "read by BuildSineLookupTable)" }
+    ] },
+    "partNotes": {
+      "RestoreGameState": { "edit": [
+        { "find": "because they were never saved (OQ-I034-4).", "with": "because they were never saved." }
+      ] }
+    },
+    "comments": {
+      "191778": "Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off)",
+      "191914": "Zero camera targets / deltas and the scroll state; the camera words come back from the save area, the rest does not",
+      "191947": "scrollOverrideV ($06CA) is zeroed here but was not saved, so its old value is lost",
+      "191950": "Unnamed word $06CC, zeroed with the scroll state and never saved",
+      "191953": "Unnamed DP word $00B2, outside the saved DP range, zeroed and never restored"
+    }
+  },
+  "system/inventory/inventory_menu.asm": {
+    "blockNote": { "edit": [
+      { "find": ", so older comments that name \"B/Y/X\" describe the vanilla layout.", "with": "." }
+    ] },
+    "partNotes": {
+      "ArrangePickTarget": { "edit": [
+        { "find": "of the default remap (OQ-I028-1).", "with": "of the default remap." }
+      ] },
+      "ArrangePerformSwap": { "edit": [
+        { "find": "never matches (OQ-I028-2);", "with": "never matches;" }
+      ] }
+    },
+    "comments": {
+      "189879": "Mask $8044 also accepts the X and Y bits of the default remap; the vanilla ROM tests only the confirm bit",
+      "189988": "Y is now a slot ACTOR address, so this compare with the slot index never matches"
+    }
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_WindFlute": { "edit": [
+        { "find": "no-input-lock path (OQ-I026-3).", "with": "no-input-lock path." }
+      ] },
+      "UseItem_LolaMelody_Effect": { "edit": [
+        { "find": "code_038C68 instead (OQ-I026-2).", "with": "code_038C68 instead." }
+      ] }
+    },
+    "comments": {
+      "231160": "Vanilla BNE reaches loc_0386FA either way; transforms.json makes it BEQ UseItem_IncaStatueA_Mismatch (mismatch) in the normal extract",
+      "231435": "Vanilla BNE reaches loc_03880D either way; transforms.json makes it BEQ UseItem_IncaStatueB_Mismatch (mismatch) in the normal extract",
+      "232521": "Flag $40 already set (melody played here before): jump to code_038C68, which sets flag $01 and clears $0E with no message"
+    }
+  },
+  "functions/ActorMidpointCalc.asm": {
+    "blockNote": { "edit": [
+      { "find": "; the older 'used by combat collision to find the hit point' was wrong.", "with": "." },
+      { "find": "OQ-I038-3: when $06 is 0", "with": "When $06 is 0" }
+    ] }
+  },
+  "functions/EnemyInitBasic.asm": {
+    "blockNote": { "edit": [
+      { "find": " The older header said 'most enemy actors'.", "with": "" },
+      { "find": " The older 'solid + interactable' label has no reader behind it.", "with": "" }
+    ] }
+  },
+  "functions/SetPlayerGameOverFlag.asm": {
+    "blockNote": { "edit": [
+      { "find": "The name and the earlier note call bit $0200 'game over', but that is bit 9 of playerFlags", "with": "The name suggests 'game over', but game over is bit 9 of playerFlags" },
+      { "find": " (OQ-I030-2); nothing here flashes, and docs/code/bank0A-dungeon-enemy-actors.md calls it a 'boss kill invulnerability flash'.", "with": "; nothing here flashes." }
+    ] },
+    "comments": {
+      "697204": "Set actor-flag bit $0200 (not playerFlags bit 9, the real game-over bit)"
+    }
+  },
+  "functions/ActorDisplayModeSwap.asm": {
+    "blockNote": { "edit": [
+      { "find": "The older header called $0E 'displayModeFlags' (that is the global at $09EC) and $10 a 'statusWord', and described a swap 'from display mode $2000 to $1000' as if every caller started hidden.", "with": "The $0E written here is the actor's own attribute word, not the global displayModeFlags ($09EC)." }
+    ] }
+  },
+  "functions/EnemyDeathFlash.asm": {
+    "blockNote": { "edit": [
+      { "find": "What the animation looks like (the old note said \"brief white flash\") was not verified:", "with": "What the animation looks like was not verified:" }
+    ] }
+  },
+  "functions/SpawnFieldRevealEffect.asm": {
+    "blockNote": { "edit": [
+      { "find": "\n\nThe old header named an 'Incan Ruins wind trap' as a user (the four callers above are the real ones) and called +3 / +5 the 'target X tile' and 'X size'; they are the width and dstX.", "with": "" }
+    ] }
+  },
+  "functions/NpcDespawnStub.asm": {
+    "blockNote": { "edit": [
+      { "find": " (OQ-I025-6).", "with": "." }
+    ] }
+  },
+  "functions/FlickerParentActor.asm": {
+    "blockNote": { "edit": [
+      { "find": " (OQ-I026-5, OQ-I026-6).", "with": "." }
+    ] }
+  },
+  "functions/SetPlayerIdleFacing.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old header's 'frame counter' is the wait counter $08.", "with": "" }
+    ] },
+    "comments": {
+      "50938": "Wait counter = 0"
+    }
+  },
+  "functions/StandardEnemyDefeatHandler.asm": {
+    "blockNote": { "edit": [
+      { "find": "\n\n=== CORRECTIONS ===\n\nThe old header said ComposeDigitSprites_AtCursor assigns this as the OnDeath callback during enemy setup (no code there references it; the engine falls back to it when $7F1004 is empty), that it is about 360 bytes (it spans about 614), that it calls ClearLowHere (the COP is ClearSolidHere) and that the $12 $1000 write is a 'priority boost'. The comment on the first block said the gem drop is skipped when scene flag $0300 is set; it is the opposite: gems drop when the flag is set or enemies remain. EnemyDropSystem.asm repeated the inverted condition (corrected there). The 'about 20 enemy actor scripts' were 13 JumpFar sites, EnemyDefeatDispatch, 2 statues and 3 engine sites.", "with": "" }
+    ] },
+    "partNotes": {
+      "EnemyGemDropRouter": { "edit": [
+        { "find": " (not, as the old note said, when the flag is clear)", "with": "" }
+      ] }
+    }
+  },
+  "functions/game_over_sequence.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old comment credited the first block with spawning both helpers (it is a 33-tick wait first); 'sound #$0C' is the 16-bit pair $0C0C on both channels. The old header did not say that 100 gems are paid in the revive case, that the wramFlags are cleared only on a real game over, or that two different warp records are used.", "with": " The first block starts with a 33-tick wait; 'sound #$0C' is the 16-bit pair $0C0C on both channels. In the revive case 100 gems are paid; the wramFlags are cleared only on a real game over; two different warp records are used." }
+    ] },
+    "comments": {
+      "54845": "Palette bundles $10 then $0E"
+    }
+  },
+  "actors/player/player_character.asm": {
+    "blockNote": { "edit": [
+      { "find": "The meaning of $0100 and $2000 for the player is open (OQ-I025-1, OQ-I025-2).", "with": "The meaning of $0100 and $2000 for the player is not traced." },
+      { "find": "(off-screen) is set (OQ-I025-5).", "with": "(off-screen) is set." }
+    ] },
+    "partNotes": {
+      "PlayerCharacterDef": { "edit": [
+        { "find": "(meaning of both bits: OQ-I025-1)", "with": "(meaning of both bits not traced)" }
+      ] },
+      "PlayerIdleEntry": { "edit": [
+        { "find": "who sets it on the player is OQ-I025-2)", "with": "who sets it on the player is not traced)" }
+      ] },
+      "RangedAttackSouth": { "edit": [
+        { "find": "No projectile is spawned here (OQ-I025-5).", "with": "No projectile is spawned here." }
+      ] }
+    },
+    "comments": {
+      "181135": "Init: set $0100 in actor flags $10 and $0001 in $12 (meaning of both bits not traced), then store the actor slot as playerActor",
+      "181209": "Set $0100 in actor flags $10 again: block, attack and run-attack code clear it (meaning not traced)",
+      "181222": "Bit $2000 of $10: SortActorsByDepth skips actors with it set; idle then yields without acting (who sets it on the player is not traced)",
+      "183643": "Attack north: AttackInit, consume the north D-pad bit, Freedan wall-push test (BranchIfSolidSouth)",
+      "183660": "Tests solid SOUTH although this is the north attack; AttackSouth uses the same op"
+    }
+  },
+  "actors/large_ramps.asm": {
+    "blockNote": { "edit": [
+      { "find": " The older header ('increments playerSpeedEw or playerSpeedNs ... each frame') and docs/code/bank00/actors-infrastructure.md ('repeats while player remains near', NS also adjusted) do not match this control flow: playerSpeedNs is only read", "with": " playerSpeedNs is only read" },
+      { "find": " and LargeRampIdleHold contains no boost (OQ-I040-1).", "with": " and LargeRampIdleHold contains no boost." }
+    ] }
+  },
+  "actors/ramps.asm": {
+    "blockNote": { "edit": [
+      { "find": "its reader is unknown (see OQ-I032-5).", "with": "combat_collision includes it in the skip mask ($76E0) of its normal enemy-hits-player pass (the friendly pass uses $74E0, which allows it)." }
+    ] }
+  },
+  "actors/camera_delta_oscillator.asm": {
+    "blockNote": { "edit": [
+      { "find": ", not the 'subtle wobble' the older header claimed.", "with": "." },
+      { "find": "; the claim in docs/code/bank08-native-dao-pyramid-actors.md that it is used during pyramid scroll sequences is unsupported (OQ-I038-4). UNVERIFIED-RUNTIME.", "with": "." }
+    ] }
+  },
+  "actors/idle_sprite_display.asm": {
+    "blockNote": { "edit": [
+      { "find": "refers to it by name (OQ-I034-3).", "with": "refers to it by name." },
+      { "find": " The older header called it a static NPC / decoration and the chatPtr a dialog bank pointer; neither is supported (the interaction path is UNVERIFIED-RUNTIME).", "with": "" }
+    ] }
+  },
+  "actors/scene_flag_init.asm": {
+    "blockNote": { "edit": [
+      { "find": "; the earlier note's 'clear event flag byte zero' is wrong on both counts (it sets, and it names a bit, not a byte).", "with": "; the operand names a bit, not a byte, and the call sets it." },
+      { "find": " (the earlier note said slot #03 or #04 only)", "with": "" },
+      { "find": "is open (OQ-I030-1).", "with": "is not traced." }
+    ] }
+  },
+  "thinkers/hdma_circle_window_thinker.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old description (diamond-shaped brightness gradient, intensity / radius / centre offset) was wrong: nothing here touches brightness or colour.", "with": " Nothing here touches brightness or colour." }
+    ] },
+    "partNotes": {
+      "HdmaEmitRepeatSegments": { "edit": [
+        { "find": ": the old comment (\"direction bit, upward\") was wrong.", "with": "." }
+      ] }
+    }
+  },
+  "thinkers/sine_hdma_slow_wave.asm": {
+    "blockNote": { "edit": [
+      { "find": " The old description (\"8-step wave on channel $8800, 40-byte table, vertical distortion, Dao and ending-comet scenes\") mixed up the operands:", "with": " The operands:" }
+    ] }
+  },
+  "thinkers/oneshot_coldata_r11g4b2.asm": {
+    "blockNote": { "edit": [
+      { "find": "so the older name ('green tint') is only right for a subtract preset (OQ-I034-2); the current name states the three channel intensities (R 11, G 4, B 2) instead.", "with": "so the screen looks green-cyan only for a subtract preset; the name states the three channel intensities (R 11, G 4, B 2)." },
+      { "find": "The older 'South Cape scene group' claim is not backed by the table (scene names are not decoded), and 'before the warm palette cycler takes over' is unverified: the same list", "with": "Scene names are not decoded, so no scene-group name is given. Whether this runs before a warm palette cycler takes over is not traced: the same list" }
+    ] }
+  },
+  "thinkers/oneshot_coldata_warm_flash.asm": {
+    "blockNote": { "edit": [
+      { "find": "; the earlier note named them 'Larai Cliff and related overworld scenes', which is not backed by the table (scene names are not decoded).", "with": " (scene names are not decoded)." },
+      { "find": "backdropColors again (OQ-I033-5).", "with": "backdropColors again." }
+    ] }
+  },
+  "thinkers/palette_parent_child.asm": {
+    "blockNote": { "edit": [
+      { "find": "appear in the records (OQ-I040-3).", "with": "appear in the records." },
+      { "find": "was not traced (OQ-I040-3).", "with": "was not traced." }
+    ] }
+  },
+  "thinkers/scanline_band_hdma_thinker.asm": {
+    "blockNote": { "edit": [
+      { "find": "was not checked; see the questions file.", "with": "was not checked." }
+    ] }
+  },
+  "_end": ""
+}

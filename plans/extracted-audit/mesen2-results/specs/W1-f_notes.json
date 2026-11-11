@@ -1,0 +1,15 @@
+{
+  "_note": "W1-f draft (2026-11-08), see mesen2-results/W1-f_20261108.md. Measured in ROM O (SHA-1 38de0c84...): GetPlayerFacingDirection runs while body_table row $08 is active (3 runs, session f_shadow_aura: Shadow uses the equipped Aura item, UseItem_Aura -> PlayerAuraTransformEntry -> SetPlayerSpriteDirect #08). With $0AC8 = 8 the facing byte index is $0F8A for animation frame 1: the word read at FacingFormOffsetTable + 8 is $0100 (the first two bytes of FacingData_WillAbilities), and $83:F177 + ($0100 - $F177 + frame) overflows the bank to $84:0100 + frame, so the facing byte is read from low WRAM $0100 + frame (the stack page, not ROM); the run read $DC (A = $19DC, carry set, no facing; the logged stack page was F4 DC 19 9D 3E A3 A5 21). Replaces the 'Not traced' sentence of the shipped part note. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/W1-f_notes.json --dry-run.",
+  "tables/body_table.asm": {
+    "partNotes": {
+      "body_table": {
+        "edit": [
+          {
+            "find": "the word it reads there is the first two bytes of FacingData_WillAbilities, which follows the table directly. Not traced: whether GetPlayerFacingDirection runs while row 8 is active.",
+            "with": "the word it reads there is the first two bytes of FacingData_WillAbilities ($0100), which follows the table directly. That word minus the table base plus the animation frame overflows the bank offset, so the facing byte is read from low WRAM ($84:0100 + frame, the stack page), not from ROM. GetPlayerFacingDirection does run while row 8 is active (the Aura transformation); the byte it read there was $DC (carry set, no facing), and it changes with whatever the stack page holds."
+          }
+        ]
+      }
+    }
+  }
+}

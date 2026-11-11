@@ -1,0 +1,159 @@
+{
+  "_note": "G1 draft (2026-11-08, ROM O, states S10/S11/S12/S12b). Apply pass only; investigation sessions run --dry-run. Dry-run: npm run merge -- plans/extracted-audit/mesen2-results/specs/G1_notes.json --dry-run. Source: mesen2-results/G1_20261108.md and raw/G1_*.txt. Entries: (1) combat_collision header + part note: phase 1 is the chain reaction of a hit victim (PlayerAttackHitTest), phase 2 is the source pass (ApplyHitDamageToVictim); (2) enemy_stats_table: which attack uses which routine; (3) attack_ability_system block note + inline comments: ability index argument, Spin Dash launch loads the Psycho Slider record, Aura Barrier record never loaded; (4) ability_damage_tables part notes; (5) player_character comments naming the ability index; (6) hit_switch: $0001 gives $FFEF; (7) EnemyInitBasic: no HP replacement on a hit. Overlap with specs/F3_notes.json: none (F3 touches spriteset_aura and attack_ability_system comment 178745 only). No names spec: no label changes.",
+  "system/engine/combat_collision.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "If eligible, calls PlayerAttackHitTest.",
+          "with": "If eligible and the actor's iframe counter is not negative, calls PlayerAttackHitTest. The actor tested here is a victim that was just hit (ApplyHitDamageToVictim sets $0080 and a positive counter, 17 frozen frames for a non-player actor), and the call is its chain reaction against the other actors it overlaps; no attack of the player is evaluated here (measured for melee, Psycho Dash, Psycho Slider, Spin Dash, Dark Friar and the Aura Barrier orbitals: all go through phase 2)."
+        },
+        {
+          "find": "After player attack processing, checks all actors against the current enemy's hitbox for enemy-hits-player collision.",
+          "with": "After phase 1, builds the hit rectangle of the current actor when that actor has $0400 (the player while it attacks, Dark Friar projectiles and fragments, the Aura orbitals, an actor that died on the inline-lethal path) and has none of $0140, then checks every actor of the render list against it. Each overlapped actor is hit through ApplyHitDamageToVictim, with the current actor as the source. An enemy touching the player is not decided here: it goes through ApplyInteractionDamage."
+        },
+        {
+          "find": "Player attacks enemy (PlayerAttackHitTest):",
+          "with": "Chain reaction of a hit victim (PlayerAttackHitTest; no attack of the player uses it):"
+        },
+        {
+          "find": "chainDamage stored at $7F101E,X accumulates across consecutive hits",
+          "with": "chainDamage ($7F101E,X) of the attacker is the net damage of the hit that stunned it (ApplyHitDamageToVictim stores it); the victim of the chain hit gets chainDamage / 2 as its own chainDamage, so the value halves per hop (measured: net damage 6 gives hop damage 4 and victim chainDamage 3; net damage 1 gives hop damage 1 and victim chainDamage 0)"
+        }
+      ]
+    },
+    "partNotes": {
+      "CombatCollision_EnemyLoop": {
+        "edit": [
+          {
+            "find": "Phase 1 (player attack test):",
+            "with": "Phase 1 (chain reaction of a hit victim):"
+          },
+          {
+            "find": "If eligible and the enemy's iframe counter is non-negative, calls PlayerAttackHitTest.",
+            "with": "If eligible and the actor's iframe counter is non-negative (the 17 frames of a positive counter counting down after a hit), calls PlayerAttackHitTest with that actor as the attacker."
+          },
+          {
+            "find": "Phase 2 (enemy-hits-player test):",
+            "with": "Phase 2 (source actor hits the actors it overlaps):"
+          },
+          {
+            "find": "constructs the current enemy's AABB from metasprite hitbox fields",
+            "with": "constructs the AABB of the current actor (the source: it needs $0400 and none of $0140) from metasprite hitbox fields"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "244729": {
+        "text": "$0080 in the tested actor's $10 must be set: the actor is in hit-stun (ApplyHitDamageToVictim sets it on a victim, ApplyInteractionDamage on the player, RunActors_Normal clears it when the iframe counter reaches zero), so this test is the chain reaction of a victim",
+        "expect": "BIT"
+      }
+    }
+  },
+  "tables/enemy_stats_table.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "PlayerAttackHitTest (the player's attack box) does not read DEF: its damage is chainDamage / 2 + 1, with chainDamage accumulating over consecutive hits of one attack (formulas in the combat_collision header). Not traced: which attack of the game goes through which of the two routines.",
+          "with": "Every attack of the player (melee, Psycho Dash, Psycho Slider, Spin Dash, Dark Friar, Aura Barrier orbitals), the hit switch and the laborer go through ApplyHitDamageToVictim (measured; formula in the combat_collision header). PlayerAttackHitTest does not read DEF: it runs only for an actor that is in its own hit-stun (the chain reaction) and its damage is chainDamage / 2 + 1, where chainDamage is the net damage of the hit that stunned that actor, halved at every hop."
+        }
+      ]
+    }
+  },
+  "actors/player/attack_ability_system.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the damage bonus that combat_collision adds to the hit strength. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7.",
+          "with": "the bonus that ApplyHitDamageToVictim adds to the hit strength (abilityDamageBonus on every hit, rangedDamageBonus only when the source is not the player actor in slot $1000). The value in A is the record number in the table (0, 1 or 2), not an animation table entry. Values by level: Psycho Dash 5/10, Psycho Slider 5/8, Spin Dash 4/7; Dark Friar 5/8/12, Aura Barrier 5/9, Earthquaker 0/7. Which record each ability loads: Psycho Dash loads Will index 0; the Psycho Slider loads index 1; Spin Dash loads index 2 when the charge ends and index 1 again in SpinDashLaunch, so the hits of a launched Spin Dash use the Psycho Slider value (5 at level 0, measured), not 4/7; every Dark Friar projectile loads Freedan index 0; the Aura Barrier never calls a loader, so its orbitals hit with whatever rangedDamageBonus holds (0 in the measured run, no Dark Friar cast before); Earthquaker loads Freedan index 2 in LedgeJumpDropLand (read from the code, not run)."
+        }
+      ]
+    },
+    "comments": {
+      "179244": {
+        "text": "A = 0: Freedan ability record 0 (Dark Friar) for LoadAbilityDamageB",
+        "expect": "LDA"
+      },
+      "179485": {
+        "text": "A = 0: Freedan ability record 0 (Dark Friar) for LoadAbilityDamageB",
+        "expect": "LDA"
+      },
+      "179872": {
+        "text": "A = 0: Will ability record 0 (Psycho Dash) for LoadAbilityDamageA",
+        "expect": "LDA"
+      },
+      "180475": {
+        "text": "Charge complete or minimum reached; A = 2: Will ability record 2 (Spin Dash 4/7) for LoadAbilityDamageA, replaced by the Psycho Slider record in SpinDashLaunch — transition to projectile launch phase",
+        "expect": "LDA"
+      },
+      "180637": {
+        "text": "A = 1: Will ability record 1 (Psycho Slider 5/8) for LoadAbilityDamageA; the launched Spin Dash hits with this value, not with the Spin Dash record (index 2)",
+        "expect": "LDA"
+      },
+      "181127": {
+        "text": "rangedDamageBonus ($09E2) = Freedan ability damage bonus for the current level (Dark Friar 5/8/12, Earthquaker 0/7); the Aura Barrier record (index 1, 5/9) is never loaded",
+        "expect": "STA"
+      }
+    }
+  },
+  "tables/ability_damage_tables.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "combat_collision adds that value to the hit strength.",
+          "with": "ApplyHitDamageToVictim (combat_collision) adds abilityDamageBonus to every hit and rangedDamageBonus only when the source is not the player actor. The Aura Barrier record (Freedan index 1) is never loaded, and a launched Spin Dash hits with the Psycho Slider record (attack_ability_system block note lists which record each ability loads)."
+        }
+      ]
+    },
+    "partNotes": {
+      "ability_damage_aura_barrier": {
+        "edit": [
+          {
+            "find": "damage 5 / 9.",
+            "with": "damage 5 / 9. No code loads this record: an Aura Barrier orbital hits with whatever rangedDamageBonus holds (0 in the measured run)."
+          }
+        ]
+      },
+      "ability_damage_spin_dash": {
+        "edit": [
+          {
+            "find": "damage 4 / 7.",
+            "with": "damage 4 / 7, loaded when the charge ends; SpinDashLaunch then loads the Psycho Slider record, so the launched Spin Dash hits with 5 / 8 (measured: abilityDamageBonus 5 at level 0)."
+          }
+        ]
+      }
+    }
+  },
+  "actors/player/player_character.asm": {
+    "comments": {
+      "182010": {
+        "text": "Drop landing: A = 2, Freedan ability record 2 (Earthquaker) for LoadAbilityDamageB, check scene $DD skip, spawn terrain shake + camera shake",
+        "expect": "LDA"
+      },
+      "183295": {
+        "text": "Psycho Slider NS: A = 1, Will ability record 1 (Psycho Slider) for LoadAbilityDamageA, set body sprite #04; south or north by speed sign",
+        "expect": "LDA"
+      }
+    }
+  },
+  "actors/hit_switch.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "which one it picks was not traced",
+          "with": "this actor has bit $0001 set, so ApplyHitDamageToVictim writes $FFEF to its iframeCounter: measured -17 after the first hit, counting up while the switch keeps ticking"
+        }
+      ]
+    }
+  },
+  "functions/EnemyInitBasic.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Whether the damage code replaces the HP with a stats-table lookup on the first hit was not traced (UNVERIFIED-RUNTIME).",
+          "with": "The damage code does not replace the HP with a stats-table lookup on a hit: the laborer of scene $3F (HP set to 1 after the JSL) keeps HP 1 until its first hit and dies on it (1 to 0, inline-lethal path). The kidnapper (HP 5) was not reached at runtime."
+        }
+      ]
+    }
+  }
+}

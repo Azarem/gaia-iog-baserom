@@ -1,0 +1,226 @@
+{
+  "_note": "FL27 notes spec: block notes of watermia and euro actors whose shipped text is wrong or hides the flag logic the code runs, plus the UseItem_Teapot part note. Each note describes the code as it is now; flags are named by index and scenes by id.",
+  "watermia/wa78_lance_camera_pan.asm": {
+    "blockNote": [
+      "Camera-bob controller of the Watermia scenes ($78 and $7F).",
+      "",
+      "At spawn the actor sets bit $1000 in its flags, writes cameraBoundsY = $0400 and waits for flag $8D (WaitOnFlagByte ( #8D, #01 ), set by wa78_intro in the middle of the arrival cutscene; in scene $7F the flag is already set, so the loop starts at once). It then reads camera_keyframe_078238 in a loop: every entry is a signed per-frame step and a duration; the step is added to cameraTargetY on every frame for that many frames, and an entry with duration 0 restarts the table. No dialog and no other actor is involved; the loop never ends while the scene runs."
+    ]
+  },
+  "watermia/watermia/wa78_moving_woman.asm": {
+    "blockNote": [
+      "Wandering woman of Watermia (scene $78, spawn parameter #01).",
+      "",
+      "The actor walks with NpcRandomWanderAI. Her interact handler has two texts chosen by flag $96 (the festival night, set by the Great Wall reunion and cleared when the Russian Glass game ends): with $96 clear she says 'This is Watermia. The houses are built on rafts. We like to move around.'; with $96 set she says 'A woman in pink chanted over that lotus leaf.'."
+    ]
+  },
+  "watermia/lukes_house/wa79_neil.asm": {
+    "blockNote": [
+      "Neil in Luke's house (scene $79): four states by persistent flags, then the departure for Euro.",
+      "",
+      "$94 set: Neil dies at spawn (the party has left). Otherwise he stands solid and the handler depends on $97 and $96. Before the glass night ($96 and $97 clear): 'The house on this raft gives me an idea for a new invention.'. $96 set: 'If you go west of here, there's a huge desert. You can't cross it on foot without Kruks. How will I get a Kruk?'. $97 set (the game is won): with scratch $01 clear he says 'You got Kruks? ... I think we should go west, to Euro...'; scratch $01 is set by wa79_lance's post-game handler when $A5 is clear, so the player has to talk to Lance first and Neil afterwards within one visit. With $01 set the handler prints the departure text, sets $94, stores the companion slots $0D60-$0D66, stages the world-map move and queues scene $91."
+    ]
+  },
+  "watermia/lukes_house/wa79_erik.asm": {
+    "blockNote": [
+      "Erik in Luke's house (scene $79): three states by persistent flags.",
+      "",
+      "$94 set: Erik dies at spawn. $97 set: 'I wish Lance and Lilly were coming, too...'. $96 set: 'There is a full moon tonight. The village seems different.'. Otherwise: 'Heh heh. I've found something good. Go outside and look behind the house. I feel a little guilty, but ...'."
+    ]
+  },
+  "watermia/lukes_house/wa79_kara.asm": {
+    "blockNote": [
+      "Kara in Luke's house (scene $79): the largest party script, five states.",
+      "",
+      "$94 set: Kara dies at spawn. $97 set: 'Neil's family runs a trading company in Euro.'. $96 set: 'A Kruk is an odd animal.'. Otherwise she stands solid and, with $91 clear, waits for scratch $02 (set by Lily) in the birthday sequence, spawns the cake child, prints the cake dialog and sets scratch $03; before that her handler says 'Watermia is very pretty, but I've heard a terrible rumor.'.",
+      "",
+      "With $91 set (after the Lance and Lily scene $7F) she hands Will Lance's Letter (item $16): when $92 is clear she gives the item (on a full inventory she takes a Red Jewel, counted into jewelsCollected, or a Herb first), sets $92, locks the player ($CFFC) and prints Will's recollection ('So in the morning... When I awoke, Lance had disappeared...'). With $92 set her handler says 'What happened to Lance and Lilly? I'm worried.'. When the player holds neither a Red Jewel nor a Herb the branch falls through into the Red Jewel exchange (RemoveItem #01 and +1 on jewelsCollected) without a check."
+    ]
+  },
+  "watermia/lukes_house/wa79_lily.asm": {
+    "blockNote": [
+      "Lilly in Luke's house (scene $79): the birthday surprise and four later states.",
+      "",
+      "$97 set: she stands at tile (08,09); with $A5 clear she says 'I decided to stay in this town, too. Ask Lance the reason why.', with $A5 set 'Rumor is we're going to collide with a big star. I don't believe rumors like that.'. $96 set: tile (08,09), 'I hope Lance's father recovers quickly.'. $91 set: she dies at spawn (she is in the scene $7F exchange or gone). Otherwise she stands solid with 'I heard that Lance saw someone he knew in town.' until Lance sets scratch $01; then she animates, prints the surprise dialog ('What? Everybody remembered my birthday?'), sets scratch $02, waits for scratch $04 (set by Lance), says 'Excuse me everyone. I'll be right back..', walks off and queues scene $7F."
+    ]
+  },
+  "watermia/lukes_house/wa79_lance.asm": {
+    "blockNote": [
+      "Lance in Luke's house (scene $79): the party proposal and the later gifts.",
+      "",
+      "With $97 clear and $96 clear: if $91 is set, or $90 is clear (he has not met his father yet), Lance dies at spawn. With $90 set and $91 clear he locks the player ($CFFC), moves the player's Y by -2, prints \"Let's have Lilly's birthday party while we're all together.\", sets scratch $01 (Lily's cue), waits for scratch $03 (set by Kara), prints \"Ah, Lilly. Can I talk to you for a minute? I'll wait outside.\", walks and sets scratch $04.",
+      "",
+      "With $97 clear and $96 set he stands at tile (07,09) with \"I made my father very happy before. I think he will slowly recover.\".",
+      "",
+      "With $97 set the handler depends on $A5: clear -> 'I'm sorry, but I want to stay here...' and scratch $01 is set (it releases Neil's departure talk); set -> the Red Jewel gift once: with $E2 clear it prints 'My father's getting better every day...' and gives item $01 (a full inventory jumps to HiddenRedJewelInventoryFull and $E2 stays clear), then sets $E2; with $E2 set it prints 'I hope you get to see your father soon.'."
+    ]
+  },
+  "watermia/lances_fathers_house/wa7A_lance.asm": {
+    "blockNote": [
+      "Lance in his father's house (scene $7A): the visit that sets flag $90.",
+      "",
+      "$90 set: Lance dies at spawn. Otherwise he stands solid with the handler code_07AB6B, which sets scratch $02. The main script waits for scratch $02, locks the player ($EFFC), starts music #1B and prints 'Will, do you recognize this person? He's my father.'; from then on the handler is code_07AB6F: with scratch $01 clear (set by wa7A_lances_father when $A5 is clear) it repeats that line; with $01 set it prints 'He seems to have lost his memory. I finally met my lost father, but...' and sets $90. The main script waits for $90 and then, when the player stands in tiles (07,07)-(08,0A), locks the player ($CFFC), walks, prints 'Will, wait. I'll go, too. I'm preparing Lilly's birthday party. I want to finish by dark. Let's go to our room.' and dies."
+    ]
+  },
+  "watermia/lances_fathers_house/wa7A_lances_father.asm": {
+    "blockNote": [
+      "Lance's father (scene $7A): two states by flag $A5.",
+      "",
+      "$A5 clear (the party has not been to Euro): 'I went on an expedition with Olman. It was scary, but fun.' and scratch $01 is set (Lance's handler reads it). $A5 set: 'Oh, Will. Sorry I made you worry. Lance and Lilly did their best to nurse me back to health...'."
+    ]
+  },
+  "watermia/glass_players_house/wa7D_glass_opponent.asm": {
+    "blockNote": [
+      "The glass player's house actor (scene $7D): the sick man before the game, the widow with the will after it.",
+      "",
+      "$95 set (the will was handed over): the actor dies at spawn. $97 set (the glass game was won): it sets $95, hides itself ($2000 in its flags), moves to tile (00,01), locks the player ($CFFC), prints the woman's text about her husband's will (\"To My Opponent\") and gives item $18 (Will). When the inventory is full it takes one Red Jewel (adding 1 to jewelsCollected) or else one Herb, prints \"Oh. Your inventory is full. I'll hold on to one of your Red Jewels...\" and gives the item. $96 set: the actor dies. Otherwise it stands solid with \"Man: Cough, cough. I seem to have caught a little cold.\"."
+    ]
+  },
+  "watermia/lance_lily_exchange/wa7F_lance.asm": {
+    "blockNote": [
+      "Lance in the bouquet scene (scene $7F): the producer of the scene's last steps.",
+      "",
+      "Scratch handshake with wa7F_lily: he waits for $01 (Lily's first line), spawns his bouquet child (code_07B1C2, which dies when $02 is set), waits for $02 and $03, prints 'Yes, the words are harder to say than a tongue twister.', starts music #1B, prints the confession ('Lilly... I love you...', 'You don't have to answer right away...') and sets $04; he then waits for $05 (Lily has run off), walks toward (02F8,0120) and spawns the narration child, which prints 'We had no idea what had happened. That day, Lilly didn't come back to her room.', sets $91 and queues scene $79."
+    ]
+  },
+  "watermia/lance_lily_exchange/wa7F_lily.asm": {
+    "blockNote": [
+      "Lilly in the bouquet scene (scene $7F).",
+      "",
+      "At spawn she locks the player ($CFFC) and sets the hidden bit $2000 on the player actor, then runs the scratch handshake with wa7F_lance: first line ('What? You're not yourself. Relax.') -> sets $01; bouquet line -> sets $02 and spawns her bouquet child (code_07B1CD, which dies when $04 is set); 'They smell wonderful...' -> sets $03; waits for $04 (Lance's confession), runs off the screen diagonally and sets $05."
+    ]
+  },
+  "watermia/watermia/wa78_prize_kruk.asm": {
+    "blockNote": [
+      "Prize Kruk of the Russian Glass game (scene $78, four placements).",
+      "",
+      "The actor dies at spawn when $94 is set (the party has left for Euro) or when $97 is clear (the game is not won yet). In between it is a solid Kruk that waits while off screen, shows sprite frame #1C and says \"These are the Kruks I was given. I have to let everyone know.\"."
+    ]
+  },
+  "euro/euro/eu91_intro.asm": {
+    "blockNote": [
+      "Euro arrival narration and scene change (scene $91).",
+      "",
+      "Guarded by $A5: set -> the actor dies at spawn. Otherwise it locks the player ($CFFC), hides the player actor, spawns the narration actors, plays 'We crossed the desert and finally arrived in the village of Euro.', sets $A5 and queues scene $96 (the guest room). $A5 is also read by three Watermia actors as the sign that the party has been to Euro."
+    ]
+  },
+  "euro/geezer_central/eu92_rofsky.asm": {
+    "blockNote": [
+      "Rofsky in the Euro geezer house (scene $92): first-visit argument, then teapot talk.",
+      "",
+      "Flag $9E clear: at spawn the actor sets $9E, locks the player ($CFFC), plays the argument with Erasquez ('True genius is a violent thing!' / 'You just dash off packs of lies!!') and unlocks. Afterwards he stands solid; with the Teapot (item $19) he says 'Oh, that's the Teapot... It really does exist...', otherwise 'There is a dispute about the teapot enshrined at Mt.Kress temple...'."
+    ]
+  },
+  "euro/geezer_central/eu92_erasquez.asm": {
+    "blockNote": [
+      "Erasquez in the Euro geezer house (scene $92): the Teapot hint that sets flag $9F.",
+      "",
+      "Without the Teapot (item $19): 'Erasquez: I feel the presence of evil from somewhere in town...Use the Teapot on anyone you suspect.'. With the Teapot and $9F clear he sets $9F and says 'Hey, you! I feel a strange power coming from you... At the right time, go to Mt.Kress and take a look at the Teapot.' followed by 'Rofsky marked Mt.Kress on Will's map!'; with $9F set: 'The spirits' tears in the teapot reflect your true form.'. $9F is read by the Euro world-map exit, which then offers Mt.Temple."
+    ]
+  },
+  "euro/power_house/eu93_found.asm": {
+    "blockNote": [
+      "Man in the Euro power house (scene $93): a one-time strength gift.",
+      "",
+      "$A6 clear: the actor sets $A6, prints 'You found it here. I understand your wishes. I'll give you the power at once.' and adds 1 to playerStr ($0ADE). $A6 set: 'Well, go.'."
+    ]
+  },
+  "euro/rolek_mansion/eu95_ann.asm": {
+    "blockNote": [
+      "Ann at the Rolek mansion (scene $95): the Jackal warning and the apple errand.",
+      "",
+      "$D6 clear: she tells about the cloaked man asking for Kara and asks 'Should I tell Kara about it?' with the rows 'If you must!' and 'No, please don't!'. Row 1 prints 'I don't like that Kara. She acts like some kind of princess...' and sets nothing; row 2 or cancel prints 'Heh heh. I've found a weakness. Aah. I want an apple. Let's go to the marketplace!' and sets $D6.",
+      "",
+      "$D6 set: with $E5 set she says 'I'll take care of Kara...'. Otherwise, without a Red Apple (item $28) she repeats the apple text; with an apple the first one sets $E3, the second $E4 (each removes the apple and prints 'Thanks. I can't eat any more.'), and the third removes the apple, prints the jewel text, gives item $01 and sets $E5 (a full inventory jumps to HiddenRedJewelInventoryFull and leaves $E5 clear, with the apple already spent)."
+    ]
+  },
+  "euro/rolek_mansion/eu95_neil.asm": {
+    "blockNote": [
+      "Neil at the Rolek mansion (scene $95): two states by flag $A8.",
+      "",
+      "$AA set: Neil dies at spawn. Otherwise he stands solid and his interact handler depends on $A8. $A8 clear (the Teapot has not been used here): 'To live for yourself or for others, that's the question...'. $A8 set: the handler prints the long dialog ('I finally realize how important my parents are to me. I wish I could have told them...'), sets $AA and queues scene $96."
+    ]
+  },
+  "euro/rolek_mansion/eu95_neils_father.asm": {
+    "blockNote": [
+      "Neil's father at the Rolek mansion (scene $95): a Moon Tribe reveal triggered by the Teapot.",
+      "",
+      "$A8 set: the actor dies at spawn. Otherwise it stands solid with 'You can't go wrong by taking over the Rolek Company.' and waits for $A8 (set by UseItem_Teapot when the Teapot is used in tiles (28,09)-(2D,0D) of this scene). Then it locks the player ($EFFC), starts music #1B, walks, prints 'Moon Tribe: Ku ku ku... Soon this world will be wrapped in darkness. The previous owner of this body is now a skeleton sleeping under the shrine...', walks toward (0268,0060), starts music #04 and unlocks."
+    ]
+  },
+  "euro/rolek_mansion/eu95_neils_mother.asm": {
+    "blockNote": [
+      "Neil's mother at the Rolek mansion (scene $95).",
+      "",
+      "$A8 set: the actor dies at spawn. Otherwise it stands solid with 'We've made money and wish to spend our remaining years enjoying life. Why don't you succeed us...' and waits for $A8 (the Teapot use); then it clears its solidity, walks off and moves toward (0268,0060), the same target as Neil's father."
+    ]
+  },
+  "euro/guest_room/eu96_neil.asm": {
+    "blockNote": [
+      "Neil in the Euro guest room (scene $96): the evening greeting and the morning scene.",
+      "",
+      "$AC set: Neil dies at spawn. $AB set: he stands at tile (0A,0A) with the handler 'Neil: Take care, everyone.'. $AA set (Neil talked to the party in the mansion): the morning scene: locks the player ($EFFC), prints 'The next morning. Disappointment awaits...' and Neil's 'Good morning. Sorry about yesterday...' about taking over the company, starts music #1B, prints 'Kara, someone's come asking about you. Something about being an old friend.', sets scratch $01 and waits for it to be clear (Kara moves and clears it), then 'Hey! Come on in!' and spawns Hamlet (code_07DECB, which sets scratch $02); Neil waits for $02, starts music #02, prints Kara's reunion with Hamlet, sets $AB and unlocks. $A4 set: he dies at spawn. Otherwise the first greeting: sets $A4, locks the player ($CFFC), 'Well, make yourself at home.. I want to talk to my parents. It's been three years.'."
+    ]
+  },
+  "euro/guest_room/eu96_kara.asm": {
+    "blockNote": [
+      "Kara in the Euro guest room (scene $96): evening comment, morning reaction, departure.",
+      "",
+      "$AC set: Kara dies at spawn. $AB set: her handler says 'To the west of here are the ruins of Ankor Wat. That is where the laborer's home is located. Let's go!', stores the companion slots $0D60-$0D66, stages the world-map move and queues scene $AC. Otherwise her handler says 'What a big house! The townspeople seem to be richer than the King...'; the main script waits for $AA, then for scratch $01 (set by Neil), moves and clears $01."
+    ]
+  },
+  "euro/guest_room/eu96_erik.asm": {
+    "blockNote": [
+      "Erik in the Euro guest room (scene $96).",
+      "",
+      "$AC set: Erik dies at spawn. $AA set: 'I just don't understand women.'. Otherwise: 'I'm scared! What if I have to go to the bathroom and I can't find it?'."
+    ]
+  },
+  "euro/flea_market/eu97_life_medicine.asm": {
+    "blockNote": [
+      "Life Medicine in the Euro flea market (scene $97): a free one-time max HP gift.",
+      "",
+      "$F0 set: the interact handler prints 'I'm sorry... One to a customer.'. Otherwise it asks 'This is Life Medicine. Try some?' (rows Yes/No); Yes sets $F0, adds 1 to playerMaxHp and playerHp, prints 'Your power is increased!' and the actor dies. No money is taken."
+    ]
+  },
+  "euro/flea_market/eu97_dark_medicine.asm": {
+    "blockNote": [
+      "Dark Medicine in the Euro flea market (scene $97): a free one-time Dark Friar power gift.",
+      "",
+      "$F1 set: the actor dies at spawn. Otherwise it asks 'That's called Dark Medicine. Try some?' (rows Yes/No). Yes: if $0B1C is 2 it prints 'The Dark Friar's power is strong enough!' and changes nothing; otherwise it writes $0B1C := 1, sets $F1 and prints 'Freedan's Dark Power has increased! The Dark Friar's power is increased!'. The text reports an increase; the code writes 1 even when $0B1C already holds 1."
+    ]
+  },
+  "euro/friezers_house/eu9A_friezer.asm": {
+    "blockNote": [
+      "Friezer in his Euro house (scene $9A).",
+      "",
+      "$A7 set (the Mt. Kress entrance intro has played): the actor dies at spawn. Otherwise: 'I am the explorer, Friezer. I, too, plan on leaving my name in history as the discoverer of the Tower of Babel.'."
+    ]
+  },
+  "euro/friezers_house/eu9A_max.asm": {
+    "blockNote": [
+      "Max, Friezer's companion (scene $9A).",
+      "",
+      "$A7 set: the actor dies at spawn. Otherwise it is solid and says \"Max: I wonder where you're taking us exploring this time... I'm afraid it's up to the whims of the captain. Heh heh.\"."
+    ]
+  },
+  "euro/friezers_house/eu9A_rudy.asm": {
+    "blockNote": [
+      "Rudy, Friezer's companion (scene $9A).",
+      "",
+      "$A7 set: the actor dies at spawn. Otherwise: 'The ruins are a great place. They just take my breath away.'."
+    ]
+  },
+  "euro/dark_chapel/eu9D_altar.asm": {
+    "blockNote": [
+      "Altar of the Euro dark chapel (scene $9D): a hidden passage behind the statue.",
+      "",
+      "Invisible actor with one polling loop and an interact handler. The loop first tests scratch $01; if it is clear it sets scratch $00 while the player stands in tiles (0F,07)-(10,09) and clears it outside (the player's idle code reads scratch $00 to pick the alternate sprite set). The handler prints 'What? The wind is blowing from behind the statue... Look?' with rows Yes/No; both rows clear the dialog box and Yes also sets scratch $01. On its next pass the loop plays sound $0101, applies BgChange #69 (the passage), removes the interact handler, clears $01 and continues. No persistent flag records the opening."
+    ]
+  },
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_Teapot": "Teapot: pour the spirits' tears in the Rolek mansion (scene $95).\n\nPrints 'He tries using the Teapot.'. When sceneCurrent is $95 and the player stands in tiles ($28,$09)-($2D,$0D) it prints 'The spirits' tears rained down.', removes item $19 and sets flag $A8 (Neil's father and mother wait for it); anywhere else it prints 'But nothing happened!' and keeps the item."
+    }
+  }
+}

@@ -9,7 +9,7 @@
 ; 
 ; Differences from StandardEnemyDefeatHandler: no boss / stat-table checks (the three callers are ordinary enemies), no WaitByte, no EnemyGemDropRouter call (a field_reveal_object child is spawned instead; it reads the same stat-table byte at +3), and the flash does not get the $12 bit $1000 (the display-filter qualifier that lets an actor run in RunActors_DisplayFiltered; StandardEnemyDefeatHandler sets it on its flash).
 ; 
-; Edge case: the test is for exactly 1. If $0AEC were 0 the counters would wrap to $FFFF / $99 (BCD) and $26 would be nonzero. Not traced: whether any caller can reach this with $0AEC = 0.
+; Edge case: the test is for exactly 1. If $0AEC were 0 the counters would wrap to $FFFF (hex) and $9999 (the BCD word), and $26 would be nonzero, so the child would drop item $83 (measured with both counters poked to 0). Not traced: whether any caller can reach this with $0AEC = 0.
 ---------------------------------------------
 
 ?INCLUDE 'EnemyDeathFlash'

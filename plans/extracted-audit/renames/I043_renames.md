@@ -1,0 +1,20 @@
+# I043 rename and documentation proposals
+
+Proposals only. Nothing here has been applied; renames need an explicit go-ahead because names live in `db-us/names/bankNN.json`, `us/blocks.json` and `.asm` files, and the notes in `plans/extracted-audit` cite them by label.
+
+| # | Iter | Target | Address | Proposal | Reason / evidence | Blast radius |
+|---|------|--------|---------|----------|-------------------|--------------|
+| R-I043-1 | I043 | `TownDoorInteractLoop` / `TownDoorOpenAnim` | $00C610 (50704) / $00C61E (50718), Bank 00 `town_door` | `TownDoorHoldUpLoop` / `TownDoorOpenSound` | `TownDoorInteractLoop` is a counter that needs Up held for 8 consecutive frames; `TownDoorOpenAnim` only runs `LoopEnd` and plays SFX #0E, the frame change is in `TownDoorOpenIdle` | 1 file in `extracted/` (`town_door.asm`), `db-us/names/bank00.json`, `notes/partNotes/bank00.json` |
+| R-I043-2 | I043 | `code_08CF59`, `code_08CF5E`, `code_list_08CF51`, `code_08D012`, `code_08D00D` | Bank 08 (`jeweler_gem`) | `JewelerCancelReply`, `JewelerGiveJewelsOption`, `JewelerMenuTable`, `JewelerInventoryFull`, `JewelerGoodbye_unused` | They are address names for named behaviours: the reply for cancel / 'Just wanted to see you', the 'Give you Red Jewels' option, the DialogueOptions result table (index 0 = cancel), the Herb GiveItem failure target, and the unreferenced farewell | 1 file in `extracted/` (`jeweler_gem.asm`), `db-us/names/bank08.json`, `notes/partNotes/bank08.json` |
+| R-I043-3 | I043 | Mnemonics for `$0B16` / `$0B1C` (and the scratch word `$0000`) | Bank 08 (`jeweler_gem`), also `attack_ability_system`, `eu97_dark_medicine` | `!psychoDashLevel 0B16`, `!darkFriarLevel 0B1C`; keep `$0000` raw (it is the shared SwitchCase / RNG scratch word) | `attack_ability_system` already documents both as upgrade-level words (damage 5 / 10 and 5 / 8 / 12); `jeweler_gem` writes them as raw addresses. Do NOT replace the `#$0B1C` operands in the four `spm_*` sprite files: they are sprite-part parameters, not the level word | `jeweler_gem.asm`, `attack_ability_system.asm`, `eu97_dark_medicine.asm` |
+| R-I043-4 | I043 | `EnemyPositionSnap` | Bank 0A | keep | Checked: the name matches the behaviour; listed so the next audit does not revisit it | none |
+| R-I043-5 | I043 | Documentation / comment corrections (no rename) | several | See list below | Found while auditing the three files | Doc text only |
+
+Corrections for R-I043-5 (to apply in a later iteration that touches those files):
+
+1. `docs/code/bank00/actors-player-rewards.md` `town_door` (lines 346-358) and the table row at line 22: the door opens after Up (`$0800`) is held for 8 consecutive frames (not 'approaches within 1 tile, opens'); 16 placements are in three scenes (`$01`, `$32`, `$91`) plus one runtime spawn from `fr32_guide`, not 16 scenes / 'town and village exterior scenes'.
+2. `docs/code/bank00/README.md` line 610: `town_door` is 'Door warp trigger'; it is not a warp (the entrance is a separate trigger).
+3. `docs/structs-reference.md` line 140: the third actor-def header byte is the high byte of the initial Flags10 word (`jeweler_gem` and `town_door` carry `$10` = bit `$1000`, which `global_ambient_dispatcher`'s actor scan requires; the player carries `$85`; `InitActorFromSceneData` ORs `$4000`), not 'initBudget ... extraction metadata'.
+4. `docs/code/bank0A-dungeon-enemy-actors.md` line 539: `EnemyPositionSnap` uses `MoveToward #FF, #01` = keep the animation, 1 px per frame (not 'speed `$FF` / 1 frame'); it is the RTI target of COP `SnapToGrid` (five script sites in `av6D_steelbones`, `ec0C_ribber`, `sg4D_cyber`), not 'installed ... when movement is interrupted mid-tile'.
+5. `docs/cop/families/movement.md` lines 27 and 80-87 ('Pattern B - Grid snap helper (max speed, 1 tick)'): same speed correction; the helper loops `MoveToward` until aligned, it is not a one-tick move.
+6. `extracted/system/world_map/WorldMapController.asm` comments at lines 293 and 317 ('at max speed, 1px/frame', 'speed $FF, step 1px per frame'): `#FF` is the animation operand, the speed is 1 px per frame (comment fix for the iteration that audits that file).

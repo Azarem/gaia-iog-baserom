@@ -225,7 +225,7 @@ BindSineHdma {
 }
 
 ---------------------------------------------
-; COP #63 with one signed byte (initial upward speed v0, sign-extended), one byte (shift factor f) and one byte (target Y tile offset). Stores v0 in scratch1010+2, f in scratch1010 and zeroes the tick counter scratch1010+4. The target Y is moveYAlt = $16 + offset × 16 (here moveYAlt holds a pixel Y, not a movement index, so a later StageMoveY on the same actor overwrites it). A negative offset byte ($80–$FF) is not sign-extended: the result is $16 − byte × 16. Every observed call uses offset #00.
+; COP #63 with one signed byte (initial upward speed v0, sign-extended), one byte (shift factor f) and one byte (target Y tile offset). Stores v0 in scratch1010+2, f in scratch1010 and zeroes the tick counter scratch1010+4. The target Y is moveYAlt = $16 + offset × 16 (here moveYAlt holds a pixel Y, not a movement index, so a later StageMoveY on the same actor overwrites it). A negative offset byte ($80–$FF) is not sign-extended: the result is $16 − byte × 16. Eight of the 25 shipped calls use a nonzero offset (#01 to #03 and #05, in pyDD_queen_debris, sg55_viper, sg4E_nitropede and sg4D_dynapede); none has bit 7 set, so the negating branch is never taken by shipped scripts.
 
 InitGravity {
     TYX 
@@ -415,7 +415,7 @@ CameraPanDown {
 }
 
 ---------------------------------------------
-; COP #DD with no operands. Mirrors CameraPanDown: decrements $2A, reloads the step word with CameraScrollStepLookup, subtracts the step in $2B (low nibble) from cameraTargetY, and yields until cameraTargetY drops below cameraOffsetY. If the step would exceed the current cameraTargetY the script resumes without storing it.
+; COP #DD with no operands. Mirrors CameraPanDown: decrements $2A, reloads the step word with CameraScrollStepLookup, subtracts the step in $2B (low nibble) from cameraTargetY, and yields until cameraTargetY drops below cameraOffsetY. If the step would exceed the current cameraTargetY the script resumes without storing it: this is how a pan to cameraTargetY = 0 ends. The call that brings the target to 0 stores 0 and yields; the next call finds step 6 > 0 and resumes (observed in scene $6E on a north pan: target 18, 12, 6, 0, then the call with target 0 resumes and the target stays 0).
 
 CameraPanUp {
     TYX 

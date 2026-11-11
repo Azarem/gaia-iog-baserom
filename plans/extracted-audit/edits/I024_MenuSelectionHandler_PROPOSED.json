@@ -1,0 +1,70 @@
+{
+    "_note": "NOT MERGEABLE: merge/annotate refuse MenuSelectionHandler.asm (transforms artifact, OQ-59). Corrected notes prepared for I024 and kept here for the decision in OQ-I024-1. Comment texts avoid the three transform patterns of this block.",
+    "system/engine/MenuSelectionHandler.asm": {
+        "blockNote": [
+            "Choice-menu cursor for the dialog option op (COP #BE, cop_handlers_dialog.DialogueOptions, its only caller; 92 script sites) (Bank 03).",
+            "",
+            "=== Parameter ===",
+            "A on entry (read from the script as one 16-bit word): low byte = packed layout, high byte = first text row. Packed byte: low nibble C = items in the first column, high nibble N = total items when there are two columns; N = 0 means a single column of C items. Values seen in scripts: $02 (69 sites; first rows 0-3), $04, $03, $01, $32 (2 + 1 items), $42 (2 + 2), $63 (3 + 3).",
+            "Stack frame in the handler: SP+1/2 = selection (0-based, starts at 0), SP+3 = packed byte, SP+4 = first row, then the saved X and D. Inside DrawMenuCursor every offset is 2 higher (JSR return address).",
+            "",
+            "=== Input ===",
+            "Polls joypadCurrent once per frame (DrawMenuCursor, WaitOneFrame) against the mask $CF00: Up $0800, Down $0400, Left or Right $0300, confirm $8000 (the A button after the remap), cancel $4000 (the B button after the remap). Start is not accepted, and 'L/R' means the D-pad. Priority: Up, Down, Left/Right, confirm, cancel. The nav/action bits are then written into joypadHeld (the consumption word); that is not what 'suppresses auto-repeat': DialogueOptions sets joypadMaskInv = $0F00, which makes the D-pad bits repeat. db-us/transforms.json rewrites the three vanilla button constants in this block, so comments here use the post-transform values.",
+            "- Up: previous item; from item 0 it wraps to the LAST item of the second column (or of the only column), and from the top of column 2 it goes to the bottom of column 1 (not symmetric with Down).",
+            "- Down: next item inside the current column; wraps to the top of the SAME column.",
+            "- Left and Right do the same thing: toggle the column (index + C when that item exists, index - C from the second column); the sound plays only when the column changed.",
+            "- Sound effects go to sfxQueueCh2: navigation $10, confirm $11.",
+            "",
+            "=== Cursor ===",
+            "DrawMenuCursor writes two tiles (top $212C or $21AC, bottom $213C or $21AC) into the BG3 tilemap staging buffer (bg3TilemapBuffer, bg3TilemapRow1 = next row) at ((((first row + row in column) x 2 + $0980) x 32 + $097E) x 2) bytes plus the column offset ($18 bytes = 12 tiles for column 2), where $097E/$0980 are the dialog box origin. Bit 4 of the blink counter $0994 chooses the tile pair, so the cursor is lit for 16 frames and dim for 16 (32-frame period). The tiles under the cursor are saved in $0990/$0992 (position $098E) and restored before the cursor moves. displayModeFlags bit 0 is set on every redraw (consumer not traced).",
+            "",
+            "=== Result ===",
+            "Returns A = 1-based selection with carry set; cancel returns A = 0. Y is clobbered (the parameter word is popped into it); X and D are restored. Confirm leaves the highlighted cursor drawn (the saved tiles are only cleared, not restored); cancel restores them through ReadMenuSelection first. The initial selection is always 0."
+        ],
+        "partNotes": {
+            "MenuSelectionHandler": [
+                "Entry point. Pushes D, X and the parameter word, zeroes D, starts the selection at 0 with a cleared blink counter and loops in MenuSelection_PollLoop: draw the cursor, wait one frame, read joypadCurrent, dispatch on the first matching bit (Up, Down, Left/Right, confirm, cancel). Returns A = 1-based selection (0 = cancelled) with carry set. See the block note."
+            ],
+            "MenuSelection_Down": [
+                "Down handler. Plays the navigation sound, resets the blink counter, unpacks C and N from SP+3 and advances the selection inside its column: in column 1 it wraps from C-1 to 0, in column 2 from N-1 back to C."
+            ],
+            "MenuSelection_LeftRight": [
+                "Left/Right handler (both buttons act identically). Column 1: index + C if that item exists (below N), otherwise unchanged. Column 2: index - C. The navigation sound plays only when the column actually changed."
+            ],
+            "DrawMenuCursor": [
+                "Draws the blinking two-tile cursor. Increments the blink counter $0994 (bit 4 chooses the lit pair $212C/$213C or the dim pair $21AC/$21AC), restores the tiles saved at the previous cursor position, computes the new tilemap offset from the first row, the row inside the column, the dialog box origin ($097E/$0980) and the column offset ($18 bytes for column 2), saves the two tiles now under the cursor in $0990/$0992 and writes the cursor tiles. Sets displayModeFlags bit 0. Parameter offsets are 2 higher than in the handler because of the JSR."
+            ],
+            "ReadMenuSelection": [
+                "Cancel path: puts the saved tiles back into the BG3 buffer, stores (tile and $03FF) x 8 + $6000 for each of the two tiles in $090E/$0910 (the VRAM word address of that glyph in the font at $6000; not an OAM value, and no code reads $090E/$0910 in the extracted asm), clears $0990/$0992 and sets displayModeFlags bit 0."
+            ]
+        },
+        "comments": {
+            "256075": { "text": "Menu parameter word: low byte = packed layout (N x 16 + C), high byte = first text row", "expect": "PHA" },
+            "256080": { "text": "SP+1/2 = selection, starts at 0", "expect": "PHA" },
+            "256081": { "text": "Blink counter = 0 (the selection pushed above is 0 too)", "expect": "STA $0994" },
+            "256093": { "text": "Any of Up/Down/Left/Right ($0F00), confirm ($8000) or cancel ($4000); Start is not accepted", "expect": "BIT #$CF00" },
+            "256099": { "text": "Mark all nav/action bits consumed in joypadHeld (D-pad repeat comes from joypadMaskInv = $0F00 set by DialogueOptions)", "expect": "LDA #$CFFC" },
+            "256106": { "text": "Priority: Up, Down, Left/Right, confirm, cancel", "expect": "BIT #$0800" },
+            "256127": { "text": "Confirm bit (A button after the remap)", "expect": "BIT #$8000" },
+            "256132": { "text": "Cancel bit (B button after the remap)", "expect": "BIT #$4000" },
+            "256146": { "text": "Confirm: saves $0A/$0C around the SFX write, which touches neither (the push/pop pair does nothing)", "expect": "LDA $000A" },
+            "256171": { "text": "Blink counter 0: the redraw below (counter becomes 1) shows the steady lit cursor", "expect": "STZ $0994" },
+            "256184": { "text": "Cleanup: zero blink counter and saved tiles; tiles are NOT restored, so the lit cursor stays on screen after a confirm", "expect": "STZ $0994" },
+            "256193": { "text": "Pops the parameter word into Y (Y is clobbered)", "expect": "PLY" },
+            "256238": { "text": "Up from item 0: last item of the second column, or of the only column when N = 0", "expect": "LDA $18" },
+            "256280": { "text": "Index < C: first column; otherwise second column", "expect": "LDA $01, S" },
+            "256286": { "text": "First column: increment, wrap to 0 after C-1 (never leaves the column)", "expect": "INC" },
+            "256302": { "text": "Second column: increment, wrap back to C (top of the column) after N-1", "expect": "INC" },
+            "256341": { "text": "First column: same row in column 2 (index + C) if that item exists (below N), else stay", "expect": "CLC" },
+            "256361": { "text": "Second column: same row in column 1 (index - C)", "expect": "SEC" },
+            "256387": { "text": "Blink counter: lit for 16 frames, dim for 16 (32-frame period)", "expect": "LDA $0994" },
+            "256456": { "text": "Selection index (SP+3 here: +2 for the JSR return address)", "expect": "LDA $03, S" },
+            "256458": { "text": "Index >= C: second column, row = index - C; else first column", "expect": "CMP $1C" },
+            "256469": { "text": "Second column offset = $18 bytes = 12 tiles", "expect": "LDX #$0018" },
+            "256487": { "text": "Offset = ((((first row + row in column) x 2 + $0980) x 32 + $097E) x 2) + column offset, into the BG3 staging buffer", "expect": "LDA $06, S" },
+            "256550": { "text": "Set displayModeFlags bit 0 (BG3 buffer changed; consumer not traced)", "expect": "TSB $displayModeFlags" },
+            "256565": { "text": "Tile number x 8 + $6000 = VRAM word address of this tile's glyph in the font at $6000 (not an OAM value)", "expect": "AND #$03FF" },
+            "256574": { "text": "$090E/$0910 = glyph addresses of the two tiles under the cursor; written only here, no code reader found", "expect": "STA $090E" }
+        }
+    }
+}

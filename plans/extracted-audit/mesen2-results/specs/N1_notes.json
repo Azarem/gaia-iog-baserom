@@ -1,0 +1,53 @@
+{
+  "_note": "N1 (2026-11-09), see mesen2-results/N1_20261109.md. Draft only, dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/N1_notes.json --dry-run. Corrects the sg51 / ir26 statue notes (the handler pulls, needs no form ability), replaces two 'not traced / not checked' hedges (town_door, hidden_red_jewel) with the measured fact, and adds the measured stat change to the jeweler note. The apply pass decides.",
+  "sky_garden/garden_southwest/sg51_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Interactive statue that can be pushed by the player.",
+          "with": "Movable statue: push_handler_solid pulls it one tile (16 px) toward the player while the player holds L or R (the shoulder pair $0030) on the same row, at least 32 px away and facing it. Observed as Will with no ability item or form needed (from the west and the east side; pulling along the column did not move either statue in the tests)."
+        }
+      ]
+    }
+  },
+  "incan_ruins/inca_treasure_room/ir26_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "requires Freedan's power to move.",
+          "with": "is moved by the L / R pull of push_handler_solid, which tests only the shoulder buttons and the player's facing (no form test; the sg51 statue, which uses the same handler, was pulled as Will; this room was not run)."
+        }
+      ]
+    }
+  },
+  "actors/town_door.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "whether that case occurs is not traced.",
+          "with": "that case does not occur: the runtime door spawned by fr32_guide also has Flags10 $4000 set on its first tick (SpawnAfterAbsFlags #$1000 gives $5000), enters at AnimOnce, passes to WaitWhileOffscreen after 21 ticks and keeps it as the entry pointer after the flag clears on screen; standing beside it for about 120 ticks without Up did not open it, and holding Up opened it 8 ticks after the hold began (the entry pointer moved into the hold-Up loop, then to the open idle)."
+        }
+      ]
+    }
+  },
+  "actors/hidden_red_jewel.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Whether the jewel is visible and what the metasprite looks like was not checked.",
+          "with": "The jewel is never drawn: the actor's Flags10 is $7000 on its first tick ($4000 off-screen, $2000 hidden, $1000 interactable) and $3000 on screen, before and after the pickup (scene $01: item $01 in the first inventory slot, flag $0281 set 9 ticks after the give), and SortActorsByDepth skips actors with bit $2000, so the metasprite is never visible and the pickup does not change it."
+        }
+      ]
+    }
+  },
+  "actors/jeweler_gem.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the code raises max HP, so the second sentence is a text inconsistency.",
+          "with": "the code raises max HP (maxHp $0ACA 8 to 9 while the first page is on screen, hpToHeal $0B22 0 to 1 and HP 8 to 9 about 39 frames later) and leaves the strength and defence words ($0ADE, $0ADC) unchanged, so the second sentence is a text inconsistency (both pages observed on screen)."
+        }
+      ]
+    }
+  }
+}

@@ -448,7 +448,7 @@
     "50200": "SpawnImpactSparkAndDie",
     "50211": "ImpactSparkEffect",
     "50226": "PlayerIdleAnimLoop",
-    "50237": "PlayerIdleUseShadowSprite",
+    "50237": "PlayerIdleFlaggedAnim",
     "50240": "PlayerIdleAnimContinue",
     "50246": "PlayerStaticBodyPose",
     "50254": "PlayerStaticBodyAnimLoop",

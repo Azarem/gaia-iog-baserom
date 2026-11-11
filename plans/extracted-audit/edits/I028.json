@@ -1,0 +1,464 @@
+{
+  "system/inventory/inventory_menu.asm": {
+    "blockNote": [
+      "Inventory menu UI system — full-screen inventory overlay with tab navigation, item management, and status display (189334–191746, Bank 02).",
+      "",
+      "Implements the complete pause-menu inventory as an actor-def (InventoryMenuDef). The menu spawns 16 child actors for item slots, plus cursor, equipped-item display, and status row actors. Four tabs provide different inventory functions, each with its own input loop and display configuration.",
+      "",
+      "=== ARCHITECTURE ===",
+      "",
+      "InventoryMenuInit spawns all child actors in a loop (16 InventorySlotActors, plus EquipCursorActor, EquippedItemDisplay, StatusCharRow1/2/3) and saves their actor indices in long-address scratch fields:",
+      "  orbitAngle ($7F0010,X) = first slot actor Y index (linked list head)",
+      "  orbitDiameter ($7F0012,X) = equip cursor actor Y index",
+      "  moveXAlt ($7F0018,X) = equipped item display actor Y index",
+      "  moveYAlt ($7F001A,X) = last status row actor Y index (chain head)",
+      "",
+      "The main loop (InventoryMainLoop) runs TabSelectionLoop for tab navigation. Tab changes dispatch to TabHover* routines (preview) via SwitchCase on TabHoverDispatch. Tab confirmation dispatches to TabAction* routines via TabActionDispatch.",
+      "",
+      "=== BUTTONS AND FRAME MODEL (this baserom) ===",
+      "",
+      "BranchIfPressed tests joypadCurrent, the remapped logical bits. The menu uses two face-button bits: $8000 = confirm, $4000 = cancel. The baserom remap defaults (db-us/transforms.json) give physical A the value $8080, physical B $4008, X $0004, Y $0040 and Select $2000, so A confirms, B cancels, and X and Y are software-only bits that the menu ignores (except the widened swap mask, see ArrangePickTarget). A test with $C000 (UseItemTab, StatusViewTab) accepts A or B; the tab bar cancels on $6000 (B or Select). The diary menu can rebind the buttons, and the vanilla ROM tests different masks, so older comments that name \"B/Y/X\" describe the vanilla layout.",
+      "",
+      "Consumption: TSB $joypadHeld masks the given bits out of joypadCurrent until the physical button is released. The code consumes exactly the bit it matched, so a consume of $8000 leaves the $0080 half of A's value visible (never tested here). A D-pad consume is wider than its direction: Up consumes $0B00 (Up, Left and Right) and Down consumes $0700 (Down, Left and Right), so one diagonal press moves one step; Left ($0200) and Right ($0100) consume only themselves.",
+      "",
+      "Frame model: every handler is a COP script that yields with SetEntryHereAndYield / SetEntryHere + RTL and resumes at the saved entry point next frame. An RTL is therefore the idle path of a frame, never \"exit the menu\". The menu closes when TabCancel sets exit flag byte #00, which the main loop of inventory_overlay polls.",
+      "",
+      "=== TAB SYSTEM (4 tabs) ===",
+      "",
+      "0 = Use: Equip/unequip items. 4×4 grid cursor ($1A = slot index). A or B ($C000) confirms the cursor slot as the equipped item; confirming an empty slot clears the equipment ($FFFF). Entering the tab first writes inventoryEquippedIndex = 0 (a non-negative placeholder that lets ShowEquipCursor reveal the cursor); UseItemConfirm always overwrites it, because the tab can only end through the confirm. The tab title string reads \"Gather Items\".",
+      "",
+      "1 = Arrange: Swap items between slots. Two-phase: A picks the source slot ($22; B leaves the tab), then a second cursor picks the target (the source moves to $2E/$2C, the target cursor uses $22/$20; B cancels only the target). ArrangePerformSwap does an 8-bit byte swap in inventorySlots, updates both slot actor sprites via UpdateSlotActorSprite, and tries to keep inventoryEquippedIndex on the moved item. Only the case \"the source slot was equipped\" works: the case \"the target slot was equipped\" compares a slot actor address with a slot index and can never match (see the ArrangePerformSwap part note). Swapping a slot with itself is ignored.",
+      "",
+      "2 = Discard: Remove items. Grid cursor selects a slot; CheckItemDiscardable gates via a bitfield table (BitMaskTable × system_strings.item_table_separator). If discardable, YesNoPromptLoop asks \"Discard? No / Yes\" with the cursor on No ($28 = 0); only $28 = 1 (Yes) discards. On yes: zeroes the slot's item byte (AND #$FF00 on a 16-bit read/write: slots are single bytes, so the high byte is the NEXT slot, written back unchanged), updates the sprite, clears the equip state if the equipped item was discarded. Empty slots and protected items play SFX #12 instead.",
+      "",
+      "3 = Status: View character abilities. 3-row vertical cursor ($22 = 0/1/2). For each row, TestAbilityFlag checks whether the ability is unlocked for the current characterForm. Unlocked abilities show their name via ComputeAbilityIndex → RunBg3Script. The rows are the first three ability flags of the CURRENT form (row r tests flag $0510 + characterForm×4 + r, the same flags as abilityBitmask $0AA2); the form's fourth ability flag is never listed. A or B ($C000) leaves the tab.",
+      "",
+      "=== MYSTIC STATUE PEDESTALS ===",
+      "",
+      "The inventory menu does NOT spawn or manage the mystic statue pedestal actors directly. Six inventory_statue_slot actors (Bank 00) are spawned independently by SpawnSceneActors from the scene $FF actor list. They share the screen with the inventory menu but operate as autonomous actors.",
+      "",
+      "The pedestals are arranged symmetrically around the 4×4 item grid: 3 on the left (X ~24–40) and 3 on the right (X ~200–216), at three vertical positions (Y ~48, ~88, ~136). Each pedestal checks one of six event flags ($F8–$FD at $0A1F) via TestFlagRaw. If the flag is set (statue collected), the pedestal shows its inventory_spritemap sprite ($3A–$3F). If not set, the actor immediately dies (no display).",
+      "",
+      "The statues auto-hide when inventoryTabIndex == 3 (Status tab) and show on all other tabs (Use/Arrange/Discard), matching the item grid visibility.",
+      "",
+      "Flags are set by the statue_inventory_reward ceremony (scene $FD), triggered after defeating bosses:",
+      "  $F8 = Gold Ship event, $F9 = Viper (Sky Garden), $FA = Vampires (Mu),",
+      "  $FB = Sand Fanger (Great Wall), $FC = Mummy Queen (Pyramid), $FD = Olman (Babel Tower).",
+      "",
+      "See inventory_statue_slot and statue_inventory_reward block notes (Bank 00) for complete data flow.",
+      "",
+      "=== GRID LAYOUT ===",
+      "",
+      "16 inventory slots arranged in a 4×4 grid. Slot index bits: low 2 bits = column (0-3), bits 2-3 = row (0-3). GridColumnPositions provides X positions for columns ($005C, $0074, $008C, $00A4). Y position = row × $10 + base ($0030 for grid, $0031 for slot actors). SlotPositionTable stores all 16 pre-computed screen positions.",
+      "",
+      "Grid cursor navigation (GridCursorUp/Down/Left/Right): ±4 for vertical (skip one row = 4 columns), ±1 for horizontal, all AND $000F for wrapping. Left/Right do not wrap inside a row: column 3 + 1 lands on column 0 of the NEXT row and slot 15 + 1 wraps to slot 0 (the vertical moves wrap inside their column).",
+      "",
+      "=== CURSOR BLINK ===",
+      "",
+      "Both TabSelectionLoop and YesNoPromptLoop implement a frame-counter blink:",
+      "  $1C increments each frame. Bits 0-3 ($000F): non-zero → skip draw/clear.",
+      "  Bit 4 ($0010): 0 → draw cursor, 1 → clear cursor.",
+      "  Result: cursor toggles visibility every 16 frames.",
+      "",
+      "Tab cursor writes tile $202B (arrow glyph) to BG3 tilemap at $7F0200 + computed offset. Clear writes a blank tile to all 4 tab cursor positions (tile $2060 in this baserom; db-us/transforms.json rewrites the vanilla constant). YesNo cursor uses the same pattern at different offsets.",
+      "",
+      "=== ACTOR VISIBILITY ===",
+      "",
+      "Actor flag bit 13 ($2000) in actor+$0010 controls render visibility: SET = hidden, CLEAR = visible.",
+      "",
+      "The menu actor's own DP $10 bit $1000 means \"the 16 item slots are visible\": set by InventoryMenuInit and ShowAllItemSlots, cleared by HideAllItemSlots. Both routines test it first, so repeated hover previews cost nothing.",
+      "",
+      "=== ITEM DATA MODEL ===",
+      "",
+      "inventorySlots ($0AB4): 16 bytes, one item ID per slot (0 = empty), no per-slot flags. Code reads a slot as a 16-bit word and masks it (AND #$00FF); the high byte of that word is the next slot.",
+      "inventoryEquippedIndex ($0AC4): Slot index of equipped item ($FFFF = nothing equipped).",
+      "inventoryEquippedType ($0AC6): Item type ID of equipped item.",
+      "itemAbilityIndex ($0AE8): Set before RunBg3Script to display item/ability descriptions.",
+      "characterForm ($0AD4): Current character (0=Will, 1=Freedan, 2=Shadow) — affects status abilities.",
+      "",
+      "=== ABILITY SYSTEM ===",
+      "",
+      "ComputeAbilityIndex: Maps (characterForm, abilitySlot) → global ability index = characterForm × 4 + slot + 1. Stored to itemAbilityIndex for description display.",
+      "",
+      "TestAbilityFlag: Maps (characterForm, abilitySlot) → game flag index = characterForm × 4 + slot, calls TestFlag_0510. Returns carry set if the ability is unlocked (the current form is passed in $0004, not read from characterForm).",
+      "",
+      "CheckItemDiscardable: Tests item ID against a bitfield at system_strings.item_table_separator (the label is a misnomer: the 8 bytes are a \"non-discardable items\" bit table, see the rename log). Item ID >> 3 = byte index, item ID & 7 = bit via BitMaskTable. Returns carry set if item is non-discardable (quest item)."
+    ],
+    "partNotes": {
+      "InventoryMenuInit": [
+        "Initialize the inventory menu. Draws the first BG3 strings, spawns 16 InventorySlotActors in a loop (counter $24 = 15→0, so the last one spawned, slot 0, heads the actor chain because SpawnAfter inserts directly after the spawner), each given its item ID as sprite frame. Saves that head to orbitAngle. Spawns EquipCursorActor (orbitDiameter), EquippedItemDisplay (moveXAlt) and the three StatusCharRow actors (moveYAlt = the last one spawned, the top row). Positions the equip cursor at inventoryEquippedIndex, yields once, then resets inventoryTabIndex to 0 (the 16 slot actors used it as their spawn counter during that yield) and sets DP $10 bit $1000 (item slots visible)."
+      ],
+      "InventoryMainLoop": [
+        "Main menu event loop. Draws the BG3 tab bar and info strings, resets the blink counter ($1C = 0), sets the last-handled-tab tracker ($18 = $FFFF, so the first pass always runs a hover preview), consumes the confirm bit ($8000) and yields. Each frame it polls TabSelectionLoop: carry set (A pressed) → TabConfirmDispatch; otherwise, if inventoryTabIndex differs from $18, the new tab is stored and its hover preview runs through SwitchCase on TabHoverDispatch; if the tab is unchanged the RTL only ends this frame's turn (it does not close the menu; TabCancel's exit flag does)."
+      ],
+      "UseItemTab": [
+        "Use tab action handler. Sets bg1ConfigMode = 4, draws the item grid strings, writes inventoryEquippedIndex = 0 (a non-negative placeholder so ShowEquipCursor reveals the cursor; UseItemConfirm always overwrites it), clamps $1A to 0 if negative, positions the equip cursor, prints the item name for the cursor slot via itemAbilityIndex, then polls every frame: A or B (mask $C000) → UseItemConfirm, D-pad → cursor moves. There is no cancel in this tab."
+      ],
+      "UseItemCursorUp": [
+        "Move the equip cursor up one row in the Use tab. Consumes Up, Left and Right ($0B00), SFX #10, $1A − 4 with AND $000F wrapping, then back to code_02E47F."
+      ],
+      "UseItemCursorDown": [
+        "Move the equip cursor down one row in the Use tab. Consumes Down, Left and Right ($0700), SFX #10, $1A + 4 with AND $000F wrapping."
+      ],
+      "UseItemConfirm": [
+        "Confirm item selection in the Use tab. Consumes the confirm and cancel bits ($C000), stores $1A → inventoryEquippedIndex. Empty slot (item byte 0): inventoryEquippedIndex = $1A = $FFFF and inventoryEquippedType = 0. Otherwise stores the item ID in inventoryEquippedType. Both paths return to InventoryMainLoop."
+      ],
+      "ArrangeItemsTab": [
+        "Arrange tab action handler. Hides the equip cursor, spawns SelectionCursorActor (saved to $20), sets $22 = 0. Source loop: B ($4000) → ArrangeCancelTab, A ($8000) → ArrangePickTarget, D-pad → GridCursor* via the PEA/RTS trick (PEA pushes code_02E555 − 1 as the return address of the GridCursor* RTS; when no button matched, PLA discards it)."
+      ],
+      "ArrangePickTarget": [
+        "Second phase of Arrange: pick the swap target. Saves the source cursor ($20 → $2C, $22 → $2E), spawns a second SelectionCursorActor, draws the target strings. B ($4000) → ArrangeCancelTarget; mask $8044 → ArrangePerformSwap. The vanilla ROM tests only the confirm bit here; the transform widens it to $8044, which also accepts the X ($0004) and Y ($0040) bits of the default remap (OQ-I028-1)."
+      ],
+      "ArrangePerformSwap": [
+        "Execute the swap between source ($2E) and target ($22). Consumes the confirm bit; same-slot is ignored (back to the target loop). 8-bit swap of inventorySlots[$22] and [$2E] through XBA. Refreshes both slot actors: UpdateSlotActorSprite returns Y = the slot ACTOR, which is why STA $0028,Y after it addresses the actor. Equipped tracking: the first test (TYA; CMP inventoryEquippedIndex) compares that actor address, not a slot index, so \"target slot was equipped\" never matches (OQ-I028-2); the second test (source slot equipped → follow to $22) works. Kills the saved source cursor ($2C) via MarkDeath and returns to the source loop."
+      ],
+      "ArrangeCancelTab": [
+        "Cancel the Arrange tab. KillNext removes the cursor, the cancel bit ($4000) is consumed, and control returns to InventoryMainLoop."
+      ],
+      "DiscardItemTab": [
+        "Discard tab handler. Sets bg1ConfigMode = 4, hides the equip cursor, spawns SelectionCursorActor, $22 = 0. Grid loop: B ($4000) → DiscardCancelTab, A ($8000) → code_02E6AA (discard attempt), D-pad → GridCursor*."
+      ],
+      "code_02E6AA": [
+        "Discard attempt (label is an auto name). Consumes the confirm bit. Empty slot or protected item (CheckItemDiscardable carry set) → SFX #12 and back to the grid. Otherwise draws the item name and the \"Discard? No / Yes\" prompt ($28 = 0 = No) and polls YesNoPromptLoop once per frame (RTL while carry is clear). Answer No ($28 = 0) → back to the grid. Answer Yes: clears the slot's item byte (16-bit AND #$FF00 keeps the next slot's byte), refreshes the slot actor, clears inventoryEquippedIndex/Type and $1A if that slot was equipped, SFX #13."
+      ],
+      "DiscardCancelTab": [
+        "Cancel the Discard tab. Consumes the cancel bit ($4000), kills the cursor, shows the equip cursor again, returns to InventoryMainLoop."
+      ],
+      "StatusViewTab": [
+        "Status tab handler. Sets bg1ConfigMode = 0, draws the status strings, spawns a cursor, $22 = 0. For the row in $22 it tests the ability flag of the current form (TestAbilityFlag with $0004 = characterForm) and, if unlocked, prints its description (ComputeAbilityIndex + RunBg3Script). Polls Up/Down for the row cursor and $C000 (A or B) → StatusConfirmExit."
+      ],
+      "StatusConfirmExit": [
+        "Exit the Status tab. SFX #11, consumes the confirm and cancel bits ($C000), kills the cursor, returns to InventoryMainLoop."
+      ],
+      "TabHoverUse": [
+        "Use tab hover preview. Shows the 16 item slots (ShowAllItemSlots), shows the equip cursor if something is equipped, hides the equipped-item display and the status rows (HideStatusActors), draws the Use tab strings and sets bg1ConfigMode = 4."
+      ],
+      "TabHoverArrange": [
+        "Arrange tab hover preview. Shows the item slots and the equip cursor and draws the Arrange description. It does not hide the status actors: the neighbours of tab 1 are the Use and Discard previews, which already did."
+      ],
+      "TabHoverDiscard": [
+        "Discard tab hover preview. Shows the item slots and the equip cursor, hides the equipped-item display and status rows, draws the Discard strings and sets bg1ConfigMode = 4."
+      ],
+      "TabHoverStatus": [
+        "Status tab hover preview. HIDES the 16 item slots and the equip cursor, draws the status strings (character info), shows the equipped-item display if something is equipped, then walks the three status row actors (chain head moveYAlt = StatusCharRow3, the top row, then the $0006 links). For row r = 0..2 it tests flag characterForm×4 + r (TestAbilityFlag); if set it unhides the row actor and prints the ability name (ComputeAbilityIndex + RunBg3Script). The rows are ability slots 0–2 of the current form, not Will/Freedan/Shadow."
+      ],
+      "ComputeAbilityIndex": [
+        "Compute the global ability index characterForm × 4 + abilitySlot + 1 and store it in itemAbilityIndex ($0AE8), the index the BG3 ability description strings use. Preserves A. (The meaning of \"+1\" is inferred from the earlier note; entry 0 of the description table was not checked.)"
+      ],
+      "GridCursorUp": [
+        "Grid cursor up. Consumes Up, Left and Right ($0B00), SFX #10, $22 − 4 with AND $000F wrapping. Shared by Arrange/Discard through the PEA/RTS trick; returns with RTS."
+      ],
+      "GridCursorDown": [
+        "Grid cursor down. Consumes Down, Left and Right ($0700), SFX #10, $22 + 4 with AND $000F wrapping."
+      ],
+      "UpdateSlotActorSprite": [
+        "Walk the slot actor chain (orbitAngle, $0006 links) to the Nth actor (A = slot index) and reset it: entry point ($0000) = loc_02E8CD, $28/$08/$2A = 0 so it re-evaluates empty/non-empty. Returns with Y = that slot ACTOR (not the slot index); callers use it for STA $0028,Y."
+      ],
+      "CheckItemDiscardable": [
+        "Test whether an item is non-discardable. A = item ID (not itemAbilityIndex): byte index = ID >> 3, bit = BitMaskTable[ID & 7], ANDed with the bit table at system_strings.item_table_separator. Carry set = protected (not discardable). Preserves X."
+      ],
+      "PositionGridCursor": [
+        "Position a grid cursor actor from a slot index: primary entry uses $22 / actor $20. After slot × 4, bits 2–3 select the column (stride 4 into GridColumnPositions) and bits 4–5 select the row ($0030 mask = row × $10, added to the base Y). Writes $0014/$0016. The second entry loc_02EA46 (source cursor $2E / $2C) has no caller."
+      ],
+      "YesNoPromptLoop": [
+        "Yes/No prompt poll, once per frame. A ($8000) → YesNoConfirm (B does not cancel); Up/Down toggle $28 (0 = No on the first row, 1 = Yes). Blink counter $1C: every 16 frames the cursor is drawn (bit 4 clear) or cleared (bit 4 set). Carry set = answered."
+      ],
+      "YesNoClearCursor": [
+        "Clear the two Yes/No cursor cells ($7F0896 = No row, $7F0916 = Yes row) with the blank tile (tile $2060 in this baserom). Sets displayModeFlags bit 0 to flag the BG3 tilemap as dirty."
+      ],
+      "TabSelectionLoop": [
+        "Tab bar poll, once per frame. A ($8000) → TabConfirm, Up/Down → TabSelectUp/Down, mask $6000 (B or Select) → TabCancel. Blink counter $1C draws or clears the cursor every 16 frames. Carry set = confirmed."
+      ],
+      "TabCancel": [
+        "Set exit flag byte #00 (polled by the main loop of inventory_overlay, which then tears the menu down) and return carry clear. The cancel bits are not consumed, so InventoryMainLoop keeps passing through here each frame until the overlay ends."
+      ],
+      "TabClearCursor": [
+        "Clear the four tab cursor cells ($7F0784 / $0804 / $0884 / $0904) with the blank tile (tile $2060 in this baserom). Sets displayModeFlags bit 0."
+      ]
+    },
+    "comments": {
+      "189347": {
+        "text": "Tab index is also the spawn counter of the slot actors during the yield below",
+        "expect": "STZ $inventoryTabIndex"
+      },
+      "189444": {
+        "text": "The 16 slot actors incremented inventoryTabIndex while this actor yielded; reset it to tab 0",
+        "expect": "STZ $inventoryTabIndex"
+      },
+      "189462": {
+        "text": "Reset $1C, the tab-bar blink counter",
+        "expect": "STZ $1C"
+      },
+      "189469": {
+        "text": "Consume the confirm bit (physical A) so a held A cannot re-confirm a tab on return",
+        "expect": "LDA #$8000"
+      },
+      "189482": {
+        "text": "No confirm: compare the cursor tab with the last handled tab ($18)",
+        "expect": "LDA $inventoryTabIndex"
+      },
+      "189489": {
+        "text": "Tab unchanged: end of this frame (RTL yields, it does not close the menu)",
+        "expect": "RTL"
+      },
+      "189490": {
+        "text": "Tab changed (or first pass, $18 = $FFFF): remember it, run its hover preview",
+        "expect": "STA $18"
+      },
+      "189555": {
+        "text": "Set to 0, not $FFFF: non-negative so ShowEquipCursor reveals the cursor; UseItemConfirm overwrites it",
+        "expect": "STZ $inventoryEquippedIndex"
+      },
+      "189593": {
+        "text": "Mask $C000: A or B (confirm or cancel bit) equips the cursor slot; the tab has no cancel",
+        "expect": "BranchIfPressed"
+      },
+      "189624": {
+        "text": "Consume Up, Left and Right ($0B00) so a diagonal press moves one step; up = slot −4",
+        "expect": "LDA #$0B00"
+      },
+      "189646": {
+        "text": "Consume Down, Left and Right ($0700); down = slot +4",
+        "expect": "LDA #$0700"
+      },
+      "189707": {
+        "text": "Consume the confirm and cancel bits ($C000)",
+        "expect": "LDA #$C000"
+      },
+      "189764": {
+        "text": "Reset $1C (the tab/Yes-No blink counter; the grid loops never read it)",
+        "expect": "STZ $1C"
+      },
+      "189786": {
+        "text": "Mask $4000: the cancel bit (physical B by default) leaves the Arrange tab",
+        "expect": "BranchIfPressed"
+      },
+      "189792": {
+        "text": "Confirm bit (physical A by default) picks the source slot",
+        "expect": "BranchIfPressed"
+      },
+      "189879": {
+        "text": "Mask $8044 also accepts the X and Y bits of the default remap; the vanilla ROM tests only the confirm bit (OQ-I028-1)",
+        "expect": "BranchIfPressed"
+      },
+      "189914": {
+        "text": "Consume the confirm bit; a swap of a slot with itself is ignored (next check)",
+        "expect": "LDA #$8000"
+      },
+      "189964": {
+        "text": "Returns with Y = the slot actor (not the slot index); STA $0028,Y below relies on that",
+        "expect": "JSR $&UpdateSlotActorSprite"
+      },
+      "189981": {
+        "text": "Same: Y = the source slot actor after the call",
+        "expect": "JSR $&UpdateSlotActorSprite"
+      },
+      "189988": {
+        "text": "Y is now a slot ACTOR address, so this compare with the slot index never matches (OQ-I028-2)",
+        "expect": "TYA"
+      },
+      "190001": {
+        "text": "Source slot was equipped: the equipped index follows the item to the target slot ($22)",
+        "expect": "LDA $2E"
+      },
+      "190030": {
+        "text": "Consume the cancel bit ($4000)",
+        "expect": "LDA #$4000"
+      },
+      "190059": {
+        "text": "Reset $1C (the grid loops never read it)",
+        "expect": "STZ $1C"
+      },
+      "190081": {
+        "text": "Mask $4000: the cancel bit (physical B by default) leaves the Discard tab",
+        "expect": "BranchIfPressed"
+      },
+      "190087": {
+        "text": "Confirm bit (physical A by default) tries to discard the slot",
+        "expect": "BranchIfPressed"
+      },
+      "190122": {
+        "text": "Consume the confirm bit",
+        "expect": "LDA #$8000"
+      },
+      "190138": {
+        "text": "Item ID for the name string drawn below (CheckItemDiscardable takes the ID in A, not this)",
+        "expect": "STA $itemAbilityIndex"
+      },
+      "190163": {
+        "text": "Carry set = prompt answered",
+        "expect": "BCS loc_02E6D6"
+      },
+      "190165": {
+        "text": "Prompt still open: yield; the entry point above resumes at the JSR next frame",
+        "expect": "RTL"
+      },
+      "190168": {
+        "text": "$28 = 0 is \"No\": back to the grid, nothing removed",
+        "expect": "BEQ loc_02E702"
+      },
+      "190175": {
+        "text": "Clear this slot's item byte; the 16-bit write keeps the next slot's byte (slots are bytes)",
+        "expect": "AND #$FF00"
+      },
+      "190219": {
+        "text": "Consume the cancel bit ($4000), kill the cursor, show the equip cursor again",
+        "expect": "LDA #$4000"
+      },
+      "190305": {
+        "text": "Mask $C000: A or B leaves the Status tab",
+        "expect": "BranchIfPressed"
+      },
+      "190357": {
+        "text": "A or B exits the Status tab (confirm SFX)",
+        "expect": "COP [PlaySoundCh2]"
+      },
+      "190360": {
+        "text": "Consume the confirm and cancel bits ($C000)",
+        "expect": "LDA #$C000"
+      },
+      "190407": {
+        "text": "Use preview: SHOW the 16 item slots (guarded by $10 bit $1000), then the equip cursor",
+        "expect": "JSR $&ShowAllItemSlots"
+      },
+      "190413": {
+        "text": "Hide the equipped-item display and the three status rows",
+        "expect": "JSR $&HideStatusActors"
+      },
+      "190438": {
+        "text": "Arrange preview: show the item slots and the equip cursor",
+        "expect": "JSR $&ShowAllItemSlots"
+      },
+      "190455": {
+        "text": "Discard preview: show the item slots and the equip cursor",
+        "expect": "JSR $&ShowAllItemSlots"
+      },
+      "190461": {
+        "text": "Hide the equipped-item display and the three status rows",
+        "expect": "JSR $&HideStatusActors"
+      },
+      "190486": {
+        "text": "Status preview: HIDE the 16 item slots (clears $10 bit $1000), then the equip cursor",
+        "expect": "JSR $&HideAllItemSlots"
+      },
+      "190545": {
+        "text": "Row 0 test: flag characterForm×4 + 0, i.e. the current form's ability slot 0",
+        "expect": "LDA $characterForm"
+      },
+      "190571": {
+        "text": "Ability slot 0 of the current form",
+        "expect": "LDA #$0000"
+      },
+      "190574": {
+        "text": "itemAbilityIndex for the row 0 description string",
+        "expect": "JSR $&ComputeAbilityIndex"
+      },
+      "190591": {
+        "text": "Row 1 = ability slot 1 of the current form (flag characterForm×4 + 1)",
+        "expect": "LDA #$0001"
+      },
+      "190611": {
+        "text": "Ability slot 1 of the current form",
+        "expect": "LDA #$0001"
+      },
+      "190614": {
+        "text": "itemAbilityIndex for the row 1 description string",
+        "expect": "JSR $&ComputeAbilityIndex"
+      },
+      "190622": {
+        "text": "Follow the link to the next status row actor (row 2)",
+        "expect": "LDY $0002"
+      },
+      "190631": {
+        "text": "Row 2 = ability slot 2 of the current form (flag characterForm×4 + 2)",
+        "expect": "LDA #$0002"
+      },
+      "190651": {
+        "text": "Ability slot 2 of the current form",
+        "expect": "LDA #$0002"
+      },
+      "190654": {
+        "text": "itemAbilityIndex for the row 2 description string",
+        "expect": "JSR $&ComputeAbilityIndex"
+      },
+      "190849": {
+        "text": "Consume Up, Left and Right ($0B00) so a diagonal press moves one step",
+        "expect": "LDA #$0B00"
+      },
+      "190870": {
+        "text": "Consume Down, Left and Right ($0700)",
+        "expect": "LDA #$0700"
+      },
+      "191430": {
+        "text": "Confirm bit (A) answers the prompt (B does not cancel); Up/Down toggle",
+        "expect": "BranchIfPressed"
+      },
+      "191522": {
+        "text": "Consume the confirm bit; return carry set",
+        "expect": "LDA #$8000"
+      },
+      "191564": {
+        "text": "Blank tile (tile $2060 here) at the No cell ($7F0896) and the Yes cell ($7F0916)",
+        "expect": "LDA #$2060"
+      },
+      "191576": {
+        "text": "Confirm bit (A) confirms the tab",
+        "expect": "BranchIfPressed"
+      },
+      "191594": {
+        "text": "Mask $6000: B or Select cancels (the vanilla ROM tests a different mask)",
+        "expect": "BranchIfPressed"
+      },
+      "191678": {
+        "text": "Set exit flag byte #00 (inventory_overlay polls it), carry clear",
+        "expect": "COP [SetFlagByte]"
+      },
+      "191683": {
+        "text": "Consume the confirm bit; return carry set",
+        "expect": "LDA #$8000"
+      },
+      "191726": {
+        "text": "Blank tile (tile $2060 here) at each of the four tab cursor cells",
+        "expect": "LDA #$2060"
+      }
+    }
+  },
+  "thinkers/oneshot_palette_flash_1B.asm": {
+    "blockNote": [
+      "One-shot fixed-color ramp using palette bundle #1B (the name says \"palette\", but it drives the backdrop COLDATA triplet at $7F0C00).",
+      "",
+      "Bundle #1B is one strip of 32 three-byte frames with 4 extra ticks between frames (32 × 5 = 160 ticks): the fixed color rises from black through yellow (red and green climb first; blue stays 0 until the middle of the strip) to almost white. PaletteStep keeps yielding until the whole strip has played, then KillThinker ends the thinker. Only visible while the scene has color math enabled.",
+      "",
+      "Spawned in the Mu prayer room (twice) and the Edward Castle prison cell. In Mu it is followed much later by flash #1C, which fades the same color from white back to black."
+    ],
+    "comments": {
+      "47074": {
+        "text": "Bundle #1B: backdrop fixed color black to near white, 32 frames, 5 ticks each",
+        "expect": "PaletteStart"
+      },
+      "47077": {
+        "text": "Runs the whole bundle: yields until the 32-frame strip has played, then continues",
+        "expect": "PaletteStep"
+      }
+    }
+  },
+  "thinkers/oneshot_palette_flash_1C.asm": {
+    "blockNote": [
+      "One-shot fixed-color fade using palette bundle #1C (backdrop COLDATA triplet at $7F0C00).",
+      "",
+      "Bundle #1C is one strip of 32 three-byte frames, 4 extra ticks between frames (160 ticks): red, green and blue fall together from 31 to 0, a white-to-black fade. It is the counterpart of #1B (black to white). PaletteStep yields until the strip has played, then KillThinker ends the thinker. Only visible while color math is enabled.",
+      "",
+      "Spawned after #1B in the Mu prayer room (the second spawn is a repeat of the sequence) and in the Edward Castle prison, and alone in the Angkor Wat snake pit entry, the Gold Ship descent and the crow-crew scene."
+    ],
+    "comments": {
+      "47084": {
+        "text": "Bundle #1C: backdrop fixed color white to black, 32 frames, 5 ticks each",
+        "expect": "PaletteStart"
+      },
+      "47087": {
+        "text": "Runs the whole bundle: yields until the 32-frame strip has played, then continues",
+        "expect": "PaletteStep"
+      }
+    }
+  }
+}

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "FL13-PASSIVE-21",
+    "flag": 801,
+    "scope": { "scenes": [33] },
+    "priority": "P2",
+    "claim": "Scene $21 (inca_river_crossing, tier 3 = DEF +1): the frozen whirligig row #19 (stats $0E, enemy number $2C) is counted in enemiesRemaining at spawn but its script has no death path, so killing every other enemy does not bring the counter to 0 and no DEF pickup appears; the DEF reward then arrives only from the Castoth catch-up (boss_clear_reward_handler, scene $29) after the boss dies.",
+    "start": { "scene": 33, "flags": [], "form": "Will", "state": "flag $0321 (byte $0A64 bit 1) clear; enemy kill bits of scene $21 clear" },
+    "trial": {
+      "control": "enter scene $21, kill every enemy you can reach and attack the frozen whirligig; read enemiesRemaining ($0AEC) and enemiesRemainingBcd ($0AEE) after each kill, and byte $0A64 bit 1",
+      "forced": "poke enemiesRemaining to 1 with only one killable enemy left and kill it, to see whether the DEF pickup spawns (control for the last-kill route in this scene)",
+      "observe": ["enemiesRemaining and enemiesRemainingBcd after each kill", "whether the frozen whirligig takes damage or dies", "playerDef ($0ADC) before and after", "byte $0A64 bit 1", "radar frame on the Start map"]
+    },
+    "confirms": "the counter stays at 1 after all killable enemies are dead, no pickup spawns, flag $0321 stays clear and the radar keeps the reward frame",
+    "refutes": "the whirligig dies when hit (counter reaches 0 and the DEF pickup spawns), or the counter was already 0 with the whirligig alive (it is not counted)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL13-PASSIVE-23",
+    "flag": 803,
+    "scope": { "scenes": [35] },
+    "priority": "P2",
+    "claim": "Scene $23 (inca_guarded_gap, tier 1 = Max HP +1): the frozen whirligig row #13 (stats $0E, enemy number $4F) is counted at spawn without a death path in its script; the Max HP reward may never appear by last kill.",
+    "start": { "scene": 35, "flags": [], "form": "Will", "state": "flag $0323 (byte $0A64 bit 3) clear; kill bits of scene $23 clear" },
+    "trial": {
+      "control": "enter scene $23, kill all reachable enemies and attack the frozen whirligig; read enemiesRemaining ($0AEC) after each kill and byte $0A64 bit 3",
+      "forced": "none beyond the control",
+      "observe": ["enemiesRemaining after each kill", "whether the whirligig takes damage", "playerMaxHp ($0ACA)", "byte $0A64 bit 3"]
+    },
+    "confirms": "counter stays at 1 with no pickup",
+    "refutes": "the whirligig is killable and the pickup spawns after the last kill",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL13-PASSIVE-41",
+    "flag": 833,
+    "scope": { "scenes": [65] },
+    "priority": "P2",
+    "claim": "Scene $41 (mine_zigzag, tier 3 = DEF +1): the invisible dm41_bat_spawner row #07 (stats $1A, enemy number $55) is counted at spawn and has no death path in its script; the DEF reward may only come from the Viper catch-up (scene $55).",
+    "start": { "scene": 65, "flags": [], "form": "Will", "state": "flag $0341 (byte $0A68 bit 1) clear; kill bits of scene $41 clear" },
+    "trial": {
+      "control": "enter scene $41, kill every reachable enemy; read enemiesRemaining after each kill and byte $0A68 bit 1",
+      "forced": "none beyond the control",
+      "observe": ["enemiesRemaining at scene entry (should equal the number of enemy rows not yet killed)", "enemiesRemaining after the last visible enemy dies", "playerDef ($0ADC)", "byte $0A68 bit 1"]
+    },
+    "confirms": "counter stays at 1 after the last visible enemy dies and no pickup spawns",
+    "refutes": "the pickup spawns after the last visible enemy",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL13-PASSIVE-B7",
+    "flag": 951,
+    "scope": { "scenes": [183] },
+    "priority": "P2",
+    "claim": "Scene $B7 (angkor_inner_gate, tier 2 = STR +1): one of its 12 enemy rows is the sliding gate awB7_sliding_gate (row #02, stats $45, enemy number $A0), which is counted at spawn and has no death path in its script, so the last-kill route may never reach 0; STR +1 then comes only from the Mummy Queen catch-up (boss_reward_range_table row 4, scenes $A0-$DC, boss scene $DD).",
+    "start": { "scene": 183, "flags": [], "form": "Will", "state": "flag $03B7 (byte $0A76 bit 7) clear" },
+    "trial": {
+      "control": "enter scene $B7, read enemiesRemaining ($0AEC) at entry (12 expected with no kill bits set), kill every other enemy and attack the gate; read byte $0A76 bit 7",
+      "forced": "none",
+      "observe": ["enemiesRemaining at entry", "enemiesRemaining after the last other enemy dies (1 expected)", "whether the gate takes damage", "byte $0A76 bit 7"]
+    },
+    "confirms": "enemiesRemaining stays at 1 after all other enemies are dead, the gate cannot be killed and the flag stays clear",
+    "refutes": "the gate dies and the STR pickup spawns, or the counter reaches 0 with the gate alive (the row is not counted)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL13-ZOMBIE-B0",
+    "flag": 944,
+    "scope": { "scenes": [176] },
+    "priority": "P2",
+    "claim": "Scene $B0 (angkor_entrance, tier 1 = Max HP +1): seven awB0_zombie rows are counted at spawn; the zombie death callback code_0BB800 ({768000}) writes 1 into the $26 slot of the actor named by its own $26 and spawns EnemyDeathFlash, but the code read never reaches the counters or SetDungeonKillFlag, so killing zombies may leave enemiesRemaining unchanged.",
+    "start": { "scene": 176, "flags": [], "form": "Will", "state": "flag $03B0 (byte $0A76 bit 0) clear; kill bits $09-$0F clear" },
+    "trial": {
+      "control": "enter scene $B0, kill one zombie and read enemiesRemaining ($0AEC) and enemiesRemainingBcd ($0AEE) before and after; kill the rest and read byte $0A76 bit 0 and playerMaxHp",
+      "forced": "none",
+      "observe": ["enemiesRemaining per kill", "wramFlags kill bits for enemy numbers $09-$0F", "whether the zombie rises again", "byte $0A76 bit 0"]
+    },
+    "confirms": "enemiesRemaining does not drop per zombie kill (or the zombie revives) and no pickup spawns",
+    "refutes": "each zombie kill decrements the counter and the last one spawns e_hp_increase",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL13-ZOMBIE-B6",
+    "flag": 950,
+    "scope": { "scenes": [182] },
+    "priority": "P2",
+    "claim": "Scene $B6 (angkor_outer_courtyard, tier 1 = Max HP +1): eight awB0_zombie rows (enemy numbers $8F-$96) are counted at spawn; same open question as scene $B0.",
+    "start": { "scene": 182, "flags": [], "form": "Will", "state": "flag $03B6 (byte $0A76 bit 6) clear" },
+    "trial": {
+      "control": "enter scene $B6, kill zombies one by one, read enemiesRemaining and byte $0A76 bit 6",
+      "forced": "none",
+      "observe": ["enemiesRemaining per kill", "kill bits for enemy numbers $8F-$96", "byte $0A76 bit 6"]
+    },
+    "confirms": "the counter does not follow zombie kills",
+    "refutes": "the counter follows the kills and the pickup spawns",
+    "needs": ["FR00", "FL13-ZOMBIE-B0"]
+  },
+  {
+    "id": "FL13-ZOMBIE-BA",
+    "flag": 954,
+    "scope": { "scenes": [186] },
+    "priority": "P2",
+    "claim": "Scene $BA (angkor_inner_courtyard, tier 3 = DEF +1): four awB0_zombie rows (enemy numbers $C1-$C4) are counted at spawn; same open question as scene $B0.",
+    "start": { "scene": 186, "flags": [], "form": "Will", "state": "flag $03BA (byte $0A77 bit 2) clear" },
+    "trial": {
+      "control": "enter scene $BA, kill zombies one by one, read enemiesRemaining and byte $0A77 bit 2",
+      "forced": "none",
+      "observe": ["enemiesRemaining per kill", "kill bits for enemy numbers $C1-$C4", "byte $0A77 bit 2"]
+    },
+    "confirms": "the counter does not follow zombie kills",
+    "refutes": "the counter follows the kills and the DEF pickup spawns",
+    "needs": ["FR00", "FL13-ZOMBIE-B0"]
+  },
+  {
+    "id": "FL13-CATCHUP",
+    "flag": 780,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Boss catch-up: with flags $030C-$0312 clear and Castoth killed, boss_clear_reward_handler adds the tier stat of every unclaimed room of range 0 (scenes $0C-$28) in one pass, sets each flag $03xx and heals to full; flag $0500 is set afterwards.",
+    "start": { "scene": 41, "flags": [], "form": "Will", "state": "all flags $030C-$0328 clear, byte $0A60-$0A65 zero; $0500 clear; playerMaxHp, playerStr, playerDef recorded" },
+    "trial": {
+      "control": "kill Castoth and read playerMaxHp, playerStr, playerDef, hpToHeal ($0B22), bytes $0A61-$0A65 and flag $0500 (global 1280 = byte $0AA0 bit 0) each frame after playerFlags bit $0020 sets",
+      "forced": "repeat with the flags of rooms $0C-$12 pre-set to confirm skipped rooms are not paid twice",
+      "observe": ["playerMaxHp +n1, playerStr +n2, playerDef +n3 where n counts the unclaimed tier 1/2/3 rooms of range 0", "bytes $0A61-$0A65", "byte $0AA0 bit 0 (flag $0500)"]
+    },
+    "confirms": "stat totals rise by the counts of unclaimed rooms per tier, the room flags become set, $0500 becomes set, and the HP refills",
+    "refutes": "the stats rise by a different amount or a flag stays clear",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL13-RADAR",
+    "flag": 780,
+    "scope": null,
+    "priority": "P3",
+    "claim": "The radar draws the same reward frame, 2x2 icon (tiles $32E8-$32EB) and the label 'FORCE' (system_strings consolestring_01EAD1) for tiers 1, 2 and 3 while flag $0300 + scene is clear; no frame appears once the flag is set or in a tier-0 scene.",
+    "start": { "scene": 12, "flags": [], "form": "Will", "state": "flag $030C clear" },
+    "trial": {
+      "control": "open the Start-button radar in scene $0C (tier 1), $0D (tier 2) and $0E (tier 3) with the flag clear; take a screenshot each time",
+      "forced": "set the flag ($0A61 bit 4/5/6) and reopen the radar in each scene",
+      "observe": ["radar screenshot", "BG3 tilemap cells at the frame position", "label text"]
+    },
+    "confirms": "identical frame, icon and label for all three tiers in the control, and no frame in the forced run",
+    "refutes": "the icon or label differs per tier or the frame stays after the flag is set",
+    "needs": ["FR00"]
+  }
+]

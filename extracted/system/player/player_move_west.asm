@@ -4,7 +4,7 @@
 ; 
 ; === VELOCITY AND DP CONVENTIONS ===
 ; 
-; $20 = X velocity and $22 = X position; $24 = Y velocity and $26 = Y position (sub-pixels, 4 per pixel; Y grows downward). ApplyMovementDeltas adds $24 to $26. Every store to $24 in this file (WestRampEdgeDescend/Ascend, WallSlidePushUp/Down) is therefore a Y adjustment, not an X snap. $1A/$1E = X/Y probe pixel, $00 = map index of the last probe (used by the MapCell* steps), $02 = push offset, $AA = per-tick movement flags (only $0040 is ever set in the extracted code; the $0800/$0400 guards in PlayerMovementTick have no setter), $AB = direction/wall bits (bit 1 is read by player_move_ns SouthWallNudge; bits 2/3/7 have no reader).
+; $20 = X velocity and $22 = X position; $24 = Y velocity and $26 = Y position (sub-pixels, 4 per pixel; Y grows downward). ApplyMovementDeltas adds $24 to $26. Every store to $24 in this file (WestRampEdgeDescend/Ascend, WallSlidePushUp/Down) is therefore a Y adjustment, not an X snap. $1A/$1E = X/Y probe pixel, $00 = map index of the last probe (used by the MapCell* steps), $02 = push offset, $AA = per-tick movement flags ($0040 = the horizontal phase ran; $0400 and $0800 = $AB bits 2 and 3, set by the wall-slide variant entries and tested by the south and north gates of PlayerMovementTick), $AB = direction/wall bits (bit 1 is read by player_move_ns SouthWallNudge; bits 2 and 3 are the $0400 / $0800 gate bits tested in PlayerMovementTick; bit 7 is set by the wall-slide handlers and no instruction tests it).
 ; 
 ; === STACK CONTRACT WITH PlayerMovementTick ===
 ; 
@@ -217,7 +217,7 @@ code_02DC4B {
 }
 
 code_02DC77 {
-    LDA #$04              ; Variant entry: set $AB bit 2 ($04) (no reader found), then join the handler
+    LDA #$04              ; Variant entry: set $AB bit 2 ($04 = $AA bit $0400, the south gate bit of PlayerMovementTick), then join the handler
     TSB $AB
     BRA loc_02DC5B
 
@@ -276,7 +276,7 @@ code_02DC9F {
 
 code_02DCCB {
     STX $00
-    LDA #$08              ; Variant entry: set $AB bit 3 ($08) (no reader found), then join the handler
+    LDA #$08              ; Variant entry: set $AB bit 3 ($08 = $AA bit $0800, the north gate bit of PlayerMovementTick), then join the handler
     TSB $AB
     BRA loc_02DCAF
 
@@ -897,7 +897,7 @@ WallSlidePushUp {
     BEQ loc_02E0A3
     BPL loc_02E096
     STZ $20
-    LDA #$0840            ; Horizontal speed smaller: $20 dropped, clear $AA bits $0840 (no setter for $0800 found; $0040 is the horizontal-phase flag)
+    LDA #$0840            ; Horizontal speed smaller: $20 dropped, clear $AA bits $0840 ($0800 is set by code_02DCCB and EastWallSouthFlag; $0040 is the horizontal-phase flag)
     TRB $AA
     RTS 
 
@@ -956,7 +956,7 @@ WallSlidePushDown {
     BEQ loc_02E0F2
     BMI loc_02E0E9
     STZ $20
-    LDA #$0440            ; Horizontal speed smaller: $20 dropped, clear $AA bits $0440 (no setter for $0400 found)
+    LDA #$0440            ; Horizontal speed smaller: $20 dropped, clear $AA bits $0440 ($0400 is set by the variant entries code_02DC77 and EastWallNorthFlag)
     TRB $AA
     RTS 
 

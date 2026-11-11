@@ -1,0 +1,37 @@
+{
+  "_note": "FR21 draft (2026-11-05). FL22-04: the Diamond Block (item $07) places only at X $0E (X $0F falls into the failure text) and scene $25 is the Inca Ruins entryway. FL22-13: ir20_statue has no position test; it resets HP each frame and tests playerFlags bit $0002 when the HP changed. FL22-09: both Lily answers end in the move to the Inca ruins. Dry-run only until the apply pass: npm run merge -- plans/extracted-audit/mesen2-results/specs/FR21_notes.json --dry-run",
+  "system/inventory/item_use_system.asm": {
+    "partNotes": {
+      "UseItem_DiamondBlock": {
+        "edit": [
+          {
+            "find": "fit into a tile slot in the Diamond Mine (scene $25).",
+            "with": "fit into the floor slot of the Inca Ruins entryway (scene $25, the ir25_ceiling_tile / ir25_block_slot room)."
+          },
+          {
+            "find": "Checks tiles ($0E–$0F, $19–$1A). Falls through to UseItem_DiamondBlock_Place on match.",
+            "with": "Places the block only when the player's tile Y is $19 or $1A and the tile X is exactly $0E. At X $0F the CMP #$000F test does not branch to UseItem_DiamondBlock_Place: BNE and the fall-through both reach the 'I can't find a space' text, so nothing is placed and the item stays (measured: item used at tile (0F,19) prints the failure text, flag $2F stays clear)."
+          }
+        ]
+      }
+    }
+  },
+  "incan_ruins/inca_secret_hallway/ir20_statue.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Can be shoved by a body slam/charge attack (playerFlags bit $0002). Once pushed far\nenough (checked via position), sets flag $B9 and applies\nStandardEnemyDefeatHandler. Before being pushed, takes hits but\nresets HP each frame.",
+          "with": "Every frame the actor compares its HP with $FF. When the HP is still $FF it returns. When the HP differs (a hit landed since the previous frame) it reads playerFlags: with bit $0002 set it sets flag $B9 and jumps to StandardEnemyDefeatHandler (EnemyDefeatFlashAndDrop); with the bit clear it decrements its scratch word $24 and restores the HP to $FF. There is no position test. Measured with an HP poke: bit $0002 set destroys the statue and sets $B9; bit clear resets the HP and changes nothing else. What sets playerFlags bit $0002 during a real hit is not traced."
+        }
+      ]
+    }
+  },
+  "itory/moon_tribe_camp/it1A_lily.asm": {
+    "comments": {
+      "324877": {
+        "text": "Options 0 and 2 (the first and the cancel answer) print this line; the block has no RTL and falls through into code_04F511, so every answer ends in the move to the Inca ruins",
+        "expect": "PrintDialogString"
+      }
+    }
+  }
+}

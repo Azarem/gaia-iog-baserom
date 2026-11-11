@@ -1,0 +1,16 @@
+{
+  "tables/scene_actors.asm": {
+    "blockNote": null,
+    "partNotes": {
+      "scene_actors": null,
+      "scene_event_0C8200": null,
+      "scene_event_0C821F": null,
+      "scene_event_0CC7A1": null,
+      "scene_event_0CE1AA": null,
+      "scene_event_0CE5B2": null,
+      "scene_actors_extract_table": null,
+      "scene_event_0C8200_value": null
+    },
+    "comments": {}
+  }
+}

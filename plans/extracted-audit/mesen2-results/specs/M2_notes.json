@@ -1,0 +1,121 @@
+{
+  "_note": "M2 (2026-11-09), see mesen2-results/M2_20261109.md. Dry-run only: npm run merge -- plans/extracted-audit/mesen2-results/specs/M2_notes.json --dry-run. Apply order: merge first (the finds use the current label TitleCometSpriteActor), then npm run names -- specs/M2_names.json (it renames the label and the references). Comment keys are the line-tracking addresses of the current extract:lt output; run extract:lt before the apply pass if the tags are missing. 'find' must occur exactly once in the stored note.",
+  "system/boot_logos/sFB_boot_logo.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "a row of 11 parts 12 px apart on palette 4",
+          "with": "11 parts on palette 4 (measured on screen: the word 'AN' above the emblem, 1 part, and the ten letters of 'PRODUCTION' in a row 12 px apart under the 'ENIX' letters)"
+        },
+        {
+          "find": "which company the first logo belongs to was not checked against the tile art.",
+          "with": "the first logo is the Nintendo logo with the word 'PRESENTS' under it (measured on screen), so the two visits show 'Nintendo PRESENTS' and 'AN ENIX PRODUCTION'."
+        }
+      ]
+    }
+  },
+  "system/title_screen/spm_title_actors.sprite.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "spm_title_actors_sprite_group_000008 = the comet.",
+          "with": "spm_title_actors_sprite_group_000008 = the half-lit Earth (measured on screen: a globe lit from the right that stays at x 80-168, y 7-135 for the 240 in-place cycles, then moves 1 px to the left per frame for 64 frames and ends behind the title letters; OAM: all 48 parts on OBJ palette 4, priority 1)."
+        }
+      ]
+    },
+    "partNotes": {
+      "spm_title_actors": {
+        "edit": [
+          {
+            "find": "Animation table with one entry: #00, the comet.",
+            "with": "Animation table with one entry: #00, the Earth."
+          }
+        ]
+      }
+    }
+  },
+  "system/title_screen/sFC_title_intro.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "the comet sprites are the first thing on screen",
+          "with": "the Earth sprites are the first thing on screen"
+        }
+      ]
+    },
+    "partNotes": {
+      "TitleIntroInit": {
+        "edit": [
+          {
+            "find": "spawn the comet, set TM = $10",
+            "with": "spawn the Earth sprite actor, set TM = $10"
+          }
+        ]
+      },
+      "TitleCometSpriteActor": {
+        "edit": [
+          {
+            "find": "Title comet sprite actor (spawned by TitleIntroInit at ($80,$50)).",
+            "with": "Title Earth sprite actor (spawned by TitleIntroInit at ($80,$50); the 48 parts draw a half-lit Earth, not a comet)."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "772420": {
+        "text": "Spawn the Earth sprite actor at (128,80)",
+        "expect": "SpawnAfterAbsFlags"
+      },
+      "772433": {
+        "text": "TM = $10: OBJ only (the Earth sprites first)",
+        "expect": "LDA #$10"
+      },
+      "772446": {
+        "text": "WaitByte #B3 = 180 ticks by the operand; measured: 313 until the first string (the fade-in takes the first 133)",
+        "expect": "WaitByte"
+      }
+    }
+  },
+  "system/diary_menu/sFA_diary_menu.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "| $0D94 | Slot being edited (Snd/Buttons editor, arrangement screen, erase prompt) |",
+          "with": "| $0D94 | Slot being edited (Snd/Buttons editor, erase prompt); the arrangement screen sets it to $FFFF |"
+        },
+        {
+          "find": "so what Type 2 does here is unverified.",
+          "with": "so the results differ from the vanilla ones above. Measured per physical button (logical word that button feeds): the OptionsMenu patch replaces both tails with JSL ApplyButtonMapping; with all six saved button-map bytes zero, Type 1 keeps the defaults (physical B $4008, A $8080, Y $0040, X $0004) and Type 2 gives B $8080, A $0040, Y $4008, X $0004. In the diary menu itself physical A confirms and physical B cancels with either type."
+        }
+      ]
+    },
+    "partNotes": {
+      "DiaryNewGameCancel": {
+        "edit": [
+          {
+            "find": "restore the slot cursor from $0D94 and show the slot list again",
+            "with": "copy $0D94 into the slot cursor (it is always $FFFF on this path) and show the slot list again; DiaryStartJourney then sets the cursor from $0D8C, the slot that was picked"
+          }
+        ]
+      },
+      "DiaryEraseExecute": {
+        "edit": [
+          {
+            "find": "clear the text and return to the Erase list.",
+            "with": "clear the text and return to the Erase list. The LDA $1C / STA $1A / STZ $1C trio acts on the diary actor (slot $1000): measured $1A $0048 -> $0038 and $1C $0038 -> $0000, once per erase; of the actor's extents only $18 and $1C are read afterwards (every frame by the sprite cull in SortActors) and the actor draws no sprite, so nothing visible changes. $0D94 keeps the erased slot until the next write; no read of the stale value happens before that write."
+          }
+        ]
+      }
+    },
+    "comments": {
+      "779315": {
+        "text": "$0D92 is already $FFFF here (DiaryStartLoadConfirm stored the slot in $0D8C and cleared the cursor), so $0D94 becomes $FFFF",
+        "expect": "LDA $0D92"
+      },
+      "779407": {
+        "text": "Copy $0D94 ($FFFF on this path) into the cursor; DiaryStartJourney sets the real cursor from $0D8C",
+        "expect": "LDA $0D94"
+      }
+    }
+  }
+}

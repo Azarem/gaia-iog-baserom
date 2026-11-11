@@ -1,0 +1,9 @@
+[
+  { "address": 718141, "old": "code_0AF53D", "new": "mu_color_window_setup", "row": "E4-OQ-I031-2" },
+  { "address": 772488, "old": "TitleCometSpriteActor", "new": "TitleEarthSpriteActor", "row": "M2-OQ-I058-2" },
+  { "address": 181386, "old": "IdleStandSouthShadow", "new": "IdleStandSouthFlagged", "row": "W1-c-OQ-I030-1" },
+  { "address": 181402, "old": "IdleStandNorthShadow", "new": "IdleStandNorthFlagged", "row": "W1-c-OQ-I030-1" },
+  { "address": 181418, "old": "IdleStandWestShadow", "new": "IdleStandWestFlagged", "row": "W1-c-OQ-I030-1" },
+  { "address": 181434, "old": "IdleStandEastShadow", "new": "IdleStandEastFlagged", "row": "W1-c-OQ-I030-1" },
+  { "address": 50237, "old": "PlayerIdleUseShadowSprite", "new": "PlayerIdleFlaggedAnim", "row": "W1-c-OQ-I052-1" }
+]

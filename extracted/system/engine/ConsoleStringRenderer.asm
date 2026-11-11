@@ -688,7 +688,7 @@ ConsoleCmd_IndirectString {
 ; 
 ; 3-byte operand (text tag [BCD:count,addr]): 1-byte digit count + 2-byte source address (current data bank, so a RAM variable). Digits are read from packed BCD bytes (2 digits per byte, least significant byte first, low nibble first) and printed right-to-left from cursor + 2×count. Each tile is $30 + digit in the low byte with the attribute byte $099F as the high byte ($099E's low byte is overwritten, not ORed).
 ; 
-; After printing all digits, a suppression pass replaces leading '0' tiles ($30) with tile $20, always leaving the last digit. The cursor is advanced past the number. Every vanilla use is a 1-digit number, so the suppression pass has no vanilla effect; the project's string map names tile $20 '.', which is probably a blank in the actual font (unverified).
+; After printing all digits, a suppression pass replaces leading '0' tiles ($30) with tile $20, always leaving the last digit. The cursor is advanced past the number. Every vanilla use is a 1-digit number, so the suppression pass has no vanilla effect; the project's string map names tile $20 '.', and the font draws a period there (tile $20 of the BG3 font is a period glyph, not a blank), so a suppressed leading zero would show as a dot; no vanilla string runs that pass on a leading zero.
 
 ConsoleCmd_PrintBcdNumber {
     LDA $03, S

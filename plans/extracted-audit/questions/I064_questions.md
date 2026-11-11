@@ -1,0 +1,10 @@
+# I064 open questions
+
+Mesen2 MCP was not available, so everything below is UNVERIFIED-RUNTIME. IDs are cited in the merged notes.
+
+| ID | Iter | Question | Static evidence so far | Suggested check |
+|----|------|----------|------------------------|-----------------|
+| OQ-I064-1 | I064 | Which extended warp entry uses which of the 16 pan lists, and do the list totals equal the pan distance the warps need (the camera stops at the list end or at the camera bounds, whichever comes first)? | E1: byte 6 of the 13-byte extended warp entry holds the index in its low nibble; every list total is a multiple of 16 px; the warp entries were not decoded for this audit | Decode `scene_warps` entries whose byte 6 has bits 4/5/7 set, tabulate the low nibble against the scene positions |
+| OQ-I064-2 | I064 | What do the two Freejia tile streams (`$3FE0`, `$3FF0`) draw: a BG tile animation, an OAM tile, or something else? Does it belong to the laborer the file header of `fr32_laborer_npc` talks about? | E1: art in `misc_fx_1CD080` (tile bytes 0-3 and 4-7), two 32-byte DMAs per frame, no movement code in either actor | View VRAM `$3FE0` / `$3FF0` in Freejia and compare with the art file |
+| OQ-I064-3 | I064 | Does Will have any flute-playing frames? The old header claimed them. `FluteMusicActorController` uses the static pose `PlayerStaticBodyPose`; the unattributed indices of the Will table (`$14`-`$17`, `$1C`-`$29`, `$3E`-`$41`) might still contain cutscene frames | E1: `item_use_system`; the player scripts and the credits stage no unknown index for the flute | Play the Wind Melody and read the actor animation index at `$28` |
+| OQ-I064-4 | I064 | Which animations are `$04`-`$07` and `$14`-`$17` of the Will table (the idle shape on a second set of groups, and a 6-frame cycle on the same groups) and `$10`-`$13` (staged for Shadow only, yet present in the Will data)? | E1: operand grep shows no stager for form 0; the groups differ in tile words (`$0000`, `$0020`, `$0040`, `$0006` for the first sub-sprite) | Check whether the debug scenes or the Dark Space transformation stage them, or draw the groups with the Will sprite sheet |

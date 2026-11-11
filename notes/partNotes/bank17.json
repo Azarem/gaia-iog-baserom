@@ -27,7 +27,7 @@
     "shadow_fx_00": "Animation $00: 4 frames (hold 9, 9, 9, 1).",
     "shadow_fx_04": "Animation $04: 8 frames (hold 3, 3, 3, 6, 4, 3, 2, 0), the longest list of the set.",
     "shadow_fx_05": "Animation $05: one frame, hold 31, group 17B098 (same as $07, $08, $0A, $0B, $0D).",
-    "sprite_group_17903C": "Example group: animation $00, frame 0. Header: extents X 4 / 4, Y 8 / 8, default attack box, body box $FC $08 $F8 $16, 2 sub-sprites (8x8, tile words $0460 and $0464, offsets (0,8) and (8,0)).",
+    "sprite_group_17903C": "Example group: animation $00, frame 0. Header: extents X 4 / 4, Y 8 / 8, default attack box, body box $FC $08 $F8 $16 (the orbital's hit rectangle: X -4 to +4, Y -8 to +14 around the actor position), 2 sub-sprites (8x8, tile words $0460 and $0464, offsets (0,8) and (8,0)).",
     "sprite_group_17C0E8": "The large body group: 6 sub-sprites, first record of $00 and last of $01.",
     "sprite_group_17C42F": "One sub-sprite (tile word $041E, offsets 0,0): the closing record of $00 and every second frame of $02.",
     "spriteset_aura": "3 pointers to the frame lists, indexed by the animation number staged by AuraProjectileChild / AuraProjectileShrink: $00 and $01 grow-in, $02 the looping orbit. See the block note.",

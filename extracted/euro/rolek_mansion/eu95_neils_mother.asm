@@ -1,9 +1,6 @@
-; Neil's mother at the Rolek mansion — questions their lifestyle.
+; Neil's mother at the Rolek mansion (scene $95).
 ; 
-; NPC: "We've made money and wish to spend our remaining years
-; enjoying life. Why does Neil still want to travel?" Shows
-; the gap between Neil's adventurous spirit and his parents'
-; comfortable retirement.
+; $A8 set: the actor dies at spawn. Otherwise it stands solid with 'We've made money and wish to spend our remaining years enjoying life. Why don't you succeed us...' and waits for $A8 (the Teapot use); then it clears its solidity, walks off, moves toward (0268,0060), the same target as Neil's father, and dies when the walk ends (the actor definition falls through into code_07E314, COP Die).
 ---------------------------------------------
 
 !moveXAlt                       7F0018

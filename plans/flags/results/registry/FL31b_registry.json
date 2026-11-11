@@ -1,0 +1,65 @@
+{
+  "_note": "FL31 patch fragment: spine flags that already own a record (FL22, FL27, FL29, FL30). Apply after those fragments: each entry carries expectOld.",
+  "flags": {
+    "75": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "ir_entrance_kara_catchup_done",
+          "patch": true,
+          "scope": null,
+          "queue": [
+            "FL31-10"
+          ]
+        }
+      ]
+    },
+    "142": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "sys_lance_letter_read",
+          "patch": true,
+          "scope": null,
+          "pairsWith": [
+            148
+          ],
+          "notes": "One setter (UseItem_LanceLetter, display-only handler), one reader. Name from the item; the letter says 'I'm going to the Great Wall of China'. Relation: overworld_exit tests $94 first, then $8E (overworld_exit.asm:345 note), so $94 wins when both are set."
+        }
+      ]
+    },
+    "165": {
+      "domain": "D2",
+      "meanings": [
+        {
+          "expectOld": "eu_arrival_cutscene_played",
+          "patch": true,
+          "scope": null,
+          "queue": [
+            "FL31-11"
+          ]
+        }
+      ]
+    },
+    "377": {
+      "domain": "D3",
+      "meanings": [
+        {
+          "expectOld": "bt_crystal_gate_e_open",
+          "patch": true,
+          "scope": null,
+          "pairsWith": [
+            373,
+            374,
+            375,
+            376
+          ],
+          "queue": [
+            "FL11-13"
+          ],
+          "notes": "Setter: the neo queen watcher (code_0BA65F, spawned by btF6_neo_queen, scene $F6): after enemiesRemaining = 0 and the teleport byte $01 clear it runs Transform_ShadowToWill, SetFlagWord #$0179 and queues scene $E3 at (01F8,03A0). Agrees with the FL11 proposal. The name has the crystal gate letter e like gates a-d ($0175-$0178). Decision: the FL29 meaning (Neo Queen watcher, scene $F6) stands; the earlier proposal 'Mummy Queen rematch' is contradicted. The only setter (pyDD_mummy_queen.asm:109 {763546}) lies in code_0BA65F, spawned by btF6_neo_queen (pyDD_mummy_queen.asm:52 {763426}), which tables/scene_actors.asm:4695 places in the Babel boss lair; the Mummy Queen actor of the same file (placed at tables/scene_actors.asm:4450) does not reach it. The file sits in the pyramid folder only because of its position in the bank, which is why the inventory counts a second group for this flag."
+        }
+      ]
+    }
+  }
+}

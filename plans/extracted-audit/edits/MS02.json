@@ -1,0 +1,155 @@
+{
+  "_note": "MS02: Z1 apply of the C campaign (C1 adhoc DMA order, C2 NMITIMEN callers, C3 boot / reset / MEMSEL, C4 displayModeFlags). Union of specs/C1_notes.json (only the two entries C2 does not replace: radar_map_screen comment 229608 and system_core comment 33215), specs/C2_notes.json (replaces the C1 drafts for the hdma_dma_spc block note and the AdhocVramDma part note), specs/C3_notes.json and specs/C4_notes.json. Dry-run first: npm run merge -- plans/extracted-audit/edits/MS02.json --dry-run. Comments go through expectOld because extracted/ carries no line-tracking tags. 'find' must occur exactly once in the stored note.",
+  "system/engine/hdma_dma_spc.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "Writers must store the size before the destination (the destination arms the transfer).",
+          "with": "The destination word is the pending flag: the NMI runs the transfer when it is nonzero. Both writers (RadarScreenSetup and the AdhocVramDma COP handler) store the destination before the size. Measured: in every pair (radar screen, credits scene, boot) the NMI was off at both stores and no NMI ran between them. Actors normally run with NMITIMEN = $01, but the first UpdateFrameDialogue pass after a scene load runs RunActors_CutsceneOnly with NMITIMEN = $81, and neither writer guards against an NMI between its two stores there. A writer that can run with the NMI on has to store the size first."
+        }
+      ]
+    }
+  },
+  "system/engine/radar_map_screen.asm": {
+    "comments": {
+      "229608": {
+        "text": "Destination word = pending flag for the next NMI; the NMI is off here (NMITIMEN = $01), so it cannot run before the size store below",
+        "expectOld": "Writing the destination arms the adhoc DMA; the size is stored after it (writers should store the size first)"
+      }
+    }
+  },
+  "system/engine/cop_handlers_vram.asm": {
+    "partNotes": {
+      "AdhocVramDma": {
+        "edit": [
+          {
+            "find": "The destination word is written before the size word, but the NMI fires on a nonzero destination.",
+            "with": "The destination word is written before the size word, and the NMI runs the transfer when the destination is nonzero. Actors normally execute with NMITIMEN = $01 (NMI off), so no NMI can run between the two stores; UpdateFrameFull switches the NMI off first. The first UpdateFrameDialogue pass after a scene load runs actors with NMITIMEN = $81 and has no such protection."
+          }
+        ]
+      }
+    }
+  },
+  "system/engine/system_core.asm": {
+    "partNotes": {
+      "SystemInit": {
+        "edit": [
+          {
+            "find": "3. MEMSEL = 1 (but InitHardwareRegisters writes MEMSEL = 0 afterwards: boot stays SlowROM until sFB_boot_logo enables FastROM)",
+            "with": "3. MEMSEL = 1: FastROM timing lasts only for the register-init loop of InitHardwareRegisters, whose last table entry writes MEMSEL = 0. The WRAM clear, the SPC engine upload (video frames 3 to 7 after reset) and the first scene loads run with SlowROM timing until BootLogoInit (frame 84) writes MEMSEL = 1. Measured: the upload takes the same number of master clocks with FastROM timing, because it waits on the SPC port handshake"
+          },
+          {
+            "find": "No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch).",
+            "with": "No writer of $83 at $0100 was found (dialog_string_scanner uses $0100 as scratch). InitSystemVariables skips the stack page, so after a cold boot the byte holds power-on RAM contents and after a reset the value the game left there. Measured with the byte at $83, $00, $5A and random power-on values: the branch is taken only for $83 and skips the second LDY; the first sceneNext write (0), the frame of every later boot step and the scene sequence are identical"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "32807": {
+        "text": "MEMSEL = 1: FastROM timing only for the register-init loop; its last table entry writes 0, so the boot stays SlowROM until BootLogoInit",
+        "expectOld": "MEMSEL = 1; InitHardwareRegisters writes 0 again below, so boot stays SlowROM until sFB_boot_logo"
+      },
+      "33215": {
+        "text": "NMITIMEN = $01 (NMI off, joypad auto-read on) for the partial V-Blank pass; EnableNmiAndJoypad at the end turns the NMI back on",
+        "expectOld": "Enable NMI for partial V-Blank during music transition"
+      }
+    }
+  },
+  "system/engine/GlobalInputHandler.asm": {
+    "comments": {
+      "229449": {
+        "text": "NMITIMEN = $01: NMI off, joypad auto-read stays on (OpenInventoryScreen already leaves it in this state)",
+        "expectOld": "Restore NMI-only mode (disable joypad auto-read during inventory teardown)"
+      },
+      "229519": {
+        "text": "Display loop: NMITIMEN = $81 for one VBlank wait (joypad is read), then back to $01 (NMI off, joypad auto-read on)",
+        "expectOld": "Display loop: enable NMI+joypad, wait for VBlank (joypad is read), back to NMI-only"
+      }
+    }
+  },
+  "system/engine/scene_lifecycle.asm": {
+    "partNotes": {
+      "ExecuteSceneTransition": {
+        "edit": [
+          {
+            "find": "and a chain of VBlank sync/NMI enable calls.",
+            "with": "and a chain of VBlank sync/NMI enable calls. The last call of the chain, EnableNmiAndJoypad, leaves NMITIMEN = $81 into the enter transition: the first UpdateFrameDialogue pass runs RunActors_CutsceneOnly with the NMI on, and the DisableNmiKeepJoypad at the end of that pass turns it off."
+          }
+        ]
+      }
+    }
+  },
+  "system/boot_logos/sFB_boot_logo.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "use the same flag.",
+          "with": "use the same flag. A reset clears it too: the boot WRAM clear (InitSystemVariables) zeroes $0A02, so every boot starts with the first logo. Measured after a reset with the flag set at the title and after a reset with the flag set by the game during the second logo: the first logo plays in both cases."
+        }
+      ]
+    }
+  },
+  "system/engine/cop_handlers_dialog.asm": {
+    "partNotes": {
+      "DialogueOptions": {
+        "edit": [
+          {
+            "find": "($2000; no reader of this bit was found)",
+            "with": "($2000, dialogue mode; the only reader is the bomb countdown actor in mu67_bomb, which skips its decrement while the bit is set)"
+          }
+        ]
+      },
+      "PrintDialogString": {
+        "edit": [
+          {
+            "find": "($2000; no reader found)",
+            "with": "($2000, dialogue mode; the only reader is the bomb countdown actor in mu67_bomb, which skips its decrement while the bit is set)"
+          }
+        ]
+      }
+    },
+    "comments": {
+      "43174": {
+        "text": "Set displayModeFlags bit 13 ($2000), dialogue mode; the only reader is the mu67_bomb countdown, which pauses while it is set",
+        "expectOld": "Set displayModeFlags bit 13 ($2000); no reader of this bit was found"
+      },
+      "43260": {
+        "text": "Set displayModeFlags bit 13 ($2000), dialogue mode (read only by the mu67_bomb countdown; HUD suppression is hudDisableFlag, not this bit)",
+        "expectOld": "Set displayModeFlags bit 13 ($2000); no reader found (HUD suppression is hudDisableFlag, not this bit)"
+      }
+    }
+  },
+  "system/engine/DialogStringRenderer.asm": {
+    "comments": {
+      "254630": {
+        "text": "Set displayModeFlags bit 0: Bg3TilemapVramDma uploads the whole BG3 staging buffer to VRAM $7800 in the next NMI and clears the bit",
+        "expectOld": "Set displayModeFlags bit 0 so the BG3 staging buffer is re-uploaded (consumer not traced)"
+      }
+    }
+  },
+  "system/inventory/inventory_overlay.asm": {
+    "comments": {
+      "191778": {
+        "text": "Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off). The scene display command (SceneCmd_ConfigDisplay) clears bit 14 again two frames later (measured)",
+        "expectOld": "Save displayModeFlags, then force $4000: every request bit clears; bit 14 is bit 6 of hudDisableFlag ($09ED, HUD off)"
+      }
+    }
+  },
+  "system/engine/camera_tilemap.asm": {
+    "partNotes": {
+      "Bg3TilemapVramDma": {
+        "edit": [
+          {
+            "find": "if set, the upload is suppressed (returns immediately).",
+            "with": "if set, the upload is suppressed (returns immediately): the request bits stay pending and the upload runs in the first NMI after the bit is cleared (measured). No instruction sets this bit; the PAUSE path of GlobalInputHandler clears it."
+          },
+          {
+            "find": "the common TRB below clears bits 0, 4 and 5 either way.",
+            "with": "the common TRB below clears bits 0, 4 and 5 either way. Measured: bit 0 gives the full upload and bit 4 or bit 5 gives the same partial upload (VRAM words $7840-$7983 = staging offsets $80-$1BF), each in the first NMI after the request, which also clears the bit. The ROM only ever requests bit 4 (UpdateHUD, three sites); no instruction sets bit 5."
+          }
+        ]
+      }
+    }
+  }
+}

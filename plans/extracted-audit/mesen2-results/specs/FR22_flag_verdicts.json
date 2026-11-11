@@ -1,0 +1,169 @@
+[
+  {
+    "flag": 123, "scope": null, "queueId": "FL25-01", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "UseItem_StatueOfHope (item $12) used in scene $63 inside tiles (06,06)-(0A,08) sets $7B (byte $0A0F bit 3); the item is consumed. In the run where the player stood in the west half at spawn, mu63_spirits (west branch, WaitOnFlagByte #7B) then locks joypadMaskStd ($CFF0 observed), plays StartMusic #1B (exec 432624 x1), spawns ten helper sprites and a placed-statue sprite at pixel (0080,0058); a second lock follows, SetFlagByte #02 runs at 432789 and the joypad is released about 1370 frames after the use. With $7B preset at load the actor spawns only the placed statue (exec 432814 x1) and dies: no lock, no show.",
+      "clear": "No clear observed. Set-only."
+    },
+    "evidence": "FR22_20261105.md FL25-01 (raw/FR22_FL25-01_T0..T5, T1L). The show is armed for the half the player stood in when the actor spawned: west spawn + statue on the east pedestal sets $7E and no show; east spawn (warpDest tile (24,7)) + statue on the east pedestal runs the east branch (StartMusic 432863, SetFlagByte #02 at 433028, placed statue at (0180,0058)); east spawn + statue on the west pedestal sets $7B and no show."
+  },
+  {
+    "flag": 126, "scope": null, "queueId": "FL25-01", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Statue of Hope on the east pedestal (tiles (16,06)-(1A,08) of scene $63) sets $7E (byte $0A0F bit 6). The east-branch show (mu63_spirits, box (10,00)-(20,10), WaitOnFlagByte #7E) runs only when the player stood in the east half at spawn; otherwise the flag alone is set and nothing else happens.",
+      "clear": "No clear observed. Set-only."
+    },
+    "evidence": "FR22_20261105.md FL25-01 (T2 west spawn + east pedestal: $7E set, no lock, actor stays at pc 99D8; T4 east spawn + east pedestal: show)."
+  },
+  {
+    "flag": 126, "scope": null, "queueId": "FL25-02", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "With $7E set at load the layer-1 map ($7E:C000) of each of the Mu scenes $5F, $60, $61, $62, $64, $65 is the same drained map (SHA-1 prefix 063145 in all six) and is tested before $7B ($7E alone and $7E+$7B give identical maps). $7E does not change the tint thinker: with $7E alone COLDATA stays at the $7B-clear pair.",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-02 (raw/FR22_FL25-02b_s*_*: WRAM $7E:C000 and $7F:C000 compared per variant). Screenshots and VRAM at the spawn view do not separate the half-drained and drained maps in $5F and $60 (VRAM chunks equal), so the WRAM map is the observable."
+  },
+  {
+    "flag": 123, "scope": null, "queueId": "FL25-02", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "With $7B alone the layer-1 map of $5F, $60, $61, $62 is a per-scene half-drained map (differs from the full map and from the drained map); in $64 and $65 $7B alone leaves the map byte-identical to the none variant. In all six scenes $7B selects the tint thinker's #$28 path (MuTintAndWaveInit; get_ppu_state fixedColor raw 40 = r 8 g 1 b 0) instead of the #$2A path (raw 138 = r 10 g 4 b 0).",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-02 (execs 48599 = #$2A path x1 when $7B clear, 48615 = #$28 path x1 when $7B set; raw/FR22_FL25-02_s*_*, FR22_FL25-02b_s*_*)."
+  },
+  {
+    "flag": 128, "scope": null, "queueId": "FL25-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "UseItem_RamaStatue (item $13) in scene $66 inside tiles (23,08)-(26,0A) sets $80 (byte $0A10 bit 0) and consumes the item; a second use at the same pedestal leaves the item and prints the nothing-happened text. mu66_altar1 reloads scene $66 at pixel (00F8,01D8) only when $80 and $81 are both set and the player is outside tiles (00,00)-(20,20): joypadMaskStd $CFF0 one frame after the second flag and the reload completes about 155 frames later with the player at p09A2 (248,472) (actor (256,488)).",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-03 (raw/FR22_FL25-03_C1, F1, F2, F3, I1, I2). $80 only (player outside), $81 only (outside) and both with the player inside the box: no reload. Altar sprite frames (#2D) were not read."
+  },
+  {
+    "flag": 129, "scope": null, "queueId": "FL25-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "UseItem_RamaStatue in scene $66 inside tiles (2A,08)-(2D,0A) sets $81 (byte $0A10 bit 1); mu66_altar1 waits on $80 first, so $81 alone does not start the reload.",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-03 (F3: $81 preset, player outside: no reload; I1/I2: either order of the two pedestals reloads once both are set)."
+  },
+  {
+    "flag": 326, "scope": null, "queueId": "FL25-06", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "In scene $67 mu67_bomb sets $0146 and $0147 (byte $0A28 bits 6 and 7) about 55 frames after enemiesRemaining ($0AEC) reaches 0 and opens the cells (07,13), (07,0E) and (08,13) (solid $0E to $00); scratch $01 stays clear, so the wire question is not needed. With enemiesRemaining at 2 nothing changes in 700 frames. The defeat was SIMULATED by writing $0AEC/$0AEE := 0 at settle frame 300.",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-06 (raw/FR22_FL25-06_B0, B1). The real vampire deaths and the answer-first order were not played."
+  },
+  {
+    "flag": 327, "scope": null, "queueId": "FL25-06", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Set together with $0146 (same frame) by mu67_bomb once enemiesRemaining is 0 (simulated defeat).",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-06 (B1: f146 and f147 both rise at settle frame 356)."
+  },
+  {
+    "flag": 312, "scope": null, "queueId": "FL25-08", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "UseItem_SeasidePalaceKey (item $10) in scene $5A inside tiles (08,07)-(0A,08) consumes the key, sets $0138 (byte $0A27 bit 0) and opens collision cell (09,06) (solid $0F to $00). Walking north through that cell reaches scene $5E (94) (warp #05); with the key not used the same walk stops at tile y 7 and stays in scene $5A. Using the key outside the box prints the no-keyhole text, keeps the item and sets nothing.",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-08 (raw/FR22_FL25-08_K0, K1, K2, K3). The door tiles (08,03)-(0A,06) were read as collision cells (09,06) only; the BG pixels were not captured."
+  },
+  {
+    "flag": 134, "scope": { "scenes": [103] }, "queueId": "FL25-09", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "mu67_erik sets $86 (byte $0A10 bit 6) about 110 frames after the player enters tiles (01,13)-(0F,15) (lock, StartMusic, Erik's cry dialog).",
+      "clear": "No clear observed. With $0502 set and $86 clear the male vampire actor (mu67_male_vampire) is absent, the lock $EFF0 set at the box is never released in 1000 frames and the player does not move on right presses; with $0502 clear the male vampire runs 717477 (TRB) and the player moves."
+    },
+    "evidence": "FR22_20261105.md FL25-09 (raw/FR22_FL25-09_V0, V1, V2)."
+  },
+  {
+    "flag": 1, "scope": { "scenes": [102] }, "queueId": "FL25-10", "verdict": "INCONCLUSIVE", "grade": "VERIFIED-STATIC", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "Not tested: the interact handler of mu66_rama_spirits (chatPtr 9F1F) never ran. Observed: writing $0A00 := $FE or $FF at settle frame 60 releases the actor's WaitOnFlagByte #01 (six spirit sprites spawn, entry 9EB8/A037); $FC does not.",
+      "clear": "Not tested."
+    },
+    "evidence": "FR22_20261105.md FL25-10 (raw/FR22_FL25-10_T1..T3, D1..D3): 5 trials, about 30 standing positions and four facings, physical A: the interaction strike (displayModeFlags $0008 pulses) never opened a dialog. No grade change."
+  },
+  {
+    "flag": 255, "scope": null, "queueId": "FL25-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC",
+    "effects": {
+      "set": "$FF (byte $0A1F bit 7) is already set at the first sample after the arrival in scenes $5F, $60, $5C and $5D; in $5F and $60 the tint thinker passes its flag test once (exec 48591 x1 in 40 frames).",
+      "clear": "No clear observed."
+    },
+    "evidence": "FR22_20261105.md FL25-04 (raw/FR22_FL25-04_FF_s5F, s5C, s5D, s60). Which writer sets it (engine or thinker) is not separated by this observation."
+  },
+  {
+    "flag": 8, "scope": { "scenes": [63] }, "queueId": "FL24-01a", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "none (scratch byte)",
+    "effects": {
+      "set": "Byte $0A01 of scene $3F is incremented (INC at 381015) by a real sword hit (physical B) on a dm3F_switch: three different switches gave $0A01 = 1, 2, 3. With $0A01 := 3 written first, one real hit makes it 4, the collapse trigger sets $0121 one frame later (SetFlagWord at 381054 x1); with $0A01 := 2 plus one hit (value 3) nothing fires.",
+      "clear": "Not cleared after spawn; zeroed by the STZ at spawn (not exercised separately)."
+    },
+    "evidence": "FR22_20261105.md FL24-01 (raw/FR22_FL24-01_M1, H4, H5, H3). An HP poke does not run the hit callback."
+  },
+  {
+    "flag": 8, "scope": { "scenes": [63] }, "queueId": "FL24-01b", "verdict": "INCONCLUSIVE", "grade": "VERIFIED-STATIC", "expectGrade": "none (scratch byte)",
+    "effects": { "set": "Four distinct switches then the collapse, and one switch four times: not reached (the fourth distinct hit did not land in two runs; one switch hit repeatedly counted once in 1000 frames of swings).", "clear": "Not tested." },
+    "evidence": "FR22_20261105.md FL24-01 (raw/FR22_FL24-01_R5, M1, M2)."
+  },
+  {
+    "flag": 0, "scope": { "scenes": [61, 64] }, "queueId": "FL24-02a", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": {
+      "set": "Scratch $00 (byte $0A00 bit 0) follows the player's presence in the tile box: set the frame after the player actor is placed in tiles (05,03)-(07,07) of scene $3D (61) and in tiles (08,14)-(0A,17) of scene $40 (64).",
+      "clear": "The owning actor clears it again within one frame while the player is outside the box: a write of the bit at settle frame 60 with the player outside is gone by the next sample."
+    },
+    "evidence": "FR22_20261105.md FL24-02 (raw/FR22_FL24-02_I61_*, I64_*)."
+  },
+  {
+    "flag": 0, "scope": { "scenes": [61, 64] }, "queueId": "FL24-02b", "verdict": "INCONCLUSIVE", "grade": "INFERRED", "expectGrade": "INFERRED",
+    "effects": { "set": "Idle sprite change not isolated: the forced write is erased within the frame, and the in-box runs differ from the control by the player position.", "clear": "Not tested." },
+    "evidence": "FR22_20261105.md FL24-02 (readwatch rows of $0A00 name only the polling actor, slot $1270 in scene 61 and $11B0 in scene 64; no player-code reader seen)."
+  },
+  {
+    "flag": 96, "scope": null, "queueId": "FL24-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "none (spine proposal)",
+    "effects": { "set": "UseItem_CrystalBall (item $0E) in scene $4C inside tiles (16,0C)-(18,0F) sets $60 (byte $0A0C bit 0) and consumes the ball; the pair of sg4C_platforms actors at y 224 moves. A second use in the same box keeps the ball and shows the duplicate message. With $60-$63 set at load the eight platforms spawn in the moved positions.", "clear": "No clear observed." },
+    "evidence": "FR22_20261105.md FL24-03 (raw/FR22_FL24-03_J0, J1, J2)."
+  },
+  {
+    "flag": 97, "scope": null, "queueId": "FL24-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "none (spine proposal)",
+    "effects": { "set": "Crystal Ball in tiles (16,10)-(18,13) sets $61 (bit 1 of $0A0C); the platform pair at y 288 moves.", "clear": "No clear observed." },
+    "evidence": "FR22_20261105.md FL24-03 (J1)."
+  },
+  {
+    "flag": 98, "scope": null, "queueId": "FL24-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "none (spine proposal)",
+    "effects": { "set": "Crystal Ball in tiles (08,0A)-(0B,0D) sets $62 (bit 2 of $0A0C); the platform pair at y 192 moves.", "clear": "No clear observed." },
+    "evidence": "FR22_20261105.md FL24-03 (J1)."
+  },
+  {
+    "flag": 99, "scope": null, "queueId": "FL24-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "none (spine proposal)",
+    "effects": { "set": "Crystal Ball in tiles (08,0E)-(0B,11) sets $63 (bit 3 of $0A0C); the platform pair at y 256 moves.", "clear": "No clear observed." },
+    "evidence": "FR22_20261105.md FL24-03 (J1)."
+  },
+  {
+    "flag": 91, "scope": null, "queueId": "FL24-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "none (spine proposal)",
+    "effects": { "set": "In scene $44 dm44_cell_door leaves its first wait (entry D538 to D53C) when $5B (byte $0A0B bit 3) is set and stays at D53C until $5C is set; with both set $017A (byte $0A2F bit 2) rises 3 frames after the second flag and the door actor is gone. The key-use and the Yes/No scene were not run (flags written directly).", "clear": "No clear observed." },
+    "evidence": "FR22_20261105.md FL24-04 (raw/FR22_FL24-04_C0..C3). The 'Without both keys' dialog and the BG pixels were not observed (screenshots identical: the door is outside the spawn view)."
+  },
+  {
+    "flag": 92, "scope": null, "queueId": "FL24-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "none (spine proposal)",
+    "effects": { "set": "$5C (byte $0A0B bit 4) set alone does not advance dm44_cell_door (it waits on $5B first); set after $5B it releases the door ($017A set).", "clear": "No clear observed." },
+    "evidence": "FR22_20261105.md FL24-04 (C3 $5C only: actor stays at D538; C2 both: door opens)."
+  },
+  {
+    "flag": 4, "scope": { "scenes": [133] }, "queueId": "FL24-11", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "VERIFIED-STATIC (race queued)",
+    "effects": { "set": "Scratch $04 (byte $0A00 bit 4) written at settle frame 100 is consumed within one frame by only one of the two gw85_multi_switch_spear actors, the one at (1608,400) first in the actor list: it leaves its wait (pc BD83 to BD98 to BDA2) and returns to BD83 by frame 290; the actor at (1624,400) stays at BD83 throughout. The switch hit was SIMULATED by the write.", "clear": "Cleared by the consuming spear within the frame." },
+    "evidence": "FR22_20261105.md FL24-11 (raw/FR22_FL24-11_SP0, SP1)."
+  },
+  {
+    "flag": 1, "scope": { "scenes": [88] }, "queueId": "FL24-12a", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME", "expectGrade": "INFERRED",
+    "effects": { "set": "In the natural run of scene $58 scratch $01 (byte $0A00 bit 1) rises at settle frame 355 (after the sp58_missed_flight dialog) and again at 1430 (sp58_red_eye stage), and scratch $02 pulses at 360-361.", "clear": "See FL24-12b." },
+    "evidence": "FR22_20261105.md FL24-12 (raw/FR22_FL24-12_S58_observe)."
+  },
+  {
+    "flag": 1, "scope": { "scenes": [88] }, "queueId": "FL24-12b", "verdict": "INCONCLUSIVE", "grade": "INFERRED", "expectGrade": "INFERRED",
+    "effects": { "set": "Bit 1 drops to 0 at settle frames 910 and 1980. Frame 1980 is the scene change to $59; frame 910 shows joypadMaskStd 0 for 2 frames in the same scene (a reload of $58 or a clear): not separated. 'No code clears it' is not proven.", "clear": "Not attributed." },
+    "evidence": "FR22_20261105.md FL24-12."
+  }
+]

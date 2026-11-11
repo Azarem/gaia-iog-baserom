@@ -26,7 +26,7 @@
 ; | $04-$07 | the shapes of $00-$03 on a second set of groups ($14 repeats the groups of $04 in a 6-frame cycle); no StagePlayerSprite or RunPlayerAnim operand names them; the Psycho Dash stages #04-#07 (StageSpriteMoveY / StageSpriteMoveX) after SetPlayerSpriteDirect #04, so against spriteset_will_abilities (body_table row $04), not this table | |
 ; | $08-$0B | walk south / north / west / east | 4 frames, hold 5 |
 ; | $0C-$0F | 'Moving' cycles (momentum code) | 4 frames, hold 4 |
-; | $10-$13 | here 6/3/6/6-frame cycles on the idle groups of $00-$03, hold 7; StagePlayerSprite stages them only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleUseShadowSprite) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table | |
+; | $10-$13 | here 6/3/6/6-frame cycles on the idle groups of $00-$03, hold 7; StagePlayerSprite stages them only on the '...Shadow' branches of the per-scene flag byte #00 test (the four IdleStand*Shadow labels of player_character, player_transition_handlers.PlayerIdleFlaggedAnim) and in sF7_credits_player (#11, #12); the Psycho Slider also stages #10-#13 (and #0C-#17 in all), but after SetPlayerSpriteDirect #04, so against spriteset_will_abilities, not this table | |
 ; | $36-$39 | melee attack south / north / west / east | |
 ; | $3A-$3D | guard (block) | |
 ; | $42, $43 | attack against a wall west / east | |

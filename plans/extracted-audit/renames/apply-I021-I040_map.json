@@ -1,0 +1,1035 @@
+[
+ {
+  "old": "DecompressGfxToVram",
+  "new": "CopyPaletteBundleFrame",
+  "row": "R-I021-1"
+ },
+ {
+  "old": "LzReadBackRef",
+  "new": "LzReadNibble",
+  "row": "R-I021-2"
+ },
+ {
+  "old": "RunThinkers_TypeA",
+  "new": "RunThinkers_General",
+  "row": "R-I021-4"
+ },
+ {
+  "old": "RunThinkers_TypeB",
+  "new": "RunThinkers_Hdma",
+  "row": "R-I021-4"
+ },
+ {
+  "old": "RunThinkers_TypeC",
+  "new": "RunThinkers_General_Light",
+  "row": "R-I021-4"
+ },
+ {
+  "old": "RunThinkers_TypeD",
+  "new": "RunThinkers_Hdma_Light",
+  "row": "R-I021-4"
+ },
+ {
+  "old": "SpcCheckMusicReady",
+  "new": "SpcFadeOutHandshake",
+  "row": "R-I021-5"
+ },
+ {
+  "old": "EnableNmiOnly",
+  "new": "DisableNmiKeepJoypad",
+  "row": "R-I022-1"
+ },
+ {
+  "old": "code_0290C9",
+  "new": "SpcNextChunkIndex",
+  "row": "R-I022-4",
+  "addr": 168137
+ },
+ {
+  "old": "loc_0290F1",
+  "new": "SpcFindChunk",
+  "row": "R-I022-4",
+  "addr": 168177
+ },
+ {
+  "old": "loc_02911D",
+  "new": "SpcSendChunkData",
+  "row": "R-I022-4",
+  "addr": 168221
+ },
+ {
+  "old": "code_029153",
+  "new": "SpcChunkDone",
+  "row": "R-I022-4",
+  "addr": 168275
+ },
+ {
+  "old": "loc_029160",
+  "new": "SpcSendHeader",
+  "row": "R-I022-4",
+  "addr": 168288
+ },
+ {
+  "old": "loc_0291D5",
+  "new": "SpcSendRecord",
+  "row": "R-I022-4",
+  "addr": 168405
+ },
+ {
+  "old": "stair_climb",
+  "new": "slider_glide",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "StairTriggerSouth",
+  "new": "SliderGlideTriggerWest",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "StairTriggerNorth",
+  "new": "SliderGlideTriggerEast",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "StairTriggerWest",
+  "new": "SliderGlideTriggerNorth",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "StairTriggerEast",
+  "new": "SliderGlideTriggerSouth",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "StairTriggerWestEntry",
+  "new": "SliderGlideTriggerNorthEntry",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "StairTriggerWestMain",
+  "new": "SliderGlideTriggerNorthMain",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "StairTriggerWestOffset",
+  "new": "SliderGlideTriggerNorthOffset",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "ClimbSouth",
+  "new": "SliderGlideWest",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "ClimbNorth",
+  "new": "SliderGlideEast",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "ClimbWest",
+  "new": "SliderGlideNorth",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "ClimbEast",
+  "new": "SliderGlideSouth",
+  "row": "R-I023-1"
+ },
+ {
+  "old": "CheckMoveState",
+  "new": "IsPlayerSliderSpriteBank",
+  "row": "R-I023-2"
+ },
+ {
+  "old": "loc_03E8C6",
+  "new": "MenuSelection_Up",
+  "row": "R-I024-4",
+  "addr": 256198
+ },
+ {
+  "old": "loc_03E892",
+  "new": "MenuSelection_Confirm",
+  "row": "R-I024-4",
+  "addr": 256146
+ },
+ {
+  "old": "loc_03E8B3",
+  "new": "MenuSelection_Return",
+  "row": "R-I024-4",
+  "addr": 256179
+ },
+ {
+  "old": "loc_03E8EE",
+  "new": "MenuSelection_UpWrap",
+  "row": "R-I024-4",
+  "addr": 256238
+ },
+ {
+  "old": "NullActorScriptStub",
+  "new": "NpcDespawnStub",
+  "row": "R-I025-3"
+ },
+ {
+  "old": "DisableStatusForAttack",
+  "new": "FreezeCameraForAttack",
+  "row": "R-I025-4"
+ },
+ {
+  "old": "RestoreStatusDisplay",
+  "new": "UnfreezeCameraAfterAttack",
+  "row": "R-I025-4"
+ },
+ {
+  "old": "ToggleActorVisibilityFlag",
+  "new": "FlickerParentActor",
+  "row": "R-I026-1"
+ },
+ {
+  "old": "code_03876D",
+  "new": "UseItem_IncaMantelMismatch",
+  "row": "R-I026-2/3",
+  "addr": 231277
+ },
+ {
+  "old": "loc_0386F2",
+  "new": "UseItem_IncaStatueA_Mismatch",
+  "row": "R-I026-2/3",
+  "addr": 231154
+ },
+ {
+  "old": "loc_038818",
+  "new": "UseItem_IncaStatueB_Mismatch",
+  "row": "R-I026-2/3",
+  "addr": 231448
+ },
+ {
+  "old": "code_0389D9",
+  "new": "UseItem_FluteConfigureController",
+  "row": "R-I026-2/3",
+  "addr": 231897
+ },
+ {
+  "old": "loc_03A029",
+  "new": "FlutePlaybackPhase",
+  "row": "R-I026-2/3",
+  "addr": 237609
+ },
+ {
+  "old": "code_03A06E",
+  "new": "FluteRestoreMusicPhase",
+  "row": "R-I026-2/3",
+  "addr": 237678
+ },
+ {
+  "old": "code_03A098",
+  "new": "FluteControllerExit",
+  "row": "R-I026-2/3",
+  "addr": 237720
+ },
+ {
+  "old": "DarkFriarTrailSouthInit",
+  "new": "DarkFriarTrailNorthInit",
+  "row": "R-I027-1"
+ },
+ {
+  "old": "oneshot_palette_flash_40",
+  "new": "oneshot_backdrop_fade_out_fast_40",
+  "row": "R-I027-2"
+ },
+ {
+  "old": "FlashPalette40",
+  "new": "FadeBackdropOutFast40",
+  "row": "R-I027-2"
+ },
+ {
+  "old": "oneshot_palette_flash_1F",
+  "new": "oneshot_palette15_grey_fade_in_1F",
+  "row": "R-I027-2"
+ },
+ {
+  "old": "FlashPalette1F",
+  "new": "FadePalette15In1F",
+  "row": "R-I027-2"
+ },
+ {
+  "old": "item_table_separator",
+  "new": "non_discardable_item_bits",
+  "row": "R-I028-1"
+ },
+ {
+  "old": "StatusCharRow3",
+  "new": "StatusAbilityRow0",
+  "row": "R-I028-2"
+ },
+ {
+  "old": "StatusCharRow2",
+  "new": "StatusAbilityRow1",
+  "row": "R-I028-2"
+ },
+ {
+  "old": "StatusCharRow1",
+  "new": "StatusAbilityRow2",
+  "row": "R-I028-2"
+ },
+ {
+  "old": "code_02E6AA",
+  "new": "DiscardAttempt",
+  "row": "R-I028-3",
+  "addr": 190122
+ },
+ {
+  "old": "code_02E47F",
+  "new": "UseItemRefreshCursor",
+  "row": "R-I028-3",
+  "addr": 189567
+ },
+ {
+  "old": "code_02E544",
+  "new": "ArrangeSourceReset",
+  "row": "R-I028-3",
+  "addr": 189764
+ },
+ {
+  "old": "code_02E555",
+  "new": "ArrangeSourceLoop",
+  "row": "R-I028-3",
+  "addr": 189781
+ },
+ {
+  "old": "code_02E5AC",
+  "new": "ArrangeTargetLoop",
+  "row": "R-I028-3",
+  "addr": 189868
+ },
+ {
+  "old": "code_02E66B",
+  "new": "DiscardGridReset",
+  "row": "R-I028-3",
+  "addr": 190059
+ },
+ {
+  "old": "code_02E67C",
+  "new": "DiscardGridLoop",
+  "row": "R-I028-3",
+  "addr": 190076
+ },
+ {
+  "old": "loc_02E8CD",
+  "new": "SlotActorEvaluate",
+  "row": "R-I028-3",
+  "addr": 190669
+ },
+ {
+  "old": "oneshot_palette_flash_1B",
+  "new": "oneshot_backdrop_fade_in_1B",
+  "row": "R-I028-4"
+ },
+ {
+  "old": "FlashPalette1B",
+  "new": "FadeBackdropIn1B",
+  "row": "R-I028-4"
+ },
+ {
+  "old": "oneshot_palette_flash_1C",
+  "new": "oneshot_backdrop_fade_out_1C",
+  "row": "R-I028-4"
+ },
+ {
+  "old": "FlashPalette1C",
+  "new": "FadeBackdropOut1C",
+  "row": "R-I028-4"
+ },
+ {
+  "old": "DiagRampUpLeft",
+  "new": "WestRampDescend",
+  "row": "R-I029-1"
+ },
+ {
+  "old": "DiagRampDownRight",
+  "new": "WestRampAscend",
+  "row": "R-I029-1"
+ },
+ {
+  "old": "DiagRampEdgeUL",
+  "new": "WestRampEdgeDescend",
+  "row": "R-I029-1"
+ },
+ {
+  "old": "DiagRampEdgeDR",
+  "new": "WestRampEdgeAscend",
+  "row": "R-I029-1"
+ },
+ {
+  "old": "player_move_diag",
+  "new": "player_move_west",
+  "row": "R-I029-2"
+ },
+ {
+  "old": "DispatchDiagDownLeft",
+  "new": "DispatchWestMove",
+  "row": "R-I029-2"
+ },
+ {
+  "old": "SnapXDiagCollision",
+  "new": "SnapXWestCollision",
+  "row": "R-I029-2"
+ },
+ {
+  "old": "ComputeDiagSnapOffset",
+  "new": "ComputeWallSlidePush",
+  "row": "R-I029-2"
+ },
+ {
+  "old": "DiagPushLeft",
+  "new": "WallSlidePushUp",
+  "row": "R-I029-3"
+ },
+ {
+  "old": "DiagPushRight",
+  "new": "WallSlidePushDown",
+  "row": "R-I029-3"
+ },
+ {
+  "old": "DiagClearReturnFlags",
+  "new": "CancelVerticalPhase",
+  "row": "R-I029-3"
+ },
+ {
+  "old": "DiagAutoAlignNS",
+  "new": "AutoAlignYToGrid",
+  "row": "R-I029-3"
+ },
+ {
+  "old": "hdma_gradient_thinker",
+  "new": "hdma_circle_window_thinker",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "crF7_thinker_05FB16",
+  "new": "circle_window_thinker_v1",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "thinker_def_05FB32",
+  "new": "circle_window_thinker_v2",
+  "row": "R-I031-1",
+  "addr": 391986
+ },
+ {
+  "old": "HdmaGradientBuildV1",
+  "new": "HdmaCircleWindowBuildV1",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "HdmaGradientBuildV2",
+  "new": "HdmaCircleWindowBuildV2",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "HdmaGradientExitV1",
+  "new": "HdmaCircleWindowExitV1",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "HdmaGradientExitV2",
+  "new": "HdmaCircleWindowExitV2",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "HdmaGradientSimpleEntry",
+  "new": "CircleWindowV1Entry",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "HdmaGradientFullEntry",
+  "new": "CircleWindowV2Entry",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "HdmaSegmentSplitDown",
+  "new": "HdmaEmitHoldSegments",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "HdmaSegmentSplitUp",
+  "new": "HdmaEmitRepeatSegments",
+  "row": "R-I031-1"
+ },
+ {
+  "old": "code_05FBE5",
+  "new": "CircleNextRowV1",
+  "row": "R-I031-1",
+  "addr": 392165
+ },
+ {
+  "old": "code_05FD26",
+  "new": "CircleNextRowV2",
+  "row": "R-I031-1",
+  "addr": 392486
+ },
+ {
+  "old": "code_00BE1A",
+  "new": "SineWaveInit",
+  "row": "R-I031-3",
+  "addr": 48666
+ },
+ {
+  "old": "loc_02B5D8",
+  "new": "SlopeSpeedZeroLatch",
+  "row": "R-I032-1",
+  "addr": 177624
+ },
+ {
+  "old": "loc_02B54A",
+  "new": "SlopeHandlerExit",
+  "row": "R-I032-1",
+  "addr": 177482
+ },
+ {
+  "old": "loc_02B6CD",
+  "new": "DecelResetCounterEW",
+  "row": "R-I032-1",
+  "addr": 177869
+ },
+ {
+  "old": "StopPlayerOnDeathAssign",
+  "new": "StopPlayerOnDeath",
+  "row": "R-I032-3"
+ },
+ {
+  "old": "DrainActorQueue",
+  "new": "ResetThinkerWaitCounters",
+  "row": "R-I034-1"
+ },
+ {
+  "old": "oneshot_coldata_green_tint",
+  "new": "oneshot_coldata_r11g4b2",
+  "row": "R-I034-2"
+ },
+ {
+  "old": "parallax_thinker",
+  "new": "scanline_band_hdma_thinker",
+  "row": "R-I035-1"
+ },
+ {
+  "old": "ParallaxResolveChannelSpeed",
+  "new": "ParallaxResolveEntryStride",
+  "row": "R-I035-2"
+ },
+ {
+  "old": "parallax_speed_config",
+  "new": "hdma_entry_stride_by_mode",
+  "row": "R-I035-2"
+ },
+ {
+  "old": "ParallaxWriteNegativeScrollRamp",
+  "new": "ParallaxEmitScrollBands",
+  "row": "R-I035-3"
+ },
+ {
+  "old": "ParallaxWriteNegativeScrollRampY",
+  "new": "ParallaxEmitConstantBands",
+  "row": "R-I035-3"
+ },
+ {
+  "old": "ParallaxApplyScrollOffset",
+  "new": "ParallaxComputeBandValue",
+  "row": "R-I035-3"
+ },
+ {
+  "old": "ParallaxWriteWindowHdmaEntry",
+  "new": "ParallaxEmitWindowRect",
+  "row": "R-I035-3"
+ },
+ {
+  "old": "ParallaxFillHdmaRampRow",
+  "new": "ParallaxEmitWindowRows",
+  "row": "R-I035-3"
+ },
+ {
+  "old": "ParallaxClearHdmaScratch",
+  "new": "ParallaxClearBandAccumulators",
+  "row": "R-I035-3"
+ },
+ {
+  "old": "code_00B88D",
+  "new": "ParallaxThinkerEntry",
+  "row": "R-I035-5",
+  "addr": 47245
+ },
+ {
+  "old": "loc_00B966",
+  "new": "ParallaxScrollBandRecords",
+  "row": "R-I035-5",
+  "addr": 47462
+ },
+ {
+  "old": "loc_00B98E",
+  "new": "ParallaxConstantBandRecords",
+  "row": "R-I035-5",
+  "addr": 47502
+ },
+ {
+  "old": "loc_00B9B3",
+  "new": "ParallaxWindowRecords",
+  "row": "R-I035-5",
+  "addr": 47539
+ },
+ {
+  "old": "inventory_dma_setup",
+  "new": "inventory_bg3_scroll_hdma",
+  "row": "R-I035-6"
+ },
+ {
+  "old": "code_00BB90",
+  "new": "InventoryBg3HdmaEntry",
+  "row": "R-I035-6",
+  "addr": 48016
+ },
+ {
+  "old": "dma_channel_00BB97",
+  "new": "inventory_bg3vofs_table",
+  "row": "R-I035-6",
+  "addr": 48023
+ },
+ {
+  "old": "binary_01CC4A",
+  "new": "parallax_type_00",
+  "row": "R-I035-7",
+  "addr": 117834
+ },
+ {
+  "old": "binary_01CC89",
+  "new": "parallax_type_01",
+  "row": "R-I035-7",
+  "addr": 117897
+ },
+ {
+  "old": "binary_01CD0D",
+  "new": "parallax_type_02",
+  "row": "R-I035-7",
+  "addr": 118029
+ },
+ {
+  "old": "binary_01CCAE",
+  "new": "parallax_type_03",
+  "row": "R-I035-7",
+  "addr": 117934
+ },
+ {
+  "old": "binary_01CE94",
+  "new": "parallax_type_04",
+  "row": "R-I035-7",
+  "addr": 118420
+ },
+ {
+  "old": "binary_01CEBD",
+  "new": "parallax_type_05",
+  "row": "R-I035-7",
+  "addr": 118461
+ },
+ {
+  "old": "binary_01CFAA",
+  "new": "parallax_type_06",
+  "row": "R-I035-7",
+  "addr": 118698
+ },
+ {
+  "old": "binary_01D00F",
+  "new": "parallax_type_07",
+  "row": "R-I035-7",
+  "addr": 118799
+ },
+ {
+  "old": "binary_01D01C",
+  "new": "parallax_type_08",
+  "row": "R-I035-7",
+  "addr": 118812
+ },
+ {
+  "old": "binary_01D081",
+  "new": "parallax_type_0A",
+  "row": "R-I035-7",
+  "addr": 118913
+ },
+ {
+  "old": "binary_01D0CA",
+  "new": "parallax_type_0B",
+  "row": "R-I035-7",
+  "addr": 118986
+ },
+ {
+  "old": "binary_01D109",
+  "new": "parallax_type_0E",
+  "row": "R-I035-7",
+  "addr": 119049
+ },
+ {
+  "old": "binary_01D13C",
+  "new": "parallax_type_1B",
+  "row": "R-I035-7",
+  "addr": 119100
+ },
+ {
+  "old": "binary_01D14B",
+  "new": "parallax_type_1C",
+  "row": "R-I035-7",
+  "addr": 119115
+ },
+ {
+  "old": "binary_01D15A",
+  "new": "parallax_type_1D",
+  "row": "R-I035-7",
+  "addr": 119130
+ },
+ {
+  "old": "binary_01D1BD",
+  "new": "parallax_type_1E",
+  "row": "R-I035-7",
+  "addr": 119229
+ },
+ {
+  "old": "binary_01D1F4",
+  "new": "parallax_type_1F",
+  "row": "R-I035-7",
+  "addr": 119284
+ },
+ {
+  "old": "binary_01D20B",
+  "new": "parallax_type_20",
+  "row": "R-I035-7",
+  "addr": 119307
+ },
+ {
+  "old": "binary_01D21A",
+  "new": "parallax_type_21",
+  "row": "R-I035-7",
+  "addr": 119322
+ },
+ {
+  "old": "binary_01D251",
+  "new": "parallax_type_22",
+  "row": "R-I035-7",
+  "addr": 119377
+ },
+ {
+  "old": "binary_01D2B0",
+  "new": "parallax_type_23",
+  "row": "R-I035-7",
+  "addr": 119472
+ },
+ {
+  "old": "binary_01D2BF",
+  "new": "parallax_type_24",
+  "row": "R-I035-7",
+  "addr": 119487
+ },
+ {
+  "old": "loc_00D4F5",
+  "new": "RampPlayerClimbWest",
+  "row": "R-I036-1",
+  "addr": 54517
+ },
+ {
+  "old": "loc_00D518",
+  "new": "RampPlayerClimbNorth",
+  "row": "R-I036-1",
+  "addr": 54552
+ },
+ {
+  "old": "ramp_east_step",
+  "new": "RampClimbNorthStep",
+  "row": "R-I036-2"
+ },
+ {
+  "old": "ramp_north_step",
+  "new": "RampClimbSouthStep",
+  "row": "R-I036-2"
+ },
+ {
+  "old": "func_00D5C0",
+  "new": "RampArcDriver",
+  "row": "R-I036-3"
+ },
+ {
+  "old": "RampApplyMotionCurve",
+  "new": "RampArcDriver",
+  "row": "R-I036-3"
+ },
+ {
+  "old": "code_00D2D5",
+  "new": "RampEastWatch",
+  "row": "R-I036-5",
+  "addr": 53973
+ },
+ {
+  "old": "loc_00D316",
+  "new": "RampEastArmed",
+  "row": "R-I036-5",
+  "addr": 54038
+ },
+ {
+  "old": "loc_00D334",
+  "new": "RampEastLaunch",
+  "row": "R-I036-5",
+  "addr": 54068
+ },
+ {
+  "old": "code_00D34D",
+  "new": "RampWestWatch",
+  "row": "R-I036-5",
+  "addr": 54093
+ },
+ {
+  "old": "loc_00D388",
+  "new": "RampWestArmed",
+  "row": "R-I036-5",
+  "addr": 54152
+ },
+ {
+  "old": "loc_00D3A6",
+  "new": "RampWestLaunch",
+  "row": "R-I036-5",
+  "addr": 54182
+ },
+ {
+  "old": "code_00D3BF",
+  "new": "RampNorthWatch",
+  "row": "R-I036-5",
+  "addr": 54207
+ },
+ {
+  "old": "loc_00D3F6",
+  "new": "RampNorthArmed",
+  "row": "R-I036-5",
+  "addr": 54262
+ },
+ {
+  "old": "loc_00D414",
+  "new": "RampNorthLaunch",
+  "row": "R-I036-5",
+  "addr": 54292
+ },
+ {
+  "old": "code_00D42D",
+  "new": "RampSouthWatch",
+  "row": "R-I036-5",
+  "addr": 54317
+ },
+ {
+  "old": "loc_00D464",
+  "new": "RampSouthArmed",
+  "row": "R-I036-5",
+  "addr": 54372
+ },
+ {
+  "old": "loc_00D482",
+  "new": "RampSouthLaunch",
+  "row": "R-I036-5",
+  "addr": 54402
+ },
+ {
+  "old": "PushSolidMoveWest",
+  "new": "PushSolidMovePlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballMoveWest",
+  "new": "PushForceballMovePlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemAlignWest",
+  "new": "CollectGemAlignPlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidRestoreWest",
+  "new": "PushSolidRestorePlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballRestoreWest",
+  "new": "PushForceballRestorePlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemRestoreWest",
+  "new": "CollectGemRestorePlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidMoveEast",
+  "new": "PushSolidMovePlayerSouth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballMoveEast",
+  "new": "PushForceballMovePlayerSouth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemAlignEast",
+  "new": "CollectGemAlignPlayerSouth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidRestoreEast",
+  "new": "PushSolidRestorePlayerSouth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballRestoreEast",
+  "new": "PushForceballRestorePlayerSouth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemRestoreEast",
+  "new": "CollectGemRestorePlayerSouth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidMoveNorth",
+  "new": "PushSolidMovePlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballMoveNorth",
+  "new": "PushForceballMovePlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemAlignNorth",
+  "new": "CollectGemAlignPlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidRestoreNorth",
+  "new": "PushSolidRestorePlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballRestoreNorth",
+  "new": "PushForceballRestorePlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemRestoreNorth",
+  "new": "CollectGemRestorePlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidMoveSouth",
+  "new": "PushSolidMovePlayerEast",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballMoveSouth",
+  "new": "PushForceballMovePlayerEast",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemAlignSouth",
+  "new": "CollectGemAlignPlayerEast",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidRestoreSouth",
+  "new": "PushSolidRestorePlayerEast",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballRestoreSouth",
+  "new": "PushForceballRestorePlayerEast",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemRestoreSouth",
+  "new": "CollectGemRestorePlayerEast",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidDistWest",
+  "new": "PushSolidDistPlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballDistWest",
+  "new": "PushForceballDistPlayerNorth",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemNudgeWestHalf",
+  "new": "CollectGemNudgePlayerNorthHalf",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushSolidDistNorth",
+  "new": "PushSolidDistPlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "PushForceballDistNorth",
+  "new": "PushForceballDistPlayerWest",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "CollectGemNudgeNorthHalf",
+  "new": "CollectGemNudgePlayerWestHalf",
+  "row": "R-I037-2"
+ },
+ {
+  "old": "code_02D92F",
+  "new": "RampSnapEastSouthBrWall",
+  "row": "R-I038-2",
+  "addr": 186671
+ },
+ {
+  "old": "code_02D937",
+  "new": "RampSnapEastNorthTrWall",
+  "row": "R-I038-2",
+  "addr": 186679
+ },
+ {
+  "old": "code_02DA7A",
+  "new": "RampSnapWestSouthBrWall",
+  "row": "R-I038-2",
+  "addr": 187002
+ },
+ {
+  "old": "code_02DA82",
+  "new": "RampSnapWestNorthTrWall",
+  "row": "R-I038-2",
+  "addr": 187010
+ },
+ {
+  "old": "InitPlayerScriptVariant",
+  "new": "SetPlayerIdleFacing",
+  "row": "R-I039-1"
+ },
+ {
+  "old": "LargeRampBoostNorthSouth",
+  "new": "LargeRampIdleHold",
+  "row": "R-I040-1"
+ },
+ {
+  "old": "EastWallNorthHandler",
+  "new": "EastWallPushDown",
+  "row": "R-I040-2"
+ },
+ {
+  "old": "EastWallSouthHandler",
+  "new": "EastWallPushUp",
+  "row": "R-I040-2"
+ },
+ {
+  "old": "ProbeLeftTiles",
+  "new": "FindSlopeForEastMove",
+  "row": "R-SAN2-1"
+ },
+ {
+  "old": "ProbeRightTiles",
+  "new": "FindSlopeForWestMove",
+  "row": "R-SAN2-1"
+ }
+]

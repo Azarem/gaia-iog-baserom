@@ -1,0 +1,263 @@
+[
+  {
+    "flag": 172, "scope": "scene 172 (proposal $AC)", "queueId": "FL28-01", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 557213 (frame 620, banner end 570) right after the arrival dialog (control A0: 557194 at 542); with $AC set at load the arrival path is skipped (557194 and 557213 not hit) and the standing branch 557240 runs; talking then reaches 557520 (frame 638)",
+      "clear": "The party actors run the arrival path 557194 at frame 542, the dialog runs and 557213 sets the flag"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-01_A0_ctl, A1_AC, A2_AC_talk (20261105); execs 557194, 557213, 557240, 557520"
+  },
+  {
+    "flag": 177, "scope": "scene 172 (proposal $B1)", "queueId": "FL28-02", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 561117 (frame 681) after the map kid's question (561092 at 639, 561113 at 657); with $B1 set the Native Village world-map exit stages menu $13 (52438, frame 672)",
+      "clear": "The exit stages menu $12 (52422, frame 672); 52438 not hit"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-02_B0_kid_talk, B1_exit_ctl, B2_exit_B1 (20261105)"
+  },
+  {
+    "flag": 179, "scope": "scene 176 / 172 (proposal $B3)", "queueId": "FL28-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 563183 (frame 577, before the banner ends at 599) on the first entry of scene 176; the intro dialog 563195 and 563199 runs at frames 627 and 637; with $B3 set in scene 172 Hamlet dies at 558781 (frame 536) and the scene music is bgm 3 (bgm_blessing_of_nature)",
+      "clear": "Hamlet takes 558783 (frame 542) and the scene music is bgm 4 (bgm_ominous_whispers)"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-03_I0_s176_first_entry, I1_s172_ctl, I2_s172_B3 (20261105)"
+  },
+  {
+    "flag": 180, "scope": "scene 200 / 195 / 230 (proposal $B4)", "queueId": "FL28-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 566723 (frame 565) on the first arrival in the Dao dorm (566717 test, 566726/566729 lock); with $B4 set the Dao exit stages menu $17 (52526) and in Dark Space the Shadow statue transforms (579742 and 586744 hit)",
+      "clear": "The Dao exit stages menu $16 (52510); the Dark Space Shadow statue stays locked (586730 hit, 579742 and 586744 not hit)"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-04_E0_s200_ctl, E1_exit_ctl, E2_exit_B4, E3_dark_space_ctl, E4_dark_space_B4 (20261105)"
+  },
+  {
+    "flag": 182, "scope": "scene 196 / 172 / 174 (proposal $B6)", "queueId": "FL28-05", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 566486 (frame 565) by Kara on the first arrival in the Dao hotel (scene 196); with $B6 set Kara and Erik are absent in scene 174 (9 actors instead of 11) and in scene 172, and the Native Village exit stages menu $19 (52454)",
+      "clear": "Kara and Erik are present in scenes 172 and 174; the exit stages menu $12 or $13"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-05_C0_s196_ctl, C1_s172_B6, C2_s174_ctl, C3_s174_B6 (20261105)"
+  },
+  {
+    "flag": 187, "scope": "scene 196 (proposal $BB)", "queueId": "FL28-06", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $BB set and $D0 clear the hotel Kara (daC4_kara) dies at spawn (566458 hit, 6 actors, Erik remains); with $BB and $D0 set she stays (566452 hit, 566458 not hit, 7 actors)",
+      "clear": "$BB clear: Kara stays (7 actors; G0)"
+    },
+    "expectGrade": "proposal (confidence low)",
+    "evidence": "raw/FR24_FL28-06_G0_s196_ctl, G1_s196_BB, G2_s196_BB_D0 (20261105)"
+  },
+  {
+    "flag": 191, "scope": "scene 174 (proposal $BF)", "queueId": "FL28-07", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_GorgonFlower in the first statue zone sets $BF (236024, frame 483); the girl then restores (561865 and 561870 at frame 580)",
+      "clear": "Statue girl 1 stays stone"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-07_H0_petals_ctl (20261105)"
+  },
+  {
+    "flag": 192, "scope": "scene 174 (proposal $C0)", "queueId": "FL28-08", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_GorgonFlower in the second statue zone sets $C0 (236039, frame 783); girl 2 restores (562066, frame 880); with $E6 clear the reward path 562089 and 562098 runs once (H3, frames 584 and 610), with $E6 set it is skipped (H2: 562083 and 562106 hit, 562089 and 562098 not hit)",
+      "clear": "Statue girl 2 stays stone"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-07_H0_petals_ctl, FL28-08_H1_forced_BF_C0_C1, H2_forced_C0_E6, H3_forced_C0_noE6 (20261105)"
+  },
+  {
+    "flag": 193, "scope": "scene 174 (proposal $C1)", "queueId": "FL28-09", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "UseItem_GorgonFlower in the third statue zone sets $C1 (236054, frame 1083); girl 3 restores (562333, frame 1180); RemoveItem 236081 (frame 1090) takes the flower; Kara's sequence 562489 runs (frame 1091) and 562520 (frame 1308)",
+      "clear": "The item stays in the inventory (236081 not hit) and Kara's sequence does not run"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL28-07_H0_petals_ctl, FL28-08_H1_forced_BF_C0_C1 (20261105)"
+  },
+  {
+    "flag": 208, "scope": "scene 200 (proposal $D0)", "queueId": "FL28-10", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $D0 set Neil takes 566778 (frame 660) and runs 566782, 566794, 566802 (frame 702); the first scene change is to the world map (scene 254, frame 186 after the banner); the destination $DC was not reached in the 600-frame window",
+      "clear": "Neil takes the pepper path 566773 (frames 660 to 954); 566778, 566782, 566794, 566802 not hit"
+    },
+    "expectGrade": "proposal (confidence medium)",
+    "evidence": "raw/FR24_FL28-10_F0_neil_ctl, F1_neil_D0 (20261105)"
+  },
+  {
+    "flag": 210, "scope": "scene 195 / 196 / 200 (proposal $D2)", "queueId": "FL28-11", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "In scene 195 the spirit actor exists (29 actors versus 28; 622824 hit 3 times, 622845 at frame 682, 622867 at 684) and talking loads scene 227 ($E3); Kara, Erik and Neil are removed in scenes 196 (5 actors instead of 7) and 200 (5 actors)",
+      "clear": "No spirit in scene 195 (622824, 622845, 622867 not hit); Kara, Erik and Neil are present"
+    },
+    "expectGrade": "proposal (confidence medium)",
+    "evidence": "raw/FR24_FL28-11_D0_s195_ctl, D1_s195_D2, D2_s196_D2, D3_s200_D2 (20261105)"
+  },
+  {
+    "flag": 255, "scope": "scene 172 / 195 (proposal $FF)", "queueId": "FL28-12", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set by the engine (value 1 at the end of the load); the sine HDMA init entry (48884 / 48851) runs once (frame 543 / 551) and the tick bodies (48898, 48904 / 48865, 48871) run from frame 548 / 555 on",
+      "clear": "Clearing $FF after the load re-runs the init entry repeatedly (48884: frames 543 to 712; 48851: 551 to 713) and the tick bodies stop (48904 last at frame 631; 48871 last at 632)"
+    },
+    "expectGrade": "proposal (confidence medium)",
+    "evidence": "raw/FR24_FL28-12_L0_s172_ctl, L1_s172_clearFF, L2_s195_ctl, L3_s195_clearFF (20261105)"
+  },
+  {
+    "flag": 181, "scope": "scene 180 (global $B5)", "queueId": "FL28-13", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 563562 (frame 556) by the entry actor on the first arrival at (0578,0010); the effect (TM $15 at 563567, CGADSUB 563572, COLDATA 563577, wait 563584, backdrop fade 563587 at frame 754) runs; with $B5 set at load 563556 is hit but 563562 to 563587 are not, while the fall setup 563511 to 563553 (playerFlags $0800) runs",
+      "clear": "The effect runs once on the first arrival"
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR24_FL28-13_J0_s180_ctl, J1_s180_B5 (20261105)"
+  },
+  {
+    "flag": 190, "scope": "scene 191 (global $BE)", "queueId": "FL28-14", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 563996 only after the flower is added: with a Red Jewel (K1) 564017 to 564045 run, the jewel is replaced by the flower (slot 0: $1D) and $jewelsCollected goes 0 to 1; with a herb (K2) 564052 runs, the herb is replaced by the flower and $jewelsCollected stays 0",
+      "clear": "Full inventory with neither item (K0): the fall-through path 564017, 564030, 564034, 564045 runs, $jewelsCollected goes 0 to 1 and no flower is given ($BE stays clear, 563996 not hit)"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR24_FL28-14_K0_full_none, K1_full_jewel, K2_full_herb (20261105); the queue's 'still gives the flower' is not observed with all 16 slots full"
+  },
+  {
+    "flag": 0, "scope": "scene 225", "queueId": "FL29-01", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set by btE1_light_elevator 240 frames after the ride starts (WaitWord #00EF at 628135; 628132 at frame 624, 628139 at frame 864); with $00 set the four idle reader sites (181375, 181391, 181407, 181423) take the alternate branches 181386, 181402, 181418, 181434 (S2)",
+      "clear": "The idle sites take the normal branches 181381, 181397, 181413, 181429 (S1)"
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR24_FL29-01_S0_s225_elevator, S1_idle_ctl, S2_idle_s00 (20261105); 4 of the 8 reader sites observed, the ladder S/N and shimmy L/R sites not exercised"
+  },
+  {
+    "flag": 14, "scope": "scene 205", "queueId": "FL29-02", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 571425 when the puzzle room loads (frame 554); a first-visit Lola's Melody use (232420 hit) takes 232426 and 232437 (frame 644), the melody effect 232501 runs (frame 1863) and the flame statue fires at 571287 (frame 1955)",
+      "clear": "Melody use takes 232491 ('nothing happened') and the statue does not fire (M1, with $0E cleared)"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR24_FL29-02_M0_s205_melody, M1_s205_melody_no0E (20261105)"
+  },
+  {
+    "flag": 15, "scope": "scene 214", "queueId": "FL29-03", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set by a hit (Will form, physical B) in the upper barrier: 574327, counter 574385 runs, the rows swap, 574455 at frame 1217; with $0F set before the hit the callback only jumps back (574316 and 574322 hit, 574327 and 574385 not hit; T2); cleared again when the swap ends",
+      "clear": "A hit with $0F clear runs the swap; the lower barrier alone: 574550 and 574561 at 713, 574619 at 726, 574692 at 739 (26 frames; T6); cells (34,2B) 240 to 0 and (34,4B) 0 to 240 for the upper barrier"
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR24_FL29-03_T1_hit_ctl, T2_hit_s0F, T4_find_936_744, T5_upper_then_lower, T6_lower_alone (20261105); Will form only, the absence of a characterForm test is static only"
+  },
+  {
+    "flag": 242, "scope": "scene 212", "queueId": "FL29-04", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With characterForm 1 (Freedan), body bank $97 and animation 1 near the orb (poked U3) every orb of group A falls (575267, 575278, 575287, 575293, 575299 at frames 670 to 910) and the flag is set; with the form Will (U4) the orb stops after 575278 and does not fall; with the flag set at load the orbs take the fallen state (575246; U8)",
+      "clear": "The orbs wait at 575249 (frames 581 and 582); no natural player action reached the trigger in 7 input sets (buttons B/A/Y/X/L/R, charge+L/R, ability masks $70/$77; U0 to U2)"
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR24_FL29-04_U0_freedan_buttons, U1_freedan_abilities, U2_freedan_charge_LR, U3_poke_freedan_g1, U4_poke_will_g1, U8_forced_F2_load (20261105); the natural trigger is not found; bank $97 and animation 1 are poked, not reached"
+  },
+  {
+    "flag": 243, "scope": "scene 212", "queueId": "FL29-05", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Group B behaves as group A: with Freedan, bank $97, animation 1 near the orb (poked U6) the orbs fall (575267 to 575299), $F3 goes 0 to 1 and $F2 stays 0; with $F3 set at load they take the fallen state (575246; U7)",
+      "clear": "The orbs wait at 575249"
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR24_FL29-05_U6_poke_freedan_g2, U7_forced_F3_load (20261105); same limit as FL29-04"
+  },
+  {
+    "flag": 212, "scope": "scene 227 / 223 (global $D4)", "queueId": "FL29-06", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set (0 to 1) by the Kara join in scene 223 (630415 to 630446 at frames 571 to 692, 630545 at 1857) and by the join in scene 227; with $D4 set at load Kara of scene 227 does not join (623896 and 624351 hit; 623902, 623913, 623934, 623981 not hit); cleared by btDE_kara_missing when scene 224 loads with $0178 set (P5)",
+      "clear": "In scene 227 Kara runs 623902, 623913, 623934 (frame 622) and 623981 (frame 685) and $D4 goes 0 to 1; $0178 set or clear makes no difference (V0 and V1 identical)"
+    },
+    "expectGrade": "VERIFIED-STATIC",
+    "evidence": "raw/FR24_FL29-06_V0_s227_D4clear_0178clear, V1_s227_D4clear_0178set, V2_s227_D4set, V3_s223_join (20261105)"
+  },
+  {
+    "flag": 219, "scope": "scene 229", "queueId": "FL29-07", "verdict": "INCONCLUSIVE", "grade": "INFERRED",
+    "effects": {
+      "set": "Forced half observed: with $DB set at load the epilogue runs the second half at once (775028 at frame 553, 775053 at 751; W1). The setter sites 775006 and 775015 were not reached",
+      "clear": "First half runs (774946 at 553, 774955 at 751, 774973 at 1687; W0) and then stalls in the second dialog at frame 1106 (A and B mash both failed)"
+    },
+    "expectGrade": "INFERRED",
+    "evidence": "raw/FR24_FL29-07_W0_s229_DBclear, W1_s229_DBset (20261105); the text stall is unresolved (hypothesis: SPC dependency under quick warp, unverified); the save-load replay half was not run"
+  },
+  {
+    "flag": 187, "scope": "scene 205 (proposal $BB)", "queueId": "FL29-08", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $BB set at load the Jackal becomes a prop (571884 at frame 554), Kara waits at her tile for $FC (572943 at 554) and Lola's Melody takes 232414 and 232491 ('nothing happened', frame 644)",
+      "clear": "The stone-collecting branch runs: 571458 at frame 554 (N0)"
+    },
+    "expectGrade": "proposal (confidence medium)",
+    "evidence": "raw/FR24_FL29-08_N0_stones_ctl, N1_stones_BB (20261105); the setter site 571869 at the end of the panic path was not run (static only)"
+  },
+  {
+    "flag": 208, "scope": "scene 205 (proposal $D0)", "queueId": "FL29-09", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $BB and $FC set and $D0 clear Kara's scene runs (572943, 572967 at frame 554), $D0 goes 0 to 1 at the end and the scene changes from 205 to 200 at frame 1207; with $D0 set at load Kara dies at load (572941; N3)",
+      "clear": "Kara's scene runs and sets the flag (N2)"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL29-09_N2_stones_BB_FC, N3_stones_BB_FC_D0 (20261105)"
+  },
+  {
+    "flag": 210, "scope": "scene 222 (proposal $D2)", "queueId": "FL29-10", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at 628940 (frame 564) on the first load of scene 222 ($DE), then the lock 628946, the dialog 628952 (frame 641) and Die 628962 (frame 653); with $D2 set at load the actor goes from the test 628934 straight to Die 628962 (5 actors instead of 6)",
+      "clear": "The monologue runs once"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL29-10_Q0_s222_ctl, Q1_s222_D2 (20261105)"
+  },
+  {
+    "flag": 255, "scope": "scene 232 (proposal $FF)", "queueId": "FL29-11", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "The engine sets $FF at load; the display config 846710 and the HDMA init 48452 run once (frame 458) and the tick body 48478 runs every frame from 462 on",
+      "clear": "Clearing $FF after the load re-runs the display config (846710: frames 458 to 580) and the HDMA init (48452: frames 458 to 626) repeatedly and the tick body 48478 stops at frame 545 (R1)"
+    },
+    "expectGrade": "proposal (confidence medium)",
+    "evidence": "raw/FR24_FL29-11_R0_s232_ctl, R1_s232_clearFF (20261105)"
+  },
+  {
+    "flag": 373, "scope": "scene 224 (proposal $0175)", "queueId": "FL29-12", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $0175 set alone (no item, set 60 frames after the banner) gate A runs 624446 and 624454 (frame 667) and cells (71,38) and (72,38) go 240 to 0; the other six cells stay 240",
+      "clear": "All eight gate cells stay 240 (P0)"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL29-12_P0_s224_ctl, P1_s224_a_0175 (20261105)"
+  },
+  {
+    "flag": 374, "scope": "scene 224 (proposal $0176)", "queueId": "FL29-13", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $0176 set alone gate B clears cells (0D,28) and (0E,28) (240 to 0); the other six cells stay 240",
+      "clear": "All eight gate cells stay 240 (P0)"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL29-13_P2_s224_b_0176 (20261105); the gate B execs were not listed, the cells are the observable"
+  },
+  {
+    "flag": 375, "scope": "scene 224 (proposal $0177)", "queueId": "FL29-14", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "With $0177 set alone gate C clears cells (49,18) and (4A,18) (240 to 0); the other six cells stay 240",
+      "clear": "All eight gate cells stay 240 (P0)"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL29-14_P3_s224_c_0177 (20261105); the gate C execs were not listed, the cells are the observable"
+  },
+  {
+    "flag": 376, "scope": "scene 224 (proposal $0178)", "queueId": "FL29-15", "verdict": "VERIFIED-RUNTIME", "grade": "VERIFIED-RUNTIME",
+    "effects": {
+      "set": "Set at runtime (P4) gate D runs 624590 and 624598 (frame 667) and cells (15,08) and (16,08) go 240 to 0, $D4 stays set; set at load (P5) btDE_kara_missing runs 624184 and 624206 (frames 578 and 626), $D4 is cleared and gate D is open at the banner",
+      "clear": "All eight gate cells stay 240 and $D4 stays set (P0)"
+    },
+    "expectGrade": "proposal (confidence high)",
+    "evidence": "raw/FR24_FL29-15_P0_s224_ctl, P4_s224_d_0178_runtime, P5_s224_d_0178_load (20261105)"
+  }
+]

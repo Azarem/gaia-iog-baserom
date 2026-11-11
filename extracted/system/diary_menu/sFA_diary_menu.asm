@@ -19,7 +19,7 @@
 ; | $0D8E | Button type setting (0 = Type 1, 1 = Type 2); saved in the slot page at $0B26 |
 ; | $0D90 | Sound setting (0 = stereo, 1 = mono); saved in the slot page at $0B24 |
 ; | $0D92 | Slot cursor (0-2, $FFFF = none); drives the slot band |
-; | $0D94 | Slot being edited (Snd/Buttons editor, arrangement screen, erase prompt) |
+; | $0D94 | Slot being edited (Snd/Buttons editor, erase prompt); the arrangement screen sets it to $FFFF |
 ; | $0D96 | Copy target slot ($FFFF = none); drives a second slot band |
 ; | $0D98 | Tab cursor (0-3) or settings-row cursor (0-2), $FFFF = none; drives the narrow band |
 ; | $0D9A/9C/9E | BCD scratch for the stat strings: HP / STR / DEF |
@@ -30,7 +30,7 @@
 ; 
 ; === BUTTON TYPES ===
 ; 
-; ApplySoundAndRemap (run when a game starts) reads sound $0B24 and button type $0B26. Type 1 (0) sets remapA = $8000, remapB = $4000, remapX = 0, remapY = $0040; Type 2 (1) only sets remapX = 0 and leaves the other remaps at their current values (the engine defaults). The on-screen legend (dialogstring_0BF63F / 0BF653) reads 'Type 1: A, B, SEL, Y' and 'Type 2: B, Y, SEL, A' against the rows Attack/Talk, Item/Cancel, Item palette, Not used. This baserom's system_init transform changes the default remaps (remapA $8080, remapB $4008, remapY $0040, remapX $0004) and the menu's own button tests ($8000 confirm, $4000 cancel), so what Type 2 does here is unverified.
+; ApplySoundAndRemap (run when a game starts) reads sound $0B24 and button type $0B26. Type 1 (0) sets remapA = $8000, remapB = $4000, remapX = 0, remapY = $0040; Type 2 (1) only sets remapX = 0 and leaves the other remaps at their current values (the engine defaults). The on-screen legend (dialogstring_0BF63F / 0BF653) reads 'Type 1: A, B, SEL, Y' and 'Type 2: B, Y, SEL, A' against the rows Attack/Talk, Item/Cancel, Item palette, Not used. This baserom's system_init transform changes the default remaps (remapA $8080, remapB $4008, remapY $0040, remapX $0004) and the menu's own button tests ($8000 confirm, $4000 cancel), so the results differ from the vanilla ones above. Measured per physical button (logical word that button feeds): the OptionsMenu patch replaces both tails with JSL ApplyButtonMapping; with all six saved button-map bytes zero, Type 1 keeps the defaults (physical B $4008, A $8080, Y $0040, X $0004) and Type 2 gives B $8080, A $0040, Y $4008, X $0004. In the diary menu itself physical A confirms and physical B cancels with either type.
 ; The erase prompt temporarily remaps B/Y in vanilla; transforms.json strips those stubs from the plain extraction, but multi-line rules do not apply under extract:lt (OQ-I026-1), so the stubs stay visible in the line-tracked text.
 ; 
 ; === UNREFERENCED CODE ===
@@ -140,10 +140,10 @@ sFA_diary_menu [
     LDA #$41              ; CGADSUB: add, half intensity, BG1 only
     STA $CGADSUB
     REP #$20
-    LDA #$0080            ; Camera X = 128 (Mode 7 center)
+    LDA #$0080            ; Camera X = 128 (BG1 horizontal scroll target)
     STA $bg1ScrollH
     STA $cameraTargetX
-    LDA #$0300            ; Camera Y = 768 (Mode 7 perspective)
+    LDA #$0300            ; Camera Y = 768 (BG1 vertical scroll target)
     STA $mapScrollV
     STA $cameraTargetY
     LDA #$3000            ; Mask Start + Select out of joypadCurrent
@@ -381,7 +381,7 @@ DiaryStartLoadConfirm {
 ; Presents sound/button config for a new game start.
 
   loc_0BE433:
-    LDA $0D92             ; Slot the player picked (empty or failed the checksum)
+    LDA $0D92             ; $0D92 is already $FFFF here (DiaryStartLoadConfirm stored the slot in $0D8C and cleared the cursor), so $0D94 becomes $FFFF
     STA $0D94
     LDA #$FFFF
     STA $0D92
@@ -408,7 +408,7 @@ DiaryStartLoadConfirm {
 }
 
 ---------------------------------------------
-; B on the arrangement screen: row cursor off, restore the slot cursor from $0D94 and show the slot list again.
+; B on the arrangement screen: row cursor off, copy $0D94 into the slot cursor (it is always $FFFF on this path) and show the slot list again; DiaryStartJourney then sets the cursor from $0D8C, the slot that was picked.
 
 DiaryNewGameCancel {
     COP [PlaySoundCh2] ( #0D )
@@ -417,7 +417,7 @@ DiaryNewGameCancel {
     STA $joypadHeld
     LDA #$FFFF
     STA $0D98
-    LDA $0D94             ; Restore the slot cursor
+    LDA $0D94             ; Copy $0D94 ($FFFF on this path) into the cursor; DiaryStartJourney sets the real cursor from $0D8C
     STA $0D92
     JMP $&DiaryStartJourney
 }
@@ -1420,7 +1420,7 @@ DiaryEraseDecline {
 }
 
 ---------------------------------------------
-; Yes: erase SFX #13, ClearSaveSlot for the slot in $0D94, wait 30 ticks (WaitByte #1D), rescan the slots, clear the text and return to the Erase list. The vanilla remap-restore stub at the top is stripped from the plain extraction by transforms.json.
+; Yes: erase SFX #13, ClearSaveSlot for the slot in $0D94, wait 30 ticks (WaitByte #1D), rescan the slots, clear the text and return to the Erase list. The LDA $1C / STA $1A / STZ $1C trio acts on the diary actor (slot $1000): measured $1A $0048 -> $0038 and $1C $0038 -> $0000, once per erase; of the actor's extents only $18 and $1C are read afterwards (every frame by the sprite cull in SortActors) and the actor draws no sprite, so nothing visible changes. $0D94 keeps the erased slot until the next write; no read of the stale value happens before that write. The vanilla remap-restore stub at the top is stripped from the plain extraction by transforms.json.
 
 DiaryEraseExecute {
     COP [PlaySoundCh2] ( #13 ) ; Erase SFX

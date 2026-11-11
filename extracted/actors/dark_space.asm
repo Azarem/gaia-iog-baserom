@@ -165,7 +165,7 @@ DarkSpaceButtonCheck {
 }
 
 ---------------------------------------------
-; Entry sequence, run by the monitor (see the block note): mask the joypad, hide the player, play animation #1C (the warp effect) at the player's spot and wait 30 ticks (WaitByte #1D) after it ends, snap the player onto the portal (one tile north in the warp-test position), set the transition words, layerPriorityFlag $0200 and the variant in globalScriptIndex. The scene change itself comes from the E6 warp rectangle. It never restores the mask or the player's hidden bit: the scene change resets them.
+; Entry sequence, run by the monitor (see the block note): mask the joypad, hide the player, play animation #1C (the warp effect) at the player's spot and wait 30 ticks (WaitByte #1D) after it ends, snap the player onto the portal (one tile north in the warp-test position), set the transition words, layerPriorityFlag $0200 and the variant in globalScriptIndex. The scene change itself comes from the E6 warp rectangle. It never restores the mask or the player's hidden bit: the hidden bit stays set through the dissolve and the fade-out, and the scene change clears it (InitActorPool zeroes the whole actor pool, the player's $10 included, and the player respawns with $10 = $8508 as the fade-in starts).
 
 DarkSpaceMonitorStartWarp {
     LDA #$CFFC            ; Mask every button except Select and Start

@@ -311,13 +311,13 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C3C8` | PlayerIdleEntry | Main idle state. Clears joypad mask/flags. Clears `$2800` from `$player_flags`. If EW/NS speed non-zero → walking (`MovingEastWest` / `MovingNorthSouth`), else → directional idle dispatch via facing + joypad. |
 | `$02C447` | PlayerIdleDispatchTable | 28-entry table (7 per facing × 4 directions). Selected by combining facing (`$24`) with joypad/action button state. |
 | `$02C47F` | IdleStandSouth | South-facing idle. Shadow variant check → sprite `#00` or `#10`. |
-| `$02C48A` | IdleStandSouthShadow | Shadow: `#10`. |
+| `$02C48A` | IdleStandSouthFlagged | Shadow: `#10`. |
 | `$02C48F` | IdleStandNorth | North: `#01` / `#11`. |
-| `$02C49A` | IdleStandNorthShadow | Shadow: `#11`. |
+| `$02C49A` | IdleStandNorthFlagged | Shadow: `#11`. |
 | `$02C49F` | IdleStandWest | West: `#02` / `#12`. |
-| `$02C4AA` | IdleStandWestShadow | Shadow: `#12`. |
+| `$02C4AA` | IdleStandWestFlagged | Shadow: `#12`. |
 | `$02C4AF` | IdleStandEast | East: `#03` / `#13`. |
-| `$02C4BA` | IdleStandEastShadow | Shadow: `#13`. Shared idle animation loop. |
+| `$02C4BA` | IdleStandEastFlagged | Shadow: `#13`. Shared idle animation loop. |
 | `$02C4DD` | WalkSouth | Walking south, sprite `#08`. Auto-walk timer, L/R attack check. |
 | `$02C524` | WalkNorth | North, sprite `#09`. |
 | `$02C56C` | WalkWest | West, sprite `#0A`. |

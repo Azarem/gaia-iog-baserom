@@ -1,0 +1,19 @@
+{
+  "_note": "V1 draft (2026-11-10, ROM O). Apply pass only; investigation sessions run --dry-run. Corrects the title intro wait timing (CL-01). The comment entry for 772446 supersedes the 772446 entry of M2_notes.json (same key, apply only one of the two). Evidence: V1_20261110.md run C (title from power-on: 180 and 120 actor ticks, 313 and 120 NMI frames, 135-frame gap with no tick at the fade-in).",
+  "system/title_screen/sFC_title_intro.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "consolestring_01DA5E after WaitByte $B3 (180 ticks, ~3 seconds)",
+          "with": "consolestring_01DA5E after WaitByte $B3 (180 ticks; 313 NMI frames, about 5.2 seconds, because the title scene's 135-frame fade-in runs while the wait is armed and no actor tick happens during it)"
+        }
+      ]
+    },
+    "comments": {
+      "772446": {
+        "text": "WaitByte #B3 = 180 ticks (operand + 1); the 135-frame fade-in runs between two ticks, so the first string appears 313 NMI frames after this line",
+        "expect": "WaitByte"
+      }
+    }
+  }
+}

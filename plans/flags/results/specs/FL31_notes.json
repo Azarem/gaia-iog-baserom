@@ -1,0 +1,53 @@
+{
+  "_note": "FL31 draft: shipped notes and comments that the code contradicts for the spine flags $FF (a scene setup never wakes the parked palette thinkers; only an inventory close does) and the actor field $24 of hit_switch (read as the event flag $24). Apply after a fresh extract:lt. Partial edits need the stored text to be unchanged; run with --dry-run first.",
+  "thinkers/flag_gated_palette_cool.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The thinker list is rebuilt on every scene change, so within one scene visit the loop normally plays the bundle once; whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+          "with": "Scene setup never wakes the loop: the thinker list is built after the clear at the top of scene setup, so the bundle plays once on entering the scene. It plays again after every inventory close: the overlay clears $FF at open, restores the saved thinker list at close and runs one thinker pass while $FF is still clear (UpdateFrameRender, after ResetThinkerWaitCounters) before it sets $FF again, so the wait ends in that pass."
+        }
+      ]
+    },
+    "comments": {
+      "46581": { "text": "Park until flag $FF is cleared (the first thinker pass after an inventory close)", "expect": "WaitOnFlagByte" }
+    }
+  },
+  "thinkers/flag_gated_palette_warm.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "The thinker list is rebuilt on every scene change, so within one scene visit the loop normally plays the bundle once; whether it resumes after an inventory open/close was not checked (the loop would replay the bundle).",
+          "with": "Scene setup never wakes the loop: the thinker list is built after the clear at the top of scene setup, so the bundle plays once on entering the scene. It plays again after every inventory close: the overlay clears $FF at open, restores the saved thinker list at close and runs one thinker pass while $FF is still clear (UpdateFrameRender, after ResetThinkerWaitCounters) before it sets $FF again, so the wait ends in that pass."
+        }
+      ]
+    },
+    "comments": {
+      "46550": { "text": "Park until flag $FF is cleared (the first thinker pass after an inventory close)", "expect": "WaitOnFlagByte" }
+    }
+  },
+  "thinkers/gold_ship_wreck_palette.asm": {
+    "blockNote": {
+      "edit": [
+        {
+          "find": "When the latch is cleared (next scene setup or inventory open) the thinker restarts with #34.",
+          "with": "When the latch is cleared (in the first thinker pass after an inventory close; scene setup clears it before this thinker exists) the thinker restarts with #34."
+        }
+      ]
+    },
+    "comments": {
+      "46745": { "text": "Latch cleared (first thinker pass after an inventory close): restart at #34", "expect": "BRA" },
+      "46796": { "text": "Park until the latch is cleared (first thinker pass after an inventory close), then repeat the fill and #36", "expect": "WaitOnFlagByte" }
+    }
+  },
+  "system/engine/scene_lifecycle.asm": {
+    "comments": {
+      "253564": { "text": "Set flag $FF (scene-setup latch, cleared at the top of this routine): thinkers that rebuild HDMA, PPU or palette state redo it while it is clear", "expect": "SetFlagByte" }
+    }
+  },
+  "actors/hit_switch.asm": {
+    "partNotes": {
+      "HitSwitchTriggered": "Runs after a hit: set the event flag whose number is in actor field $24 (the spawn type byte shifted right by one; SetFlagRaw takes it as is), show frame $10 (assumed pressed look), wait 16 ticks (WaitByte #0F), show frame $0F again, then re-arm."
+    }
+  }
+}

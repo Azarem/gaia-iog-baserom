@@ -1,0 +1,305 @@
+[
+  {
+    "id": "FL23-01",
+    "flag": 76,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal gs_ship_descent_done ($4C): scene $2C with the flag clear locks the joypad ($EFFC), sets word $0185, plays the fade and sets $4C; with the flag set gs2C_descent dies, gs2C_crow_crew spawns its helper child, the South Cape cave actors (sc02_erik, sc02_lance, sc02_seth) die and scene $06 selects the shared interior art (scene_meta $13 gate).",
+    "start": {
+      "scene": 44,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $2C with $4C (byte $0A09 bit 4) clear and watch joypadMaskStd ($065A), byte $0A30 bit 5 ($0185) and byte $0A09 bit 4 until the dialog 'This is the Incan Gold Ship?!'",
+      "forced": "set gs_ship_descent_done ($4C) and load scene $2C, then scene $02 and scene $06",
+      "observe": [
+        "joypadMaskStd $065A",
+        "byte $0A09 bit 4 and byte $0A30 bit 5",
+        "actor list of scene $2C (gs2C_descent, gs2C_crow_crew child)",
+        "actor list of scene $02",
+        "scene $06 sprite set / screenshot"
+      ]
+    },
+    "confirms": "control: joypad locked, $0185 set, then $4C set; forced: no descent actor, helper child spawned, scene $02 Erik/Lance/Seth absent, scene $06 art changed",
+    "refutes": "the descent actor still locks the joypad with $4C set, or the South Cape actors stay, or scene $06 art does not change",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-02",
+    "flag": 77,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal gs_wreck_palette_alt_set ($4D): the wreck palette thinker spawns in its alternate phase (bundle #34 once, then the #33 loop) when the flag is set and $52 is clear, in every scene $2B-$2F; the phase is fixed for the scene visit.",
+    "start": {
+      "scene": 47,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "set $0AA6 = 1 and load scene $2F with $4D clear; record palette buffer colours $21-$2C and palette 7 ($7F0C00 area) over 300 frames",
+      "forced": "set $4D (byte $0A09 bit 5) and load scene $2F again, then scene $2B and $2D",
+      "observe": [
+        "palette buffer colours $21-$2C ($7F0C42-$7F0C59)",
+        "palette 7 colours and colour $59",
+        "screenshot of each scene"
+      ]
+    },
+    "confirms": "control shows the #1A glint cycle only; forced shows the recoloured palette 7 and the #33 cycle in all three scenes",
+    "refutes": "the palette is identical with and without the flag in any of the scenes",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-03",
+    "flag": 82,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal gs_adrift_final_palette_set ($52): with the flag set the thinker kills the first two scanline thinkers, flattens palette 2 to dark blue and applies bundle #36; the test comes before the $4D test.",
+    "start": {
+      "scene": 47,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "set $0AA6 = 3 and load scene $2F with $52 clear: record palette 2 and the HDMA thinker count",
+      "forced": "set $52 and $4D (byte $0A0A bit 2 and byte $0A09 bit 5) and load scene $2F",
+      "observe": [
+        "palette buffer palette 2 (colours $21-$2F)",
+        "thinker list of the scene",
+        "screenshot"
+      ]
+    },
+    "confirms": "forced run: dark-blue palette 2, two thinkers fewer, #36 colours, even with $4D set",
+    "refutes": "forced run shows the #34/#33 phase of $4D instead",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-04",
+    "flag": 101,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal fr_erik_rescued_done ($65): with it set the scene $32 exit zone (tiles (12,3C)-(16,3E)) offers the Diamond Mine choice; fr32_kara dies, fr39_erik exists in the hotel and the hotel reunion is skipped.",
+    "start": {
+      "scene": 50,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "with $64 and $57 set and $65 clear walk onto tiles (12,3C)-(16,3E) of scene $32; record the world-map menu choice id (expect $09, Quit only)",
+      "forced": "set fr_erik_rescued_done ($65, byte $0A0C bit 5) and repeat; then load scene $39",
+      "observe": [
+        "choice id in the staged world-map menu ($0D60 area)",
+        "screenshot of the menu",
+        "actor list of scene $39 (fr39_erik present, fr39_lily/fr39_kara at final tiles)"
+      ]
+    },
+    "confirms": "control menu $09; forced menu $07 (Quit / Diamond Mine); hotel Erik present and no reunion cutscene",
+    "refutes": "the menu does not change, or Erik is missing in the hotel",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-05",
+    "flag": 104,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal fr_hotel_lance_memory_restored ($68): Lance's memory returns when the Memory Melody is played in scene $39 on tiles (13,18)-(1A,1D) with $68 clear; the script sets scratch $0F, then $68; with $68 set the melody fails ('nothing happened') and Kara, Lilly, Lance and Erik change dialog.",
+    "start": {
+      "scene": 57,
+      "flags": ["fr_erik_rescued_done"],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "give item $0D (Memory Melody) and play it in scene $39 inside the tile rectangle with $68 clear; watch scratch $0F (byte $0A01 bit 7), byte $0A0D bit 0 ($68) and the joypad mask",
+      "forced": "set $68 and play it again; talk to Kara, Lilly, Erik",
+      "observe": [
+        "byte $0A01 bit 7 (scratch $0F) and byte $0A0D bit 0 ($68)",
+        "joypadMaskStd $065A",
+        "dialog text",
+        "item list (item $0D removed in the control run)"
+      ]
+    },
+    "confirms": "control: $0F set at melody end, cleared by Lance, $68 set at the end, item removed; forced: the 'nothing happened' line and the changed dialog",
+    "refutes": "the melody works with $68 set, or $68 stays clear after the sequence",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-06",
+    "flag": 106,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Spine proposal dm_mine_entrance_intro_done ($6A): with it set Imas and Sam of the Freejia slave market (scene $3C) are absent and Remus uses frame $27 and the line 'How can things like this happen?'.",
+    "start": {
+      "scene": 60,
+      "flags": ["fr_sam_erik_location_heard"],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $3C with $6A clear: actor list and Remus dialog",
+      "forced": "set $6A (byte $0A0D bit 2) and reload scene $3C",
+      "observe": [
+        "actor list (fr3C_imas, fr3C_sam, fr3C_remus)",
+        "Remus dialog",
+        "screenshot"
+      ]
+    },
+    "confirms": "forced run: Imas and Sam absent, Remus changed",
+    "refutes": "all three laborers present in the forced run",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-07",
+    "flag": 248,
+    "scope": null,
+    "priority": "P1",
+    "claim": "Spine proposal gs_mystic_statue_ceremony_done ($F8): handing item $38 to gs2E_crew2 runs the statue ceremony in scene $FD (globalScriptIndex = 0) and sets $F8; the bed trigger of gs2E_sleep and the placement of gs2C_crew5 need it.",
+    "start": {
+      "scene": 46,
+      "flags": ["gs_queen_welcome_done", "gs_crows_nest_guard_talked"],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "with $4E and $4F set and $F8 clear walk onto bed tiles (0B,04)-(0C,06) of scene $2E: expect no sleep; read byte $0A1F bit 0",
+      "forced": "give item $38 and talk to gs2E_crew2: record byte $0A1F bit 0 after scene $FD, then walk onto the bed tiles",
+      "observe": [
+        "byte $0A1F bit 0 ($F8)",
+        "scene id sequence ($2E -> $FD -> $2E)",
+        "item $38 removed",
+        "scene $2A reached after the bed trigger"
+      ]
+    },
+    "confirms": "control: no sleep; forced: $F8 set after the ceremony, bed starts the dream (scene $2A)",
+    "refutes": "$F8 stays clear after the ceremony, or the bed works without it",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-08",
+    "flag": 255,
+    "scope": { "scenes": [42] },
+    "priority": "P3",
+    "claim": "Spine proposal sys_scene_setup_done ($FF) in the dream scene: dream_palette_loop sets $FF once per palette animation #35 and then waits for the engine to clear it; it never exits.",
+    "start": {
+      "scene": 42,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $2A and watch byte $0A1F bit 7 every frame for 600 frames",
+      "forced": "open and close the inventory in the scene and watch the bit and the palette",
+      "observe": [
+        "byte $0A1F bit 7 per frame",
+        "palette buffer colours animated by bundle #35",
+        "thinker list (dream_palette_loop alive)"
+      ]
+    },
+    "confirms": "the bit goes to 1 after the first animation and returns to 0 only on scene setup or inventory use; the thinker restarts the animation after each clear",
+    "refutes": "the thinker disappears or the bit clears without engine action",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-09",
+    "flag": 389,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Spine proposal gs_ship_departure_started ($0185): set by gs2C_descent before $4C; the only reader is event block $85 of scene $1E (cross-checks FL11-14).",
+    "start": {
+      "scene": 44,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "load scene $2C and read byte $0A30 bit 5 at the first frame of gs2C_descent",
+      "forced": "see FL11-14 (set the flag and load scene $1E)",
+      "observe": [
+        "byte $0A30 bit 5 at the first frame and after the dialog"
+      ]
+    },
+    "confirms": "the flag is set during the cutscene and stays set after the dialog",
+    "refutes": "the flag is clear after the first frame of gs2C_descent",
+    "needs": ["FR00", "FL11-14"]
+  },
+  {
+    "id": "FL23-10",
+    "flag": 103,
+    "scope": null,
+    "priority": "P2",
+    "claim": "Persistent $67 (fr_kidnapper_door_confronted, INFERRED): with $66 set, talking to the door voice at the Freejia cell sets $67; the door actor then becomes an attackable 5-HP actor and the first-phase blocker no longer marks tile (04,0D) solid after a reload.",
+    "start": {
+      "scene": 50,
+      "flags": ["fr_freejia_arrival_intro_done", "fr_sam_erik_location_heard"],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "with $66 clear talk to the door voice (tile (04,0D) area of scene $32): only the warning line, $67 stays clear",
+      "forced": "set $66 and talk again; attack the door actor; reload the scene and walk to tile (04,0D)",
+      "observe": [
+        "byte $0A0C bit 7 ($67)",
+        "actor list (door child HP, extra flags)",
+        "solid tiles at (04,0D) and (08,0E)-(08,11)",
+        "scene change to $33 through the warp at (04,0C)"
+      ]
+    },
+    "confirms": "forced: $67 set, the door child takes damage and a reload leaves tile (04,0D) walkable",
+    "refutes": "the door is not attackable, or tile (04,0D) is still solid after the reload",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-11",
+    "flag": 83,
+    "scope": null,
+    "priority": "P3",
+    "claim": "Three fr32_herb placements share $53 and three fr32_hp_jewel placements share $54 (spawn attribute $00, no parameter read): only one herb and one HP jewel can be collected in Freejia.",
+    "start": {
+      "scene": 50,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "interact with the herb placement at (14,0E) of scene $32 and record item $06 count, byte $0A0A bit 3 ($53) and the text",
+      "forced": "interact with the herb placements at (24,0E) and (34,10), then the HP jewels at (0F,0F), (1D,0F), (36,10): record playerMaxHp ($0ACA) after each",
+      "observe": [
+        "inventory item count of $06",
+        "byte $0A0A bit 3 and byte $0A0A bit 4 ($53, $54)",
+        "playerMaxHp $0ACA",
+        "dialog text"
+      ]
+    },
+    "confirms": "only the first interaction of each kind pays and prints; the others return silently",
+    "refutes": "the other placements also pay (then the flag bytes in this record are wrong)",
+    "needs": ["FR00"]
+  },
+  {
+    "id": "FL23-12",
+    "flag": 1,
+    "scope": { "scenes": [47] },
+    "priority": "P3",
+    "claim": "Scratch $01-$03 of scene $2F follow the day table of dc2F_adrift: day 0 Kara talk / second talk / Smoked Meat; day 1 fish hit; day 2 Kara talk / jar letter / Kara reply; day 3 fish hit and Kara talk at full HP; day 5 two Kara talks and the script's $03; day 6 Kara talk.",
+    "start": {
+      "scene": 47,
+      "flags": [],
+      "form": "Will",
+      "state": null
+    },
+    "trial": {
+      "control": "write $0AA6 = 0 and load scene $2F; talk to Kara twice, use the Smoked Meat (item $0A) and record scratch bits 0-2 of byte $0A00 after each action",
+      "forced": "repeat for $0AA6 = 2 (read the jar letter), 3 (full HP), 5",
+      "observe": [
+        "byte $0A00 bits 0-2 after each action",
+        "scene change and $0AA6 after the day ends"
+      ]
+    },
+    "confirms": "each action sets the bit named in the registry rows",
+    "refutes": "a bit is set by a different action or the day does not advance",
+    "needs": ["FR00"]
+  }
+]
