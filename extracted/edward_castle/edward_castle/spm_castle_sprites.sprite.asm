@@ -874,40 +874,40 @@ spm_castle_sprites_sprite_group_000DFB [
     sprite-part < #01, #00, #00, #00, #1F, #$4DE2 >   ;00
     sprite-part < #01, #00, #00, #0F, #10, #$4DCE >   ;01
     sprite-part < #01, #00, #00, #1F, #00, #$4DEE >   ;02
-    sprite-part < #10, #10, #30, #00, #F8, #$01F0 >   ;03
-    sprite-part < #01, #F8, #10, #F0, #10, #$000E >   ;04
-    sprite-part < #08, #10, #00, #28, #A0, #$000D >   ;05
-    sprite-part < #10, #08, #00, #28, #A0, #$004D >   ;06
-    sprite-part < #08, #10, #08, #20, #B0, #$000D >   ;07
-    sprite-part < #10, #08, #08, #20, #B0, #$014D >   ;08
-    sprite-part < #00, #10, #10, #10, #C0, #$000D >   ;09
-    sprite-part < #08, #10, #20, #08, #A2, #$000D >   ;0A
-    sprite-part < #10, #08, #20, #08, #A2, #$004D >   ;0B
-    sprite-part < #08, #10, #28, #00, #B2, #$000D >   ;0C
-    sprite-part < #10, #08, #28, #00, #B2, #$014D >   ;0D
-    sprite-part < #10, #00, #10, #10, #A4, #$000D >   ;0E
-    sprite-part < #18, #00, #08, #20, #F4, #$000D >   ;0F
-    sprite-part < #18, #00, #00, #28, #E4, #$000D >   ;10
-    sprite-part < #18, #00, #20, #08, #E5, #$000D >   ;11
-    sprite-part < #18, #00, #28, #00, #F5, #$100D >   ;12
-    sprite-part < #10, #34, #00, #F8, #F0, #$0101 >   ;13
-    sprite-part < #F8, #10, #F0, #10, #0F, #$1000 >   ;14
-    sprite-part < #08, #04, #28, #A1, #0D, #$0800 >   ;15
-    sprite-part < #10, #04, #28, #A1, #4D, #$1000 >   ;16
-    sprite-part < #08, #0C, #20, #B1, #0D, #$0800 >   ;17
-    sprite-part < #10, #0C, #20, #B1, #4D, #$0001 >   ;18
-    sprite-part < #10, #14, #10, #C2, #4D, #$1000 >   ;19
-    sprite-part < #08, #24, #08, #A3, #0D, #$0800 >   ;1A
-    sprite-part < #10, #24, #08, #A3, #4D, #$1000 >   ;1B
-    sprite-part < #08, #2C, #00, #B3, #0D, #$0800 >   ;1C
-    sprite-part < #10, #2C, #00, #B3, #4D, #$1001 >   ;1D
-    sprite-part < #00, #14, #10, #C4, #0D, #$1800 >   ;1E
-    sprite-part < #00, #08, #24, #F4, #0D, #$1800 >   ;1F
-    sprite-part < #00, #00, #2C, #E4, #0D, #$1800 >   ;20
-    sprite-part < #00, #1F, #0D, #E5, #0D, #$1800 >   ;21
-    sprite-part < #00, #27, #05, #F5, #0D, #$1800 >   ;22
-    sprite-part < #00, #0D, #1F, #E5, #0D, #$0807 >   ;23
-  ] >
+  ] >   ;00
+  sprite-group < #10, #10, #30, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0E, [
+    sprite-part < #00, #08, #10, #00, #28, #$0DA0 >   ;00
+    sprite-part < #00, #10, #08, #00, #28, #$4DA0 >   ;01
+    sprite-part < #00, #08, #10, #08, #20, #$0DB0 >   ;02
+    sprite-part < #00, #10, #08, #08, #20, #$4DB0 >   ;03
+    sprite-part < #01, #00, #10, #10, #10, #$0DC0 >   ;04
+    sprite-part < #00, #08, #10, #20, #08, #$0DA2 >   ;05
+    sprite-part < #00, #10, #08, #20, #08, #$4DA2 >   ;06
+    sprite-part < #00, #08, #10, #28, #00, #$0DB2 >   ;07
+    sprite-part < #00, #10, #08, #28, #00, #$4DB2 >   ;08
+    sprite-part < #01, #10, #00, #10, #10, #$0DA4 >   ;09
+    sprite-part < #00, #18, #00, #08, #20, #$0DF4 >   ;0A
+    sprite-part < #00, #18, #00, #00, #28, #$0DE4 >   ;0B
+    sprite-part < #00, #18, #00, #20, #08, #$0DE5 >   ;0C
+    sprite-part < #00, #18, #00, #28, #00, #$0DF5 >   ;0D
+  ] >   ;01
+  sprite-group < #10, #10, #34, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0F, [
+    sprite-part < #00, #10, #08, #04, #28, #$0DA1 >   ;00
+    sprite-part < #00, #08, #10, #04, #28, #$4DA1 >   ;01
+    sprite-part < #00, #10, #08, #0C, #20, #$0DB1 >   ;02
+    sprite-part < #00, #08, #10, #0C, #20, #$4DB1 >   ;03
+    sprite-part < #01, #00, #10, #14, #10, #$4DC2 >   ;04
+    sprite-part < #00, #10, #08, #24, #08, #$0DA3 >   ;05
+    sprite-part < #00, #08, #10, #24, #08, #$4DA3 >   ;06
+    sprite-part < #00, #10, #08, #2C, #00, #$0DB3 >   ;07
+    sprite-part < #00, #08, #10, #2C, #00, #$4DB3 >   ;08
+    sprite-part < #01, #10, #00, #14, #10, #$0DC4 >   ;09
+    sprite-part < #00, #18, #00, #08, #24, #$0DF4 >   ;0A
+    sprite-part < #00, #18, #00, #00, #2C, #$0DE4 >   ;0B
+    sprite-part < #00, #18, #00, #1F, #0D, #$0DE5 >   ;0C
+    sprite-part < #00, #18, #00, #27, #05, #$0DF5 >   ;0D
+    sprite-part < #00, #18, #00, #0D, #1F, #$0DE5 >   ;0E
+  ] >   ;02
 ]
 
 spm_castle_sprites_sprite_group_000F02 [
@@ -1039,19 +1039,19 @@ spm_castle_sprites_sprite_group_00116D [
     sprite-part < #01, #00, #00, #0F, #08, #$4D8E >   ;01
     sprite-part < #00, #08, #00, #1F, #00, #$4DAE >   ;02
     sprite-part < #00, #00, #08, #1F, #00, #$4DAF >   ;03
-    sprite-part < #07, #08, #29, #00, #F8, #$01F0 >   ;04
-    sprite-part < #01, #F8, #10, #F0, #10, #$000A >   ;05
-    sprite-part < #07, #00, #00, #21, #D9, #$000D >   ;06
-    sprite-part < #07, #00, #08, #19, #BD, #$000D >   ;07
-    sprite-part < #00, #07, #08, #19, #BD, #$004D >   ;08
-    sprite-part < #00, #07, #00, #21, #D9, #$004D >   ;09
-    sprite-part < #07, #00, #10, #11, #3A, #$000D >   ;0A
-    sprite-part < #00, #07, #10, #11, #3A, #$004D >   ;0B
-    sprite-part < #00, #07, #18, #09, #08, #$004D >   ;0C
-    sprite-part < #07, #00, #18, #09, #08, #$000D >   ;0D
-    sprite-part < #00, #07, #20, #01, #3C, #$004D >   ;0E
-    sprite-part < #07, #00, #20, #01, #3C, #$000D >   ;0F
-  ] >
+  ] >   ;00
+  sprite-group < #07, #08, #29, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
+    sprite-part < #00, #07, #00, #00, #21, #$0DD9 >   ;00
+    sprite-part < #00, #07, #00, #08, #19, #$0DBD >   ;01
+    sprite-part < #00, #00, #07, #08, #19, #$4DBD >   ;02
+    sprite-part < #00, #00, #07, #00, #21, #$4DD9 >   ;03
+    sprite-part < #00, #07, #00, #10, #11, #$0D3A >   ;04
+    sprite-part < #00, #00, #07, #10, #11, #$4D3A >   ;05
+    sprite-part < #00, #00, #07, #18, #09, #$4D08 >   ;06
+    sprite-part < #00, #07, #00, #18, #09, #$0D08 >   ;07
+    sprite-part < #00, #00, #07, #20, #01, #$4D3C >   ;08
+    sprite-part < #00, #07, #00, #20, #01, #$0D3C >   ;09
+  ] >   ;01
 ]
 
 spm_castle_sprites_sprite_group_0011E9 [

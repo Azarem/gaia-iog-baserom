@@ -180,7 +180,7 @@
         "plans/extracted-audit/mesen2-results/FR50_20261106.md:98 (preset 1)",
         "state orig_N03_castle_gate.mss (natural state; differs from the replayed preset in exactly flags 16 and 39)"
       ],
-      "note": "Verify in scene $0A (edward_castle): Flag $3F set: ec0A_left_guard does not lock the joypad at spawn (joypadMaskStd $065A stays 0) and offers the second-floor talk. Entry class of scene $0A is locked-until-flag; skip flags $3F: the preset sets all of them, so the arrival is free. Key items held: 09 Lola's Melody. Consumables, chest items and Red Jewels are not set (gems = 0; the gem count is not flag-gated). Chest ($0200-$02FF), clear-reward ($0300-$03FF) and dungeon-kill ($0400-$04FF) flags are not set so that no pickup is lost. Flags cleared by story code ($17C $17D $17E $17F $F4) and optional flags are not set."
+      "note": "Verify in scene $0A (edward_castle): Flag $3F set: ec0A_left_guard does not lock the joypad at spawn (joypadMaskStd $065A stays 0) and offers the second-floor talk. Entry class of scene $0A is cutscene: without flag $3F the arrival locks the joypad; the preset sets $3F, so the arrival is free. Key items held: 09 Lola's Melody. Consumables, chest items and Red Jewels are not set (gems = 0; the gem count is not flag-gated). Chest ($0200-$02FF), clear-reward ($0300-$03FF) and dungeon-kill ($0400-$04FF) flags are not set so that no pickup is lost. Flags cleared by story code ($17C $17D $17E $17F $F4) and optional flags are not set."
     },
     {
       "name": "before_incan_ruins",

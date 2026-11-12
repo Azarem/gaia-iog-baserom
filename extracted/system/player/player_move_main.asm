@@ -64,7 +64,7 @@ PlayerMovementTick {
     STA $0010, X
     LDA $20               ; Horizontal velocity in sub-pixels: zero skips the phase, negative runs west, positive east
     BEQ PlayerMovementTick_AfterHorizontal
-    BPL loc_02CFFA
+    BPL PlayerMoveEastBranch
     LDA #$0040            ; Marker: the horizontal phase ran this tick ($AA bit 6, read by the AutoAlign routines)
     TSB $AA
     JSR $&player_move_west.DispatchWestMove
@@ -72,7 +72,7 @@ PlayerMovementTick {
 
 ; East branch (positive $20): mark that the horizontal phase ran ($AA bit $0040) and run DispatchEastMove.
 
-  loc_02CFFA:
+  PlayerMoveEastBranch:
     LDA #$0040
     TSB $AA
     JSR $&player_move_east.DispatchEastMove
@@ -219,11 +219,11 @@ AutoAlignEW_North {
     REP #$20
     LDA $AA
     BIT #$0040            ; Bit $0040: the horizontal phase ran this tick: no nudge
-    BNE loc_02D339
+    BNE AutoAlignEW_NorthNoNudge
     LDA $collisionLayer, X ; Raw collision byte at the map index X left by the last probe; its high nibble is an actor solid mark: no nudge
     AND #$00FF
     BIT #$00F0
-    BNE loc_02D339
+    BNE AutoAlignEW_NorthNoNudge
     LDA $22               ; n = (($22 >> 2) - 8) AND $0F: the offset of the hitbox's left edge inside its 16-px column, kept in $04
     LSR 
     LSR 
@@ -231,14 +231,14 @@ AutoAlignEW_North {
     SBC #$0008
     AND #$000F
     STA $04
-    BEQ loc_02D339        ; n = 0: already on a column line, nothing to nudge
+    BEQ AutoAlignEW_NorthNoNudge ; n = 0: already on a column line, nothing to nudge
     CMP #$0006            ; n >= 6: east nudge first (needs the top-right cell type below $0E and not $06); otherwise the west attempt
-    BCC loc_02D30D
+    BCC AutoAlignEW_NorthWestAttempt
     JSR $&tile_collision.ProbeFutureTR
     CMP #$000E
-    BCS loc_02D30D
+    BCS AutoAlignEW_NorthWestAttempt
     CMP #$0006
-    BEQ loc_02D30D
+    BEQ AutoAlignEW_NorthWestAttempt
     LDX #$0022            ; Nudge on the word at [$00 + X] with X = $22; the position is first shifted 8 px west (-$20) so the helper tests the LEFT edge
     LDA $00, X
     SEC 
@@ -254,15 +254,15 @@ AutoAlignEW_North {
 
 ; West attempt: only for n < 9; FutureTL must be below $0E and not $09; then NudgeAxisMinus8Clamped on the left-edge reference.
 
-  loc_02D30D:
+  AutoAlignEW_NorthWestAttempt:
     LDA $04
     CMP #$0009            ; Only n < 9 (1..8) may go west
-    BCS loc_02D339
+    BCS AutoAlignEW_NorthNoNudge
     JSR $&tile_collision.ProbeFutureTL ; West nudge needs the top-left cell type below $0E and not $09
     CMP #$000E
-    BCS loc_02D339
+    BCS AutoAlignEW_NorthNoNudge
     CMP #$0009
-    BEQ loc_02D339
+    BEQ AutoAlignEW_NorthNoNudge
     LDX #$0022            ; Same shifted-reference scheme as the east nudge
     LDA $00, X
     SEC 
@@ -278,7 +278,7 @@ AutoAlignEW_North {
 
 ; No nudge applied: return carry SET.
 
-  loc_02D339:
+  AutoAlignEW_NorthNoNudge:
     SEC                   ; Carry set: nothing nudged, the caller does the hard Y snap
     RTS 
 }
@@ -294,14 +294,14 @@ NudgeAxisPlus8Clamped {
     STA $00, X
     EOR $01, S            ; Old XOR new: bit 6 set means a $40 line (16 px) was crossed
     BIT #$0040
-    BEQ loc_02D352
+    BEQ NudgeAxisPlus8Clamped_Return
     LDA $00, X
     AND #$FFC0            ; Crossed: floored to the line so the edge ends flush
     STA $00, X
 
 ; Drop the saved old value and return.
 
-  loc_02D352:
+  NudgeAxisPlus8Clamped_Return:
     PLA 
     RTS 
 }
@@ -317,10 +317,10 @@ NudgeAxisMinus8Clamped {
     STA $00, X
     EOR $01, S            ; Old XOR new: bit 6 set means a $40 line was crossed
     BIT #$0040
-    BEQ loc_02D374
+    BEQ NudgeAxisMinus8Clamped_Return
     LDA $00, X
     BIT #$003F            ; Low six bits already zero: on the line, nothing to clamp
-    BEQ loc_02D374
+    BEQ NudgeAxisMinus8Clamped_Return
     AND #$FFC0            ; Floor, then add $40: clamp back up to the line that was crossed
     CLC 
     ADC #$0040
@@ -328,7 +328,7 @@ NudgeAxisMinus8Clamped {
 
 ; Drop the saved old value and return.
 
-  loc_02D374:
+  NudgeAxisMinus8Clamped_Return:
     PLA 
     RTS 
 }

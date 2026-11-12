@@ -695,7 +695,7 @@ ApplyHitDamageToVictim {
     PLB 
     REP #$20
     LDA $24               ; $24 nonzero = interaction/push path; zero = combat damage
-    BEQ loc_03BF86
+    BEQ ApplyHitDamageToVictim_CombatEntry
     STZ $24
     TYX 
     LDA $scratch1010+6, X ; Custom interaction handler from scratch1010+6 ($7F1016)
@@ -747,7 +747,7 @@ ApplyHitDamageToVictim {
 }
 
 ---------------------------------------------
-; Second half of ApplyHitDamageToVictim. Its first two instructions (TXY, RTS) are the landing pad of the PEA label−1 RTS trick that finishes the push/knockback path of the handler (Y = X on return). The rest of the part, entered at loc_03BF86 when $24 is zero, is the combat-damage path: totalStr = playerStr + rangedDamageBonus + abilityDamageBonus, rawDamage = max(1, totalStr − victim DEF), netDamage = rawDamage + characterForm, victim HP clamped at 0.
+; Second half of ApplyHitDamageToVictim. Its first two instructions (TXY, RTS) are the landing pad of the PEA label−1 RTS trick that finishes the push/knockback path of the handler (Y = X on return). The rest of the part, entered at ApplyHitDamageToVictim_CombatEntry when $24 is zero, is the combat-damage path: totalStr = playerStr + rangedDamageBonus + abilityDamageBonus, rawDamage = max(1, totalStr − victim DEF), netDamage = rawDamage + characterForm, victim HP clamped at 0.
 ; 
 ; Then it spawns the damage digits (skipped for $12 bit 5 bosses), marks the victim $0080, resolves death inline (onDeathCallback or StandardEnemyDefeatHandler) or spawns HitStaggerMain, dispatches and clears onHitCallback, sets iframeCounter ($FFEF = negative = recovery when $12 bit 0 ($0001) is set, otherwise $0011 = positive = hit-stun: non-player actors skip their tick, the player's tick still runs), plays hit sound #05, updates the HUD HP registers and finally handles the onCollideCallback of the attacker. A player with the invincible flag ($10 bit 4) is diverted to HitInvincibleVictim.
 
@@ -755,7 +755,7 @@ ApplyHitDamageToVictim_DamagePath {
     TXY 
     RTS 
 
-  loc_03BF86:
+  ApplyHitDamageToVictim_CombatEntry:
     TYX 
     STX $3E
     LDA $0010, X

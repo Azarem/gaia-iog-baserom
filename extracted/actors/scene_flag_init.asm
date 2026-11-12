@@ -12,7 +12,7 @@
 scene_flag_init [
   actor-def < #00, #00, #10, {
 
-  code_00C66A:
+  SceneFlagInitEntry:
     COP [SetFlagByte] ( #00 ) ; Set event flag index #00 (first bit of eventFlags $0A00); SetFlagByte sets a flag, it does not clear a byte
     COP [Die]             ; One tick only: the actor removes itself
 } >

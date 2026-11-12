@@ -27,115 +27,115 @@
 diary_menu_window_dma [
   thinker-def < #04, #08, {
 
-; Slot cursor band. D96 >= 0 and an even frame: queue the empty table (flicker); otherwise fall into loc_00BBBC.
+; Slot cursor band. D96 >= 0 and an even frame: queue the empty table (flicker); otherwise fall into DiaryBandSlotDispatch.
 
-  code_00BBB1:
+  DiaryBandSlotCursorGate:
     LDA $0D96             ; Target cursor set?
-    BMI loc_00BBBC
+    BMI DiaryBandSlotDispatch
     LDA $frameCounter     ; Odd frames only draw the slot band while a target is set (flicker)
     LSR 
-    BCC loc_00BBC7
+    BCC DiaryBandSlotQueueEmpty
 
 ; Dispatch on the slot cursor $0D92; a negative cursor clears the window registers directly and queues the empty table.
 
-  loc_00BBBC:
+  DiaryBandSlotDispatch:
     LDA $0D92             ; Slot cursor
-    BPL loc_00BBCF
+    BPL DiaryBandSlotCursor0
     LDA #$00FF            ; No slot cursor: window registers WH0 = $FF, WH1 = $00 (empty window)
     STA $WH0
 
 ; Queue the empty table diary_band_empty (no band) and continue with the target cursor.
 
-  loc_00BBC7:
+  DiaryBandSlotQueueEmpty:
     COP [QueueHdmaDirect] ( @diary_band_empty, #26 ) ; Empty table: no band (#26 = WH0/WH1)
-    BRA loc_00BBEC
+    BRA DiaryBandTargetDispatch
 
 ; Slot cursor 0 -> diary_band_slot1 (band at line 79); other values continue the compare chain.
 
-  loc_00BBCF:
-    BNE loc_00BBD9
+  DiaryBandSlotCursor0:
+    BNE DiaryBandSlotCursor1
     COP [QueueHdmaDirect] ( @diary_band_slot1, #26 )
-    BRA loc_00BBEC
+    BRA DiaryBandTargetDispatch
 
 ; Slot cursor 1 -> diary_band_slot2 (band at line 111).
 
-  loc_00BBD9:
+  DiaryBandSlotCursor1:
     DEC 
-    BNE loc_00BBE4
+    BNE DiaryBandSlotCursor2Plus
     COP [QueueHdmaDirect] ( @diary_band_slot2, #26 )
-    BRA loc_00BBEC
+    BRA DiaryBandTargetDispatch
 
 ; Slot cursor 2 or higher -> diary_band_slot3 (band at line 143).
 
-  loc_00BBE4:
+  DiaryBandSlotCursor2Plus:
     COP [QueueHdmaDirect] ( @diary_band_slot3, #26 )
-    BRA loc_00BBEC
+    BRA DiaryBandTargetDispatch
 
 ; Target cursor $0D96: negative clears the window registers directly and queues the empty table.
 
-  loc_00BBEC:
+  DiaryBandTargetDispatch:
     LDA $0D96             ; Target cursor
-    BPL loc_00BBFF
+    BPL DiaryBandTargetCursor0
     LDA #$00FF
     STA $WH0
     COP [QueueHdmaDirect] ( @diary_band_empty, #26 )
-    BRA loc_00BC1C
+    BRA DiaryBandTabDispatch
 
 ; Target cursor 0 -> diary_band_slot1.
 
-  loc_00BBFF:
-    BNE loc_00BC09
+  DiaryBandTargetCursor0:
+    BNE DiaryBandTargetCursor1
     COP [QueueHdmaDirect] ( @diary_band_slot1, #26 )
-    BRA loc_00BC1C
+    BRA DiaryBandTabDispatch
 
 ; Target cursor 1 -> diary_band_slot2.
 
-  loc_00BC09:
+  DiaryBandTargetCursor1:
     DEC 
-    BNE loc_00BC14
+    BNE DiaryBandTargetCursor2Plus
     COP [QueueHdmaDirect] ( @diary_band_slot2, #26 )
-    BRA loc_00BC1C
+    BRA DiaryBandTabDispatch
 
 ; Target cursor 2 or higher -> diary_band_slot3.
 
-  loc_00BC14:
+  DiaryBandTargetCursor2Plus:
     COP [QueueHdmaDirect] ( @diary_band_slot3, #26 )
-    BRA loc_00BC1C
+    BRA DiaryBandTabDispatch
 
 ; Tab / row cursor $0D98: negative -> empty table diary_band_tab_empty, then RTL.
 
-  loc_00BC1C:
+  DiaryBandTabDispatch:
     LDA $0D98             ; Tab / row cursor
-    BPL loc_00BC28
+    BPL DiaryBandTab0Queue
     COP [QueueHdmaDirect] ( @diary_band_tab_empty, #26 )
     RTL 
 
 ; Tab 0 -> diary_band_tab0 (band at line 79), RTL.
 
-  loc_00BC28:
-    BNE loc_00BC31
+  DiaryBandTab0Queue:
+    BNE DiaryBandTab1Queue
     COP [QueueHdmaDirect] ( @diary_band_tab0, #26 )
     RTL 
 
 ; Tab 1 -> diary_band_tab1 (band at line 95), RTL.
 
-  loc_00BC31:
+  DiaryBandTab1Queue:
     DEC 
-    BNE loc_00BC3B
+    BNE DiaryBandTab2Queue
     COP [QueueHdmaDirect] ( @diary_band_tab1, #26 )
     RTL 
 
 ; Tab 2 -> diary_band_tab2 (band at line 111), RTL.
 
-  loc_00BC3B:
+  DiaryBandTab2Queue:
     DEC 
-    BNE loc_00BC45
+    BNE DiaryBandTab3PlusQueue
     COP [QueueHdmaDirect] ( @diary_band_tab2, #26 )
     RTL 
 
 ; Tab 3 or higher -> diary_band_tab3 (band at line 127), RTL.
 
-  loc_00BC45:
+  DiaryBandTab3PlusQueue:
     COP [QueueHdmaDirect] ( @diary_band_tab3, #26 )
     RTL 
 } >

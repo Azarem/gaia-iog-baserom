@@ -64,7 +64,7 @@
 ramp_east [
   actor-def < #00, #00, #20, {
 
-  code_00D2D3:
+  RampEastEntry:
     COP [SetEntryHere]    ; Idle stage 1 re-entry point
 
 ; ramp_east stage 1 (re-entered by JumpNextFrame). Scratch $0018 = ramp X + 8, then the speed, row (|dy| <= $18) and column (player X - ramp X in 2..15) checks. RTL leaves the ramp at this entry for the next frame.
@@ -148,7 +148,7 @@ ramp_east [
 ramp_west [
   actor-def < #00, #00, #20, {
 
-  code_00D34B:
+  RampWestEntry:
     COP [SetEntryHere]    ; Idle stage 1 re-entry point
 
 ; ramp_west stage 1. Scratch $0018 = ramp X - 8; the window is player X - ramp X in -16..-2.
@@ -227,7 +227,7 @@ ramp_west [
 ramp_north [
   actor-def < #00, #00, #20, {
 
-  code_00D3BD:
+  RampNorthEntry:
     COP [SetEntryHere]    ; Idle stage 1 re-entry point
 
 ; ramp_north stage 1: axis Y. Checks playerSpeedNs, |player X - ramp X| <= $10 and player Y - ramp Y in 2..15.
@@ -307,7 +307,7 @@ ramp_north [
 ramp_south [
   actor-def < #00, #00, #20, {
 
-  code_00D42B:
+  RampSouthEntry:
     COP [SetEntryHere]    ; Idle stage 1 re-entry point
 
 ; ramp_south stage 1: scratch $001C = ramp Y - $10; the window is player Y - ramp Y in -16..-2 with |dx| <= $10.

@@ -11,7 +11,7 @@
   "screen-pos": { "types": [ "Word", "Word" ] },
   "zone-trigger": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte" ], "delimiter": 255 },
   "sprite-set": { "types": [ "Word", "&sprite-group" ], "delimiter": 65535 },
-  "sprite-group": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "sprite-part" ] },
+  "sprite-group": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "Byte", "sprite-part[@12]" ] },
   "sprite-part": { "types": [ "Byte", "Byte", "Byte", "Byte", "Byte", "Word" ] },
   "palette-bundle": { "types": [ "Byte", "&Word", "Byte", "Byte", "Byte" ], "delimiter": 0 },
   "body-entry": { "types": [ "Address", "@Binary" ] },

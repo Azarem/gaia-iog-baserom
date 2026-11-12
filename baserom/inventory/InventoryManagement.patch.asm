@@ -234,7 +234,7 @@ inventory_mgmt.GiveItemToPlayer! {
     PHP 
     SEP #$20
     BIT #$80
-    BNE loc_03EFB3
+    BNE GiveItem_SpecialItem
     JSR $&AutoUseRedJewelHandler
     JSL $@KeyItemCheckAndStore
     BCC inv_give_item_normal
@@ -257,19 +257,19 @@ inventory_mgmt.GiveItemToPlayer! {
     BCS inv_give_item_full
     JMP GiveItem_StoreInSlot+4
 
-  inventory_mgmt.loc_03EFA2!:
-  inventory_mgmt.loc_03EFAA!:
+  inventory_mgmt.GiveItem_RegularSlotScan!:
+  inventory_mgmt.GiveItem_SlotOccupied!:
 }
 
 ---------------------------------------------
 ;Entry point for checking inventory for item
 
-inventory_mgmt.loc_03F0B9! {
+inventory_mgmt.CheckInventory_SlotScan! {
     CMP $inventory_slots, Y
-    BEQ loc_03F0C7
+    BEQ CheckInventory_Found
     INY 
     CPY #$0010
-    BNE loc_03F0B9
+    BNE CheckInventory_SlotScan
     ;LDY #$0000
 
   ;inv_search_page2:
@@ -293,13 +293,13 @@ inventory_mgmt.RemoveItemFromInventory! {
     CMP $inventoryEquippedType
     BEQ rifi_normal
     LDY $inventoryEquippedIndex
-    BRA loc_03F0A0
+    BRA RemoveItem_Match
 
   rifi_normal:
     LDY #$0000
 }
 
-inventory_mgmt.loc_03F0A0! {
+inventory_mgmt.RemoveItem_Match! {
     PHX
     TYX
     JSR inv_remove_stub

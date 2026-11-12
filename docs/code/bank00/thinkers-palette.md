@@ -178,7 +178,7 @@ None.
 
 #### Purpose
 
-Parent holds palette bundle **`#03`** at sub-entry 0 and **polls flag `#01` each frame** (`SetEntryHere` + `BranchOnFlagByte`). While flag `#01` is clear, parent yields without stepping. When flag `#01` is set, parent **`SpawnThinker`** **`PaletteParentChildWaveLoop`** (child), stores child slot in **`$7F000A,X`**, **`WaitOnFlagByte #01, #00`**, then **`KillThinker`** on the child slot and restarts at `loc_00B600`.
+Parent holds palette bundle **`#03`** at sub-entry 0 and **polls flag `#01` each frame** (`SetEntryHere` + `BranchOnFlagByte`). While flag `#01` is clear, parent yields without stepping. When flag `#01` is set, parent **`SpawnThinker`** **`PaletteParentChildWaveLoop`** (child), stores child slot in **`$7F000A,X`**, **`WaitOnFlagByte #01, #00`**, then **`KillThinker`** on the child slot and restarts at `PaletteParentChildEntry`.
 
 Child: infinite `PaletteStart #03` / `PaletteStep` until killed. Spawn parameter `#03` matches bundle id but the script **hard-codes `#03`** (parameter is redundant).
 

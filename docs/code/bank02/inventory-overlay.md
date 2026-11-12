@@ -28,7 +28,7 @@ flowchart TD
     PPU --> ZERO["zero camera + scroll words<br/>invalidate source cache C/D"]
     ZERO --> SPAWN["ClearBg3TilemapBuffer_Full,<br/>InitActorPool, SpawnSceneActors,<br/>SpawnSceneThinkers"]
     SPAWN --> FIRST["RunActors_Normal x2, SortActorsByDepth,<br/>ComposeAllSprites, UpdateFrameDialogue,<br/>VBlank wait, INIDISP=$0F"]
-    FIRST --> LOOP["code_02EE17:<br/>UpdateFrameDialogue; BG1SC = bg1ConfigMode"]
+    FIRST --> LOOP["InventorySceneMainLoop:<br/>UpdateFrameDialogue; BG1SC = bg1ConfigMode"]
     LOOP --> EXIT{"BranchOnFlagByte #00<br/>still zero?"}
     EXIT -->|yes| LOOP
     EXIT -->|no| CLOSE["forced blank, HDMAEN=0,<br/>RestoreGameState"]
@@ -82,7 +82,7 @@ flowchart TD
 | `$02EFB2` | `RestoreGameState` | Copies it back (everything except the palette staging buffer). |
 | `$02F035` | `RestorePaletteBuffer` | `$7E:38B4` → `$7F:0A00`, `$203` bytes. |
 
-The main loop label `code_02EE17` is an unnamed local label inside `OpenInventoryScreen`.
+The main loop label `InventorySceneMainLoop` is an unnamed local label inside `OpenInventoryScreen`.
 
 ---
 
@@ -112,9 +112,9 @@ The main loop label `code_02EE17` is an unnamed local label inside `OpenInventor
 9. `RunActors_Normal` ×2, `SortActorsByDepth`, `$FF` stored to `$7F3100` and `$7F3101` (empty compose list), `ComposeAllSprites`, one `UpdateFrameDialogue`.
 10. `EnableNmiAndJoypad` (NMITIMEN `$81`), `VBlankWaitAndJoypad`, `INIDISP = $0F`, `DisableNmiKeepJoypad` (NMI off again; `UpdateFrameDialogue` pulses it on for its own VBlank wait).
 
-### Run loop (`code_02EE17`)
+### Run loop (`InventorySceneMainLoop`)
 
-- **[ASM]** Each pass: `UpdateFrameDialogue`, then `bg1ConfigMode` → `BG1SC`, then `COP [BranchOnFlagByte] ( #00, #00, &code_02EE17 )`. The branch is taken while flag byte `#00` (events `$00`–`$07`) is zero; the loop exits when it is nonzero.
+- **[ASM]** Each pass: `UpdateFrameDialogue`, then `bg1ConfigMode` → `BG1SC`, then `COP [BranchOnFlagByte] ( #00, #00, &InventorySceneMainLoop )`. The branch is taken while flag byte `#00` (events `$00`–`$07`) is zero; the loop exits when it is nonzero.
 - **[ASM]** The asm comments say the `inventory_menu` actor sets that flag byte to close the screen, and that it changes `bg1ConfigMode` to flip between the item grid and the status view. Which button or tab triggers the close is in [inventory-menu.md](inventory-menu.md), not in this file.
 - **[ASM]** `UpdateFrameDialogue` runs `RunActors_CutsceneOnly`, camera scroll, light HDMA-phase thinkers, sprite composition, one VBlank wait with NMI pulsed on, and light general thinkers (per the asm comment). **[XREF]** `RunActors_CutsceneOnly` dispatches only actors with actor flag `$10` bit 11 (`$0800`; `actor_execution.asm`). The children that `inventory_menu` spawns all use `SpawnAfterFlags` values containing `$0800` (`#$1800`, `#$0802`, `#$0800`; see [inventory-menu.md](inventory-menu.md)), which is consistent with that loop. How the menu actor itself and the statue pedestals get the bit is not shown in either file.
 

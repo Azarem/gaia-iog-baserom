@@ -69,7 +69,7 @@ Inferred: the preserved `$0140` bytes (320 bytes, 160 words) match the HUD tilem
 
 ### ClearBg3TilemapBuffer_PreserveHud
 
-Entry sets `LDX #$0140` and branches to the shared loop at `loc_02F07E` (same loop as full clear).
+Entry sets `LDX #$0140` and branches to the shared loop at `ClearVramBufferLoop` (same loop as full clear).
 
 **Cross-References:**
 

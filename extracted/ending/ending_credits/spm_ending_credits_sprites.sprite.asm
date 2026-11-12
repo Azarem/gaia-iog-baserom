@@ -790,10 +790,10 @@ spm_ending_credits_sprites_sprite_group_000B57 [
     sprite-part < #00, #10, #08, #10, #20, #$05DF >   ;09
     sprite-part < #00, #10, #08, #18, #18, #$05EF >   ;0A
     sprite-part < #00, #00, #18, #28, #08, #$0552 >   ;0B
-    sprite-part < #00, #08, #38, #00, #F8, #$01F0 >   ;0C
-    sprite-part < #01, #F8, #10, #F0, #10, #$0001 >   ;0D
-    sprite-part < #00, #00, #00, #30, #F4, #$0001 >   ;0E
-  ] >
+  ] >   ;00
+  sprite-group < #00, #08, #38, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #00, #00, #00, #00, #30, #$01F4 >
+  ] >   ;01
 ]
 
 spm_ending_credits_sprites_sprite_group_000BCC [

@@ -82,28 +82,28 @@ SpawnDropByHpTier {
     LSR 
     LSR 
     CMP $playerHp
-    BCC loc_00DF99
+    BCC DropGroupHalfHpTest
     LDA #$0020
-    BRA loc_00DFAA
+    BRA DropRollStart
 
 ; Second HP test (HP above a quarter of max): HP at or below half of max takes group $10, otherwise group 0.
 
-  loc_00DF99:
+  DropGroupHalfHpTest:
     LDA $playerMaxHp      ; HP above max/4: HP at or below max/2 selects group $10, otherwise group 0
     LSR 
     CMP $playerHp
-    BCC loc_00DFA7
+    BCC DropGroupZero
     LDA #$0010
-    BRA loc_00DFAA
+    BRA DropRollStart
 
 ; HP above half of max: table group 0.
 
-  loc_00DFA7:
+  DropGroupZero:
     LDA #$0000
 
 ; Roll: keeps the group offset in $26, takes a random byte and scans the group's rows.
 
-  loc_00DFAA:
+  DropRollStart:
     STA $26               ; $26 := byte offset of the 4-row group in drop_threshold_by_hp
     COP [RngByte]         ; A := random byte 0 to 255
     PHX 
@@ -112,19 +112,19 @@ SpawnDropByHpTier {
 
 ; Scan loop: the first row whose threshold is above the random byte wins (at most 3 compares, the fourth row is $0100).
 
-  loc_00DFB4:
+  DropRollScanLoop:
     CMP $@drop_threshold_by_hp, X ; Random byte below the row's threshold selects the row; rows are 4 bytes apart
-    BCC loc_00DFC1
+    BCC DropDispatchChosenRow
     INX 
     INX 
     INX 
     INX 
     DEY 
-    BPL loc_00DFB4
+    BPL DropRollScanLoop
 
 ; Loads the chosen row's body address and subtracts 1 so that RTS lands on it.
 
-  loc_00DFC1:
+  DropDispatchChosenRow:
     LDA $@drop_threshold_by_hp+2, X ; Body address of the chosen row
     DEC 
     PLX 

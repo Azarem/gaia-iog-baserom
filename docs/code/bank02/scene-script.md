@@ -274,11 +274,11 @@ SceneScriptMain {
     SEP #$20
     JSR $&FindCurrentScene
 
-  code_0283C1:
+  SceneScriptMainLoop:
     JSR $&ReadScriptByte
     CMP #$00
     BEQ loc_0283DB
-    PEA $&code_0283C1-1
+    PEA $&SceneScriptMainLoop-1
     REP #$20
     AND #$00FF
     ASL
@@ -343,11 +343,11 @@ SceneScriptNoMusic {
     SEP #$20
     JSR $&FindCurrentScene
 
-  code_0283ED:
+  SceneScriptNoMusicLoop:
     JSR $&ReadScriptByte
     CMP #$00
     BEQ loc_028414
-    PEA $&code_0283ED-1
+    PEA $&SceneScriptNoMusicLoop-1
     REP #$20
     AND #$00FF
     ASL
@@ -814,7 +814,7 @@ Command `$17` DMAs a preformatted block straight to VRAM. Operands: a flags byte
 | 2 | `Multiply8x8Unsigned` (columns × rows) → `XBA` + `ASL`×3 → size in `$0666` |
 | 3 | Read the size word and skip it; decompress to `$7E:7000` (the raw branch after the `INC` pair is dead in the original ROM, because `BEQ` tests the `INC` result; `MenuBGLoad.patch.asm` makes a zero or negative size word select raw data) |
 | 4 | If flags bit 7: VRAM word address = `(flags & $7F) << 10` (`$400` words per tilemap screen) |
-| 5 | Else if bit 0: VRAM `$1000`; if bit 1: VRAM `$1800` (both bits upload the same data twice via `code_028CB0`); neither bit: no DMA |
+| 5 | Else if bit 0: VRAM `$1000`; if bit 1: VRAM `$1800` (both bits upload the same data twice via `SceneCmd_LoadCharTiles_VramBit1`); neither bit: no DMA |
 | 6 | General DMA channel 0, mode `$01`, B-bus `$18`, `$0666` bytes |
 
 **Variables:**

@@ -26,7 +26,7 @@
 gold_ship_wreck_palette [
   thinker-def < #00, #08, {
 
-  code_00B673:
+  GoldShipWreckPaletteEntry:
     COP [BranchOnFlagByte] ( #52, #01, &GoldShipWreckPaletteFlag52 ) ; Flag $52 set at spawn (Gold Ship adrift sequence): final phase
     COP [BranchOnFlagByte] ( #4D, #01, &GoldShipWreckPaletteFlag4D ) ; Flag $4D set at spawn: bundle #34 then the #33 loop. The flags are tested only here, never again while the thinker lives
 

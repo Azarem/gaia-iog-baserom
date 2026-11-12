@@ -1,10 +1,10 @@
 ; Sprite set of the Dark Space transformation poses (Bank 0F, 1032192-1043844, 11653 bytes). body_table row $05 selects this set, and the only code that selects row $05 is the seven Transform_* scripts of sE6_gaia (SetPlayerSpriteDirect #05): Transform_WillToFreedan, _WillToFreedanAlt, _ShadowToFreedan, _FreedanToWill, _ShadowToWill, _WillToShadow and _FreedanToShadow. The tile graphics are abil_sprites_1B8000.
 ; 
-; Structure (format documented in the spriteset_freedan block note): 19 animations ($00-$12), 697 frame records, 148 printed sprite groups. Byte budget: 38 B pointer table + 2788 B frame records (697 x 4) + 38 B terminators + 8789 B of groups.
+; Structure (format documented in the spriteset_freedan block note): 19 animations ($00-$12), 697 frame records, 150 sprite groups (148 labelled, plus 2 unreferenced groups printed as the second group of sprite_group_0FCF27 and of sprite_group_0FD5AA). Byte budget: 38 B pointer table + 2788 B frame records (697 x 4) + 38 B terminators + 8789 B of groups.
 ; 
 ; The scripts stage animations $00-$03, $05-$0B, $0D-$10 and $12 (for example Transform_WillToFreedan: $00 once, $02 and $03 as loops, the palette thinker, $08 and $09 as loops, $0A once). Animations $04, $0C and $11 are not referenced by any of the seven scripts.
 ; 
-; Extractor artefact: two groups that no frame list references are hidden inside the printed rows of sprite_group_0FCF27 and sprite_group_0FD5AA (see their part notes). The 8789 B group area only adds up when these two 69-byte groups are counted.
+; The two unreferenced groups are 69 bytes each (see the part notes of sprite_group_0FCF27 and sprite_group_0FD5AA). The 8789 B group area is 150 x 13 + 977 x 7.
 ---------------------------------------------
 
 ?BANK 0F
@@ -1010,7 +1010,7 @@ sprite_group_0FCEF0 [
 ]
 
 ---------------------------------------------
-; Real group: header + 7 sub-sprites (62 bytes, rows ;00-;06). Rows ;07-;10 are NOT sub-sprites: the extractor kept reading and printed the next, unreferenced group (69 bytes: header at 0FCF65 + 8 sub-sprites) as sub-sprite rows, one byte too long. The next printed group (0FCFAA) is correct.
+; Header + 7 sub-sprites (62 bytes), followed by a second group (;01: header at 0FCF65 + 8 sub-sprites, 69 bytes) that no frame list points at. The next labelled group is 0FCFAA.
 
 sprite_group_0FCF27 [
   sprite-group < #10, #0B, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
@@ -1021,17 +1021,17 @@ sprite_group_0FCF27 [
     sprite-part < #01, #00, #0B, #00, #10, #$00C0 >   ;04
     sprite-part < #00, #13, #00, #14, #04, #$00A1 >   ;05
     sprite-part < #00, #13, #00, #04, #14, #$00A0 >   ;06
-    sprite-part < #10, #0D, #1C, #00, #F8, #$01F0 >   ;07
-    sprite-part < #01, #F8, #10, #F0, #10, #$0008 >   ;08
-    sprite-part < #13, #02, #00, #14, #A1, #$0000 >   ;09
-    sprite-part < #09, #0C, #02, #12, #B0, #$0000 >   ;0A
-    sprite-part < #0E, #07, #0B, #09, #A0, #$0000 >   ;0B
-    sprite-part < #08, #0D, #0B, #09, #A1, #$0100 >   ;0C
-    sprite-part < #00, #0D, #0C, #00, #C0, #$0000 >   ;0D
-    sprite-part < #03, #12, #00, #14, #A0, #$0000 >   ;0E
-    sprite-part < #13, #02, #10, #04, #B0, #$0100 >   ;0F
-    sprite-part < #0D, #00, #00, #0C, #C0, #$0000 >   ;10
-  ] >
+  ] >   ;00
+  sprite-group < #10, #0D, #1C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
+    sprite-part < #00, #13, #02, #00, #14, #$00A1 >   ;00
+    sprite-part < #00, #09, #0C, #02, #12, #$00B0 >   ;01
+    sprite-part < #00, #0E, #07, #0B, #09, #$00A0 >   ;02
+    sprite-part < #00, #08, #0D, #0B, #09, #$00A1 >   ;03
+    sprite-part < #01, #00, #0D, #0C, #00, #$00C0 >   ;04
+    sprite-part < #00, #03, #12, #00, #14, #$00A0 >   ;05
+    sprite-part < #00, #13, #02, #10, #04, #$00B0 >   ;06
+    sprite-part < #01, #0D, #00, #00, #0C, #$00C0 >   ;07
+  ] >   ;01
 ]
 
 sprite_group_0FCFAA [
@@ -1355,7 +1355,7 @@ sprite_group_0FD573 [
 ]
 
 ---------------------------------------------
-; Same extractor artefact as sprite_group_0FCF27, with identical rows: the first 7 are the real group, the trailing rows are an unreferenced 69-byte group that starts at 0FD5E8.
+; Identical to sprite_group_0FCF27: header + 7 sub-sprites (62 bytes), followed by a second group (;01: header at 0FD5E8 + 8 sub-sprites, 69 bytes) that no frame list points at.
 
 sprite_group_0FD5AA [
   sprite-group < #10, #0B, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
@@ -1366,17 +1366,17 @@ sprite_group_0FD5AA [
     sprite-part < #01, #00, #0B, #00, #10, #$00C0 >   ;04
     sprite-part < #00, #13, #00, #14, #04, #$00A1 >   ;05
     sprite-part < #00, #13, #00, #04, #14, #$00A0 >   ;06
-    sprite-part < #10, #0D, #1C, #00, #F8, #$01F0 >   ;07
-    sprite-part < #01, #F8, #10, #F0, #10, #$0008 >   ;08
-    sprite-part < #13, #02, #00, #14, #A1, #$0000 >   ;09
-    sprite-part < #09, #0C, #02, #12, #B0, #$0000 >   ;0A
-    sprite-part < #0E, #07, #0B, #09, #A0, #$0000 >   ;0B
-    sprite-part < #08, #0D, #0B, #09, #A1, #$0100 >   ;0C
-    sprite-part < #00, #0D, #0C, #00, #C0, #$0000 >   ;0D
-    sprite-part < #03, #12, #00, #14, #A0, #$0000 >   ;0E
-    sprite-part < #13, #02, #10, #04, #B0, #$0100 >   ;0F
-    sprite-part < #0D, #00, #00, #0C, #C0, #$0000 >   ;10
-  ] >
+  ] >   ;00
+  sprite-group < #10, #0D, #1C, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
+    sprite-part < #00, #13, #02, #00, #14, #$00A1 >   ;00
+    sprite-part < #00, #09, #0C, #02, #12, #$00B0 >   ;01
+    sprite-part < #00, #0E, #07, #0B, #09, #$00A0 >   ;02
+    sprite-part < #00, #08, #0D, #0B, #09, #$00A1 >   ;03
+    sprite-part < #01, #00, #0D, #0C, #00, #$00C0 >   ;04
+    sprite-part < #00, #03, #12, #00, #14, #$00A0 >   ;05
+    sprite-part < #00, #13, #02, #10, #04, #$00B0 >   ;06
+    sprite-part < #01, #0D, #00, #00, #0C, #$00C0 >   ;07
+  ] >   ;01
 ]
 
 sprite_group_0FD62D [

@@ -19,7 +19,7 @@
 ; 
 ; characterForm ($0AD4): 0 Will, 1 Freedan, 2 Shadow. A statue dialogue writes a Transform_* routine into the player actor's entry pointer ($0000 / $0002, $0008 = 0) and sets playerFlags $0800; the player then plays it (player body entry #05, the transformation frames), the routine sets characterForm and DarkSpaceRestoreControl clears $0800 and sends the player back to PlayerIdleEntry. The Shadow statue needs event flag $B4, whose only writer is daC8_neil (the Neil reunion in the Dao dormitory); first Freedan visit flag $F7, first Shadow visit flag $DD.
 ; The Transform_* routines are a shared library: Transform_WillToShadow is entered from sE5_epilogue, pyDD_mummy_queen, gw8A_sand_fanger, mu67_vampires, sg55_viper, ir29_castoth and btE4_kara; Transform_ShadowToWill from pyDD_mummy_queen, gw8A_sand_fanger, mu67_vampires, sg55_viper, ir29_castoth and pyCD_jackal; Transform_FreedanToWill from sg55_mystic_statue, ir29_transform, ir1C_lily, ec13_lily, pyCD_jackal and mu67_bomb (13 files in all).
-; AbilitySceneTable has 6 entries of (scene, abilityBitmask bit): $15 Psycho Dash $01, $62 Psycho Slider $02, $86 Spin Dash $04, $42 Dark Friar $10, $A7 Aura Barrier $20, $B8 Earthquaker $40, ended by $00. The low nibble holds the Will abilities, the high nibble the Freedan abilities. The table position is the ability index used by table_08EB8F (names) and table_08EBD3 (descriptions) through globalScriptIndex. DS_LayoutAbility shows the orb for the current scene (BG change $86 and orb at (64,109) for a Will ability, $8B and (64,84) for a Freedan ability); AbilityOrbActor dies when the bit is already in abilityBitmask, otherwise waits for the player at the statue zone, turns him into the form that can use it (Will for the low nibble, Freedan for the high nibble) with LookupAbilityForm, ORs the bit in, plays the orb flight, fanfare (track $18) and the two texts.
+; AbilitySceneTable has 6 entries of (scene, abilityBitmask bit): $15 Psycho Dash $01, $62 Psycho Slider $02, $86 Spin Dash $04, $42 Dark Friar $10, $A7 Aura Barrier $20, $B8 Earthquaker $40, ended by $00. The low nibble holds the Will abilities, the high nibble the Freedan abilities. The table position is the ability index used by AbilityNameTable (names) and AbilityDescriptionTable (descriptions) through globalScriptIndex. DS_LayoutAbility shows the orb for the current scene (BG change $86 and orb at (64,109) for a Will ability, $8B and (64,84) for a Freedan ability); AbilityOrbActor dies when the bit is already in abilityBitmask, otherwise waits for the player at the statue zone, turns him into the form that can use it (Will for the low nibble, Freedan for the high nibble) with LookupAbilityForm, ORs the bit in, plays the orb flight, fanfare (track $18) and the two texts.
 ; 
 ; === SPRITES (spm_darkspace_sprites) ===
 ; 
@@ -75,12 +75,12 @@ sE6_gaia [
     COP [SpawnAfterAbsFlags] ( @GaiaVoiceSparkle, #$0080, #$0058, #$1800 ) ; Voice sparkle at (128, 88); its $24 switch starts at 0
     LDA $globalScriptIndex ; Dark Space layout variant
     CMP #$0004            ; Cap at 3 (valid range 0–3)
-    BCC loc_08D7D3
+    BCC DarkSpaceStoreVariant
     LDA #$0000            ; Invalid → default to layout 0
 
 ; The variant is valid or was forced to 0: store it in $0AB2 and clear $0AAC; the variant also goes to $0000 for the SwitchCase.
 
-  loc_08D7D3:
+  DarkSpaceStoreVariant:
     STA $0AB2             ; $0AB2 keeps the room variant (saved with the game, restored by the diary load)
     STZ $globalScriptIndex ; Clear $0AAC (GaiaHint_AuraItem tests it later; layout 3 sets it to 1)
     STA $0000
@@ -154,18 +154,18 @@ DarkSpaceExit {
 DS_LayoutBasic {
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_BasicWait ) ; At Gaia statue → wait
-    BRA loc_08D863
+    BRA DS_BasicActive
 }
 
 ---------------------------------------------
-; Wait state of layout 0 (RTL, re-run every frame) followed by loc_08D863, the active state: Gaia zone = DS_BasicTalkGaia, exit zone = DarkSpaceExit.
+; Wait state of layout 0 (RTL, re-run every frame) followed by DS_BasicActive, the active state: Gaia zone = DS_BasicTalkGaia, exit zone = DarkSpaceExit.
 
 DS_BasicWait {
     RTL 
 
 ; Active state of layout 0 (SetEntryHere + zone tests).
 
-  loc_08D863:
+  DS_BasicActive:
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_BasicTalkGaia ) ; At statue → talk to Gaia
     COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit ) ; At exit → leave Dark Space
@@ -221,18 +221,18 @@ DS_WillInputWait {
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_WillTileWait )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_WillTileWait )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_WillTileWait )
-    BRA loc_08D8C5
+    BRA DS_WillActive
 }
 
 ---------------------------------------------
-; Yield (RTL) of the Will wait state, followed by loc_08D8C5 (active state).
+; Yield (RTL) of the Will wait state, followed by DS_WillActive (active state).
 
 DS_WillTileWait {
     RTL 
 
 ; Active state of the Will room: Gaia = DS_WillTalkGaia, left statue = DS_WillToFreedan, right statue = DS_WillToShadow, exit = DarkSpaceExit.
 
-  loc_08D8C5:
+  DS_WillActive:
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_WillTalkGaia )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_WillToFreedan )
@@ -288,18 +288,18 @@ DS_FreedanInputWait {
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_FreedanTileWait )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_FreedanTileWait )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_FreedanTileWait )
-    BRA loc_08D931
+    BRA DS_FreedanActive
 }
 
 ---------------------------------------------
-; Yield of the Freedan wait state, followed by loc_08D931 (active state).
+; Yield of the Freedan wait state, followed by DS_FreedanActive (active state).
 
 DS_FreedanTileWait {
     RTL 
 
 ; Active state of the Freedan room: Gaia, left statue = WillRevertDialogue, right statue = ShadowTransformDialogue, exit.
 
-  loc_08D931:
+  DS_FreedanActive:
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_FreedanTalkGaia )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_FreedanRevertWill )
@@ -333,7 +333,7 @@ DS_FreedanToShadow {
 }
 
 ---------------------------------------------
-; Room for Shadow: BG changes $87, $8A, $8D and $8F unconditionally (flag $B4 is necessarily set). $87 draws the Will statue (a small figure) on the left pedestal and $8D the Freedan statue (the armoured knight) on the right one. Left statue = back to Will, right statue = Freedan. The wait and active states are loc_08D97A and loc_08D997 (the room label itself is the set-up).
+; Room for Shadow: BG changes $87, $8A, $8D and $8F unconditionally (flag $B4 is necessarily set). $87 draws the Will statue (a small figure) on the left pedestal and $8D the Freedan statue (the armoured knight) on the right one. Left statue = back to Will, right statue = Freedan. The wait and active states are DS_ShadowWait and DS_ShadowActive (the room label itself is the set-up).
 
 DS_ShadowTransformRoom {
     COP [StageBgChange] ( #87 )
@@ -347,23 +347,23 @@ DS_ShadowTransformRoom {
 
 ; Wait state of the Shadow room (the loop target of every Shadow handler).
 
-  loc_08D97A:
+  DS_ShadowWait:
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_ShadowTileWait )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_ShadowTileWait )
     COP [BranchIfPlayerInAbsTiles] ( #0B, #0A, #0D, #0B, &DS_ShadowTileWait )
-    BRA loc_08D997
+    BRA DS_ShadowActive
 }
 
 ---------------------------------------------
-; Yield of the Shadow wait state, followed by loc_08D997 (active state).
+; Yield of the Shadow wait state, followed by DS_ShadowActive (active state).
 
 DS_ShadowTileWait {
     RTL 
 
 ; Active state of the Shadow room: Gaia, left statue = WillRevertDialogue, right statue = FreedanTransformDialogue, exit.
 
-  loc_08D997:
+  DS_ShadowActive:
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_ShadowTalkGaia )
     COP [BranchIfPlayerInAbsTiles] ( #03, #0A, #05, #0B, &DS_ShadowRevertWill )
@@ -377,7 +377,7 @@ DS_ShadowTileWait {
 
 DS_ShadowTalkGaia {
     COP [CallNear] ( &GaiaDialogueEntry )
-    BRA loc_08D97A
+    BRA DS_ShadowWait
 }
 
 ---------------------------------------------
@@ -385,7 +385,7 @@ DS_ShadowTalkGaia {
 
 DS_ShadowRevertWill {
     COP [CallNear] ( &WillRevertDialogue )
-    BRA loc_08D97A
+    BRA DS_ShadowWait
 }
 
 ---------------------------------------------
@@ -393,7 +393,7 @@ DS_ShadowRevertWill {
 
 DS_ShadowToFreedan {
     COP [CallNear] ( &FreedanTransformDialogue )
-    BRA loc_08D97A
+    BRA DS_ShadowWait
 }
 
 ---------------------------------------------
@@ -407,24 +407,24 @@ DS_LayoutAbility {
 
 ; Table search loop: 2-byte entries, X steps by 2, a zero scene byte ends the table.
 
-  loc_08D9D5:
+  DS_AbilityTableSearchLoop:
     LDA $@AbilitySceneTable, X ; Search scene→ability table
-    BEQ loc_08DA44        ; End of table → no ability for this scene
+    BEQ DS_AbilityNoOrb   ; End of table → no ability for this scene
     AND #$00FF
     CMP $sourceSceneId    ; Match current scene ID?
-    BEQ loc_08D9E7
+    BEQ DS_AbilityTableSceneFound
     INX 
     INX 
-    BRA loc_08D9D5
+    BRA DS_AbilityTableSearchLoop
 
 ; Scene found: read the ability bit, restore X (PLX) and branch on the low nibble.
 
-  loc_08D9E7:
+  DS_AbilityTableSceneFound:
     LDA $@AbilitySceneTable+1, X ; Read ability/statue flags
     AND #$00FF
     PLX 
     AND #$000F            ; Low nibble = Will ability bits ($01 / $02 / $04)
-    BEQ loc_08DA1C        ; No Will bit = Freedan ability: the other room set-up
+    BEQ DS_AbilityFreedanOrb ; No Will bit = Freedan ability: the other room set-up
     COP [StageBgChange] ( #86 ) ; Will ability room: BG change $86
     COP [ApplyBgChange]
     LDA #$0000            ; orbitAngle = 0: Will ability (read only by the unreachable loc_08DA6B)
@@ -436,11 +436,11 @@ DS_LayoutAbility {
     STA $0016, Y
     LDA $06               ; Orb $26 = the voice sparkle (this actor's $06 = the last child spawned)
     STA $0026, Y
-    BRA loc_08DA45
+    BRA DS_AbilityWait
 
 ; Freedan-ability branch: BG $8B, orb at (64,84), orbitAngle = 1.
 
-  loc_08DA1C:
+  DS_AbilityFreedanOrb:
     COP [StageBgChange] ( #8B ) ; Freedan ability room: BG change $8B
     COP [ApplyBgChange]
     LDA #$0001            ; orbitAngle = 1: Freedan ability
@@ -452,30 +452,30 @@ DS_LayoutAbility {
     STA $0016, Y
     LDA $06               ; Orb $26 = the voice sparkle (this actor's $06 = the last child spawned)
     STA $0026, Y
-    BRA loc_08DA45
+    BRA DS_AbilityWait
 
 ; Scene not in the table: restore X and continue without an orb.
 
-  loc_08DA44:
+  DS_AbilityNoOrb:
     PLX 
 
 ; Wait state of the ability room (SetEntryHere, zone test).
 
-  loc_08DA45:
+  DS_AbilityWait:
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_AbilityTileWait )
-    BRA loc_08DA52
+    BRA DS_AbilityActive
 }
 
 ---------------------------------------------
-; Yield of the ability wait state, followed by loc_08DA52 (active state).
+; Yield of the ability wait state, followed by DS_AbilityActive (active state).
 
 DS_AbilityTileWait {
     RTL 
 
 ; Active state of the ability room: Gaia = DS_AbilityTalkGaia, exit = DarkSpaceExit. The statue zone belongs to the orb actor.
 
-  loc_08DA52:
+  DS_AbilityActive:
     COP [SetEntryHere]
     COP [BranchIfPlayerInAbsTiles] ( #07, #08, #09, #09, &DS_AbilityTalkGaia )
     COP [BranchIfPlayerInAbsTiles] ( #05, #0D, #0B, #0F, &DarkSpaceExit )
@@ -487,7 +487,7 @@ DS_AbilityTileWait {
 
 DS_AbilityTalkGaia {
     COP [CallNear] ( &GaiaDialogueEntry )
-    BRA loc_08DA45
+    BRA DS_AbilityWait
 
 ; Not referenced: would call WillRevertDialogue or FreedanTransformDialogue by orbitAngle (a statue interaction that moved into AbilityOrbActor).
 
@@ -495,13 +495,13 @@ DS_AbilityTalkGaia {
     LDA $orbitAngle, X
     BNE loc_08DA77
     COP [CallNear] ( &WillRevertDialogue )
-    BRA loc_08DA45
+    BRA DS_AbilityWait
 
 ; Not referenced: the FreedanTransformDialogue half of loc_08DA6B.
 
   loc_08DA77:
     COP [CallNear] ( &FreedanTransformDialogue )
-    BRA loc_08DA45
+    BRA DS_AbilityWait
 }
 
 ---------------------------------------------
@@ -597,7 +597,7 @@ GaiaDialogueEntry {
 GaiaHealAndHints {
     LDA $playerHp
     CMP $playerMaxHp      ; Already at full HP?
-    BEQ loc_08DB37        ; Yes → skip healing
+    BEQ GaiaHintSearchStart ; Yes → skip healing
     COP [PrintDialogString] ( &dialogstring_08DE4D ) ; "It looks like you're hurt..."
     LDA #$FFFC            ; Mask input during heal
     TSB $joypadMaskStd
@@ -606,29 +606,29 @@ GaiaHealAndHints {
     COP [SetEntryHere]    ; Loop each frame until healed
     LDA $playerHp
     CMP $playerMaxHp
-    BEQ loc_08DB37        ; Healed → continue to hints
+    BEQ GaiaHintSearchStart ; Healed → continue to hints
     RTL                   ; Not yet → re-enter next frame
 
 ; HP is full or healed: start the hint table search (X is saved with PHX).
 
-  loc_08DB37:
+  GaiaHintSearchStart:
     PHX 
     LDX #$0000
 
 ; Hint table search loop: 1-byte entries, a zero ends the table.
 
-  loc_08DB3B:
+  GaiaHintSearchLoop:
     LDA $@GaiaHintSceneTable, X ; Scene→hint lookup table
     AND #$00FF
-    BEQ loc_08DB9A        ; End of table → no hint for this scene
+    BEQ GaiaHintNotFoundSave ; End of table → no hint for this scene
     CMP $sourceSceneId    ; Match current scene?
-    BEQ loc_08DB4C
+    BEQ GaiaHintSceneFound
     INX 
-    BRA loc_08DB3B
+    BRA GaiaHintSearchLoop
 
 ; Scene found: X = hint index, restore X and switch-case to the GaiaHint_xx handler.
 
-  loc_08DB4C:
+  GaiaHintSceneFound:
     STX $0000             ; Hint index = position in GaiaHintSceneTable
     PLX 
     COP [SwitchCase] ( #$0000, &code_list_08DB56 ) ; Dispatch to hint handler
@@ -677,7 +677,7 @@ code_list_08DB56 [
 
 ; Scene not in the hint table: restore X and fall into the save prompt.
 
-loc_08DB9A {
+GaiaHintNotFoundSave {
     PLX 
 
 ; Save prompt, shared end of every hint handler: unmask input, 'Record what's happened so far?' with Record / Don't record.
@@ -987,12 +987,12 @@ GaiaHint_DaoVillageC3 {
 
 GaiaHint_AuraItem {
     LDA $globalScriptIndex
-    BNE loc_08DCAF
+    BNE GaiaAuraGiftSequence
     JMP $&GaiaSavePrompt
 
 ; $0AAC is non-zero: the Aura gift sequence.
 
-  loc_08DCAF:
+  GaiaAuraGiftSequence:
     COP [BranchIfHasItem] ( #24, &GaiaHint_AuraDesc )
     COP [GiveItem] ( #24, &GaiaHint_AuraFull )
     COP [PrintDialogString] ( &dialogstring_08E66C )
@@ -1007,12 +1007,12 @@ GaiaHint_AuraItem {
     REP #$20
     AND #$00FF
     CMP #$00FF
-    BEQ loc_08DCDF
+    BEQ GaiaAuraFanfareDone
     RTL 
 
 ; The fanfare has finished (APUIO1 = $FF): restart the room music (track $16), print the Aura description and go to the save prompt.
 
-  loc_08DCDF:
+  GaiaAuraFanfareDone:
     COP [StartMusic] ( #16 )
     COP [WaitByte] ( #59 )
     COP [PrintDialogString] ( &dialogstring_08E722 )
@@ -1163,31 +1163,31 @@ AbilityOrbActor {
 
 ; Table search loop (Y counts the entries).
 
-  loc_08E9DB:
+  AbilityOrbSearchLoop:
     LDA $@AbilitySceneTable, X ; Search for current scene
-    BEQ loc_08E9EE        ; End of table → no ability here
+    BEQ AbilityOrbNotFoundDie ; End of table → no ability here
     AND #$00FF
     CMP $sourceSceneId    ; Match scene ID?
-    BEQ loc_08E9F1
+    BEQ AbilityOrbSceneFound
     INX 
     INX 
     INY 
-    BRA loc_08E9DB
+    BRA AbilityOrbSearchLoop
 
 ; Scene not found or ability already known: restore X and Die.
 
-  loc_08E9EE:
+  AbilityOrbNotFoundDie:
     PLX 
     COP [Die]             ; No ability for this scene → remove orb
 
 ; Scene found: keep the ability bit in $24, die if it is already in abilityBitmask, store the entry index in $0AAC.
 
-  loc_08E9F1:
+  AbilityOrbSceneFound:
     LDA $@AbilitySceneTable+1, X ; Ability bit for this scene ($01 to $40)
     AND #$00FF
     STA $24               ; Save for later abilityBitmask OR
     AND $abilityBitmask   ; Already have this ability?
-    BNE loc_08E9EE        ; Yes → die
+    BNE AbilityOrbNotFoundDie ; Yes → die
     TYA                   ; Store table index for dialogue lookup
     STA $globalScriptIndex
     PLX 
@@ -1210,16 +1210,16 @@ AbilityAcquisitionDispatch {
     COP [WaitByte] ( #05 ) ; Brief pause
     JSR $&LookupAbilityForm ; A = 0: Will ability (low nibble), 1: Freedan ability (high nibble)
     CMP #$0000            ; 0 = Will ability
-    BEQ loc_08EA78        ; Will ability: go back to Will (if transformed)
+    BEQ AbilityTransformToWill ; Will ability: go back to Will (if transformed)
     LDA $characterForm    ; Which form are we in?
-    BEQ loc_08EA58        ; 0=Will → transform to Freedan
+    BEQ AbilityTransformWillToFreedan ; 0=Will → transform to Freedan
     CMP #$0002            ; 2=Shadow → transform to Freedan
-    BEQ loc_08EA38
-    BRA loc_08EA9B        ; 1=Freedan → already correct form
+    BEQ AbilityTransformShadowToFreedan
+    BRA AbilityTransformWait ; 1=Freedan → already correct form
 
 ; Shadow -> Freedan: write Transform_ShadowToFreedan into the player entry and set $0800.
 
-  loc_08EA38:
+  AbilityTransformShadowToFreedan:
     LDY $playerActor      ; Shadow → Freedan: override player entry point
     SEP #$20
     LDA #$^Transform_ShadowToFreedan ; Bank byte of Shadow→Freedan handler
@@ -1231,11 +1231,11 @@ AbilityAcquisitionDispatch {
     STA $0008, Y
     LDA #$0800            ; playerFlags $0800: script lock until DarkSpaceRestoreControl
     TSB $playerFlags
-    BRA loc_08EA9B
+    BRA AbilityTransformWait
 
 ; Will -> Freedan: write Transform_WillToFreedanAlt into the player entry and set $0800.
 
-  loc_08EA58:
+  AbilityTransformWillToFreedan:
     LDY $playerActor      ; Will → Freedan: override player entry point
     SEP #$20
     LDA #$^Transform_WillToFreedanAlt ; Bank byte of Will→Freedan handler
@@ -1247,13 +1247,13 @@ AbilityAcquisitionDispatch {
     STA $0008, Y
     LDA #$0800            ; playerFlags $0800: script lock until DarkSpaceRestoreControl
     TSB $playerFlags
-    BRA loc_08EA9B
+    BRA AbilityTransformWait
 
 ; Will ability: if the player is not Will, write Transform_FreedanToWill (also used from the Shadow form: Shadow plays the Freedan sequence, frame 6 drawn in the Shadow palette, the sphere frames 9 and 8, then the Will frames, and never the frames $0D, $10, $0F, $0E of Transform_ShadowToWill) and set $0800.
 
-  loc_08EA78:
+  AbilityTransformToWill:
     LDA $characterForm    ; Will/Freedan statue: revert to Will
-    BEQ loc_08EA9B        ; Already Will → no transform needed
+    BEQ AbilityTransformWait ; Already Will → no transform needed
     LDY $playerActor      ; Freedan → Will: override player entry point
     SEP #$20
     LDA #$^Transform_FreedanToWill ; Bank byte of Freedan→Will handler
@@ -1268,18 +1268,18 @@ AbilityAcquisitionDispatch {
 
 ; Wait for the transformation to finish (playerFlags $0800 clear).
 
-  loc_08EA9B:
+  AbilityTransformWait:
     COP [SetEntryHere]
     COP [SetEntryHere]
     COP [AnimOneFrame]
     LDA $playerFlags
     BIT #$0800
-    BEQ loc_08EAAA
+    BEQ AbilityGrantSequence
     RTL 
 
 ; Ability grant sequence: 8-frame pause, abilityBitmask |= $24, orb animation, orb flies to (player X, Y - 16), fanfare, 'X can now be used!', wait for the SPC, description text, music back to track $16, unmask, Die.
 
-  loc_08EAAA:
+  AbilityGrantSequence:
     COP [LoopStart] ( #08 ) ; 8-frame pause with input masked
     LDA #$FFFC
     TSB $joypadMaskStd
@@ -1314,12 +1314,12 @@ AbilityAcquisitionDispatch {
     REP #$20
     AND #$00FF
     CMP #$00FF
-    BEQ loc_08EB0D
+    BEQ AbilityGrantFanfareDone
     RTL 
 
-; The fanfare has finished: voice sparkle on, description text (table_08EBD3 by $0AAC), voice sparkle off.
+; The fanfare has finished: voice sparkle on, description text (AbilityDescriptionTable by $0AAC), voice sparkle off.
 
-  loc_08EB0D:
+  AbilityGrantFanfareDone:
     LDY $26               ; $26 = the voice sparkle (copied from the main actor's $06)
     LDA #$FFFF            ; Voice sparkle on
     STA $0024, Y
@@ -1343,35 +1343,35 @@ LookupAbilityForm {
 
 ; Table search loop.
 
-  loc_08EB33:
+  LookupAbilityForm_SearchLoop:
     LDA $@AbilitySceneTable, X
-    BEQ loc_08EB57
+    BEQ LookupAbilityForm_NotFound
     AND #$00FF
     CMP $sourceSceneId
-    BEQ loc_08EB45
+    BEQ LookupAbilityForm_SceneFound
     INX 
     INX 
-    BRA loc_08EB33
+    BRA LookupAbilityForm_SearchLoop
 
 ; Scene found: test the high nibble ($F0).
 
-  loc_08EB45:
+  LookupAbilityForm_SceneFound:
     LDA $@AbilitySceneTable+1, X
     AND #$00FF
     PLX 
     AND #$00F0
-    BNE loc_08EB53
+    BNE LookupAbilityForm_HighNibble
     RTS 
 
 ; High nibble set: return 1.
 
-  loc_08EB53:
+  LookupAbilityForm_HighNibble:
     LDA #$0001
     RTS 
 
 ; Scene not found: restore X and return with carry set.
 
-  loc_08EB57:
+  LookupAbilityForm_NotFound:
     PLX 
     SEC 
     RTS 
@@ -1383,19 +1383,19 @@ LookupAbilityForm {
 AbilitySceneTable #1501620286044210A720B8400000
 ---------------------------------------------
 
-; '[ability name] can now be used!' (name from table_08EB8F by $0AAC through [ADR:]).
+; '[ability name] can now be used!' (name from AbilityNameTable by $0AAC through [ADR:]).
 
-dialogstring_08EB68 `[DEF][DLY:9][ADR:&table_08EB8F,AAC][N]can now be used![PAU:78][FIN]`
+dialogstring_08EB68 `[DEF][DLY:9][ADR:&AbilityNameTable,AAC][N]can now be used![PAU:78][FIN]`
 
 ---------------------------------------------
-; Description of the ability (table_08EBD3 by $0AAC through [ADR:]).
+; Description of the ability (AbilityDescriptionTable by $0AAC through [ADR:]).
 
-dialogstring_08EB85 `[DEF][CLR][DLY:2][ADR:&table_08EBD3,AAC][END]`
+dialogstring_08EB85 `[DEF][CLR][DLY:2][ADR:&AbilityDescriptionTable,AAC][END]`
 ---------------------------------------------
 
 ; Ability names by ability index (table position in AbilitySceneTable).
 
-table_08EB8F [
+AbilityNameTable [
   &dialogstring_08EB9B   ;00
   &dialogstring_08EBA2   ;01
   &dialogstring_08EBAB   ;02
@@ -1419,7 +1419,7 @@ dialogstring_08EBC7 `Earthquaker`
 
 ; Ability descriptions by ability index.
 
-table_08EBD3 [
+AbilityDescriptionTable [
   &dialogstring_08EBDF   ;00
   &dialogstring_08EC66   ;01
   &dialogstring_08ECEA   ;02
@@ -1557,7 +1557,7 @@ dialogstring_08F060 `[DEF]Your inventory is full. [N]Store things somewhere [N]a
 FreedanTransformDialogue {
     LDA $characterForm
     CMP #$0001            ; Already Freedan?
-    BEQ loc_08F0CA        ; Yes → skip (return to caller)
+    BEQ FreedanTransformReturnToLoop ; Yes → skip (return to caller)
     LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
@@ -1580,7 +1580,7 @@ FreedanTransformDialogue {
 
 ; Return to the room loop (RestoreSavedPtr).
 
-  loc_08F0CA:
+  FreedanTransformReturnToLoop:
     COP [RestoreSavedPtr]
 }
 
@@ -1602,12 +1602,12 @@ code_list_08F0D6 [
 ]
 
 ---------------------------------------------
-; Will -> Transform_WillToFreedanAlt, Shadow -> Transform_ShadowToFreedan (loc_08F105); sets $0800 and returns to the room.
+; Will -> Transform_WillToFreedanAlt, Shadow -> Transform_ShadowToFreedan (FreedanTransformShadowBranch); sets $0800 and returns to the room.
 
 FreedanTransformAccept {
     COP [PrintDialogString] ( &dialogstring_08F155 )
     LDA $characterForm
-    BNE loc_08F105
+    BNE FreedanTransformShadowBranch
     LDY $playerActor
     SEP #$20
     LDA #$^Transform_WillToFreedanAlt
@@ -1623,7 +1623,7 @@ FreedanTransformAccept {
 
 ; Shadow -> Freedan branch.
 
-  loc_08F105:
+  FreedanTransformShadowBranch:
     LDY $playerActor
     SEP #$20
     LDA #$^Transform_ShadowToFreedan
@@ -1735,12 +1735,12 @@ Transform_ShadowToFreedan {
 
 WillRevertDialogue {
     LDA $characterForm    ; Already Will?
-    BNE loc_08F2E6        ; No → show transform prompt
+    BNE WillRevertNotWillPrompt ; No → show transform prompt
     COP [RestoreSavedPtr] ; Already Will → nothing to do
 
 ; The player is not Will: pause 6 ticks (WaitByte #05), show the prompt.
 
-  loc_08F2E6:
+  WillRevertNotWillPrompt:
     LDA #$FFFC
     TSB $joypadMaskStd
     COP [WaitByte] ( #05 )
@@ -1760,13 +1760,13 @@ code_list_08F2FF [
 ]
 
 ---------------------------------------------
-; Freedan -> Transform_FreedanToWill, Shadow -> Transform_ShadowToWill (loc_08F331); sets $0800 and returns.
+; Freedan -> Transform_FreedanToWill, Shadow -> Transform_ShadowToWill (WillRevertShadowBranch); sets $0800 and returns.
 
 WillRevertAccept {
     COP [PrintDialogString] ( &dialogstring_08F37B )
     LDA $characterForm
     CMP #$0001
-    BNE loc_08F331
+    BNE WillRevertShadowBranch
     LDY $playerActor
     SEP #$20
     LDA #$^Transform_FreedanToWill
@@ -1782,7 +1782,7 @@ WillRevertAccept {
 
 ; Shadow -> Will branch.
 
-  loc_08F331:
+  WillRevertShadowBranch:
     LDY $playerActor
     SEP #$20
     LDA #$^Transform_ShadowToWill
@@ -1862,7 +1862,7 @@ Transform_ShadowToWill {
 }
 ---------------------------------------------
 
-; Right statue. Locked (return) when event flag $B4 is clear or the player is already Shadow. First visit (flag $DD): lore text, then the transformation without a prompt (Will: WillToShadow at loc_08F436, Freedan: FreedanToShadow at loc_08F456). Later: 'Change to the ultimate Dark warrior, Shadow?'.
+; Right statue. Locked (return) when event flag $B4 is clear or the player is already Shadow. First visit (flag $DD): lore text, then the transformation without a prompt (Will: WillToShadow at ShadowTransformWriteWillToShadow, Freedan: FreedanToShadow at ShadowTransformWriteFreedanToShadow). Later: 'Change to the ultimate Dark warrior, Shadow?'.
 
 ShadowTransformDialogue {
     COP [BranchOnFlagByte] ( #B4, #00, &ShadowTransformLocked ) ; Flag $B4 not set → Shadow locked
@@ -1878,8 +1878,8 @@ ShadowTransformDialogue {
     COP [SetFlagByte] ( #DD )
     COP [PrintDialogString] ( &dialogstring_08F4B1 )
     LDA $characterForm
-    BEQ loc_08F436
-    BRA loc_08F456
+    BEQ ShadowTransformWriteWillToShadow
+    BRA ShadowTransformWriteFreedanToShadow
 }
 
 ---------------------------------------------
@@ -1907,16 +1907,16 @@ code_list_08F427 [
 ]
 
 ---------------------------------------------
-; Will -> Transform_WillToShadow (loc_08F436), otherwise Transform_FreedanToShadow (loc_08F456).
+; Will -> Transform_WillToShadow (ShadowTransformWriteWillToShadow), otherwise Transform_FreedanToShadow (ShadowTransformWriteFreedanToShadow).
 
 ShadowTransformAccept {
     COP [PrintDialogString] ( &dialogstring_08F4AF )
     LDA $characterForm
-    BNE loc_08F456
+    BNE ShadowTransformWriteFreedanToShadow
 
 ; Write Transform_WillToShadow into the player entry, set $0800, return.
 
-  loc_08F436:
+  ShadowTransformWriteWillToShadow:
     LDY $playerActor
     SEP #$20
     LDA #$^Transform_WillToShadow
@@ -1932,7 +1932,7 @@ ShadowTransformAccept {
 
 ; Write Transform_FreedanToShadow into the player entry, set $0800, return.
 
-  loc_08F456:
+  ShadowTransformWriteFreedanToShadow:
     LDY $playerActor
     SEP #$20
     LDA #$^Transform_FreedanToShadow
@@ -2067,13 +2067,13 @@ FireflyParticle {
 
 ; Per-frame loop: reload the move chains, animate, repeat while Y < $FF.
 
-  loc_08F6C4:
+  FireflyParticleFrameLoop:
     COP [ReloadMoveChains]
     COP [SetEntryHere]
     COP [AnimOnce]
     LDA $16
     CMP #$00FF
-    BCC loc_08F6C4
+    BCC FireflyParticleFrameLoop
     COP [Die]
 }
 ---------------------------------------------
@@ -2122,47 +2122,47 @@ GaiaVoiceSparkle {
 
 ; Wait / test loop: yield, return unless $24 is set and sfxQueueCh1 is non-zero.
 
-  loc_09A09E:
+  GaiaVoiceSparkleTestLoop:
     COP [SetEntryHere]
     LDA $24
-    BNE loc_09A0A5
+    BNE GaiaVoiceSparkleSfxCheck
     RTL 
 
-  loc_09A0A5:
+  GaiaVoiceSparkleSfxCheck:
     LDA $sfxQueueCh1      ; SFX queued on channel 1
-    BNE loc_09A0AB
+    BNE GaiaVoiceSparkleChoose
     RTL 
 
 ; Pick a sparkle: RNG & 3 (1 -> #02, 2 -> #03, else #01).
 
-  loc_09A0AB:
+  GaiaVoiceSparkleChoose:
     COP [RngByte]         ; Random 0–3 to pick sparkle variant
     AND #$0003
     DEC                   ; 1 → frame #02
-    BEQ loc_09A0C1
+    BEQ GaiaVoiceSparkleVariant2
     DEC                   ; 2 → frame #03
-    BEQ loc_09A0CC        ; 0 or 3 → frame #01 (default)
+    BEQ GaiaVoiceSparkleVariant3 ; 0 or 3 → frame #01 (default)
     COP [StageSpriteFrame] ( #01 )
     COP [AnimOnce]
     COP [SetEntryHere]
     COP [AnimOneFrame]
-    BRA loc_09A09E
+    BRA GaiaVoiceSparkleTestLoop
 
 ; Sparkle variant #02: show one frame and return to the test loop.
 
-  loc_09A0C1:
+  GaiaVoiceSparkleVariant2:
     COP [StageSpriteFrame] ( #02 )
     COP [AnimOnce]
     COP [SetEntryHere]
     COP [AnimOneFrame]
-    BRA loc_09A09E
+    BRA GaiaVoiceSparkleTestLoop
 
 ; Sparkle variant #03: show one frame and return to the test loop.
 
-  loc_09A0CC:
+  GaiaVoiceSparkleVariant3:
     COP [StageSpriteFrame] ( #03 )
     COP [AnimOnce]
     COP [SetEntryHere]
     COP [AnimOneFrame]
-    BRA loc_09A09E
+    BRA GaiaVoiceSparkleTestLoop
 }

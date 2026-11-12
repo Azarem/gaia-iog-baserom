@@ -43,7 +43,7 @@ Layer1DriftUnbounded [
 
 ; Init: $12 |= $1000 (display / overlay-active qualifier), decode the spawn X byte into $2C, then the Y byte (minus 1) into $2E, zero the offsets and the layer-1 scroll state, WaitByte #01 (2 ticks), then the per-frame integration; the RTL ends each frame.
 
-  code_00E8DA:
+  Layer1DriftUnboundedInit:
     LDA #$1000
     TSB $12               ; $12 bit $1000: display / overlay-active qualifier, so the actor also runs in the display-filtered modes
     LDA $14
@@ -52,14 +52,14 @@ Layer1DriftUnbounded [
     LSR 
     LSR 
     BIT #$0080            ; Spawn X byte (pixels / 16): bit 7 = negative, bits 0-6 = magnitude
-    BEQ loc_00E8F1
+    BEQ Layer1DriftUnboundedDecodeY
     AND #$FF7F
     EOR #$FFFF
     INC 
 
 ; X velocity stored in $2C; decode the Y byte (minus 1) the same way.
 
-  loc_00E8F1:
+  Layer1DriftUnboundedDecodeY:
     STA $2C               ; $2C := X velocity in px per frame
     LDA $16
     LSR 
@@ -68,14 +68,14 @@ Layer1DriftUnbounded [
     LSR 
     DEC                   ; Spawn Y byte - 1 (Y byte 2 = +1, $82 = -1; byte 0 would give +129, unused)
     BIT #$0080
-    BEQ loc_00E906
+    BEQ Layer1DriftUnboundedStoreVelY
     AND #$FF7F
     EOR #$FFFF
     INC 
 
 ; Y velocity stored in $2E; zero $14 / $16 and the layer-1 scroll state (effectScrollH / V, cameraDeltaX / Y).
 
-  loc_00E906:
+  Layer1DriftUnboundedStoreVelY:
     STA $2E               ; $2E := Y velocity in px per frame
     LDA #$0000
     STA $14               ; Zero the accumulated offsets $14 / $16 and the layer-1 scroll state
@@ -119,9 +119,9 @@ Layer1ParallaxRatio {
     PEA $&Layer1ParallaxRatioY-1 ; Return address for the X half: it continues in Layer1ParallaxRatioY (the Y half)
     LDA $14               ; $14 = X parameter set by the spawner: ratio (high byte nonzero) or signed drift (low byte)
     BIT #$8000            ; Bit 15: forced additive mode
-    BNE loc_00E9A7
+    BNE Layer1ParallaxRatioXSignExtend
     BIT #$FF00            ; High byte zero: additive mode as well
-    BEQ loc_00E9BA
+    BEQ Layer1ParallaxRatioXHighZero
     LDY $cameraTargetX
     JSL $@hardware_math.MulDivide ; forcedScrollOverride := cameraTargetX x lo / hi ($0201 = x 1 / 2)
     STA $forcedScrollOverride
@@ -129,15 +129,15 @@ Layer1ParallaxRatio {
 
 ; Bit 15 set: additive mode; sign-extend the low byte of $14.
 
-  loc_00E9A7:
+  Layer1ParallaxRatioXSignExtend:
     AND #$00FF
     BIT #$0080
-    BEQ loc_00E9B2
+    BEQ Layer1ParallaxRatioXAddOverride
     ORA #$FF00
 
 ; forcedScrollOverride += the signed low byte; the RTS continues in Layer1ParallaxRatioY.
 
-  loc_00E9B2:
+  Layer1ParallaxRatioXAddOverride:
     CLC 
     ADC $forcedScrollOverride ; Additive: forcedScrollOverride += the signed low byte
     STA $forcedScrollOverride
@@ -145,14 +145,14 @@ Layer1ParallaxRatio {
 
 ; High byte zero: additive mode; sign-extend the low byte.
 
-  loc_00E9BA:
+  Layer1ParallaxRatioXHighZero:
     BIT #$0080
-    BEQ loc_00E9C2
+    BEQ Layer1ParallaxRatioXHighZeroAddOverride
     ORA #$FF00
 
 ; forcedScrollOverride += the signed low byte (zero-high-byte case); the RTS continues in Layer1ParallaxRatioY.
 
-  loc_00E9C2:
+  Layer1ParallaxRatioXHighZeroAddOverride:
     CLC 
     ADC $forcedScrollOverride ; Same add for the zero-high-byte case
     STA $forcedScrollOverride
@@ -165,7 +165,7 @@ Layer1ParallaxRatio {
 Layer1ParallaxRatioY {
     LDA $16
     BIT #$FF00            ; $16 high byte nonzero = ratio mode (Y has no bit-15 test)
-    BEQ loc_00E9DC
+    BEQ Layer1ParallaxRatioYHighZero
     LDY $cameraTargetY
     JSL $@hardware_math.MulDivide ; cameraDeltaY := cameraTargetY x lo / hi
     STA $cameraDeltaY
@@ -173,14 +173,14 @@ Layer1ParallaxRatioY {
 
 ; High byte zero: sign-extend the low byte of $16.
 
-  loc_00E9DC:
+  Layer1ParallaxRatioYHighZero:
     BIT #$0080
-    BEQ loc_00E9E4
+    BEQ Layer1ParallaxRatioYAddDelta
     ORA #$FF00
 
 ; cameraDeltaY += the signed low byte.
 
-  loc_00E9E4:
+  Layer1ParallaxRatioYAddDelta:
     CLC 
     ADC $cameraDeltaY     ; Additive: cameraDeltaY += the signed low byte
     STA $cameraDeltaY
@@ -196,7 +196,7 @@ Layer1DriftWrapped [
 
 ; Init: $12 |= $1000, decode the spawn bytes into $2C / $2E, zero $14 / $16, then SetEntryHere: the integration below runs every frame and ends with RTL.
 
-  code_00E9EF:
+  Layer1DriftWrappedInit:
     LDA #$1000
     TSB $12               ; $12 bit $1000: display / overlay-active qualifier
     LDA $14
@@ -205,14 +205,14 @@ Layer1DriftWrapped [
     LSR 
     LSR 
     BIT #$0080            ; Spawn X byte: sign-magnitude decode, as in Layer1DriftUnbounded
-    BEQ loc_00EA06
+    BEQ Layer1DriftWrappedDecodeY
     AND #$FF7F
     EOR #$FFFF
     INC 
 
 ; X velocity stored in $2C; decode the Y byte (minus 1).
 
-  loc_00EA06:
+  Layer1DriftWrappedDecodeY:
     STA $2C               ; $2C := X velocity in px per frame
     LDA $16
     LSR 
@@ -221,14 +221,14 @@ Layer1DriftWrapped [
     LSR 
     DEC                   ; Spawn Y byte - 1
     BIT #$0080
-    BEQ loc_00EA1B
+    BEQ Layer1DriftWrappedStoreVelY
     AND #$FF7F
     EOR #$FFFF
     INC 
 
 ; Y velocity stored in $2E; zero the offsets $14 / $16 and set the per-frame entry.
 
-  loc_00EA1B:
+  Layer1DriftWrappedStoreVelY:
     STA $2E               ; $2E := Y velocity in px per frame
     LDA #$0000
     STA $14               ; Zero the offsets $14 / $16
@@ -241,18 +241,18 @@ Layer1DriftWrapped [
     ADC $effectDeltaX     ; $14 += X velocity + effectDeltaX
     STA $14
     STA $cameraDeltaX     ; cameraDeltaX := the new layer-1 X
-    BPL loc_00EA43
+    BPL Layer1DriftWrappedXPositive
     LDA $effectBoundsX    ; Below 0: wrap to effectBoundsX (the Y side wraps to bounds - 1)
     STA $cameraDeltaX
     STA $effectScrollH
     STA $14
-    BRA loc_00EA53
+    BRA Layer1DriftWrappedYStep
 
 ; X position is not negative: wrap to 0 when it reaches effectBoundsX.
 
-  loc_00EA43:
+  Layer1DriftWrappedXPositive:
     CMP $effectBoundsX    ; At or above the layer width: wrap to 0
-    BCC loc_00EA53
+    BCC Layer1DriftWrappedYStep
     LDA #$0000
     STA $cameraDeltaX
     STA $14
@@ -260,7 +260,7 @@ Layer1DriftWrapped [
 
 ; Y: $16 += $2E + effectDeltaY, cameraDeltaY := $16; below 0 wrap to effectBoundsY - 1.
 
-  loc_00EA53:
+  Layer1DriftWrappedYStep:
     LDA $16
     CLC 
     ADC $2E
@@ -268,19 +268,19 @@ Layer1DriftWrapped [
     ADC $effectDeltaY     ; $16 += Y velocity + effectDeltaY
     STA $16
     STA $cameraDeltaY     ; cameraDeltaY := the new layer-1 Y
-    BPL loc_00EA71
+    BPL Layer1DriftWrappedYPositive
     LDA $effectBoundsY    ; Below 0: wrap to effectBoundsY - 1
     DEC 
     STA $cameraDeltaY
     STA $effectScrollV
     STA $16
-    BRA loc_00EA81
+    BRA Layer1DriftWrappedRenderDeltas
 
 ; Y position is not negative: wrap to 0 when it reaches effectBoundsY.
 
-  loc_00EA71:
+  Layer1DriftWrappedYPositive:
     CMP $effectBoundsY    ; At or above the layer height: wrap to 0
-    BCC loc_00EA81
+    BCC Layer1DriftWrappedRenderDeltas
     LDA #$0000
     STA $cameraDeltaY
     STA $16
@@ -288,7 +288,7 @@ Layer1DriftWrapped [
 
 ; Render deltas: layer-1 position minus the BG2 scroll value, for both axes.
 
-  loc_00EA81:
+  Layer1DriftWrappedRenderDeltas:
     LDA $cameraDeltaX     ; Render deltas = layer-1 position - the BG2 scroll value (effectScrollH / V)
     SEC 
     SBC $effectScrollH

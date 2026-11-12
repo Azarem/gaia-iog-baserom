@@ -1,5 +1,12 @@
 {
     "1015808": "spriteset_will_abilities",
+    "1015926": "will_ability_anim_04_psycho_dash_south",
+    "1016134": "will_ability_anim_0C_psycho_slider_south_start",
+    "1016342": "will_ability_anim_1C_spin_dash_start",
+    "1016392": "will_ability_anim_1D_spin_dash_guided_loop",
+    "1016508": "will_ability_anim_1F_flute_pose",
+    "1016518": "will_ability_anim_20_hold_pose",
+    "1016578": "will_ability_anim_22_spin_dash_charge",
     "1032192": "spriteset_transform_poses",
     "1032230": "transform_pose_00",
     "1032544": "transform_pose_01",

@@ -1,11 +1,11 @@
-; Will's ability and pose spriteset (Bank 0F, 1015808-1020133 = $0F:8000): 39 animations ($00-$26), 164 frame records, 63 labelled sprite groups with 385 sub-sprites as printed, plus 1 unlabelled group (see below). It is body_table row $04 (art will_sprites_1A8000, Will's own tile graphics); SetPlayerSpriteDirect #04 switches the player to it. The old note ('additional animation frames used in specific cutscene or transformation contexts') was wrong: it is the Psycho Dash, Psycho Slider and Spin Dash poses plus two cutscene poses; no transformation uses it. The struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note.
+; Will's ability and pose spriteset (Bank 0F, 1015808-1020133 = $0F:8000): 39 animations ($00-$26), 164 frame records, 64 sprite groups (63 labelled, plus 1 unreferenced group printed as the second group of sprite_group_0F8BCC) with 383 sub-sprites. It is body_table row $04 (art will_sprites_1A8000, Will's own tile graphics); SetPlayerSpriteDirect #04 switches the player to it. It holds the Psycho Dash, Psycho Slider and Spin Dash poses plus two cutscene poses; no transformation uses it. The struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note.
 ; 
 ; === ANIMATIONS (traced users) ===
 ; 
 ; | Index | Records | User |
 ; |-------|---------|------|
 ; | $00-$03 | 2 each (holds $0A, $14) | South, north, west and east pose. Their first groups are the first groups of the Psycho Dash lists $04-$07. StagePlayerSprite #00-#03 (#00 south, #01 north, #02 west, #03 east, chosen by the held D-pad direction) is issued at the end of the Spin Dash, where StagePlayerSprite clears the body override (playerFlags bit 15 goes from set to clear) and restores the Will spriteset, so the pose is drawn from spriteset_will (95:8000) and these entries are not reached by this path (measured at the end of the dash in all four directions: playerFlags $8001 before the stage, $0001 and sprite set 95:8000 after it) |
-; | $04-$07 | 10 each | Psycho Dash south, north, west, east: attack_ability_system PsychoDash*: SetPlayerSpriteDirect #04 + StageSpriteMoveY #04 / #05 or StageSpriteMoveX #06 / #07 with chain $36. The pose (hold 9), then nine one-tick frames alternating three groups |
+; | $04-$07 | 10 each | Psycho Dash south, north, west, east: attack_ability_system PsychoDash*: SetPlayerSpriteDirect #04 + StageSpriteMoveY #04 / #05 or StageSpriteMoveX #06 / #07 with chain $36. The pose (hold 9, 10 ticks), then nine two-tick frames (hold 1) alternating three groups: one cycle is 10 + 9 x 2 = 28 ticks |
 ; | $08-$0B | 2 each | The same lists as $00-$03; not selected by any code found |
 ; | $0C-$0E, $0F-$11, $12-$14, $15-$17 | 3 / 4 / 2 | Psycho Slider south, north, west, east (RunAttackNS / RunAttackEW in player_character): start frame once, loop frame (StageSpriteLoopMoveY / MoveX #02, #44), finish frame once |
 ; | $18-$1B | 2 each | The lists of $00-$03 with north and south swapped. The credits (sF7_credits_player) stage the single frames $02, $0C, $1A and $1F |
@@ -20,13 +20,9 @@
 ; 
 ; Untraced indices: $08-$0B, $1E, $21, $23-$26, and $00-$03 outside the Spin Dash release.
 ; 
-; === HIDDEN GROUP ===
-; 
-; The 69 bytes after the 4-sub-sprite group 0F8BCC (header at 0F8BF5, 8 sub-sprites) are an extra group that no list points at: it is a byte-identical copy of the labelled group 0F8D7D. The extraction has no label for it and prints its 69 bytes as 10 more sub-sprites of 0F8BCC (rows ;04-;0D; only ;00-;03 are real), one byte too long. The same artefact is in spriteset_transform_poses (OQ-I067-5).
-; 
 ; === CHECKS ===
 ; 
-; 4325 bytes = 78 (39 pointers) + 39 x 2 + 164 x 4 (list terminators and records) + 63 x 13 (headers) + 385 x 7 (printed sub-sprites) - 1 (the overrun above). Whole-file counts; about 60% of the lines read (the table, all lists, the groups to 0F84EC, 0F87FD to 0F8864, 0F8B51 to 0F8C71, 0F8D1D to 0F8D7D and the last groups).
+; 4325 bytes = 78 (39 pointers) + 39 x 2 + 164 x 4 (list terminators and records) + 64 x 13 (headers) + 383 x 7 (sub-sprites). Whole-file counts; about 60% of the lines read (the table, all lists, the groups to 0F84EC, 0F87FD to 0F8864, 0F8B51 to 0F8C71, 0F8D1D to 0F8D7D and the last groups).
 ---------------------------------------------
 
 ?BANK 0F
@@ -40,7 +36,7 @@ spriteset_will_abilities [
   &sprite_set_0F8058   ;01
   &sprite_set_0F8062   ;02
   &sprite_set_0F806C   ;03
-  &sprite_set_0F8076   ;04
+  &will_ability_anim_04_psycho_dash_south   ;04
   &sprite_set_0F80A0   ;05
   &sprite_set_0F80CA   ;06
   &sprite_set_0F80F4   ;07
@@ -48,7 +44,7 @@ spriteset_will_abilities [
   &sprite_set_0F8128   ;09
   &sprite_set_0F8132   ;0A
   &sprite_set_0F813C   ;0B
-  &sprite_set_0F8146   ;0C
+  &will_ability_anim_0C_psycho_slider_south_start   ;0C
   &sprite_set_0F8154   ;0D
   &sprite_set_0F8166   ;0E
   &sprite_set_0F8170   ;0F
@@ -64,13 +60,13 @@ spriteset_will_abilities [
   &sprite_set_0F81F8   ;19
   &sprite_set_0F8202   ;1A
   &sprite_set_0F820C   ;1B
-  &sprite_set_0F8216   ;1C
-  &sprite_set_0F8248   ;1D
+  &will_ability_anim_1C_spin_dash_start   ;1C
+  &will_ability_anim_1D_spin_dash_guided_loop   ;1D
   &sprite_set_0F826A   ;1E
-  &sprite_set_0F82BC   ;1F
-  &sprite_set_0F82C6   ;20
+  &will_ability_anim_1F_flute_pose   ;1F
+  &will_ability_anim_20_hold_pose   ;20
   &sprite_set_0F82D8   ;21
-  &sprite_set_0F8302   ;22
+  &will_ability_anim_22_spin_dash_charge   ;22
   &sprite_set_0F8314   ;23
   &sprite_set_0F831A   ;24
   &sprite_set_0F8320   ;25
@@ -98,9 +94,9 @@ sprite_set_0F806C [
 ]
 
 ---------------------------------------------
-; Animation $04, Psycho Dash south: the pose group 0F832C for 10 ticks, then nine one-tick frames alternating 0F852A, 0F855A and 0F858A. $05-$07 repeat the shape with their own groups.
+; Animation $04, Psycho Dash south: the pose group 0F832C for 10 ticks, then nine two-tick frames (hold 1) alternating 0F852A, 0F855A and 0F858A, 28 ticks in all. $05-$07 repeat the shape with their own groups.
 
-sprite_set_0F8076 [
+will_ability_anim_04_psycho_dash_south [
   sprite-set < #$0009, &sprite_group_0F832C >   ;00
   sprite-set < #$0001, &sprite_group_0F852A >   ;01
   sprite-set < #$0001, &sprite_group_0F855A >   ;02
@@ -175,7 +171,7 @@ sprite_set_0F813C [
 ---------------------------------------------
 ; Animation $0C, Psycho Slider south, start: 3 frames (holds 5, 5, 3). The last group is the first group of $0D (the loop).
 
-sprite_set_0F8146 [
+will_ability_anim_0C_psycho_slider_south_start [
   sprite-set < #$0005, &sprite_group_0F87FD >   ;00
   sprite-set < #$0005, &sprite_group_0F8834 >   ;01
   sprite-set < #$0003, &sprite_group_0F8864 >   ;02
@@ -270,7 +266,7 @@ sprite_set_0F820C [
 ---------------------------------------------
 ; Animation $1C, Spin Dash start: 12 records.
 
-sprite_set_0F8216 [
+will_ability_anim_1C_spin_dash_start [
   sprite-set < #$0002, &sprite_group_0F8DC2 >   ;00
   sprite-set < #$0002, &sprite_group_0F8DF9 >   ;01
   sprite-set < #$0002, &sprite_group_0F8E22 >   ;02
@@ -288,7 +284,7 @@ sprite_set_0F8216 [
 ---------------------------------------------
 ; Animation $1D, Spin Dash guided-projectile loop and launch passes: 8 groups of hold 0, one per frame.
 
-sprite_set_0F8248 [
+will_ability_anim_1D_spin_dash_guided_loop [
   sprite-set < #$0000, &sprite_group_0F8DC2 >   ;00
   sprite-set < #$0000, &sprite_group_0F8E82 >   ;01
   sprite-set < #$0000, &sprite_group_0F8DF9 >   ;02
@@ -325,7 +321,7 @@ sprite_set_0F826A [
 ---------------------------------------------
 ; Animation $1F, the flute pose: 2 records of 20 ticks.
 
-sprite_set_0F82BC [
+will_ability_anim_1F_flute_pose [
   sprite-set < #$0013, &sprite_group_0F8F96 >   ;00
   sprite-set < #$0013, &sprite_group_0F8FCD >   ;01
 ]
@@ -333,7 +329,7 @@ sprite_set_0F82BC [
 ---------------------------------------------
 ; Animation $20, the hold pose: 4 records of 10 ticks over 0F9019, 0F9034, 0F904F and 0F9034, three groups of two identical sub-sprites.
 
-sprite_set_0F82C6 [
+will_ability_anim_20_hold_pose [
   sprite-set < #$0009, &sprite_group_0F9019 >   ;00
   sprite-set < #$0009, &sprite_group_0F9034 >   ;01
   sprite-set < #$0009, &sprite_group_0F904F >   ;02
@@ -356,7 +352,7 @@ sprite_set_0F82D8 [
 ---------------------------------------------
 ; Animation $22, the Spin Dash charge: 4 one-tick frames.
 
-sprite_set_0F8302 [
+will_ability_anim_22_spin_dash_charge [
   sprite-set < #$0000, &sprite_group_0F8DC2 >   ;00
   sprite-set < #$0000, &sprite_group_0F8DF9 >   ;01
   sprite-set < #$0000, &sprite_group_0F8E22 >   ;02
@@ -818,7 +814,7 @@ sprite_group_0F8BA3 [
 ]
 
 ---------------------------------------------
-; Real group: header + 4 sub-sprites (41 bytes, rows ;00-;03). Rows ;04-;0D are NOT sub-sprites: the extractor kept reading and printed the next, unreferenced group (69 bytes: header at 0F8BF5 + 8 sub-sprites, a copy of sprite_group_0F8D7D) as sub-sprite rows, one byte too long.
+; Header + 4 sub-sprites (41 bytes), followed by a second group (;01: header at 0F8BF5 + 8 sub-sprites, 69 bytes) that no frame list points at. The second group is identical to sprite_group_0F8D7D.
 
 sprite_group_0F8BCC [
   sprite-group < #0C, #0D, #1F, #08, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #04, [
@@ -826,17 +822,17 @@ sprite_group_0F8BCC [
     sprite-part < #01, #01, #08, #0D, #0A, #$0140 >   ;01
     sprite-part < #01, #09, #00, #0D, #0A, #$0141 >   ;02
     sprite-part < #01, #05, #04, #17, #00, #$000E >   ;03
-    sprite-part < #08, #0C, #24, #08, #F8, #$01F0 >   ;04
-    sprite-part < #01, #F8, #10, #F0, #10, #$0008 >   ;05
-    sprite-part < #05, #07, #14, #10, #5E, #$0140 >   ;06
-    sprite-part < #00, #04, #0C, #10, #A7, #$0040 >   ;07
-    sprite-part < #02, #0A, #13, #11, #3C, #$0040 >   ;08
-    sprite-part < #02, #0A, #0B, #19, #2C, #$0040 >   ;09
-    sprite-part < #08, #04, #1B, #09, #0E, #$0041 >   ;0A
-    sprite-part < #00, #0C, #1B, #09, #0F, #$0141 >   ;0B
-    sprite-part < #04, #00, #00, #1C, #24, #$0140 >   ;0C
-    sprite-part < #00, #04, #1C, #00, #0E, #$0040 >   ;0D
-  ] >
+  ] >   ;00
+  sprite-group < #08, #0C, #24, #08, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [
+    sprite-part < #00, #05, #07, #14, #10, #$405E >   ;00
+    sprite-part < #01, #00, #04, #0C, #10, #$40A7 >   ;01
+    sprite-part < #00, #02, #0A, #13, #11, #$403C >   ;02
+    sprite-part < #00, #02, #0A, #0B, #19, #$402C >   ;03
+    sprite-part < #00, #08, #04, #1B, #09, #$410E >   ;04
+    sprite-part < #00, #00, #0C, #1B, #09, #$410F >   ;05
+    sprite-part < #01, #04, #00, #00, #1C, #$4024 >   ;06
+    sprite-part < #01, #00, #04, #1C, #00, #$400E >   ;07
+  ] >   ;01
 ]
 
 sprite_group_0F8C3A [
@@ -905,7 +901,7 @@ sprite_group_0F8D4D [
 ]
 
 ---------------------------------------------
-; Byte-identical to the unreferenced group hidden after sprite_group_0F8BCC.
+; Identical to the unreferenced second group (;01) of sprite_group_0F8BCC.
 
 sprite_group_0F8D7D [
   sprite-group < #08, #0C, #24, #08, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #08, [

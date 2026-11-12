@@ -1255,10 +1255,10 @@ spm_itory_sprites_sprite_group_0012C6 [
     sprite-part < #00, #08, #00, #00, #08, #$07C1 >   ;01
     sprite-part < #00, #00, #08, #08, #00, #$07C2 >   ;02
     sprite-part < #00, #08, #00, #08, #00, #$07C3 >   ;03
-    sprite-part < #E0, #28, #18, #00, #F8, #$01F0 >   ;04
-    sprite-part < #01, #F8, #10, #F0, #10, #$0001 >   ;05
-    sprite-part < #00, #00, #00, #10, #23, #$0001 >   ;06
-  ] >
+  ] >   ;00
+  sprite-group < #E0, #28, #18, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #00, #00, #00, #00, #10, #$0123 >
+  ] >   ;01
 ]
 
 spm_itory_sprites_sprite_group_001303 [

@@ -1,4 +1,4 @@
-; Sprite sets of the inventory screen (Bank 10, 1081344-1085191 = $10:8000): 77 animations ($00-$4C), 150 frame records, 129 labelled sprite groups with 181 sub-sprites as the extraction prints them, plus 5 unlabelled groups that the extraction hides inside two of the labelled ones (see the last section). The inventory actors select it with SetMetasprite @inventory_spritemap (InventoryMenuInit, inventory_statue_slot) and their animation index $28 picks the pointer. The struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note. The old note ('OAM layouts for item icons, cursor sprites, tab indicators and equipment display') names tab indicators, but no index is left for them: the indices are accounted for below except $41-$43.
+; Sprite sets of the inventory screen (Bank 10, 1081344-1085191 = $10:8000): 77 animations ($00-$4C), 150 frame records, 134 sprite groups (129 labelled, plus 5 unreferenced groups printed as further groups of two labelled ones, see the last section) with 171 sub-sprites. The inventory actors select it with SetMetasprite @inventory_spritemap (InventoryMenuInit, inventory_statue_slot) and their animation index $28 picks the pointer. The struct format (table, frame list, group header, sub-sprite) is described once, in the spriteset_freedan block note. No index is a tab indicator: the indices are accounted for below except $41-$43.
 ; 
 ; === INDEX ROLES ===
 ; 
@@ -13,11 +13,11 @@
 ; 
 ; === UNLABELLED GROUPS ===
 ; 
-; Only groups that a frame list points at get a label. The group at 108B67 (used by $3F) is followed by 2 groups that no list references, and the group at 108BAA (used by $40-$43) by 3 more. The extraction cannot tell where a group ends, so it prints each labelled group with every following byte as extra sub-sprites: 108B67 shows 8 sub-sprites for a region of 67 bytes (13 + 54) and 108BAA shows 10 for 80 bytes, and each listing is 2 and 3 bytes longer than the data. Reading the two regions as headers plus sub-sprites gives 3 groups (13 x 3 + 4 x 7 = 67) and 4 groups (13 x 4 + 4 x 7 = 80). The sub-sprites printed after the first 1-2 real ones in those two groups are therefore not sub-sprites of that group (proposal R-I071-3).
+; Only groups that a frame list points at get a label. The group at 108B67 (used by $3F) is followed by 2 groups that no list references (108B82 and 108B96, printed as its ;01 and ;02), and the group at 108BAA (used by $40-$43) by 3 more (108BBE, 108BD2 and 108BE6, printed as its ;01-;03). Each of those 5 groups is 20 bytes: a 13-byte header and one sub-sprite. The first region is 67 bytes (13 x 3 + 4 x 7 = 27 + 20 + 20) and the second 80 bytes (13 x 4 + 4 x 7 = 4 x 20).
 ; 
 ; === CHECKS ===
 ; 
-; 3847 bytes = 154 (77 pointers) + 77 x 2 + 150 x 4 (list terminators and records) + 129 x 13 (labelled group headers) + 181 x 7 (printed sub-sprites) - 5 (the listing overrun of the two groups above). The first set starts at 10809A, directly after the table. File read sampled (~45%): the table, the sets of $00-$4C, the first and last groups and the two long groups; the per-group art was not compared with the item names.
+; 3847 bytes = 154 (77 pointers) + 77 x 2 + 150 x 4 (list terminators and records) + 134 x 13 (group headers) + 171 x 7 (sub-sprites). The first set starts at 10809A, directly after the table. File read sampled (~45%): the table, the sets of $00-$4C, the first and last groups and the two long groups; the per-group art was not compared with the item names.
 ---------------------------------------------
 
 ?BANK 10
@@ -91,11 +91,11 @@ inventory_spritemap [
   &sprite_set_1082A4   ;3D
   &sprite_set_1082AA   ;3E
   &sprite_set_1082B0   ;3F
-  &sprite_set_1082B6   ;40
+  &inventory_anim_40_cursor   ;40
   &sprite_set_1082BC   ;41
   &sprite_set_1082C2   ;42
   &sprite_set_1082C8   ;43
-  &sprite_set_1082CE   ;44
+  &inventory_anim_44_status_row   ;44
   &sprite_set_1082E4   ;45
   &sprite_set_10830A   ;46
   &sprite_set_10831C   ;47
@@ -404,7 +404,7 @@ sprite_set_1082B0 [
 ---------------------------------------------
 ; Animation $40: the selection cursor (SelectionCursorActor). $41, $42 and $43 point at the same group, 108BAA.
 
-sprite_set_1082B6 [
+inventory_anim_40_cursor [
   sprite-set < #$0000, &sprite_group_108BAA >
 ]
 
@@ -423,7 +423,7 @@ sprite_set_1082C8 [
 ---------------------------------------------
 ; Animation $44: the first of the nine status-row sets (5 frames; $44 + characterForm x 3 + the row: 0 top, 1 middle, 2 bottom).
 
-sprite_set_1082CE [
+inventory_anim_44_status_row [
   sprite-set < #$000E, &sprite_group_108BFA >   ;00
   sprite-set < #$0005, &sprite_group_108C0E >   ;01
   sprite-set < #$0005, &sprite_group_108C22 >   ;02
@@ -1061,37 +1061,37 @@ sprite_group_108B4C [
 ]
 
 ---------------------------------------------
-; Statue icon of animation $3F, followed by 2 unreferenced groups: the sub-sprites printed below the first ones are the headers and sub-sprites of those groups (67 bytes in all).
+; Statue icon of animation $3F, followed by 2 unreferenced groups (;01 at 108B82 and ;02 at 108B96, 20 bytes each); 67 bytes in all.
 
 sprite_group_108B67 [
   sprite-group < #08, #08, #20, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #02, [
     sprite-part < #01, #00, #00, #00, #10, #$0BEC >   ;00
     sprite-part < #01, #00, #00, #10, #00, #$0BEE >   ;01
-    sprite-part < #08, #08, #10, #00, #F8, #$01F0 >   ;02
-    sprite-part < #01, #F8, #10, #F0, #10, #$0101 >   ;03
-    sprite-part < #00, #00, #00, #00, #00, #$080C >   ;04
-    sprite-part < #08, #10, #00, #F8, #F0, #$0101 >   ;05
-    sprite-part < #F8, #10, #F0, #10, #01, #$0001 >   ;06
-    sprite-part < #00, #00, #00, #00, #00, #$0F01 >   ;07
-  ] >
+  ] >   ;00
+  sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #01, #00, #00, #00, #00, #$0C00 >
+  ] >   ;01
+  sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #01, #00, #00, #00, #00, #$0000 >
+  ] >   ;02
 ]
 
 ---------------------------------------------
-; The cursor group of animations $40-$43, followed by 3 unreferenced groups: only the first sub-sprites printed are its own (80 bytes in all).
+; The cursor group of animations $40-$43, followed by 3 unreferenced groups (;01 at 108BBE, ;02 at 108BD2 and ;03 at 108BE6, 20 bytes each); 80 bytes in all.
 
 sprite_group_108BAA [
   sprite-group < #01, #0F, #18, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
-    sprite-part < #01, #00, #00, #00, #08, #$06E5 >   ;00
-    sprite-part < #08, #08, #10, #00, #F8, #$01F0 >   ;01
-    sprite-part < #01, #F8, #10, #F0, #10, #$0101 >   ;02
-    sprite-part < #00, #00, #00, #00, #00, #$0800 >   ;03
-    sprite-part < #08, #10, #00, #F8, #F0, #$0101 >   ;04
-    sprite-part < #F8, #10, #F0, #10, #01, #$0001 >   ;05
-    sprite-part < #00, #00, #00, #00, #00, #$0808 >   ;06
-    sprite-part < #10, #00, #F8, #F0, #01, #$F801 >   ;07
-    sprite-part < #10, #F0, #10, #01, #01, #$0000 >   ;08
-    sprite-part < #00, #00, #00, #00, #08, #$1008 >   ;09
-  ] >
+    sprite-part < #01, #00, #00, #00, #08, #$06E5 >
+  ] >   ;00
+  sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #01, #00, #00, #00, #00, #$0000 >
+  ] >   ;01
+  sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #01, #00, #00, #00, #00, #$0000 >
+  ] >   ;02
+  sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #01, #00, #00, #00, #00, #$0000 >
+  ] >   ;03
 ]
 
 sprite_group_108BFA [

@@ -21,7 +21,7 @@
 dialog_string_scanner [
   actor-def < #00, #00, #20, {
 
-  code_0BE1C8:
+  DialogStringScannerEntry:
     LDA $worldReadyFlag   ; Wait until the world is ready ($0654 nonzero ...
     BNE loc_0BE1CE
     RTL 

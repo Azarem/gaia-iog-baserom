@@ -572,7 +572,7 @@ ReadDecelerationStep {
 }
 
 ---------------------------------------------
-; NS counterpart of DecelerateEW: same latch test, |speed| < 3 snap, same-direction suppression (down $0400 for positive speed, up $0800 for negative), one step plus a braking step for the opposite D-pad direction. Difference: when the speed reaches zero it clears slopeStepCounter (loc_02B76C) where DecelerateEW clears decelStepCounter, so after an NS stop the deceleration curve keeps its position.
+; NS counterpart of DecelerateEW: same latch test, |speed| < 3 snap, same-direction suppression (down $0400 for positive speed, up $0800 for negative), one step plus a braking step for the opposite D-pad direction. Difference: when the speed reaches zero it clears slopeStepCounter (DecelerateNS_ZeroSlopeStep) where DecelerateEW clears decelStepCounter, so after an NS stop the deceleration curve keeps its position.
 
 DecelerateNS {
     LDA $playerFlags      ; NS deceleration: mirror of DecelerateEW for north-south axis. Skip if $1000 flag set
@@ -608,7 +608,7 @@ DecelerateNS {
     CLC 
     ADC $playerSpeedNs
     STA $playerSpeedNs
-    BEQ loc_02B76C
+    BEQ DecelerateNS_ZeroSlopeStep
 
   loc_02B74F:
     LDA $joypadCurrent    ; After the first step (applied or zero): north D-pad ($0800) held -> braking step
@@ -627,10 +627,10 @@ DecelerateNS {
     CLC 
     ADC $playerSpeedNs
     STA $playerSpeedNs
-    BEQ loc_02B76C
+    BEQ DecelerateNS_ZeroSlopeStep
     RTS 
 
-  loc_02B76C:
+  DecelerateNS_ZeroSlopeStep:
     STZ $slopeStepCounter ; NS stopped: clears slopeStepCounter (the EW routine clears decelStepCounter), probably a copy slip
     RTS 
 
@@ -646,7 +646,7 @@ DecelerateNS {
     CLC 
     ADC $playerSpeedNs
     STA $playerSpeedNs
-    BEQ loc_02B76C
+    BEQ DecelerateNS_ZeroSlopeStep
 
   loc_02B787:
     LDA $joypadCurrent    ; After the first step (applied or zero): south D-pad held -> second, braking step
@@ -663,7 +663,7 @@ DecelerateNS {
     CLC 
     ADC $playerSpeedNs
     STA $playerSpeedNs
-    BEQ loc_02B76C
+    BEQ DecelerateNS_ZeroSlopeStep
     RTS 
 }
 

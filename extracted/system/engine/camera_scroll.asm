@@ -40,7 +40,7 @@
 ScrollCameraInit [
   actor-def < #00, #00, #2C, {
 
-  code_00E950:
+  ScrollCameraInitEntry:
     LDA #$1000
     TSB $12               ; Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes
     LDA $14
@@ -78,7 +78,7 @@ ScrollCameraInit [
 ScrollCameraTrack [
   actor-def < #00, #00, #2C, {
 
-  code_00EA99:
+  ScrollCameraTrackEntry:
     LDA #$1000
     TSB $12               ; Set bit 12 ($1000): the display / overlay-active qualifier, so the actor also runs in the display-filtered modes
     JSR $&TileAlignPosition
@@ -96,7 +96,7 @@ ScrollCameraTrack [
 ScrollCameraVertical [
   actor-def < #00, #00, #2C, {
 
-  code_00EAAA:
+  ScrollCameraVerticalEntry:
     LDA #$1000
     TSB $12
     JSR $&TileAlignPosition
@@ -120,7 +120,7 @@ ScrollCameraVertical [
 ScrollCameraAccumulate [
   actor-def < #00, #00, #24, {
 
-  code_00EAC6:
+  ScrollCameraAccumulateEntry:
     LDA #$1000
     TSB $12
     LDA #$0000            ; Zero both X and Y scroll accumulator registers at DP $24 and $26

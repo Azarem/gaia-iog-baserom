@@ -9,7 +9,7 @@
 ; Hooks (overrides): system_strings.consolestring_01E8E9 (tab labels);
 ;   inventory_menu.TabHoverDispatch / TabActionDispatch (fourth tab -> Optn.);
 ;   inventory_menu.UseItemCursorRight+ (anchor for reorder helpers);
-;   sFA_diary_menu.loc_0BE695 / loc_0BE6B3 (ApplySoundAndRemap tail ->
+;   sFA_diary_menu.ApplySoundAndRemap_ButtonTypeSelect / ApplySoundAndRemap_ButtonType2 (ApplySoundAndRemap tail ->
 ;   DetectAndInitButtonMap + ApplyButtonMapping).
 ; Adds: TabHoverStatusClear, UseItemReorderStart/Confirm/Cancel (reorder flow).
 ; Depends on: options_menu_core, options_input_remap, inventory_menu,
@@ -209,8 +209,8 @@ UseItemReorderCancel {
 
 ; Override ApplySoundAndRemap to call ApplyButtonMapping after sound setup.
 ; This module override supersedes the baserom InputRemap's sound-only version.
-sFA_diary_menu.loc_0BE695!:
-sFA_diary_menu.loc_0BE6B3! {
+sFA_diary_menu.ApplySoundAndRemap_ButtonTypeSelect!:
+sFA_diary_menu.ApplySoundAndRemap_ButtonType2! {
     JSL $@options_input_remap.DetectAndInitButtonMap
     JSL $@options_input_remap.ApplyButtonMapping
     RTS

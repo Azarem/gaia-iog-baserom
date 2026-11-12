@@ -34,54 +34,54 @@ ApplyOrbitalOffsetFromRef {
     SEP #$20
     CLC                   ; Carry is the sign flag for the product, in both axes: clear = positive, set = negate (set when the table byte is negative)
     LDA $&math_lookup_tables.sine_table_8bit, Y ; Sine table entry for the X offset; a negative byte becomes its magnitude (EOR #$FF, INC)
-    BPL loc_00F3E7
+    BPL ApplyOrbitalOffsetRefX
     EOR #$FF
     INC 
     SEC 
 
 ; X axis: multiply the sine magnitude by the diameter (carry = sign), keep the high byte, negate if needed.
 
-  loc_00F3E7:
+  ApplyOrbitalOffsetRefX:
     XBA                   ; Magnitude in the high byte, diameter byte in A low; Multiply8x8Unsigned preserves carry and Y
     LDA $orbitDiameter, X
     JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20              ; Product >> 8 (about diameter * sin / 2), negated when carry says so
     XBA 
     AND #$00FF
-    BCC loc_00F3FC
+    BCC ApplyOrbitalOffsetRefAddX
     EOR #$FFFF
     INC 
 
 ; Add the signed X offset to $14, then repeat the same steps with the cosine table for Y.
 
-  loc_00F3FC:
+  ApplyOrbitalOffsetRefAddX:
     CLC                   ; Add the signed X offset to the centre X in $14
     ADC $14
     STA $14
     SEP #$20
     CLC 
     LDA $&math_lookup_tables.signed_cosine_table_8bit, Y ; Y axis: the same steps with the cosine table and the same index Y; the offset is added to $16
-    BPL loc_00F40D
+    BPL ApplyOrbitalOffsetRefY
     EOR #$FF
     INC 
     SEC 
 
 ; Y axis: multiply the cosine magnitude by the diameter (carry = sign), keep the high byte, negate if needed.
 
-  loc_00F40D:
+  ApplyOrbitalOffsetRefY:
     XBA 
     LDA $orbitDiameter, X
     JSL $@hardware_math.Multiply8x8Unsigned
     REP #$20
     XBA 
     AND #$00FF
-    BCC loc_00F422
+    BCC ApplyOrbitalOffsetRefAddY
     EOR #$FFFF
     INC 
 
 ; Add the signed Y offset to $16 and return.
 
-  loc_00F422:
+  ApplyOrbitalOffsetRefAddY:
     CLC 
     ADC $16
     STA $16

@@ -569,20 +569,20 @@ spm_pyramid_puzzle_sprites_sprite_group_00088D [
 
 spm_pyramid_puzzle_sprites_sprite_group_0008A1 [
   sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
-    sprite-part < #01, #00, #00, #00, #00, #$074A >   ;00
-    sprite-part < #18, #18, #18, #03, #F8, #$01F0 >   ;01
-    sprite-part < #01, #F8, #10, #F0, #10, #$010A >   ;02
-    sprite-part < #0B, #15, #0B, #00, #9D, #$010B >   ;03
-    sprite-part < #00, #20, #08, #03, #7B, #$010B >   ;04
-    sprite-part < #10, #10, #08, #03, #7D, #$010B >   ;05
-    sprite-part < #20, #00, #08, #03, #2E, #$000B >   ;06
-    sprite-part < #00, #28, #00, #13, #6B, #$000B >   ;07
-    sprite-part < #08, #20, #00, #13, #6C, #$000B >   ;08
-    sprite-part < #10, #18, #00, #13, #6D, #$000B >   ;09
-    sprite-part < #18, #10, #00, #13, #6E, #$000B >   ;0A
-    sprite-part < #20, #08, #00, #13, #1E, #$000B >   ;0B
-    sprite-part < #28, #00, #00, #13, #1F, #$000B >   ;0C
-  ] >
+    sprite-part < #01, #00, #00, #00, #00, #$074A >
+  ] >   ;00
+  sprite-group < #18, #18, #18, #03, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0A, [
+    sprite-part < #01, #0B, #15, #0B, #00, #$0B9D >   ;00
+    sprite-part < #01, #00, #20, #08, #03, #$0B7B >   ;01
+    sprite-part < #01, #10, #10, #08, #03, #$0B7D >   ;02
+    sprite-part < #01, #20, #00, #08, #03, #$0B2E >   ;03
+    sprite-part < #00, #00, #28, #00, #13, #$0B6B >   ;04
+    sprite-part < #00, #08, #20, #00, #13, #$0B6C >   ;05
+    sprite-part < #00, #10, #18, #00, #13, #$0B6D >   ;06
+    sprite-part < #00, #18, #10, #00, #13, #$0B6E >   ;07
+    sprite-part < #00, #20, #08, #00, #13, #$0B1E >   ;08
+    sprite-part < #00, #28, #00, #00, #13, #$0B1F >   ;09
+  ] >   ;01
 ]
 
 spm_pyramid_puzzle_sprites_sprite_group_000908 [

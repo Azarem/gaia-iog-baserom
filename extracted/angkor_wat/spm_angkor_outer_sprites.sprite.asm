@@ -784,16 +784,16 @@ spm_angkor_outer_sprites_sprite_group_000BB9 [
     sprite-part < #01, #0F, #00, #10, #08, #$4B86 >   ;03
     sprite-part < #01, #00, #0F, #18, #00, #$0B96 >   ;04
     sprite-part < #01, #0F, #00, #18, #00, #$4B96 >   ;05
-    sprite-part < #14, #08, #28, #00, #F8, #$01F0 >   ;06
-    sprite-part < #01, #F8, #10, #F0, #10, #$0007 >   ;07
-    sprite-part < #14, #00, #11, #0F, #C7, #$010B >   ;08
-    sprite-part < #0C, #00, #01, #17, #BC, #$010B >   ;09
-    sprite-part < #0C, #00, #00, #18, #6C, #$000B >   ;0A
-    sprite-part < #0C, #08, #20, #00, #AC, #$010B >   ;0B
-    sprite-part < #0C, #00, #10, #08, #8C, #$000B >   ;0C
-    sprite-part < #14, #00, #20, #00, #AD, #$000B >   ;0D
-    sprite-part < #00, #14, #00, #20, #0B, #$000B >   ;0E
-  ] >
+  ] >   ;00
+  sprite-group < #14, #08, #28, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #07, [
+    sprite-part < #00, #14, #00, #11, #0F, #$0BC7 >   ;00
+    sprite-part < #01, #0C, #00, #01, #17, #$0BBC >   ;01
+    sprite-part < #01, #0C, #00, #00, #18, #$0B6C >   ;02
+    sprite-part < #00, #0C, #08, #20, #00, #$0BAC >   ;03
+    sprite-part < #01, #0C, #00, #10, #08, #$0B8C >   ;04
+    sprite-part < #00, #14, #00, #20, #00, #$0BAD >   ;05
+    sprite-part < #00, #00, #14, #00, #20, #$0B0B >   ;06
+  ] >   ;01
 ]
 
 spm_angkor_outer_sprites_sprite_group_000C2E [

@@ -6,7 +6,7 @@
 ;   then gives item $01 with dialog. If flag already set at init, actor dies immediately.
 ; Vanilla behavior: hidden_red_jewel init only sets handler/metasprite/hitbox; interact
 ;   tested flag inside HiddenRedJewelInteract without VFX or early despawn when taken.
-; Hooks (overrides): hidden_red_jewel.code_00C672 insert-before/after; HiddenRedJewelInteract!.
+; Hooks (overrides): hidden_red_jewel.HiddenRedJewelEntry insert-before/after; HiddenRedJewelInteract!.
 ; Depends on: generic_sparkle actor; flag_helpers Test/SetEventFlag_0200; HiddenRedJewelInventoryFull.
 ; State: Event flags $0280-$028F ($0E + $80 on base $0200); $26 holds sparkle child slot index.
 ; Hazards/notes: X = actor slot for all COP calls; sparkle offset #$FFFC from parent.
@@ -17,7 +17,7 @@
 -----------------------------------
 ;hidden_red_jewel
 
-hidden_red_jewel.code_00C672- {
+hidden_red_jewel.HiddenRedJewelEntry- {
     LDA $0E
     CLC 
     ADC #$0080
@@ -27,7 +27,7 @@ hidden_red_jewel.code_00C672- {
     STY $26
 }
 
-hidden_red_jewel.code_00C672+ {
+hidden_red_jewel.HiddenRedJewelEntry+ {
   hidden_red_jewel_destroy:
     COP [Die]
     

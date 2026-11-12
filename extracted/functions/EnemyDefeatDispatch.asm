@@ -77,16 +77,16 @@ EnemyDefeatDispatch_CountKill {
     TSB $10
     LDA $extendedFlags, X ; extendedFlags bit $0008: the enemy marked solid collision cells, so clear the mark
     BIT #$0008
-    BEQ loc_0AA4B8
+    BEQ DefeatFieldRevealBookkeeping
     COP [ClearSolidHere]
 
 ; Field-reveal bookkeeping: skip when deathActionIdx is 0 or its $0100-base event flag is already set; otherwise set it and spawn SpawnFieldRevealEffect with the index.
 
-  loc_0AA4B8:
+  DefeatFieldRevealBookkeeping:
     LDA $deathActionIdx, X ; Field-reveal index (0 = none): skip when its $0100-base event flag is already set (TestFlag_0100 carry set)
-    BEQ loc_0AA4E0
+    BEQ DefeatFieldRevealReturn
     JSL $@flag_helpers.TestFlag_0100
-    BCS loc_0AA4E0
+    BCS DefeatFieldRevealReturn
     LDA $deathActionIdx, X ; Mark it triggered and spawn the room-reveal effect (flags $0342) with the index copied into its deathActionIdx
     JSL $@flag_helpers.SetFlag_0100
     COP [SpawnListAppend] ( @SpawnFieldRevealEffect, #00, #00, #$0342 )
@@ -98,6 +98,6 @@ EnemyDefeatDispatch_CountKill {
 
 ; Return to the caller of the CallNear subroutine.
 
-  loc_0AA4E0:
+  DefeatFieldRevealReturn:
     COP [RestoreSavedPtr]
 }

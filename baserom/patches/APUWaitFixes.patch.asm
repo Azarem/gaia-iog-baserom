@@ -302,7 +302,7 @@ sp5C_stone_coffin.code_0691BE! {
 ?INCLUDE 'sE6_gaia'
 -----------------------------------------
 
-sE6_gaia.loc_08DCAF! {
+sE6_gaia.GaiaAuraGiftSequence! {
     COP [D6] ( #24, &GaiaHint_AuraDesc )
     COP [D4] ( #24, &GaiaHint_AuraFull )
     COP [BF] ( &dialogstring_08E66C )
@@ -326,7 +326,7 @@ sE6_gaia.loc_08DCAF! {
     LDA $2000
     AND #$10
     REP #$20
-    BEQ loc_08DCDF
+    BEQ GaiaAuraFanfareDone
     RTL
 
   gaia_halt_test:
@@ -336,13 +336,13 @@ sE6_gaia.loc_08DCAF! {
     REP #$20
     AND #$00FF
     CMP #$00FF
-    BEQ loc_08DCDF
+    BEQ GaiaAuraFanfareDone
     RTL 
 }
 
 ---------------------------------------------
 
-sE6_gaia.loc_08EAAA! {
+sE6_gaia.AbilityGrantSequence! {
     COP [CA] ( #08 )
     LDA #$FFF0
     TSB $joypadMaskStd
@@ -386,7 +386,7 @@ sE6_gaia.loc_08EAAA! {
     LDA $2000
     AND #$10
     REP #$20
-    BEQ loc_08EB0D
+    BEQ AbilityGrantFanfareDone
     RTL
 
   gaia_halt_test2:
@@ -396,7 +396,7 @@ sE6_gaia.loc_08EAAA! {
     REP #$20
     AND #$00FF
     CMP #$00FF
-    BEQ loc_08EB0D
+    BEQ AbilityGrantFanfareDone
     RTL
 }
 

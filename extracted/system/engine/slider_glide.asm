@@ -33,7 +33,7 @@
 SliderGlideTriggerWest [
   actor-def < #00, #00, #20, {
 
-  code_00D0D4:
+  SliderGlideTriggerWestEntry:
     LDY $playerActor      ; Y = player actor. Fires for a WEST-moving Psycho Slide (anim $12/$13): X must match exactly, Y inside a 32-px window
     LDA $16               ; Load trigger Y; check if player is within trigger's vertical band
     SEC                   ; Trigger Y − 8: start of vertical proximity zone
@@ -84,7 +84,7 @@ SliderGlideTriggerWest [
 SliderGlideTriggerEast [
   actor-def < #00, #00, #20, {
 
-  code_00D11C:
+  SliderGlideTriggerEastEntry:
     LDY $playerActor
     LDA $16
     SEC 
@@ -204,7 +204,7 @@ SliderGlideTriggerNorth [
 SliderGlideTriggerSouth [
   actor-def < #00, #00, #20, {
 
-  code_00D1B8:
+  SliderGlideTriggerSouthEntry:
     LDY $playerActor
     LDA $14
     SEC 

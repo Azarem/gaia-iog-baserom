@@ -434,7 +434,7 @@ Growing past 4 screens is **untested**: verify the WRAM span above `$9000` is fr
 
 ## 10. Documentation errors found (FIXED)
 
-All items below were corrected with `npm run merge -- plans/extracted-audit/edits/doc-char-tiles-dmap.json` (notes and inline comments) plus direct edits of the plain docs (`docs/code/bank02/scene-script.md`, `docs/code/bank0D-scene-meta.md`, `docs/structs-reference.md`). The same spec also rewrote the `SceneCmd_LoadCharTiles` / `code_028CB0` part notes, eight inline comments in `scene_script.asm` (the loader called the size word a "compressed tile pointer" and the header a "width and height"), and added a part note for `scene_meta_00FD`.
+All items below were corrected with `npm run merge -- plans/extracted-audit/edits/doc-char-tiles-dmap.json` (notes and inline comments) plus direct edits of the plain docs (`docs/code/bank02/scene-script.md`, `docs/code/bank0D-scene-meta.md`, `docs/structs-reference.md`). The same spec also rewrote the `SceneCmd_LoadCharTiles` / `SceneCmd_LoadCharTiles_VramBit1` part notes, eight inline comments in `scene_script.asm` (the loader called the size word a "compressed tile pointer" and the header a "width and height"), and added a part note for `scene_meta_00FD`.
 
 | Where | Old claim | Now |
 |---|---|---|

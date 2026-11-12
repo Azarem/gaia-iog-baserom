@@ -20,7 +20,7 @@
 ; 6. ClearBg3TilemapBuffer_Full, InitActorPool, SpawnSceneActors, SpawnSceneThinkers, ClearActorRenderList.
 ; 7. RunActors_Normal x 2, SortActorsByDepth, $FFFF sentinel at the compose buffer, ComposeAllSprites, one UpdateFrameDialogue.
 ; 8. EnableNmiAndJoypad (NMITIMEN $81), VBlankWaitAndJoypad, INIDISP = $0F, DisableNmiKeepJoypad (NMI off again).
-; 9. Main loop (code_02EE17): UpdateFrameDialogue (RunActors_CutsceneOnly, camera scroll, light HDMA-phase thinkers, sprite compose, one VBlank wait with the NMI pulsed on, light general thinkers), copy bg1ConfigMode to BG1SC, repeat while flag byte #00 equals #00 (BranchOnFlagByte).
+; 9. Main loop (InventorySceneMainLoop): UpdateFrameDialogue (RunActors_CutsceneOnly, camera scroll, light HDMA-phase thinkers, sprite compose, one VBlank wait with the NMI pulsed on, light general thinkers), copy bg1ConfigMode to BG1SC, repeat while flag byte #00 equals #00 (BranchOnFlagByte).
 ; 
 ; === CLOSE FLOW ===
 ; 
@@ -197,11 +197,11 @@ OpenInventoryScreen {
 
 ; Main loop of the inventory scene: one UpdateFrameDialogue per pass, then bg1ConfigMode is copied to BG1SC (the inventory_menu actor changes it to flip between the item grid and the status view). Exits when flag byte #00 becomes nonzero; eventFlags was zeroed at open, so the loop starts armed.
 
-  code_02EE17:
+  InventorySceneMainLoop:
     JSL $@system_core.UpdateFrameDialogue ; Main loop tick: RunActors_CutsceneOnly, camera scroll, type-D / light general thinkers, sprite compose, one VBlank wait
     LDA $bg1ConfigMode    ; bg1ConfigMode → BG1SC — tabs dynamically swap BG1 tilemap base
     STA $BG1SC
-    COP [BranchOnFlagByte] ( #00, #00, &code_02EE17 ) ; Branch back to code_02EE17 while flag $0000 (bit 0 of $0A00) is clear; inventory_menu sets it to close
+    COP [BranchOnFlagByte] ( #00, #00, &InventorySceneMainLoop ) ; Branch back to InventorySceneMainLoop while flag $0000 (bit 0 of $0A00) is clear; inventory_menu sets it to close
     STZ $BG3VOFS          ; Close path — zero BG3 vertical scroll before teardown
     STZ $BG3VOFS
     JSL $@vblank_joypad.DisableNmiKeepJoypad ; NMI off again (joypad auto-read stays on) before the state copies

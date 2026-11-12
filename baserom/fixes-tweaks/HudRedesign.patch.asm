@@ -99,7 +99,7 @@ vram_buffer_clear.ClearBg3TilemapBuffer_PreserveHud! {
     REP #$20
     LDA #$0000
     LDX #$00C0
-    BRA loc_02F07E
+    BRA ClearVramBufferLoop
 }
 
 system_strings.consolestring_01E7F6! |[POS:42,0][PAL:8][HP][POS:5A,0][PAL:14][BCD:1,AD8][POS:64,0][NUM:AD6]|

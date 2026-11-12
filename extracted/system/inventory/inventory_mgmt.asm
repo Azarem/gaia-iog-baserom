@@ -48,46 +48,46 @@ GiveItemToPlayer {
     PHP 
     SEP #$20
     BIT #$80              ; Bit 7 of the id: set = special item ($80 and up), clear = regular inventory item
-    BNE loc_03EFB3
+    BNE GiveItem_SpecialItem
     PHA                   ; Keep the id for GiveItem_StoreInSlot or GiveItem_InventoryFull (both PLA it)
     LDY #$0000            ; Regular item path — scan 16 inventorySlots for first empty slot (Y=0)
 
 ; Slot scan for regular items: Y = 0 to 15, the first slot holding 0 is used.
 
-  loc_03EFA2:
+  GiveItem_RegularSlotScan:
     LDA $inventorySlots, Y ; Load slot value; non-zero = occupied, continue scan
-    BNE loc_03EFAA
+    BNE GiveItem_SlotOccupied
     JMP $&GiveItem_StoreInSlot ; Empty slot found → GiveItem_StoreInSlot (store item, success dialogue)
 
 ; Slot occupied: next slot; after 16 slots the inventory is full.
 
-  loc_03EFAA:
+  GiveItem_SlotOccupied:
     INY 
     CPY #$0010
-    BNE loc_03EFA2
+    BNE GiveItem_RegularSlotScan
     JMP $&GiveItem_InventoryFull ; All 16 slots occupied → GiveItem_InventoryFull (SEC on return)
 
 ; Special item: effect index := id - $80, then a DEC chain tests 0 (HP), 1 (STR), 2 (DEF), 3 to 5 (gems); anything else falls into the heal code that follows.
 
-  loc_03EFB3:
+  GiveItem_SpecialItem:
     SEC                   ; Special item: A := id - $80 = effect index (0 HP, 1 STR, 2 DEF, 3 to 5 gems, 6 and up heal); the DEC chain below tests it
     SBC #$80
-    BEQ loc_03F00C
+    BEQ GiveItem_HpUp
     DEC 
-    BEQ loc_03F032
+    BEQ GiveItem_StrUp
     DEC 
-    BNE loc_03EFC1
+    BNE GiveItem_EffectIndex3Plus
     JMP $&GiveItem_DefUp  ; Effect index 2 (item $82) → GiveItem_DefUp
 
 ; Effect index 3 and above: gems (3, 4, 5) or the heal.
 
-  loc_03EFC1:
+  GiveItem_EffectIndex3Plus:
     DEC                   ; Effect index 3 (item $83) → add 1 gem
-    BEQ loc_03EFE9
+    BEQ GiveItem_Gems1
     DEC 
-    BEQ loc_03EFED        ; Effect index 4 (item $84) → add 2 gems
+    BEQ GiveItem_Gems2    ; Effect index 4 (item $84) → add 2 gems
     DEC 
-    BEQ loc_03EFF1        ; Effect index 5 (item $85) → add 5 gems
+    BEQ GiveItem_Gems5    ; Effect index 5 (item $85) → add 5 gems
     REP #$20
     LDA #$0005            ; Effect index ≥6 (item $86+): hpToHeal += 5
     CLC 
@@ -103,42 +103,42 @@ GiveItemToPlayer {
 
 ; Gem amount 1 (item $83).
 
-  loc_03EFE9:
+  GiveItem_Gems1:
     LDA #$01
-    BRA loc_03EFF3
+    BRA GiveItem_AddGems
 
 ; Gem amount 2 (item $84).
 
-  loc_03EFED:
+  GiveItem_Gems2:
     LDA #$02
-    BRA loc_03EFF3
+    BRA GiveItem_AddGems
 
 ; Gem amount 5 (item $85).
 
-  loc_03EFF1:
+  GiveItem_Gems5:
     LDA #$05
 
 ; Adds the amount in A to gemCount, clamps at 999 and plays SFX $22.
 
-  loc_03EFF3:
+  GiveItem_AddGems:
     REP #$20
     AND #$00FF
     CLC 
     ADC $gemCount         ; Add gem increment to gemCount ($0AD6)
     CMP #$03E7            ; Compare to gem cap 999 ($03E7)
-    BCC loc_03F004
+    BCC GiveItem_StoreGems
     LDA #$03E7            ; Clamp gemCount to max 999 ($03E7)
 
 ; Stores gemCount, plays SFX $22 and returns through GiveItem_Success.
 
-  loc_03F004:
+  GiveItem_StoreGems:
     STA $gemCount
     COP [PlaySoundCh2] ( #22 ) ; SFX $22
     BRA GiveItem_Success
 
 ; HP Max Up (item $80): display-filter clear, SFX $25, max HP + 1 with the $7F reset (the HUD renderer in ConsoleStringRenderer clamps playerMaxHp to $28 every frame, so the reset is not visible for max HP), hpToHeal := new max - HP, Y = 0.
 
-  loc_03F00C:
+  GiveItem_HpUp:
     REP #$20
     LDA #$0080
     TRB $displayModeFlags ; Clear displayModeFlags bit $0080: leave the display-filter actor mode (the chest code sets it)
@@ -147,12 +147,12 @@ GiveItemToPlayer {
     LDA $playerMaxHp      ; playerMaxHp += 1
     CLC 
     ADC #$01
-    BVC loc_03F023        ; The 8-bit signed add overflows only when the old value was $7F
+    BVC GiveItem_HpUpStore ; The 8-bit signed add overflows only when the old value was $7F
     LDA #$55              ; Overflow: set $55 (a reset, not a cap). Max HP never reaches $7F in play: ConsoleStringRenderer clamps playerMaxHp to $28 every frame
 
 ; Stores the new max HP and sets hpToHeal.
 
-  loc_03F023:
+  GiveItem_HpUpStore:
     STA $playerMaxHp
     SEC 
     SBC $playerHp         ; hpToHeal := new max HP - HP: UpdateHUD refills to the new maximum, 1 HP every 8 frames
@@ -162,7 +162,7 @@ GiveItemToPlayer {
 
 ; STR Up (item $81): display-filter clear, SFX $25, STR + 1 with the $7F reset, Y = 0.
 
-  loc_03F032:
+  GiveItem_StrUp:
     REP #$20
     LDA #$0080
     TRB $displayModeFlags ; Display-filter clear as for HP Max Up
@@ -171,12 +171,12 @@ GiveItemToPlayer {
     LDA $playerStr        ; playerStr += 1
     CLC 
     ADC #$01
-    BVC loc_03F049
+    BVC GiveItem_StrUpStore
     LDA #$55              ; Same $7F overflow rule
 
 ; Stores the new STR.
 
-  loc_03F049:
+  GiveItem_StrUpStore:
     STA $playerStr
     LDY #$0000
     BRA GiveItem_Success
@@ -194,12 +194,12 @@ GiveItem_DefUp {
     LDA $playerDef        ; playerDef += 1
     CLC 
     ADC #$01
-    BVC loc_03F068
+    BVC GiveItem_DefUpStore
     LDA #$55              ; Same $7F overflow rule
 
 ; Stores the new DEF.
 
-  loc_03F068:
+  GiveItem_DefUpStore:
     STA $playerDef
     LDY #$0000
     BRA GiveItem_Success
@@ -250,17 +250,17 @@ RemoveItemFromInventory {
 
 ; Slot scan for RemoveItemFromInventory: compares each slot with the id in A.
 
-  loc_03F093:
+  RemoveItem_SlotScan:
     CMP $inventorySlots, Y ; Compare slot against item ID; match → clear slot
-    BEQ loc_03F0A0
+    BEQ RemoveItem_Match
     INY 
     CPY #$0010
-    BNE loc_03F093
-    BRA loc_03F0B1        ; Item not found — skip equipped-state reset
+    BNE RemoveItem_SlotScan
+    BRA RemoveItem_Exit   ; Item not found — skip equipped-state reset
 
 ; Match: zero the slot, then unequip (type 0, index $FFFF).
 
-  loc_03F0A0:
+  RemoveItem_Match:
     LDA #$00
     STA $inventorySlots, Y ; Zero matched slot (remove item from inventory)
     REP #$20
@@ -271,7 +271,7 @@ RemoveItemFromInventory {
 
 ; Common exit of RemoveItemFromInventory (PLP, RTL).
 
-  loc_03F0B1:
+  RemoveItem_Exit:
     PLP 
     RTL 
 }
@@ -288,19 +288,19 @@ CheckInventoryForItem {
 
 ; Slot scan for CheckInventoryForItem.
 
-  loc_03F0B9:
+  CheckInventory_SlotScan:
     CMP $inventorySlots, Y ; Compare slot against item ID
-    BEQ loc_03F0C7
+    BEQ CheckInventory_Found
     INY 
     CPY #$0010
-    BNE loc_03F0B9
+    BNE CheckInventory_SlotScan
     PLP 
     SEC 
     RTL 
 
 ; Item found: carry clear.
 
-  loc_03F0C7:
+  CheckInventory_Found:
     PLP 
     CLC 
     RTL 

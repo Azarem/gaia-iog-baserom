@@ -434,16 +434,16 @@ spm_southcape_sprites_sprite_set_0003AE [
 
 spm_southcape_sprites_sprite_group_0003B4 [
   sprite-group < #00, #08, #08, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
-    sprite-part < #00, #00, #00, #00, #00, #$01CD >   ;00
-    sprite-part < #10, #10, #27, #00, #F8, #$01F0 >   ;01
-    sprite-part < #01, #F8, #10, #F0, #10, #$0106 >   ;02
-    sprite-part < #00, #10, #00, #17, #00, #$0105 >   ;03
-    sprite-part < #10, #00, #00, #17, #00, #$0145 >   ;04
-    sprite-part < #10, #00, #03, #14, #00, #$0145 >   ;05
-    sprite-part < #00, #10, #03, #14, #00, #$0105 >   ;06
-    sprite-part < #10, #00, #13, #04, #02, #$0145 >   ;07
-    sprite-part < #00, #10, #13, #04, #02, #$0005 >   ;08
-  ] >
+    sprite-part < #00, #00, #00, #00, #00, #$01CD >
+  ] >   ;00
+  sprite-group < #10, #10, #27, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #06, [
+    sprite-part < #01, #00, #10, #00, #17, #$0500 >   ;00
+    sprite-part < #01, #10, #00, #00, #17, #$4500 >   ;01
+    sprite-part < #01, #10, #00, #03, #14, #$4500 >   ;02
+    sprite-part < #01, #00, #10, #03, #14, #$0500 >   ;03
+    sprite-part < #01, #10, #00, #13, #04, #$4502 >   ;04
+    sprite-part < #01, #00, #10, #13, #04, #$0502 >   ;05
+  ] >   ;01
 ]
 
 spm_southcape_sprites_sprite_group_0003FF [
@@ -1038,10 +1038,10 @@ spm_southcape_sprites_sprite_group_000F10 [
     sprite-part < #01, #00, #08, #10, #0B, #$0D02 >   ;00
     sprite-part < #01, #08, #00, #00, #1B, #$0D00 >   ;01
     sprite-part < #00, #00, #10, #08, #1B, #$0D9D >   ;02
-    sprite-part < #00, #08, #08, #00, #F8, #$01F0 >   ;03
-    sprite-part < #01, #F8, #10, #F0, #10, #$0001 >   ;04
-    sprite-part < #00, #00, #00, #00, #CD, #$0001 >   ;05
-  ] >
+  ] >   ;00
+  sprite-group < #00, #08, #08, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #01, [
+    sprite-part < #00, #00, #00, #00, #00, #$01CD >
+  ] >   ;01
 ]
 
 spm_southcape_sprites_sprite_group_000F46 [

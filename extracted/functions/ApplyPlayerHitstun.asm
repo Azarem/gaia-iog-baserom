@@ -45,7 +45,7 @@ ApplyPlayerHitstun {
     STZ $0002             ; $0002 := 0 (absolute scratch: iframe override, 0 = default); $0000 := Y, the direction code, kept for later
     STY $0000
     ASL                   ; Carry := bit 15 of A, the heavy-hit flag; heavy sets $0002 := $FFC4 (-60 iframe counter)
-    BCC loc_00C3AA
+    BCC HitstunApplyDamage
     PHA 
     LDA #$FFC4
     STA $0002
@@ -53,18 +53,18 @@ ApplyPlayerHitstun {
 
 ; Damage = A with bit 15 cleared (not halved); subtract it from playerHp, clamped at 0.
 
-  loc_00C3AA:
+  HitstunApplyDamage:
     LSR                   ; Damage = A with bit 15 cleared (ASL then LSR cancel: not halved)
     EOR #$FFFF            ; Negate and add: playerHp - damage, clamped at 0
     INC 
     CLC 
     ADC $playerHp
-    BPL loc_00C3B8
+    BPL HitstunReactionIframes
     LDA #$0000
 
 ; Store the HP, switch D / X to the player actor, flag the hit reaction and choose the iframe counter ($003C or $FFC4).
 
-  loc_00C3B8:
+  HitstunReactionIframes:
     STA $playerHp
     LDA $playerActor      ; D := X := the player actor (COP needs X = D = slot)
     TCD 
@@ -72,25 +72,25 @@ ApplyPlayerHitstun {
     LDA #$0080            ; Player $10 |= $0080: hit reaction (also read by the blink code)
     TSB $10
     LDA $0002             ; Iframe counter: $FFC4 for a heavy hit, else the default $003C (+60 ticks of hit-stun)
-    BNE loc_00C3CD
+    BNE HitstunSpawnStagger
     LDA #$003C
 
 ; Store the iframe counter, then spawn the stagger controller unless playerFlags bit $0800 is set.
 
-  loc_00C3CD:
+  HitstunSpawnStagger:
     STA $iframeCounter, X ; Positive = stun, negative = recovery
     LDA $playerFlags      ; Bit $0800 (script / ability lock): no stagger
     BIT #$0800
-    BNE loc_00C410
+    BNE HitstunScriptLocked
     COP [SpawnListAppend] ( @hit_stagger_controller.HitStaggerMain, #00, #00, #$2400 ) ; Spawn HitStaggerMain; flags $2400 = script-driven + player victim; Y = the child
     CPY #$1FC0            ; Y = $1FC0: the actor pool was full
-    BNE loc_00C3ED
+    BNE HitstunConfigureStagger
     LDA #$0F00            ; Spawn failed: reveal the D-pad (no child will do it)
     TRB $joypadMaskStd
 
 ; Configure the child: copy extendedFlags $0020, direction code to $28, zero $2C / $2E.
 
-  loc_00C3ED:
+  HitstunConfigureStagger:
     LDA $extendedFlags, X ; Child setup: the player's extendedFlags bit $0020 is copied into the child
     AND #$0020
     PHX 
@@ -105,7 +105,7 @@ ApplyPlayerHitstun {
 
 ; Hit sound #07, restore D and X, return.
 
-  loc_00C40A:
+  HitstunSoundReturn:
     COP [PlaySoundCh2] ( #07 ) ; Hit sound #07
     PLD 
     PLX 
@@ -113,8 +113,8 @@ ApplyPlayerHitstun {
 
 ; Script lock active: no stagger; clear the D-pad bits of the hidden-button mask and finish with the sound.
 
-  loc_00C410:
+  HitstunScriptLocked:
     LDA #$0F00            ; Script lock: reveal the D-pad (no stagger will do it)
     TRB $joypadMaskStd
-    BRA loc_00C40A
+    BRA HitstunSoundReturn
 }

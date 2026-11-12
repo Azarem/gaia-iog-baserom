@@ -22,7 +22,7 @@ ClearBg3TilemapBuffer_PreserveHud {
     REP #$20
     LDA #$0000
     LDX #$0140            ; Partial clear: start at $0140 — skip first 320 bytes (HUD rows)
-    BRA loc_02F07E        ; Join shared zero-fill loop
+    BRA ClearVramBufferLoop ; Join shared zero-fill loop
 }
 
 ---------------------------------------------
@@ -35,12 +35,12 @@ ClearBg3TilemapBuffer_Full {
     LDA #$0000            ; Full clear: zero-fill the entire BG3 tilemap staging buffer ($7F:0200)
     TAX                   ; X = 0 — start at buffer offset $0000
 
-  loc_02F07E:
+  ClearVramBufferLoop:
     STA $bg3TilemapBuffer, X ; Write $0000 word to buffer slot, advance X by 2
     INX 
     INX 
     CPX #$0800            ; Loop until X=$0800 (2048 bytes total)
-    BNE loc_02F07E
+    BNE ClearVramBufferLoop
     PLP 
     PLX 
     RTL 

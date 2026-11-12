@@ -53,7 +53,7 @@ What changed in what we believe:
 - `NmiHandler` with `musicTransitionState` = 0: on even `$36` frames it loads the word `$06F8/$06F9`, clears both bytes (`STZ`), and stores the word 16-bit to `APUIO2`: low byte (`sfxQueueCh1`) on `$2142`, high byte (`sfxQueueCh2`) on `$2143`. Odd frames write 0 to both. `musicTransitionState` = `$FFFF` skips the write; a positive value runs `UpdateFrameFull` instead.
 - Measured with the camera shake: 61 queue writes (`#15` into `$06F9`, frames 387 to 447), 31 NMI writes of `$15` to `$2143` on the even frames, 0 on odd frames, `sfxQ w0` = 200 in 200 frames. `PlaySoundCh1` reaches `$2142`, `PlaySoundCh2` reaches `$2143`.
 - `CameraShakeActor`: `COP [PlaySoundCh2] ( #15 )`, `JSR CameraShakeFrame`, `DEC $26`, `BMI`, `RTL`; no `SetEntryHere`, so the sound is queued on every tick (61 ticks for `$26` = `$3C`). `LedgeJumpDropLand` was entered directly; the natural fall was not run.
-- `ApplyPlayerHitstun` (50071): `PlaySoundCh2 #07` at `loc_00C40A`, reached by both exits, no read of `characterForm` (`combat_collision` branches to `#08` for a nonzero form). Static only.
+- `ApplyPlayerHitstun` (50071): `PlaySoundCh2 #07` at `HitstunSoundReturn`, reached by both exits, no read of `characterForm` (`combat_collision` branches to `#08` for a nonzero form). Static only.
 
 ### 3.2 Music ids and `$06F2` (D1)
 

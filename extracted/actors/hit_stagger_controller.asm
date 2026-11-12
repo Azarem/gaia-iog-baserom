@@ -55,18 +55,18 @@
 HitStaggerMain {
     LDA $extendedFlags, X ; Victim's extendedFlags: bit $0020 'hitstun skip' = no collision-checked movement; else $10 |= $0008 so the knockback stops at walls
     BIT #$0020
-    BNE loc_00D885
+    BNE HitStaggerRequestMovement
     LDA #$0008
     TSB $10
 
 ; Request movement for this script-driven actor ($12 bit 3), then test for the no-knockback cases.
 
-  loc_00D885:
+  HitStaggerRequestMovement:
     LDA #$0008
     TSB $12               ; $12 |= $0008: movement request, so the engine applies the chains although $2000 is set
     LDA $12
     BIT #$0010            ; Bit $0010 of $12 (inherited from the victim): stagger-immune, no knockback
-    BNE loc_00D8C6
+    BNE HitStaggerNoKnockbackWait
     PHX 
     LDY $24               ; Y := the victim (CopyActorState wrote its slot into $24)
     LDA $0014, Y
@@ -81,33 +81,33 @@ HitStaggerMain {
     STA $free101C, X
     LDA $0028, X          ; Direction code stored by the spawner; 4 or more = no knockback
     CMP #$0004
-    BCS loc_00D8C6
+    BCS HitStaggerNoKnockbackWait
     PEA $&HitStaggerSlideLoop-1 ; Return address: the RTS chain ends in HitStaggerSlideLoop
     DEC                   ; Decode by chained DEC / BMI: 0 south, 1 north, 2 west, falling through to 3 east
-    BMI loc_00D8D6
+    BMI HitStaggerDirSouth
     DEC 
-    BMI loc_00D8E0
+    BMI HitStaggerDirNorth
     DEC 
-    BMI loc_00D8ED
-    BRA loc_00D8FA
+    BMI HitStaggerDirWest
+    BRA HitStaggerDirEast
 
 ; No knockback: wait 16 ticks, then HitStaggerReleasePlayer when the victim is the player ($10 bit $0400), else ResolveHit.
 
-  loc_00D8C6:
+  HitStaggerNoKnockbackWait:
     COP [WaitByte] ( #0F )
     LDA $10
     BIT #$0400
-    BEQ loc_00D8D3
+    BEQ HitStaggerEnemyNoKnockbackResolve
     JMP $&HitStaggerReleasePlayer
 
 ; Enemy, no knockback: resolve the hit.
 
-  loc_00D8D3:
+  HitStaggerEnemyNoKnockbackResolve:
     JMP $&HitStaggerResolveHit
 
 ; Direction 0 (south): clear the ForceDir bits, SEC (vertical chain), JSR the delta setup; the RTS chain continues into HitStaggerSlideLoop.
 
-  loc_00D8D6:
+  HitStaggerDirSouth:
     LDA #$6000            ; Every direction first clears the ForceDir bits ($6000 of $12) inherited from the victim
     TRB $12
     SEC                   ; Carry set = vertical chain ($2E), carry clear = horizontal chain ($2C)
@@ -116,7 +116,7 @@ HitStaggerMain {
 
 ; Direction 1 (north): negate both deltas with SetMoveNegateXY, SEC (vertical chain).
 
-  loc_00D8E0:
+  HitStaggerDirNorth:
     LDA #$6000
     TRB $12
     COP [SetMoveNegateXY] ( #01 ) ; SetMoveNegateXY negates both deltas: moves north
@@ -126,7 +126,7 @@ HitStaggerMain {
 
 ; Direction 2 (west): negate both deltas with SetMoveNegateXY, CLC (horizontal chain).
 
-  loc_00D8ED:
+  HitStaggerDirWest:
     LDA #$6000
     TRB $12
     COP [SetMoveNegateXY] ( #01 ) ; SetMoveNegateXY negates both deltas: moves west
@@ -136,7 +136,7 @@ HitStaggerMain {
 
 ; Direction 3 (east): no negation, CLC (horizontal chain).
 
-  loc_00D8FA:
+  HitStaggerDirEast:
     LDA #$6000
     TRB $12
     CLC                   ; Not negated: east
@@ -158,79 +158,79 @@ HitStaggerSlideLoop {
     COP [LoopEnd]
     LDA $10
     BIT #$0400            ; Bit $0400: the victim is the player
-    BEQ loc_00D921
+    BEQ HitStaggerEnemyDistanceCheck
     JMP $&HitStaggerReleasePlayer
 
 ; Enemy with the movement flag: measure the vertical distance from the saved start Y when $26 is 0, else take the horizontal branch.
 
-  loc_00D921:
+  HitStaggerEnemyDistanceCheck:
     LDA $10
     BIT #$0008            ; Bit $0008: collision-checked knockback; clear means no distance check
     BEQ HitStaggerResolveHit
     LDA $26               ; Axis flag $26: 0 = vertical, nonzero = horizontal
-    BNE loc_00D95B
+    BNE HitStaggerHorizontalDistance
     LDA $orbitDiameter, X ; d = |start Y - current Y|; d = 0 resolves at once
     SEC 
     SBC $16
     BEQ HitStaggerResolveHit
-    BPL loc_00D93B
+    BPL HitStaggerVerticalMultipleCheck
     EOR #$FFFF
     INC 
 
 ; Vertical distance d: a multiple of 16 goes to the threshold check (carry clear = full slide = resolve), anything else is a cut-short slide.
 
-  loc_00D93B:
+  HitStaggerVerticalMultipleCheck:
     BIT #$000F            ; d a multiple of 16: threshold check (carry clear = full slide = resolve); any other d is a cut-short slide
-    BNE loc_00D945
+    BNE HitStaggerVerticalCutShort
     JSR $&HitStaggerCheckKnockbackDistance
     BCC HitStaggerResolveHit
 
 ; Cut-short vertical slide: wake the victim if it has no X chain, then clear its Y chain and Y delta.
 
-  loc_00D945:
+  HitStaggerVerticalCutShort:
     LDX $24               ; Cut-short slide: wake the victim (zero its wait counter $08) when it has no chain on the other axis
     LDA $002C, X
-    BNE loc_00D94F
+    BNE HitStaggerVerticalClearChain
     STZ $0008, X
 
 ; Clear the victim's Y chain pointer and Y delta word, then jump into the HP check.
 
-  loc_00D94F:
+  HitStaggerVerticalClearChain:
     LDA #$0000
     STA $002E, X          ; Clear the victim's Y chain pointer and Y delta word
     STA $moveScratch2, X
-    BRA loc_00D98A
+    BRA HitStaggerHpCheck
 
 ; Horizontal branch: distance from the saved start X.
 
-  loc_00D95B:
+  HitStaggerHorizontalDistance:
     LDA $orbitAngle, X    ; Same structure as the vertical branch on the X axis: d = |start X - current X|
     SEC 
     SBC $14
     BEQ HitStaggerResolveHit
-    BPL loc_00D96A
+    BPL HitStaggerHorizontalMultipleCheck
     EOR #$FFFF
     INC 
 
 ; Horizontal distance d: a multiple of 16 goes to the threshold check, anything else is a cut-short slide.
 
-  loc_00D96A:
+  HitStaggerHorizontalMultipleCheck:
     BIT #$000F
-    BNE loc_00D974
+    BNE HitStaggerHorizontalCutShort
     JSR $&HitStaggerCheckKnockbackDistance
     BCC HitStaggerResolveHit
 
 ; Cut-short horizontal slide: wake the victim if it has no Y chain, then clear its X chain and X delta.
 
-  loc_00D974:
+  HitStaggerHorizontalCutShort:
     LDX $24
     LDA $002E, X
-    BNE loc_00D97E
+    BNE HitStaggerHorizontalClearChain
     STZ $0008, X
 
 ; Clear the victim's X chain pointer and X delta word, then fall into HitStaggerResolveHit.
 
-  loc_00D97E:
+  HitStaggerHorizontalClearChain:
     LDA #$0000
     STA $002C, X          ; Clear the victim's X chain pointer and X delta word
     STA $moveScratch1, X
@@ -244,16 +244,16 @@ HitStaggerResolveHit {
 
 ; HP check (X = victim): zero HP means the victim dies, otherwise the hit callback path.
 
-  loc_00D98A:
+  HitStaggerHpCheck:
     LDA $currentHp, X     ; HP zero: the victim dies; otherwise the hit callback path
-    BNE loc_00D9D0
+    BNE HitStaggerSurvives
     LDA $0010, X
     BIT #$0040            ; Bit $0040 (dead) already set: only remove the child
-    BNE loc_00D9E7
+    BNE HitStaggerRemoveChild
     ORA #$0040
     STA $0010, X
     LDA $onDeathCallback, X ; Death callback (address, then bank) becomes the victim's entry; 0 = none, use the standard defeat
-    BEQ loc_00D9BC
+    BEQ HitStaggerStandardDefeat
     STA $0000, X
     LDA $onDeathCallbackBank, X
     STA $0002, X
@@ -261,37 +261,37 @@ HitStaggerResolveHit {
     STA $0008, X
     STA $002C, X
     STA $002E, X
-    BRA loc_00D9E7
+    BRA HitStaggerRemoveChild
 
 ; No death callback: the victim's script becomes StandardEnemyDefeatHandler (same bank).
 
-  loc_00D9BC:
+  HitStaggerStandardDefeat:
     LDA #$*StandardEnemyDefeatHandler ; Entry := StandardEnemyDefeatHandler (same bank), wait counter zero: run at once
     STA $0002, X
     LDA #$&StandardEnemyDefeatHandler
     STA $0000, X
     LDA #$0000
     STA $0008, X
-    BRA loc_00D9E7
+    BRA HitStaggerRemoveChild
 
 ; Victim survives: run onHitCallback (becomes the entry address, cleared) and set the iframe counter to $FFF4.
 
-  loc_00D9D0:
+  HitStaggerSurvives:
     LDA $onHitCallback, X ; Hit callback (low word only) becomes the victim's entry address, then is cleared
-    BEQ loc_00D9E0
+    BEQ HitStaggerRecoveryIframes
     STA $0000, X
     LDA #$0000
     STA $onHitCallback, X
 
 ; Recovery: iframe counter $FFF4 (-12) on the victim.
 
-  loc_00D9E0:
+  HitStaggerRecoveryIframes:
     LDA #$FFF4            ; Recovery: iframe counter $FFF4 (-12)
     STA $iframeCounter, X
 
 ; Remove the child: X := D, then COP Die.
 
-  loc_00D9E7:
+  HitStaggerRemoveChild:
     TDC                   ; X := D (the child): COP Die needs X = the actor slot
     TAX 
     COP [Die]
@@ -305,7 +305,7 @@ HitStaggerReleasePlayer {
     LDX $playerActor
     LDA $playerFlags
     BIT #$0A00            ; Game over ($0200) or script lock ($0800): leave the player's script alone
-    BNE loc_00DA03
+    BNE HitStaggerPlayerIframes
     LDA #$*player_character.PlayerIdleEntry ; Entry := PlayerIdleEntry (bank, then address)
     STA $0002, X
     LDA #$&player_character.PlayerIdleEntry
@@ -313,7 +313,7 @@ HitStaggerReleasePlayer {
 
 ; Set the player's iframe counter to $FFE2, restore the D-pad and remove the child.
 
-  loc_00DA03:
+  HitStaggerPlayerIframes:
     LDA #$FFE2            ; -30: recovery counter, replacing the positive stun counter
     STA $iframeCounter, X
     PLX 
@@ -329,32 +329,32 @@ HitStaggerCheckKnockbackDistance {
     STA $0000             ; Distance d in the absolute global scratch word $0000
     PEA $&HitStaggerZeroToCarry-1 ; Return through CallbackPass (turns Z into carry)
     LDA $free101C, X
-    BNE loc_00DA26
+    BNE HitStaggerThresholdTier1
     LDA $0000
     CMP #$0030            ; Tier 0 threshold $30 (48 px, the tier-0 curve sum)
     RTS 
 
 ; Tier 1: threshold $20.
 
-  loc_00DA26:
+  HitStaggerThresholdTier1:
     DEC 
-    BNE loc_00DA30
+    BNE HitStaggerThresholdTier2
     LDA $0000
     CMP #$0020            ; Tier 1 threshold $20 (32 px, the tier-1 curve sum)
     RTS 
 
 ; Tier 2: threshold $40.
 
-  loc_00DA30:
+  HitStaggerThresholdTier2:
     DEC 
-    BNE loc_00DA3A
+    BNE HitStaggerThresholdTier3Plus
     LDA $0000
     CMP #$0040            ; Tier 2 and above: threshold $40 (no actor uses these tiers)
     RTS 
 
 ; Tier 3 and above: threshold $40.
 
-  loc_00DA3A:
+  HitStaggerThresholdTier3Plus:
     LDA $0000
     CMP #$0040
     RTS 
@@ -365,12 +365,12 @@ HitStaggerCheckKnockbackDistance {
 
 HitStaggerZeroToCarry {
     CLC 
-    BNE loc_00DA45
+    BNE HitStaggerNotEqualSetCarry
     RTS 
 
 ; Not equal: carry SET.
 
-  loc_00DA45:
+  HitStaggerNotEqualSetCarry:
     SEC 
     RTS 
 }
@@ -381,29 +381,29 @@ HitStaggerZeroToCarry {
 HitStaggerApplyKnockbackDelta {
     PEA $&HitStaggerStoreMovementDelta-1 ; Pushed return address: the RTS runs HitStaggerStoreMovementDelta
     LDA $free101C, X
-    BNE loc_00DA54
+    BNE HitStaggerOffsetTier1
     LDY #$0044            ; Tier 0: table offset $44 = entry $22 (48 px curve)
     RTS 
 
 ; Tier 1: offset $46.
 
-  loc_00DA54:
+  HitStaggerOffsetTier1:
     DEC 
-    BNE loc_00DA5B
+    BNE HitStaggerOffsetTier2
     LDY #$0046            ; Tier 1 and above: offset $46 = entry $23 (32 px curve)
     RTS 
 
 ; Tier 2: offset $46.
 
-  loc_00DA5B:
+  HitStaggerOffsetTier2:
     DEC 
-    BNE loc_00DA62
+    BNE HitStaggerOffsetTier3Plus
     LDY #$0046
     RTS 
 
 ; Tier 3 and above: offset $46.
 
-  loc_00DA62:
+  HitStaggerOffsetTier3Plus:
     LDY #$0046
     RTS 
 }
@@ -413,7 +413,7 @@ HitStaggerApplyKnockbackDelta {
 
 HitStaggerStoreMovementDelta {
     LDA $&move_chain_table, Y ; Chain head from move_chain_table; the carry is still the caller's
-    BCS loc_00DA73
+    BCS HitStaggerStoreYChain
     STA $2C               ; Carry clear: X chain in $2C, axis flag $26 := 1
     LDA #$0001
     STA $26
@@ -421,7 +421,7 @@ HitStaggerStoreMovementDelta {
 
 ; Vertical: store the chain head in $2E and clear the axis flag $26.
 
-  loc_00DA73:
+  HitStaggerStoreYChain:
     STA $2E               ; Carry set: Y chain in $2E, axis flag $26 := 0
     STZ $26
     RTS 

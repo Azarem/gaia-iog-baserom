@@ -12,7 +12,7 @@
 oneshot_coldata_warm_flash [
   thinker-def < #00, #08, {
 
-  code_00B660:
+  OneshotColdataWarmFlashEntry:
     SEP #$20              ; 8-bit A for the COLDATA writes
     LDA #$66              ; $66 = red + green channel bits ($20 + $40) with intensity 6
     STA $COLDATA          ; COLDATA: red and green fixed colour = 6; blue unchanged

@@ -107,31 +107,31 @@ CameraDriftLoopSimple {
     CLC 
     ADC $cameraTargetY
     STA $cameraTargetY
-    BPL loc_00D016        ; Clamp the target at 0
+    BPL CameraDriftYDeltaStep ; Clamp the target at 0
     STZ $cameraTargetY
 
 ; Y delta step: skipped when $24 = $FFFF, otherwise adds the same offset to cameraDeltaY (clamped to 0).
 
-  loc_00D016:
+  CameraDriftYDeltaStep:
     LDA $24               ; $24 = $FFFF skips the delta update
     CMP #$FFFF
-    BEQ loc_00D02C
+    BEQ CameraDriftYDeltaSkip
     PLA 
     CLC 
     ADC $cameraDeltaY
     STA $cameraDeltaY
-    BPL loc_00D02D
+    BPL CameraDriftXAxis
     STZ $cameraDeltaY
-    BRA loc_00D02D
+    BRA CameraDriftXAxis
 
 ; $24 = $FFFF: drop the Y offset without touching the delta.
 
-  loc_00D02C:
+  CameraDriftYDeltaSkip:
     PLA 
 
 ; X axis: the next table entry (the incremented $28 and 7) is added to cameraTargetX with the same clamp.
 
-  loc_00D02D:
+  CameraDriftXAxis:
     LDA $28               ; X axis uses the next table entry ($28 was incremented above)
     AND #$0007
     ASL 
@@ -141,41 +141,41 @@ CameraDriftLoopSimple {
     CLC 
     ADC $cameraTargetX
     STA $cameraTargetX
-    BPL loc_00D044
+    BPL CameraDriftXDeltaStep
     STZ $cameraTargetX
 
 ; X delta step: same $24 test and clamp for cameraDeltaX.
 
-  loc_00D044:
+  CameraDriftXDeltaStep:
     LDA $24
     CMP #$FFFF
-    BEQ loc_00D05A
+    BEQ CameraDriftXDeltaSkip
     PLA 
     CLC 
     ADC $cameraDeltaX
     STA $cameraDeltaX
-    BPL loc_00D05B
+    BPL CameraDriftRunEnd
     STZ $cameraDeltaX
-    BRA loc_00D05B
+    BRA CameraDriftRunEnd
 
 ; $24 = $FFFF: drop the X offset without touching the delta.
 
-  loc_00D05A:
+  CameraDriftXDeltaSkip:
     PLA 
 
 ; End of a run: restore DBR, $08 := 3 (the next run starts 4 ticks later), count down $2A and return, or die on the third run.
 
-  loc_00D05B:
+  CameraDriftRunEnd:
     PLB 
     LDA #$0003
     STA $08               ; $08 := 3: the next run starts 4 ticks later
     DEC $2A               ; $2A counts 2, 1, 0 and then goes negative: the third run dies
-    BMI loc_00D066
+    BMI CameraDriftDie
     RTL 
 
 ; Third run done: Die.
 
-  loc_00D066:
+  CameraDriftDie:
     COP [Die]
 }
 

@@ -158,11 +158,11 @@ SceneScriptMain {
     SEP #$20
     JSR $&FindCurrentScene ; Locate current scene entry in script table
 
-  code_0283C1:
+  SceneScriptMainLoop:
     JSR $&ReadScriptByte  ; Main command loop: read next scene command opcode
     CMP #$00
     BEQ loc_0283DB        ; Opcode $00 = end-of-scene marker
-    PEA $&code_0283C1-1   ; Push return address for RTS dispatch trick (loop back to code_0283C1)
+    PEA $&SceneScriptMainLoop-1 ; Push return address for RTS dispatch trick (loop back to SceneScriptMainLoop)
     REP #$20
     AND #$00FF            ; Zero-extend opcode byte to 16-bit for table index
     ASL 
@@ -192,11 +192,11 @@ SceneScriptNoMusic {
     SEP #$20
     JSR $&FindCurrentScene
 
-  code_0283ED:
+  SceneScriptNoMusicLoop:
     JSR $&ReadScriptByte  ; Read next command opcode (same loop structure as SceneScriptMain)
     CMP #$00
     BEQ loc_028414
-    PEA $&code_0283ED-1
+    PEA $&SceneScriptNoMusicLoop-1
     REP #$20
     AND #$00FF
     ASL 
@@ -1404,7 +1404,7 @@ SceneCmd_LoadSpriteTiles {
 ; 
 ; Size word: the decompressed length, stored in $78 for QuintetLzDecompress, which writes to $7E:7000. After the two INC $3E the BEQ tests the INC result, which is never zero, so in the original game the raw path is dead and the file is always decompressed. MenuBGLoad.patch.asm adds CMP #$0000 / BEQ / BMI, so a zero or negative size word (the rebuilt ROM stores $E000) skips the decompressor and DMAs the raw data from ROM.
 ; 
-; VRAM destination from flags ($066A): bit 7 set = (flags & $7F) << 10 words (one 32x32 tilemap screen is $400 words, so each unit is one screen; $80 = $0000). Otherwise bit 0 = $1000 and bit 1 = $1800; with both bits the same data is uploaded twice (PEA+RTS into code_028CB0), with neither bit nothing is uploaded. Transfer: general DMA channel 0, mode $01, B-bus $18 (VMDATAL), size $0666.
+; VRAM destination from flags ($066A): bit 7 set = (flags & $7F) << 10 words (one 32x32 tilemap screen is $400 words, so each unit is one screen; $80 = $0000). Otherwise bit 0 = $1000 and bit 1 = $1800; with both bits the same data is uploaded twice (PEA+RTS into SceneCmd_LoadCharTiles_VramBit1), with neither bit nothing is uploaded. Transfer: general DMA channel 0, mode $01, B-bus $18 (VMDATAL), size $0666.
 
 SceneCmd_LoadCharTiles {
     PHP 
@@ -1467,10 +1467,10 @@ SceneCmd_LoadCharTiles {
     REP #$20              ; Bit 7 clear: check bit pattern for predefined VRAM slots
     AND #$00FF
     BIT #$0001
-    BEQ code_028CB0
+    BEQ SceneCmd_LoadCharTiles_VramBit1
     LDA #$1000            ; Bit 0: VRAM $1000 (first character page), chain to bit 1 check via PEA+RTS
     STA $VMADDL
-    PEA $&code_028CB0-1
+    PEA $&SceneCmd_LoadCharTiles_VramBit1-1
     PHP 
     BRA loc_028CC4
 }
@@ -1478,7 +1478,7 @@ SceneCmd_LoadCharTiles {
 ---------------------------------------------
 ; Second half of the flag-bit VRAM targeting of SceneCmd_LoadCharTiles, reached by the BEQ when bit 0 is clear or by the PEA+RTS after the $1000 upload. Bit 1 set: VRAM $1800 and the same data is uploaded again; bit 1 clear: PLP + RTS without a DMA. loc_028CC4 is the shared DMA setup (general DMA channel 0).
 
-code_028CB0 {
+SceneCmd_LoadCharTiles_VramBit1 {
     REP #$20
     LDA $gfxLayerFlags
     BIT #$0002

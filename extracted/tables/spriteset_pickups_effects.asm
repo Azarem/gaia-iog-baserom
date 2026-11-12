@@ -1,8 +1,8 @@
-; Shared effects, pickups and props sprite set (Bank 0E, 974848-982479, 7631 bytes). The old note ('shared by all dungeon enemies, boss sub-sprites, dark gem animations and combat VFX', 'the largest spriteset file in the game') was too broad: 84 extracted actor files select it with SetMetasprite ( @spriteset_pickups_effects ), and most of them are pickups, switches, effects and scene props; only a few enemies and bosses use it (sE8_dark_gaia, ir29_castoth, sg55_viper, gw8A_sand_fanger, mu67_vampires, pyDD_mummy_queen, ec0D_canal_worm, sg4E_nitropede and others). It is not the largest: spriteset_will (17441 B), spriteset_shadow (12443 B) and spriteset_transform_poses (11653 B) are bigger.
+; Shared effects, pickups and props sprite set (Bank 0E, 974848-982479, 7631 bytes). It is selected by 84 extracted actor files with SetMetasprite ( @spriteset_pickups_effects ), and most of them are pickups, switches, effects and scene props; only a few enemies and bosses use it (sE8_dark_gaia, ir29_castoth, sg55_viper, gw8A_sand_fanger, mu67_vampires, pyDD_mummy_queen, ec0D_canal_worm, sg4E_nitropede and others). It is not the largest: spriteset_freedan (19163 B), spriteset_will (17441 B), spriteset_shadow (12443 B) and spriteset_transform_poses (11653 B) are bigger.
 ; 
-; Structure (format in the spriteset_freedan block note): 63 animations ($00-$3E), 257 frame records, 144 printed groups (one hides a second, see sprite_group_0EEE5E), 640 printed sub-sprite rows. Byte budget: 126 B pointer table + 1154 B frame lists (257 x 4 + 63 x 2) + 6351 B of groups = 7631.
+; Structure (format in the spriteset_freedan block note): 63 animations ($00-$3E), 257 frame records, 145 sprite groups (144 labelled, plus 1 unreferenced group printed as the second group of sprite_group_0EEE5E), 638 sub-sprites. Byte budget: 126 B pointer table + 1154 B frame lists (257 x 4 + 63 x 2) + 6351 B of groups = 7631.
 ; 
-; Animations whose users were traced (E2):
+; Animations whose users were traced:
 ; 
 ; | Index | User |
 ; |-------|------|
@@ -15,7 +15,7 @@
 ; | $22, $35 | the 5 HP heal pickup of EnemyDropSystem |
 ; | $25, $29 | SpawnFieldRevealEffect (flash and rise) |
 ; 
-; The other animations belong to the scene actors listed above; they were not mapped one by one (OQ-I069-2).
+; The other animations belong to the scene actors listed above; they were not mapped one by one.
 ---------------------------------------------
 
 ?BANK 0E
@@ -1132,7 +1132,7 @@ sprite_group_0EEE04 [
 ]
 
 ---------------------------------------------
-; Real group: header + 11 sub-sprites (90 bytes, rows ;00-;0A). Rows ;0B-;0D are NOT sub-sprites: the extractor ignored the count and printed the next, unreferenced group (13 B header + 1 sub-sprite = 20 bytes at 0EEEB8, no set points to it) as three rows of 7 bytes, so the last byte of row ;0D is the first byte of group 0EEECC, which is printed again below (OQ-I069-4).
+; Header + 11 sub-sprites (90 bytes), followed by a second group (;01 at 0EEEB8: 13 B header + 1 sub-sprite = 20 bytes) that no frame list points at.
 
 sprite_group_0EEE5E [
   sprite-group < #1C, #10, #28, #00, #F8, #F0, #01, #01, #F8, #10, #F0, #10, #0B, [
@@ -1147,10 +1147,10 @@ sprite_group_0EEE5E [
     sprite-part < #00, #07, #1D, #1F, #01, #$0295 >   ;08
     sprite-part < #00, #00, #24, #18, #08, #$0295 >   ;09
     sprite-part < #00, #08, #1C, #18, #08, #$0285 >   ;0A
-    sprite-part < #08, #08, #10, #00, #F8, #$01F0 >   ;0B
-    sprite-part < #01, #F8, #0F, #F1, #0E, #$0101 >   ;0C
-    sprite-part < #00, #00, #00, #00, #C0, #$0002 >   ;0D
-  ] >
+  ] >   ;00
+  sprite-group < #08, #08, #10, #00, #F8, #F0, #01, #01, #F8, #0F, #F1, #0E, #01, [
+    sprite-part < #01, #00, #00, #00, #00, #$02C0 >
+  ] >   ;01
 ]
 
 sprite_group_0EEECC [

@@ -138,7 +138,7 @@ This matches how the maps are built: `$05`/`$0A` cells form vertical stacks capp
 
 ### DecelerateNS
 
-**[ASM]** Same structure on `playerSpeedNs` with joypad `$0400` (south) / `$0800` (north). When NS speed reaches zero, the code clears `slopeStepCounter` at `loc_02B76C` instead of `decelStepCounter` (the EW path clears `decelStepCounter`).
+**[ASM]** Same structure on `playerSpeedNs` with joypad `$0400` (south) / `$0800` (north). When NS speed reaches zero, the code clears `slopeStepCounter` at `DecelerateNS_ZeroSlopeStep` instead of `decelStepCounter` (the EW path clears `decelStepCounter`).
 
 **[Runtime-verified, B3]** With the deceleration curve patched to 3 at every step (poked speed ±3, `$09B6` = 5, `$09B8` = 4), the reset fires in 4 of 4 cases: after the EW reset `$09B8` is 0, after the NS reset `$09B8` stays 5 and speed is 0, so the NS path leaves the deceleration curve at its position as the asm note says. The `STZ slopeStepCounter` is a no-op on this path (`SlopeFlatExit` has already cleared `$09B6`). With the shipped curve neither reset fires: both axes stop through the `|speed| < 3` snap (`EWSnap` / `NSSnap`), except that NS +5 and run S reach 0 without that hook. Coverage: flat ground only.
 

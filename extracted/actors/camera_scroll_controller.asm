@@ -55,12 +55,12 @@ camera_scroll_controller [
     COP [SetEntryHere]
     LDA $layerPriorityFlag
     BIT #$0200            ; layerPriorityFlag bit $0200 = camera frozen (set by the attack setup in player_character): return without updating anything
-    BEQ loc_00EB00
+    BEQ CameraTrackRefreshPlayerPos
     RTL 
 
 ; Not frozen: switch D to the player actor and refresh playerXPos / playerYPos and the tile coordinates.
 
-  loc_00EB00:
+  CameraTrackRefreshPlayerPos:
     PHD 
     LDA $playerActorDp
     TCD                   ; D := player actor slot, so $14 / $16 below are the player's pixel X / Y
@@ -84,81 +84,81 @@ camera_scroll_controller [
     STA $playerYTile
     LDA $playerFlags
     BIT #$0100            ; playerFlags bit $0100 = forced walk: leave cameraTarget to forced_walk and skip to the delta step
-    BNE loc_00EB85
+    BNE CameraDeltaStep
     LDA $14               ; Player pixel X
     SEC 
     SBC #$0080            ; t = X - 128: the scroll position that centres the player in the 256-pixel view
-    BMI loc_00EB4D        ; Underflow → clamp to left offset
+    BMI CameraTargetXLeftLimit ; Underflow → clamp to left offset
     CMP $cameraOffsetX
-    BMI loc_00EB4D        ; Below left limit → clamp
+    BMI CameraTargetXLeftLimit ; Below left limit → clamp
     CLC 
     ADC #$0100            ; e = t + 256 = the view's right edge, compared with cameraBoundsX
     CMP $cameraBoundsX
-    BMI loc_00EB52        ; Within bounds → use computed target
+    BMI CameraTargetXRightEdge ; Within bounds → use computed target
     LDA $cameraBoundsX    ; Over right limit → clamp to max
-    BRA loc_00EB52
+    BRA CameraTargetXRightEdge
 
 ; Dead code (never branched to): loads cameraBoundsX and jumps to the right-edge path.
 
   CameraDeadBoundsX:
     LDA $cameraBoundsX
-    BRA loc_00EB52
+    BRA CameraTargetXRightEdge
 
 ; Target X below the left limit (or negative): use cameraOffsetX.
 
-  loc_00EB4D:
+  CameraTargetXLeftLimit:
     LDA $cameraOffsetX
-    BRA loc_00EB56
+    BRA CameraTargetXStore
 
 ; Right-edge path: subtracts $100 from the edge value to turn it into the scroll origin (the left edge of the view).
 
-  loc_00EB52:
+  CameraTargetXRightEdge:
     SEC                   ; Subtract screen width to get scroll origin
     SBC #$0100
 
 ; Stores cameraTargetX and computes cameraTargetY the same way (offset / bounds are the Y words).
 
-  loc_00EB56:
+  CameraTargetXStore:
     STA $cameraTargetX
     LDA $16               ; Player pixel Y
     SEC 
     SBC #$0080            ; t = Y - 128: same constant as X although the screen is 224 lines tall
-    BMI loc_00EB79        ; Underflow → clamp to top offset
+    BMI CameraTargetYTopLimit ; Underflow → clamp to top offset
     CMP $cameraOffsetY
-    BMI loc_00EB79        ; Below top limit → clamp
+    BMI CameraTargetYTopLimit ; Below top limit → clamp
     CLC 
     ADC #$0100            ; e = t + 256 = the view's bottom edge, compared with cameraBoundsY
     CMP $cameraBoundsY
-    BMI loc_00EB7E        ; Within bounds → use computed target
+    BMI CameraTargetYBottomEdge ; Within bounds → use computed target
     LDA $cameraBoundsY    ; Over bottom limit → clamp to max
-    BRA loc_00EB7E
+    BRA CameraTargetYBottomEdge
 
 ; Dead code (never branched to): loads cameraBoundsY and jumps to the bottom-edge path.
 
   CameraDeadBoundsY:
     LDA $cameraBoundsY
-    BRA loc_00EB7E
+    BRA CameraTargetYBottomEdge
 
 ; Target Y above the top limit (or negative): use cameraOffsetY.
 
-  loc_00EB79:
+  CameraTargetYTopLimit:
     LDA $cameraOffsetY    ; Clamp to top offset
-    BRA loc_00EB82
+    BRA CameraTargetYStore
 
 ; Bottom-edge path: subtracts $100 from the edge value to turn it into the scroll origin (the top of the view).
 
-  loc_00EB7E:
+  CameraTargetYBottomEdge:
     SEC                   ; Subtract screen height to get scroll origin
     SBC #$0100
 
 ; Stores cameraTargetY.
 
-  loc_00EB82:
+  CameraTargetYStore:
     STA $cameraTargetY
 
 ; Delta step (also reached directly while the forced walk holds the target): effectDeltaX / effectDeltaY := target - current BG1 scroll (bg1ScrollH, mapScrollV).
 
-  loc_00EB85:
+  CameraDeltaStep:
     LDA $cameraTargetX    ; Delta X = target - current BG1 scroll
     SEC 
     SBC $bg1ScrollH

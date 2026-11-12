@@ -8,8 +8,8 @@
 ;   dialog; tab dispatch had four handlers; SRAM scan did not set menu flag $20.
 ; Hooks (overrides): sFA_diary_menu.DiaryMenuInit, DiaryMainMenuEntry,
 ;   DiaryTabCursorUp/Down, DiaryTabConfirm, diary_tab_dispatch_table,
-;   DiaryScanSramSlots (+ loc_0BEDA3, DiaryScanSramLoop, loc_0BEE11);
-;   diary_menu_window_dma.loc_00BC45 (fifth tab window band).
+;   DiaryScanSramSlots (+ DiaryScanSramSlots_StoreLastUsed, DiaryScanSramLoop, DiaryScanSramSlots_ChecksumMismatch);
+;   diary_menu_window_dma.DiaryBandTab3PlusQueue (fifth tab window band).
 ; Adds: diary_ngp_option, diary_ngp_confirm, diary_ngp_str; dma_data_extra table.
 ; Depends on: sFA_diary_menu, chunk_03BAE1, thinker_00BBAF include, LoadGameState_Scene.
 ; State: $0D92/$0D96/$0D98 cursors; $0D98 tab index (5 entries when $20 set);
@@ -185,7 +185,7 @@ sFA_diary_menu.DiaryMenuInit! {
     STZ $18
     COP [C1]
     LDA $0654
-    BNE loc_0BE2CA
+    BNE DiaryMenuSceneReadyJoin
     RTL 
 }
 
@@ -197,15 +197,15 @@ sFA_diary_menu.DiaryTabCursorUp! {
     BEQ diary_main_dec_normal
     LDA $0D98
     DEC 
-    BPL loc_0BE302
+    BPL DiaryTabCursorUpStore
     LDA #$0004
-    BRA loc_0BE302
+    BRA DiaryTabCursorUpStore
 }
 
 diary_main_dec_normal {
     LDA $0D98
     DEC 
-    BPL loc_0BE302
+    BPL DiaryTabCursorUpStore
     LDA #$0003
 }
 
@@ -215,7 +215,7 @@ sFA_diary_menu.DiaryMainMenuEntry! {
     LDA $20
     BEQ diary_print_normal
     COP [6B] ( &diary_ngp_str )
-    BRA loc_0BE2D0
+    BRA DiaryTabSelectResetCursors
 
   diary_print_normal:
     COP [6B] ( &dialogstring_0BF3F4 )
@@ -230,16 +230,16 @@ sFA_diary_menu.DiaryTabCursorDown! {
     LDA $0D98
     INC 
     CMP #$0005
-    BCC loc_0BE31E
+    BCC DiaryTabCursorDownStore
     LDA #$0000
-    BRA loc_0BE31E
+    BRA DiaryTabCursorDownStore
 }
 
 diary_main_inc_normal {
     LDA $0D98
     INC 
     CMP #$0004
-    BCC loc_0BE31E
+    BCC DiaryTabCursorDownStore
     LDA #$0000
 }
 
@@ -296,11 +296,11 @@ sFA_diary_menu.DiaryScanSramSlots! {
     STZ $20
     LDA $306000
     CMP #$0003
-    BCC loc_0BEDA3
+    BCC DiaryScanSramSlots_StoreLastUsed
     LDA #$0000
     STA $306000
 
-  sFA_diary_menu.loc_0BEDA3!:
+  sFA_diary_menu.DiaryScanSramSlots_StoreLastUsed!:
     STA $0D8C
 
   sFA_diary_menu.DiaryScanSramLoop!:
@@ -319,7 +319,7 @@ sFA_diary_menu.DiaryScanSramSlots! {
 
   diary_noload:
     CLC
-    JMP loc_0BEE12
+    JMP DiaryScanSramSlots_NextSlot
 
   diary_preload:
     PHX 
@@ -379,7 +379,7 @@ sFA_diary_menu.DiaryScanSramSlots! {
     SEC 
 }
 
-sFA_diary_menu.loc_0BEE11! {
+sFA_diary_menu.DiaryScanSramSlots_ChecksumMismatch! {
 }
 
 
@@ -388,7 +388,7 @@ sFA_diary_menu.loc_0BEE11! {
 ------------------------------------------------
 ;Enable 5th menu option highlight
 
-diary_menu_window_dma.loc_00BC45! {
+diary_menu_window_dma.DiaryBandTab3PlusQueue! {
     DEC 
     BNE code_extra
     COP [02] ( @diary_band_tab3, #26 )

@@ -12,7 +12,7 @@
 oneshot_coldata_r11g4b2 [
   thinker-def < #00, #08, {
 
-  code_00B6E7:
+  OneshotColdataR11g4b2Entry:
     SEP #$20              ; 8-bit A for the COLDATA writes
     LDA #$2B              ; $2B = red channel bit ($20) with intensity 11
     STA $COLDATA          ; COLDATA: red fixed colour = 11

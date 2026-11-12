@@ -1,6 +1,6 @@
 ; Jeweler Gem: the Red Jewel collector NPC (Bank 08, 577187-577682). Placed with spawn parameter #01 in scenes $01 (South Cape), $32 (Freejia), $6B, $7B, $9B and $C3, one record each; every placement runs this same code.
 ; 
-; === SPAWN (code_08CEA3) ===
+; === SPAWN (JewelerGemEntry) ===
 ; 
 ; Event flag $E8 is the Solid Arm flag: sEA_solid_arm sets it before its intro dialog (after the scene's lock and the WaitWord #$0120 wait, with no fight needed), so from the first entry into scene $EA on, Gem no longer appears (JewelerDie) in the six scenes that spawn him ($01, $32, $6B, $7B, $9B, $C3). Otherwise the spawn parameter in $0E picks an 8-frame animation group (all six records pass #01, which gives group 0): the animation index $28 is set to group x 8 + 2 (it is an animation index, not a sprite frame). $0E is then replaced by $3000, the OAM attribute word. Gem marks his tile solid, registers JewelerInteract as his chatPtr and idles on a bare RTL; the shared talk handler in global_ambient_dispatcher runs JewelerInteract when the player presses the interact button (A in this build) facing him.
 ; 
@@ -37,7 +37,7 @@
 jeweler_gem [
   actor-def < #02, #00, #10, {
 
-  code_08CEA3:
+  JewelerGemEntry:
     COP [BranchOnFlagByte] ( #E8, #01, &JewelerDie ) ; Flag $E8 (set by sEA_solid_arm before its intro dialog, not after the fight): Gem is gone, die
     LDA $0E               ; Spawn parameter (all six records pass #01, which gives 0): selects the 8-frame animation group
     ASL 
@@ -59,17 +59,17 @@ jeweler_gem [
 ]
 
 ---------------------------------------------
-; Talk entry (the chatPtr): greeting, the jewel count if non-zero, then the tier cascade starting at code_08CED6.
+; Talk entry (the chatPtr): greeting, the jewel count if non-zero, then the tier cascade starting at JewelerRewardTierCascade.
 
 JewelerInteract {
     COP [PrintDialogString] ( &dialogstring_08D094 ) ; "I am the Jeweler Gem"
     LDA $jewelsCollected  ; jewelsCollected ($0AB0): Red Jewels handed in so far, a BCD value
-    BEQ code_08CED6       ; Skip count display if 0
+    BEQ JewelerRewardTierCascade ; Skip count display if 0
     COP [PrintDialogString] ( &dialogstring_08D0C8 ) ; "I'm holding [count] Red Jewels"
 
 ; Reward threshold cascade — checks each tier in ascending order
 
-  code_08CED6:
+  JewelerRewardTierCascade:
     COP [BranchOnFlagByte] ( #E9, #01, &JewelerCheck5 ) ; 3-jewel reward already given?
     LDA $jewelsCollected
     CMP #$0003            ; Need ≥ 3 jewels
@@ -195,7 +195,7 @@ JewelerCountJewels {
     COP [RemoveItem] ( #01 ) ; Remove one jewel item per call; the loop repeats while one is left
     COP [BranchIfHasItem] ( #01, &code_08CF97 ) ; More jewels left: remove the next one
     COP [PrintDialogString] ( &dialogstring_08D20F ) ; "This is a rare jewel"
-    JMP $&code_08CED6     ; Re-check reward thresholds
+    JMP $&JewelerRewardTierCascade ; Re-check reward thresholds
 }
 
 ---------------------------------------------

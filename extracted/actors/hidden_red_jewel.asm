@@ -46,7 +46,7 @@ hidden_red_jewel [
 
 ; Actor entry (after the 3-byte header): install the interact handler, set the metasprite and hitbox, then idle. $0E (spawn type >> 1) is left untouched for the flag index.
 
-  code_00C672:
+  HiddenRedJewelEntry:
     COP [SetInteractHandler] ( &HiddenRedJewelInteract ) ; Install the interact handler
     COP [SetMetasprite] ( @spriteset_pickups_effects ) ; Metasprite spriteset_pickups_effects, sprite / hitbox config #00; $0E (spawn type >> 1) is left untouched for the flag index
     COP [StageSprAndHitbox] ( #00 )

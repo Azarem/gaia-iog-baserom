@@ -18,18 +18,18 @@
 flag_gated_palette_cool [
   thinker-def < #00, #08, {
 
-  code_00B5E1:
+  FlagGatedPaletteCoolEntry:
     COP [BranchOnFlagByte] ( #1C, #01, &FlagGatedPaletteCoolKill ) ; Gate: flag $1C (end-of-day narration) already set: die
     COP [BranchOnFlagByte] ( #16, #00, &FlagGatedPaletteCoolKill ) ; Gate: flag $16 (Kara-news cutscene) not yet set: die
 
 ; Palette loop: apply bundle $4C once, set flag $FF, wait until $FF is clear, then repeat (the gate above is not re-evaluated).
 
-  loc_00B5ED:
+  FlagGatedPaletteCoolLoop:
     COP [PaletteStart] ( #4C ) ; Select palette bundle $4C
     COP [PaletteStep]     ; Apply the bundle (one step)
     COP [SetFlagByte] ( #FF ) ; Set the scene-setup latch $FF ourselves
     COP [WaitOnFlagByte] ( #FF, #00 ) ; Park until flag $FF is cleared (the first thinker pass after an inventory close)
-    BRA loc_00B5ED        ; Then play the bundle again
+    BRA FlagGatedPaletteCoolLoop ; Then play the bundle again
 } >
 ]
 

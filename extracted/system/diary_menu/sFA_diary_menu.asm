@@ -105,7 +105,7 @@
 sFA_diary_menu [
   actor-def < #00, #00, #28, {
 
-; Scene $FA actor entry: black backdrop and no layers, all three cursors set to none ($FFFF), display configured as described in the block note, main-menu text and button legend printed, the three SRAM slots scanned, then a poll of worldReadyFlag until the scene is ready, after which it joins the tab loop at loc_0BE2D0.
+; Scene $FA actor entry: black backdrop and no layers, all three cursors set to none ($FFFF), display configured as described in the block note, main-menu text and button legend printed, the three SRAM slots scanned, then a poll of worldReadyFlag until the scene is ready, after which it joins the tab loop at DiaryTabSelectResetCursors.
 
   DiaryMenuInit:
     LDA #$0000            ; A = 0: colour 0 (backdrop) := black in the palette staging; also TM = 0 below
@@ -157,14 +157,14 @@ sFA_diary_menu [
     STA $joypadMaskInv
     STZ $18               ; Clear $18 (blink counter of the unreferenced cursor code)
     COP [SetEntryHere]
-    LDA $worldReadyFlag   ; Wait for the scene to be ready, then join the tab loop at loc_0BE2D0
-    BNE loc_0BE2CA
+    LDA $worldReadyFlag   ; Wait for the scene to be ready, then join the tab loop at DiaryTabSelectResetCursors
+    BNE DiaryMenuSceneReadyJoin
     RTL 
 
-; Scene ready: skip the menu reprint (init already drew it) and join the tab-select setup at loc_0BE2D0.
+; Scene ready: skip the menu reprint (init already drew it) and join the tab-select setup at DiaryTabSelectResetCursors.
 
-  loc_0BE2CA:
-    BRA loc_0BE2D0
+  DiaryMenuSceneReadyJoin:
+    BRA DiaryTabSelectResetCursors
 } >
 ]
 ---------------------------------------------
@@ -177,7 +177,7 @@ DiaryMainMenuEntry {
 
 ; Reset the cursors for the tab loop: slot cursor ($0D92) off, tab cursor ($0D98) = 0.
 
-  loc_0BE2D0:
+  DiaryTabSelectResetCursors:
     LDA #$FFFF            ; Slot cursor off
     STA $0D92
     LDA #$0000            ; Tab cursor := first tab
@@ -201,12 +201,12 @@ DiaryTabCursorUp {
     COP [PlaySoundCh2] ( #10 ) ; Cursor move SFX
     LDA $0D98
     DEC 
-    BPL loc_0BE302
+    BPL DiaryTabCursorUpStore
     LDA #$0003            ; Wrap to bottom
 
 ; Store the wrapped tab cursor, then consume the current buttons in joypadHeld so the press does not repeat until auto-repeat fires.
 
-  loc_0BE302:
+  DiaryTabCursorUpStore:
     STA $0D98
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -222,12 +222,12 @@ DiaryTabCursorDown {
     LDA $0D98
     INC 
     CMP #$0004
-    BCC loc_0BE31E
+    BCC DiaryTabCursorDownStore
     LDA #$0000            ; Wrap to top
 
 ; Store the wrapped tab cursor, then consume the current buttons in joypadHeld.
 
-  loc_0BE31E:
+  DiaryTabCursorDownStore:
     STA $0D98
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -298,12 +298,12 @@ DiaryStartSlotUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     DEC 
-    BPL loc_0BE3A4
+    BPL DiaryStartSlotUpStore
     LDA #$0002
 
 ; Store the slot cursor and consume the current buttons in joypadHeld.
 
-  loc_0BE3A4:
+  DiaryStartSlotUpStore:
     STA $0D92
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -319,12 +319,12 @@ DiaryStartSlotDown {
     LDA $0D92
     INC 
     CMP #$0003
-    BCC loc_0BE3C0
+    BCC DiaryStartSlotDownStore
     LDA #$0000
 
 ; Store the slot cursor and consume the current buttons in joypadHeld.
 
-  loc_0BE3C0:
+  DiaryStartSlotDownStore:
     STA $0D92
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -359,7 +359,7 @@ DiaryStartLoadConfirm {
     LDA $0D8C
     STA $306000           ; Write active slot to SRAM
     JSL $@save_system.LoadGameState_Scene ; Verify both checksums, then copy the slot's 508 bytes to $0A00
-    BCS loc_0BE433        ; Carry set → corrupt/empty slot
+    BCS DiaryStartPresentSoundButtonConfig ; Carry set → corrupt/empty slot
     JSR $&ApplySoundAndRemap ; Apply sound mode + button remap
     LDA $0AB2             ; $0AB2 = Dark Space layout variant saved in the slot
     STA $globalScriptIndex
@@ -380,7 +380,7 @@ DiaryStartLoadConfirm {
 ; Load failed (corrupt/empty slot) — show settings arrangement screen instead.
 ; Presents sound/button config for a new game start.
 
-  loc_0BE433:
+  DiaryStartPresentSoundButtonConfig:
     LDA $0D92             ; $0D92 is already $FFFF here (DiaryStartLoadConfirm stored the slot in $0D8C and cleared the cursor), so $0D94 becomes $FFFF
     STA $0D94
     LDA #$FFFF
@@ -423,15 +423,15 @@ DiaryNewGameCancel {
 }
 
 ---------------------------------------------
-; A / Left / Right on the arrangement screen. Row 0 (Start Journey): only A acts (loc_0BE4E7 -> DiaryNewGameStart). Row 1 (Sound): toggle $0D90 and redraw its text. Row 2 (Button Type): toggle $0D8E (loc_0BE4C5) and redraw its legend.
+; A / Left / Right on the arrangement screen. Row 0 (Start Journey): only A acts (DiarySettingsRow0StartGame -> DiaryNewGameStart). Row 1 (Sound): toggle $0D90 and redraw its text. Row 2 (Button Type): toggle $0D8E (DiarySettingsToggleButtonType) and redraw its legend.
 
 DiarySettingsToggle {
     LDA #$8300
     TSB $joypadHeld
     LDA $0D98
-    BEQ loc_0BE4E7        ; Row 0 (Start Journey): only A acts
+    BEQ DiarySettingsRow0StartGame ; Row 0 (Start Journey): only A acts
     DEC 
-    BNE loc_0BE4C5
+    BNE DiarySettingsToggleButtonType
     COP [PlaySoundCh2] ( #0D )
     LDA $0D90             ; Row 1 (Sound): toggle 0 / 1
     INC 
@@ -445,9 +445,9 @@ DiarySettingsToggle {
 
 ; Row 2 (Button Type): toggle $0D8E, redraw the type legend and return to the loop.
 
-  loc_0BE4C5:
+  DiarySettingsToggleButtonType:
     DEC 
-    BNE loc_0BE4E7
+    BNE DiarySettingsRow0StartGame
     COP [PlaySoundCh2] ( #0D )
     LDA $0D8E             ; Row 2 (Button Type): toggle 0 / 1
     INC 
@@ -461,7 +461,7 @@ DiarySettingsToggle {
 
 ; Row 0 (or no value row): A starts the game.
 
-  loc_0BE4E7:
+  DiarySettingsRow0StartGame:
     COP [BranchIfPressed] ( #$8000, &DiaryNewGameStart )
     RTL 
 }
@@ -508,11 +508,11 @@ DiaryCameraPan {
 
 ; Scan the entry's name string up to its $CA terminator; the next two words are the camera target.
 
-  loc_0BE53D:
+  DiaryCameraPanScanName:
     LDA $@diary_entry_table, X
     INX 
     CMP #$CA              ; Skip the name string up to its $CA terminator
-    BNE loc_0BE53D
+    BNE DiaryCameraPanScanName
     REP #$20
     LDA $@diary_entry_table, X ; Entry word 1 = camera target X
     TAY 
@@ -523,15 +523,15 @@ DiaryCameraPan {
     STA $7F100C, X        ; Stash target X at $7F100C
     SEC 
     SBC $cameraTargetX    ; dx = target X - cameraTargetX
-    BMI loc_0BE56E
+    BMI DiaryCameraPanDxNegative
     STA $7F100C, X        ; $7F100C := |dx|
     LDA #$0001
     STA $animScratch, X   ; X sign (+1) in animScratch
-    BRA loc_0BE57D
+    BRA DiaryCameraPanDySign
 
 ; dx negative: |dx| = -dx, sign = -1.
 
-  loc_0BE56E:
+  DiaryCameraPanDxNegative:
     EOR #$FFFF
     INC 
     STA $7F100C, X
@@ -540,43 +540,43 @@ DiaryCameraPan {
 
 ; Same for dy: |dy| and its sign (0 when dy = 0).
 
-  loc_0BE57D:
+  DiaryCameraPanDySign:
     LDA $7F100E, X
     SEC 
     SBC $cameraTargetY    ; dy = target Y - cameraTargetY
-    BMI loc_0BE596
+    BMI DiaryCameraPanDyNegative
     STA $7F100E, X        ; $7F100E := |dy|
-    BEQ loc_0BE590
+    BEQ DiaryCameraPanDyStorePositive
     LDA #$0001
 
 ; Store the dy sign (+1, or 0 when dy = 0).
 
-  loc_0BE590:
+  DiaryCameraPanDyStorePositive:
     STA $animScratch+2, X ; Y sign (+1, or 0 when dy = 0) in animScratch+2
-    BRA loc_0BE5A7
+    BRA DiaryCameraPanMajorAxis
 
 ; dy negative: |dy| = -dy, sign = -1 (0 when |dy| = 0).
 
-  loc_0BE596:
+  DiaryCameraPanDyNegative:
     EOR #$FFFF
     INC 
     STA $7F100E, X
-    BEQ loc_0BE5A3
+    BEQ DiaryCameraPanDyStoreSign
     LDA #$FFFF
 
 ; Store the dy sign.
 
-  loc_0BE5A3:
+  DiaryCameraPanDyStoreSign:
     STA $animScratch+2, X ; Y sign (-1, or 0 when dy = 0) in animScratch+2
 
-; Choose the major axis: |dx| >= |dy| steps X (below), otherwise Y (loc_0BE612).
+; Choose the major axis: |dx| >= |dy| steps X (below), otherwise Y (DiaryCameraPanYMajorSetup).
 
-  loc_0BE5A7:
+  DiaryCameraPanMajorAxis:
     LDA $7F100C, X
-    CMP $7F100E, X        ; |dx| < |dy|: Y-major loop at loc_0BE612
-    BCC loc_0BE612
+    CMP $7F100E, X        ; |dx| < |dy|: Y-major loop at DiaryCameraPanYMajorSetup
+    BCC DiaryCameraPanYMajorSetup
     LDA $7F100C, X
-    BEQ loc_0BE610        ; |dx| = 0 means also |dy| = 0: already there
+    BEQ DiaryCameraPanXMajorDone ; |dx| = 0 means also |dy| = 0: already there
     STA $scratch1010+4, X ; Step counter = |dx|
     LSR 
     STA $scratch1010, X   ; Error accumulator = |dx| / 2
@@ -588,7 +588,7 @@ DiaryCameraPan {
 
 ; X-major step loop: cameraTargetX += sign(dx); error -= |dy|; when it goes negative, error += |dx| and cameraTargetY += sign(dy). $0000 holds this frame's step budget ($free101C).
 
-  loc_0BE5D1:
+  DiaryCameraPanXMajorLoop:
     LDA $animScratch, X
     CLC 
     ADC $cameraTargetX    ; cameraTargetX += sign(dx)
@@ -597,7 +597,7 @@ DiaryCameraPan {
     SEC 
     SBC $scratch1010+2, X ; error -= |dy|
     STA $scratch1010, X
-    BPL loc_0BE5FF
+    BPL DiaryCameraPanXMajorCount
     CLC 
     ADC $7F100C, X        ; Error went negative: error += |dx| and step Y
     STA $scratch1010, X
@@ -608,25 +608,25 @@ DiaryCameraPan {
 
 ; Count the step; stop after |dx| steps, otherwise continue until the frame's step budget is spent, then yield (RTL resumes at the SetEntryHere above).
 
-  loc_0BE5FF:
+  DiaryCameraPanXMajorCount:
     LDA $scratch1010+4, X
     DEC 
     STA $scratch1010+4, X
-    BEQ loc_0BE610
+    BEQ DiaryCameraPanXMajorDone
     DEC $0000
-    BNE loc_0BE5D1
+    BNE DiaryCameraPanXMajorLoop
     RTL                   ; Budget spent: yield, resume at the SetEntryHere above
 
 ; Pan finished: RestoreSavedPtr returns to the CallNear caller.
 
-  loc_0BE610:
+  DiaryCameraPanXMajorDone:
     COP [RestoreSavedPtr] ; Done: return to the CallNear caller
 
 ; Y-major setup: step counter = |dy|, error = |dy| / 2, minor delta = |dx|, then SetEntryHere and the same per-frame budget.
 
-  loc_0BE612:
+  DiaryCameraPanYMajorSetup:
     LDA $7F100E, X
-    BEQ loc_0BE671
+    BEQ DiaryCameraPanYMajorDone
     STA $scratch1010+4, X ; Step counter = |dy|
     LSR 
     STA $scratch1010+2, X ; Error accumulator = |dy| / 2
@@ -636,9 +636,9 @@ DiaryCameraPan {
     LDA $free101C, X
     STA $0000
 
-; Y-major step loop (mirror of loc_0BE5D1 with the axes swapped).
+; Y-major step loop (mirror of DiaryCameraPanXMajorLoop with the axes swapped).
 
-  loc_0BE632:
+  DiaryCameraPanYMajorLoop:
     LDA $animScratch+2, X
     CLC 
     ADC $cameraTargetY    ; cameraTargetY += sign(dy)
@@ -647,7 +647,7 @@ DiaryCameraPan {
     SEC 
     SBC $scratch1010, X   ; error -= |dx|
     STA $scratch1010+2, X
-    BPL loc_0BE660
+    BPL DiaryCameraPanYMajorCount
     CLC 
     ADC $7F100E, X        ; Error went negative: error += |dy| and step X
     STA $scratch1010+2, X
@@ -658,18 +658,18 @@ DiaryCameraPan {
 
 ; Count the step; stop after |dy| steps or when the frame's step budget is spent.
 
-  loc_0BE660:
+  DiaryCameraPanYMajorCount:
     LDA $scratch1010+4, X
     DEC 
     STA $scratch1010+4, X
-    BEQ loc_0BE671
+    BEQ DiaryCameraPanYMajorDone
     DEC $0000
-    BNE loc_0BE632
+    BNE DiaryCameraPanYMajorLoop
     RTL                   ; Budget spent: yield, resume at the SetEntryHere above
 
 ; Pan finished (Y-major): RestoreSavedPtr.
 
-  loc_0BE671:
+  DiaryCameraPanYMajorDone:
     COP [RestoreSavedPtr] ; Done: return to the CallNear caller
 }
 ---------------------------------------------
@@ -681,26 +681,26 @@ ApplySoundAndRemap {
     STA $0B04             ; Clear frame delay
     STZ $menuModeFlag     ; Clear menu mode flag
     LDA $0B24             ; Sound mode from save
-    BNE loc_0BE68C        ; Nonzero → mono
+    BNE ApplySoundAndRemap_Mono ; Nonzero → mono
     SEP #$20
     LDA #$91              ; SPC command $91: stereo ($32 := 0 in the SPC engine)
     STA $APUIO0
     REP #$20
-    BRA loc_0BE695
+    BRA ApplySoundAndRemap_ButtonTypeSelect
 
 ; Mono: SPC command $90.
 
-  loc_0BE68C:
+  ApplySoundAndRemap_Mono:
     SEP #$20
     LDA #$90              ; SPC command $90: mono ($32 := 1 in the SPC engine)
     STA $APUIO0
     REP #$20
 
-; Button type: 0 = Type 1 remaps below, nonzero = Type 2 (loc_0BE6B3).
+; Button type: 0 = Type 1 remaps below, nonzero = Type 2 (ApplySoundAndRemap_ButtonType2).
 
-  loc_0BE695:
+  ApplySoundAndRemap_ButtonTypeSelect:
     LDA $0B26             ; Button layout from save
-    BNE loc_0BE6B3        ; Nonzero → layout B (no remap)
+    BNE ApplySoundAndRemap_ButtonType2 ; Nonzero → layout B (no remap)
     LDA #$8000            ; Type 1: remapA := the attack/confirm bit (physical A)
     STA $remapA
     LDA #$4000            ; Type 1: remapB := $4000 (physical B = item/cancel bit)
@@ -713,7 +713,7 @@ ApplySoundAndRemap {
 
 ; Type 2: only remapX := 0; remapA / remapB / remapY keep their current values.
 
-  loc_0BE6B3:
+  ApplySoundAndRemap_ButtonType2:
     LDA #$0000            ; Type 2: only remapX := 0; remapA / B / Y keep their values
     STA $remapX
     RTS 
@@ -766,12 +766,12 @@ DiarySndBtnSlotConfirm {
     ASL 
     TAY 
     LDA $0D74, Y          ; Scene ID 0 = empty slot: ignored
-    BNE loc_0BE714
+    BNE DiarySndBtnSlotConfirmUsed
     RTL 
 
 ; Used slot: confirm SFX, remember the slot, load its settings and draw the editor.
 
-  loc_0BE714:
+  DiarySndBtnSlotConfirmUsed:
     COP [PlaySoundCh2] ( #11 )
     LDA $0D92
     STA $0D94             ; Slot being edited
@@ -807,12 +807,12 @@ DiarySettingsUp {
     STA $joypadHeld
     LDA $0D98
     DEC 
-    BPL loc_0BE770
+    BPL DiarySettingsUpStore
     LDA #$0002
 
 ; Store the wrapped row cursor.
 
-  loc_0BE770:
+  DiarySettingsUpStore:
     STA $0D98
     RTL 
 }
@@ -828,12 +828,12 @@ DiarySettingsDown {
     LDA $0D98
     INC 
     CMP #$0003
-    BCC loc_0BE78C
+    BCC DiarySettingsDownStore
     LDA #$0000
 
 ; Store the wrapped row cursor.
 
-  loc_0BE78C:
+  DiarySettingsDownStore:
     STA $0D98
     RTL 
 }
@@ -852,13 +852,13 @@ DiarySndBtnEditCancel {
 }
 
 ---------------------------------------------
-; A / Left / Right in the editor. Row 1 toggles sound ($0D90), row 2 toggles the button type ($0D8E) (loc_0BE7CC); on row 0 (End Changes) A saves (loc_0BE7EE).
+; A / Left / Right in the editor. Row 1 toggles sound ($0D90), row 2 toggles the button type ($0D8E) (DiarySndBtnToggleButtonType); on row 0 (End Changes) A saves (DiarySndBtnRow0SaveChanges).
 
 DiarySndBtnOptionToggle {
     LDA $0D98
-    BEQ loc_0BE7EE
+    BEQ DiarySndBtnRow0SaveChanges
     DEC 
-    BNE loc_0BE7CC
+    BNE DiarySndBtnToggleButtonType
     COP [PlaySoundCh2] ( #10 )
     LDA $0D90
     INC 
@@ -872,9 +872,9 @@ DiarySndBtnOptionToggle {
 
 ; Row 2 (Button Type): toggle $0D8E, redraw its legend and return to the editor loop.
 
-  loc_0BE7CC:
+  DiarySndBtnToggleButtonType:
     DEC 
-    BNE loc_0BE7EE
+    BNE DiarySndBtnRow0SaveChanges
     COP [PlaySoundCh2] ( #10 )
     LDA $0D8E
     INC 
@@ -888,7 +888,7 @@ DiarySndBtnOptionToggle {
 
 ; Row 0 (End Changes): A saves via DiarySndBtnSaveConfirm.
 
-  loc_0BE7EE:
+  DiarySndBtnRow0SaveChanges:
     COP [BranchIfPressed] ( #$8000, &DiarySndBtnSaveConfirm )
     RTL 
 }
@@ -943,12 +943,12 @@ ReadSramSettings {
     TAX 
     LDA $306200, X
     CMP #$0002            ; Clamp: values of 2 or more become 0
-    BCC loc_0BE85C
+    BCC ReadSramSettings_StoreSound
     LDA #$0000
 
 ; Store the sound setting (values >= 2 were clamped to 0) and continue with the button type.
 
-  loc_0BE85C:
+  ReadSramSettings_StoreSound:
     STA $0D90
     LDA $01, S
     CLC 
@@ -958,12 +958,12 @@ ReadSramSettings {
     TAX 
     LDA $306200, X
     CMP #$0002
-    BCC loc_0BE876
+    BCC ReadSramSettings_StoreButtonType
     LDA #$0000
 
 ; Store the button type (values >= 2 were clamped to 0).
 
-  loc_0BE876:
+  ReadSramSettings_StoreButtonType:
     STA $0D8E
     PLX 
     PLX 
@@ -1009,11 +1009,11 @@ WriteSramSettings {
 
 DiaryCopyTab {
     LDA $0D74             ; Check if all slots occupied
-    BEQ loc_0BE8D4        ; Slot 1 empty → proceed
+    BEQ DiaryCopyTabStartFlow ; Slot 1 empty → proceed
     LDA $0D76
-    BEQ loc_0BE8D4        ; Slot 2 empty → proceed
+    BEQ DiaryCopyTabStartFlow ; Slot 2 empty → proceed
     LDA $0D78
-    BEQ loc_0BE8D4        ; Slot 3 empty → proceed
+    BEQ DiaryCopyTabStartFlow ; Slot 3 empty → proceed
     LDA #$0002            ; All slots used: pre-select tab 2 (Erase)
     STA $0D98
     STZ $menuModeFlag
@@ -1026,7 +1026,7 @@ DiaryCopyTab {
 
 ; At least one slot is empty: start the copy flow with the source cursor on slot 1.
 
-  loc_0BE8D4:
+  DiaryCopyTabStartFlow:
     JSR $&DiaryMenuClearVram
     LDA #$0000
     STA $0D92
@@ -1052,12 +1052,12 @@ DiaryCopySourceUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     DEC 
-    BPL loc_0BE911
+    BPL DiaryCopySourceUpStore
     LDA #$0002
 
 ; Store the source cursor and consume the current buttons.
 
-  loc_0BE911:
+  DiaryCopySourceUpStore:
     STA $0D92
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1073,12 +1073,12 @@ DiaryCopySourceDown {
     LDA $0D92
     INC 
     CMP #$0003
-    BCC loc_0BE92D
+    BCC DiaryCopySourceDownStore
     LDA #$0000
 
 ; Store the source cursor.
 
-  loc_0BE92D:
+  DiaryCopySourceDownStore:
     STA $0D92
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1109,29 +1109,29 @@ DiaryCopySourceConfirm {
     ASL 
     TAY 
     LDA $0D74, Y
-    BNE loc_0BE960
+    BNE DiaryCopySourceUsed
     RTL 
 
 ; Used source: search the three slots for the first empty one.
 
-  loc_0BE960:
+  DiaryCopySourceUsed:
     LDY #$0000            ; Search for the first empty slot
 
 ; Search loop over $0D74,Y (Y = slot * 2).
 
-  loc_0BE963:
+  DiaryCopyEmptySearchLoop:
     LDA $0D74, Y          ; Scene ID 0 = empty
-    BEQ loc_0BE972
+    BEQ DiaryCopyEmptyFound
     INY 
     INY 
     CPY #$0006
-    BCC loc_0BE963
-    BNE loc_0BE972
+    BCC DiaryCopyEmptySearchLoop
+    BNE DiaryCopyEmptyFound
     RTL                   ; No empty slot: nothing to do
 
 ; Found an empty slot (Y = its offset): the target cursor = Y / 2, then yield into the target loop.
 
-  loc_0BE972:
+  DiaryCopyEmptyFound:
     TYA 
     LSR 
     STA $0D96             ; Target cursor := first empty slot
@@ -1152,17 +1152,17 @@ DiaryCopyTargetUp {
 
 ; Step the target cursor back by one (wraps 0 -> 2).
 
-  loc_0BE998:
+  DiaryCopyTargetUpStep:
     DEC 
-    BPL loc_0BE99E
+    BPL DiaryCopyTargetUpStore
     LDA #$0002
 
 ; Store the target cursor; skip the source slot and occupied slots.
 
-  loc_0BE99E:
+  DiaryCopyTargetUpStore:
     STA $0D96
     CMP $0D92             ; Skip the source slot
-    BEQ loc_0BE998
+    BEQ DiaryCopyTargetUpStep
     ASL 
     TAY 
     LDA $0D74, Y
@@ -1182,18 +1182,18 @@ DiaryCopyTargetDown {
 
 ; Step the target cursor forward by one (wraps 2 -> 0).
 
-  loc_0BE9BD:
+  DiaryCopyTargetDownStep:
     INC 
     CMP #$0003
-    BCC loc_0BE9C6
+    BCC DiaryCopyTargetDownStore
     LDA #$0000
 
 ; Store the target cursor; skip the source slot and occupied slots.
 
-  loc_0BE9C6:
+  DiaryCopyTargetDownStore:
     STA $0D96
     CMP $0D92             ; Skip the source slot
-    BEQ loc_0BE9BD
+    BEQ DiaryCopyTargetDownStep
     ASL 
     TAY 
     LDA $0D74, Y
@@ -1226,12 +1226,12 @@ DiaryCopyExecute {
     ASL 
     TAY 
     LDA $0D74, Y          ; Target must be empty (the cursor skips used slots)
-    BEQ loc_0BEA04
+    BEQ DiaryCopyExecuteTargetEmpty
     JMP $&DiaryCopySourceConfirm ; Target used (not reachable via the cursor): treat as a source confirm
 
 ; Target is empty (the normal path): do the copy.
 
-  loc_0BEA04:
+  DiaryCopyExecuteTargetEmpty:
     COP [PlaySoundCh2] ( #29 ) ; Copy SFX
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1304,12 +1304,12 @@ DiaryEraseSlotUp {
     COP [PlaySoundCh2] ( #10 )
     LDA $0D92
     DEC 
-    BPL loc_0BEA92
+    BPL DiaryEraseSlotUpStore
     LDA #$0002
 
 ; Store the slot cursor and consume the current buttons.
 
-  loc_0BEA92:
+  DiaryEraseSlotUpStore:
     STA $0D92
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1325,12 +1325,12 @@ DiaryEraseSlotDown {
     LDA $0D92
     INC 
     CMP #$0003
-    BCC loc_0BEAAE
+    BCC DiaryEraseSlotDownStore
     LDA #$0000
 
 ; Store the slot cursor and consume the current buttons.
 
-  loc_0BEAAE:
+  DiaryEraseSlotDownStore:
     STA $0D92
     LDA $joypadCurrent
     ORA $joypadHeld
@@ -1362,7 +1362,7 @@ DiaryEraseSlotConfirm {
     ASL 
     TAY 
     LDA $0D74, Y
-    BNE loc_0BEAF0
+    BNE DiaryEraseSlotConfirmUsed
     COP [PlaySoundCh2] ( #12 ) ; Empty slot: SFX #12, cleared without a prompt
     LDA $0D92
     JSL $@save_system.ClearSaveSlot ; Clear the slot (A = slot)
@@ -1370,7 +1370,7 @@ DiaryEraseSlotConfirm {
 
 ; Used slot: remember it in $0D94, redraw, format its HP / DEF / STR to BCD and open the Yes / No prompt.
 
-  loc_0BEAF0:
+  DiaryEraseSlotConfirmUsed:
     LDA $0D92
     STA $0D94
     LDA #$FFFF
@@ -1442,7 +1442,7 @@ DiaryEraseExecute {
 
 DiaryRenderSlotStats {
     LDA $0D74
-    BEQ loc_0BEBAF
+    BEQ DiaryRenderSlotStatsSlot2
     LDA $0D7A
     JSR $&FormatBcdNumber
     STA $0D9A
@@ -1456,9 +1456,9 @@ DiaryRenderSlotStats {
 
 ; Slot 2 stat line (skipped when the slot is empty).
 
-  loc_0BEBAF:
+  DiaryRenderSlotStatsSlot2:
     LDA $0D76
-    BEQ loc_0BEBD3
+    BEQ DiaryRenderSlotStatsSlot3
     LDA $0D7C
     JSR $&FormatBcdNumber
     STA $0D9A
@@ -1472,9 +1472,9 @@ DiaryRenderSlotStats {
 
 ; Slot 3 stat line (skipped when the slot is empty).
 
-  loc_0BEBD3:
+  DiaryRenderSlotStatsSlot3:
     LDA $0D78
-    BEQ loc_0BEBF7
+    BEQ DiaryRenderSlotStatsDone
     LDA $0D7E
     JSR $&FormatBcdNumber
     STA $0D9A
@@ -1488,7 +1488,7 @@ DiaryRenderSlotStats {
 
 ; Done: RestoreSavedPtr returns to the CallNear caller.
 
-  loc_0BEBF7:
+  DiaryRenderSlotStatsDone:
     COP [RestoreSavedPtr]
 }
 ---------------------------------------------
@@ -1811,13 +1811,13 @@ DiaryScanSramSlots {
     STZ $26               ; $26 = validity bit mask (bit n = slot n)
     LDA $306000           ; Last-used slot (reset to 0 when 3 or more)
     CMP #$0003
-    BCC loc_0BEDA3
+    BCC DiaryScanSramSlots_StoreLastUsed
     LDA #$0000
     STA $306000
 
 ; Store the last-used slot in $0D8C.
 
-  loc_0BEDA3:
+  DiaryScanSramSlots_StoreLastUsed:
     STA $0D8C
 
 ; Per-slot loop: $24 = slot (2 down to 0), X = slot * 512.
@@ -1830,10 +1830,10 @@ DiaryScanSramSlots {
     JSL $@save_system.ComputeSaveChecksum
     LDA $0018
     CMP $3063FC, X        ; Additive checksum vs stored $3063FC + slot * 512
-    BNE loc_0BEE11
+    BNE DiaryScanSramSlots_ChecksumMismatch
     LDA $001C
     CMP $3063FE, X        ; XOR checksum vs stored $3063FE + slot * 512
-    BNE loc_0BEE11
+    BNE DiaryScanSramSlots_ChecksumMismatch
     PHX 
     LDA $24
     ASL 
@@ -1872,26 +1872,26 @@ DiaryScanSramSlots {
     STA $0D86, Y
     PLA 
     SEC                   ; Carry set = valid slot
-    BRA loc_0BEE12
+    BRA DiaryScanSramSlots_NextSlot
 
 ; Checksum mismatch: slot stays empty (carry clear).
 
-  loc_0BEE11:
+  DiaryScanSramSlots_ChecksumMismatch:
     CLC 
 
 ; Shift this slot's validity bit (carry) into $26 and move to the next slot.
 
-  loc_0BEE12:
+  DiaryScanSramSlots_NextSlot:
     ROL $26               ; Shift the validity bit into $26
     LDA $24
     DEC 
     STA $24
-    BMI loc_0BEE1E
+    BMI DiaryScanSramSlots_Done
     JMP $&DiaryScanSramLoop
 
 ; All three slots scanned.
 
-  loc_0BEE1E:
+  DiaryScanSramSlots_Done:
     PLX 
     RTS 
 }
@@ -1977,9 +1977,9 @@ FormatBcdNumber {
     LDY $0000
     STZ $0000
     CMP #$03E8
-    BCS loc_0BF245
+    BCS FormatBcdNumber_Overflow
     CMP #$01F4
-    BCC loc_0BF1F8
+    BCC FormatBcdNumber_HundredsLoop
     SEC 
     SBC #$01F4
     PHA 
@@ -1989,17 +1989,17 @@ FormatBcdNumber {
 
 ; Hundreds: subtract 100 repeatedly, counting in $0000.
 
-  loc_0BF1F8:
+  FormatBcdNumber_HundredsLoop:
     CMP #$0064
-    BCC loc_0BF206
+    BCC FormatBcdNumber_HundredsToHigh
     SEC 
     SBC #$0064
     INC $0000
-    BRA loc_0BF1F8
+    BRA FormatBcdNumber_HundredsLoop
 
 ; Move the hundreds count to the high byte of $0000, then switch to 8-bit A for the tens.
 
-  loc_0BF206:
+  FormatBcdNumber_HundredsToHigh:
     PHA 
     LDA $0000
     XBA 
@@ -2008,7 +2008,7 @@ FormatBcdNumber {
     PLA 
     SEP #$20
     CMP #$32
-    BCC loc_0BF222
+    BCC FormatBcdNumber_TensLoop
     SEC 
     SBC #$32
     PHA 
@@ -2018,17 +2018,17 @@ FormatBcdNumber {
 
 ; Tens: subtract 10 repeatedly, counting in $0000 (it starts at 5 when the remainder was 50 or more).
 
-  loc_0BF222:
+  FormatBcdNumber_TensLoop:
     CMP #$0A
-    BCC loc_0BF22E
+    BCC FormatBcdNumber_Pack
     SEC 
     SBC #$0A
     INC $0000
-    BRA loc_0BF222
+    BRA FormatBcdNumber_TensLoop
 
 ; Pack tens:ones into the low byte, merge the hundreds byte, replace the saved input on the stack with the result and restore $0000.
 
-  loc_0BF22E:
+  FormatBcdNumber_Pack:
     PHA 
     LDA $0000
     ASL 
@@ -2047,7 +2047,7 @@ FormatBcdNumber {
 
 ; Value >= 1000: restore $0000, return the input unchanged with carry set.
 
-  loc_0BF245:
+  FormatBcdNumber_Overflow:
     STY $0000
     PLA 
     SEC 

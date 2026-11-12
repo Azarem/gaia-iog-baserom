@@ -87,7 +87,7 @@
 PlayerCharacterDef [
   actor-def < #00, #08, #85, {
 
-  code_02C38F:
+  PlayerCharacterEntry:
     LDA #$0100            ; Init: set $0100 (vulnerable stance) in actor flags $10 and $0001 in $12 (meaning not traced), then store the actor slot as playerActor
     TSB $10
     LDA #$0001
