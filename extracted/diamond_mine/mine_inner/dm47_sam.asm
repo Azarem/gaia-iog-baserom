@@ -2,7 +2,7 @@
 ; 
 ; Spawns as a chain prop (dm_mine_static_prop) with solid collision and dies at spawn when flag $5E is set. Before the chain breaks (status bit $0040 of the prop) the interact handler says "Cut the chain!". After it breaks the handler tells Will about a song that restores lost memories. When $5E is still clear it then gives item #0D (Memory Melody) and sets $5E; with a full inventory it prints the inventory-full message and leaves $5E clear. A repeat talk after $5E is set says "I'll never forget you!".
 ; 
-; Sam's main script waits on WaitOnFlagByte ( #5E, #01 ), locks the joypad, starts music #1E, waits #77 ticks and polls APUIO1 for $FF (the track has finished). If Will holds the Wind Melody (#08), Sam asks for it and the Prison Key as souvenirs and removes #02 and #08; otherwise he asks for the Prison Key and removes #02. The joypad is then unlocked. Imas and Remus read $5E only once, at spawn.
+; Sam's main script waits on WaitOnFlagByte ( #5E, #01 ), locks the joypad, starts music #1E, waits 120 ticks (WaitByte #77) and polls APUIO1 for $FF (the track has finished). If Will holds the Wind Melody (#08), Sam asks for it and the Prison Key as souvenirs and removes #02 and #08; otherwise he asks for the Prison Key and removes #02. The joypad is then unlocked. Imas and Remus read $5E only once, at spawn.
 ---------------------------------------------
 
 ?INCLUDE 'dm_mine_static_prop'

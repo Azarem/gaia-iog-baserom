@@ -1,6 +1,6 @@
 ; Barrier actors of the aqueduct lockway (scene $0E): ec0E_barrier and ec0E_barrier2-4 (scene_actors rows 15-18).
 ; 
-; Each marks its tile solid and waits on scratch flag $01, which the single ec0E_switch toggles on every hit (8 wait sites). $01 set: the barrier clears its solid mark, slides (StageSpriteLoopMoveY then StageSpriteLoopMoveX; the first actor #04 steps each, barrier2 #02 steps with a #1F-tick pause), marks its new position solid and waits for $01 to clear, then slides back. The movement is scripted sprite stepping, not physics.
+; Each marks its tile solid and waits on scratch flag $01, which the single ec0E_switch toggles on every hit (8 wait sites). $01 set: the barrier clears its solid mark, slides (StageSpriteLoopMoveY then StageSpriteLoopMoveX; the first actor #04 steps each, barrier2 #02 steps with a 32-tick pause (WaitByte #1F)), marks its new position solid and waits for $01 to clear, then slides back. The movement is scripted sprite stepping, not physics.
 ---------------------------------------------
 
 ---------------------------------------------

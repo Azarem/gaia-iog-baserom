@@ -1,6 +1,6 @@
 ; Cliff slide event of the Larai Cliff back scene ($1E).
 ; 
-; Until flags $30 and $31 (both Incan statues on their mantels) are set, it runs every frame: SetFlagByte #00 while playerYPos is below $0110 and ClearFlagByte #00 otherwise (scratch flag $00, read by the player's idle sprite code). When both flags are set it sets scratch $00 for good, plays sound $1616 and polls BranchIfPlayerAt for the exact pixels (01E8,0120) and (01E7,0120). On a match it locks the joypad ($EFFC), plays sound $1616, spawns 40 debris helpers (LoopStart #28 passes, one every 8 ticks; code_09C51B starts each at X $02A0, Y $0090 plus a random byte and moves it along X, then dies), writes $FFF8 to playerSpeedEw, unlocks the joypad, waits #3B and polls again.
+; Until flags $30 and $31 (both Incan statues on their mantels) are set, it runs every frame: SetFlagByte #00 while playerYPos is below $0110 and ClearFlagByte #00 otherwise (scratch flag $00, read by the player's idle sprite code). When both flags are set it sets scratch $00 for good, plays sound $1616 and polls BranchIfPlayerAt for the exact pixels (01E8,0120) and (01E7,0120). On a match it locks the joypad ($EFFC), plays sound $1616, spawns 40 debris helpers (LoopStart #28 passes, one every 9 ticks (JumpAfterDelay #$0008); code_09C51B starts each at X $02A0, Y $0090 plus a random byte and moves it along X, then dies), writes $FFF8 to playerSpeedEw, unlocks the joypad, waits 60 ticks (WaitByte #3B) and polls again.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

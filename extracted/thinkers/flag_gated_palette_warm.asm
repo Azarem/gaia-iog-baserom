@@ -11,7 +11,7 @@
 ; The spawn-record parameter byte is ignored (the bundle id is an immediate). Setting $FF early is a side effect on a shared flag; no other flag-$FF watcher was found in the lists of these scenes.
 ; In Oakton (scene 30) flag $1C is expected to be set already (it is never cleared in extracted/), so there the gate kills the thinker at once. The gate itself was measured (flags $16 and $1C both set: no start in scenes 01, 03 and 30; only $16 set: bundle $02 starts in scenes 01 and 30; neither set: no start); the flag state on a normal arrival at Oakton was not read.
 ; 
-; The earlier notes ('kills itself when conditions flip', 'many interior and Dark Space scenes') were wrong: the gate is evaluated only at spawn and only the scenes listed above spawn this thinker.
+; The gate is evaluated only at spawn and only the scenes listed above spawn this thinker.
 ---------------------------------------------
 
 ---------------------------------------------

@@ -28,9 +28,9 @@
 ; 
 ; === DiagSnapCompute_Unused ===
 ; 
-; No reference anywhere in extracted/. It probes the current TL cell and takes the 'wall path' when the type is $06, or when X straddles two columns and the cell to the right is $09 (the same wall-like types as the north handlers). On the wall path $02 starts at 0; a nonzero $24 is converted to a pixel step ((>>2) OR #$C000 sign-extends only a NEGATIVE value, so it assumes a north move), negated, added to the saved Y, and if that crosses a 16-px line ($1E bit 4 changes) $02 = $10. The ComputeYSnapOffset formula for the current $1E is then added to $02. The probe coordinates $1A / $1E are saved and restored around the probe.
+; No reference anywhere in extracted/. It probes the current TL cell and takes the 'wall path' when the type is $06, or when X straddles two columns and the cell to the right is $09 (the same diagonal-edge types as the north handlers). On the wall path $02 starts at 0; a nonzero $24 is converted to a pixel step ((>>2) OR #$C000 sign-extends only a NEGATIVE value, so it assumes a north move), negated, added to the saved Y, and if that crosses a 16-px line ($1E bit 4 changes) $02 = $10. The ComputeYSnapOffset formula for the current $1E is then added to $02. The probe coordinates $1A / $1E are saved and restored around the probe.
 ; 
-; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
+; Measured: the order of the two phases, the publish of $22 >> 2 / $26 >> 2 into $1014-$1017 between them (rewritten after the vertical phase), the vertical word parked on the stack, and the $AB bit 1 that only a west horizontal phase sets. The AutoAlignEW_North nudge windows, the nudge helpers and ComputeYSnapOffset have no trace; their arithmetic is read from the code.
 ---------------------------------------------
 
 ?BANK 02
@@ -133,7 +133,7 @@ ComputeYSnapOffset {
 }
 
 ---------------------------------------------
-; Unreferenced experiment: a combined Y snap offset in $02 for a wall-like current cell, from the north step and the ComputeYSnapOffset formula. Saves and restores $1A / $1E.
+; Unreferenced experiment: a combined Y snap offset in $02 for a diagonal-edge current cell, from the north step and the ComputeYSnapOffset formula. Saves and restores $1A / $1E.
 
 DiagSnapCompute_Unused {
     REP #$20              ; Save the probe coordinates $1A / $1E on the stack (restored on both paths)

@@ -10,7 +10,7 @@
 ; The thinker then sets event flag $FF itself and WaitOnFlagByte ( #FF, #00 ) parks until $FF is clear. $FF is the scene-setup-complete latch: scene_lifecycle clears it at the top of scene setup and again sets it at the end, and the inventory overlay clears it on open; both set it again when their setup finishes. Scene setup never wakes the loop: the thinker list is built after the clear at the top of scene setup, so the bundle plays once on entering the scene. It plays again after every inventory close: the overlay clears $FF at open, restores the saved thinker list at close and runs one thinker pass while $FF is still clear (UpdateFrameRender, after ResetThinkerWaitCounters) before it sets $FF again, so the wait ends in that pass (measured in scenes 03-07: one extra start of bundle $4C per open/close, after the overlay has closed, in the same scene; scene 08 masks the joypad on arrival, so no overlay was opened there).
 ; The spawn-record parameter byte is ignored (the bundle id is an immediate). Setting $FF early is a side effect on a shared flag; no other flag-$FF watcher was found in the lists of these scenes.
 ; 
-; The earlier notes ('kills itself when conditions flip', 'many interior and Dark Space scenes') were wrong: the gate is evaluated only at spawn and only the scenes listed above spawn this thinker.
+; The gate is evaluated only at spawn and only the scenes listed above spawn this thinker.
 ---------------------------------------------
 
 ---------------------------------------------

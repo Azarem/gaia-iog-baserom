@@ -31,7 +31,7 @@
 ; 
 ; ComputeEastSnapOffset: $02 = ($1A AND $0F), plus $10 on the wall path when this step moves the probe across a 16-px column line (bit 4 of $1A XOR ($1A - $20 / 4)). The wall path is taken when the current TR is $09, or when Y straddles and the cell below the current TR is $06; otherwise $02 = $1A AND $0F alone. WallSlidePushDown / WallSlidePushUp add a Y-derived offset to $02 and, above $10, push Y by (total AND $0F) pixels.
 ; 
-; Everything here is UNVERIFIED-RUNTIME (no emulator trace); the arithmetic is read from the code.
+; Measured on painted cells: EastWallPushDown ($09 under the current TR) pushes the player south and EastWallPushUp ($06 under the current BR) pushes it north by 1..16 px in total, always ending on a row line (an X-flush start moves 16 px in one tick; other phases move 8 px first, then 2 px per tick); $02 at WallSlidePushDown is the depth of the east probe into the $09 cell (8, 12 and 14 at player X 366, 370 and 372, then +2 per tick); SnapYNorthCollision with $24 = 0 moves the player 16, 15, 8, 2 or 1 px south and SnapYSouthCollision floors Y; the parked vertical word is at S+5 in AutoAlignNS_East. The gap chains, EastShimmyTile and the nudge windows of AutoAlignNS_East have no trace; their arithmetic is read from the code.
 ---------------------------------------------
 
 ?BANK 02
@@ -65,13 +65,13 @@ DispatchEastMove {
 
   loc_02D6EB:
     JSR $&tile_collision.ProbeCurrentTR ; ProbeCurrentTR at player's leading top-right corner
-    CMP #$09              ; Current TR type $09 -> EastWallPushDown (undecoded wall type)
+    CMP #$09              ; Current TR type $09 (diagonal-edge, top-left + bottom-right quadrants) -> EastWallPushDown: pushes the player south
     BNE loc_02D6F5
     JMP $&EastWallPushDown
 
   loc_02D6F5:
     JSR $&tile_collision.ProbeCurrentBR ; ProbeCurrentBR at leading bottom-right for south-wall check
-    CMP #$06              ; Current BR type $06 -> EastWallPushUp (undecoded wall type)
+    CMP #$06              ; Current BR type $06 (diagonal-edge, top-right + bottom-left quadrants) -> EastWallPushUp: pushes the player north
     BNE loc_02D6FF
     JMP $&EastWallPushUp
 
@@ -160,7 +160,7 @@ SnapXEastCollision {
     PLP 
     RTS 
 
-; Type $07 (the wall-shimmy tile; ladders are type $02) ahead while moving east (a local label inside DispatchEastMove). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyRightEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of WestShimmyTile (ShimmyLeftEntry) in player_move_west. The old 'West prefix' remark refers to a former name; ShimmyRightEntry is the east case.
+; Type $07 (the wall-shimmy tile; ladders are type $02) ahead while moving east (a local label inside DispatchEastMove). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyRightEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of WestShimmyTile (ShimmyLeftEntry) in player_move_west.
 
   EastShimmyTile:
     JSR $&tile_collision.CheckSubTileAlignY ; Shimmy tile ($07): require Y sub-tile alignment before east shimmy

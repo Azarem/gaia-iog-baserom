@@ -36,7 +36,7 @@
 ; 1. WorldMapController (WorldMapControllerEntry): characterForm := 0, two palette-reset thinkers (bundle $0B: Will's normal sprite colours, CGRAM $81-$8F), ClearAllWramFlags, mask the buttons, spawn ArrivalAndTravelSetup as a child (flags $3800). With no choice id it dies here; otherwise it gives the child animScratch2 |= $0804, saves DeferSceneTransition with SetSavedPtr and runs world_map_options[choice & $1F] (menu and handler).
 ; 2. ArrivalAndTravelSetup, 44 passes of a loop that yields twice per pass (SetEntryHereAndYield, then the non-final LoopEnd): 2 ticks per pass, about 88 ticks. It places itself (the leader's dot) at the start position, centres the camera, then each pass adds the TickGravity delta (always negative: -$20 rising to about -2) to $B8. The divisor falls from $0400 to $54 (measured), a zoom-out from 8x in to a wide view. Only 43 passes count: the first pass runs in the tick in which Mode7PerspectiveInit stores $0400 into $B8, so its add (-$20) is overwritten; the other 43 deltas run from -$20 to -2 and sum to -940.
 ; 3. Menu trips only: wait 16 ticks (WaitByte #0F), spawn WorldMapSplitEffect, then poll $0D5A every frame (RTL = try again next frame) while the menu is open. Choosing Quit leaves it at 0: the handler has already queued the scene you came from and DeferSceneTransition just dies, so this actor idles until the scene changes.
-; 4. Tilt phase (TiltPhaseStart), 93 ticks: shows the start-area name (see world_map_scene_names), adds the TickGravity delta ((t * (t >> 1)) >> 7, growing) to $B6 and 1 to $B8. $B6 ends at about $03F0, so the flat map tilts into a strong perspective view. Then the name is cleared ($00DA := 0).
+; 4. Tilt phase (TiltPhaseStart), 93 ticks: shows the start-area name (see world_map_scene_names), adds the TickGravity delta ((t * (t >> 1)) >> 7, growing) to $B6 and 1 to $B8. $B6 ends at about $03F0, so the flat map tilts into a strong perspective view. The leader's dot (this actor) is not drawn during the loop: it keeps flag $2000 from its $3800 spawn flags, and no dot sprite exists until about tick 91 of the tilt phase, when the loop ends and TRB $10 clears the bit (measured: only the 14 name sprites until then, then the six sprites of the leader's figure). Then the name is cleared ($00DA := 0).
 ; 5. Companion dots: the party array is scanned from $0D62, N companions pick entry N of companion_formation_tables, and one CompanionDotMovement actor per companion is spawned. RouteAnimationEngine is spawned and this actor becomes the leader's dot.
 ; 6. RouteAnimationEngine plays the route bytes (see world_map_route_table): X, Y and rotation steps change $CA/$CC/$BC.
 ; 7. RouteEndHandler: dots die, the destination name shows for 60 ticks (WaitByte #3B), $B6 falls by $10 per frame until the map is flat again (Start skips everything), then the deferred sceneNext/$0652 are restored and the controller dives: $B8 grows by an increasing delta, a zoom-in while the scene exit transition runs.
@@ -44,9 +44,9 @@
 ; === SPRITES (spm_overworld_sprites) ===
 ; 
 ; The spritemap (scene_meta_00FE, $1238 bytes, gfx_overworld_actors, palette pal_overworld_sprites at colour $90) has 14 animations; the spm_overworld_sprites block note lists them. The leader and companion dots use the animation index from the party array as actor field $28.
-; - 0-5: 4-frame cycles (hold 7), one per party slot value (art identity not checked). 6: one 16 x 16 part in 4 frames.
-; - 7-A: four 5-frame sets. wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg (menu handlers set only $0D60 := 7), so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow).
-; - B: 3 frames of hold 1, a 79 x 48 px box of 24 parts, used as the leader by daC8_neil (Dao to Over Babel). C: the same box with 27 parts, no writer found. D: 4 frames of hold 9, 48-64 x 64 px, used as the leader by wa78_men (Watermia to South Cape).
+; - 0-5: 4-frame cycles (hold 7), one figure per party slot value (measured with party array 0-5: the six formation cells show #00 a blond figure in blue and white seen from behind (the leader), #01 a dark-haired figure in pink, #02 a blue-haired figure, #03 an orange-haired figure in green, #04 an orange-haired figure in blue, #05 a green hooded figure; by script name #01 is the companion the Kara departure scripts add and #02 the one the Lily scripts add). 6: one 16 x 16 part in 4 frames, a pink pig.
+; - 7-A: four 5-frame sets. wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg (menu handlers set only $0D60 := 7), so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each a rider on a tall brown long-legged mount, with its own shadow).
+; - B: 3 frames of hold 1, a 79 x 48 px box of 24 parts, a yellow biplane, used as the leader by daC8_neil (Dao to Over Babel). C: the same box with 27 parts, the biplane with three small figures aboard, no writer found. D: 4 frames of hold 9, 48-64 x 64 px, a blue and white glider wing with a figure hanging beneath it, used as the leader by wa78_men (Watermia to South Cape).
 ; 
 ; === KEY ROUTINES ===
 ; 
@@ -113,7 +113,7 @@ WorldMapController [
     PHX                   ; Save actor index, switch to child actor index (Y from SpawnAfterFlags)
     TYX 
     LDA $animScratch2, X
-    ORA #$0804            ; Child's animScratch2 |= $0804 (bits 2 and 11, the thinker filter flags; effect on an actor not verified)
+    ORA #$0804            ; Child's animScratch2 |= $0804 (bits 2 and 11, the thinker filter flags); the poll and the route start run the same with the word forced to 0 or $FFFF
     STA $animScratch2, X
     PLX 
     LDA $worldMapChoiceId ; Reload destination → $24 for option dispatch
@@ -575,7 +575,7 @@ RouteEndHandler {
     STA $00B6
     COP [SetEntryHereAndYield] ; Save the re-entry point and yield
     STZ $00DA             ; Remove the destination name sprites (sprite-text byte count := 0)
-    LDA #$0800            ; Set bit 11 ($0800, cutscene-active per cop_handlers_dialog) so the dive keeps running during the exit (inferred)
+    LDA #$0800            ; Set bit 11 ($0800, cutscene-active): the scene-exit transition runs UpdateFrameDialogue, which only runs actors with this bit, so the dive keeps going
     TSB $10
     COP [InitGravity] ( #00, #06, #00 ) ; v0 = 0, shift 6: dive delta = (t * (t >> 1)) >> 6, growing from 0
     LDA #$0406            ; Transition speeds: low byte $06 (exit), high byte $04 (enter), per scene_lifecycle

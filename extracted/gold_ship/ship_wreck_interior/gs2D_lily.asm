@@ -1,6 +1,6 @@
 ; Lilly in the wrecked Gold Ship interior (scene $2D) — wakes Will, then reacts to the Queen's ring.
 ; 
-; Flag $50 clear (first visit): sets $50, sets the joypad lock ($CFFC), holds Will in player_transition_handlers.PlayerPoseHold, waits #1D, prints 'Will! Wake up!', waits #3B, returns Will to player_character.PlayerIdleEntry, releases the joypad lock ($EFFC) and falls into code_058CFF. Flag $50 set: starts at code_058CFF.
+; Flag $50 clear (first visit): sets $50, sets the joypad lock ($CFFC), holds Will in player_transition_handlers.PlayerPoseHold, waits 30 ticks (WaitByte #1D), prints 'Will! Wake up!', waits 60 ticks (WaitByte #3B), returns Will to player_character.PlayerIdleEntry, releases the joypad lock ($EFFC) and falls into code_058CFF. Flag $50 set: starts at code_058CFF.
 ; 
 ; code_058CFF: waits for scratch flag $01 (set by gs2D_mummy's first talk), is placed at tile (1D,0D) and walks, waits for scratch flag $02 (set by gs2D_mummy's dialog), prints the ring dialog, starts music #1B, shakes the camera three times with camera_drift (CameraDriftLoopShip), prints Kara's 'What?', starts music #06, sets musicRoomGroup to 1, installs the talk handler code_058DB6 and releases the joypad lock ($EFFC). From then on each frame it tests RngByte AND $E0 and, when the result is not zero, stores it in $08 and spawns another camera shake. The talk handler before the ring dialog is code_058DB1.
 ---------------------------------------------

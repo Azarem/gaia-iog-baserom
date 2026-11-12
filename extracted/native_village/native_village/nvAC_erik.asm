@@ -1,4 +1,4 @@
-; Erik of the Native Village (scene $AC): follows the state order of nvAC_kara. $B6 or $CF set: dies. $B2 set: stands at tile (12,0B) with the fixed text below. $AF set (Hamlet scene): stands at tile (0A,10), waits for scratch $05, spawns the event sprite code_0881AE, changes frame and installs the fixed text. $AD set: dies. $AC set: stands at tile (0B,11) until $AD is set, then walks away. All clear: waits for $AC (set by Kara), waits 31 frames and walks to the standing state.
+; Erik of the Native Village (scene $AC): follows the state order of nvAC_kara. $B6 or $CF set: dies. $B2 set: stands at tile (12,0B) with the fixed text below. $AF set (Hamlet scene): stands at tile (0A,10), waits for scratch $05, spawns the event sprite code_0881AE, changes frame and installs the fixed text. $AD set: dies. $AC set: stands at tile (0B,11) until $AD is set, then walks away. All clear: waits for $AC (set by Kara), waits 32 ticks (WaitByte #1F) and walks to the standing state.
 ; 
 ; Fixed text: 'This tribe is so small. They have lost so many to starvation. Brothers, sisters... husbands, wives... How do they cope?'.
 ---------------------------------------------

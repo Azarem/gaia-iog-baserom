@@ -50,6 +50,7 @@ import {
     TOP_LABEL, SUB_LABEL, TAG, normalizeNote, noteIsEmpty, loadTransformPatterns, resolveAsmPath,
     type NoteValue, type CommentValue, type FileEdit,
 } from './notes-common.ts';
+import { TransformGuard, type FileMeasure } from './transform-guard.ts';
 
 export interface MergeOptions {
     dryRun?: boolean;
@@ -134,7 +135,7 @@ function suggest(names: string[], wanted: string): string {
 }
 
 /** Labels (top-level parts and indented sub-labels) in an extracted file, with their line numbers. */
-function collectLabels(lines: string[]): Map<string, number[]> {
+export function collectLabels(lines: string[]): Map<string, number[]> {
     const labels = new Map<string, number[]>();
     lines.forEach((line, i) => {
         if (/^[?!]/.test(line)) return;
@@ -147,7 +148,7 @@ function collectLabels(lines: string[]): Map<string, number[]> {
 }
 
 /** Address tag -> source lines (extract:lt output). */
-function collectTags(lines: string[]): Map<string, number[]> {
+export function collectTags(lines: string[]): Map<string, number[]> {
     const tags = new Map<string, number[]>();
     lines.forEach((line, i) => {
         const m = line.match(TAG);
@@ -233,6 +234,8 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
     const namesLookup = loadNamesBankLookup(join(projectRoot, 'db-us', 'names'));
     const dbLookup = loadDbBankLookup(join(projectRoot, 'db-us'));
     const transformPatterns = loadTransformPatterns(projectRoot);
+    // Notes sit inside the text that transforms.json rewrites: see src/transform-guard.ts.
+    const guard = TransformGuard.load(projectRoot, dbLookup);
 
     // What the notes JSON must contain afterwards (null = absent); checked again after the write.
     const expected: Record<Kind, Map<string, string | null>> = {
@@ -246,10 +249,6 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
         const abs = resolveAsmPath(projectRoot, fileKey);
         if (!abs) { result.errors.push(`${fileKey}: not an .asm file under extracted/`); continue; }
         if (!existsSync(abs)) { result.errors.push(`${fileKey}: file does not exist (run npm run extract:lt?)`); continue; }
-        if (/MenuSelectionHandler\.asm$/.test(abs)) {
-            result.errors.push(`${fileKey}: MenuSelectionHandler.asm is a transforms artifact; never merge notes for it`);
-            continue;
-        }
         let badKey = false;
         for (const k of Object.keys(edit)) {
             if (!['blockNote', 'partNotes', 'comments'].includes(k)) {
@@ -267,6 +266,9 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
         const fileBank = detectBank(lines, baseName, namesLookup, dbLookup);
         const err = (msg: string) => result.errors.push(`${label}: ${msg}`);
         const warn = (msg: string) => result.warnings.push(`${label}: ${msg}`);
+        const blockGuard = guard.block(baseName);
+        let measured: FileMeasure | undefined;
+        const measure = (): FileMeasure => (measured ??= blockGuard!.measure(lines));
 
         const claim = (kind: Kind, key: string): boolean => {
             const prev = claimed[kind].get(key);
@@ -301,6 +303,7 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
                     expected.blockNotes.set(baseName, null);
                 } else {
                     const text = normalizeNote(blockValue as string | string[]);
+                    for (const m of blockGuard?.checkLiteral(text, 'block note') ?? []) err(m);
                     const bank = store.bankOf(baseName) ?? fileBank!;
                     tally(cBlock, cur !== undefined, cur !== text, false);
                     store.set(baseName, bank, text);
@@ -322,10 +325,20 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
                 err(`label '${name}' appears ${hits.length} times (lines ${hits.join(', ')}); ambiguous`);
                 continue;
             }
-            if (!claim('partNotes', name)) continue;
+            // A label that a multi-line transform rule spans cannot take a note (it would stop or move the rule).
+            // (Removing a note is always allowed.)
+            const removingNote = !isEditOps(rawValue) && noteIsEmpty(rawValue);
+            const spanned = removingNote ? null : blockGuard?.checkPartNoteLabel(name, label);
+            if (spanned) { result.errors.push(spanned); continue; }
+            // A label that a rename rule produces is stored under the name the engine looks up (the old name).
+            const storeKey = blockGuard?.aliasFor(name) ?? name;
+            if (storeKey !== name) {
+                warn(`part note '${name}' is stored under '${storeKey}': a transform rule of block '${baseName}' renames '${storeKey}' to '${name}' after the notes are placed`);
+            }
+            if (!claim('partNotes', storeKey)) continue;
 
             const store = stores.partNotes;
-            const cur = store.get(name);
+            const cur = store.get(storeKey);
             if (isEditOps(value)) {
                 const r = applyEditOps(cur, value, `part note '${name}'`, err);
                 if (r === null) continue;
@@ -333,24 +346,25 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
             }
             if (noteIsEmpty(value)) {
                 tally(cPart, cur !== undefined, false, true);
-                store.remove(name);
-                expected.partNotes.set(name, null);
+                store.remove(storeKey);
+                expected.partNotes.set(storeKey, null);
                 continue;
             }
-            if (fileBank === null && store.bankOf(name) === undefined) {
+            if (fileBank === null && store.bankOf(storeKey) === undefined) {
                 err(`part note '${name}': cannot determine the ROM bank of this file`);
                 continue;
             }
             const text = normalizeNote(value as string | string[]);
-            const existingBank = store.bankOf(name);
+            for (const m of blockGuard?.checkLiteral(text, `part note '${name}'`) ?? []) err(m);
+            const existingBank = store.bankOf(storeKey);
             if (existingBank !== undefined && fileBank !== null && existingBank !== fileBank) {
                 warn(`part note '${name}' already lives in bank${existingBank.toString(16).toUpperCase().padStart(2, '0')} ` +
                     `but the file resolves to bank${fileBank.toString(16).toUpperCase().padStart(2, '0')}; keeping the existing bank`);
             }
             const bank = existingBank ?? fileBank!;
             tally(cPart, cur !== undefined, cur !== text, false);
-            store.set(name, bank, text);
-            expected.partNotes.set(name, text);
+            store.set(storeKey, bank, text);
+            expected.partNotes.set(storeKey, text);
         }
 
         // ---- comments ----
@@ -404,6 +418,12 @@ export function merge(projectRoot: string, specPath: string, options: MergeOptio
                 if (/[\r\n]/.test(text)) { err(`comment {${addr}}: must be a single line`); continue; }
                 if (/\{\d+\}/.test(text)) { err(`comment {${addr}}: must not contain a {digits} tag`); continue; }
                 if (text.length > 160) warn(`comment {${addr}}: ${text.length} chars; consider moving detail to a part note`);
+                if (blockGuard) {
+                    for (const m of blockGuard.checkLiteral(text, `comment {${addr}}`)) err(m);
+                    if (hits && hits.length === 1) {
+                        for (const m of blockGuard.checkComment(measure(), hits[0], addr, text, label)) result.errors.push(m);
+                    }
+                }
                 for (const re of transformPatterns) {
                     re.lastIndex = 0;
                     if (re.test(text)) {

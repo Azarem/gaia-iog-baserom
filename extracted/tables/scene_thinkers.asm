@@ -1,4 +1,4 @@
-; Per-scene thinker spawn lists (Bank 0C, 845285-846683 = $0C:E5E5): a 256-word pointer table indexed by scene ID x 2 ($0646), followed by 70 lists of thinker-spawn records (204 records in all). SpawnSceneThinkers (thinker_execution) runs once per scene build: it reads scene_thinkers[$0646], allocates a thinker slot for every record up to the $FF terminator and calls InitThinkerFromSceneData. A zero pointer or a first byte with bit 7 set means no thinkers. The old note ('background AI thinkers: palette cyclers, HDMA effects, ambient handlers') was only half right: global_ambient_dispatcher, which 59 of the 70 lists contain, is the player palette and the talk interaction, not an ambient effect.
+; Per-scene thinker spawn lists (Bank 0C, 845285-846683 = $0C:E5E5): a 256-word pointer table indexed by scene ID x 2 ($0646), followed by 70 lists of thinker-spawn records (204 records in all). SpawnSceneThinkers (thinker_execution) runs once per scene build: it reads scene_thinkers[$0646], allocates a thinker slot for every record up to the $FF terminator and calls InitThinkerFromSceneData. A zero pointer or a first byte with bit 7 set means no thinkers. The global_ambient_dispatcher, which 59 of the 70 lists contain, is the player palette and the talk interaction, not an ambient effect.
 ; 
 ; === RECORD (4 bytes, extraction: thinker-spawn < param, @code >) ===
 ; 
@@ -452,7 +452,7 @@ thinker_spawn_0CE8E1 [
 ]
 
 ---------------------------------------------
-; Unreferenced by the table: scanline_band_hdma_thinker band $20 and global_ambient_dispatcher (OQ-I072-3).
+; Unreferenced by the table: scanline_band_hdma_thinker band $20 and global_ambient_dispatcher.
 
 thinker_spawn_0CE8E6 [
   thinker-spawn < #20, @scanline_band_hdma_thinker >   ;00
@@ -586,7 +586,7 @@ thinker_spawn_0CE9E1 [
 ]
 
 ---------------------------------------------
-; Unreferenced by the table: palette bundles $01 and $32, global_ambient_dispatcher and scanline band $0F (OQ-I072-3).
+; Unreferenced by the table: palette bundles $01 and $32, global_ambient_dispatcher and scanline band $0F.
 
 thinker_spawn_0CE9EA [
   thinker-spawn < #01, @ambient_palette_cycler >   ;00
@@ -631,7 +631,7 @@ thinker_spawn_0CEA3C [
 ]
 
 ---------------------------------------------
-; Unreferenced by the table: a copy of thinker_spawn_0CEA2F (bundles $44 and $45 and the dispatcher) (OQ-I072-3).
+; Unreferenced by the table: a copy of thinker_spawn_0CEA2F (bundles $44 and $45 and the dispatcher).
 
 thinker_spawn_0CEA45 [
   thinker-spawn < #44, @ambient_palette_cycler >   ;00

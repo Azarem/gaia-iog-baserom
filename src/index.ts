@@ -7,9 +7,11 @@ import { DbRootUtils } from '@gaialabs/core';
 import type { DbAddressingMode, DbConfig, DbGameRomModule } from '@gaialabs/core';
 import { snes } from '@gaialabs/core';
 import { merge } from './merge.ts';
+import { mergeCheckCli, pruneNotes } from './merge-check.ts';
 import { applyNames, checkNames } from './names-merge.ts';
 import { exportLabels, exportScenes } from './export.ts';
 import { flagsCli } from './flags.ts';
+import { assertExtractComplete, extractWithSweep } from './extract-state.ts';
 
 const __pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -119,9 +121,12 @@ export async function extract(romPath: string, outPath: string, options?: string
 
     var dbRoot = DbRootUtils.fromGameModule(db);
 
-    if(options?.includes('linetracking')) dbRoot.config.emitLineTracking = true;
+    const tagged = options?.includes('linetracking') ?? false;
+    if(tagged) dbRoot.config.emitLineTracking = true;
 
-    await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
+    // No `rm -rf` of the output folder: every file is overwritten, files this run did not write are swept afterwards
+    // and `.extract-state.json` tells `rebuild` whether the tree is complete (src/extract-state.ts).
+    await extractWithSweep(outPath, tagged ? 'tagged' : 'plain', () => DbRootUtils.extractAllContent(dbRoot, romPath, outPath));
 }
 
 export async function extractJP(romPath: string, outPath: string) {
@@ -130,7 +135,7 @@ export async function extractJP(romPath: string, outPath: string) {
 
     var dbRoot = DbRootUtils.fromGameModule(jp);
 
-    await DbRootUtils.extractAllContent(dbRoot, romPath, outPath);
+    await extractWithSweep(outPath, 'plain', () => DbRootUtils.extractAllContent(dbRoot, romPath, outPath));
 }
 
 export interface RebuildSettings {
@@ -155,7 +160,9 @@ export async function rebuild(inPath: string, outPath: string, baseRomPath: stri
     if(!inPath) inPath = './extracted';
     if(!outPath) outPath = `./rebuilt/${process.env.ROM_NAME ?? 'Illusion of Gaia - Rebuilt'}.smc`;
     if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom');
-    
+
+    assertExtractComplete(inPath, 'npm run extract:lt');
+
     var dbRoot = DbRootUtils.fromGameModule(db);
 
     const outData = await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
@@ -199,7 +206,9 @@ export async function rebuildJp(inPath: string, outPath: string, baseRomPath: st
     if(!inPath) inPath = './extracted-jp';
     if(!outPath) outPath = `./rebuilt-jp/${process.env.ROM_NAME_JP ?? 'Gaia Gensouki - Rebuilt'}.smc`;
     if(!baseRomPath) baseRomPath = join(__pkgRoot, 'baserom-jp');
-    
+
+    assertExtractComplete(inPath, 'npm run extract-jp');
+
     var dbRoot = DbRootUtils.fromGameModule(jp);
 
     await DbRootUtils.rebuildAllContent(dbRoot, [inPath, baseRomPath, ...(modulePaths || [])], outPath);
@@ -264,12 +273,29 @@ if (isMainModule) {
                     break;
                 case 'rebuild-jp':
                     console.log('Starting JP ROM rebuild...');
-                    await rebuild(args[0], args[1], args[2]);
+                    await rebuildJp(args[0], args[1], args[2]);
                     console.log('ROM rebuild completed successfully!');
                     break;
                 case 'merge': {
+                    if (flags.includes('check')) {
+                        // `--bank NN` (the number is left in args) or `--bank=NN`
+                        const bankArg = values['bank'] ?? (flags.includes('bank') ? args[0] : undefined);
+                        if (!mergeCheckCli(__pkgRoot, bankArg)) process.exit(1);
+                        break;
+                    }
+                    if (flags.includes('prune')) {
+                        if (args.length === 0) {
+                            console.error('Usage: merge --prune <orphans.json> [--dry-run]');
+                            process.exit(1);
+                        }
+                        const pruneResult = pruneNotes(__pkgRoot, args[0], {
+                            dryRun: flags.includes('dry-run') || flags.includes('dryrun'),
+                        });
+                        if (!pruneResult.ok) process.exit(1);
+                        break;
+                    }
                     if (args.length === 0) {
-                        console.error('Usage: merge <spec.json> [--dry-run]');
+                        console.error('Usage: merge <spec.json> [--dry-run] | merge --check [--bank NN] | merge --prune <orphans.json> [--dry-run]');
                         process.exit(1);
                     }
                     const mergeResult = merge(__pkgRoot, args[0], {

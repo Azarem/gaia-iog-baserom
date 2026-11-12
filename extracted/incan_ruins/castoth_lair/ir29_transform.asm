@@ -1,6 +1,6 @@
 ; Aftermath actor of the Castoth fight (scene $29, scene row ;04).
 ; 
-; With flag word $011F set at spawn it dies. Otherwise it waits until enemiesRemaining ($0AEC) is 0, locks the joypad ($EFFC), applies BG change #1F, sets $011F, fades to music #1B and waits #77. When characterForm is 0 (Will) it only unlocks the joypad. For any other form it locks the joypad ($CFFC), waits #59, prints 'After the demon disappears, Will returns to his original shape...', unlocks, sets the player actor's code pointer to sE6_gaia.Transform_FreedanToWill, sets playerFlags bit $0800, waits until that bit clears and unlocks the joypad ($EFFC).
+; With flag word $011F set at spawn it dies. Otherwise it waits until enemiesRemaining ($0AEC) is 0, locks the joypad ($EFFC), applies BG change #1F, sets $011F, fades to music #1B and waits 120 ticks (WaitByte #77). When characterForm is 0 (Will) it only unlocks the joypad. For any other form it locks the joypad ($CFFC), waits 90 ticks (WaitByte #59), prints 'After the demon disappears, Will returns to his original shape...', unlocks, sets the player actor's code pointer to sE6_gaia.Transform_FreedanToWill, sets playerFlags bit $0800, waits until that bit clears and unlocks the joypad ($EFFC).
 ---------------------------------------------
 
 ?INCLUDE 'sE6_gaia'

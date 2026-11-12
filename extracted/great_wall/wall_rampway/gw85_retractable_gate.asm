@@ -1,6 +1,6 @@
 ; Retractable gate on the Great Wall rampway (scene $85).
 ; 
-; Solid gate at frame #1D (MarkSolidHere and MarkSolidOffset ( #00, #03 )). It waits on WaitOnFlagByte ( #01, #01 ), the scratch flag raised by the hit_switch at tile (18,1A), and clears the flag (one-shot trigger). It then clears its solid tiles, shows the retract frame #1E with $10 bit $0100 set during the animation, waits #77 ticks and closes again, so every later hit re-opens it.
+; Solid gate at frame #1D (MarkSolidHere and MarkSolidOffset ( #00, #03 )). It waits on WaitOnFlagByte ( #01, #01 ), the scratch flag raised by the hit_switch at tile (18,1A), and clears the flag (one-shot trigger). It then clears its solid tiles, shows the retract frame #1E with $10 bit $0100 set during the animation, waits 120 ticks (WaitByte #77) and closes again, so every later hit re-opens it.
 ---------------------------------------------
 
 ---------------------------------------------

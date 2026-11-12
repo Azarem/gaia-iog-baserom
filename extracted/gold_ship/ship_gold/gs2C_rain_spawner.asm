@@ -1,6 +1,6 @@
 ; Rain spawner for the Gold Ship storm — spawns rain drop particles.
 ; 
-; Loops every $0F frames, spawning a rain_particle child actor
+; Loops every 16 ticks (WaitByte #0F), spawning a rain_particle child actor
 ; with flags $0B00. Each spawned particle gets a random X offset
 ; from the player position (RngByte - $80 + playerXPos) using
 ; spriteset_pickups_effects and sprite priority #30.

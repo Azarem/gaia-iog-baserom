@@ -10,7 +10,7 @@
 ; player, moves to a position offset ~$50-$60 pixels past the player,
 ; then fires a spread of 6 child projectile actors (fireball + trail)
 ; with SFX #23. Projectiles track back toward the original actor
-; position using ActorMidpointCalc. After firing, waits $4F frames
+; position using ActorMidpointCalc. After firing, waits 80 ticks (WaitByte #4F)
 ; then kills all child projectiles and returns to patrol.
 ---------------------------------------------
 

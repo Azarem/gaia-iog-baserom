@@ -31,7 +31,7 @@
 ; === BUTTON TYPES ===
 ; 
 ; ApplySoundAndRemap (run when a game starts) reads sound $0B24 and button type $0B26. Type 1 (0) sets remapA = $8000, remapB = $4000, remapX = 0, remapY = $0040; Type 2 (1) only sets remapX = 0 and leaves the other remaps at their current values (the engine defaults). The on-screen legend (dialogstring_0BF63F / 0BF653) reads 'Type 1: A, B, SEL, Y' and 'Type 2: B, Y, SEL, A' against the rows Attack/Talk, Item/Cancel, Item palette, Not used. This baserom's system_init transform changes the default remaps (remapA $8080, remapB $4008, remapY $0040, remapX $0004) and the menu's own button tests ($8000 confirm, $4000 cancel), so the results differ from the vanilla ones above. Measured per physical button (logical word that button feeds): the OptionsMenu patch replaces both tails with JSL ApplyButtonMapping; with all six saved button-map bytes zero, Type 1 keeps the defaults (physical B $4008, A $8080, Y $0040, X $0004) and Type 2 gives B $8080, A $0040, Y $4008, X $0004. In the diary menu itself physical A confirms and physical B cancels with either type.
-; The erase prompt temporarily remaps B/Y in vanilla; transforms.json strips those stubs from the plain extraction, but multi-line rules do not apply under extract:lt (OQ-I026-1), so the stubs stay visible in the line-tracked text.
+; The erase prompt temporarily remaps B/Y in vanilla; transforms.json strips those stubs from the plain and from the line-tracked extraction alike (the rules accept address tags and comments between the lines).
 ; 
 ; === UNREFERENCED CODE ===
 ; 

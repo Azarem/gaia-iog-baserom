@@ -1,19 +1,25 @@
-; Wide-string menu selection system (256073–256610, Bank 03).
+; Choice-menu cursor for the dialog option op (COP #BE, cop_handlers_dialog.DialogueOptions, its only caller; 92 script sites) (256073–256610, Bank 03).
 ; 
-; === MENU SELECTION SYSTEM (256073) ===
+; The button bits in this file are the logical bits the remap produces, not the raw pad bits: with the default remap (system_init) the A button gives $8080 (confirm is $8000) and the B button gives $4008 (cancel is $4000). The raw pad word has B = $8000, Y = $4000, Start = $1000, Select = $2000 (vblank_joypad).
 ; 
-; MenuSelectionHandler provides a general-purpose menu cursor for dialogue choices. It uses a packed byte format on the stack: high nibble = total rows, low nibble = columns per page. The current selection index is at SP+1.
+; === Parameter ===
+; A on entry (read from the script as one 16-bit word): low byte = packed layout, high byte = first text row. Packed byte: low nibble C = items in the first column, high nibble N = total items when there are two columns; N = 0 means a single column of C items. First operand byte over the 92 script sites: $02 (69 sites; second byte 0-3), $04 (8), $03 (4), $32 (4: 3 items, 2 + 1), $42 (3: 4 items, 2 + 2), $01 (3), $63 (1: 6 items, 3 + 3).
+; Stack frame in the handler: SP+1/2 = selection (0-based, starts at 0), SP+3 = packed byte, SP+4 = first row, then the saved X and D. Inside DrawMenuCursor every offset is 2 higher (JSR return address).
 ; 
-; Input handling:
-; - Up ($0800): Decrement selection with wraparound
-; - Down ($0400): Increment selection with wraparound
-; - L/R ($0300): Page left/right (add/subtract column count)
-; - A/Start ($8000): Confirm selection — play sound #11, increment result by 1, return with carry set
-; - B ($4000): Cancel — call ReadMenuSelection, return result = 0
+; === Input ===
+; Polls joypadCurrent once per frame (DrawMenuCursor, then WaitOneFrame) against the mask $CF00: Up $0800, Down $0400, Left or Right $0300, confirm $8000 (the A button), cancel $4000 (the B button). Start is not accepted, and 'L/R' means the D-pad. Priority: Up, Down, Left/Right, confirm, cancel.
+; The bits $CFFC are then added to joypadHeld, which marks them consumed. That does not suppress the D-pad repeat: DialogueOptions sets joypadMaskInv = $0F00, so the consumed D-pad bits repeat every 12 joypad updates while held (vblank_joypad).
+; The vanilla code tests $8080 for confirm (the B or A button), masks with $CF80 and consumes with $CFF0; db-us/transforms.json rewrites them to $8000, $CF00 and $CFFC, and every value in these notes is the rewritten one.
+; - Up: previous item; from item 0 it wraps to the LAST item of the second column (or of the only column), and from the top of column 2 it goes to the bottom of column 1 (not symmetric with Down).
+; - Down: next item inside the current column; wraps to the top of the SAME column.
+; - Left and Right do the same thing: toggle the column (index + C when that item exists, index - C from the second column); the sound plays only when the column changed.
+; - Sound effects go to sfxQueueCh2: navigation $10, confirm $11.
 ; 
-; DrawMenuCursor (256387) handles cursor animation: a 16-frame blink cycle alternates between highlight tiles ($212C/$213C) and dim tiles ($21AC). It saves/restores the tile under the cursor via $0990/$0992.
+; === Cursor ===
+; DrawMenuCursor writes two tiles (top $212C or $21AC, bottom $213C or $21AC) into the BG3 tilemap staging buffer (bg3TilemapBuffer, bg3TilemapRow1 = next row) at ((((first row + row in column) x 2 + $0980) x 32 + $097E) x 2) bytes plus the column offset ($18 bytes = 12 tiles for column 2), where $097E/$0980 are the dialog box origin. Bit 4 of the blink counter $0994 chooses the tile pair, so the cursor is lit for 16 frames and dim for 16 (32-frame period). The tiles under the cursor are saved in $0990/$0992 (position $098E) and restored before the cursor moves. displayModeFlags bit 0 (the full BG3 upload request) is set on every redraw.
 ; 
-; ReadMenuSelection (256554) restores the original tiles and converts the cursor position to OAM-compatible sprite data at $090E/$0910.
+; === Result ===
+; Returns A = 1-based selection with carry set; cancel returns A = 0. Y is clobbered (the parameter word is popped into it); X and D are restored. Confirm leaves the highlighted cursor drawn (the saved tiles are only cleared, not restored); cancel restores them through ReadMenuSelection first. The initial selection is always 0.
 ---------------------------------------------
 
 ?BANK 03
@@ -29,41 +35,28 @@
 
 ---------------------------------------------
 
-; General-purpose menu selection handler for dialogue choices.
-; 
-; Entry: JSL. Stack parameter at SP+3 encodes the menu grid: high nibble = total item count (rows × columns), low nibble = items per row (column count). SP+1 = initial selection index. SP+5 = starting row offset.
-; 
-; Saves DP and sets it to 0. Initializes cursor blink counter ($0994) to 0.
-; 
-; The main loop (MenuSelection_PollLoop) draws the cursor, waits one frame, and checks joypad input:
-; - Up ($0800): Decrement index with row-aware wrapping
-; - Down ($0400): Increment index with row-aware wrapping
-; - L/R ($0300): Add/subtract column count for page navigation
-; - A/Start ($8000): Confirm — play sound #11, restore tiles under cursor, increment selection by 1, return carry set
-; - B ($4000): Cancel — call ReadMenuSelection to restore tiles, return A = 0, carry set
-; 
-; All navigation plays sound #10 and resets cursor blink. Returns: A = 1-based selection index (0 = cancelled), carry set.
+; Entry point. Pushes D, X and the parameter word, zeroes D, starts the selection at 0 with a cleared blink counter and loops in MenuSelection_PollLoop: draw the cursor, wait one frame, read joypadCurrent, dispatch on the first matching bit (Up, Down, Left/Right, confirm, cancel). Returns A = 1-based selection (0 = cancelled) with carry set. See the block note.
 
 MenuSelectionHandler {
     PHD 
     PHX 
-    PHA                   ; Packed grid descriptor: high nibble = total items, low nibble = columns per page
+    PHA                   ; Menu parameter word: low byte = packed layout (N x 16 + C), high byte = first text row
     LDA #$0000
     TCD 
-    PHA 
-    STA $0994             ; Initial selection index = 0; blink counter cleared
+    PHA                   ; SP+1/2 = selection, starts at 0
+    STA $0994             ; Blink counter = 0 (the selection pushed above is 0 too)
 
   MenuSelection_PollLoop:
     JSR $&DrawMenuCursor
     JSR $&DialogStringRenderer.WaitOneFrame
     LDA $joypadCurrent
-    BIT #$CF00            ; $CF00 mask = any navigation or action button
+    BIT #$CF00            ; Any of Up/Down/Left/Right ($0F00), confirm ($8000) or cancel ($4000); Start is not accepted
     BEQ MenuSelection_PollLoop
     PHA 
-    LDA #$CFFC            ; Suppress all auto-repeat ($CFFC) once any input detected
+    LDA #$CFFC            ; Marks the nav/action bits consumed in joypadHeld (the D-pad still repeats: joypadMaskInv = $0F00, set by DialogueOptions)
     TSB $joypadHeld
     PLA 
-    BIT #$0800            ; Input priority chain: Up → Down → L/R → A/Start → B
+    BIT #$0800            ; Priority: Up, Down, Left/Right, confirm, cancel
     BNE MenuSelection_Up
     BIT #$0400
     BEQ loc_03E877
@@ -75,19 +68,19 @@ MenuSelectionHandler {
     JMP $&MenuSelection_LeftRight
 
   loc_03E87F:
-    BIT #$8000
+    BIT #$8000            ; Confirm bit: $8000 is set by the A button (default remap gives A $8080)
     BNE MenuSelection_Confirm
-    BIT #$4000
+    BIT #$4000            ; Cancel bit: $4000 is set by the B button (default remap gives B $4008)
     BEQ MenuSelection_PollLoop
     JSR $&ReadMenuSelection ; B = cancel: restore tiles via ReadMenuSelection, return 0
     PLA 
     LDA #$0000
     BRA MenuSelection_Return
 
-; A/Start branch of the poll loop: saves and restores $0A/$0C around the redraw, plays SFX $11, clears the blink counter ($0994), redraws the cursor solid, turns the 0-based selection into a 1-based result and falls into MenuSelection_Return.
+; Confirm branch of the poll loop: saves $0A/$0C around the SFX write (no instruction between the push and the pop writes either), plays SFX $11, clears the blink counter, redraws the cursor lit, turns the 0-based selection into a 1-based result and falls into MenuSelection_Return.
 
   MenuSelection_Confirm:
-    LDA $000A             ; A/Start = confirm: preserve $0A/$0C work areas across SFX write
+    LDA $000A             ; Confirm: saves $0A/$0C around the SFX write, which touches neither (the push/pop pair has no effect)
     PHA 
     LDA $000C
     PHA 
@@ -99,21 +92,21 @@ MenuSelectionHandler {
     STA $000C
     PLA 
     STA $000A
-    STZ $0994
+    STZ $0994             ; Blink counter 0: the redraw below (counter becomes 1) shows the lit cursor
     JSR $&DrawMenuCursor  ; Redraw cursor in solid (non-blinking) confirmed state
     PLA 
     INC                   ; INC: convert 0-based selection to 1-based result
 
-; Shared exit of MenuSelectionHandler: one-frame wait, clears the blink counter and saved cursor tiles, restores the registers and returns carry set with the 1-based selection (0 = cancelled).
+; Shared exit of MenuSelectionHandler: one-frame wait, clears the blink counter and the saved cursor tiles, pops the parameter word into Y, restores X and D and returns carry set with the 1-based selection (0 = cancelled).
 
   MenuSelection_Return:
     PHA 
     JSR $&DialogStringRenderer.WaitOneFrame
     PLA 
-    STZ $0994             ; Clean up: zero blink counter, clear saved cursor tiles ($0990/$0992)
+    STZ $0994             ; Cleanup: zero blink counter and saved tiles; the tiles are NOT restored, so the lit cursor stays in the BG3 buffer after a confirm
     STZ $0990
     STZ $0992
-    PLY 
+    PLY                   ; Pops the parameter word into Y (Y is clobbered)
     PLX 
     PLD 
     SEC                   ; Return with carry set; A = 1-based selection (0 = cancelled)
@@ -128,7 +121,7 @@ MenuSelectionHandler {
     REP #$20
     STZ $0994
     SEP #$20
-    LDA $03, S            ; Unpack grid: AND $0F = columns → $1C; LSR×4 = total → $18
+    LDA $03, S            ; Unpack the packed byte: AND $0F = C (items in the first column) -> $1C; LSR x4 = N (total, 0 = one column) -> $18
     AND #$0F
     STA $1C
     LDA $03, S
@@ -138,7 +131,7 @@ MenuSelectionHandler {
     LSR 
     STA $18
     LDA $01, S
-    DEC                   ; Decrement selection; if negative, wrap to (total − 1) or (columns − 1)
+    DEC                   ; Decrement the selection; below zero it wraps to the last item (MenuSelection_UpWrap)
     BMI MenuSelection_UpWrap
     STA $01, S
     REP #$20
@@ -147,7 +140,7 @@ MenuSelectionHandler {
 ; Reached when Up takes the selection below zero: wraps to the last item (the last index of the column, or of the second column) and returns to the poll loop.
 
   MenuSelection_UpWrap:
-    LDA $18
+    LDA $18               ; Up from item 0: last item of the second column, or of the only column when N = 0
     BNE loc_03E8F4
     LDA $1C
 
@@ -159,9 +152,7 @@ MenuSelectionHandler {
 }
 
 ---------------------------------------------
-; Handle Down input in menu selection.
-; 
-; Extracts grid dimensions from the packed stack parameter (high nibble = total, low nibble = columns). Increments the selection index. If it exceeds the column count (entering the second page), wraps or caps to the total count. Plays navigation sound and returns to the poll loop.
+; Down handler. Plays the navigation sound, resets the blink counter, unpacks C and N from SP+3 and advances the selection inside its column: in column 1 it wraps from C-1 to 0, in column 2 from N-1 back to C.
 
 MenuSelection_Down {
     SEP #$20
@@ -179,10 +170,10 @@ MenuSelection_Down {
     LSR 
     LSR 
     STA $18
-    LDA $01, S            ; Selection < columns = first page; ≥ columns = second page
+    LDA $01, S            ; Index < C: first column; otherwise second column
     CMP $1C
     BCS loc_03E92E
-    INC                   ; First page: increment, wrap to 0 at column boundary
+    INC                   ; First column: increment, wrap to 0 after C-1 (never leaves the column)
     CMP $1C
     BCS loc_03E925
     BRA loc_03E927
@@ -196,7 +187,7 @@ MenuSelection_Down {
     JMP $&MenuSelection_PollLoop
 
   loc_03E92E:
-    INC                   ; Second page: increment, wrap to column count at total boundary
+    INC                   ; Second column: increment, wrap back to C (top of the column) after N-1
     CMP $18
     BCC loc_03E935
     LDA $1C
@@ -208,9 +199,7 @@ MenuSelection_Down {
 }
 
 ---------------------------------------------
-; Handle L/R input for column-based menu navigation.
-; 
-; Adds or subtracts the column count to/from the current selection. Clamps to grid bounds. If the result crosses a page boundary, plays the navigation sound; otherwise returns silently to the poll loop.
+; Left/Right handler (both buttons act identically). Resets the blink counter. Column 1: index + C if that item exists (below N), otherwise unchanged. Column 2: index - C. The navigation sound plays only when the column actually changed.
 
 MenuSelection_LeftRight {
     STZ $0994
@@ -224,10 +213,10 @@ MenuSelection_LeftRight {
     LSR 
     LSR 
     STA $18
-    LDA $01, S            ; Determine current page by comparing selection to column count
+    LDA $01, S            ; Index < C: first column; otherwise second column
     CMP $1C
     BCS loc_03E969
-    CLC                   ; First page → right: add columns (clamp to total)
+    CLC                   ; First column: same row in column 2 (index + C) if that item exists (below N), else stay
     ADC $1C
     CMP $18
     BCC loc_03E95E
@@ -241,7 +230,7 @@ MenuSelection_LeftRight {
     JMP $&MenuSelection_PollLoop
 
   loc_03E969:
-    SEC                   ; Second page → left: subtract columns
+    SEC                   ; Second column: same row in column 1 (index - C)
     SBC $1C
     STA $01, S
     CMP $1C
@@ -250,7 +239,7 @@ MenuSelection_LeftRight {
     JMP $&MenuSelection_PollLoop
 
   loc_03E977:
-    SEP #$20              ; Play navigation SFX only when page actually changed
+    SEP #$20              ; Navigation SFX, reached only when the column changed
     LDA #$10
     STA $sfxQueueCh2
     REP #$20
@@ -258,14 +247,10 @@ MenuSelection_LeftRight {
 }
 
 ---------------------------------------------
-; Draw the menu selection cursor with a 16-frame blink animation.
-; 
-; Increments the blink counter ($0994). Bit 4 determines the cursor phase: clear = highlight tiles ($212C/$213C for top/bottom), set = dim tiles ($21AC both). Saves the tiles currently under the cursor to $0990/$0992, then overwrites with cursor tiles.
-; 
-; Computes the cursor position from: the base row offset (SP+6), the grid selection index (SP+3), the column count (from packed dimensions), and the box origin ($097E/$0980). The X offset ($18) is 0 for the first page or $18 for the second page.
+; Draws the blinking two-tile cursor. Increments the blink counter $0994 (bit 4 chooses the lit pair $212C/$213C or the dim pair $21AC/$21AC), restores the tiles saved at the previous cursor position, computes the new tilemap offset from the first row, the row inside the column, the dialog box origin ($097E/$0980) and the column offset ($18 bytes for column 2), saves the two tiles now under the cursor in $0990/$0992 and writes the cursor tiles. Sets displayModeFlags bit 0. Parameter offsets are 2 higher than in the handler because of the JSR.
 
 DrawMenuCursor {
-    LDA $0994
+    LDA $0994             ; Blink counter: lit for 16 frames, dim for 16 (32-frame period)
     INC 
     STA $0994
     BIT #$0010            ; Bit 4 of counter: clear = highlight ($212C/$213C), set = dim ($21AC)
@@ -301,14 +286,14 @@ DrawMenuCursor {
     LSR 
     LSR 
     STA $18
-    LDA $03, S
-    CMP $1C               ; Page check: first page = direct index, second page = subtract columns
+    LDA $03, S            ; Selection index (SP+3 here: +2 for the JSR return address)
+    CMP $1C               ; Index >= C: second column, row = index - C; else first column
     BCC loc_03E9DC
     SEC 
     SBC $1C
     STA $1C
     STZ $1D
-    LDX #$0018            ; Second page X offset = $18 (12 tiles × 2 bytes)
+    LDX #$0018            ; Second column offset = $18 bytes = 12 tiles
     STX $18
     BRA loc_03E9E5
 
@@ -320,7 +305,7 @@ DrawMenuCursor {
 
   loc_03E9E5:
     REP #$20
-    LDA $06, S            ; Compute cursor VRAM offset: (row_base + index) × 2 rows × 32 cols + col_origin + page_offset
+    LDA $06, S            ; Offset = ((((first row + row in column) x 2 + $0980) x 32 + $097E) x 2) + column offset, into the BG3 staging buffer
     AND #$00FF
     CLC 
     ADC $1C
@@ -352,26 +337,24 @@ DrawMenuCursor {
     PLA 
     STA $0990
     LDA #$0001
-    TSB $displayModeFlags
+    TSB $displayModeFlags ; Set displayModeFlags bit 0 (full BG3 upload request)
     RTS 
 }
 
 ---------------------------------------------
-; Restore tiles under the menu cursor and convert position to OAM data.
-; 
-; Restores the saved tiles ($0990/$0992) to their original VRAM buffer positions. Converts the tile values to OAM-compatible format: strips palette/priority bits (AND $03FF), shifts left 3 (ASL ×3), and OR's with $6000 for the OAM priority. Writes to $090E/$0910 for sprite overlay use. Clears the saved tile state.
+; Cancel path: puts the saved tiles back into the BG3 buffer, stores (tile and $03FF) x 8 + $6000 for each of the two tiles in $090E/$0910 (the VRAM word address of that tile's characters when BG3 uses the character base $6000; not an OAM value, and no instruction in extracted/ addresses $090E or $0910 besides these two stores), clears $0990/$0992 and sets displayModeFlags bit 0.
 
 ReadMenuSelection {
     PHY 
     LDX $098E
     LDA $0990             ; Restore saved tiles ($0990/$0992) to original VRAM positions
     STA $bg3TilemapBuffer, X
-    AND #$03FF            ; Convert tile to OAM format: AND $03FF (strip palette), ASL×3, ORA $6000 (priority)
+    AND #$03FF            ; Tile number x 8 + $6000 = VRAM word address of this tile's characters (BG3 character base $6000), not an OAM value
     ASL 
     ASL 
     ASL 
     ORA #$6000
-    STA $090E             ; Write OAM sprite data: $090E (top half), $0910 (bottom half)
+    STA $090E             ; $090E/$0910 = those addresses for the two tiles under the cursor; no instruction in extracted/ addresses them besides these two stores
     LDA $0992
     STA $bg3TilemapRow1, X
     AND #$03FF

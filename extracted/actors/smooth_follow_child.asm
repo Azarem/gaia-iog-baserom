@@ -17,11 +17,7 @@
 ; dx >= 0, dy < 0 (north-east): |dy| >= |dx| SmoothFollowApplyNNE (Y -= major, X += minor); |dy| < |dx| SmoothFollowApplyENE (X += major, Y -= minor).
 ; dx < 0, dy >= 0 (south-west): |dy| >= |dx| SmoothFollowApplySSW (Y += major, X -= minor); |dy| < |dx| SmoothFollowApplyWSW (X -= major, Y += minor).
 ; dx < 0, dy < 0 (north-west): |dy| >= |dx| SmoothFollowApplyNNW (Y -= major, X -= minor); |dy| < |dx| SmoothFollowApplyWNW (X -= major, Y -= minor).
-; Each handler is named after the heading it fires. Five of them were first called SmoothFollowApplyEastPrimary (SSE), EastSecondary (SSW), WestPrimary (WSW), WestSecondary (WNW) and SouthPrimary (NNW), which described neither the dominant axis nor the direction, and three (NNE, ENE, ESE) had only loc_ labels.
-; 
-; === CORRECTIONS ===
-; 
-; The old header said the actor makes a child 'smoothly chase a reference actor', that it updates 'both actors' positions each frame' and that it dies 'when the parent actor sets flag $4000 or on special actor ID $1FC0'. The aim is taken once; only the tick moves and it writes the body's position; $4000 is the body's own off-screen flag and $1FC0 is the pool-exhausted result of the spawn.
+; Each handler is named after the heading it fires.
 ---------------------------------------------
 
 ?BANK 00

@@ -1,6 +1,6 @@
 ; South Cape woman worried about strange merchants.
 ; 
-; No flags. One interact handler prints the worried line. The actor waits $B3 and $77 ticks, then after a delay of $053C ticks walks a route out and back, standing solid for $EF ticks at the far stop, and redraws the metatile at tiles (2C,0E) and (1C,0E) between $F8 and $F9 as she leaves and returns.
+; No flags. One interact handler prints the worried line. The actor waits 180 and 120 ticks (WaitByte #B3, #77), then after a JumpAfterDelay of 1341 ticks (#$053C) walks a route out and back, standing solid for 240 ticks (WaitByte #EF) at the far stop, and redraws the metatile at tiles (2C,0E) and (1C,0E) between $F8 and $F9 as she leaves and returns.
 ---------------------------------------------
 
 ---------------------------------------------

@@ -481,9 +481,9 @@
     { "key": "\\s+LDA #\\$4000(?:[ \\t]*;[^\\r\\n]*)?\\s+STA \\$remapB(?:[ \\t]*;[^\\r\\n]*)?\\s+STZ \\$remapY(?:[ \\t]*;[^\\r\\n]*)?", "value": "" }
   ],
   "MenuSelectionHandler": [
-    { "key": "\\$CF80", "value": "$$CF00" },
-    { "key": "\\$CFF0", "value": "$$CFFC" },
-    { "key": "\\$8080", "value": "$$8000" }
+    { "key": "([\\r\\n][ \\t]*BIT #)\\$CF80(?![0-9A-Fa-f])", "value": "$1$$CF00" },
+    { "key": "([\\r\\n][ \\t]*LDA #)\\$CFF0(?![0-9A-Fa-f])", "value": "$1$$CFFC" },
+    { "key": "([\\r\\n][ \\t]*BIT #)\\$8080(?![0-9A-Fa-f])", "value": "$1$$8000" }
   ],
   "item_use_system": [
     { "key": "LDA #\\$4000", "value": "LDA #$$0008" },

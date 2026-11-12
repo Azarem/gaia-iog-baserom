@@ -1,4 +1,4 @@
-; Pyramid scenes $D0 (Meltdown A) and $D1 (Meltdown B), one placement each: a one-shot trigger that starts a ledge jump (LedgeJumpEntry). The old name and note (breakable wall, hit points, debris, 'used extensively in the maze-like corridors') do not match the code: there is no HP counter, no hit test, no spawn, and only these two scenes place it.
+; Pyramid scenes $D0 (Meltdown A) and $D1 (Meltdown B), one placement each: a one-shot trigger that starts a ledge jump (LedgeJumpEntry). The actor has no HP counter, no hit test and no spawn, and only these two scenes place it.
 ; 
 ; The actor's $0E word (copied to $26) picks the variant: 0 uses flag word $0170 and BG change #70, anything else flag word $0171 and BG change #71. The actor dies at once when its flag word is set.
 ; 

@@ -2,7 +2,7 @@
 ; 
 ; === PALETTE (spawn only) ===
 ; 
-; SwitchCase on characterForm ($0AD4: 0 Will, 1 Freedan, 2 Shadow; no range check, so the table's fourth entry is never reached) runs PaletteStart / PaletteStep on bundle #0B (Will), #0C (Freedan) or #23 (Shadow). All three write colours $81-$8F, which is OBJ palette 0 colours 1-15, the player's sprite palette. #0B and #0C are a single static strip; #23 is an animated set of strips (wait 2 each). PaletteStep plays the whole bundle before the script continues. The palette is chosen once when the thinker spawns, so a form change in the middle of a scene is not re-applied until the next scene setup.
+; SwitchCase on characterForm ($0AD4: 0 Will, 1 Freedan, 2 Shadow; no range check, so the table's fourth entry is never reached) runs PaletteStart / PaletteStep on bundle #0B (Will), #0C (Freedan) or #23 (Shadow). All three write colours $81-$8F, which is OBJ palette 0 colours 1-15, the player's sprite palette. #0B and #0C are a single static strip; #23 is an animated set of strips (wait 2 = 3 ticks each). PaletteStep plays the whole bundle before the script continues. The palette is chosen once when the thinker spawns, so a form change in the middle of a scene is not re-applied until the next scene setup.
 ; 
 ; === FILTER WORD ===
 ; 
@@ -78,7 +78,7 @@ GlobalAmbientPaletteFreedan {
 ; Shadow: bundle #23, an animated strip set on the same colours, then the interaction loop.
 
 GlobalAmbientPaletteShadow {
-    COP [PaletteStart] ( #23 ) ; Shadow: animated strip set on the same colours (wait 2 per strip)
+    COP [PaletteStart] ( #23 ) ; Shadow: animated strip set on the same colours (wait 2 = 3 ticks per strip)
     COP [PaletteStep]
     BRA GlobalAmbientInteractEntry
 }

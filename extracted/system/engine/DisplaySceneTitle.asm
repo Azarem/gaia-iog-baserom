@@ -109,8 +109,8 @@ scene_title_box_format `[DLG:7,7][SIZ:A,1][SFX:0]`
 ; - Bytes < $C0: literal tile characters - increments count by 1
 ; - $CA (Return): end of string - returns with count in $00
 ; - $CC (AdvanceCursor): reads 1-byte operand as additional glyph width, adds to count
-; - $D6 (DictionaryA): resolves compressed word from dictionary_01EBA8. Reads 1-byte index, looks up the word pointer (index x 2 + base), then counts each character until $CA terminator
-; - $D7 (DictionaryB): same as $D6 but uses dictionary_01F54D
+; - $D6 (DictionaryA): resolves a compressed word from dialog_dictionaries.dialog_dictionary_a. Reads 1-byte index, looks up the word pointer (index x 2 + base), then counts each character until $CA terminator
+; - $D7 (DictionaryB): same as $D6 but uses dialog_dictionaries.dialog_dictionary_b
 ; - Other commands (>= $C0): skips one operand byte without counting
 ; 
 ; The dictionary expansion switches DBR to the dictionary bank (PHA/PLB), saves/restores Y across the lookup, and returns to the main loop after counting all expanded characters.
@@ -140,9 +140,9 @@ CountTitleGlyphs {
     BRA loc_02A17E
 
   loc_02A197:
-    CMP #$D6              ; $D6 = DictionaryA — compressed word in dictionary_01EBA8
+    CMP #$D6              ; $D6 = DictionaryA: compressed word in dialog_dictionaries.dialog_dictionary_a
     BEQ loc_02A1A9
-    CMP #$D7              ; $D7 = DictionaryB — compressed word in dictionary_01F54D
+    CMP #$D7              ; $D7 = DictionaryB: compressed word in dialog_dictionaries.dialog_dictionary_b
     BEQ loc_02A1BE
     INY                   ; Unknown command (≥ $C0): skip one operand byte
     BRA loc_02A17E
@@ -168,11 +168,11 @@ CountTitleGlyphs {
     AND #$00FF
     ASL 
     CLC 
-    ADC #$&dialog_dictionaries.dialog_dictionary_a ; Add dictionary_01EBA8 base → word pointer address
+    ADC #$&dialog_dictionaries.dialog_dictionary_a ; Add the dialog_dictionary_a base -> word pointer address
     BRA loc_02A1D1        ; Jump to shared dictionary word counting loop
 
   loc_02A1BE:
-    INY                   ; DictionaryB: same lookup pattern using dictionary_01F54D
+    INY                   ; DictionaryB: same lookup pattern using dialog_dictionary_b
     PHB 
     PHY 
     LDA #$^dialog_dictionaries.dialog_dictionary_b

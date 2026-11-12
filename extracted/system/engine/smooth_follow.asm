@@ -497,7 +497,7 @@ ComputeFollowStep {
     BEQ ComputeFollowStepTableWrap
     TXA 
     SEC 
-    SBC #$0020
+    SBC #$0020            ; Column counter passed 15: step back 32 bytes (one 16-word row) so X is at column 0 of the same row again; the counter restarts at 0
     TAX 
     LDA #$0000
     STA $0004
@@ -564,7 +564,7 @@ ResolveFacingFromDiagonalBase {
     BEQ ResolveFacingSnapToDesired
     CMP #$000F
     BEQ ResolveFacingSnapToDesired
-    CMP #$0009
+    CMP #$0009            ; A = current facing − desired facing (0, 1 and 15 snapped above): 9-14 turns clockwise, 2-8 counter-clockwise (a half-turn, 8, goes counter-clockwise)
     BPL ResolveFacingStepClockwise
     BRA ResolveFacingStepCounterclockwise
 
@@ -573,7 +573,7 @@ ResolveFacingFromDiagonalBase {
     BEQ ResolveFacingSnapToDesired
     CMP #$FFF1
     BEQ ResolveFacingSnapToDesired
-    CMP #$FFF9
+    CMP #$FFF9            ; A = current − desired is negative (−1 and −15 snapped above): −7..−2 turns clockwise, −14..−8 counter-clockwise (the half-turn, −8, goes counter-clockwise)
     BPL ResolveFacingStepClockwise
     BRA ResolveFacingStepCounterclockwise
 

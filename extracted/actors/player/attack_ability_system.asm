@@ -657,7 +657,7 @@ DarkFriarVramDma {
 }
 
 DarkFriarProjectile {
-    COP [SetMetasprite] ( @spriteset_dark_friar ) ; Set metasprite to table_178000 (Dark Friar projectile graphics)
+    COP [SetMetasprite] ( @spriteset_dark_friar ) ; Set metasprite to spriteset_dark_friar (Dark Friar projectile graphics)
     JSR $&ComputeParentOffset ; Compute offset from parent — tracks relative position for trail following
     COP [WaitByte] ( #07 ) ; WaitByte #07 = 8 ticks before revealing the projectile (syncs with the casting animation)
     JSR $&ApplyParentOffset ; Apply stored offset to follow parent's movement during delay
@@ -1418,7 +1418,7 @@ SpinDashDirNS {
 SpinDashAbort {
     LDA #$0200            ; Clear bit 9 ($0200): contact damage is back (SpinDashAbort)
     TRB $10
-    COP [RestoreSavedPtr]
+    COP [RestoreSavedPtr] ; Restore the saved return pointer: the Spin Dash ends here and the player returns to the state before the ability
 }
 
 ---------------------------------------------

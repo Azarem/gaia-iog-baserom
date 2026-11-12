@@ -1,6 +1,6 @@
 ; Lance in the wrecked Gold Ship interior (scene $2D) — triggers the Seth cutscene on approach.
 ; 
-; Before scratch flag $01 (set by gs2D_mummy's first talk): solid NPC at its spawn tile with the talk handler code_059028. After flag $01: clears the solid mark, moves to tile (0F,0D) (frame #05) and tests each frame whether Will is within 3 tiles (BranchIfPlayerNear). When Will is near it sets the joypad lock ($EFFC), prints 'Are you OK?', waits #3B, shakes the camera with camera_drift (CameraDriftLoopShip), waits #B3, prints Seth's scream with Lance's reply, sets persistent flag $51, removes the talk handler, walks off, releases the joypad lock and dies.
+; Before scratch flag $01 (set by gs2D_mummy's first talk): solid NPC at its spawn tile with the talk handler code_059028. After flag $01: clears the solid mark, moves to tile (0F,0D) (frame #05) and tests each frame whether Will is within 3 tiles (BranchIfPlayerNear). When Will is near it sets the joypad lock ($EFFC), prints 'Are you OK?', waits 60 ticks (WaitByte #3B), shakes the camera with camera_drift (CameraDriftLoopShip), waits 180 ticks (WaitByte #B3), prints Seth's scream with Lance's reply, sets persistent flag $51, removes the talk handler, walks off, releases the joypad lock and dies.
 ---------------------------------------------
 
 ?INCLUDE 'camera_drift'

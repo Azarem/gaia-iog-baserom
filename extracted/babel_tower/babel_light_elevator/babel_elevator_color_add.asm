@@ -16,7 +16,7 @@ babel_elevator_color_add [
     COP [SetEntryHere]
     SEP #$20
     LDA #$02
-    STA $CGADSUB
+    STA $CGADSUB          ; CGADSUB $02: colour math (add, not halved) on BG2 only; rewritten every frame by the SetEntryHere loop
     REP #$20
     RTL 
 } >

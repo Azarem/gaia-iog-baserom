@@ -1,6 +1,6 @@
 ; Guard blocking the Freejia back alley (scene $32).
 ; 
-; Solid actor with a talk handler. The handler compares playerXPos ($09A2) with the guard's own X position ($14): below it prints 'Children don't come here. Go home.'; at or above it prints 'This kid! Where did you come from?! Go home! Go home!!' and sets scratch flag $01, on which the guard's main script clears its solid mark, writes $FFFB to playerSpeedEw ($09B2), waits #1D, clears the flag and marks itself solid again. No story flag is tested.
+; Solid actor with a talk handler. The handler compares playerXPos ($09A2) with the guard's own X position ($14): below it prints 'Children don't come here. Go home.'; at or above it prints 'This kid! Where did you come from?! Go home! Go home!!' and sets scratch flag $01, on which the guard's main script clears its solid mark, writes $FFFB to playerSpeedEw ($09B2), waits 30 ticks (WaitByte #1D), clears the flag and marks itself solid again. No story flag is tested.
 ---------------------------------------------
 
 !playerXPos                     09A2

@@ -58,7 +58,7 @@
 ; PlaceOpenedChestTiles walks the scene's records in scene_chest_table. For each record whose event flag (byte 3 AND $7F, TestEventFlag_0200) is set, it writes the OPEN-chest 2×2 pattern at the record position:
 ;   Top-left: $FE, Top-right: $FF (row Y−1)
 ;   Bottom-left: $FC, Bottom-right: $FD (row Y)
-; These are exactly the tiles DrawChestTiles draws with base $FC, and the records are the chest records, so the routine restores chests the player has already opened whenever the scene map is rebuilt (scene load, and inventory_overlay's scene reload). The earlier "closed door/barrier" reading is not supported by the code. Only the map is written; no VRAM update is queued.
+; These are exactly the tiles DrawChestTiles draws with base $FC, and the records are the chest records, so the routine restores chests the player has already opened whenever the scene map is rebuilt (scene load, and inventory_overlay's scene reload). Only the map is written; no VRAM update is queued.
 ; 
 ; === UTILITY ===
 ; 

@@ -1,4 +1,4 @@
-; The console-string text of the menus (Bank 01, 121304-125711 = $01:D9D8): the boot and title strings, ten pointer tables and the loose strings between them, all drawn by ConsoleStringRenderer. It is read in two ways: RunBg3Script runs a loose string directly (a BG3 script), and the text tag [TBL:@table,addr] picks a table entry with a 16-bit RAM variable as the index (item_name_table by $0AC6, the other tables by $0AE8, character_name_table by $0AD4 and misc_ui_strings by $0B26). Text tags: [N] = line break of one tilemap row, [DBL] = two rows, [LU:n] = shared word n (shared_word_table), [POS:x,y] = cursor, [PAL:n] = palette, [RCC:w,h] = clear (w+1) x (h+1) tiles. The old note called the block 'all game UI text organized into 10 sub-tables'; the dialogue lines are DialogString data elsewhere, and seven of the ten part notes were wrong (see below).
+; The console-string text of the menus (Bank 01, 121304-125711 = $01:D9D8): the boot and title strings, ten pointer tables and the loose strings between them, all drawn by ConsoleStringRenderer. It is read in two ways: RunBg3Script runs a loose string directly (a BG3 script), and the text tag [TBL:@table,addr] picks a table entry with a 16-bit RAM variable as the index (item_name_table by $0AC6, the other tables by $0AE8, character_name_table by $0AD4 and misc_ui_strings by $0B26). Text tags: [N] = line break of one tilemap row, [DBL] = two rows, [LU:n] = shared word n (shared_word_table), [POS:x,y] = cursor, [PAL:n] = palette, [RCC:w,h] = clear (w+1) x (h+1) tiles. The dialogue lines are DialogString data elsewhere.
 ; 
 ; === TABLES (the index variable decides what the number means) ===
 ; 
@@ -6,9 +6,9 @@
 ; |------|-------|---------|-------|---------|
 ; | boot_title_strings | 121304-121535 | 3 loose strings | | The region lockout warning (sFB_boot_logo, @system_strings.boot_title_strings), then 'PUSH START BUTTON' and the copyright text (sFC_title_intro) |
 ; | item_name_table | 121535-122398 | 64 | item ID ($0AC6 = equipped item) | The name with [N] line breaks for the two-row name areas (status screen: [TBL:@item_name_table,AC6] at (8C,3)). $00 empty, $29-$37 blank (8 spaces), $38-$3F 'Mystic Statue' |
-; | item_name_line_table | 122398-123178 | 64 | item ID ($0AE8) | The same names on ONE line, printed as the first part of the item description box: [TBL item_name_line_table][TBL item_description_table] (E9D0) and 'name, Discard?, No, Yes' (E9E2). $29-$37 blank, $38-$3F 'Mystery Doll' |
+; | item_name_line_table | 122398-123178 | 64 | item ID ($0AE8) | The same names on ONE line, printed as the first part of the item description box: [TBL item_name_line_table][TBL item_description_table] (E9D0) and 'name, Discard?, No, Yes' (E9E2). $29-$37 blank, $38-$3F 'Mystery Doll'; $03-$05 use the shared word [LU:4] = 'Inca ' (shared_word_table) and read 'Inca Statue A/B' and 'Inca Melody' where item_name_table reads 'Incan ...' |
 ; | non_discardable_item_bits | 123178-123186 | 8 bytes | item ID | Bit table: byte = ID >> 3, bit = BitMaskTable[ID & 7] (bit 0 = lowest ID of the byte); CheckItemDiscardable (inventory_menu) |
-; | item_description_table | 123186-124396 | 41 ($00-$28) | item ID ($0AE8) | Description text of two to four rows, each starting with [DBL] so it continues under the name; $00 = 'Nothing'. Items $29-$3F have no entry |
+; | item_description_table | 123186-124396 | 41 ($00-$28) | item ID ($0AE8) | Description text of one to three [DBL] lines (two in 27 entries, three in 12, one in $06), each text starting with [DBL] so it continues under the name; $00 = 'Nothing' has none. Items $29-$3F have no entry |
 ; | ability_menu_table | 124396-124509 | 12 | ability index ($0AE8) | One-line ability name, header of the ability description box (EAB4) |
 ; | ability_name_table | 124509-124636 | 12 | ability index ($0AE8) | The ability name with [N] line breaks, printed on the status rows (EA49, EA56, EA63) |
 ; | ability_description_table | 124636-124878 | 13 ($00-$0C) | ability index ($0AE8) | Ability description text starting with [DBL]; $00 = 'Nothing' |
@@ -21,11 +21,7 @@
 ; 
 ; === NON-DISCARDABLE BITS ===
 ; 
-; The bytes are $BC $FF $FF $FE $DF $00 $00 $00. Discardable (bit clear): $00, $01 Red Jewel, $06 Herb, $18 Will, $25 Lola's Letter, $28-$3F. Protected: $02-$05, $07-$17, $19-$24, $26 and $27. $18 and $25 being discardable is unexplained (OQ-I072-2).
-; 
-; === WHAT WAS WRONG IN THE OLD NOTES ===
-; 
-; item_name_line_table was 'longer descriptions shown when hovering': it is the one-line NAME (the description is item_description_table). The blank item range was given as $2A-$38 and the 'Mystic Statue' range as $39-$3F; they are $29-$37 and $38-$3F (8 statues, as the 8 'Mystery Doll' tags of shared_word_table say). item_description_table was 'multi-line descriptions of function and lore': it has 41 entries of short function text. non_discardable_item_bits was 'padding / alignment data between two tables'; it is read by CheckItemDiscardable. misc_ui_strings was 'status labels, save/load prompts, game over text': the table is just 'B' and 'Y' and the loose strings are inventory-menu prompts, tab titles and three screen labels (PAUSE, FORCE, the button legend). The old part notes of item_name_table (blank and statue ranges) and boot_title_strings ('displayed at boot': two of the three are title-screen strings) were also off. character_name_table was 'Will, Kara, Lance, Erik, Seth and other story characters': it holds the three player forms.
+; The bytes are $BC $FF $FF $FE $DF $00 $00 $00. Discardable (bit clear): $00, $01 Red Jewel, $06 Herb, $18 Will, $25 Lola's Letter, $28-$3F. Protected: $02-$05, $07-$17, $19-$24, $26 and $27. $18 and $25 being discardable is unexplained.
 ; 
 ; Byte check: the ten parts add up to 4407 bytes = 125711 - 121304. Part addresses are from blocks.json; the strings between the tables are listed in the part notes.
 ---------------------------------------------
@@ -43,7 +39,7 @@ consolestring_01DA47 |[PAL:4][POS:D0,4]PUSH START BUTTON|
 consolestring_01DA5E |[PAL:0][POS:C8,5](C) 1994  QUINTET⸓ENIX[POS:8,6]MARIKO OHARA⸓MOTO HAGIO[POS:4E,6]YASUHIRO KAWASAKI[POS:8C,6]LICENSED TO NINTENDO|
 ---------------------------------------------
 
-; 64 pointers, index = item ID. The names carry [N] line breaks for the two-row status area; item_name_line_table has the same names on one line. Empty at $00, blank (8 spaces) at $29-$37, 'Mystic Statue' at $38-$3F (the old note put the blank range at $2A-$38 and the statues at $39-$3F). $00 points at consolestring_01DB3F, the empty string shared with ability_menu_table and ability_name_table.
+; 64 pointers, index = item ID. The names carry [N] line breaks for the two-row status area; item_name_line_table has the same names on one line. Empty at $00, blank (8 spaces) at $29-$37, 'Mystic Statue' at $38-$3F. $00 points at consolestring_01DB3F, the empty string shared with ability_menu_table and ability_name_table.
 
 item_name_table [
   &consolestring_01DB3F   ;00
@@ -241,7 +237,7 @@ consolestring_01DE0A |Mystic [LU:C]|
 consolestring_01DE14 |Mystic [LU:C]|
 ---------------------------------------------
 
-; 64 pointers, index = item ID. One-line item names: the first half of the item description box (consolestring_01E9D0 = this table + item_description_table) and the Discard? prompt (consolestring_01E9E2). It is not a table of descriptions. $29-$37 are blank and $38-$3F read 'Mystery Doll', unlike the 'Mystic Statue' of item_name_table (OQ-I072-1).
+; 64 pointers, index = item ID. One-line item names: the first half of the item description box (consolestring_01E9D0 = this table + item_description_table) and the Discard? prompt (consolestring_01E9E2). It is not a table of descriptions. The names $03-$05 use the shared word [LU:4] = 'Inca ' (shared_word_table), so they read 'Inca Statue A', 'Inca Statue B' and 'Inca Melody', where item_name_table reads 'Incan ...'; both spellings are in the ROM. $29-$37 are blank and $38-$3F read 'Mystery Doll', unlike the 'Mystic Statue' of item_name_table.
 
 item_name_line_table [
   &consolestring_01DE9E   ;00
@@ -444,7 +440,7 @@ consolestring_01E123 |[LU:5]Doll|
 non_discardable_item_bits #BCFFFFFEDF000000
 ---------------------------------------------
 
-; 41 pointers ($00-$28), index = item ID; there is no entry for $29-$3F. Short descriptions of three or four rows, each starting with [DBL] so it continues below the name line; $00 = 'Nothing'.
+; 41 pointers ($00-$28), index = item ID; there is no entry for $29-$3F. Short descriptions of one to three [DBL] lines (two in 27 entries, three in 12, one in $06; [DBL] = two tilemap rows), each text starting with [DBL] so it continues below the name line; $00 = 'Nothing' has none.
 
 item_description_table [
   &consolestring_01E184   ;00
@@ -714,7 +710,7 @@ consolestring_01E7E6 | Shadow|
 consolestring_01E7EE | Shadow|
 
 ---------------------------------------------
-; HUD line redrawn by system_core: 5 raw tiles (ESC:1-5), the player HP bar [HP], the hundreds digit of DP ($0AD8, BCD) and the DP number ($0AD6). HudRedesign.patch.asm overrides it. consolestring_01E818 is the second HUD line (enemy bar [HE] with raw tiles 8-C, drawn by inventory_overlay and system_core). The six small strings consolestring_01E82B to 01E85C (digits 1-3 and raw tiles at (DE,1) / (9E,1)) have no label reference in the code or the patches (OQ-I072-3).
+; HUD line redrawn by system_core: 5 raw tiles (ESC:1-5), the player HP bar [HP], the hundreds digit of DP ($0AD8, BCD) and the DP number ($0AD6). HudRedesign.patch.asm overrides it. consolestring_01E818 is the second HUD line (enemy bar [HE] with raw tiles 8-C, drawn by inventory_overlay and system_core). The six small strings consolestring_01E82B to 01E85C have no label reference in the code or the patches: 01E82B, 01E834 and 01E83D print the digits 1, 2 and 3 at (DE,1); 01E846 and 01E85C print raw tile 0 (at (DE,1), and 01E85C also at (9E,1)); 01E851 prints the number at $0008 ([NUM:8]) at (9E,1).
 
 consolestring_01E7F6 |[POS:48,0][PAL:14][ESC:1,2,3,4,5][POS:84,0][PAL:8][HP][POS:9C,0][PAL:14][BCD:1,AD8][POS:A2,0][NUM:AD6]|
 

@@ -3,8 +3,8 @@
 ; SPAWN: PlayerCharacterDef (SpawnListAppend, so it is appended at the end of the actor list) and the two Dark Space transformations in sE6_gaia (Transform_WillToShadow, Transform_FreedanToShadow), which spawn it just before they set characterForm = 2; the new actor runs later in the same tick, after the form is set. All three use flags $2800: hidden ($2000) plus $0800, so it also runs in the cutscene-only passes. Init dies at once when characterForm is not 2.
 ; 
 ; STRUCTURE: Init spawns ShadowShimmerSlowStrips with SpawnAfterMarked (a marked child dies with its parent). This actor never touches the palette: it only points the child at one of three routines by writing the child's entry word ($0000,Y) and clearing its waitCounter ($0008,Y). The child is found through $06 (the actor-list successor), which is the child because SpawnAfter inserts it directly behind its spawner.
-;   - ShadowShimmerSlowStrips: bundle #23 in a loop (eight strips, wait 2 each)
-;   - ShadowShimmerFastStrips: bundle #24 in a loop (eight strips, waits 0 and 1 alternating: a faster cycle)
+;   - ShadowShimmerSlowStrips: bundle #23 in a loop (eight strips, wait 2 = 3 ticks each)
+;   - ShadowShimmerFastStrips: bundle #24 in a loop (eight strips, waits 0 and 1 alternating = 1 and 2 ticks: a faster cycle)
 ;   - ShadowShimmerNop: yields every frame, no palette change
 ; Both bundles write colours $81-$8F (15 colours, size byte $1D); bundle #23 is also the Shadow palette that global_ambient_dispatcher loads at spawn.
 ; 
@@ -98,14 +98,14 @@ ShadowShimmerGuard {
 }
 
 ---------------------------------------------
-; Child routine: play palette bundle #23 (eight strips on colours $81-$8F, wait 2 each) in an endless loop.
+; Child routine: play palette bundle #23 (eight strips on colours $81-$8F, wait 2 = 3 ticks each) in an endless loop.
 
 ShadowShimmerSlowStrips {
     COP [PaletteStart] ( #23 )
     COP [PaletteStep]
     BRA ShadowShimmerSlowStrips
 
-; Child routine: play palette bundle #24 (eight strips on colours $81-$8F, waits 0 and 1 alternating) in an endless loop.
+; Child routine: play palette bundle #24 (eight strips on colours $81-$8F, waits 0 and 1 alternating = 1 and 2 ticks) in an endless loop.
 
   ShadowShimmerFastStrips:
     COP [PaletteStart] ( #24 )

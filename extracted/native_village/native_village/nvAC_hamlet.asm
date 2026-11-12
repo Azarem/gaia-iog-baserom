@@ -2,7 +2,7 @@
 ; 
 ; Hamlet scene ($AF set, $B2 clear): Hamlet writes APU port 0, sets bit $0800 of its flags, stands at tile (0B,12) and waits for scratch $01 (set by Kara). He walks to Kara, sets scratch $02 and waits for it to clear (Kara's 'Hamlet... Why such a sad look?'), plays sound $2121 with sprite loops of frames $AB and $AC and sets scratch $03 (Kara's cry; seven of the native NPCs start moving), waits for it to clear, starts music #11, prints 'Poor Hamlet... To eat or not to eat...?', spawns the effect actor code_088755 and installs the 'Sniff sniff' text.
 ; 
-; Effect actor code_088755: plays sound $0F0F, shows its metasprite frames from spriteset_pickups_effects, sets scratch $04 (the natives settle) and spawns the narration child code_0887BA, which waits 89 frames, prints the voice of Will's mother ('It was Hamlet's wish to be food for these people... find the Mystic Statues and go to the Tower of Babel...') and sets scratch $05. The effect actor then moves, sets $B2, clears $CFFC from the joypad mask and dies.
+; Effect actor code_088755: plays sound $0F0F, shows its metasprite frames from spriteset_pickups_effects, sets scratch $04 (the natives settle) and spawns the narration child code_0887BA, which waits 90 ticks (WaitByte #59), prints the voice of Will's mother ('It was Hamlet's wish to be food for these people... find the Mystic Statues and go to the Tower of Babel...') and sets scratch $05. The effect actor then moves, sets $B2, clears $CFFC from the joypad mask and dies.
 ---------------------------------------------
 
 ?INCLUDE 'spriteset_pickups_effects'

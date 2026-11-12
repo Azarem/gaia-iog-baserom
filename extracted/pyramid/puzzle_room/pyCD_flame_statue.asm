@@ -1,4 +1,4 @@
-; Pair of flame statues of the Pyramid puzzle room (scene $CD), the receiver of Lola's Melody. Both statues are solid, wait for scratch $01 (set when the melody is used) and fire once: the left statue (pyCD_flame_statue) waits 29 ticks, plays sound $1919, spawns the camera drift, shows frame #1D, spawns the flame stream code_08B7D0 and sets scratch $03; the right statue (pyCD_flame_statue2) waits 89 ticks, shows frame #9D and spawns its flame stream.
+; Pair of flame statues of the Pyramid puzzle room (scene $CD), the receiver of Lola's Melody. Both statues are solid, wait for scratch $01 (set when the melody is used) and fire once: the left statue (pyCD_flame_statue) waits 30 ticks (WaitByte #1D), plays sound $1919, spawns the camera drift, shows frame #1D, spawns the flame stream code_08B7D0 and sets scratch $03; the right statue (pyCD_flame_statue2) waits 90 ticks (WaitByte #59), shows frame #9D and spawns its flame stream.
 ; 
 ; code_08B7D0 spawns five flame sprites of pyCD_jackal.code_08B804 and ends. Scratch $03 is read by pyCD_jackal, which starts its panic path. The statues do not fire periodically.
 ---------------------------------------------

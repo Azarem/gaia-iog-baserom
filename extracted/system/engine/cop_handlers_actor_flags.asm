@@ -15,7 +15,7 @@
 
 ; COP #5D wall-occlusion branch taking one &Code operand. Converts the actor pixel position to tile coordinates, samples the collision layer via CalcTileMapOffset, and decides whether the tile hides the actor. If the actor is behind a wall (high nibble set, or a low nibble other than 0 or $0E, or the position is out of the map), the script jumps to the branch target; if it is visible, the operand is skipped and the script continues. The branch is taken on occlusion, as the COP name says.
 ; 
-; When bit 4 of byte $0F of the actor (the high byte of oamXorFlags $0E; that is OAM attribute priority bit 0, inferred) is set, the handler takes the "layer-aware" path, where both outcomes of the tile test lead to "visible", so only the out-of-map check can occlude. Used by Eyesore, the diamond-mine enemies, and similar actors.
+; When bit 4 of byte $0F of the actor (the high byte of oamXorFlags $0E; that is OAM attribute priority bit 0, inferred) is set, the handler takes the "layer-aware" path, where both outcomes of the tile test lead to "visible", so only the out-of-map check can occlude (no layer index is read on either path: the tile test reads the single merged collision layer, so a dual-layer scene does not change it; read from the code, not run). Used by Eyesore, the diamond-mine enemies, and similar actors.
 
 BranchIfBehindWall {
     TYX 
@@ -38,7 +38,7 @@ BranchIfBehindWall {
     CPY #$4000            ; Y ≥ $4000 means out-of-bounds → treat as occluded
     BCS loc_009B37
     LDA $000F, X          ; Absolute slot+$0F: high byte of oamXorFlags ($0E); the word's other byte is the low byte of flags $10
-    AND #$0010            ; Bit 4 of byte $0F = OAM priority bit 0 (inferred): set selects the layer-aware path
+    AND #$0010            ; Bit 4 of byte $0F = OAM priority bit 0 (bit 12 of the attribute word that oamXorFlags XORs in): set selects the layer-aware path
     BEQ loc_009B1C
     LDA [$80], Y          ; Layer-aware mode: read the collision byte
     AND #$000F

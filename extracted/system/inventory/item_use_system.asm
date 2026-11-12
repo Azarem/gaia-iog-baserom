@@ -34,7 +34,7 @@
 ; 
 ; Gorgon Flower: Three independent petal flags ($BF/$C0/$C1). Item is only removed when all three are set — partial placement persists across visits.
 ; 
-; Inca Statues A/B: two mantels in scene $1E, statue A at tiles ($37-$38, $12-$13) and statue B at ($26-$27, $15-$16); standing on the other statue's mantel prints the shape-mismatch message. db-us/transforms.json (block item_use_system) repairs four vanilla branch quirks: (1) the four branches in the primary tile checks (two to loc_0386EA in A, two to loc_038800 in B) jumped into the middle of the CheckAlt routine, past its Y test, and now target the start of UseItem_IncaStatueA_CheckAlt / UseItem_IncaStatueB_CheckAlt; (2) the last X test of each CheckAlt routine (CMP #$27 in A, CMP #$38 in B) used a BNE whose target was the very next instruction, so the second tile of the mantel never reported a mismatch; it becomes BEQ to the mismatch message (UseItem_IncaStatueA_Mismatch / UseItem_IncaStatueB_Mismatch). The two rewrites in (2) span a line break, so extract:lt text (address tags between the lines) still shows the vanilla BNE, and a rebuild from extract:lt output lacks them (OQ-I026-1).
+; Inca Statues A/B: two mantels in scene $1E, statue A at tiles ($37-$38, $12-$13) and statue B at ($26-$27, $15-$16); standing on the other statue's mantel prints the shape-mismatch message. db-us/transforms.json (block item_use_system) repairs four vanilla branch quirks: (1) the four branches in the primary tile checks (two to loc_0386EA in A, two to loc_038800 in B) jumped into the middle of the CheckAlt routine, past its Y test, and now target the start of UseItem_IncaStatueA_CheckAlt / UseItem_IncaStatueB_CheckAlt; (2) the last X test of each CheckAlt routine (CMP #$27 in A, CMP #$38 in B) used a BNE whose target was the very next instruction, so the second tile of the mantel never reported a mismatch; it becomes BEQ to the mismatch message (UseItem_IncaStatueA_Mismatch / UseItem_IncaStatueB_Mismatch). The two rewrites in (2) apply to the plain and to the line-tracked extraction alike: the rules accept address tags and comments between the two lines, so both texts show the BEQ.
 ; 
 ; === WRAM VARIABLES ===
 ; 
@@ -365,7 +365,7 @@ dialogstring_0386BE `[DEF]He set Inca Statue [N]A on the mantel. [END]`
 ---------------------------------------------
 ; Alternate position check for Inca Statue A.
 ; 
-; Checks tiles ($26–$27, $15–$16), the mantel statue B belongs on. If the Y tile is $15/$16 and X is $26, or (after the transforms.json fix) $27, it prints the shape mismatch message (UseItem_IncaMantelMismatch). Otherwise, if flag $44 is set it prints the spirits hint; if not it prints a generic query about the Inca secret. In the extract:lt text the X = $27 test still reads BNE loc_0386FA, which reaches the hint code either way (OQ-I026-1).
+; Checks tiles ($26–$27, $15–$16), the mantel statue B belongs on. If the Y tile is $15/$16 and X is $26, or (after the transforms.json fix) $27, it prints the shape mismatch message (UseItem_IncaMantelMismatch). Otherwise, if flag $44 is set it prints the spirits hint; if not it prints a generic query about the Inca secret.
 
 UseItem_IncaStatueA_CheckAlt {
     LDA $playerYTile
@@ -386,7 +386,7 @@ UseItem_IncaStatueA_CheckAlt {
 
   loc_0386F5:
     CMP #$0027
-    BEQ UseItem_IncaStatueA_Mismatch        ; Vanilla BNE reaches loc_0386FA either way; transforms.json makes it BEQ UseItem_IncaStatueA_Mismatch (mismatch) in the normal extract
+    BEQ UseItem_IncaStatueA_Mismatch        ; Vanilla BNE branched to the next instruction; transforms.json makes it a BEQ to the mismatch message, in the plain and in the line-tracked extraction
 
   loc_0386FA:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )
@@ -447,7 +447,7 @@ dialogstring_0387D4 `[DEF]He set Inca Statue [N]B on the mantel. [END]`
 ---------------------------------------------
 ; Alternate position check for Inca Statue B. Same logic as UseItem_IncaStatueA_CheckAlt but with swapped mantel positions.
 ; 
-; Tiles ($37–$38, $12–$13), statue A's mantel: X = $37, or (after the transforms.json fix) $38, prints the shape mismatch message (UseItem_IncaStatueB_Mismatch); otherwise the spirits hint (flag $44) or the generic Inca-secret query. The extract:lt text still shows BNE loc_03880D for the X = $38 test (OQ-I026-1).
+; Tiles ($37–$38, $12–$13), statue A's mantel: X = $37, or (after the transforms.json fix) $38, prints the shape mismatch message (UseItem_IncaStatueB_Mismatch); otherwise the spirits hint (flag $44) or the generic Inca-secret query.
 
 UseItem_IncaStatueB_CheckAlt {
     LDA $playerYTile
@@ -461,7 +461,7 @@ UseItem_IncaStatueB_CheckAlt {
     CMP #$0037
     BEQ UseItem_IncaStatueB_Mismatch
     CMP #$0038
-    BEQ UseItem_IncaStatueB_Mismatch        ; Vanilla BNE reaches loc_03880D either way; transforms.json makes it BEQ UseItem_IncaStatueB_Mismatch (mismatch) in the normal extract
+    BEQ UseItem_IncaStatueB_Mismatch        ; Vanilla BNE branched to the next instruction; transforms.json makes it a BEQ to the mismatch message, in the plain and in the line-tracked extraction
 
   loc_03880D:
     COP [BranchOnFlagByte] ( #44, #00, &code_038705 )

@@ -6,7 +6,7 @@
 ; 
 ; === DEFAULT: bundle #1A forever ===
 ; 
-; A 12-strip palette cycle on colours $21-$2C (palette 2, colours 1-12): each strip is a 24-byte window that slides one colour at a time (wait 2-5), the peak colour $4164 a bright blue, so a highlight travels through the 12 colours. PaletteStart + PaletteStep play all strips and BRA repeats. It reads as a water glint cycle (an inference from the colours).
+; A 12-strip palette cycle on colours $21-$2C (palette 2, colours 1-12): each strip is a 24-byte window that slides one colour at a time (wait 2-5 = 3 to 6 ticks per strip), the peak colour $4164 a bright blue, so a highlight travels through the 12 colours. PaletteStart + PaletteStep play all strips and BRA repeats. It reads as a water glint cycle (an inference from the colours).
 ; 
 ; === FLAG $4D: GoldShipWreckPaletteFlag4D ===
 ; 
@@ -32,7 +32,7 @@ gold_ship_wreck_palette [
 
   loc_00B67F:
     COP [PaletteStart] ( #1A ) ; Neither flag: bundle #1A, a 12-strip cycle on colours $21-$2C (a bright blue highlight travelling through 12 colours)
-    COP [PaletteStep]     ; Plays all 12 strips (wait 2-5 each), then falls through
+    COP [PaletteStep]     ; Plays all 12 strips (wait 2-5 = 3 to 6 ticks each), then falls through
     BRA loc_00B67F        ; Repeat forever; the flag tests above are not run again
 } >
 ]

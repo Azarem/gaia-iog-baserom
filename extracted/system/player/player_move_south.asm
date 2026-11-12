@@ -28,9 +28,9 @@
 ; 
 ; SouthSlopeRight ($03) and SouthSlopeLeft ($0C) require the matching type under both feet, otherwise SouthBlockedWall. The slope flag (playerFlags $1000, set through the high byte playerStateByte $09AF bit $10) is set when the feet are on a tile line, when the cell above is the same slope type, or when the row offset of the new Y is >= 8; only a misaligned player with a different cell above and an offset < 8 moves without it. SouthSlopeLeft additionally runs slopeFracAccum: the step is replaced by accumulator >> 4 whenever that is nonzero, so ticks alternate between the full step and a very small one (effective slow-down unverified). Which diagonal each slope type follows is not decoded here.
 ; 
-; === WALL-LIKE TYPES $09 / $06 ===
+; === DIAGONAL-EDGE TYPES $09 / $06 ===
 ; 
-; SouthWallNorthInteract (left foot on $09) and SouthWallSouthInteract (right foot on $06) are mirror images. If the opposite top corner is the same type the player is fully stopped (ClearMovementDeltas). Otherwise the handler probes the destination, tests the cells beside it, and either clears playerSpeedNs (ClearSpeedNS_3 / _4), floors Y, or takes the slide: ComputeSouthSnapOffset measures how far the step penetrates and FineAdjustXWest / FineAdjustXEast move X out of the wall. By the arithmetic the $09 / left-foot case pushes the player EAST (SnapXWestCollision moves X to the next tile centre east, FineAdjustXWest ends east of the old X) and the $06 / right-foot case pushes WEST (SnapXEastCollision floors to the tile centre, FineAdjustXEast ends west of the old X). The 'East' / 'West' in the FineAdjustX* names names the side the wall is on.
+; SouthWallNorthInteract (left foot on $09) and SouthWallSouthInteract (right foot on $06) are mirror images. If the opposite top corner is the same type the player is fully stopped (ClearMovementDeltas). Otherwise the handler probes the destination, tests the cells beside it, and either clears playerSpeedNs (ClearSpeedNS_3 / _4), floors Y, or takes the slide: ComputeSouthSnapOffset measures how far the step penetrates and FineAdjustXWest / FineAdjustXEast move X out of the wall. Measured with painted cells (walking south): the $09 / left-foot case pushes the player EAST (SnapXWestCollision moves X to the next tile centre east, FineAdjustXWest ends east of the old X) and the $06 / right-foot case pushes WEST (SnapXEastCollision floors to the tile centre, FineAdjustXEast ends west of the old X). The 'East' / 'West' in the FineAdjustX* names names the side the wall is on.
 ; 
 ; Includes: DispatchSouthMove, SouthBlockedWall, SnapYSouthCollision, SouthLadderTile (ladder), SouthLedgeTile (ledge jump), SouthSlopeRight / Left, SouthWallNorthInteract / SouthWallNorthProbe, SouthWallSouthInteract, SouthSlideJumpShim, ClearSpeedNS_3 / _4, AutoAlignEW_South, ComputeSouthSnapOffset, FineAdjustXEast / FineAdjustXWest.
 ---------------------------------------------
@@ -74,7 +74,7 @@ DispatchSouthMove {
     JMP $&SouthSlopeLeft
 
   loc_02D390:
-    JSR $&tile_collision.ProbeCurrentBR ; Current bottom-right corner, only reached when the left foot is on neither a wall-like nor a slope type
+    JSR $&tile_collision.ProbeCurrentBR ; Current bottom-right corner, only reached when the left foot is on neither a diagonal-edge nor a slope type
     CMP #$06              ; Type $06 under the right foot (diagonal-edge type, top-right + bottom-left quadrants): SouthWallSouthInteract, mirror of the $09 case
     BNE loc_02D39A
     JMP $&SouthWallSouthInteract
@@ -176,9 +176,9 @@ SnapYSouthCollision {
     PLY 
     BRA SouthBlockedWall  ; Then snap like a wall: Y floored to a row line and AutoAlignEW_South gets a try first
 
-; Type $08 cell reached while walking south: the start of a ledge jump. The old names (SouthStairsTile, then SouthVineTile) were wrong: nothing here is a stair, a vine or a ladder. In Mesen2 (scene $01, South Cape) the player walks into the gap of a mossy wall edge, steps off and falls onto the roof below. It is south-only because a ledge can only be jumped down from the north; the north handler treats the cell as a wall.
+; Type $08 cell reached while walking south: the start of a ledge jump. Nothing here is a stair, a vine or a ladder. In Mesen2 (scene $01, South Cape) the player walks into the gap of a mossy wall edge, steps off and falls onto the roof below. It is south-only because a ledge can only be jumped down from the north; the north handler treats the cell as a wall.
 ; 
-; $08 is a real collision type, not a script flag: 59 of the 223 map scenes hold it (Angkor Wat, the Pyramid, Sky Garden, the Great Wall, Freejia, the Gold Ship, Incan Ruins, South Cape, Edward's Castle, Itory and others; B1 census, plans/extracted-audit/mesen2-results). Only South Cape was watched; the other scenes are assumed to be ledges of the same kind. The Mt. Temple scenes $A0-$A9 hold no $02, $07 or $08 cell.
+; $08 is a real collision type, not a script flag: 59 of the 223 map scenes hold it (Angkor Wat, the Pyramid, Sky Garden, the Great Wall, Freejia, the Gold Ship, Incan Ruins, South Cape, Edward's Castle, Itory and others). Only South Cape was watched; the other scenes are assumed to be ledges of the same kind. The Mt. Temple scenes $A0-$A9 hold no $02, $07 or $08 cell.
 ; 
 ; Entry rule: column-aligned (carry clear): go straight in. Straddling (carry set): the cell to the RIGHT must also be type $08, otherwise blocked. Sets playerFlags $0800 (script / ability lock) through the high byte playerStateByte, switches the player to LedgeJumpEntry (which sets actor flag $0200 and hides the use-item button), clears the wait counter and floors Y through SnapYSouthCollision (which also zeroes playerSpeedNs).
 
@@ -545,7 +545,7 @@ ComputeSouthSnapOffset {
 }
 
 ---------------------------------------------
-; X correction for the $06 / right-foot case. n = left-edge offset in its column (16 when flush). If n + $02 <= 16 only ApplyMovementDeltas runs. Otherwise $02 becomes 16 - $02, the left edge is set to (column line, one column back when flush) | $02, and $22 = (left edge + 8) << 2. Because 16 - $02 < n in that branch, the net movement is WEST by n + $02 - 16 pixels (away from a wall under the right foot), not east. $02 can reach $1F; above $10 the subtraction goes negative and the ORA produces a wrapped X. FineAdjustXWest handles that range (it subtracts 16); this routine does not.
+; X correction for the $06 / right-foot case. n = left-edge offset in its column (16 when flush). If n + $02 <= 16 only ApplyMovementDeltas runs. Otherwise $02 becomes 16 - $02, the left edge is set to (column line, one column back when flush) | $02, and $22 = (left edge + 8) << 2. Because 16 - $02 < n in that branch, the net movement is WEST by n + $02 - 16 pixels (away from a wall under the right foot), not east. $02 can reach $1F; above $10 the subtraction goes negative and the ORA wraps X: with a vertical pair of $06 cells and an odd probe Y (185, 187, 189 or 191) $02 reaches 17 and X becomes 7 in one tick, a jump of about 360 px west from a start at X 361-375. A single $06 cell never reaches it, even Y and Y >= 192 slide normally, and the $09 mirror never wraps. FineAdjustXWest handles that range (it subtracts 16); this routine does not. Real maps do not reach it: in scene $53, which holds a vertical $06 pair (column 26, rows 52-54), 135 walks south (start X 408-423, start Y 817-831) reached $02 = 15 at most, because the left cell of the pair's second row is solid, the slide is cancelled before $02 reaches 17 and the player stops with the left foot on a solid cell; in scenes $70 and $6B the starts that stand on the map already have the left foot on a solid cell and this routine is not entered. The same pair painted into open floor does teleport the player, so the mechanism is real. The $06 pairs of the credits scene were not run.
 
 FineAdjustXEast {
     LDX $playerActor      ; Player actor base for the pixel X read below

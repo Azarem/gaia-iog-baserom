@@ -620,7 +620,7 @@ LedgeJumpDropAttack {
 
   loc_02C6E6:
     LDA $16
-    BIT #$000F
+    BIT #$000F            ; Y on a 16-pixel boundary (Y AND $0F = 0)? Only then the ground test below runs; otherwise the fall goes on
     BNE loc_02C6F2
     COP [BranchIfSolidType] ( #00, &LedgeJumpDropLand )
 
@@ -646,7 +646,7 @@ LedgeJumpDropLand {
     STA $0026, Y
     COP [StageSpriteMoveY] ( #01, #00 )
     COP [AnimOnce]
-    COP [WaitByte] ( #27 )
+    COP [WaitByte] ( #27 ) ; WaitByte #27 = 40 ticks (39 + 1) of the landing pose; then clear $0200, set $0008, show the use-item button again and return to PlayerIdleEntry
     LDA #$0200
     TRB $10
     LDA #$0008
@@ -775,7 +775,7 @@ LadderMoveDown {
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C810
-    COP [BranchIfNotPressed] ( #$0401, &LadderIdleSouth )
+    COP [BranchIfNotPressed] ( #$0401, &LadderIdleSouth ) ; Down no longer held (raw mask $0401): stop moving, LadderIdleSouth
     COP [SetEntryHereAndYield]
     BRA loc_02C813
 }
@@ -797,7 +797,7 @@ LadderMoveUp {
     COP [AnimOneFrame]
     LDA $2A
     BEQ loc_02C834
-    COP [BranchIfNotPressed] ( #$0801, &LadderIdleNorth )
+    COP [BranchIfNotPressed] ( #$0801, &LadderIdleNorth ) ; Up no longer held (raw mask $0801): stop moving, LadderIdleNorth
     COP [SetEntryHereAndYield]
     BRA loc_02C837
 }
@@ -893,14 +893,14 @@ ShimmyRightLoop {
     LDA $14
     SEC 
     SBC #$0008
-    AND #$000F
+    AND #$000F            ; Transition tests run only when (X − 8) AND $0F = 0 (X on a tile centre); otherwise the loop goes on at ShimmyRightAnimLoop
     BNE ShimmyRightAnimLoop
     COP [BranchIfSolidType] ( #00, &ShimmyTopCorner )
     COP [BranchIfPressed] ( #$0801, &ShimmyRightUpCheck )
     COP [BranchIfPressed] ( #$0401, &ShimmyRightDownCheck )
 
   loc_02C90E:
-    COP [BranchIfSolidTypeEast] ( #07, &ShimmyRightAnimLoop )
+    COP [BranchIfSolidTypeEast] ( #07, &ShimmyRightAnimLoop ) ; East tile of type $07 or $00: keep shimmying (ShimmyRightAnimLoop); any other type: ShimmyDetachRight
     COP [BranchIfSolidTypeEast] ( #00, &ShimmyRightAnimLoop )
     JMP $&ShimmyDetachRight
 }
@@ -1106,7 +1106,7 @@ BlockEast {
     COP [SetEntryHere]
     LDA $2A
     BEQ loc_02CA68
-    COP [BranchIfNotPressed] ( #$0030, &BlockStopToIdle )
+    COP [BranchIfNotPressed] ( #$0030, &BlockStopToIdle ) ; Neither L nor R held (mask $0030): leave the block stance (BlockStopToIdle)
     DEC $24
     BMI loc_02CA68
     RTL 
@@ -1126,14 +1126,14 @@ BlockStopToIdle {
 MovingEastWest {
     LDA $joypadCurrent    ; Moving east-west: handle inertial deceleration when player has EW speed but released D-pad
     BIT #$0300
-    BEQ loc_02CA93
+    BEQ loc_02CA93        ; Neither Left nor Right held: the sign of playerSpeedEw (next block) picks the direction
     BIT #$0200
-    BNE loc_02CAD4
+    BNE loc_02CAD4        ; Left ($0200) held: west branch (sprite #0E); Right falls through to the east branch (sprite #0F)
     BRA loc_02CA9C
 
   loc_02CA93:
     LDA $playerSpeedEw
-    BMI loc_02CAD4
+    BMI loc_02CAD4        ; Negative EW speed (moving west): west branch; otherwise the east branch
     BRA loc_02CA9C        ; East-facing inertial movement: sprite #0F, animation loop with attack/block checks
 
   MovingToEast:
@@ -1207,14 +1207,14 @@ MovingToWest {
 MovingNorthSouth {
     LDA $joypadCurrent    ; Moving north-south: handle inertial NS deceleration with N/S sprite and attack checks
     BIT #$0C00
-    BEQ loc_02CB1B
+    BEQ loc_02CB1B        ; Neither Up nor Down held: the sign of playerSpeedNs (next block) picks the direction
     BIT #$0800
-    BNE loc_02CB24
+    BNE loc_02CB24        ; Up ($0800) held: north branch (sprite #0D); Down falls through to the south branch (sprite #0C)
     BRA loc_02CB5C
 
   loc_02CB1B:
     LDA $playerSpeedNs
-    BMI loc_02CB24
+    BMI loc_02CB24        ; Negative NS speed (moving north): north branch; otherwise the south branch
     BRA loc_02CB5C
 
   MovingToNorth:
@@ -1417,7 +1417,7 @@ RunAttackEW {
     BPL loc_02CC84
     JSR $&RunAttackFlagSetup
     COP [SetMoveNegateX] ( #01 )
-    COP [StageSpriteFrame] ( #12 )
+    COP [StageSpriteFrame] ( #12 ) ; West slide frames: #12 start, #13 loop (StageSpriteLoopMoveX), #14 end; EW speed is zeroed after the start frame; SetMoveNegateX #01 above sets the X-negate bit
     COP [AnimOnce]
     STZ $playerSpeedEw
     LDA #$0100
@@ -1431,7 +1431,7 @@ RunAttackEW {
 
   loc_02CC84:
     JSR $&RunAttackFlagSetup
-    COP [StageSpriteFrame] ( #15 )
+    COP [StageSpriteFrame] ( #15 ) ; East slide frames: #15 start, #16 loop, #17 end; EW speed is zeroed after the start frame; no negate bit is set
     COP [AnimOnce]
     STZ $playerSpeedEw
     LDA #$0100
@@ -1520,7 +1520,7 @@ AttackSouthWallPush {
     COP [SpawnListAppend] ( @ProjectileSouth, #00, #00, #$0602 )
 
   loc_02CD18:
-    COP [SetEntryHere]    ; Per-frame loop: Will redirects on any D-pad direction but south ($0B00) or lunges on south ($0400); other forms only redirect
+    COP [SetEntryHere]    ; Start of the swing: AnimOneFrame, SetEntryHereAndYield and AnimOneFrame stage two animation frames across one yield before the loops below
     COP [AnimOneFrame]
     COP [SetEntryHereAndYield]
 
@@ -1534,8 +1534,8 @@ AttackSouthWallPush {
     LDA $2A
     BEQ loc_02CD52
     LDA $characterForm
-    BNE loc_02CD45        ; No input → check for attack button re-press (combo) or finish
-    COP [SetEntryHere]
+    BNE loc_02CD45        ; characterForm not 0 (Freedan, Shadow): branch to the redirect-only loop; Will (form 0) falls through to the redirect and lunge loop
+    COP [SetEntryHere]    ; Will's per-frame loop: any D-pad direction except south ($0B00 = Up, Left, Right) redirects the attack; south ($0400) starts the lunge (RangedAttackSouth)
     COP [BranchIfPressed] ( #$0B00, &AttackRedirect )
     COP [BranchIfPressed] ( #$0400, &RangedAttackSouth )
     DEC $24
@@ -1543,14 +1543,14 @@ AttackSouthWallPush {
     RTL 
 
   loc_02CD45:
-    COP [SetEntryHere]
+    COP [SetEntryHere]    ; Per-frame loop of the other forms: $0B00 redirects the attack, there is no lunge
     COP [BranchIfPressed] ( #$0B00, &AttackRedirect )
     DEC $24
     BMI loc_02CD1E
     RTL 
 
   loc_02CD52:
-    COP [BranchIfPressed] ( #$0080, &AttackSouth )
+    COP [BranchIfPressed] ( #$0080, &AttackSouth ) ; Animation ended: attack button pressed again ($0080) restarts AttackSouth (combo); otherwise AttackFinish
     JMP $&AttackFinish
 }
 

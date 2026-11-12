@@ -21,7 +21,7 @@
 ; 
 ; Strings are read through DBR (absolute LDA $0000,Y), so DBR must be the string's bank. The recursive commands (InsertTemplate, InsertRemoteString, DictionaryA/B) switch DBR themselves.
 ; 
-; Each character tile is written to two VRAM buffer rows: $7F0200,X (top half) and $7F0240,X (bottom half). The bottom-half tile index is the top index + $10, the next row of 16 tiles in the font sheet (inferred). This produces 16×16 pixel characters from pairs of 8×8 tiles.
+; Each character tile is written to two VRAM buffer rows: $7F0200,X (top half) and $7F0240,X (bottom half). The bottom-half tile index is the top index + $10, one 16-tile row further on in the font sheet (every write site adds #$0010). This produces 16×16 pixel characters from pairs of 8×8 tiles.
 ; 
 ; The command dispatch uses an RTS trick: PEA pushes the loop return address (DialogString_CharLoop − 1), then the command table address − 1 is pushed and RTS jumps to it. Commands return via RTS back to the character loop.
 ; 
@@ -1001,7 +1001,7 @@ DialogCmd_DictionaryB {
     PHP 
     PHB 
     PHY 
-    LDA $0000, Y          ; Same structure as DictionaryA but reads from dictionary_01F54D
+    LDA $0000, Y          ; Same structure as DictionaryA but reads from dialog_dictionaries.dialog_dictionary_b
     AND #$00FF
     ASL 
     TAY 

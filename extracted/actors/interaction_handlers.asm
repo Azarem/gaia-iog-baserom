@@ -19,7 +19,7 @@
 ; push_handler_forceball: same distance and facing tests, but additionally the player's sprite index ($28) must be $3A (player above the ball), $3B (below), $3D (west) or $3C (east), the poses that match down / up / left / right. It uses NudgePosition( dx, dy ) on its own position instead of Clear / MarkSolidHere, and while the button is not held it copies the parent's posX / posY every frame.
 ; 
 ; Spawn sites (SpawnAfterMarked): collect_handler_gem - EnemyDropSystem (3), field_reveal_object, ec0B_cell (prison cell); push_handler_solid - gw82_archer (2), ir26_statue, ir20_statue, ir1F_stone_lord, ir1F_stone_guard, ec0E_statue, sc02_seth, sg51_statue, sg4D_knight_armor (2); push_handler_forceball - mu60_force_ball.
-; UNVERIFIED-RUNTIME: that the object really moves toward the player in play and which in-game action the L / R + facing pose is.
+; Measured with push_handler_solid on the sg51_statue (Will, no ability item): holding R from the west side or L from the east side on the statue's row, facing it from more than 32 px away, moves the statue one tile (16 px) toward the player, and the player's sprite index is $3B, $3C or $3D (the L / R guard pose) while it does. With the player north or south of the two stacked statues nothing moved in three tests (not explained). collect_handler_gem and push_handler_forceball were not run.
 ---------------------------------------------
 
 ?INCLUDE 'GetPlayerFacingDirection'

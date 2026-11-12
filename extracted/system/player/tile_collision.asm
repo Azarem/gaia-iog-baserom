@@ -1,6 +1,6 @@
 ; Tile collision primitives: corner probes, collision-byte reader, map-cell stepping and movement helpers for the player (188674–189334, Bank 02). Outputs to system/player/ next to its callers.
 ; 
-; Callers: every player_move_* block (main, ns, south, east, diag, ramps), the slope_ramp_physics actor (actors/player) and map_coords (FindSlopeForWestMove / FindSlopeForEastMove, which borrow the probes and MapCell steps). Nothing outside the player/slope code uses them (the earlier note said only the player_move_* blocks do).
+; Callers: every player_move_* block (main, ns, south, east, diag, ramps), the slope_ramp_physics actor (actors/player) and map_coords (FindSlopeForWestMove / FindSlopeForEastMove, which borrow the probes and MapCell steps). Nothing outside the player/slope code uses them.
 ; 
 ; === COLLISION BYTE ===
 ; 
@@ -126,7 +126,7 @@ ClearMovementDeltas {
 ---------------------------------------------
 ; Mark the current actor as having touched a solid tile this tick (flag $0004).
 ; 
-; Y is loaded from $000A, the actor slot address that PlayerMovementTick stored there (the earlier note's 'actor ID x 2' is wrong: Y is used directly as the actor's base address). Bit $0004 of the flags word at actor + $10 is the per-tick solid-contact flag; PlayerMovementTick clears it before each collision pass.
+; Y is loaded from $000A, the actor slot address that PlayerMovementTick stored there (Y is used directly as the actor's base address). Bit $0004 of the flags word at actor + $10 is the per-tick solid-contact flag; PlayerMovementTick clears it before each collision pass.
 
 SetActorCollisionFlag {
     PHP                   ; SetActorCollisionFlag: mark current actor as collision-responded

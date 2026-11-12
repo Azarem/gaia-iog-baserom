@@ -1,4 +1,4 @@
-; Sprite set of two Freedan poses (Bank 17, 1548288-1549554, 1266 bytes): the Aura Barrier cast and the ledge-jump drop attack. The old note ('sword trails, charge flashes', 'attack trail sprites and Dark Friar launch effects overlaid on Freedan') was wrong: the groups are complete body poses of 9 to 14 sub-sprites each, and nothing here belongs to the Dark Friar (that is spriteset_dark_friar). It is body_table row $06 (tile graphics free_fx_1C8000), selected with SetPlayerSpriteDirect #06, which puts it in effect until the next body change.
+; Sprite set of two Freedan poses (Bank 17, 1548288-1549554, 1266 bytes): the Aura Barrier cast and the ledge-jump drop attack. The groups are complete body poses of 9 to 14 sub-sprites each, and nothing here belongs to the Dark Friar (that is spriteset_dark_friar). It is body_table row $06 (tile graphics free_fx_1C8000), selected with SetPlayerSpriteDirect #06, which puts it in effect until the next body change.
 ; 
 ; | Index | Set | Frames (hold) | Used by |
 ; |-------|-----|---------------|---------|

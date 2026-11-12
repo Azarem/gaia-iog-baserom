@@ -1,4 +1,4 @@
-; Sprite set of body_table row $07 (Bank 17, 1552384-1553318, 934 bytes; tile graphics shad_fx_1CA000). The old note ('Shadow-specific visual effects', 'attack trail sprites and liquify transformation overlays') is not supported: no frame list of this set is staged by any extracted script, because nothing selects body row $07 (SetPlayerSpriteDirect #07 does not occur; the only rows picked by number are $04, $05, $06 and $08). The word 'liquify' appears only in the old header text; no code or table supports it. GetPlayerFacingDirection would index FacingFormOffsetTable with row - 4 = 3 if row $07 were ever selected (OQ-I069-1).
+; Sprite set of body_table row $07 (Bank 17, 1552384-1553318, 934 bytes; tile graphics shad_fx_1CA000). No frame list of this set is staged by any extracted script, because nothing selects body row $07 (SetPlayerSpriteDirect #07 does not occur; the only rows picked by number are $04, $05, $06 and $08). GetPlayerFacingDirection would index FacingFormOffsetTable with row - 4 = 3 if row $07 were ever selected.
 ; 
 ; Structure (format in the spriteset_freedan block note): 14 animations, 16 groups of about 5 sub-sprites each (82 in total). 28 B pointer table + 124 B frame lists + 782 B groups = 934 bytes.
 ; 
@@ -10,7 +10,7 @@
 ; | $05, $07, $08, $0A, $0B, $0D | shadow_fx_05, 17B06E, 17B074, 17B080, 17B086, 17B092 | 1 (31) each | the same group 17B098 (also frame 0 of $00) |
 ; | $06, $09, $0C | shadow_fx_06, 17B07A, 17B08C | 1 (7) each | 17B376, 17B308, 17B33F |
 ; 
-; Twelve of the 14 animations are a single frame, and six of those are the identical 32-tick hold of group 17B098 (hold 31 + 1), which looks like placeholder entries (OQ-I069-1). The art was not viewed.
+; Twelve of the 14 animations are a single frame, and six of those are the identical 32-tick hold of group 17B098 (hold 31 + 1), which looks like placeholder entries. The art was not viewed.
 ---------------------------------------------
 
 ?BANK 17

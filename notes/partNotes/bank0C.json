@@ -9,8 +9,8 @@
     "scene_FF_actors": "Scene $FF (inventory menu): InventoryMenuDef at record $00 and six inventory_statue_slot actors (records $01-$06, odd attribute bytes $21 / $03 / $05 / $27 / $09 / $0B = spawn parameters $10 / 1 / 2 / $13 / 4 / 5). No player and no camera.",
     "scene_thinkers": "256 word pointers, index = scene ID. An entry may point into the middle of a list (the +4 / +8 suffix is the byte offset), see the block note.",
     "thinker_spawn_0CE7EA": "Shared default list: ambient_palette_cycler (bundle $3F), flag_gated_palette_cool, scanline_band_hdma_thinker (band $02), global_ambient_dispatcher. Entered at +0 by 2 scenes, at +4 by 4 and at +8 by 43.",
-    "thinker_spawn_0CE8E6": "Unreferenced by the table: scanline_band_hdma_thinker band $20 and global_ambient_dispatcher (OQ-I072-3).",
-    "thinker_spawn_0CE9EA": "Unreferenced by the table: palette bundles $01 and $32, global_ambient_dispatcher and scanline band $0F (OQ-I072-3).",
-    "thinker_spawn_0CEA45": "Unreferenced by the table: a copy of thinker_spawn_0CEA2F (bundles $44 and $45 and the dispatcher) (OQ-I072-3).",
+    "thinker_spawn_0CE8E6": "Unreferenced by the table: scanline_band_hdma_thinker band $20 and global_ambient_dispatcher.",
+    "thinker_spawn_0CE9EA": "Unreferenced by the table: palette bundles $01 and $32, global_ambient_dispatcher and scanline band $0F.",
+    "thinker_spawn_0CEA45": "Unreferenced by the table: a copy of thinker_spawn_0CEA2F (bundles $44 and $45 and the dispatcher).",
     "thinker_spawn_dispatcher_only": "The bare list: only global_ambient_dispatcher. Used by 70 scenes."
 }

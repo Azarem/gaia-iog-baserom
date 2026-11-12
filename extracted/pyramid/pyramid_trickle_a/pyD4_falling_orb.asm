@@ -1,6 +1,6 @@
 ; Falling orb of the Pyramid trickle area (scene $D4). The spawn byte picks the latch: flag = (spawn byte >> 1) + $80, so the first group (spawn byte #E5, tiles (22,1B), (24,1B), (22,1D), (24,1D)) uses $F2 and the second group (#E7, tiles (0C,4B), (0E,4B), (0C,4D), (0E,4D)) uses $F3. The four orbs of a group share the flag.
 ; 
-; At load: with the flag set the orb is a fallen prop (priority minimum, collision cleared). With the flag clear it waits every frame for body bank $97 with animation index 1 on the player, characterForm 1 (Freedan) and the player within BranchIfPlayerNear #0C. On that trigger it sets the flag, waits 179 ticks, waits a random delay, moves up by $100, plays the fall animation with sound $1515 and ends in the fallen state. The orbs do not fall on a timer and do not damage.
+; At load: with the flag set the orb is a fallen prop (priority minimum, collision cleared). With the flag clear it waits every frame for body bank $97 with animation index 1 on the player, characterForm 1 (Freedan) and the player within BranchIfPlayerNear #0C. On that trigger it sets the flag, waits 180 ticks (WaitByte #B3), waits a random delay, moves up by $100, plays the fall animation with sound $1515 and ends in the fallen state. The orbs do not fall on a timer and do not damage.
 ---------------------------------------------
 
 ?INCLUDE 'flag_helpers'

@@ -3,7 +3,7 @@
 ; Invisible actor that loops: waits until offscreen is false (#0D),
 ; plays a 3-frame opening animation (frames #2F → #30 → #31), spawns
 ; a dm_follower_behavior child at relative offset (0, -$32) that
-; chases the player, then waits $3B frames before repeating.
+; chases the player, then waits 60 ticks (WaitByte #3B) before repeating.
 ---------------------------------------------
 
 ?INCLUDE 'dm_follower_behavior'

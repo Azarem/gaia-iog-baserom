@@ -1,6 +1,6 @@
 ; South Cape school teacher (Priest) who gives the opening narration.
 ; 
-; At spawn the actor stands solid with the interact handler code_048AD9 (flag $21 clear: 'Please recite with me'; set: 'What is it, Will?'). With flag $10 clear it locks the joypad ($CFFC), waits $1D ticks, prints Will's monologue, waits $3B ticks, plays six sound pairs $1E ticks apart, prints the lesson ('That's all for today's lesson'), waits $3B ticks and sets $10. That is the only flag it sets; sc08_erik releases the joypad lock after its walk. With $10 set at load the lesson is skipped and the joypad stays free; Lance, Erik and Seth die at spawn.
+; At spawn the actor stands solid with the interact handler code_048AD9 (flag $21 clear: 'Please recite with me'; set: 'What is it, Will?'). With flag $10 clear it locks the joypad ($CFFC), waits 30 ticks (WaitByte #1D), prints Will's monologue, waits 60 ticks (WaitByte #3B), plays six sound pairs 31 ticks apart (JumpAfterDelay #$001E), waits 60 ticks, prints the lesson ('That's all for today's lesson'), waits 60 ticks and sets $10. That is the only flag it sets; sc08_erik releases the joypad lock after its walk. With $10 set at load the lesson is skipped and the joypad stays free; Lance, Erik and Seth die at spawn.
 ---------------------------------------------
 
 !gfxCacheIdxB                   064A

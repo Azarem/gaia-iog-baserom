@@ -7,13 +7,13 @@
 ; - #01 spm_overworld_sprites_sprite_set_00002E: frames A B A C, hold 7, 20-21 x 32-33 px, 7-10 parts.
 ; - #02 spm_overworld_sprites_sprite_set_000040, #03 spm_overworld_sprites_sprite_set_000052, #04 spm_overworld_sprites_sprite_set_000064: frames A B A C, hold 7, 15-16 x 32-33 px, 5-8 parts.
 ; - #05 spm_overworld_sprites_sprite_set_000076: frames A B A C, hold 7, 15-16 x 40-41 px, 7-10 parts.
-; - #06 spm_overworld_sprites_sprite_set_000088: frames A B A C, hold 7, one 16 x 16 part (tile words $083A, $085A, $083A, $485A: the last frame H-flipped).
-; - #07 spm_overworld_sprites_sprite_set_00009A, #08 spm_overworld_sprites_sprite_set_0000B0, #09 spm_overworld_sprites_sprite_set_0000C6, #0A spm_overworld_sprites_sprite_set_0000DC: 5 frames A B C D C, holds 7, 7, 7, 9, 7, 32 px wide, 48-75 px tall, 11-13 parts. WorldMapController's wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg, so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each with its own shadow).
-; - #0B spm_overworld_sprites_sprite_set_0000F2: 3 frames, hold 1, box 79 x 48 px, 24 parts; the leader of the Dao to Over Babel trip (daC8_neil).
-; - #0C spm_overworld_sprites_sprite_set_000100: 3 frames, hold 1, box 79 x 48 px, 27 parts; no writer found.
-; - #0D spm_overworld_sprites_sprite_set_00010E: 4 frames, hold 9, 48-64 x 64 px, 14-22 parts; the leader of the Watermia to South Cape trip (wa78_men).
+; - #06 spm_overworld_sprites_sprite_set_000088: frames A B A C, hold 7, one 16 x 16 part (tile words $083A, $085A, $083A, $485A: the last frame H-flipped): a pink pig.
+; - #07 spm_overworld_sprites_sprite_set_00009A, #08 spm_overworld_sprites_sprite_set_0000B0, #09 spm_overworld_sprites_sprite_set_0000C6, #0A spm_overworld_sprites_sprite_set_0000DC: 5 frames A B C D C, holds 7, 7, 7, 9, 7, 32 px wide, 48-75 px tall, 11-13 parts. WorldMapController's wa79_neil fills the party array with 7, 8, 9, A for the Watermia to Euro leg, so these are four separate figures, not the pieces of one vehicle (measured on the map screen of a staged Watermia to Euro trip: four animated figures side by side, each a rider on a tall brown long-legged mount, with its own shadow).
+; - #0B spm_overworld_sprites_sprite_set_0000F2: 3 frames, hold 1, box 79 x 48 px, 24 parts: a yellow biplane; the leader of the Dao to Over Babel trip (daC8_neil).
+; - #0C spm_overworld_sprites_sprite_set_000100: 3 frames, hold 1, box 79 x 48 px, 27 parts: the biplane with three small figures aboard; no writer found.
+; - #0D spm_overworld_sprites_sprite_set_00010E: 4 frames, hold 9, 48-64 x 64 px, 14-22 parts: a blue and white glider wing with a figure hanging beneath it; the leader of the Watermia to South Cape trip (wa78_men).
 ; 
-; Not traced: which party member each of #00-#05 draws.
+; #00-#05 (measured on the map screen with party array 0-5: the six formation cells show one animation each): #00 a blond figure in blue and white seen from behind (the leader), #01 a dark-haired figure in pink, #02 a blue-haired figure, #03 an orange-haired figure in green, #04 an orange-haired figure in blue, #05 a green hooded figure. By script name #01 is the companion the Kara departure scripts add (ec0A_kara, dc30_kara) and #02 the one the Lily scripts add (it17_lily, it1A_lily).
 ; 
 ; === FORMAT ===
 ; 

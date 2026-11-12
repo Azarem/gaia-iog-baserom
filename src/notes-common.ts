@@ -61,6 +61,13 @@ export function loadNamesBankLookup(namesDir: string): Map<string, number> {
  */
 export function loadDbBankLookup(dbDir: string): Map<string, number> {
     const lookup = new Map<string, number>();
+    for (const [name, start] of loadDbStartLookup(dbDir)) lookup.set(name, Math.floor(start / 65536));
+    return lookup;
+}
+
+/** Block / file name -> start address (lowest part start for a block with parts), from db-us/blocks.json and db-us/files.json. */
+export function loadDbStartLookup(dbDir: string): Map<string, number> {
+    const lookup = new Map<string, number>();
     const add = (name: string, entry: any) => {
         if (!entry || typeof entry !== 'object') return;
         let start: number | undefined = typeof entry.start === 'number' ? entry.start : undefined;
@@ -70,7 +77,7 @@ export function loadDbBankLookup(dbDir: string): Map<string, number> {
                 .filter((v): v is number => typeof v === 'number');
             if (starts.length > 0) start = Math.min(...starts);
         }
-        if (start !== undefined && !lookup.has(name)) lookup.set(name, Math.floor(start / 65536));
+        if (start !== undefined && !lookup.has(name)) lookup.set(name, start);
     };
     const blocksPath = join(dbDir, 'blocks.json');
     if (existsSync(blocksPath)) {
@@ -104,10 +111,23 @@ export function detectBank(
     namesLookup: Map<string, number>,
     dbLookup?: Map<string, number>,
 ): number | null {
+    return detectBankDetailed(lines, fileName, namesLookup, dbLookup)?.bank ?? null;
+}
+
+/** Which of the six `detectBank` strategies produced the bank (1 = ?BANK ... 6 = first top-level label in names). */
+export type BankStrategy = 1 | 2 | 3 | 4 | 5 | 6;
+
+/** Same as `detectBank`, but also says which strategy decided (`merge --check` warns about strategies 3-6). */
+export function detectBankDetailed(
+    lines: string[],
+    fileName: string,
+    namesLookup: Map<string, number>,
+    dbLookup?: Map<string, number>,
+): { bank: number; strategy: BankStrategy } | null {
     // Strategy 1: ?BANK directive (optional)
     for (const line of lines) {
         const match = line.match(/^\?BANK\s+([0-9A-Fa-f]+)/);
-        if (match) return parseInt(match[1], 16);
+        if (match) return { bank: parseInt(match[1], 16), strategy: 1 };
     }
 
     // Strategy 2: the block's start address in db-us/blocks.json or db-us/files.json
@@ -115,7 +135,7 @@ export function detectBank(
     if (dbLookup) {
         const key = fileName.replace(/\.sprite$/, '');
         const bank = dbLookup.get(fileName) ?? dbLookup.get(key);
-        if (bank !== undefined) return bank;
+        if (bank !== undefined) return { bank, strategy: 2 };
     }
 
     // Strategy 3: code_XXXXXX or loc_XXXXXX labels (hex address in label name)
@@ -123,7 +143,7 @@ export function detectBank(
         const match = line.match(/\b(?:code|loc)_([0-9A-Fa-f]{6})\b/);
         if (match) {
             const addr = parseInt(match[1], 16);
-            return Math.floor(addr / 0x10000);
+            return { bank: Math.floor(addr / 0x10000), strategy: 3 };
         }
     }
 
@@ -131,24 +151,44 @@ export function detectBank(
     for (const line of lines) {
         const match = line.match(/;\s*\{(\d+)\}/);
         if (match) {
-            return Math.floor(parseInt(match[1], 10) / 65536);
+            return { bank: Math.floor(parseInt(match[1], 10) / 65536), strategy: 4 };
         }
     }
 
     // Strategy 5: File name in db-us/names/
     if (namesLookup.has(fileName)) {
-        return namesLookup.get(fileName)!;
+        return { bank: namesLookup.get(fileName)!, strategy: 5 };
     }
 
     // Strategy 6: First top-level label found in db-us/names/
     for (const line of lines) {
         const match = line.match(/^(\w+)\s+[\[{]/);
         if (match && namesLookup.has(match[1])) {
-            return namesLookup.get(match[1])!;
+            return { bank: namesLookup.get(match[1])!, strategy: 6 };
         }
     }
 
     return null;
+}
+
+/** Every `.asm` file under `dir`, recursively (absolute paths, sorted). Files other than `.asm` (the `.extract-state.json` marker, `.bin`) are ignored. */
+export function listAsmFiles(dir: string): string[] {
+    const out: string[] = [];
+    const walk = (current: string) => {
+        for (const entry of readdirSync(current, { withFileTypes: true })) {
+            const full = join(current, entry.name);
+            if (entry.isDirectory()) walk(full);
+            else if (entry.isFile() && entry.name.endsWith('.asm')) out.push(full);
+        }
+    };
+    if (existsSync(dir)) walk(dir);
+    return out.sort();
+}
+
+/** Block name of an extracted file: the file name without `.asm` (and without `.sprite` for sprite maps). */
+export function blockNameOfFile(path: string): string {
+    const name = path.split(/[\\/]/).pop()!;
+    return name.replace(/\.asm$/, '').replace(/\.sprite$/, '');
 }
 
 /** Bank file name from a bank number: "bank00.json", "bank0C.json", etc. */

@@ -68,14 +68,14 @@ DispatchWestMove {
   loc_02DB93:
     JSR $&tile_collision.ProbeCurrentTL ; ProbeCurrentTL: leading top-left corner (the west edge)
     BCC loc_02DB9F
-    CMP #$06              ; Type $06 at the current TL goes to the code_02DC4B wall-slide handler (type meaning undecoded)
+    CMP #$06              ; Type $06 at the current TL (diagonal-edge, top-right + bottom-left quadrants) goes to the code_02DC4B wall-slide handler
     BNE loc_02DB9F
     JMP $&code_02DC4B
 
   loc_02DB9F:
     JSR $&tile_collision.ProbeCurrentBL ; ProbeCurrentBL: leading bottom-left corner (the west edge)
     BCC loc_02DBAB
-    CMP #$09              ; Type $09 at the current BL goes to the code_02DC9F wall-slide handler (type meaning undecoded)
+    CMP #$09              ; Type $09 at the current BL (diagonal-edge, top-left + bottom-right quadrants) goes to the code_02DC9F wall-slide handler
     BNE loc_02DBAB
     JMP $&code_02DC9F
 
@@ -168,7 +168,7 @@ SnapXWestCollision {
     PLP 
     RTS 
 
-; Type $07 ahead while moving west (a local label inside DispatchWestMove). The $07 cell is the wall-shimmy tile, not a ladder (ladders are type $02, SouthLadderTile / NorthLadderTile). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyLeftEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of EastShimmyTile (ShimmyRightEntry) in player_move_east. The old name DiagLadderTile called this a ladder, which it never starts.
+; Type $07 ahead while moving west (a local label inside DispatchWestMove). The $07 cell is the wall-shimmy tile, not a ladder (ladders are type $02, SouthLadderTile / NorthLadderTile). CheckSubTileAlignY: Y straddling (carry set) -> blocked path. Y flush: CancelVerticalPhase cancels the vertical phase, the player actor's entry becomes ShimmyLeftEntry (low word only) with $0008 = 0, then the blocked path runs (collision flag, Y nudge, X snap). Mirror of EastShimmyTile (ShimmyRightEntry) in player_move_east.
 
   WestShimmyTile:
     JSR $&tile_collision.CheckSubTileAlignY ; Shimmy tile $07: require Y sub-tile alignment (CheckSubTileAlignY)
@@ -184,7 +184,7 @@ SnapXWestCollision {
     PLY 
     BRA loc_02DC03
 
-; Entry shim of the code_02DC4B wall handler: a lone SEP #$20 that falls into it. DiagRedirectToSouth jumps here when the future TL probe reads $06. The old name ended in FromDL, short for the old DiagLadderTile, which this label follows in the file; there is no other link to the shimmy tile.
+; Entry shim of the code_02DC4B wall handler: a lone SEP #$20 that falls into it. DiagRedirectToSouth jumps here when the future TL probe reads $06.
 
   DiagWallSouthShim:
     SEP #$20
@@ -242,7 +242,7 @@ code_02DC77 {
 }
 
 ---------------------------------------------
-; Entry shim of the code_02DC9F wall handler: a lone SEP #$20 that falls into it. DiagRedirectToNorth jumps here when the future BL probe reads $09. The mirror of DiagWallSouthShim; the old name ended in FromDL for the old DiagLadderTile, with which it has no link.
+; Entry shim of the code_02DC9F wall handler: a lone SEP #$20 that falls into it. DiagRedirectToNorth jumps here when the future BL probe reads $09. The mirror of DiagWallSouthShim.
 
 DiagWallNorthShim {
     SEP #$20

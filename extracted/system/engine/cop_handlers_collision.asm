@@ -783,7 +783,7 @@ ComputeDirectionToPlayer {
 }
 ---------------------------------------------
 
-; Internal JSR helper that marks a solid rectangle on the collision map. The actor's metasprite hitbox header (4 bytes at metaspritePtr, read in the sprite-data bank: X offset, Y offset, width in tiles, height in tiles) is combined with the pixel position in $0018/$001C (X/Y offsets are forced negative with ORA #$FF00), converted to a starting tile, and $F0 is ORed onto every collisionLayer byte of the rectangle. Columns step +1, crossing to the next 16-tile page with +$F0; rows step with AdvanceMapY. The whole rectangle is skipped if the starting index is ≥ $4000. Called only by MarkSolidHere (the other mark ops write a single tile).
+; Internal JSR helper that marks a solid rectangle on the collision map. The actor's metasprite hitbox header (4 bytes at metaspritePtr, read in the sprite-data bank: X offset, Y offset, width in tiles, height in tiles; in the headers of the actors present within 330 frames of each scene load the Y offset is -16 in all but one 2 x 2 header (-32; scenes $1D, $20, $25, $27, $28), and the bank is $7E in 263 rows and $8E in 61) is combined with the pixel position in $0018/$001C (X/Y offsets are forced negative with ORA #$FF00), converted to a starting tile, and $F0 is ORed onto every collisionLayer byte of the rectangle. Columns step +1, crossing to the next 16-tile page with +$F0; rows step with AdvanceMapY. The whole rectangle is skipped if the starting index is ≥ $4000. Called only by MarkSolidHere (the other mark ops write a single tile).
 
 MarkCollisionRect {
     PHB 
@@ -866,7 +866,7 @@ MarkCollisionRect {
 }
 
 ---------------------------------------------
-; Internal JSR helper that advances the collision map index in $001C by one tile row ($10 bytes within a page). When the low byte overflows (the row nibble wrapped past 15) it adds mapRowStrideL0 to a page byte taken from the accumulator's hidden high half (the caller's last 16-bit A, inferred to be the page of the last tile written; not reloaded from $1C), moving to the first row of the next page row. This matches the intended result only while the rectangle's row does not cross a page edge horizontally; ClearCollisionRect and its Full variant use a 16-bit ADC of mapBoundsX instead, which does not have this dependency. Called by MarkCollisionRect between rectangle rows.
+; Internal JSR helper that advances the collision map index in $001C by one tile row ($10 bytes within a page). When the low byte overflows (the row nibble wrapped past 15) it adds mapRowStrideL0 to a page byte taken from the accumulator's hidden high half (the caller's last 16-bit A, which is the page of the last tile written: A = $0102 at the hook for a rectangle starting at tile (15,3) or (15,15), $0702 at (31,31); not reloaded from $1C), moving to the first row of the next page row. This matches the intended result only while the rectangle's row does not straddle a page edge horizontally (measured at row stride 5 with a 2 x 2 rectangle: a start at (15,3) puts the second row at (31,4) instead of (15,4), a start at (31,31) puts it at (47,32), a vertical page edge alone at (8,15) is correct); ClearCollisionRect and its Full variant use a 16-bit ADC of mapBoundsX instead, which does not have this dependency. Called by MarkCollisionRect between rectangle rows.
 
 AdvanceMapY {
     PHP 
@@ -882,7 +882,7 @@ AdvanceMapY {
   loc_00B339:
     XBA 
     CLC 
-    ADC $mapRowStrideL0   ; Hidden high byte of A + pages per page row. $1C is read as 8 bits, so that byte is whatever the caller's last 16-bit A left (inferred: page of the last tile written), not a reload of $1C's page
+    ADC $mapRowStrideL0   ; Hidden high byte of A + pages per page row: $1C is read as 8 bits, so the byte is the caller's last 16-bit A (measured: page of the last tile written)
     XBA 
     REP #$20
     STA $1C

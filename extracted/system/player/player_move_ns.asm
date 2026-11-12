@@ -21,7 +21,7 @@
 ; 
 ; NorthSlopeRight ($03) and NorthSlopeLeft ($0C) are entered when the current TL has that type and need the current TR to match, else the move counts as blocked. The slope flag $09AF bit $10 (playerFlags $1000, on a slope) is set when Y is flush, when the cell below has the same type, or when d >= 8. Here d = 16 - n and n = (($26 + $24) >> 2) AND $0F is the row offset of the top probe inside the slope tile, so d >= 8 means the upper half of the tile; in the lower half (n >= 9, d < 8) the move is applied without the flag. The slope directions ('right' / 'left') are undecoded.
 ; 
-; NorthSlopeLeft additionally filters the step through slopeFracAccum ($09C6, shared with the south handlers): a positive leftover is zeroed, then accum += $24. With |accum| >> 4 = 0 the unchanged $24 is applied and accum keeps the sum. Otherwise $24 is REPLACED by -(|accum| >> 4) and accum gains 16 per step. Nothing subtracts the distance that was actually moved, so for $24 = -8 the player alternates a full 2-px step and a 1-sub-pixel step (about 56 percent of the speed on average). UNVERIFIED-RUNTIME.
+; NorthSlopeLeft additionally filters the step through slopeFracAccum ($09C6, shared with the south handlers): a positive leftover is zeroed, then accum += $24. With |accum| >> 4 = 0 the unchanged $24 is applied and accum keeps the sum. Otherwise $24 is REPLACED by -(|accum| >> 4) and accum gains 16 per step. Nothing subtracts the distance that was actually moved, so for $24 = -8 the player alternates a full 2-px step and a 1-sub-pixel step (about 56 percent of the speed on average). Measured on a column of $0C cells: the accumulator runs 0, -8 (step -8), -12 (step -4), -16 (step -1, accumulator back to 0) and repeats, so $24 = -8 alternates -8 and -1, and at $24 = -16 every tick is -1; only Y moves ($03 cells push the player south, $0C cells north).
 ; 
 ; === WALL HANDLERS ===
 ; 
@@ -58,7 +58,7 @@ DispatchNorthMove {
     SEP #$20              ; Vertical-phase entry for negative $24; the horizontal phase already ran this tick. 8-bit probe mode
     JSR $&tile_collision.ProbeCurrentTL ; Probe current top-left tile at player leading north corner; BCC = no TL collision
     BCC loc_02D054
-    CMP #$06              ; Current TL type $06 -> SouthWallHandler (undecoded wall type: 'south wall' is a handler name)
+    CMP #$06              ; Current TL type $06 (diagonal-edge, top-right + bottom-left quadrants) -> SouthWallHandler ('south wall' is a handler name)
     BNE loc_02D046
     JMP $&SouthWallHandler
 
@@ -74,7 +74,7 @@ DispatchNorthMove {
 
   loc_02D054:
     JSR $&tile_collision.ProbeCurrentTR ; Probe current top-right corner for complementary north-wall check
-    CMP #$09              ; Current TR type $09 -> NorthWallHandler (undecoded wall type, mirror of the TL $06 case)
+    CMP #$09              ; Current TR type $09 (diagonal-edge, top-left + bottom-right quadrants) -> NorthWallHandler, mirror of the TL $06 case
     BNE loc_02D05E
     JMP $&NorthWallHandler
 
@@ -205,7 +205,7 @@ NorthSlopeRight {
 }
 
 ---------------------------------------------
-; Current TL $0C while moving north. Same gate and flag logic as NorthSlopeRight, but with d < 8 the move is applied without touching the accumulator; otherwise the flag is set and the step goes through the slopeFracAccum filter (block note): the full $24 when |accum + $24| < 16, else -(|accum + $24| >> 4). For $24 = -8 the steps alternate -8 and -1 sub-pixels. UNVERIFIED-RUNTIME.
+; Current TL $0C while moving north. Same gate and flag logic as NorthSlopeRight, but with d < 8 the move is applied without touching the accumulator; otherwise the flag is set and the step goes through the slopeFracAccum filter (block note): the full $24 when |accum + $24| < 16, else -(|accum + $24| >> 4). For $24 = -8 the steps alternate -8 and -1 sub-pixels (measured tick by tick on a column of $0C cells).
 
 NorthSlopeLeft {
     JSR $&tile_collision.ProbeCurrentTR ; Left slope ($0C): verify matching $0C at current TR corner

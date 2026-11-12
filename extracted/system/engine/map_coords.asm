@@ -8,7 +8,7 @@
 ; 
 ; === Slope probes ===
 ; FindSlopeForWestMove and FindSlopeForEastMove have exactly one caller each: DispatchWestMove (player_move_west) calls FindSlopeForWestMove and DispatchEastMove (player_move_east) calls FindSlopeForEastMove. They are interleaved with the coordinate code only because they share its tile_collision helpers. Both look for the slope collision types $0A (east-facing) and $05 (west-facing) at the corner probe, at the cell one ROW up (only after a transition tile) and one ROW down (MapCellUp/MapCellDown on the index in $00), then at two future-position corners (ProbeFutureTL/BL for the right probe, TR/BR for the left one).
-; Return convention (callers test Z first): Z set = a slope was found, with carry clear for $0A and carry set for $05; Z clear = nothing found. The callers branch BNE (none), then BCS ($05: WestRampUp / WestRampDescend) or fall through ($0A: EastRampDown / WestRampAscend). The old 'carry clear when found' header was wrong. The probe pixel X in $1A is modified in place (+8 for the right probe, -8 for the left one).
+; Return convention (callers test Z first): Z set = a slope was found, with carry clear for $0A and carry set for $05; Z clear = nothing found. The callers branch BNE (none), then BCS ($05: WestRampUp / WestRampDescend) or fall through ($0A: EastRampDown / WestRampAscend). The probe pixel X in $1A is modified in place (+8 for the right probe, -8 for the left one).
 ---------------------------------------------
 
 ?BANK 02

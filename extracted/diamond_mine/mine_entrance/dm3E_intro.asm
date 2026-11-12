@@ -1,6 +1,6 @@
 ; Will's inner monologue on first entering the Diamond Mine and the Sky Garden.
 ; 
-; Locks the joypad ($CFFC) and branches on sceneCurrent. Scene $3E (mine entrance) plays the "Diamond Mine was as quiet as a tomb" narration under flag $6A; scene $4C (Sky Garden) plays the "strange garden floating in the sky over Nazca" narration under flag $6B. With the flag clear the actor sets it, waits #1D ticks and prints the dialog; with it set, or in any other scene, the actor unlocks the joypad and dies. Both flags are persistent and never cleared, so each narration plays once per game. The Freejia slave market actors also read $6A.
+; Locks the joypad ($CFFC) and branches on sceneCurrent. Scene $3E (mine entrance) plays the "Diamond Mine was as quiet as a tomb" narration under flag $6A; scene $4C (Sky Garden) plays the "strange garden floating in the sky over Nazca" narration under flag $6B. With the flag clear the actor sets it, waits 30 ticks (WaitByte #1D) and prints the dialog; with it set, or in any other scene, the actor unlocks the joypad and dies. Both flags are persistent and never cleared, so each narration plays once per game. The Freejia slave market actors also read $6A.
 ---------------------------------------------
 
 !sceneCurrent                   0644

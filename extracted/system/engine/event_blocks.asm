@@ -625,7 +625,7 @@ QueueVisibleTileVram {
 
   loc_02A582:
     PLP 
-    LDX #$0000            ; Queue full: LDX #0 forces Z=1 for the caller's BEQ (X is not used afterwards; restart recomputes map indices) (inferred)
+    LDX #$0000            ; Queue full: LDX #0 forces Z=1 for the caller's BEQ; the caller flushes and restarts, which recomputes the map indices
     RTS 
 
   loc_02A587:

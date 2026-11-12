@@ -11,9 +11,9 @@
 ; === DECISION ===
 ; 
 ; NpcRandomWanderAI rolls RngByte and 7 (each case has probability 1/8) and runs COP SwitchCase on the byte at $0000. The table is: 0 = stand north, 1 = stand south, 2 = stand west, 3 = stand east, 4 = step north, 5 = step south, 6 = step west, 7 = step east.
-; Standing: $28 := base + direction, $2A := 0, UpdateActorAnimation, $08 := $78 (the script sleeps 121 ticks after the caller's SetEntryHereAndYield: $78 skipped passes, then it runs on the next one) and MarkSolidHere (a standing NPC blocks the player).
+; Standing: $28 := base + direction, $2A := 0, UpdateActorAnimation, $08 := $78 (the script sleeps 121 ticks after the caller's SetEntryHereAndYield: $78 skipped passes, then it runs on the next one; measured on sc01_roof_man: three stands in a row took 363 frames, and talking to the NPC during the wait neither skips nor resets it, the counter continues and the next stand starts at $78 after the wait) and MarkSolidHere (a standing NPC blocks the player).
 ; Stepping: if the NPC is already more than $30 pixels (3 tiles) from its home in that direction, or the BranchIfSolid test for that side finds a solid tile, it stands facing that direction instead. Otherwise it stages a movement delta chain (StageMoveX / StageMoveY #$11 = +1 pixel every second frame, east or south; #$12 = -1 every second frame, west or north), sets the walk animation (base + 4 to 7), and does ClearSolidHere (a walking NPC is not solid).
-; The step lasts for one pass of the walk animation: the caller's AnimOnce moves the NPC at half a pixel per frame until the animation list ends, then clears the chain ($2C / $2E) and the loop rolls again. The step length is therefore half the number of frames of the walk animation, in pixels, and there is no re-roll in the middle of a step.
+; The step lasts for one pass of the walk animation: the caller's AnimOnce moves the NPC at half a pixel per frame until the animation list ends, then clears the chain ($2C / $2E) and the loop rolls again. The step length is therefore half the number of frames of the walk animation, in pixels (measured on sc01_roof_man: 4 animation frames of 8 ticks = 32 frames, 16 px, one tile; the other NPCs were not measured), and there is no re-roll in the middle of a step.
 ---------------------------------------------
 
 ?INCLUDE 'sprite_composition'

@@ -118,7 +118,7 @@ PlayerPoseHoldExit {
 }
 
 ---------------------------------------------
-; Fall into the scene (awBD_fall_trigger): hide the buttons, lock the player, leave collision-aware movement, freeze the camera; 4 ticks (WaitByte #03) out of the depth sort, Y -= 128, then 8 passes of fall anim $19 with Y chain 7 (+4 px per frame), landing SFX $2C and frame $1C. Then restore $10 / camera / buttons and return to PlayerIdleEntry (which clears the $0800 lock). Whether the fall ends exactly on the original Y is not checked.
+; Fall into the scene (awBD_fall_trigger): hide the buttons, lock the player, leave collision-aware movement, freeze the camera; 4 ticks (WaitByte #03) out of the depth sort, Y -= 128, then 8 passes of fall anim $19 with Y chain 7 (+4 px per frame), landing SFX $2C and frame $1C. Then restore $10 / camera / buttons and return to PlayerIdleEntry (which clears the $0800 lock). Measured with the entry word poked to this routine the way awBD_fall_trigger enters it: the player drops +4 px per frame with a hold every fifth frame and rests exactly on the starting Y at frame 43 (432 and 288 in the two cases), with no overshoot.
 
 PlayerFallFromHeight {
     LDA #$CFFC            ; Mask $CFFC in joypadMaskStd: every button except Select / Start is hidden
@@ -240,7 +240,7 @@ PlayerAuraTransformEntry {
 }
 
 ---------------------------------------------
-; Blocked tile found: when the tile below (Y + 16) has terrain type $04 go to PlayerAuraDescendToFloor; otherwise restore the saved position, show frame 1 once and leave through PlayerAuraTransformExit.
+; Blocked tile found: when the tile below (Y + 16) has terrain type $04 (a cell with only the bottom-left quadrant flagged; it occurs in 10 of the 223 scenes: $3D, $CC, $CE and $D0-$D6) go to PlayerAuraDescendToFloor; otherwise restore the saved position, show frame 1 once and leave through PlayerAuraTransformExit.
 
 PlayerAuraBlockedBySolid {
     COP [BranchIfSolidTypeSouth] ( #04, &PlayerAuraDescendToFloor ) ; Tile below (Y + 16) has terrain type $04: sink; otherwise abort

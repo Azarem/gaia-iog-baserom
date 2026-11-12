@@ -1,4 +1,4 @@
-; Sprite set of the Dark Friar ability effects (Bank 17, 1540096-1541149, 1053 bytes; tile graphics misc_fx_1CC000, uploaded to VRAM $4400 by DarkFriarVramDma, $0480 bytes). The Dark Friar is Freedan's ranged ability; the old note ('fireball travel frames and hit splash') does not fit the code: there is a cast flash, a trail that grows, and spiralling fragments with trail followers. Selected with SetMetasprite ( @spriteset_dark_friar ) in attack_ability_system.
+; Sprite set of the Dark Friar ability effects (Bank 17, 1540096-1541149, 1053 bytes; tile graphics misc_fx_1CC000, uploaded to VRAM $4400 by DarkFriarVramDma, $0480 bytes). The Dark Friar is Freedan's ranged ability; the set holds a cast flash, a trail that grows, and spiralling fragments with trail followers. Selected with SetMetasprite ( @spriteset_dark_friar ) in attack_ability_system.
 ; 
 ; | Index | Set | Frames (hold) | Used by |
 ; |-------|-----|---------------|---------|

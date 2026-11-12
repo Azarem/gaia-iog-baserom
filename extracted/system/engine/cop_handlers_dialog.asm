@@ -142,7 +142,7 @@ PrintDialogString {
     LDA #$0800
     TRB $10               ; Clear it for the duration of the text (measured: with it forced on, the handler re-entered 7 times in 12 frames)
     LDA $joypadMaskStd    ; Save joypadMaskStd (suppressed buttons)
-    STZ $joypadMaskStd    ; Clear it so the text renderer sees every button (A/B to advance)
+    STZ $joypadMaskStd    ; Clear it so the text renderer sees every button (page advance polls mask $C040: the confirm and cancel bits, physical A or B, plus bit $0040)
     PHA 
     PHB 
     SEP #$20

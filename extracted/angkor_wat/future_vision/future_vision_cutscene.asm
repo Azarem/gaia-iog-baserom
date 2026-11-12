@@ -79,7 +79,7 @@ FutureVisionCutscene [
 ; - INC $BC each frame until complete
 ; 
 ; Phase 3 — Hold + zoom-out with scroll (loc_03A285):
-; - WaitByte $77: 119-frame pause
+; - WaitByte #77: 120-tick pause
 ; - Per-frame zoom-out: DEC $B8 from $80 → $60 (32 frames)
 ; - Simultaneously: INC $B6 (rotation angle), INC cameraTargetY ×2, INC $CC ×2 (camera + M7 center scroll down by 2px/frame)
 ; 
@@ -133,7 +133,7 @@ FutureVisionController {
     RTL 
 
   loc_03A285:
-    COP [WaitByte] ( #77 ) ; Phase 3: WaitByte $77 — 119-frame pause to hold the view
+    COP [WaitByte] ( #77 ) ; Phase 3: WaitByte #77 = 120 ticks, a pause to hold the view
     COP [SetEntryHere]
     LDA $00B8             ; Zoom-out loop: check if scale reached $0060
     CMP #$0060

@@ -30,7 +30,7 @@
 
 ---------------------------------------------
 
-; COP #8E with one byte operand (body_table index 0-8). Writes spritesetPtr ($7F0006) and the bank byte ($7F0008) from the 6-byte body_table entry, caches index x 6 in animScratch2 ($7F000E) and the raw index in $0AC8, and sets playerFlags $8000. Does not touch the animation index or frame counter. 24 sites (the Psycho Slider code uses #04 = spriteset_will_abilities).
+; COP #8E with one byte operand (body_table index 0-8). Writes spritesetPtr ($7F0006) and the bank byte ($7F0008) from the 6-byte body_table entry, caches index x 6 in animScratch2 ($7F000E) and the raw index in $0AC8, and sets playerFlags $8000. Does not touch the animation index or frame counter. 24 sites in extracted/ plus one raw COP [8E] ( #06 ) in baserom/equipped-icon/EquippedIcon.patch.asm (the Psycho Slider code uses #04 = spriteset_will_abilities).
 
 SetPlayerSpriteDirect {
     TYX 

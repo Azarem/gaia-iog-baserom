@@ -1171,7 +1171,7 @@ InitActorFromSceneData {
 }
 
 ---------------------------------------------
-; Check if an enemy was already defeated, via its enemy-defeat flag bit (wramFlags at $0A80; set by SetDungeonKillFlag/SetWramFlag when the enemy dies). The flags persist until ClearAllWramFlags runs (world map entry, st68_kara, sp58_red_eye) or game over clears them; no reset at ordinary scene changes was found in extracted/ (see flag_helpers).
+; Check if an enemy was already defeated, via its enemy-defeat flag bit (wramFlags at $0A80; set by SetDungeonKillFlag/SetWramFlag when the enemy dies). The flags persist until ClearAllWramFlags runs (world map entry, st68_kara, sp58_red_eye) or game over clears them; ordinary scene changes do not reset them (measured, see flag_helpers), so a killed enemy is not spawned again when the room is re-entered.
 ; 
 ; Converts enemy number A to a byte index (÷8 → Y) and bit position (AND #$07 → X). Looks up a bitmask from BitMaskTable_Wram ($01/$02/$04/$08/$10/$20/$40/$80) and ANDs it with the WRAM flag byte at $0A80,Y.
 ; 

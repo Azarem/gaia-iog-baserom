@@ -1,6 +1,6 @@
 ; Wind Melody event at Larai Cliff (scene $1D).
 ; 
-; With flag $32 set at spawn the actor dies. Otherwise it polls BranchIfPlayerAt for the exact pixel (0050,0170). On a match it locks the joypad ($EFFC), waits #1D, starts music #1B, waits #77, plays sound #16 on channel 1, prints 'The wind in the valley plays a melody. The statue seems to be singing...', starts music #1A, waits #77 and then polls APUIO1 until it reads $FF. Then it calls GiveItem #08 (Wind Melody): on success it prints 'You've learned the Melody of the Wind!' and sets $32; with a full inventory it prints the 'inventory is full' text and leaves $32 clear, so the event repeats on the next visit. Both paths unlock the joypad and die.
+; With flag $32 set at spawn the actor dies. Otherwise it polls BranchIfPlayerAt for the exact pixel (0050,0170). On a match it locks the joypad ($EFFC), waits 30 ticks (WaitByte #1D), starts music #1B, waits 120 ticks (WaitByte #77), plays sound #16 on channel 1, prints 'The wind in the valley plays a melody. The statue seems to be singing...', starts music #1A, waits 120 ticks (WaitByte #77) and then polls APUIO1 until it reads $FF. Then it calls GiveItem #08 (Wind Melody): on success it prints 'You've learned the Melody of the Wind!' and sets $32; with a full inventory it prints the 'inventory is full' text and leaves $32 clear, so the event repeats on the next visit. Both paths unlock the joypad and die.
 ---------------------------------------------
 
 !joypadMaskStd                  065A

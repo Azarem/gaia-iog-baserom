@@ -1,6 +1,6 @@
 ; Ship departure sequence — the Gold Ship leaves the cave (scene $2C).
 ; 
-; Flag $4C clear: sets the joypad lock ($EFFC), sets the word flag $0185, writes TM = $15, CGADSUB = $B1 and COLDATA = $FF, places Will at pixel (D0,20) and starts player_character.loc_02C63B on him, then tests each frame (SetEntryHere) whether Will is at (D0,240). There it sets the joypad lock again, spawns oneshot_backdrop_fade_out_1C, waits #BF, sets $4C, prints 'This is the Incan Gold Ship?!', releases the joypad lock and dies.
+; Flag $4C clear: sets the joypad lock ($EFFC), sets the word flag $0185, writes TM = $15, CGADSUB = $B1 and COLDATA = $FF, places Will at pixel (D0,20) and starts player_character.loc_02C63B on him, then tests each frame (SetEntryHere) whether Will is at (D0,240). There it sets the joypad lock again, spawns oneshot_backdrop_fade_out_1C, waits 192 ticks (WaitByte #BF), sets $4C, prints 'This is the Incan Gold Ship?!', releases the joypad lock and dies.
 ; 
 ; Flag $4C set: the actor dies at once (code_0581FD). No music command is run by this actor.
 ---------------------------------------------

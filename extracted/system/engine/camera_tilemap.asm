@@ -58,7 +58,7 @@
 ; 
 ; Sets up VRAM DMA registers: VMAIN=$81 (word-access, column-mode auto-increment), DMAP0=$01 (two-register), BBAD0=$18 (VRAM data port), source bank=$7E.
 ; 
-; Iterates 32 metatile columns (32 × 16px = 512px, the full two-nametable width): for each column, calls RenderColumnStrip to build a 16-metatile vertical strip in the column staging buffer, then immediately DMA-transfers it via DmaColumnStrip. After each column, advances the X position ($18) by 16px and wraps it against the map width.
+; Iterates 32 metatile columns (32 × 16px = 512px, the full two-nametable width): for each column, calls RenderColumnStrip to build a 16-metatile vertical strip in the column staging buffer, then immediately DMA-transfers it via DmaColumnStrip. After each column, advances the X position ($18) by 16px. A position at or past the map width becomes (position AND $0100); if that is still at or past the width, the width is subtracted. For widths of 768 and 1280 (3 and 5 map pages) the AND keeps $100, so the last 16 columns are rendered from X = 256; for a width of 1024 it gives 0, so they are rendered from X = 0. The first 16 columns are the ones on screen when the camera is clamped at the right edge; the last 16 fill the hidden nametable half, and they are the camera's true left neighbours only when the wrapped X lands on them (width 768, camera at 512: yes; width 1280, camera at 1024: no, 4 of 32 tile columns match; width 1024, camera at 768: no, they are the columns from X = 0). The stale half does not stay on screen: scrolling left from the right edge of a width-1280 scene for 122 frames, every column visible at the previous frame's scroll value was correct in VRAM, and in 9 of the frames the entering column was still stale for the one frame after the scroll variable changed. The other widths (256, 512, 1536, 2048) use the same code and were not run.
 ; 
 ; After all columns are rendered, clears the four staging buffer VRAM address words to prevent re-triggering, then calls UploadCgramPalette to sync the color palette.
 ; 
@@ -121,7 +121,7 @@ CameraFullRefresh {
     LDA $18
     CLC 
     ADC #$0010            ; Advance rendering position by 16px (one metatile column width)
-    CMP $mapBoundsX, X    ; Check if position has passed map width bound; wrap if needed
+    CMP $mapBoundsX, X    ; At or past the map width: AND $0100 (keeps the nametable half of the next column), then subtract the width if still past
     BCC loc_02AC0F
     AND #$0100
     CMP $mapBoundsX, X

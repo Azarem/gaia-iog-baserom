@@ -239,7 +239,7 @@ SystemInit {
     JSL $@combat_collision.RunCombatCollision ; Combat collision: player attacks + enemy contact
     JSL $@combat_collision.RunInteractionCollision ; Interaction collision: NPC/object touch triggers
     JSL $@combat_collision.CheckPlayerDeath ; Check if player HP is zero → game over
-    JSL $@combat_collision.ProcessDodgeCallbacks ; Process B-button dodge callbacks
+    JSL $@combat_collision.ProcessDodgeCallbacks ; Process dodge callbacks (action bit $0080, the A button in this build)
     LDX #$0000            ; Scroll layer 0 (BG1); X is the layer index and each call handles both axes
     JSL $@camera_tilemap.CameraSmoothScroll
     LDX #$0002            ; Scroll layer 1 (BG2)

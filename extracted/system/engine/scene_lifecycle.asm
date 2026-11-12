@@ -165,7 +165,7 @@ CheckSceneTransition {
 ; Three-phase operation:
 ; 
 ; === PHASE 1: EXIT ===
-; If worldReadyFlag is positive (world active and visible): runs ScreenExitTransition for the visual fade/dissolve effect, then clears worldReadyFlag to 0. If it is already 0 the exit transition is skipped. If it is negative (bit 7 set) both the exit and the enter transition are skipped and the flag is left unchanged — no writer of a negative value exists in the extracted code (only $0000 and $000F are stored), so this path looks unused (inferred). Then clears the HDMA enable mask ($66), disables NMI (joypad auto-read only) and enters forced blank.
+; If worldReadyFlag is positive (world active and visible): runs ScreenExitTransition for the visual fade/dissolve effect, then clears worldReadyFlag to 0. If it is already 0 the exit transition is skipped. If it is negative (bit 7 set) both the exit and the enter transition are skipped and the flag is left unchanged. The boot code takes this path once: it sets bit 7 (SEC / ROR worldReadyFlag in system_core, before the first scene load) so the first transition has neither fade, and it clears the flag again right after the call. Then clears the HDMA enable mask ($66), disables NMI (joypad auto-read only) and enters forced blank.
 ; 
 ; === PHASE 2: RESOLVE TARGET SCENE ===
 ; Two paths:

@@ -1,6 +1,6 @@
 ; Scene initialization script interpreter and graphics loading pipeline (164795–168078, Bank 02).
 ; 
-; This is the scene setup engine — when the game transitions to a new area (map, dungeon room, cutscene backdrop, etc.), the scene script system reads byte-coded commands from scene data and executes them to configure the PPU display mode, load BG tile graphics, transfer tilemaps, set up map geometry, load sprite tiles, and transfer SPC music data.
+; This is the scene setup engine — when the game transitions to a new area (map, dungeon room, cutscene backdrop, etc.), the scene script system reads byte-coded commands from scene data and executes them to configure the PPU display mode, load BG tile graphics, transfer tilemaps, set up map geometry, load the sprite map, and transfer SPC music data.
 ; 
 ; === ARCHITECTURE ===
 ; 
@@ -18,9 +18,9 @@
 ; | $05 | SceneCmd_LoadMetatileSets | Load metatile sets into WRAM for layer 0 and/or layer 1, then build the metatile flag table |
 ; | $06 | SceneCmd_LoadLayerMaps | Load layer maps (width, height, compressed map) for layer 0 and/or layer 1; with no layer bit set, load a tileset to low VRAM |
 ; | $0E | SceneCmd_Skip3 | Skip 3 bytes in script stream |
-; | $10 | SceneCmd_LoadSpriteTiles | Load sprite tile graphics |
+; | $10 | SceneCmd_LoadSpriteTiles | Load a sprite map (the spm_* data: sprite sets, frame lists and groups) into WRAM $7E:4000 |
 ; | $11 | SpcMusicLoadCmd | Transfer SPC music data via APU handshake |
-; | $13 | SceneCmd_Branch | Conditional execution based on game flag |
+; | $13 | SceneCmd_Branch | Branch < flag, label id >: flag set = jump to the $14 label with that id; flag clear = skip the label id and continue |
 ; | $14 | SceneCmd_Label | Label: no-op that skips its id byte; the position is what jump ($15) and branch ($13) continue at |
 ; | $15 | SkipScriptCommands | Jump: continue at the $14 label whose id is the operand (the label can sit in another record) |
 ; | $17 | SceneCmd_LoadCharTiles | Load preformatted screens straight to VRAM (the one file is four BG tilemaps): header [00 W 00 H], size word, LZ or raw data |
@@ -44,11 +44,11 @@
 ; 
 ; === GRAPHICS CACHE SYSTEM ===
 ; 
-; A 4-entry ring buffer cache (GraphicsCacheLookup/GraphicsCacheStore) tracks recently-loaded tile source addresses at $0084-$008F (3 bytes each: addr_lo, addr_hi, bank). On cache hit, RestoreCachedVram DMA-copies the previously-saved VRAM data from a WRAM ring buffer (4 × $2000 byte slots at $7F:4000-$7F:DFFF) back to VRAM — avoiding the expensive decompression step entirely.
+; A 4-entry ring buffer cache (GraphicsCacheLookup/GraphicsCacheStore) tracks recently-loaded tile source addresses at $0084-$008F (3 bytes each: addr_lo, addr_hi, bank). On cache hit, RestoreCachedVram DMA-copies the previously-saved VRAM data from a WRAM ring buffer (4 × $2000 byte slots at $7F:4000-$7F:BFFF) back to VRAM — avoiding the expensive decompression step entirely.
 ; 
 ; SaveVramToRingBuffer reads current VRAM back to WRAM after each load, rotating through ring buffer slots via ComputeRingBufferAddr. For tile data exceeding $2000 bytes, two consecutive ring buffer slots are used.
 ; 
-; A second, independent cache is the SOURCE-POINTER cache: ten 3-byte slots at $066C-$0689 (addr_lo, addr_hi, bank) remember which compressed source each command last loaded. CheckSourceCacheHit(X = slot) returns carry clear when the pointer in $3E/$40 matches the slot (skip the load) and otherwise stores the new pointer. Slots: $066C/$066F/$0672/$0675 = BG tiles (mode 0/1 by flag bit 4), $0678/$067B = dual-tilemap layers 0/1, $067E/$0681 = FullGraphics layers 0/1, $0684 = sprite tiles, $0687 = SPC music. Code invalidates a slot by zeroing its high byte + bank (`STZ slot+1`, 16-bit), which makes the next lookup a guaranteed miss.
+; A second, independent cache is the SOURCE-POINTER cache: ten 3-byte slots at $066C-$0689 (addr_lo, addr_hi, bank) remember which compressed source each command last loaded. CheckSourceCacheHit(X = slot) returns carry clear when the pointer in $3E/$40 matches the slot (skip the load) and otherwise stores the new pointer. Slots: $066C/$066F/$0672/$0675 = BG tiles (mode 0/1 by flag bit 4), $0678/$067B = metatile sets of layers 0/1 (SceneCmd_LoadMetatileSets), $067E/$0681 = layer maps 0/1 (SceneCmd_LoadLayerMaps), $0684 = sprite map, $0687 = SPC music. Code invalidates a slot by zeroing its high byte + bank (`STZ slot+1`, 16-bit), which makes the next lookup a guaranteed miss.
 ; 
 ; Scratch used by every loader: $0664 = source window start, $0666 = source window end (DMA size = end - start, source = $3E + start), $0668 = destination (VRAM page = word address >> 8, or WRAM offset), $066A = layer/target flags from the script.
 ; 
@@ -76,7 +76,7 @@
 ; 
 ; === SCRIPT POINTER ADDRESS MAPPING ===
 ; 
-; LoadScriptPointer reads 3-byte ROM pointers from the script stream and applies SNES address space mapping: bank bytes $00-$6F are offset to $80-$EF (LoROM → HiROM equivalent), banks $70-$9F use an additional $20 offset with bit 15 clearing on the address word. This translates script-embedded compact pointers to the full 24-bit addresses needed for DMA and indirect access.
+; LoadScriptPointer reads 3-byte pointers from the script stream and maps the bank byte with 8-bit adds: a bank of $70 or more is kept as it is; a lower bank gets +$80, so script banks $00-$1F become $80-$9F; script banks $20-$5F get a further +$20 and have bit 15 of the address word cleared, so they become $C0-$FF (script banks $60-$6F wrap to $00-$0F in the 8-bit add). This translates script-embedded compact pointers to the full 24-bit addresses needed for DMA and indirect access.
 ---------------------------------------------
 
 ?BANK 02
@@ -405,7 +405,7 @@ SceneCmd_LoadBgTiles {
     LDA $78
     CMP #$2001
     BCC loc_028537
-    STZ $srcCacheFullGfxL0+1 ; Large upload (compressed size > $2000): invalidate FullGraphics layer-0 slot $067E (inferred: shares VRAM)
+    STZ $srcCacheFullGfxL0+1 ; Large upload (compressed size > $2000): invalidate the layer-0 map slot $067E (inferred: shares VRAM)
 
   loc_028537:
     LDX #$7000            ; Decompress tile data via QuintetLZ to staging buffer $7000
@@ -814,7 +814,7 @@ SceneCmd_LoadLayerMaps {
   loc_02880D:
     LDA $gfxLayerFlags    ; No layer flags: check high bit ($80) for DMA-only mode
     BMI loc_028818
-    STZ $srcCacheFullGfxL0+1 ; Tileset-only load: invalidate FullGraphics layer-0 slot $067E (zero addr-hi $067F)
+    STZ $srcCacheFullGfxL0+1 ; Tileset-only load: invalidate the layer-0 map slot $067E (zero addr-hi $067F)
     STZ $srcCacheFullGfxL0+2 ; ...and its bank byte $0680 (8-bit STZ)
 
   loc_028818:
@@ -1266,7 +1266,7 @@ SceneCmd_ConfigDisplay {
     STZ $srcCacheBgA+2
 
   loc_028B52:
-    LDA #$40              ; Clear hudDisableFlag bit 6 (HUD off); re-set below if record +7 bit 7 is set
+    LDA #$40              ; Clear hudDisableFlag bit 6 (HUD shown); set again below if record +7 bit 7 is set
     TRB $hudDisableFlag
     PLA 
     BPL loc_028B5F
@@ -1353,7 +1353,7 @@ SpcMusicLoadCmd {
 }
 
 ---------------------------------------------
-; Load sprite tile graphics. Reads 16-bit tile data size from [$3A],Y (stores to $0666), advances Y by 3, loads source pointer. CheckSourceCacheHit on $0684 — hit returns without work. On miss: if compressed pointer non-null, decompresses to $4000; if null ($0000), DmaRomToWram from ROM to $7E:4000 (uncompressed sprite tile staging).
+; Load a sprite map (the spm_* data) into WRAM $7E:4000. Reads a 16-bit data size from [$3A],Y (stores to $0666), advances Y by 3, loads source pointer. CheckSourceCacheHit on $0684 — hit returns without work. On miss: if compressed pointer non-null, decompresses to $7E:4000; if null ($0000), DmaRomToWram from ROM to $7E:4000 (uncompressed data).
 
 SceneCmd_LoadSpriteTiles {
     PHP 
@@ -1665,7 +1665,7 @@ SkipScriptCommands {
 }
 
 ---------------------------------------------
-; Read a 3-byte ROM pointer from the script stream into address X. Stores 16-bit word to $0000,X and bank byte to $0002,X, then applies SNES LoROM mapping: banks $00–$6F get +$80; banks $80–$9F additionally get +$20 with address bit 15 cleared (HiROM canonical form).
+; Read a 3-byte ROM pointer from the script stream into address X. Stores 16-bit word to $0000,X and bank byte to $0002,X, then maps the bank byte with 8-bit adds: a bank of $70 or more is kept; a lower bank gets +$80 (script banks $00-$1F end at $80-$9F); when that sum is $A0 or more (script banks $20 and up) another +$20 is added and bit 15 of the address word is cleared, so script banks $20-$5F end at $C0-$FF and $60-$6F wrap to $00-$0F.
 
 LoadScriptPointer {
     PHP 
@@ -1681,11 +1681,11 @@ LoadScriptPointer {
     CMP #$70              ; Bank >= $70: HiROM range, no mapping needed
     BCS loc_028DBF
     CLC 
-    ADC #$80              ; Add $80: map LoROM bank $00-$6F to HiROM $80-$EF
-    CMP #$A0              ; Check $A0 threshold: banks $20-$3F need additional adjustment
+    ADC #$80              ; Add $80: script banks $00-$1F end here at $80-$9F
+    CMP #$A0              ; Sum $A0 or more (script bank $20 and up): the extra +$20 and the bit-15 clear follow
     BCC loc_028DBC
     CLC 
-    ADC #$20              ; Add $20 for banks $20-$3F (→ $C0-$DF)
+    ADC #$20              ; Add $20 more: script banks $20-$5F end at $C0-$FF, $60-$6F wrap to $00-$0F
     STA $0002, X
     LDA $0001, X          ; Clear bit 15 of address word for canonical HiROM format
     AND #$7F
@@ -2044,7 +2044,7 @@ DmaWramToVram {
 }
 
 ---------------------------------------------
-; Post-process a freshly loaded metatile definition table in WRAM bank $7E. X selects layer (0 or 2). Walks the tilemap words at $06AE+X (256 metatiles x 4 words; $0E starts at 0 so DEC wraps to 256 passes): for each word, lifts bit 9 out into a packed flag table and rewrites the word with bit 9 cleared (AND #$FDFF) and the layer merge word $06A2+X OR'd in (priority bit / tile offset from SceneCmd_ConfigDisplay). The four lifted bits of each group are combined via ASL/ORA/LSR into one byte stored through [$42] (pointer from $06AA+X, bank $7F), so the flag table holds one byte (low nibble = the four bit-9 flags, first tile in bit 0) per 2x2 metatile; FillCollisionFromLayer0/OverlayCollisionFromLayer1 later index it by metatile number to fill the collision layer.
+; Post-process a freshly loaded metatile definition table in WRAM bank $7E. X selects layer (0 or 2). Walks the tilemap words at $06AE+X (256 metatiles x 4 words; $0E starts at 0 so DEC wraps to 256 passes): for each word, lifts bit 9 out into a packed flag table and rewrites the word with bit 9 cleared (AND #$FDFF) and the layer merge word $06A2+X OR'd in (priority bit / tile offset from SceneCmd_ConfigDisplay). The four lifted bits of each group are combined via ASL/ORA/LSR into one byte stored through [$42] (pointer from $06AA+X, bank $7F), so the flag table holds one byte (low nibble = the four bit-9 flags, first tile in bit 0) per 2x2 metatile (the collision layer's low nibble equals that nibble at the same metatile in 209 of the 214 single-layer scenes, 510,976 cells compared, 0 mismatches; the other five differ only where actors rewrite the layer, see RebuildCollisionLayer); FillCollisionFromLayer0/OverlayCollisionFromLayer1 later index it by metatile number to fill the collision layer.
 
 BuildMetatileFlagTable {
     PHP 
@@ -2102,7 +2102,7 @@ BuildMetatileFlagTable {
 }
 
 ---------------------------------------------
-; Rebuild the collision layer after the scene script ends (skipped for scene $F7). Always runs FillCollisionFromLayer0; when scrollModeFlags bit 0 (dual-layer scene) is set, OverlayCollisionFromLayer1 overlays layer 1's flags.
+; Rebuild the collision layer after the scene script ends (skipped for scene $F7). Always runs FillCollisionFromLayer0; when scrollModeFlags bit 0 (dual-layer scene) is set, OverlayCollisionFromLayer1 overlays layer 1's flags (see OverlayCollisionFromLayer1). Measured: after this rebuild the layer is rewritten in only five scenes ($55, $6B, $78, $D6, $D7): by MarkCollisionRect, ClearCollisionRect and ClearCollisionRectFull ($55, $6B, $78, $D6), by MarkSolidAbs and ClearTypeAbs ($D6), by four single writes of the av6C_portrait3 actor code ($6B) and by CollisionLayerRenderer (17,472 writes in frames 215-233 of $D7).
 
 RebuildCollisionLayer {
     LDX #$0000            ; Reload layer 0 map data from external storage
@@ -2148,7 +2148,7 @@ FillCollisionFromLayer0 {
 }
 
 ---------------------------------------------
-; Overlay layer 1's collision flags onto the same collision layer. Same structure as FillCollisionFromLayer0 but with the flag table at $06AC, mapRowStrideL1 x $0699 cells, start index from word $0080 (= $C000 via wram-init, equal to mapTilemapBaseB) and stores through animScratch ($7F:0000+X), which for X >= $C000 is again $7F:C000+i. Zero flag bytes are skipped so layer 0's collision value survives where layer 1 has nothing.
+; Overlay layer 1's collision flags onto the same collision layer. Same structure as FillCollisionFromLayer0 but with the flag table at $06AC, mapRowStrideL1 x $0699 cells, start index from word $0080 (= $C000 via wram-init, equal to mapTilemapBaseB) and stores through animScratch ($7F:0000+X), which for X >= $C000 is again $7F:C000+i. A nonzero layer-1 flag byte replaces layer 0's value and a zero one is skipped, so layer 0's collision value survives where layer 1 has nothing (measured cell by cell in all nine dual-layer scenes: $0B, $30, $5F, $60, $61, $62, $64, $65, $67).
 
 OverlayCollisionFromLayer1 {
     LDY $collisionFlagTableL1 ; $3E/$3F = flag-table page for layer 1 (bank $7F via $40)

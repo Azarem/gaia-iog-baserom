@@ -1,4 +1,4 @@
-; Scene clear reward tier (Bank 01, 109278-109534, 256 bytes), one byte per scene ID ($00-$FF). It is not specific to Dark Space rooms (the old note said 'when all enemies in a Dark Space room are defeated'): any scene whose entry is nonzero pays a permanent stat point once. The tiers are not 'minor/medium/major'; they select the stat:
+; Scene clear reward tier (Bank 01, 109278-109534, 256 bytes), one byte per scene ID ($00-$FF). It is not specific to Dark Space rooms: any scene whose entry is nonzero pays a permanent stat point once. The tiers select the stat:
 ; 
 ; | Tier | Reward | Scenes |
 ; |------|--------|--------|
@@ -7,9 +7,9 @@
 ; | 2 | STR + 1 (item $81, e_str_increase, anim $0D) | 27: $0D $1D $20 $26 $3F $45 $4F $52 $60 $65 $6D $6F $84 $87 $A0 $A3 $A8 $B1 $B5 $B7 $BB $CD $D1 $D5 $D7 $D9 $DB |
 ; | 3 | DEF + 1 (item $82, e_def_increase, anim $0E) | 31: $0E $12 $21 $25 $28 $40 $41 $4E $51 $54 $61 $64 $70 $72 $82 $86 $A1 $A5 $A7 $B2 $B4 $B8 $BA $BD $CC $CE $CF $D0 $D3 $D6 $D8 |
 ; 
-; Values above 3 do not occur; StandardEnemyDefeatHandler treats 3 and above as DEF, while BossClearApplyStatReward sets the flag and gives no stat for them. Whether a scene's reward was already taken is the scene flag $0300 + scene (set when the reward is paid).
+; No value above 3 exists (tiers 0 / 1 / 2 / 3 = 169 / 29 / 27 / 31 scenes). The readers would treat one differently: StandardEnemyDefeatHandler sends every tier above 2 to DEF, field_reveal_object masks the tier with $0003, and BossClearApplyStatReward sets the flag but pays DEF only for exactly 3. Whether a scene's reward was already taken is the scene flag $0300 + scene (set when the reward is paid).
 ; 
-; Readers: (1) StandardEnemyDefeatHandler.EnemyStatBonusReward: when the last enemy of the scene dies and the flag is clear, spawns the e_hp / e_str / e_def_increase pickup of reward_actors (this also makes the enemy drop a gem only while the reward is already taken or enemies remain, see enemy_stats_table). (2) field_reveal_object: its tier path (tier & 3 picks the stat item, anim $0C / $0D / $0E, item $80 / $81 / $82) runs only for a child $26 of 0, which none of its three spawners passes, so it never reads this table in the shipped game. (3) boss_clear_reward_handler.BossClearApplyStatReward: after a boss is defeated, walks a range of scenes and pays every unclaimed tier at once. (4) radar_map_screen: draws the reward frame and icon on the radar while the flag is clear and the tier is nonzero. (The old note's 'draws chest icons' is wrong: chests are drawn from a different list.)
+; Readers: (1) StandardEnemyDefeatHandler.EnemyStatBonusReward: when the last enemy of the scene dies and the flag is clear, spawns the e_hp / e_str / e_def_increase pickup of reward_actors (this also makes the enemy drop a gem only while the reward is already taken or enemies remain, see enemy_stats_table). (2) field_reveal_object: its tier path (tier & 3 picks the stat item, anim $0C / $0D / $0E, item $80 / $81 / $82) runs only for a child $26 of 0, which none of its three spawners passes, so it never reads this table in the shipped game. (3) boss_clear_reward_handler.BossClearApplyStatReward: after a boss is defeated, walks a range of scenes and pays every unclaimed tier at once. (4) radar_map_screen: draws the reward frame and icon on the radar while the flag is clear and the tier is nonzero. Chest icons come from scene_chest_table.
 ---------------------------------------------
 
 ?BANK 01

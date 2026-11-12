@@ -56,7 +56,7 @@ inventory_statue_slot [
     AND #$00FF
     JSL $@flag_helpers.TestFlagRaw ; Carry set = this statue was collected
     BCC InventoryStatueSlotUncollected
-    JMP $&InventoryStatueSlotClaimed
+    JMP $&InventoryStatueSlotClaimed ; Flag set (statue collected): continue at InventoryStatueSlotClaimed, which shows the statue
 
 ; Flag clear (statue not collected yet): restore the actor slot and Die; nothing is drawn.
 

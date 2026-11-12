@@ -3,8 +3,6 @@
 ; COP [QueueHdmaDirect] ( @inventory_bg3vofs_table, #12 ): the second operand is the B-bus register index, $12 = $2112 BG3VOFS (transfer mode 2, written twice for the low and high byte). It is not a byte count. QueueHdmaDirect goes through SetupHdmaChannel_Direct.
 ; 
 ; The table (inventory_bg3vofs_table, 21 bytes) is {count, low, high} per entry: lines 0-111 V = 0, then 48 lines V = 0, then four 12-line bands with V = $0B, $0F, $13, $17, then 64 lines V = $20. The line counts add to 272, more than a frame, so no terminator is needed. From line 160 down BG3's vertical scroll steps up from 0 to $20 (visual result not checked).
-; 
-; Earlier notes called this a '12-byte DMA table to VRAM'; that was wrong.
 ---------------------------------------------
 
 ---------------------------------------------
