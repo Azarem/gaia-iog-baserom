@@ -523,9 +523,9 @@ Mask bit0 selects pad source: clear → `$0656` (filtered), set → `$0660` (inc
 
 | Op | Name | Handler | Params | Behavior |
 |---|---|---|---|---|
-| `$3E` | `WaitForButton` | `$009485` | `Word Mask` | **Wait until** any masked button pressed (rewind+RTL) |
-| `$3F` | `WaitForRelease` | `$0094AD` | `Word Mask` | **Wait until** masked buttons released |
-| `$40` | `BranchIfPressed` | `$0094D5` | `Word Mask`, `&Code` | Branch if pressed |
+| `$3E` | `WaitForButton` | `$009485` | `Word Mask` | **Wait until** any masked button pressed (rewind+RTL); mask bit 0 set reads `joypadRaw` (`$0660`) instead of `joypadCurrent` (`$0656`) and is not itself a button |
+| `$3F` | `WaitForRelease` | `$0094AD` | `Word Mask` | **Wait until** masked buttons released (same bit 0 rule) |
+| `$40` | `BranchIfPressed` | `$0094D5` | `Word Mask`, `&Code` | Branch if pressed (same bit 0 rule) |
 | `$41` | `BranchIfNotPressed` | `$009501` | `Word Mask`, `&Code` | Branch if not pressed |
 
 Wiki “exit if …” = yield actor until condition (same as halt/retry).

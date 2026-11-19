@@ -124,15 +124,17 @@ Read anim byte → **`$28`**, **`SetActorBody`**, save `$0A`/`$0C` to `$00`/`$02
 
 ##### How it is used in source
 
-Dominant opcode in **`actors/player/player_character.asm`** — idle facing dispatch (`#00`–`#03`, Shadow `#10`–`#12`), ladder/shimmy helpers, ledge-jump setup. Also **credits auto-walk** (`ending/ending_credits/sF7_credits_player.asm`), **space flight / epilogue** (`babel_tower/`, `ending/ending_comet/sE5_epilogue.asm`), and **shared transition library** (`actors/player_transition_handlers.asm`).
+Dominant opcode in **`actors/player/player_character.asm`** — idle facing dispatch (`#00`–`#03`, or `#10`–`#13` when event flag `#00` is set), ladder/shimmy helpers, ledge-jump setup. Also **credits auto-walk** (`ending/ending_credits/sF7_credits_player.asm`), **space flight / epilogue** (`babel_tower/`, `ending/ending_comet/sE5_epilogue.asm`), and **shared transition library** (`actors/player_transition_handlers.asm`).
 
-Example — idle row selection by form (`player_character.asm`):
+Example — idle row selection by event flag `#00`, not by form (`player_character.asm`, `IdleStandSouth`): the flag selects the idle sprite family for either character form, and `scene_flag_init` sets it in 26 town and cutscene scenes:
 
 ```asm
-COP [BranchOnFlagByte] ( #00, #01, &ShadowSouthIdle )
-COP [StagePlayerSprite] ( #00 )   ; Will south idle
+IdleStandSouth {
+    COP [BranchOnFlagByte] ( #00, #01, &IdleStandSouthFlagged )
+    COP [StagePlayerSprite] ( #00 )   ; flag clear: sprite #00
 …
-COP [StagePlayerSprite] ( #10 )     ; Shadow south idle
+IdleStandSouthFlagged {
+    COP [StagePlayerSprite] ( #10 )   ; flag set: sprite #10
 ```
 
 ##### Parameters & contract

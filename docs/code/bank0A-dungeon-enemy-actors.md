@@ -254,7 +254,7 @@ actors for the area.
 | Block | Size | Description |
 |-------|------|-------------|
 | `ec0F_spear` | 114 | **Spear Trap** — Wall-mounted spears that fire downward when the player approaches. Two variants: `ec0F_spear` (range 3 tiles) and `ec0F_spear2` (range 1 tile). Trigger via `BranchIfPlayerNear` → RNG delay 0–63 frames → warning sprite (`SpawnAfterMarked`, frame `#3B`) → Y−=`$0100` → SFX `#13` (extend) + `#1E` (impact) → `MarkSolidHere` (blocking) → wait `#EF` frames → 32-frame blink loop → `ClearSolidHere` → `Die`. Timed hazard with telegraph sprite. |
-| `ec0E_statue` | 97 | **Aqueduct Statue** — Dual-mode puzzle prop gated by story flag `#21`. If flag clear: sets `$0200` on `$12` (pushable), `MarkSolidHere`, spawns push handler (`push_handler_solid`, `$2300`). If flag set (Kara escape complete): `SetInteractHandler` for dialogue — *"This has the same shape as the statue from the seaside cave..."* Scene: `aqueduct_lockway`. |
+| `ec0E_statue` | 97 | **Aqueduct Statue** — Always a solid push block; story flag `#21` only adds an inspect line. Sets `$0200` on `$12` (the scripted-actor bit: the talk handler defers to the actor's own script), then `BranchOnFlagByte(#21)`. Flag clear: jumps to the solid-and-push code (`MarkSolidHere`, spawns push handler `push_handler_solid`, `$2300`). Flag set (Kara escape complete): `SetInteractHandler` stores the dialogue pointer (*"This has the same shape as the statue from the seaside cave..."*) and the code then falls through into the same solid-and-push code, so the statue is still solid and pushable. Both states were observed: collision cells `$F0` and the push handler present either way. Scene: `aqueduct_lockway`. |
 | `ec0E_switch` | 64 | **Floor Switch** — Sword-toggle controlling barriers. Sets `$0031` on `$12` (solid + hittable), HP `$FF` via `enemy_stats_table+118`. Init clears flag byte `#01`. Hit callback alternates: press → `SetFlagByte(#01)`, frame `#10`; release → `ClearFlagByte(#01)`, frame `#0F`. Binary ON/OFF driving `ec0E_barrier` behavior. Scene: `aqueduct_lockway`. |
 | `ec0F_rusty_switch` | 109 | **Rusty Switch** — One-way puzzle switch in the aqueduct hall. Near player (1 tile) → dialogue: *"It won't go in! Maybe it's rusty..."* Activation: `BranchIfPlayerAt($D8,$0298)` → press anim (frame `#10`) → if word flag `$0104` unset: SFX `$0E0E`, `StageBgChange(#04)`, `SetFlagWord($0104)`. Permanent gate opener. Scene: `aqueduct_hall`. |
 | `ec0E_barrier` | 208 | **Moving Barrier** (4 variants: `ec0E_barrier`–`barrier4`) — Spike-barriers that oscillate on fixed paths when the switch is OFF, freeze as solid walls when flag byte `#01` is set. `ExitIfFlagByte(#01, #01)` → frozen: `MarkSolidHere`. OFF: `ClearSolidHere` + movement loop using frame `#3E` loop-moves on X/Y axes. Variants differ in speed (#04 vs #02) and axis order; `barrier2`/`3` add `#1F`-frame pauses between legs. Alternates `MarkSolidHere`/`ClearSolidHere` each cycle for timing-based passage. Scene: `aqueduct_lockway`. |
@@ -266,7 +266,7 @@ actors for the area.
 | `ec0E_switch` | Sword-toggle → flag byte `#01` |
 | `ec0E_barrier` (×4) | Moving hazards when `#01` = 0; frozen solids when `#01` = 1 |
 | `ec0F_rusty_switch` | Stand-on activation → flag word `$0104` + BG change `#04` |
-| `ec0E_statue` | Pushable if flag `#21` clear; lore inspect if set |
+| `ec0E_statue` | Solid push block in both states; the lore inspect line is added when flag `#21` is set |
 
 ---
 

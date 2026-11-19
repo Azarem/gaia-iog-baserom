@@ -601,7 +601,7 @@ CheckLedgeJumpAttack {
 }
 
 ---------------------------------------------
-; Freedan drop attack in the middle of a ledge jump (CheckLedgeJumpAttack: B pressed while falling) — triggers ground impact effects.
+; Freedan drop attack in the middle of a ledge jump (CheckLedgeJumpAttack: the attack button pressed while falling, logical $0080, physical A in this build) — triggers ground impact effects.
 ; 
 ; Pops the ledge-jump loop return address, sets body sprite #06 with hitbox #00. Falls with force Y movement until hitting solid ground (16-pixel boundary check). On landing, loads anim table B entry 2, spawns ImpactTerrainShake and CameraShakeActor (scene $DD skips terrain shake), then plays 39-frame recovery animation before returning to idle.
 

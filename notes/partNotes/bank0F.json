@@ -3,7 +3,7 @@
     "sprite_group_0F8D7D": "Identical to the unreferenced second group (;01) of sprite_group_0F8BCC.",
     "sprite_group_0FCF27": "Header + 7 sub-sprites (62 bytes), followed by a second group (;01: header at 0FCF65 + 8 sub-sprites, 69 bytes) that no frame list points at. The next labelled group is 0FCFAA.",
     "sprite_group_0FD5AA": "Identical to sprite_group_0FCF27: header + 7 sub-sprites (62 bytes), followed by a second group (;01: header at 0FD5E8 + 8 sub-sprites, 69 bytes) that no frame list points at.",
-    "spriteset_transform_poses": "19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0C), $11 (transform_pose_11).",
+    "spriteset_transform_poses": "19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0C), $11 (transform_pose_11); no StageSpriteFrame or StageSpriteLoop operand in the Transform_* scripts (sE6_gaia.asm) names them.",
     "spriteset_will_abilities": "39 pointers. $00-$03 poses (S, N, W, E), $04-$07 Psycho Dash, $0C-$17 Psycho Slider (start / loop / finish per direction), $1C-$1D and $22 Spin Dash, $1F flute pose, $20 hold pose; $08-$0B, $18-$1B copy the $00-$03 poses.",
     "transform_pose_04": "Animation $04: not referenced by the Transform_* scripts.",
     "transform_pose_0C": "Animation $0C: not referenced by the Transform_* scripts.",

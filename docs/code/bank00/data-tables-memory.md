@@ -96,7 +96,7 @@ Binary interpolation table consumed by `ComputeFollowStep` (`$00EE1C`). Format: 
 
 #### `camera_drift_offsets` — 32 bytes
 
-Eight direction delta pairs (16-bit X/Y offsets) for `CameraDriftPatterned` (`$00CFEF`). Used in boss arenas for scripted camera nudge patterns rather than pure RNG drift.
+Sixteen signed 16-bit offsets for `CameraDriftPatterned` (`$00CFEF`), but only the first eight words (16 bytes) are ever read: both readers (`LDA camera_drift_offsets,Y`) mask the index to 3 bits, so the second 16 bytes are unused. The words are not X/Y pairs: each run reads the next word for the Y offset and the following word for the X offset, with the index running on across runs (the next run's Y word is the previous run's X word), for three runs. Used in boss arenas and Danger Slide for short camera nudges rather than pure RNG drift.
 
 ### 1.5 NPC & Player Script Tables
 

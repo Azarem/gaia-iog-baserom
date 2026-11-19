@@ -3,12 +3,12 @@
 ; === SPAWN ===
 ; 
 ; - Layer1DriftWrapped: scene actor record < X byte $01, Y byte $82 > in scene_actors entries $09 and $32 (scene_09_actors, scene_32_actors).
-; - Layer1DriftUnbounded: record < $02, $02 > in scene_actors entries $4E and $50 (scene_4E_actors, scene_50_actors).
+; - Layer1DriftUnbounded: six scene_actors records: < $02, $02 > in scenes $4E, $50, $52 and $54, < $00, $0C > in scene $58 and < $00, $00, $00 > in scene $DC (scene_4E_actors, scene_50_actors, scene_52_actors, scene_54_actors, scene_58_actors, scene_DC_actors).
 ; - Layer1ParallaxRatio: sg55_viper_arena (SpawnBeforeFlags #$2800, then $14 := $0201 and $16 := 0) and sg55_mystic_statue code_0ACE81 ($14 := $0201, $16 := $000C).
 ; 
 ; === SPAWN BYTES = VELOCITY (the first two actors) ===
 ; 
-; InitActorFromSceneData turns the record's X and Y bytes into pixels (byte x 16), so $14 >> 4 gives the X byte back and $16 >> 4 the Y byte. Both are decoded as sign-magnitude: bit 7 = negative, bits 0-6 = magnitude. The Y byte is decremented first, so Y byte 1 = 0, 2 = +1, $82 = -1; Y byte 0 gives $0081 (+129), a quirk the shipped records never use. Result: Layer1DriftWrapped drifts at X +1, Y -1 px per frame; Layer1DriftUnbounded at X +2, Y +1.
+; InitActorFromSceneData turns the record's X and Y bytes into pixels (byte x 16), so $14 >> 4 gives the X byte back and $16 >> 4 the Y byte. Both are decoded as sign-magnitude: bit 7 = negative, bits 0-6 = magnitude. The Y byte is decremented first, so Y byte 1 = 0, 2 = +1, $82 = -1; Y byte 0 gives $0081 (+129); the record of scene $DC uses it. Result: Layer1DriftWrapped drifts at X +1, Y -1 px per frame; Layer1DriftUnbounded at X +2, Y +1 in scenes $4E, $50, $52 and $54, at X 0, Y +11 in scene $58 (Y byte $0C) and at X 0, Y +129 in scene $DC.
 ; 
 ; === VARIABLES ===
 ; 
@@ -66,7 +66,7 @@ Layer1DriftUnbounded [
     LSR 
     LSR 
     LSR 
-    DEC                   ; Spawn Y byte - 1 (Y byte 2 = +1, $82 = -1; byte 0 would give +129, unused)
+    DEC                   ; Spawn Y byte - 1 (Y byte 2 = +1, $82 = -1; byte 0 gives +129, used by the record of scene $DC)
     BIT #$0080
     BEQ Layer1DriftUnboundedStoreVelY
     AND #$FF7F

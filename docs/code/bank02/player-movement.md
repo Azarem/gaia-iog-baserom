@@ -378,7 +378,7 @@ Entered when current TR type is `$09`. If current BL is also `$09`, `ClearMoveme
 | 1 | BL `$09` → `ClearMovementDeltas` |
 | 2 | Future TR + Y align → slide or corner |
 | 3 | Gap: west + below-west cells type 0 → slide |
-| 4 | Else snap X east (`SnapXEastCollision`) or Y via `SnapYSouthCollision` |
+| 4 | Else floor X to the tile centre (`SnapXEastCollision`, moves X west) or snap Y via `SnapYSouthCollision` |
 
 **Variables:**
 
@@ -392,7 +392,7 @@ Entered when current TR type is `$09`. If current BL is also `$09`, `ClearMoveme
 | Symbol | Relationship |
 |--------|--------------|
 | `DispatchNorthMove` | TR `$09` redirect |
-| `FineAdjustXEast` | Open-gap slide (X west) |
+| `FineAdjustXEast` | X correction for the `$06` / right-foot slide (net X west) |
 
 ## 3. player_move_south.asm
 
@@ -415,7 +415,7 @@ Entered when current TR type is `$09`. If current BL is also `$09`, `ClearMoveme
 | `$02D57E` | ClearSpeedNS_4 | Branch-range stub: `STZ playerSpeedNs` → `RTS`. |
 | `$02D584` | AutoAlignEW_South | X auto-align when NS blocked (south variant). |
 | `$02D5F9` | ComputeSouthSnapOffset | Computes south snap offset in `$02` from BL probe (`$09` or down-cell `$06`) with V-delta parity correction on `$1E` sub-tile. |
-| `$02D655` | FineAdjustXEast | Fine X adjust after south wall snap (east edge). |
+| `$02D655` | FineAdjustXEast | X correction for the `$06` / right-foot case after the south snap offset; net movement is west. A `$02` of 17 wraps X (see the wall-slide notes below). |
 | `$02D69A` | FineAdjustXWest | Mirror of `FineAdjustXEast` with inverted distance metric for westward snap correction. |
 
 #### Group B: Southward Movement
@@ -499,13 +499,13 @@ Handles southward movement when the bottom-left corner is on a `$09` diagonal-ed
 
 ### SouthWallSouthInteract
 
-Handles southward movement when the bottom-right corner is on a `$06` diagonal-edge cell (top-right + bottom-left quadrants; "South" is the handler's type name, not a direction). Enclosure between `$06` at both top-left and bottom-right stops all movement; otherwise the handler probes the future bottom-right cell for a continuing south wall with Y sub-tile alignment. When a gap exists above the wall lip (cells up and left are walkable), the player **slides east** along the south wall through `ComputeSouthSnapOffset` → `FineAdjustXEast`. Misaligned paths snap X eastward first (`SnapXEastCollision`); if still blocked, vertical delta is zeroed and Y snaps north to the tile ceiling.
+Handles southward movement when the bottom-right corner is on a `$06` diagonal-edge cell (top-right + bottom-left quadrants; "South" is the handler's type name, not a direction). Enclosure between `$06` at both top-left and bottom-right stops all movement; otherwise the handler probes the future bottom-right cell for a continuing south wall with Y sub-tile alignment. When a gap exists above the wall lip (cells up and left are walkable), the player **slides west**, away from the wall under the right foot, through `ComputeSouthSnapOffset` → `FineAdjustXEast`. Other paths floor X to the tile centre first (`SnapXEastCollision`, which also moves X west); if still blocked, vertical delta is zeroed and Y snaps north to the tile ceiling.
 
 **Cross-References:**
 
 | Symbol | Relationship |
 |--------|--------------|
-| `FineAdjustXEast` | Corner resolution |
+| `FineAdjustXEast` | X correction of the slide (net west) |
 | `SnapXEastCollision` | Misaligned slide fallback |
 
 ### AutoAlignEW_South
@@ -551,7 +551,7 @@ Computes the sub-pixel **snap correction** stored in `$02` for southward wall-sl
 
 ### FineAdjustXEast
 
-Fine X adjust after south wall snap (east edge). If pixel distance + `$02` ≥ `$11`, snaps `$22` to grid-aligned sub-pixel position.
+X correction for the `$06` / right-foot case. With n the left-edge offset in its column (16 when flush): if n + `$02` ≤ 16 only `ApplyMovementDeltas` runs; otherwise `$02` becomes 16 − `$02` and `$22` is rewritten to (column line | `$02`) + 8, shifted left twice. The net move is west by n + `$02` − 16 pixels, away from the wall. Above `$10` the subtraction goes negative and the wrapped X is the teleport described under the wall-slide notes; `FineAdjustXWest` handles that range and this routine does not.
 
 **Cross-References:**
 
@@ -1036,7 +1036,7 @@ When the speed word reverses on a stair, the other direction's handlers run (`Ea
 - A single painted `$06` on the player's row, entered walking east, moves the player 16 px **north** at 2 px per frame for 8 frames; `$09` moves it 16 px south. A tile one row above or below has no effect. The push is always 1–16 px and ends on a row line; the first call can move 8 or 16 px at once (`SnapYNorthCollision` with `$24` = 0: 16 px when flush, 15 / 8 / 2 / 1 px at other Y phases).
 - Names are type names: `$09` under the left foot enters `SouthWallNorthInteract`, `$06` under the right foot `SouthWallSouthInteract`; neither means a compass direction. Walking north into a `$06` at TL slides east (X 364 → 373), into a `$09` at TR slides west.
 - Wall slide (`FineAdjustXWest` / `FineAdjustXEast`): `$09` under the left foot pushes east by `$02` − n (n = (X − 8) AND 15); the `$06` mirror pushes west.
-- `FineAdjustXEast` with `$02` = 17 (probe Y low nibble 15, i.e. Y = 191, south step crossing a row line): `16 − $02` = `$FFFF`, the `ORA` produces a wrapped X, and `$22` becomes 28, **X = 7**, a teleport of about 360 px west from X 361–375. At Y = 192 / 193 (`$02` = 2 / 3) the slide is normal; the `$09` mirror at Y = 191 lands on a valid X because `FineAdjustXWest` subtracts 16.
+- `FineAdjustXEast` with `$02` = 17 (probe Y low nibble 15, i.e. Y = 191, south step crossing a row line): `16 − $02` = `$FFFF`, the `ORA` produces a wrapped X, and `$22` becomes 28, **X = 7**, a teleport of about 360 px west from X 361–375. It needs a vertical pair of `$06` cells and an odd probe Y (185, 187, 189 or 191); a single `$06` never reaches it. Real maps do not reach it: in scene `$53` (pair at column 26, rows 52-54) 135 walks south from placed start positions reached `$02` = 15 at most, because a solid cell cancels the slide first, and in scenes `$70` and `$6B` the routine is not entered; the same pair painted into open floor does teleport the player. At Y = 192 / 193 (`$02` = 2 / 3) the slide is normal; the `$09` mirror at Y = 191 lands on a valid X because `FineAdjustXWest` subtracts 16.
 - `SouthWallSouthInteract` ends in `SnapYNorthCollision` (`((Y + $24) AND $FFC0) + $40`), which lands on the next row line (why the code picks it is intent, not decidable at run time): at Y = 190 it snaps `$26` 760 → 768 (Y 192, the row line the south step would reach) where `SnapYSouthCollision` would give 704 (Y 176, 16 px back north).
 - `SouthWallNudge` (future TL `$06`, north move): `$AB` bit 1 is set only while left is held (the west horizontal phase ran); the zero-`$24` nudge fires only with it and with X flush (up + left from X 378: X 376, Y 176); a pure north walk takes the other branch and slides east and north (x +2, y −2 per tick).
 

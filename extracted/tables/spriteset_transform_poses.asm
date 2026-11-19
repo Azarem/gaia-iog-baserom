@@ -11,7 +11,7 @@
 
 ---------------------------------------------
 
-; 19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0C), $11 (transform_pose_11).
+; 19 pointers to the animation frame lists ($00-$12). Index = the operand of StageSpriteFrame/StageSpriteLoop in the Transform_* scripts. Unused: $04 (transform_pose_04), $0C (transform_pose_0C), $11 (transform_pose_11); no StageSpriteFrame or StageSpriteLoop operand in the Transform_* scripts (sE6_gaia.asm) names them.
 
 spriteset_transform_poses [
   &transform_pose_00   ;00

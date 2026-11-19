@@ -1,6 +1,6 @@
 {
     "name": "@gaialabs/iog-baserom",
-    "version": "0.2.7",
+    "version": "0.2.8",
     "type": "module",
     "description": "GaiaLabs IOG Base ROM",
     "funding": "https://github.com/sponsors/Azarem",
@@ -23,18 +23,19 @@
         "clean": "rm -rf dist",
         "clean-install": "rm -rf node_modules && rm -rf package-lock.json && npm install",
         "publish": "tsdown && npm publish --access public",
-        "extract": "rm -rf extracted/* && node --env-file=.env.local src/index.ts extract",
-        "extract:lt": "rm -rf extracted/* && node --env-file=.env.local src/index.ts extract --linetracking",
-        "extract-jp": "rm -rf extracted-jp && node --env-file=.env.local src/index.ts extract-jp",
+        "extract": "node --env-file=.env.local src/index.ts extract",
+        "extract:lt": "node --env-file=.env.local src/index.ts extract --linetracking",
+        "extract-jp": "node --env-file=.env.local src/index.ts extract-jp",
         "rebuild": "node src/index.ts rebuild --artifacts",
         "rebuild-jp": "node src/index.ts rebuild-jp",
         "merge": "node src/index.ts merge",
         "names": "node src/index.ts names",
         "flags": "node src/index.ts flags",
-        "export": "node src/index.ts export"
+        "export": "node src/index.ts export",
+        "test": "node --test \"test/*.test.ts\""
     },
     "dependencies": {
-        "@gaialabs/core": "1.0.5"
+        "@gaialabs/core": "1.0.7"
     },
     "devDependencies": {
         "tsdown": "^0.23.0",

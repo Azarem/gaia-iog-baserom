@@ -132,7 +132,7 @@
 | `$0BE87C` | `$0BE8A8` | 44 | `sFA_diary_menu` / `WriteSramSettings` | Code | Diary Menu |
 | `$0BE8A8` | `$0BEBF9` | 849 | `sFA_diary_menu` / `DiaryCopyTab` | Code | Diary Menu |
 | `$0BEBF9` | `$0BEC06` | 13 | `sFA_diary_menu` / `DiaryMenuClearVram` | Code | Diary Menu |
-| `$0BEC06` | `$0BEC3E` | 56 | `sFA_diary_menu` / `func_0BEC06_noref` | Code | Diary Menu |
+| `$0BEC06` | `$0BEC3E` | 56 | `sFA_diary_menu` / `DiaryCursorNav_noref` | Code | Diary Menu |
 | `$0BEC3E` | `$0BECB1` | 115 | `sFA_diary_menu` / `DiaryCursorApplyMove` | Code | Diary Menu |
 | `$0BECB1` | `$0BECD9` | 40 | `sFA_diary_menu` / `DiaryDrawCursorHighlight` | Code | Diary Menu |
 | `$0BECD9` | `$0BECFB` | 34 | `sFA_diary_menu` / `DiaryClearCursor` | Code | Diary Menu |

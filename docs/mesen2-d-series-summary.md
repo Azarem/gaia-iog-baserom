@@ -141,7 +141,7 @@ Still shipped and left alone (not wrong): the `PlaySoundCh1`/`PlaySoundCh2` part
 5. Does a scene change whose fade never passes brightness 6 still send `$F2` (`loc_03DAF2`), and does `$F0` then hit a sounding track?
 6. Scene `$F9` stops in the `$F0` poll of its second `music` record (id `$17`). Does the real credits flow reach it, and what does it load?
 7. What gates the spawn of Incan Statue A (scene `$19`)? `MusicAndText` (OQ-48) has no runtime answer until it spawns.
-8. `LedgeJumpDropAttack`: `CheckLedgeJumpAttack` tests `BranchIfPressed #$0080`, the interact bit fed by physical A, not B. The header comment ("B pressed while falling") is unverified.
+8. `LedgeJumpDropAttack`: `CheckLedgeJumpAttack` tests `BranchIfPressed #$0080`, the attack bit (interact is `$8000`); physical A feeds it, not B. The header comment ("B pressed while falling") is unverified.
 9. The stone guard's attack (`#1E`, every 47 frames) missed a player on 30 offsets; which relative position does `code_0A93E9` / `code_0A9441` accept? No hit landed for the `ApplyPlayerHitstun` sound check (Will only).
 10. Library chunk `$3C` (1,028 bytes) is named by no stream. What is it?
 11. Which SRCN does each entry of an extended sample directory (`$1000`, count × 4 bytes) get, and what fills the entries below the written range?

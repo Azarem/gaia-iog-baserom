@@ -91,8 +91,8 @@ Each `.bgm` file is a self-contained music bundle containing everything the SPC 
 | `$1254` | Instrument definitions | `instrumentCount × 6` bytes |
 | `$1300` | Duration/velocity table | 24 bytes |
 | `$5532` or `$1400` | Sequence data (patterns + channel data) | 500–3000 bytes |
-| `$1038` | Sample directory (standard) | 24 bytes |
-| `$1000` | Sample directory (extended) | 56 bytes |
+| `$1038` | Sample directory (standard) | count × 4 bytes, 4 to 28 bytes (24 for a 6-instrument track) |
+| `$1000` | Sample directory (extended) | count × 4 bytes (28 or 40); 56 bytes only in `bgm_restart` |
 | `$0FFC` | Song base pointer | 2 bytes |
 | `$0FFE` | Sample end pointer | 2 bytes |
 | `$0FE0` | SPC slot assignment | 6 bytes |

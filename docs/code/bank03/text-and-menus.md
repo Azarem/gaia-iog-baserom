@@ -215,7 +215,9 @@ selection; SP+5 = starting row offset. Sets DP = 0, resets the blink counter
   (`$212C`/`$213C`) and dim tile (`$21AC`); saves/restores the tile under the
   cursor via `$0990`/`$0992`.
 - `ReadMenuSelection` (`$03EA2A`) — restores original tiles, converts cursor
-  position to OAM sprite data at `$090E`/`$0910`.
+  position to the graphics word addresses `(tile AND $03FF) × 8 + $6000` of the
+  two tiles under the cursor, stored at `$090E`/`$0910` (not OAM data; nothing
+  in the extracted code reads them).
 
 ### Key routines
 

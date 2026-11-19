@@ -423,7 +423,7 @@ camera_scroll_controller  →  effectDeltaX / effectDeltaY ($06E4 / $06E6)
 
 First stage of scroll effect integration. Converts actor spawn coordinates to signed velocity values in `$2C`/`$2E` (tile-relative, with Y − 1 bias). Zeros position registers and scroll accumulators, waits 1 frame, then adds velocity + camera deltas (`$06E4`/`$06E6`) to produce initial scroll values.
 
-Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending in `Layer1ParallaxRatio`.
+Sets `$06C8` with bit 15 set. `WriteBgScroll` reads that bit as the override flag: while it is set, the value masked to `$03FF` replaces the normal BG2 horizontal scroll (BG1 in scene `$58`). It is not a sub-pixel marker.
 
 #### Variables
 
@@ -448,7 +448,7 @@ Sets `$06C8` with `$8000` OR — the high bit marks sub-pixel overflow pending i
 
 #### Description
 
-Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `hardware_math` (bank `$02`). For X: if `$14` bit `$8000` (negative sub-pixel), sign-extends and adds to `$06C8`; otherwise if high byte non-zero, multiplies by `$06BE` (target scroll). Y path at `$E9CA` mirrors for `$16`/`$06C4`/`$06C2`.
+Layer-1 parallax ratio or drift, run every frame. The spawner sets `$14` (X) and `$16` (Y). A word with a nonzero high byte is a ratio lo / hi: the layer-1 position becomes the camera target × lo / hi (`MulDivide` from `hardware_math`, bank `$02`; `$0201` = × 1 / 2, half speed). With a zero high byte the signed low byte is added every frame instead. For X, `$14` bit 15 also forces the additive mode, and the result goes to `$06C8`; the Y path at `$E9CA` has no bit-15 test and updates `$06C4` from `$06C2`.
 
 `SetEntryHere` + `PEA $&Layer1ParallaxRatioY-1` structure allows X and Y passes in one actor tick.
 
@@ -456,9 +456,9 @@ Multiply/divide helper for sub-pixel scroll values. Uses `$@MulDivide` from `har
 
 | Symbol | Role |
 |--------|------|
-| `$14`, `$16` | Sub-pixel remainder |
+| `$14`, `$16` | Parallax ratio (high byte nonzero) or signed drift per frame (low byte) |
 | `$06C8`, `$06C4` | Scroll output |
-| `$06BE`, `$06C2` | Scale factors (from camera_scroll_controller) |
+| `$06BE`, `$06C2` | Camera targets the ratio scales (from camera_scroll_controller) |
 
 #### Scene Usage
 
@@ -507,8 +507,8 @@ Negative clamp paths snap to `$effect_bounds` maximum; overflow paths snap to ze
 | Direction | Symbol | Notes |
 |-----------|--------|-------|
 | Fed by | `camera_scroll_controller` | `$06E4`/`$06E6` deltas |
-| Followed by | `Layer1ParallaxRatio` | Sub-pixel refinement |
-| Block | `layer1_scroll_actors` | Grouped with velocity init + subpixel math |
+| Independent of | `Layer1ParallaxRatio` | A separate actor spawned by the Viper arena and mystic statue scripts; not a refinement step |
+| Block | `layer1_scroll_actors` | Grouped with the velocity-driven drift actors and the ratio actor |
 
 ---
 

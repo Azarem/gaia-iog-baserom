@@ -3152,7 +3152,7 @@
     "59613": "$12 bit $1000: display / overlay-active qualifier, so the actor also runs in the display-filtered modes",
     "59621": "Spawn X byte (pixels / 16): bit 7 = negative, bits 0-6 = magnitude",
     "59633": "$2C := X velocity in px per frame",
-    "59641": "Spawn Y byte - 1 (Y byte 2 = +1, $82 = -1; byte 0 would give +129, unused)",
+    "59641": "Spawn Y byte - 1 (Y byte 2 = +1, $82 = -1; byte 0 gives +129, used by the record of scene $DC)",
     "59654": "$2E := Y velocity in px per frame",
     "59659": "Zero the accumulated offsets $14 / $16 and the layer-1 scroll state",
     "59675": "WaitByte #01 = 2 ticks (N + 1); the code below then runs every frame (no SetEntryHere in this actor)",

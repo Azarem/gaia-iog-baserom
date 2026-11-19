@@ -31,6 +31,7 @@ import bank0E from '../db-us/names/bank0E.json' with { type: 'json' };
 import bank15 from '../db-us/names/bank15.json' with { type: 'json' };
 import bank17 from '../db-us/names/bank17.json' with { type: 'json' };
 import bank0F from '../db-us/names/bank0F.json' with { type: 'json' };
+import bank10 from '../db-us/names/bank10.json' with { type: 'json' };
 
 const bankNames: Record<string, string>[] = [
     bank00, bank01, bank02, bank03, bank04, bank05, bank06,
@@ -40,6 +41,7 @@ const bankNames: Record<string, string>[] = [
     bank15,
     bank17,
     bank0F,
+    bank10,
 ];
 
 export const names: Record<string, string> = Object.assign({}, ...bankNames);

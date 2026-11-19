@@ -59,9 +59,10 @@ Source: [tile_collision_physics.asm](../../../extracted/system/engine/tile_colli
 
 Called from the actor-execution post-tick:
 
-- `ApplyMovement` — direct delta application, **no** collision (airborne/overlay
-  actors).
-- `ApplyMovementWithCollision` — full tile-collision pipeline (grounded actors).
+- `ApplyMovement` — direct delta application, **no** collision (actors whose
+  `$10` bit 3 is clear; bit 3 is neither "grounded" nor "airborne": it only selects
+  this path, and a player with it cleared walks through walls).
+- `ApplyMovementWithCollision` — full tile-collision pipeline, used by actors whose `$10` bit 3 (`$0008`) is set (every actor has it at spawn).
 
 Both read movement from an override chain pointer (`$2C`/`$2E` → linked movement
 sources) or per-actor scratch (`moveScratch1`/`moveScratch2` at `$7F002C`/
@@ -108,8 +109,8 @@ column, with `mapRowStrideL0` (`$0693`) controlling metatile page stride.
 
 | Address | Label | Role |
 |---------|-------|------|
-| `$03D1F5` | `ApplyMovement` | simple delta application — no collision (airborne/overlay actors) |
-| `$03D276` | `ApplyMovementWithCollision` | full tile-collision pipeline (grounded actors) |
+| `$03D1F5` | `ApplyMovement` | simple delta application — no collision (actors with `$10` bit 3 clear) |
+| `$03D276` | `ApplyMovementWithCollision` | full tile-collision pipeline (actors with `$10` bit 3 set) |
 | `$03D2B9` | `CollisionX_PostMove` | post-collision X: apply residual movement, clear scratch |
 | `$03D337` | `CollisionY_Setup` | Y-axis setup: direction check, bounce logic, `PEA` return, branch to `TileCollision_MoveUp`/`TileCollision_MoveDown` |
 | `$03D39C` | `TileCollision_MoveLeft` | scan tiles along left hitbox edge downward |
@@ -312,7 +313,7 @@ These multi-bit masks are used to quickly exclude actors from collision tests:
 | Mask | Used by | Bits set | Meaning |
 |------|---------|----------|---------|
 | `$76E0` | `CombatCollision_InnerLoop` (normal) | 14,13,12,10,9,7,6,5 | skip: dead, orb, COP, display, overlay, pause |
-| `$74E0` | `CombatCollision_InnerLoop` (friendly) | 14,13,12,10,7,6,5 | like `$76E0` but allows `$0200` (game-over actors still interact) |
+| `$74E0` | `CombatCollision_InnerLoop` (friendly) | 14,13,12,10,7,6,5 | like `$76E0` but allows `$0200` (actor `$10` bit 9, ignore enemy contact: such an actor, for example the player after a boss defeat or on death, still takes part in the friendly-only pass; it is not a game-over marker) |
 | `$36F0` | `PlayerAttackHitTest` | 13,12,10,9,7,6,5,4 | skip: friendly, dead, orb, COP, display |
 | `$D460` | `ProcessDodgeCallbacks` | 15,14,12,10,6 | skip: player, dead, COP, overlay, orb |
 | `$35C0` | `InteractionCollision_LoopBody` | 13,12,10,8,7,6 | skip: friendly, dead, orb, COP, display |

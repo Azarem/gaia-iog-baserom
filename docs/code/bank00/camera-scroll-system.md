@@ -36,7 +36,7 @@ The **default player camera** for field scenes is **`camera_scroll_controller`**
 | Smooth follow entry points | **Live** — spawned from `aw_spirit_follower`, `dm_follower_behavior`, `sg4D_knight_armor`, `pyDD_queen_spirit_attack`, `mu5F_flasher`, `sE8_dark_gaia`, `sEA_solid_arm`, plus `smooth_follow_child` tail calls |
 | `ScrollCamera*` actors | **Live** — scene table placements |
 | `ForcedWalk*` | **Live** — `StartForcedWalk` during extended warps |
-| `forcedScrollOverride` (`$06C8`) writers | **Live** writers in `ScrollCameraInit` / layer-1 actors; **no reader** found outside layer-1 block (per extracted comments) |
+| `forcedScrollOverride` (`$06C8`) writers | **Live** writers in `ScrollCameraInit` / layer-1 actors. It has a reader: `WriteBgScroll` reads it as the BG2 horizontal override (flag in bit 7 of `$06C9`) and stores `$06C8 AND $03FF` into the BG2 horizontal scroll; the override branch ran 3,320 times in the scenes that set it (`$4E`, `$58`, `$A0`, `$A1`) |
 | `CopySiblingFollowState` / `InitFollowAndChase` | **Not scene-placed** — **indirect** only via COP spawn from scripts |
 
 ---

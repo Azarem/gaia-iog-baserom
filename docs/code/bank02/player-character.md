@@ -310,14 +310,14 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C38C` | PlayerCharacterDef | Actor-def `#00`, `#08`, `#85`. Init: `TSB $10 #$0100` (vulnerable stance), `TSB $12 #$0001` (recovery-iframe route; its effect on the player is not shown), `STA playerActor`, `STA free101C,X`. If `gameOverWakeupFlag` → `DeathWakeupMessage`. Spawns attack (before), move + slope (after), shadow (`SpawnListAppend`, `$2800`). |
 | `$02C3C8` | PlayerIdleEntry | Main idle state. Clears joypad mask/flags. Clears `$2800` from `$player_flags`. If EW/NS speed non-zero → walking (`MovingEastWest` / `MovingNorthSouth`), else → directional idle dispatch via facing + joypad. |
 | `$02C447` | PlayerIdleDispatchTable | 28-entry table (7 per facing × 4 directions). Selected by combining facing (`$24`) with joypad/action button state. |
-| `$02C47F` | IdleStandSouth | South-facing idle. Shadow variant check → sprite `#00` or `#10`. |
-| `$02C48A` | IdleStandSouthFlagged | Shadow: `#10`. |
+| `$02C47F` | IdleStandSouth | South-facing idle. Event flag `#00` clear → sprite `#00`, set → `#10` (either character form). |
+| `$02C48A` | IdleStandSouthFlagged | Flag `#00` set: `#10`. |
 | `$02C48F` | IdleStandNorth | North: `#01` / `#11`. |
-| `$02C49A` | IdleStandNorthFlagged | Shadow: `#11`. |
+| `$02C49A` | IdleStandNorthFlagged | Flag `#00` set: `#11`. |
 | `$02C49F` | IdleStandWest | West: `#02` / `#12`. |
-| `$02C4AA` | IdleStandWestFlagged | Shadow: `#12`. |
+| `$02C4AA` | IdleStandWestFlagged | Flag `#00` set: `#12`. |
 | `$02C4AF` | IdleStandEast | East: `#03` / `#13`. |
-| `$02C4BA` | IdleStandEastFlagged | Shadow: `#13`. Shared idle animation loop. |
+| `$02C4BA` | IdleStandEastFlagged | Flag `#00` set: `#13`. Shared idle animation loop. |
 | `$02C4DD` | WalkSouth | Walking south, sprite `#08`. Auto-walk timer, L/R attack check. |
 | `$02C524` | WalkNorth | North, sprite `#09`. |
 | `$02C56C` | WalkWest | West, sprite `#0A`. |
@@ -340,9 +340,9 @@ Master actor definition and movement state machine (idle, walk, block, climb, la
 | `$02C80D` | LadderMoveDown | Move down: sprite `#2D`, force-move Y+29. |
 | `$02C831` | LadderMoveUp | Move up: sprite `#2C`, force-move Y−30. |
 | `$02C855` | LadderIdleSouth | Idle south: `#2B` / `#2F`. |
-| `$02C860` | LadderIdleSouthFlagged | Shadow: `#2F`. |
+| `$02C860` | LadderIdleSouthFlagged | Flag `#00` set: `#2F`. |
 | `$02C865` | LadderIdleNorth | Idle north: `#2A` / `#2E`. |
-| `$02C870` | LadderIdleNorthFlagged | Shadow: `#2E`. |
+| `$02C870` | LadderIdleNorthFlagged | Flag `#00` set: `#2E`. |
 | `$02C897` | LadderLandBottom | Landing at bottom. |
 | `$02C8AA` | LadderReachTop | Reaching top. |
 | `$02C8BD` | ShimmyRightEntry | Right shimmy. Sprite `#33`, force-move X `$51`. |
@@ -459,12 +459,12 @@ Main idle state. Clears joypad mask/flags. Clears `$2800` from `$player_flags`. 
 
 #### Standing Idle Animations
 
-Single-frame idle loops and Shadow palette variants — no separate routine sections; see summary table above.
+Single-frame idle loops and their flag-selected variants (event flag `#00` picks the alternate sprite family, not the character form) — no separate routine sections; see summary table above.
 
 | Group | Routines | Size range | Role |
 |-------|----------|------------|------|
-| Standing idle | `IdleStandSouth/North/West/East` + `*Shadow` | 5–16 B | Directional idle sprite (`#00`–`#03` / `#10`–`#13`) |
-| Ladder idle | `LadderIdleSouth/North` + `*Shadow` | 3–16 B | Ladder idle sprites (`#2A`–`#2F`) |
+| Standing idle | `IdleStandSouth/North/West/East` + `*Flagged` | 5–16 B | Directional idle sprite (`#00`–`#03` / `#10`–`#13`) |
+| Ladder idle | `LadderIdleSouth/North` + `*Flagged` | 3–16 B | Ladder idle sprites (`#2A`–`#2F`) |
 | Shimmy probes | `ShimmyRightUpCheck`, `ShimmyRightDownCheck`, `ShimmyLeftUpCheck`, `ShimmyLeftDownCheck` | 7 B each | Single-probe wall checks during shimmy |
 | Block entry | `BlockSouth/North/West`, `BlockFromWalk*` | 6–14 B | Joypad merge + blocking sprite redirect |
 | Walk helpers | `WalkAbortToIdle`, `WalkRestoreSaved`, `SetAutoWalkTimer`, `BlockStopToIdle` | 1–7 B | Stack/pointer restore and auto-walk timer |

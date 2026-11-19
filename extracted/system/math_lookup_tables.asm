@@ -17,7 +17,7 @@
 ; - $00–$1F: default slope acceleration curve — word $0001 at steps 0, 4, 8 and 12, otherwise $0000.
 ; - $20–$3F: default deceleration curve — word $0001 at steps 7 and 15, otherwise $0000.
 ; 
-; The remaining bytes have no reference by name in the extracted code: $42–$C0 is a stepped ramp ($01 ×8, $02 ×8, … up to $10 ×7) and $C1–$D0 counts $E0–$EF. Their consumer is unknown (logged as an open question).
+; The remaining bytes have no reference by name in the extracted code: $42–$C0 is a stepped ramp ($01 ×8, $02 ×8, … up to $10 ×7) and $C1–$D0 counts $E0–$EF. Nothing reads them: the pointers are stored once, in system_core's init code, and every reader (the four ApplySlopeCurve* routines, ReadDecelerationStep and ReadDecelerationStepNS) adds an offset of at most $1E to a pointer at the table start or at +$20, so no read goes past $3F.
 
 slope_curve_table [
   #01   ;00
