@@ -12,7 +12,7 @@
 ;   diary_menu_window_dma.DiaryBandTab3PlusQueue (fifth tab window band).
 ; Adds: diary_ngp_option, diary_ngp_confirm, diary_ngp_str; dma_data_extra table.
 ; Depends on: sFA_diary_menu, chunk_03BAE1, thinker_00BBAF include, LoadGameState_Scene.
-; State: $0D92/$0D96/$0D98 cursors; $0D98 tab index (5 entries when $20 set);
+; State: $0D92/$0D96/$0D98 cursors; $0D98 tab index (4 entries when $20 set);
 ;   $0DC6 per-slot NGP flag; clears $0A00-$0B28 ranges on NGP confirm.
 ; Hazards: DiaryScanSramSlots override is large; COP/C2 camera path; sets
 ;   playerFlags $2800 on init; NGP confirm calls ApplySoundAndRemap after load.
@@ -120,7 +120,7 @@ diary_ngp_confirm {
     COP [E0]
 }
 
-diary_ngp_str     `[DLG:6,A][SIZ:A,5]Start Journey[N]Erase Trip Diary[N]Copy Trip Diary[N]Change Options[N]New Game +`
+diary_ngp_str     `[DLG:6,A][SIZ:A,4]Start Journey[N]Erase Trip Diary[N]Copy Trip Diary[N]New Game +`
 
 --------------------------------------------------
 ?INCLUDE 'sFA_diary_menu'
@@ -146,6 +146,9 @@ sFA_diary_menu.DiaryMenuInit! {
     REP #$20
     LDA #$0000
     STA $7F0A00
+    LDA #$0003            ; Use Normal text speed until a journal is loaded.
+    TRB $0B3A
+    LDA #$0000
     STA $0B04
     LDA #$0001
     STA $00EE
@@ -198,7 +201,7 @@ sFA_diary_menu.DiaryTabCursorUp! {
     LDA $0D98
     DEC 
     BPL DiaryTabCursorUpStore
-    LDA #$0004
+    LDA #$0003
     BRA DiaryTabCursorUpStore
 }
 
@@ -206,7 +209,7 @@ diary_main_dec_normal {
     LDA $0D98
     DEC 
     BPL DiaryTabCursorUpStore
-    LDA #$0003
+    LDA #$0002
 }
 
 ------------------------------------------------
@@ -229,7 +232,7 @@ sFA_diary_menu.DiaryTabCursorDown! {
     BEQ diary_main_inc_normal
     LDA $0D98
     INC 
-    CMP #$0005
+    CMP #$0004
     BCC DiaryTabCursorDownStore
     LDA #$0000
     BRA DiaryTabCursorDownStore
@@ -238,7 +241,7 @@ sFA_diary_menu.DiaryTabCursorDown! {
 diary_main_inc_normal {
     LDA $0D98
     INC 
-    CMP #$0004
+    CMP #$0003
     BCC DiaryTabCursorDownStore
     LDA #$0000
 }
@@ -251,19 +254,27 @@ sFA_diary_menu.DiaryTabConfirm! {
     ORA $0658
     STA $0658
     LDA $0D98
-    ;AND #$0003
+    CMP #$0003
+    BCC diary_confirm_valid
+    BNE diary_confirm_invalid
+    LDA $20
+    BEQ diary_confirm_invalid
+    LDA #$0003
+  diary_confirm_valid:
     STA $0000
     LDA #$FFFF
     STA $0D98
     COP [D9] ( #$0000, &diary_tab_dispatch_table )
+  diary_confirm_invalid:
+    STZ $0D98
+    RTL
 }
 
 sFA_diary_menu.diary_tab_dispatch_table! [
   &DiaryStartJourney   ;00
   &DiaryEraseTab   ;01
   &DiaryCopyTab   ;02
-  &DiarySndBtnTab   ;03
-  &diary_ngp_option   ;04
+  &diary_ngp_option   ;03
 ]
 
 -----------------------------------------------

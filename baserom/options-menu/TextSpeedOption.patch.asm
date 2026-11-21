@@ -1,18 +1,21 @@
 ; ==============================================================================
 ; Text Speed option - dialogue per-character delay from options menu
 ; ==============================================================================
-; What it does: Four speed modes adjust WaitNFrames_PerChar delay; Run-Instant
-;   uses joypadCurrent bit 6 ($0040) for instant text while Run is held.
+; Cinematic (2): unpaced text waits one frame normally and
+;   zero frames while Run is held. Normal (0, new-game default) keeps unpaced text instant.
+;   Both preserve authored delays and apply Fast timing while Run is held.
+; Instant (1) skips all character delays. Legacy value 3 falls back to
+;   Normal, matching the options registry's out-of-range handling.
 ; Vanilla behavior: WaitNFrames_PerChar waited frames from script delay $007E only.
 ; Hooks (overrides): DialogStringRenderer.WaitNFrames_PerChar (calls TextSpeedAdjust
 ;   then falls through to loc_03E7C2 or skips wait at loc_03E7D4).
 ; Adds: TextSpeedAdjust (JSL from hook); OptionSettingPreset- record; strings.
 ; Depends on: options_menu_core registry.
-; State: Packed $0B3A bits 0-1; temp $0BE2; reads $007E, $0656 joypadCurrent.
+; State: Packed $0B3A bits 0-1; temp $0BE2; reads $007E, $065E joypadRemapped (held actions before page input is consumed).
 ; Hazards: TextSpeedAdjust preserves X/Y; hook uses SEP #$20 around JSL.
 ; ==============================================================================
 
-!joypadCurrent                  0656
+!joypadRemapped                 065E
 !text_speed_setting             0B3A
 !text_speed_delay               007E
 
@@ -23,18 +26,16 @@
 
 TextSpeedChoices [
   &text_speed_normal
-  &text_speed_fast
   &text_speed_instant
-  &text_speed_runinstant
+  &text_speed_cinematic
 ]
 
-text_speed_normal     |Normal|
-text_speed_fast       |Fast|
-text_speed_instant    |Instant|
-text_speed_runinstant |Run Instant|
+text_speed_cinematic |Cinematic|
+text_speed_normal    |Normal|
+text_speed_instant   |Instant|
 
 optstr_text_speed |[PAL:0]Text Speed[N] [PAL:14][TBL:@TextSpeedChoices,BE2][PAL:0]|
-optstr_text_speed_desc |[PAL:0][POS:96,5]Dialogue text speed.[DBL]Run Instant: instant[DBL]while Run is held.|
+optstr_text_speed_desc |[PAL:0][POS:96,5]Cinematic adds pace.[DBL]Hold Run for faster[DBL]paced text.|
 
 
 ---------------------------------------------
@@ -44,36 +45,36 @@ optstr_text_speed_desc |[PAL:0][POS:96,5]Dialogue text speed.[DBL]Run Instant: i
 ; Preserves X, Y.
 
 TextSpeedAdjust {
-    LDA $text_speed_delay
-    BEQ tsa_return          ; script already wants instant text
-    PHA
     LDA $text_speed_setting
     AND #$03
-    BEQ tsa_normal
-    CMP #$02
+    CMP #$01
     BEQ tsa_instant
-    BCS tsa_run
+    CMP #$02
+    BNE tsa_script
 
-    ; 1 = Fast
-    PLA
-    INC
+    LDA $text_speed_delay
+    BNE tsa_script
+    LDA $joypadRemapped
+    BIT #$40
+    BNE tsa_instant
+    LDA #$01                ; Unspecified Cinematic delay: one frame
+    RTL
+
+  tsa_script:
+    LDA $joypadRemapped
+    BIT #$40
+    BEQ tsa_normal
+    LDA $text_speed_delay
+    INC                     ; Preserve the original 8-bit Fast calculation
     LSR
     RTL
 
-  tsa_run:
-    LDA $joypadCurrent
-    AND #$40
-    BEQ tsa_normal
-
-  tsa_instant:
-    PLA
-    LDA #$00
+  tsa_normal:
+    LDA $text_speed_delay
     RTL
 
-  tsa_normal:
-    PLA
-
-  tsa_return:
+  tsa_instant:
+    LDA #$00
     RTL
 }
 
@@ -101,7 +102,7 @@ OptionSettingPreset- [
   #$0000                   ;+0A shift
   #$0003                   ;+0C mask
   #$0000                   ;+0E xor
-  #$0004                   ;+10 count
+  #$0003                   ;+10 count
   #$0000                   ;+12 load   (packed bits)
   #$0000                   ;+14 change
   #$0000                   ;+16 commit (packed bits)
