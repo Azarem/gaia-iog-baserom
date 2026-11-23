@@ -1,4 +1,4 @@
-﻿; ==============================================================================
+; ==============================================================================
 ; Inventory management extensions - give/remove items, counters, Auto-Jewels
 ; ==============================================================================
 ; What it does: Extends pickup and use so red jewels can auto-consume (options
@@ -121,15 +121,12 @@ InventoryCheckAndStore {
     BRA inv_remove_item
 
   inv_remove_herb:
+    JSL $@NormalizeHerbCapacity
+    LDA $herb_count
+    BEQ inv_remove_item
     DEC $herb_count
-    BMI inv_remove_herb_minus
     BEQ inv_remove_item
     RTS
-
-  inv_remove_herb_minus:
-    STZ $herb_count
-    BRA inv_remove_item
-  
   inv_remove_crystal:
     DEC $crystal_count
     BMI inv_remove_crystal_minus
@@ -290,12 +287,7 @@ inventory_mgmt.CheckInventory_SlotScan! {
 inventory_mgmt.RemoveItemFromInventory! {
     PHP
     SEP #$20
-    CMP $inventoryEquippedType
-    BEQ rifi_normal
-    LDY $inventoryEquippedIndex
-    BRA RemoveItem_Match
-
-  rifi_normal:
+    ; Scan for the requested ID before removing any slot.
     LDY #$0000
 }
 
@@ -311,59 +303,8 @@ inventory_mgmt.RemoveItem_Match! {
 ;Entry point for giving Jewels to Gem
 
 jeweler_gem.JewelerCountJewels! {
-    SEP #$20
-    LDA #$00
-    XBA
-    LDA $jewel_count
-    BEQ search_inventory
-    STZ $jewel_count
-    REP #$20
-    STA $26
-    SED
-    LDA $0AB0
-
-  search_add_top:
-    CLC
-    ADC #$0001
-    DEC $26
-    BEQ search_store_gems
-    BRA search_add_top
-  
-  search_store_gems:
-    STA $0AB0
-    CLD
-    SEP #$20
-
-  search_inventory:
-    LDA #$01
-    LDY #$000F
-
-  search_top_1:
-    CMP $inventory_slots, Y
-    BNE search_next_1
-    PHA
-    LDA #$00
-    STA $inventory_slots, Y		
-    PLA
-
-  search_next_1:
-    DEY
-    BPL search_top_1
-    ;LDY #$000F
-
-  ;search_top_2:
-    ;CMP $page_2, Y
-    ;BNE search_next_2
-    ;PHA
-    ;LDA #$00
-    ;STA $page_2, Y		
-    ;PLA 
-
-  ;search_next_2:
-  ;  DEY
-  ;  BPL search_top_2
-
-    REP #$20
+    ; RemoveItem credits the whole jewel stack and updates its equipped state.
+    JMP $&code_08CF97
 }
 
 jeweler_gem.loc_08CF74! {

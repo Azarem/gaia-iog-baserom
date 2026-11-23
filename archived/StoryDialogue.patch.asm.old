@@ -1,0 +1,794 @@
+; Gaia and Time story dialogue. Each override uses the original actor entry and exit.
+
+?INCLUDE 'av69_lance'
+av69_lance.dialogstring_06BB50! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: "Fallen Wing Clan.[N]Travelers may use this[N]room.ˮ[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: So that's what[N]the people here call[N]themselves.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Maybe they left the room[N]for travelers because they[N]prefer not to meet them.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Either way, let's rest[N]before exploring.[END]`
+
+?INCLUDE 'av69_signs'
+av69_signs.dialogstring_06BA36! `[CLD][DEF][SIZ:D,4]Travelers:[N]Please use this room[N]Fallen Wing Clan[END]`
+av69_signs.dialogstring_06BA6B! `[CLD][DEF][SIZ:D,4]Entrance to Fallen[N]Wing Village[END]`
+
+?INCLUDE 'av6A_erik'
+av6A_erik.dialogstring_06C52F! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: The sunlight is[N]so bright, it hurts my[N]eyes if I open them too[N]wide.[WAI][N]Even though it's always[N]been there, I never[N]noticed before.[END]`
+
+?INCLUDE 'av6A_kara'
+av6A_kara.dialogstring_06C417! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: They say Watermia[N]is built from houses[N]floating on rafts.[WAI][N]Doesn't that sound[N]romantic? I think it'll[N]be fun.[END]`
+
+?INCLUDE 'av6A_lance'
+av6A_lance.dialogstring_06BC5C! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@StoryTheme4]Lance: Will[AD] I got[N]somethin' I wanna talk[N]about.[FIN]It's hard to say, but I[N]think I've fallen for[N]Lilly[AD][FIN][DLG:3,4][SIZ:D,4]I even dream about her.[N]Before I knew it, I[N]couldn't stop watchin'[N]her.[FIN]Doesn't sound like me,[N]does it?[N][PAL:0] Yeah[AD][N] Not really`
+av6A_lance.dialogstring_06BD1A! `[CLR][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Yeah. I never[N]thought I'd hear you say[N]something like that.[FIN]`
+av6A_lance.dialogstring_06BD4A! `[CLR][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: You two have spent a[N]lot of time together.[FIN]Falling for her wouldn't[N]be that strange.[FIN][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Speakin' of that,[N]Lilly's fifteenth birthday[N]is comin' up.[FIN]I wanna tell her how I[N]feel with a present.[N]What should I give her?[FIN][PAL:0] A pretty bouquet[N] A wonderful necklace[N] A tender kiss[PAL:4]`
+
+?INCLUDE 'av6A_neil'
+av6A_neil.dialogstring_06C0D2! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: I've been wondering[AD][N]Could the Fallen Wings be[N]descendants of the people[N]who escaped Mu?[END]`
+av6A_neil.dialogstring_06C10D! `[BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Ready to go?[N][PAL:0] Yes[N] Wait a bit[PAL:4]`
+
+?INCLUDE 'av6B_musician'
+av6B_musician.dialogstring_06D0C6! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]Woman playing the harp:[N]Music is medicine for the[N]spirit.[WAI][N]A beautiful song can ease[N]pain that no ordinary[N]medicine can reach.[END]`
+
+?INCLUDE 'av6B_ocean_ache'
+av6B_ocean_ache.dialogstring_06C714! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]No one remembers when our[N]people first began living[N]here.[WAI][N]Yet when we look at the[N]ocean, something in our[N]chests still aches.[END]`
+
+?INCLUDE 'av6B_villagers1'
+av6B_villagers1.dialogstring_06C799! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]This is Fallen Wing[N]Village.[WAI][N]Our bodies are weak.[N]Too much sunlight would[N]kill us.[END]`
+av6B_villagers1.dialogstring_06C7EF! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]This is Fallen Wing[N]Village.[WAI][N]Our bodies are weak.[N]Too much sunlight would[N]kill us.[END]`
+av6B_villagers1.dialogstring_06C845! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]This is Fallen Wing[N]Village.[WAI][N]Our bodies are weak.[N]Too much sunlight would[N]kill us.[END]`
+av6B_villagers1.dialogstring_06C9BF! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]This is Fallen Wing[N]Village.[WAI][N]Our bodies are weak.[N]Too much sunlight would[N]kill us.[END]`
+av6B_villagers1.dialogstring_06C8F7! `[CLR]Ishtar's studio is beyond[N]this door.[FIN][DLG:3,11][SIZ:D,4]But creatures filled with[N]nothing but hatred roam[N]the passage ahead.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme1D]If you still intend to go,[N]you may open the door.[END]`
+
+?INCLUDE 'av6B_villagers2'
+av6B_villagers2.dialogstring_06CB5E! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]A human girl came through[N]here not long ago.[WAI][N]Her name was Kara, or[N]something like that.[WAI][N]Ishtar praised her beauty,[N]and she followed him to[N]his studio.[END]`
+
+?INCLUDE 'av6B_villagers3'
+av6B_villagers3.dialogstring_06CC22! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]I'll tell you how to reach[N]the studio. Remember this.[WAI][N]First, follow the wind.[WAI][N]Watch which way the torch[N]flames bend.[WAI][N]Where the wind is[N]strongest in the dark[N]passage, you'll hear a[N]waterfall.[WAI][N]Search where the sound is[N]loudest.[WAI][N]Ishtar's studio lies[N]beyond there. Be careful.[END]`
+
+?INCLUDE 'av6C_only_sleeping'
+av6C_only_sleeping.dialogstring_06D063! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](They don't react at all[AD][N]It's as if their souls[N]were taken away.)[END]`
+
+?INCLUDE 'av6C_villagers4'
+av6C_villagers4.dialogstring_06CA71! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]The picture on that wall[N]was painted by an artist[N]named Ishtar.[WAI][N]But somehow, his models[N]often disappear[N]afterward[AD][END]`
+
+?INCLUDE 'av6C_villagers5'
+av6C_villagers5.dialogstring_06CDD4! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]We have little emotion,[N]yet Ishtar paints our[N]faces as if they overflow[N]with human warmth.[WAI][N]Perhaps that is why[N]so many people ask him[N]to paint them,[WAI][N]even[N]though his models often[N]disappear.[END]`
+av6C_villagers5.dialogstring_06CE56! `[BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]My former dance partner[N]seems to have vanished[AD][WAI][N]So now I practice alone.[END]`
+
+?INCLUDE 'av74_ishtar'
+av74_ishtar.dialogstring_06CEF2! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Ishtar: You came for the[N]girl, didn't you? Kara,[N]was it?[WAI][N]Then pass through the[N]rooms ahead.[WAI][N]Solve each mystery, and I[N]will show you how to[N]restore her.[END]`
+av74_ishtar.dialogstring_06CF5E! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Ishtar: I have been[N]waiting for you.[WAI][N]Sprinkle this Magic Powder[N]over the girl's portrait,[N]then give her a heartfelt[N]kiss.[WAI][N]If your feelings are true,[N]something should happen.[WAI][N]As for me, my work is[N]finished.[WAI][N]I painted my own portrait.[WAI][N]Look at it. It will never[N]grow old. It will never[N]become sick.[WAI][N]It will never lose its[N]beauty to time.[WAI][N]A portrait never changes.[N]That is its perfection.[WAI][N]Soon I will become part of[N]mine as well.[WAI][N]That girl[AD] take care of[N]her.[END]`
+
+?INCLUDE 'av75_apprentice'
+av75_apprentice.dialogstring_06DC97! `[CLD][BOR:B][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1D]Ishtar's apprentice: You[N]may pass once you solve[N]the puzzle in the room[N]before you.[END]`
+
+?INCLUDE 'av75_voice_doors'
+av75_voice_doors.dialogstring_06D83E! `[DEF]Ishtar's voice echoes.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Patience. Open the doors[N]in order, beginning with[N]the one on the left.[END]`
+av75_voice_doors.dialogstring_06D87B! `[DEF]Ishtar's voice echoes.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]That door has already been[N]opened. There's no need to[N]open it again.[END]`
+
+?INCLUDE 'av75_voice_rooms'
+av75_voice_rooms.dialogstring_06DA14! `[DEF]Ishtar's voice echoes.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Study this room carefully.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]When you believe you have[N]memorized every detail,[N]leave it behind.[END]`
+av75_voice_rooms.dialogstring_06DA6B! `[DEF]Ishtar's voice echoes.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Find what differs from the[N]room you saw before.[END]`
+
+?INCLUDE 'dc2F_adrift'
+dc2F_adrift.dialogstring_059E6F! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I can't help[N]worrying.[WAI][N][DLG:3,4][SIZ:D,4]Still[AD] if we don't think[N]too much about what comes[N]next, maybe we can enjoy[N]being adrift a little.[WAI][N]I'm starving already.[N]Let's have the meat we[N]took from the castle's[N]basement for lunch.[END]`
+dc2F_adrift.dialogstring_059F5A! `[DEF]Time passed slowly, with[N]nothing to break the[N]monotony.[FIN][CLD][DEF]Kara watched the fish for[N]hours. Will paced the[N]raft, trying to talk to[N]her.[FIN][CLD][DEF]Each minute seemed to[N]stretch into an hour.[FIN][CLD][DEF]There was nothing either[N]of them could do but let[N]time pass.[END]`
+dc2F_adrift.dialogstring_05A03C! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Somehow, I have a[N]hunch rescue might be[N]coming[AD][WAI][N]Oh[AD]?[END]`
+dc2F_adrift.dialogstring_05A291! `[PAU:1E][DEF]A full week had passed[N]adrift when another[N]school of fish appeared.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](I'm almost out of[N]strength.)[WAI][N](If I don't eat now, I[N]might die.)[END]`
+dc2F_adrift.dialogstring_05A5E3! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: It's already been[N]nearly three weeks, huh?[WAI][N][DLG:3,4][SIZ:D,4]Speaking of it, Will,[N]hasn't your hair grown a[N]little?[WAI][N]Still no mustache, though.[N]*Laughs*[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: And you don't look[N]much like a princess[N]anymore.[WAI][N]Someone could tell me you[N]grew up on an island and[N]I'd believe them.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: You're awwwfulll![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]W-what is that in the[N]water[AD]?[END]`
+dc2F_adrift.dialogstring_05A723! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: They're just[N]circling round and round[N]the raft; they're not[N]coming to attack[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Let's watch them[N]for a bit.[END]`
+dc2F_adrift.dialogstring_05A091! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: So much for my[N]feeling that rescue was[N]coming[AD][WAI][N]They're asking us to save[N]them, but we need saving[N]too.[WAI][N]I'm starving[AD]![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Which is why we[N]should've eaten some fish[N]when we had the chance.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Next time[AD][FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: You can't kill those[N]poor fish![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: So we're supposed[N]to starve instead?![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I can't eat raw[N]fish! It's disgusting![WAI][N]And they're trying to live[N]just as hard as we are.[WAI][N]If you want one, eat it.[N]I'm not going to![END]`
+dc2F_adrift.dialogstring_05A232! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: [AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](Good grief. What a[N]stubborn princess[AD])[FIN][CLD][DEF]For the rest of the day,[N]Kara barely spoke to Will.[END]`
+dc2F_adrift.dialogstring_05A332! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: [AD][WAI][N]Will[AD] I'm sorry about[N]what I said before.[WAI][N]I'll try eating one too.[N]If I die, I can't help[N]anyone, can I?[WAI][N]I guess I could[N]afford to be picky when I[N]always had plenty to eat.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Alright. I'll catch[N]one for you.[N]The tastiest one.[END]`
+dc2F_adrift.dialogstring_05A405! `[DEF]Kara ate the fish.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](She's really forcing[N]herself...)[WAI][N][DLG:3,4][SIZ:D,4](I guess I don't need to[N]make her feel worse by[N]telling her I'm worried[N]about her...)[WAI][N][DLG:3,4][SIZ:D,4](Why was I so hesitant[N]to tell her that? Is it[N]because it's true?)[END]`
+dc2F_adrift.dialogstring_05A770! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: My butler used to[N]tell me that animals hunt[N]because they need to eat[AD][WAI][N]But people sometimes hurt[N]things even when they[N]don't need to.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Then I guess we[N]haven't been acting much[N]like that.[WAI][N]We didn't eat any fish[N]until we had no other[N]choice.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Maybe so. Look,[N]they're leaving.[N]Farewell, dear sharks[AD][END]`
+dc2F_adrift.dialogstring_05A853! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I want to tell you[N]something about myself.[WAI][N]At the castle, I used to[N]love watching the sunset.[WAI][N]It was always so beautiful[N]from the high windows. [PAU:18]But[N]now I've come to hate it.[WAI][N]When the sun disappears,[N]the dark feels endless.[WAI][N]I start wondering whether[N]I'll ever see morning[N]again.[WAI][N]But with you here, I keep[N]seeing another dawn.[WAI][N]Even something this hard[N]can feel a little less[N]frightening beside you.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](I feel the same way...)[WAI][N][DLG:3,4][SIZ:D,4](Why can't I just tell[N]her?)[FIN][CLD][DEF]Will could only nod.[END]`
+dc2F_adrift.dialogstring_05A9F9! `[DEF]Suddenly, Will's knees[N]give out. He collapses[N]unconscious[AD][FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Will[AD]! Will[AD]![N]What's wrong?![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Hold on! Don't leave me[N]alone!![END]`
+dc2F_adrift.dialogstring_05A467! `[CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: The stars are[N]beautiful, huh[AD][WAI][N][DLG:3,11][SIZ:D,4]It seems like I could[N]touch them with my hands[N]if I was a little taller.[WAI][N][DLG:3,11][SIZ:D,4]I think Lilly, Lance and[N]the rest must also be[N]looking at this same[N]starry sky.[WAI][N][DLG:3,11][SIZ:D,4]If we could talk to the[N]stars, then we would[N]definitely know where[N]everyone is[AD][WAI][N][DLG:3,11][SIZ:D,4]Kara: Oh, that's right.[WAI][N][DLG:3,11][SIZ:D,4]I noticed recently that[N]there's one more star[N]around the constellation[N]of Cygnus, the swan.[WAI][N][DLG:3,11][SIZ:D,4]See, that red star over[N]there.[WAI][N][DLG:3,11][SIZ:D,4]Hey. Won't you make a wish[N]on that star? I feel like[N]it will definitely come[N]true.[WAI][N][DLG:3,11][SIZ:D,4]Will, you close your eyes[N]tight and make a wish too,[N]okay?[END]`
+
+?INCLUDE 'dc30_kara'
+dc30_kara.dialogstring_05AADD! `[CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: He said this dog's[N]name is Turbo. He's[N]pretty clever, huh?[WAI][N]Alright, let's go. We'll[N]find Lilly, Lance, and[N]Erik.[FIN][CLD][DEF]The two head toward the[N]Capital of Flowers,[N]Freejia.[END]`
+
+?INCLUDE 'dc31_kara'
+dc31_kara.dialogstring_05AE00! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: Huh[AD] Kara[AD]?[N]Where are we?[FIN][CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: In the home of the[N]man who saved us.[WAI][N]Good grief, Will. You kept[N]throwing off the blankets[N]no matter how many times I[N]put them back.[END]`
+dc31_kara.dialogstring_05AF2F! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Anyway, let's head[N]for that city called[N]Freejia.[WAI][N]I'm going to thank the[N]dog first.[WAI][N]Come talk to me when[N]you're ready to leave.[END]`
+
+?INCLUDE 'dc31_rescuer'
+dc31_rescuer.dialogstring_05AEA3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]Man: This is the southern[N]outskirts of Oakland.[WAI][N][DLG:3,11][SIZ:D,4]If you head north for[N]about half a day, you'll[N]reach Freejia, the Capital[N]of Flowers.[WAI][N]If you're looking for the[N]friends you were separated[N]from, a big city is your[N]best chance.[END]`
+
+?INCLUDE 'dm3E_intro'
+dm3E_intro.dialogstring_05F9DE! `[DEF]An eerie silence hangs[N]over the mine.[FIN][CLD][DEF]From somewhere deep inside[N]come the slaves' cries.[FIN][CLD][DEF]The sound sends a chill[N]through Will[AD][END]`
+dm3E_intro.dialogstring_05FA59! `[DEF]A mysterious garden floats[N]in the sky above Nazca.[FIN][DEF]Far below, Neil and the[N]others look no bigger than[N]grains of rice.[END]`
+
+?INCLUDE 'dm3F_elevator_door'
+dm3F_elevator_door.dialogstring_05D676! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: It's a gate,[N]with a keyhole... Finally,[N]a straightforward puzzle.[END]`
+
+?INCLUDE 'dm3F_laborer'
+dm3F_laborer.dialogstring_0AA7B4! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]Slave: T-thank you!! I'll[N]never forget what you've[N]done.[WAI][N]Please take this key.[FIN]`
+dm3F_laborer.dialogstring_0AA811! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]There are more slaves[N]being forced to work deep[N]in the diamond mine.[WAI][N]Please use this key and[N]save them.[FIN]`
+dm3F_laborer.dialogstring_0AA874! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]Thank you for saving me.[N]Let me repay you with a[N]useful secret.[WAI][N]This mine has hidden rooms[N]whose entrances look just[N]like ordinary walls.[WAI][N]But air slips through the[N]cracks.[WAI][N]With hair like yours,[N]you'll notice a draft when[N]it starts blowing it[N]around.[END]`
+dm3F_laborer.dialogstring_0AA97D! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]There are eight slaves[N]working in this mine,[N]including me.[WAI][N]Please save the others.[END]`
+
+?INCLUDE 'dm44_cell_door'
+dm44_cell_door.dialogstring_05D593! `[DEF][SIZ:D,4]Two keyholes are set into[N]the gate.[END]`
+dm44_cell_door.dialogstring_05D5AC! `[DEF][SIZ:D,4]The door won't open until[N]both locks are released[AD][END]`
+dm44_cell_door.dialogstring_05D5D1! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](I have both keys[AD][N]Put them in?)[N] Yes[N] No`
+
+?INCLUDE 'dm47_imas'
+dm47_imas.dialogstring_05D0C9! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]Imas: Please! Cut this[N]chain[AD]![END]`
+dm47_imas.dialogstring_05D0E3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]Imas: Thank you.[WAI][N]Something terrible is[N]happening in our village.[WAI][N]Animals are dying without[N]explanation. People fall[N]ill with unknown diseases.[WAI][N]Some have even turned to[N]stone[AD][END]`
+
+?INCLUDE 'dm47_remus'
+dm47_remus.dialogstring_05D193! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]Remus: Please! Cut this[N]chain[AD]![END]`
+dm47_remus.dialogstring_05D1AE! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]Remus: Thank you. Our[N]village is far across the[N]ocean.[WAI][N]If you ever reach it,[N]please help our people.[END]`
+
+?INCLUDE 'dm47_sam'
+dm47_sam.dialogstring_05D2C0! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]Sam: Please! Cut this[N]chain[AD]![END]`
+dm47_sam.dialogstring_05D2DA! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]Sam: Thank you.[WAI][N]Erik told me one of your[N]friends has lost his[N]memory.[WAI][N]Our people have passed[N]down a melody said to[N]awaken memories buried[N]in the heart.[WAI][N]Please listen.[FIN][CLD][DEF]Sam hums a mysterious[N]melody.[END]`
+
+?INCLUDE 'ec0A_barrel_roast'
+ec0A_barrel_roast.dialogstring_04D114! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: If I remember[N]right, they store food in[N]these barrels.[END]`
+ec0A_barrel_roast.dialogstring_04D141! `[DEF][SFX:0][DLY:9]Got bone-in smoked meat![PAU:FF][FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Good. We're ready.[N]Let's go before the[N]soldiers find us![END]`
+
+?INCLUDE 'ec0A_door_guard'
+ec0A_door_guard.dialogstring_04C5D9! `[BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme19]Soldier: It's Will, right?[WAI][N]We've been waiting for[N]you. Alright, go to King[N]Edward.[END]`
+
+?INCLUDE 'ec0A_kara'
+ec0A_kara.dialogstring_04CFDB! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](No. If I'm going to take[N]Kara away, now's the[N]time[AD])[END]`
+ec0A_kara.dialogstring_04CE4A! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: You came for me[N]after all! Thank you![WAI][N]That guard outside is[N]asleep, right?[WAI][N]That's "Snot Bubble.ˮ[N]Now you know why I called[N]him that.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Your piglet came for[N]me[AD][FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: His name is Hamlet.[N]Cute, isn't he?[WAI][N]He's very clever. He even[N]has a little mysterious[N]power of his own[AD][WAI][N]Alright. Get me out of[N]here![END]`
+ec0A_kara.dialogstring_04D012! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Oh, right![N]If we're going on a long[N]journey, we'll need food.[WAI][N]Let's check the basement.[END]`
+ec0A_kara.dialogstring_04D069! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Alright. We're[N]really leaving, huh?[WAI][N]First, let's go to your[N]house. You must be worried[N]about your grandparents.[FIN][CLD][DEF]Will and Kara hurry to[N]Will's house.[END]`
+
+?INCLUDE 'ec0A_kara_guard'
+ec0A_kara_guard.dialogstring_04CA0D! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]Soldier: This is Her[N]Majesty the princess'[N]room, so strangers cannot[N]pass.[END]`
+ec0A_kara_guard.dialogstring_04CA41! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]Soldier: It's a somewhat[N]dirtied commoner boy.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: It's me, Kara![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Ah[AD][N]That voice is[AD][WAI][N]Please let him pass. Or[N]else I'll expose your old[N]nickname.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]Soldier: Eek[AD]![N]F-forgive me for that![N]Please, go ahead.[END]`
+ec0A_kara_guard.dialogstring_04CAE1! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]I guess I'm beaten[AD][N]*Grumble*[AD][END]`
+ec0A_kara_guard.dialogstring_04CB20! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]Soldier: Your Majesty,[N]it's about time[AD][END]`
+
+?INCLUDE 'ec0A_left_guard'
+ec0A_left_guard.dialogstring_04C067! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]This is King Edward's[N]castle. If you're having[N]an audience with the king,[N]ascend to the upper floor.[END]`
+ec0A_left_guard.dialogstring_04C0AF! `[CLD][BOR:7][DLG:3,4][SIZ:D,1][PRT:@StoryTheme19]Ah[AD] You[AD]![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]You escaped from that[N]prison![WAI][N]Take my advice: get out of[N]the castle while you can.[WAI][N]If King Edward finds you[N]here, you're in real[N]trouble.[END]`
+
+?INCLUDE 'ec0A_shy_guard'
+ec0A_shy_guard.dialogstring_04C8CA! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme7]I[AD] I[AD][N]the thing with you is[AD][END]`
+
+?INCLUDE 'ec0A_stair_guard'
+ec0A_stair_guard.dialogstring_04C379! `[BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme19]Ahead of here is the[N]audience room. If you're[N]meeting with the king, you[N]may ascend these stairs.[END]`
+
+?INCLUDE 'ec0A_stair_maid'
+ec0A_stair_maid.dialogstring_04C85A! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]You're taking Miss Kara[N]with you, aren't you?[WAI][N]I hope the king doesn't[N]find you[AD][WAI][N]Please take care of the[N]princess.[END]`
+
+?INCLUDE 'ec0A_throne_guards'
+ec0A_throne_guards.dialogstring_04C66F! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme19]Soldier: If you're here[N]for an audience, don't[N]loiter. Address the[N]king instead.[END]`
+
+?INCLUDE 'ec0E_lily'
+ec0E_lily.dialogstring_09AA1B! `[BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Hurry, come this way[AD]![N]You won't be hurt by the[N]demons[AD]![END]`
+
+?INCLUDE 'ec11_flower'
+ec11_flower.dialogstring_09BC51! `[BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme18]Blooming Flower:[N]Please play your flute[AD][N]Please play that melody[AD][END]`
+
+?INCLUDE 'eu91_intro'
+eu91_intro.dialogstring_07C011! `[DEF]This is the mansion where[N]Neil's parents live.[FIN][CLD][DEF]Neil leads the others to[N]a guest room.[END]`
+eu91_intro.dialogstring_07BEDA! `[DEF][SFX:10][DLY:1]After crossing a desert[N]howling with sandstorms,[N]Will and the others[N]finally reached Euro.[PAU:60][CLR]It was the largest city[N]Will had ever seen.[PAU:7C][CLR]Merchants and workers[N]hurried through every[N]street.[PAU:7C][CLR]Neil's parents ran the[N]Reuleck Corporation from[N]here.[PAU:60][CLR]When their son returned[N]after three years, they[N]welcomed the group like[N]royalty:[PAU:60][CLR]fireworks, dancers, music[AD][N]For a moment, the whole[N]city felt like a festival.[PAU:60][CLD]`
+
+?INCLUDE 'eu91_men1'
+eu91_men1.dialogstring_07C480! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]This is Euro. Most of the[N]people here are merchants.[END]`
+eu91_men1.dialogstring_07C509! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]This town flourishes[N]thanks to the Reuleck[N]Corporation.[WAI][N]There are plenty of bad[N]rumors about them too, but[N]I still think the company[N]is amazing.[END]`
+eu91_men1.dialogstring_07C56C! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]This is the shrine.[WAI][N]The Reuleck presidents are[N]deeply devout, so they[N]visit often.[END]`
+eu91_men1.dialogstring_07C63F! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]I went to Mount Kehres[N]with my brother when I was[N]little.[WAI][N]We wandered deep into the[N]grounds and got lost.[WAI][N]I remember giant mushrooms[N]and plant stalks growing[N]like a maze.[WAI][N]Pour mushroom droplets on[N]the tip of a stalk and it[N]will spring to life,[N]forming a path.[WAI][N]Funny how clearly I still[N]remember it.[END]`
+eu91_men1.dialogstring_07C6FE! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]If I remember right, you[N]can find mushroom droplets[N]all over Mount Kehres[AD][WAI][N]Ah, listen to me ramble.[END]`
+
+?INCLUDE 'eu91_men2'
+eu91_men2.dialogstring_07C9DB! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]Neil's parents, who run[N]the Reuleck Corporation,[N]live here.[END]`
+eu91_men2.dialogstring_07C9FF! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]Reuleck changed this town[N]almost beyond recognition.[WAI][N]Euro became a world center[N]of trade as the company[N]grew.[WAI][N]Growth that fast always[N]casts a shadow somewhere.[END]`
+eu91_men2.dialogstring_07C970! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]A man named Jackal,[N]or something like that,[N]showed up a few days ago.[WAI][N]He went around asking all[N]kinds of questions.[WAI][N]One look at his eyes and[N]I knew he was dangerous.[N]Maybe an assassin.[WAI][N]No idea who he's after,[N]though.[END]`
+
+?INCLUDE 'eu91_merchant_counter'
+eu91_merchant_counter.dialogstring_07C1DC! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]This is a Tearpot--a pot[N]made to hold tears.[WAI][N]Long ago, this town was[N]caught up in a war.[WAI][N]They say women collected[N]their tears in these pots[N]while waiting for their[N]husbands to come home.[END]`
+eu91_merchant_counter.dialogstring_07C160! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]This is wine. You're a bit[N]young for that, aren't[N]you?[END]`
+
+?INCLUDE 'eu91_shop_queue'
+eu91_shop_queue.dialogstring_07D4A9! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]They're selling something[N]called the Medicine of[N]Life.[WAI][N]I don't know if it works.[N]Still[AD] who doesn't wish[N]for a little more time?[END]`
+
+?INCLUDE 'eu91_women1'
+eu91_women1.dialogstring_07C7BA! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]The famous writer Rofski[N]and violinist Elazquez[N]live in this house.[WAI][N]They're always arguing.[N]Geniuses can be hard to[N]please, huh?[END]`
+eu91_women1.dialogstring_07C860! `[CLR]So you do want your future[N]told?[FIN]Some prophecies speak of[N]a huge comet passing close[N]to Earth and countless[N]people dying.[FIN]Maybe that's why I'd[N]rather not know my future.[N]I'd spend the whole time[N]eating from nerves![END]`
+eu91_women1.dialogstring_07C8D5! `[CLR]Maybe that's for the best.[N]Me, I'll believe almost[N]anything[AD][END]`
+
+?INCLUDE 'eu91_women2'
+eu91_women2.dialogstring_07CAB0! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]Euro is full of narrow[N]back alleys.[WAI][N]You can even squeeze[N]through gaps between the[N]houses.[END]`
+eu91_women2.dialogstring_07CB09! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]See all that baggage piled[N]beside the company?[WAI][N]Sometimes, while they're[N]moving it, you can hear[N]groaning from inside.[WAI][N]I've got a bad feeling[N]about it[AD][END]`
+eu91_women2.dialogstring_07CAE0! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1E]I saw[AD] A lot of people[N]imprisoned in the basement[N]of the shrine[AD][END]`
+
+?INCLUDE 'eu92_erasquez'
+eu92_erasquez.dialogstring_07D7C7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Elazquez: You there[AD][N]I sense a strange power[N]around you.[WAI][N]Though I am blind, I've[N]learned to notice what[N]my eyes once hid.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: We're looking for[N]something called the[N]Tearpot.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Elazquez: The Tearpot[AD]?[WAI][N]Rofski and I were just[N]arguing over whether it[N]was more than a legend.[FIN][CLD][DEF]Rofski marks Mount Kehres[N]on Will's map.[END]`
+
+?INCLUDE 'eu92_rofsky'
+eu92_rofsky.dialogstring_07D61E! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Rofski: We were arguing[N]about the Tearpot kept at[N]the sanctuary on Mount[N]Kehres.[WAI][N]Old legends claim it holds[N]tears once shed by the[N]spirits.[WAI][N]They say those tears will[N]reveal truth when humanity[N]needs it most.[END]`
+
+?INCLUDE 'eu94_employee'
+eu94_employee.dialogstring_07CF75! `[DEF][SFX:0]Two men are discussing[N]business[AD][FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]Man: I hear Reuleck trades[N]in almost anything.[FIN][CLD][BOR:3][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Company man: Tea, fruit,[N]animal hides[AD] you name it.[WAI][N]Off the books, labor too.[N]Men, women, children.[WAI][N]If someone has a price,[N]someone will pay it.[END]`
+eu94_employee.dialogstring_07CF1F! `[CLD][BOR:3][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Company worker: U-umm[AD][N]What's with this kid[AD]?[WAI][N]The adults are discussing[N]business. Go play outside[N]or something![END]`
+
+?INCLUDE 'eu95_neil'
+eu95_neil.dialogstring_07E3B5! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: I spent three years[N]trying to build a life[N]that was mine.[WAI][N]But Reuleck is mine too,[N]whether I like it or not.[N]The question is what I do[N]with it.[END]`
+
+?INCLUDE 'eu95_neils_mother'
+eu95_neils_mother.dialogstring_07E31B! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]Neil's mother: We've[N]already made more money[N]than we could ever spend.[WAI][N]We'd like to enjoy the[N]rest of our lives now.[WAI][N]Neil, won't you come home[N]and take over the company?[END]`
+
+?INCLUDE 'eu96_kara'
+eu96_kara.dialogstring_07DA00! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: It's an amaaazing[N]house, isn't it[AD]?[WAI][N]I suppose some merchants[N]are richer than kings[N]these days[AD][END]`
+
+?INCLUDE 'eu96_neil'
+eu96_neil.dialogstring_07DBE9! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Make yourselves[N]at home.[WAI][N]I'm going to talk to my[N]parents for a while.[WAI][N]It has been three years,[N]after all.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@StoryTheme16]A few minutes later,[N]a familiar voice comes[N]from Will's flute.[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@StoryTheme23]Flute: Will[AD] Something[N]in this city is hidden[N]behind familiar faces.[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@StoryTheme23]I cannot see it clearly[N]from where I am.[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@StoryTheme23]Long ago, I heard of a[N]vessel kept at the[N]sanctuary on Mount Kehres.[N]It is called the Tearpot.[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@StoryTheme23]They say its waters reveal[N]what ordinary sight[N]cannot.[FIN][CLD][BOR:4][DLG:3,15][SIZ:D,2][PRT:@StoryTheme23]Find it. Then look again.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@StoryTheme16]The voice fades from the[N]flute.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@StoryTheme3]Erik: Will! You weren't[N]lying![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]I mean, I didn't think you[N]were a liar.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]I just thought maybe you'd[N]gone a little crazy.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@StoryTheme3]You do talk to yourself[N]a lot.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,1][PRT:@StoryTheme1]Kara: Erik![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1][AD]Will, that really was[N]your father?[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Yeah. That's the[N]voice I've been hearing.[END]`
+
+?INCLUDE 'eu97_clerk2'
+eu97_clerk2.dialogstring_07CC88! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]Employee: You came to Euro[N]with Master Neil, didn't[N]you?[WAI][N]The Reuleck Corporation[N]owns this store too.[WAI][N]Please, take anything you[N]like. It's our pleasure.[END]`
+
+?INCLUDE 'eu97_dark_medicine'
+eu97_dark_medicine.dialogstring_07CE54! `[DEF]The scent stings Will's[N]nose[AD][FIN][DEF]But Freedan's Power of[N]Darkness grows stronger.[FIN][DEF]Dark Flare grows stronger![END]`
+eu97_dark_medicine.dialogstring_07CEB6! `[CLR]Dark Flare is already as[N]strong as it can become[AD][END]`
+
+?INCLUDE 'eu97_life_medicine'
+eu97_life_medicine.dialogstring_07CD64! `[DEF]The taste burns Will's[N]mouth[AD][FIN][DEF]But his endurance rises!![END]`
+
+?INCLUDE 'eu9A_max'
+eu9A_max.dialogstring_07E6AD! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]Max: I'm excited to join[N]another expedition[AD][WAI][N]But I'm worried because[N]our leader is so[N]temperamental. Ugh[AD][END]`
+
+?INCLUDE 'eu9A_rudy'
+eu9A_rudy.dialogstring_07E72A! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1E]Rudy: The truth is, there[N]are still so many[N]unanswered questions about[N]the ruins.[WAI][N]That's why we've set our[N]hearts on going out on a[N]great journey.[END]`
+
+?INCLUDE 'eu9D_slaves'
+eu9D_slaves.dialogstring_07D0DC! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]Strange diseases have been[N]spreading through our[N]homeland.[WAI][N]One illness even turns the[N]body to stone.[WAI][N]I fled hoping to survive[AD][N]only to end up sold as a[N]slave here.[END]`
+
+?INCLUDE 'fr32_alley_guard'
+fr32_alley_guard.dialogstring_05B7E6! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]You brat[AD]! How did you get[N]in here?! Alright, go[N]home, go home[AD]!![END]`
+
+?INCLUDE 'fr32_doomsday'
+fr32_doomsday.dialogstring_05BE6B! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]"They say a great terror[N]will come from the sky,[N]and humanity will perish.ˮ[WAI][N]I don't know where that[N]prophecy started, but[N]I won't waste my life[N]fearing some story. *Hic*[END]`
+
+?INCLUDE 'fr32_fragrance'
+fr32_fragrance.dialogstring_05BA1D! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Flowers have become the[N]symbol of Freejia.[WAI][N]The whole town smells[N]wonderful, doesn't it?[END]`
+
+?INCLUDE 'fr32_guide'
+fr32_guide.dialogstring_05B225! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Man: Well now, a pair of[N]young travelers.[WAI][N]Have you found a place to[N]stay tonight?[FIN][CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: Not yet. We're also[N]looking for our friends.[FIN][CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Man: Then use my inn as[N]your base while you search[N]the city.[FIN][CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: Really? Thank you![N]I was starting to worry.[END]`
+fr32_guide.dialogstring_05B2DC! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]We haven't had many[N]travelers lately.[N]Business is terrible.[END]`
+
+?INCLUDE 'fr32_honest_life'
+fr32_honest_life.dialogstring_05BE24! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Whee[AD] *Hic*[AD] Live[N]seriously, or spend your[N]days drinking and[N]laughing[AD][WAI][N]Either way, you only get[N]one life, right?[END]`
+
+?INCLUDE 'fr32_hotel_hint'
+fr32_hotel_hint.dialogstring_05B688! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Girl: A boy who works at[N]the inn tried to help.[WAI][N]It sounds like a slave[N]merchant caught him.[END]`
+
+?INCLUDE 'fr32_kara'
+fr32_kara.dialogstring_05B100! `[CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: Wow, it's so[N]pretty[AD]![WAI][N]It really deserves to be[N]called the Capital of[N]Flowers.[WAI][N]I bet people who live[N]somewhere this beautiful[N]have beautiful hearts too[AD][END]`
+fr32_kara.dialogstring_05B14B! `[CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: You're fine with[N]this too, right, Will?[N]Come on, let's go![END]`
+fr32_kara.dialogstring_05B16F! `[CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: That's what the[N]innkeeper said.[N]Come on, let's go in![END]`
+
+?INCLUDE 'fr32_showman'
+fr32_showman.dialogstring_05BDBE! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]I'm a fire performer, and[N]I'm the best at what I do.[N]Come on, take a look[AD]![END]`
+
+?INCLUDE 'fr32_slap'
+fr32_slap.dialogstring_05B59B! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]That dive gave me[N]goosebumps![WAI][N]Here, take this as a[N]reward for the show.[FIN]`
+fr32_slap.dialogstring_05B60C! `[BOR:2][SEP:11,673F][SEP:12,24FF][PAL:4][DLG:8,9][SIZ:4,1]Thwack!![FIN][CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]You brat[AD]! Pull a[N]dangerous stunt like that[N]again and I'll make you[N]regret it[AD]!![END]`
+
+?INCLUDE 'fr32_slaver1'
+fr32_slaver1.dialogstring_05B840! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Damn it, where did he run[N]off to[AD][END]`
+
+?INCLUDE 'fr32_slaver2'
+fr32_slaver2.dialogstring_05B8F1! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Is that so.[N]If you see him, tell me.[END]`
+
+?INCLUDE 'fr33_erik'
+fr33_erik.dialogstring_05CDBC! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme3]Erik: That bully jumped[N]out the window the moment[N]you broke down the door.[WAI][N]I had no idea you were[N]that strong, Will![WAI][N]They caught me trying to[N]free some slaves. One of[N]them is a boy named Sam.[WAI][N]He's the same age as me![WAI][N]They're being forced to[N]work in a diamond mine in[N]the southeast.[WAI][N]Sam said it was dangerous,[N]and that almost every[N]week someone doesn't[N]make it out.[WAI][N]Please, Will, save them![FIN][CLD][DEF]Will learns the location[N]of the mine![END]`
+
+?INCLUDE 'fr38_boyfriend'
+fr38_boyfriend.dialogstring_05BB1C! `[CLD][BOR:A][DLG:3,4][SIZ:D,4][PRT:@StoryTheme20]M-my girlfriend was just[N]helping me get something[N]out of my eye[AD][N]Hahahahahahahaha.[END]`
+
+?INCLUDE 'fr38_girlfriend'
+fr38_girlfriend.dialogstring_05BAC2! `[CLD][BOR:A][DLG:3,4][SIZ:D,4][PRT:@StoryTheme20]I was just helping my[N]boyfriend get something[N]out of his eye.[N]Hohohohohohohoho.[END]`
+
+?INCLUDE 'fr39_erik'
+fr39_erik.dialogstring_05CB93! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: We're all together[N]again, but I can't even[N]cry from happiness.[WAI][N]I guess I've run out of[N]tears[AD][END]`
+fr39_erik.dialogstring_05CBF7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: I heard there's a[N]weird inventor living in[N]the forest nearby.[WAI][N]His name is Neil.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@StoryTheme0]Will: Neil?![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]My cousin Neil went[N]missing.[WAI][N]He's an inventor too. He[N]even built a machine[N]called an aeroplane, meant[N]to fly like a bird.[FIN][CLD][DEF]The party heads into the[N]forest to meet the[N]inventor.[END]`
+
+?INCLUDE 'fr39_kara'
+fr39_kara.dialogstring_05C571! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: We finally find[N]everyone, and now this[AD][END]`
+fr39_kara.dialogstring_05C597! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I'm crying[AD] I don't[N]know why.[END]`
+
+?INCLUDE 'fr39_lance'
+fr39_lance.dialogstring_05C7FA! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: They tell me I[N]don't remember who I am.[WAI][N]If I don't even know that,[N]how am I supposed to know[N]why I'm here?[END]`
+fr39_lance.dialogstring_05CA69! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: It's weird[N]thinkin' back to when I[N]couldn't remember things.[WAI][N]Good to know who ya all[N]are again![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Lance! You've got[N]your memory back[AD]![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Geez! You know, we[N]were worried about you!![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: I had no idea what[N]was going to happen[AD][END]`
+fr39_lance.dialogstring_05CAEC! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Guess I worried[N]everyone.[WAI][N]If any of ya ever end[N]up like that, I'll be[N]the one looking after[N]ya next time.[END]`
+
+?INCLUDE 'fr39_lily'
+fr39_lily.dialogstring_05C70B! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: And that's not all.[N]I haven't seen any sign of[N]Erik since yesterday[N]evening.[WAI][N]I don't know what happened[N]to him[AD][END]`
+fr39_lily.dialogstring_05C74D! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: You go through so[N]much on a journey[AD][END]`
+
+?INCLUDE 'fr3A_sympathetic'
+fr3A_sympathetic.dialogstring_05C32F! `[CLD][BOR:A][DLG:3,4][SIZ:D,4][PRT:@StoryTheme20]I'm begging you! Please[N]overlook this[AD]!![WAI][N]Do whatever you want to[N]me, but leave this person[N]out of it[AD][END]`
+
+?INCLUDE 'fr3B_tornado'
+fr3B_tornado.dialogstring_05BC00! `[CLD][BOR:A][DLG:3,4][SIZ:D,4][PRT:@StoryTheme20]Don't worry. I may look[N]like this, but I haven't[N]been robbed.[WAI][N]What? You don't think I'd[N]choose to dress this badly[N]on purpose?[END]`
+
+?INCLUDE 'fr3C_imas'
+fr3C_imas.dialogstring_05BF04! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]I'm Imas. I was brought[N]here by ship from a far[N]continent.[WAI][N]My people are hunters. We[N]take only what we need to[N]survive.[WAI][N]But lately animals have[N]been dying from a disease[N]no one understands[AD][END]`
+
+?INCLUDE 'fr3C_man1'
+fr3C_man1.dialogstring_05C23F! `[CLD][BOR:A][DLG:3,4][SIZ:D,4][PRT:@StoryTheme20]Sometimes I look at them[N]and think, "What if that[N]were me?ˮ[WAI][N]Then I get scared and tell[N]myself I have enough[N]problems of my own.[WAI][N]Maybe that's cowardly,[N]but it's the truth.[END]`
+
+?INCLUDE 'fr3C_man2'
+fr3C_man2.dialogstring_05C2BE! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]These slaves are about the[N]same age as you.[WAI][N]Don't forget what you're[N]seeing.[WAI][N]Kids your age are living[N]like this too.[END]`
+
+?INCLUDE 'fr3C_remus'
+fr3C_remus.dialogstring_05BFDE! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]I'm Remus. When the[N]animals disappeared, so[N]did our food.[WAI][N]With no other way to[N]survive, we sold ourselves[N]into slavery.[WAI][N]We don't know who will buy[N]us, or where we'll be[N]taken.[END]`
+fr3C_remus.dialogstring_05C059! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@StoryTheme20]Why do people divide each[N]other into masters and[N]slaves[AD]?[END]`
+
+?INCLUDE 'fr3C_sam'
+fr3C_sam.dialogstring_05C094! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme5]I'm Sam.[WAI][N]A boy named Erik, who[N]works at the inn, tried to[N]save us last night.[WAI][N]But the slave merchants[N]found him and took him[N]away[AD][WAI][N]He's probably locked in[N]the house at the end of[N]the side street.[WAI][N]Please, save him somehow.[END]`
+
+?INCLUDE 'fr3C_slaver'
+fr3C_slaver.dialogstring_05C190! `[BOR:A][DLG:3,4][SIZ:D,4][PRT:@StoryTheme20]Hey, boy! This isn't a[N]place for children. Go[N]home![WAI][N]Unless[AD] you came to buy a[N]slave too?[WAI][N][PAL:0] Yes [N] No[PAL:4]`
+
+?INCLUDE 'gs2B_bones'
+gs2B_bones.dialogstring_058BD7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](An Incan was standing[N]here just a moment ago[AD])[END]`
+
+?INCLUDE 'gs2C_crew1'
+gs2C_crew1.dialogstring_058260! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Your Majesty[AD]! You're[N]safe! Now we can finally[N]set sail on the open sea.[END]`
+
+?INCLUDE 'gs2C_crew2'
+gs2C_crew2.dialogstring_0582CC! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]This calls for a[N]celebration[AD]![WAI][N][DLG:3,11][SIZ:D,4]We waited so long, and[N]now you've returned![END]`
+
+?INCLUDE 'gs2C_crew3'
+gs2C_crew3.dialogstring_05834D! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Her Majesty the Queen is[N]in the cabin. Please hurry[N]and let her see that[N]you're safe.[END]`
+
+?INCLUDE 'gs2C_crow_crew'
+gs2C_crow_crew.dialogstring_0584FB! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Lookout: We lived in[N]darkness for so long.[WAI][N]To us, the sunlight on[N]this ocean feels like a[N]blessing from the spirits.[WAI][N][DLG:3,11][SIZ:D,4]With beauty like this in[N]the world, why do people[N]still choose to destroy[N]one another's homes?[END]`
+
+?INCLUDE 'gs2C_descent'
+gs2C_descent.dialogstring_0581FF! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: Is this the Incan[N]Gold Ship?![WAI][N]Oh[AD]? There are people[N]here[AD][END]`
+
+?INCLUDE 'gs2D_kara'
+gs2D_kara.dialogstring_058C21! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: They died waiting[N]for a king who could never[N]return[AD][WAI][N]I hate thinking that[N]people who lived in[N]peace[WAI][N]could have their[N]whole lives broken apart[N]like this.[END]`
+
+?INCLUDE 'gs2D_lily'
+gs2D_lily.dialogstring_058E4A! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: That ring must be[N]one of the treasures that[N]sailed with this ship.[WAI][N]It still stands out among[N]all this gold.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: So many people died[N]chasing treasures like[N]this, didn't they?[WAI][N][AD]It's beautiful.[WAI][N]I know I probably[N]shouldn't, but I want it.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: From a mummy?![N]What if it's cursed?[END]`
+gs2D_lily.dialogstring_058F53! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: That might be one[N]of the great sea beasts[N]around here[AD]![WAI][N]There are huge, ferocious[N]fish in these waters that[N]look like monsters[AD]!![END]`
+
+?INCLUDE 'gs2D_mummy'
+gs2D_mummy.dialogstring_058B4F! `[DEF][SIZ:D,4]The Queen's mummy rests[N]quietly.[N]A gold ring remains on her[N]long, slender finger[AD][END]`
+
+?INCLUDE 'gs2E_crew0'
+gs2E_crew0.dialogstring_0587A4! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Beyond this cavern of[N]darkness, a dazzling light[N]waits for us.[WAI][N][DLG:3,11][SIZ:D,4]Our priests taught[N]that within that light[N]lay freedom from age[N]and death.[WAI][N]We left our old land to[N]seek that eternal freedom[N]across the sea.[END]`
+
+?INCLUDE 'gs2E_crew1'
+gs2E_crew1.dialogstring_05883E! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Her Majesty still wears[N]the ring you gave her.[WAI][N]The one you sent after[N]the invaders separated[N]you both.[WAI][N]The Queen has prayed,[N]every night, for your[N]safe return.[END]`
+
+?INCLUDE 'gs2E_crew2'
+gs2E_crew2.dialogstring_058940! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Ah, Your Majesty. The[N]Mystic Statue is inside[N]this box.[WAI][N]It seems we'll be[N]departing soon.[WAI][N][DLG:3,4][SIZ:D,4]Would you like to climb[N]the lookout tower?[WAI][N]You can watch as we set[N]off.[END]`
+
+?INCLUDE 'gs2E_crew3'
+gs2E_crew3.dialogstring_0589DB! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Why did we have to flee?[N]The Incan Empire was our[N]home[AD][END]`
+
+?INCLUDE 'gs2E_sleep'
+gs2E_sleep.dialogstring_05870A! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]Ah, Your Majesty. Taking a[N]look around the ship?[WAI][N]You must be tired after[N]your journey.[WAI][N]When you're finished[N]exploring, please rest[N]here for a while.[END]`
+gs2E_sleep.dialogstring_058759! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1B][PAL:0]I'm sorry this bed is so[N]humble, Your Majesty.[WAI][N]Please rest as long as you[N]need.[END]`
+
+?INCLUDE 'gw82_necklace_stone'
+gw82_necklace_stone.dialogstring_07B611! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](A pretty pebble lies on[N]the ground.)[FIN][CLD][DEF][SIZ:D,4]A polished stone lies on[N]the ground.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13]Will: (Lance must have[N]dropped this along the[N]way[AD])[FIN][CLD][DEF]Will picks up the[N]stone.[END]`
+
+?INCLUDE 'gw82_trail_intro'
+gw82_trail_intro.dialogstring_07B550! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: This is the Great[N]Wall?[WAI][N]Wow. It stretches so far[N]that I can't see where it[N]ends.[END]`
+
+?INCLUDE 'gw8A_sand_fanger'
+gw8A_sand_fanger.dialogstring_0B80B5! `[DEF]Something gleams among the[N]remains of Sand Fanger.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@StoryTheme16]The legend was true.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@StoryTheme16]Will finds a Mystic[N]Statue![END]`
+
+?INCLUDE 'gw8B_lance_lily'
+gw8B_lance_lily.dialogstring_07B824! `[CLD][BOR:6][DLG:3,4][SIZ:D,2][PRT:@StoryTheme2]Lilly: Lance, you idiot[AD][N]You had me worried[AD]!![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,2][PRT:@StoryTheme2]What if the demons had[N]killed you[AD]!![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme4]Lance: Sorry fer worryin'[N]everyone.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme4]I came here lookin' fer[N]tha Mystic Statue[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme4][AD]but I didn't find it.[N]Will did.[FIN][CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@StoryTheme4]The Mystic Statue from[N]the Great Wall legend.[FIN][CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@StoryTheme2]Lilly: You went there[N]alone[AD][FIN][CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@StoryTheme2]because of what happened[N]between us?[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@StoryTheme4]Lance: [AD]Yeah.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,1][PRT:@StoryTheme2]Lilly: Lance[AD][FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]It wasn't because of[N]Will. You just caught me[N]by surprise. I didn't[N]know what I felt.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@StoryTheme4]Lance: Oh.[FIN][CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@StoryTheme2]Lilly: Don't look so[N]relieved![FIN][CLD][BOR:6][DLG:3,15][SIZ:D,2][PRT:@StoryTheme2]I'm still mad at you![END]`
+gw8B_lance_lily.dialogstring_07B9B1! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: It's missin' a few[N]stones now, but[AD] will ya[N]take it anyway?[FIN][CLD][DEF][SFX:0][DLY:2]Lance gently fastens the[N]necklace around Lilly's[N]neck.[END]`
+gw8B_lance_lily.dialogstring_07BA2E! `[CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme4]Lance: Yahoo!![DLY:1][N]I've never felt like this![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme4][DLY:1]I'm happier than the first[N]day of summer vacation![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,2][PRT:@StoryTheme2][DLY:1]Lilly: *sniffle*[N]Me too.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,2][PRT:@StoryTheme2][DLY:1]Come on. Everyone's[N]probably worried about us.[END]`
+gw8B_lance_lily.dialogstring_07BBB0! `[BOR:3][DLG:3,4][SIZ:D,1][PRT:@StoryTheme4]Lance: Ah[AD][WAI][CLD][PAU:40][BOR:6][DLG:3,4][SIZ:D,2][PRT:@StoryTheme2][DLY:2]Lilly: I'm not running[N]away this time.[FIN][DLG:3,4][SIZ:D,4]Before, you caught me[N]by surprise. I didn't[N]know what I felt or[N]what to say.[FIN]Right now I still don't[N]want you looking at[N]my face.[FIN]But that's because I'm so[N]happy I'm crying.[END]`
+gw8B_lance_lily.dialogstring_07BC42! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2][DLY:2]Lilly: Lance[AD] From the[N]first time we met, there[N]was something about you I[N]couldn't explain.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@StoryTheme2][DLY:2]Now I think I understand[N]what it was.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@StoryTheme2][DLY:2]And I know the answer I[N]wanted to give you before.[END]`
+
+?INCLUDE 'ir1C_kara'
+ir1C_kara.dialogstring_09CF59! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Any luck? Did you[N]find what you're looking[N]for? Don't give up![END]`
+
+?INCLUDE 'ir1C_lily'
+ir1C_lily.dialogstring_09CAE5! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: This is the[N]entrance to the Incan[N]ruins.[WAI][N]The Inca once ruled a vast[N]land. Their oldest mystery[N]is supposed to be hidden[N]here.[WAI][N]The Elder told me that[N]when invaders came, the[N]Inca prepared to abandon[N]their homeland.[WAI][N]They built a giant ship[N]covered in their finest[N]goldwork and planned to[N]seek a new land.[WAI][N]But no surviving record[N]describes that ship ever[N]leaving.[WAI][N]The legend says it still[N]waits somewhere beneath[N]these ruins.[WAI][N]The Elder doesn't usually[N]involve outsiders in[N]things like this.[WAI][N]He must trust you, Will.[END]`
+ir1C_lily.dialogstring_09CCD0! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Why are YOU in a[N]place like this[AD]!?[N]Isn't it dangerous!?[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I heard about this[N]place from Mrs. Lola and[N]waited for hours![WAI][N]I thought you'd already[N]gone inside without me.[WAI][N]At least she told me where[N]you were going.[WAI][N]Will, you're searching for[N]something in there, right?[WAI][N]If you're risking[N]yourself, I'm not going to[N]sit in the village eating[N]supper.[WAI][N]I'll wait here until you[N]come back.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Good grief. Fine.[N]I'll wait with you.[END]`
+ir1C_lily.dialogstring_09CE01! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Will, remember the[N]Elder's words.[WAI][N]"At the Cliff of Larai,[N]beneath the ruins,[WAI][N]offer the Incan idols[N]where the breath of the[N]spirits cannot reach.[WAI][N]The valley wind shall[N]guide you to the golden[N]ship.ˮ[WAI][N]You remember that, right?[END]`
+
+?INCLUDE 'ir1D_bones'
+ir1D_bones.dialogstring_09C285! `[DEF][SIZ:D,4]A note lies on the ground[N]near the body. It reads:[FIN][CLD][BOR:3][BOR:1][DLG:3,D][SIZ:D,6][SFX:0][PRT:@StoryTheme16]"If I could only move[N]those gold statues, I[N]could go farther[AD]ˮ[END]`
+
+?INCLUDE 'ir1D_monologue'
+ir1D_monologue.dialogstring_09D04C! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](At the Incan Cliffs of[N]Larai, a terrible wind[N]rages around me.)[WAI][N](Could this be the "breath[N]of the spiritsˮ the Elder[N]spoke of?)[WAI][N](Then somewhere on this[N]cliff must be a place the[N]wind cannot reach.)[WAI][N](My heart starts[N]to pound.)[END]`
+
+?INCLUDE 'ir26_bones'
+ir26_bones.dialogstring_09C7AE! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](An explorer who came in[N]search of the Incan gold[N]ship[AD]?)[FIN][CLD][DEF][SIZ:D,4]An amulet rests in the[N]skeleton's hand.[N]Inside is a scrap of paper[N]wrapped in cloth.[N]It reads:[FIN][CLD][BOR:1][DLG:3,D][SIZ:D,6][SFX:0]Dad, please come home.[N]                      Nana[N]If you find the gold ship,[N]buy me a Kruk.[N]                    Savvas[END]`
+
+?INCLUDE 'ir26_journal_bones'
+ir26_journal_bones.dialogstring_09C90D! `[DEF][SIZ:D,4]A notebook is clutched in[N]one hand. Its pages read:[FIN][CLD][BOR:1][DLG:3,D][SIZ:D,6][SFX:0]       Notes on the Inca[N]The Inca left no written[N]language. Their legends[N]were preserved in sound.[FIN]I discovered that the[N]valley wind itself plays a[N]melody, and decoded its[N]meaning:[FIN]"Recite it in the chamber[N]tiled in gold[AD]ˮ[N]If that melody were played[N]there, perhaps[AD][END]`
+
+?INCLUDE 'ir28_bones'
+ir28_bones.dialogstring_09C8B3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](Could this be an explorer[N]seeking the Incan gold[N]ship[AD]?)[WAI][N](So he lost his life to[N]the ceiling trap[AD])[END]`
+
+?INCLUDE 'it15_bill'
+it15_bill.dialogstring_04EFAE! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Bill: Go on. The Elder[N]knows more than anyone[N]around here.[END]`
+it15_bill.dialogstring_04EFDF! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Bill: Was the Elder doing[N]well?[WAI][N]By the way, while you were[N]fighting beneath Edward[N]Castle, did you gather any[N]shining silver spheres?[WAI][N]They seem to hold a[N]strange power.[WAI][N]Echoes and rebirth; your[N]father saw it too[AD][WAI][N]Didn't come from my side![END]`
+
+?INCLUDE 'it15_elder'
+it15_elder.dialogstring_04E9FF! `[DEF]Will hears a feeble voice[N]behind him[AD][FIN][CLD][BOR:3][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Mysterious voice: It was[N]good that you came, Will[AD][END]`
+it15_elder.dialogstring_04EA45! `[CLD][BOR:3][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Elder: Here. I'm among[N]the flowers.[WAI][N]I've prolonged my life[N]far beyond its proper[N]span.[WAI][N]Do not mistake a life[N]without end for a life[N]without burden.[END]`
+it15_elder.dialogstring_04EA77! `[CLD][BOR:3][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Elder: Without the flower[N]fairies' protection, this[N]old body would fail.[WAI][N]Looking at you, I can see[N]both of your parents.[WAI][N]It feels like yesterday[N]that your father came to[N]this village.[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: Dad came here[AD]?[FIN][CLD][BOR:3][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Elder: Your mother, Shira,[N]was Bill and Lola's[N]daughter.[WAI][N]She was the most gifted[N]person our clan had seen[N]in generations.[WAI][N]It was Shira who raised[N]the barrier that hides[N]Itory from the world.[WAI][N]Yet your father walked[N]through it as though it[N]were not there.[WAI][N]He fell in love with her,[N]and she chose to leave[N]with him.[WAI][N]Your father carried[N]a strange power of[N]his own. Even I never[N]understood it.[FIN]`
+it15_elder.dialogstring_04EC76! `[CLR]Elder: What? You weren't[N]summoned by him?[FIN]Then perhaps we've[N]misunderstood the signs[AD][END]`
+it15_elder.dialogstring_04ECAB! `[CLR]Elder: I understand[AD][N]Then Lola's hunch was[N]right after all.[FIN]`
+it15_elder.dialogstring_04ECEC! `[CLR]Elder: What? You're not[N]nearly as bold as your[N]father was.[END]`
+it15_elder.dialogstring_04ED19! `[CLD][BOR:3][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Elder: Very well. I will[N]entrust you with the Incan[N]idol kept by our village.[WAI][N]Two idols open the path to[N]the Inca's oldest secret.[WAI][N]They have been guarded[N]for centuries.[WAI][N]One rests in the cave[N]below. Use your wits, and[N]you may claim it.[END]`
+it15_elder.dialogstring_04EF23! `[CLR]Elder: It is said that[N]one more idol is held by[N]the Moon Tribe.[WAI][N]Lilly will show you the[N]way there. Be careful.[END]`
+
+?INCLUDE 'it15_fable_man'
+it15_fable_man.dialogstring_04DEC9! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme18]They say that when the old[N]world was falling into[N]ruin, a messenger[N]appeared.[END]`
+
+?INCLUDE 'it15_fable_woman'
+it15_fable_woman.dialogstring_04DF22! `[BOR:6][SEP:1,4F70][SEP:2,7FFF][SEP:3,1C85][SEP:13,1C85][SEP:11,7FFB][SEP:12,762F][SFX:10][PAL:4][DLG:3,D][SIZ:D,4]Back then, disease,[N]famine, and mysterious[N]disappearances were[N]spreading through towns[WAI][N]around the world[AD][N]I hope this planet knows[N]peace forever.[END]`
+
+?INCLUDE 'it15_kara'
+it15_kara.dialogstring_04E124! `[CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: They do hurt![FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Try wearing[N]sensible shoes.[WAI][N]Let me show you both my[N]house.[END]`
+
+?INCLUDE 'it15_lily'
+it15_lily.dialogstring_04E3D5! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: This is my village.[N]Surprised there aren't[N]any houses?[WAI][N]Will, play the melody[N]that called me to you in[N]Edward Castle's basement.[END]`
+it15_lily.dialogstring_04E46F! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Surprised?[WAI][N]Normally people can't see[N]Itory because a barrier[N]hides the village.[WAI][N]Anyway, the little lady[N]had a rough trip, huh?[WAI][N]I thought I'd go crazy[N]hearing "my feet hurtˮ[N]and "I'm thirstyˮ all the[N]way up the mountain.[END]`
+it15_lily.dialogstring_04E53C! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Well then, follow[N]me if you'd like.[WAI][N]Will, this house is mine.[N]If you want to look around[N]the village first, that's[N]fine too.[END]`
+
+?INCLUDE 'it15_lola'
+it15_lola.dialogstring_04F11E! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme3]Lola: Will! Will![N]This way![FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Bill: So you were safe;[N]good, good[AD][FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme3]Lola: We saw some very[N]frightening things![WAI][N]Jackal came with a whole[N]troop of soldiers[AD][FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Bill: We were almost[N]killed![END]`
+it15_lola.dialogstring_04F210! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme3]Lola: Oh, that's right.[N]Lilly, thank you for[N]helping us.[WAI][N]Come inside with Princess[N]Kara.[END]`
+it15_lola.dialogstring_04F249! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme3]Lola: Why do I still feel[N]so uneasy?[END]`
+it15_lola.dialogstring_04F277! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme3]Lola: There's an old[N]legend in this village.[WAI][N]When the great comet[N]returns, the ancient[N]powers will stir.[WAI][N]Where light and darkness[N]once divided the world,[N]an old choice will rise[N]again.[WAI][N]Those words have been[N]passed down through the[N]Itory clan for ages.[END]`
+
+?INCLUDE 'it16_song_woman'
+it16_song_woman.dialogstring_04DF96! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme18]The Incans who once lived[N]on this land had no[N]written language.[WAI][N]Their legends were passed[N]down in song.[WAI][N]Even the simplest melody[N]may carry a meaning its[N]listener has forgotten.[END]`
+
+?INCLUDE 'it17_kara'
+it17_kara.dialogstring_04E223! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I'm going too![N]I want to see the Moon[N]Tribe for myself.[WAI][N]I want to experience the[N]world with my own eyes[N]and ears.[WAI][N]I didn't escape the castle[N]just to sit somewhere[N]safe.[END]`
+
+?INCLUDE 'it17_lily'
+it17_lily.dialogstring_04E62C! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: The Elder is in[N]the flower field.[WAI][N]I don't know how old he[N]is, but he's very wise.[WAI][N]Want to go see him?[END]`
+it17_lily.dialogstring_04E6E6! `[BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Huh? The Moon[N]Tribe?[WAI][N]Yeah, I know them. They[N]look more like shadows[N]than people.[WAI][N]They dwell on the summit[N]of a tall, tall mountain[N]nearby, but[AD][FIN][AD]do you want to try[N]going there?[N][PAL:0] Yeah, I want to go[N] Actually, never mind[PAL:4]`
+it17_lily.dialogstring_04E78B! `[CLR]Lilly: Maybe that's for[N]the best.[WAI][N]They say people who anger[N]them don't come back.[END]`
+it17_lily.dialogstring_04E7C9! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: You can't[AD]![N]It's too dangerous for a[N]little lady like you.[WAI][N]If you don't want to[N]worry Will, wait here[N]like a good girl.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Hmph[AD] Why[AD][N]I'm the only one being[N]left out.[WAI][N]I'll talk to Mrs. Lola,[N]so it's okay![N]It's fiiiine[AD]!![END]`
+it17_lily.dialogstring_04E869! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](Oh no. She's pouting[AD])[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: A little waiting[N]won't hurt Her Highness.[WAI][N]Alright. The mountain[N]road is rough, but[N]we'll manage.[FIN][CLD][DEF]Will and Lilly head for[N]the summit where the Moon[N]Tribe lives.[END]`
+
+?INCLUDE 'it18_warning_man'
+it18_warning_man.dialogstring_04DDC7! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme18]Many people come to this[N]land searching for Incan[N]gold.[WAI][N]But those who enter the[N]Incan ruins often never[N]return[AD][END]`
+
+?INCLUDE 'it18_warning_woman'
+it18_warning_woman.dialogstring_04DE81! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme18]Those ruins are the grave[N]of an ancient people.[N]Shouldn't we leave them[N]in peace[AD]?[END]`
+
+?INCLUDE 'it1A_lily'
+it1A_lily.dialogstring_04F53C! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Alright, we're[N]here. This is where the[N]Moon Tribe lives.[END]`
+it1A_lily.dialogstring_04F7C1! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Wait a second.[N]We're already here.[WAI][N]Let's at least find the[N]Incan idol before we turn[N]back.[END]`
+it1A_lily.dialogstring_04F7F7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](I can't go back without[N]the Incan Statue[AD])[END]`
+it1A_lily.dialogstring_04F860! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Let's talk to the Moon[N]Tribe before we go poking[N]around.[END]`
+it1A_lily.dialogstring_04F591! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: How did it go?[WAI][N][AD]That face says it didn't[N]go well, huh?[WAI][N]Don't give up. Try again.[END]`
+it1A_lily.dialogstring_04F653! `[CLR]Lilly: That's a lie. I[N]know you, Will. Whatever[N]you say now, you're going[N]eventually, aren't you?[FIN]`
+it1A_lily.dialogstring_04F5EA! `[BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Ah, that's it[AD]![N]Will, you really[N]found one![WAI][N]That makes two statues,[N]right?[FIN][DLG:3,4][SIZ:D,4]Do you plan to go to the[N]Incan ruins?[N][PAL:0] Yes[N] No[PAL:4]`
+it1A_lily.dialogstring_04F68F! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Yeah. Dad told me[N]to go there.[WAI][N]I'm scared of what the[N]comet's light has done to[N]the monsters.[WAI][N]But if Dad is alive, I[N]have to keep going until I[N]find him.[WAI][N]And after everything we've[N]heard, I need to know[N]what's really happening.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: I understand.[N]Then let's go to the[N]ruins.[FIN][CLD][DEF]The two head for the[N]Incan ruins.[END]`
+
+?INCLUDE 'it1A_moon_tribe'
+it1A_moon_tribe.dialogstring_09D2D0! `[CLR]Mysterious voice:[N]Bzzzzzzzzzt[AD] Wrong[AD][WAI][N]The truth is, we are the[N]Moon Tribe. Also known as[N]the Shadows.[END]`
+it1A_moon_tribe.dialogstring_09D30F! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: Wherever[N]there is light, a shadow[N]follows.[WAI][N]Long ago, the comet's[N]light washed over us[N]completely.[WAI][N]Our bodies changed until[N]we became these shadows,[N]untouched by age.[WAI][N]We gained an eternity[N]beyond ordinary life.[WAI][N]Do not assume eternity[N]and mercy are the same.[END]`
+it1A_moon_tribe.dialogstring_09D388! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: To us, the[N]comet is a destroyer.[WAI][N]Its light changes every[N]living thing it touches.[WAI][N]Our oldest tales call it[N]the remnant of a terrible[N]war from the distant past.[WAI][N]But not every culture[N]feared that light.[WAI][N]Some called the same light[N]holy. Some called it[N]salvation.[WAI][N]We remember what it did[N]to us.[END]`
+it1A_moon_tribe.dialogstring_09D462! `[BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: One of our[N]kind was taken away.[WAI][N]We wonder where they were[N]taken[AD][WAI][N]Perhaps you'll cross paths[N]with them before we do.[N]Mweheheheheh[AD]`
+it1A_moon_tribe.dialogstring_09D4AD! `[CLR][PAL:4]Moon Tribe: We may come[N]chase you later.[N]Mweheheheheheheh[AD][END]`
+it1A_moon_tribe.dialogstring_09D4DC! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: This is the[N]comet's fourth approach in[N]800-year cycles.[WAI][N]Each return stirs the[N]Power of Darkness more[N]strongly in answer.[WAI][N]What will be born from the[N]light this time[AD]?[END]`
+it1A_moon_tribe.dialogstring_09D574! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: We have[N]lived beyond the measure[N]of time.[WAI][N]With these eyes, we[N]watched the Incan kingdom[N]rise and fall.[WAI][N]The Incan idol rests in[N]the cave beneath us.[WAI][N]We have taken a liking to[N]you.[WAI][N]So we'll give you a chance[N]to claim the Incan idol.[WAI][N]If you can earn it.[N]Mweheheheheh[AD][END]`
+
+?INCLUDE 'it1B_trial'
+it1B_trial.dialogstring_04F941! `[BOR:8][SEP:1,7FFF][SEP:2,7A94][SEP:3,2108][SEP:13,2108][SEP:11,7FFF][SEP:12,7A94][SFX:10][PAL:4][DLG:3,4][SIZ:D,4]Moon Tribe: The creatures[N]here were changed by the[N]comet's light.[WAI][N]Some lost their old forms.[N]Some lost even memory and[N]reason, leaving only rage.[WAI][N]Defeat them within 20[N]seconds and the Incan idol[N]is yours.[N]Mweheheheheheheh[AD][END]`
+it1B_trial.dialogstring_04FA25! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: At that pace,[N]we can't give you the[N]Incan idol, can we?[N]Mweheheheheheheh[AD][END]`
+it1B_trial.dialogstring_04FA65! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: Oh my, what a[N]splendid boy.[N]Mweheheheheheheh[AD][WAI][N]With that, we'll give you[N]the Incan idol.[END]`
+
+?INCLUDE 'item_use_system'
+item_use_system.dialogstring_038746! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](Could the Inca's secret[N]be hidden in this[N]statue[AD]?)[END]`
+item_use_system.dialogstring_039179! `[DEF]Will tries the Seabed[N]Palace Key.[FIN]`
+item_use_system.dialogstring_039244! `[DEF]Will holds up the[N]Purity Stone![FIN]`
+item_use_system.dialogstring_03926F! `[DEF]The stone grows brighter[N]and disappears into the[N]fountain[AD][END]`
+item_use_system.dialogstring_0391B6! `[DEF]The key makes an eerie[N]sound as it turns.[FIN]`
+item_use_system.dialogstring_039514! `[DEF]Will opens Lance's letter.[FIN][CLD][BOR:3][BOR:1][DLG:3,D][SIZ:D,6][SFX:0][PRT:@StoryTheme4]Lance: I'm going to the [N]Great Wall of China for a[N]little while.[N]I meant to keep it[N]secret, but I figured[N]I'd tell you.[FIN]I'm hiding this letter[N]in your luggage.[N]Betting it takes you a[N]bit to notice.[FIN]Lilly turned me down.[N]I think maybe she's got[N]feelings for you, Will.[N]Don't worry. I don't blame[N]you. You never did[N]anything wrong.[FIN]Maybe I just haven't given[N]her much reason to see me[N]that way.[FIN][BOR:1][DLG:3,D][SIZ:D,6][SFX:0]I heard an old legend[N]about the Great Wall.[N]They say living statues[N]that never age still guard[N]a sacred statue hidden[N]there.[FIN]Sounds a lot like one of[N]the Mystic Statues we're[N]looking for, doesn't it?[N]So I'm going to find it.[FIN]Maybe if I come back with[N]one of those things,[N]Lilly will see me[N]differently.[FIN]Don't follow me.[N]I need to do this one[N]myself.[END]`
+item_use_system.dialogstring_039696! `[DEF]Will gently opens and[N]reads the will.[FIN][BOR:9][BOR:1][DLG:3,D][SIZ:D,6][SFX:0][PRT:@StoryTheme24] [N]      To My Opponent[N] [N]If I die, do not mourn me[N]or blame yourself.[FIN]Russian Glass did not put[N]me at death's door. An[N]incurable illness did that[N]half a year ago.[FIN]I became obsessed with[N]earning as much money as I[N]could before I died.[N]I wanted my wife and the[N]child I will never meet to[N]be safe after I was gone.[FIN]But much of the money I[N]earned came from work that[N]made other people suffer.[N]I told myself it was for[N]my family. That did not[N]make the harm disappear.[FIN]So I chose this final[N]wager. Foolish, perhaps,[N]but mine to choose.[N]If you defeat me, take my[N]four beloved Kruks.[FIN]And spend whatever[N]life you have better[N]than I did.[END]`
+
+?INCLUDE 'mu63_spirits'
+mu63_spirits.dialogstring_069BAA! `[CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@StoryTheme17]O spirit of the sun[AD] O[N]Rama[AD][WAI][N]Bestow your power upon the[N]great ocean[AD][END]`
+
+?INCLUDE 'mu66_altar_dialog'
+mu66_altar_dialog.dialogstring_069CB7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](It looks like this was[N]the cemetery for Mu's[N]people[AD])[END]`
+
+?INCLUDE 'mu66_rama_spirits'
+mu66_rama_spirits.dialogstring_069F45! `[CLD][BOR:4][DLG:3,11][SIZ:D,4][PRT:@StoryTheme17]Rama: I was once king of[N]Mu.[WAI][N]My body was lost long ago,[N]yet my spirit remains.[WAI][N]Look carefully. The souls[N]of my people still wander[N]here.[END]`
+mu66_rama_spirits.dialogstring_069FBE! `[CLD][BOR:4][DLG:3,11][SIZ:D,4][PRT:@StoryTheme17]Rama: Listen to the souls[N]that have awakened.[WAI][N]Mu was divided when the[N]light appeared.[WAI][N]Even now, their memories[N]do not speak with one[N]voice.[END]`
+mu66_rama_spirits.dialogstring_06A26D! `[CLD][BOR:4][DLG:3,11][SIZ:D,4][PRT:@StoryTheme17]So the people began[N]digging an undersea[N]tunnel.[WAI][N]They knew the work might[N]outlive them by centuries[AD][WAI][N]perhaps even by millennia.[WAI][N]Still they dug, trusting a[N]future they themselves[N]would never see.[END]`
+
+?INCLUDE 'mu67_bomb'
+mu67_bomb.dialogstring_06A4E9! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](A red wire and a blue[N]wire are hanging out of[N]the bomb[AD] Which one should[N]I cut?)[FIN][PAL:0] Cut red[N] Cut blue[PAL:4]`
+mu67_bomb.dialogstring_06A57F! `[PAU:28][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: It stopped[AD][FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme3]Erik: I'm saaaved[AD]![FIN][CLD][DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Sorry, Will.[N]I couldn't do anything.[WAI][N]My legs froze. I couldn't[N]even make my voice work.[WAI][N]I thought I was the[N]dependable one, but when[N]it mattered, I was[N]terrified.[WAI][N][AD]I'll stay in your[N]pocket a little longer,[N]if that's okay.[END]`
+
+?INCLUDE 'mu67_kara'
+mu67_kara.dialogstring_06A894! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Never mind that.[N]How do we get off Mu?[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: We may already have[N]the answer.[WAI][N]That spirit, Rama, told[N]us about an undersea[N]tunnel.[FIN][CLD][DEF]Will tells everyone the[N]story of Mu and the people[N]who dug beneath the sea.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: They spent[N]their whole lives building[N]a road for people they[N]would never meet[AD][FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: And that road may be[N]our way out.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Then what are we[N]waitin' for? Let's go![END]`
+
+?INCLUDE 'mu67_neil_lily'
+mu67_neil_lily.dialogstring_06A7C7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]Neil: Will! Are you[N]safe[AD]?![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Will! Have you seen[N]Lilly? Is she okay?![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: I'm here[AD][END]`
+
+?INCLUDE 'mu67_vampires'
+mu67_vampires.dialogstring_0AFB45! `[CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme21]Vampire man: Well done![N]You found the Mystic[N]Statue for us.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme21]I thought letting you[N]escape the palace might[N]pay off.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme22]Vampire woman: Listen to[N]you![FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme22]You drool whenever fresh[N]prey wanders in.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme22]Especially children.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme21]Vampire man: You're one to[N]talk![FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme21][AD]Wait. This is no time for[N]a lover's quarrel.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme21]First we'll take that[N]Mystic Statue.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme21]You there-prepare[N]yourself![END]`
+mu67_vampires.dialogstring_0AFCA0! `[CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme22]Vampire woman: Hmph. So[N]much for him.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@StoryTheme22]Alright, you're next[AD]!![N]Get ready[AD]!![PAU:78][END]`
+mu67_vampires.dialogstring_0AFCE4! `[CLD][BOR:B][DLG:3,11][SIZ:D,4][PRT:@StoryTheme21]Vampire man: You bastard[AD]![N]How could you do that to[N]my wife[AD]!! I'll never[N]forgive you[AD]!!!![PAU:78][END]`
+
+?INCLUDE 'na49_camera'
+na49_camera.dialogstring_05E55C! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: That's a camera.[WAI][N]It fixes an image of the[N]world onto photographic[N]paper.[WAI][N]The trouble is that an[N]exposure takes nearly 30[N]minutes.[WAI][N]Landscapes don't mind, but[N]people have to sit still[N]without blinking.[WAI][N]Their eyes often come[N]out bright red like a[N]rabbit's.[END]`
+
+?INCLUDE 'na49_erik'
+na49_erik.dialogstring_05E2CE! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: I bet Seth would've[N]loved seeing all these[N]inventions[AD][END]`
+
+?INCLUDE 'na49_kara'
+na49_kara.dialogstring_05E086! `[CLD][BOR:7][DLG:3,F][SIZ:D,4][PRT:@StoryTheme1]Kara: Anything I said[N]about enjoying your musk[N]was just sun poisoning and[N]heat stroke![END]`
+na49_kara.dialogstring_05E0C1! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Cygnus?![FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Exactly. And the[N]Tower of Babel, where[N]Will's father vanished,[WAI][N]lies almost perfectly in[N]the center of that giant[N]swan.[END]`
+
+?INCLUDE 'na49_lance'
+na49_lance.dialogstring_05E1EE! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: I've only had[N]mine on for three weeks.[N]Guess I lose![WAI][N]Of course... I did forget[N]a lot during that time.[END]`
+
+?INCLUDE 'na49_lily'
+na49_lily.dialogstring_05DDC0! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Hello. We're[N]Will's friends. My name...[WAI][N]What's that horrible[N]smell?[FIN]`
+na49_lily.dialogstring_05DDDF! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Kara! You can't[N]just say that![WAI][N]Try something nicer,[N]like...[WAI][N]"The room has a very[N]powerful smell.ˮ[END]`
+na49_lily.dialogstring_05DFDC! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: He's Will's cousin,[N]so I'll be polite[AD][WAI][N]But are inventors always[N]like this?[END]`
+
+?INCLUDE 'na49_neil'
+na49_neil.dialogstring_05D984! `[PAU:1E][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: It's open, come in.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Neil. It's Will,[N]from South Cape.[END]`
+na49_neil.dialogstring_05D9C1! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Will! Wow![WAI][N]You've really grown since[N]I last saw you.[WAI][N]That longer hair really[N]suits you, too.[END]`
+na49_neil.dialogstring_05DA04! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: That's hardly[N]better! You two are[N]brutally honest.[WAI][N]When I'm absorbed in an[N]invention, I stop noticing[N]little things like clothes[N]and bathing.[WAI][N]Still, I didn't think I[N]smelled that bad.[WAI][N]These socks haven't even[N]been on for a full month![END]`
+na49_neil.dialogstring_05DAC7! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Alright, enough[N]about socks. Welcome. Make[N]yourselves at home.[WAI][N]I have leftovers that are[N]only a few days old...[WAI][N]I [SFX:A]think.[END]`
+na49_neil.dialogstring_05DB1C! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: It's been about two[N]years, hasn't it?[WAI][N]I've built all sorts of[N]things since then.[WAI][N]There are four inventions[N]in this room I'm rather[N]proud of.[WAI][N]Go ahead and look around.[END]`
+na49_neil.dialogstring_05DB9C! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: You're a long way[N]from South Cape.[WAI][N]What brings you out here?[FIN][CLD][DEF]Will tells Neil about his[N]father's voice, the ruins,[N]and the scattered Mystic[N]Statues.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Hm. Now that's[N]interesting.[WAI][N]I've studied ancient ruins[N]a little myself.[WAI][N]The places you've visited[N]belong to different[N]peoples and different[N]ages.[WAI][N]Yet their legends keep[N]circling the same stars.[WAI][N]There's a theory that if[N]you draw lines between the[N]ruins on a map, they form[N]Cygnus, the swan.[END]`
+
+?INCLUDE 'na49_tank'
+na49_tank.dialogstring_05E327! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: That's an oxygen[N]tank. It stores air.[WAI][N]Wear it and you can[N]breathe underwater.[WAI][N]Right now it only holds[N]about a minute's worth.[WAI][N]If I find a way to[N]compress the air, it could[N]last much longer.[END]`
+
+?INCLUDE 'na49_telescope'
+na49_telescope.dialogstring_05E4F9! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: That's the[N]telescope.[WAI][N]With it, you can see the[N]stars as if you could hold[N]them in your hand.[END]`
+
+?INCLUDE 'na49_wings'
+na49_wings.dialogstring_05E419! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Those are aeroplane[N]wings.[WAI][N]They're part of a[N]machine made to fulfill[N]humanity's dream of[N]flying like birds.[WAI][N]The rest of the body is[N]much larger, and it needs[N]a long runway to take off.[WAI][N]That's why I keep it out[N]in the desert.[END]`
+
+?INCLUDE 'na4B_buried_tile'
+na4B_buried_tile.dialogstring_05E6C0! `[DEF][SIZ:D,4]A strange tile lies buried[N]in the sand.[FIN][DEF][SIZ:D,4]When Will's flute touches[N]it, the ground begins to[N]roar![END]`
+na4B_buried_tile.dialogstring_05E721! `[CLD][BOR:D][DLG:3,15][SIZ:D,2][PRT:@StoryTheme6]Neil: Will[AD]! Stay back![FIN][CLD][BOR:D][DLG:3,15][SIZ:D,2][PRT:@StoryTheme6]We don't know what's[N]under there[AD]!![END]`
+na4B_buried_tile.dialogstring_05E811! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](Going off on my own[N]would be perfect...)[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](If I wanted to get lost[N]in a desert I don't know.)[END]`
+
+?INCLUDE 'na4B_lance'
+na4B_lance.dialogstring_05EF2D! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Lance: Study, play, hear[N]stories... never thought[N]I'd live 'em.[WAI][N]Seth would've loved all[N]this.[END]`
+na4B_lance.dialogstring_05EF98! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Lance: Ya think we're[N]solvin' somethin' that all[N]those explorers and[N]scholars missed[AD]?[END]`
+
+?INCLUDE 'na4B_lily'
+na4B_lily.dialogstring_05F148! `[CLD][BOR:6][DLG:3,15][SIZ:D,2][PRT:@StoryTheme2]Lilly: You guys! You guys![N]I've got it![END]`
+na4B_lily.dialogstring_05F0FE! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Don't these stones[N]look a little too[N]carefully placed to be[N]natural?[END]`
+na4B_lily.dialogstring_05F160! `[PAU:28][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Look! Look at the[N]stones on the ground![FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]They're in the same places[N]as the stars in Cygnus![END]`
+
+?INCLUDE 'na4B_neil'
+na4B_neil.dialogstring_05E8F7! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme6]Neil: Long walk, but[N]everyone held up well.[WAI][N]This is the most famous of[N]the Nazca lines: the[N]condor. You've heard of[N]it, right?[WAI][N]No one knows why people[N]long ago made drawings[N]this enormous.[WAI][N]Even standing here, the[N]scale is hard to take in.[N]Why don't we split up and[N]look around for a while?[END]`
+na4B_neil.dialogstring_05EB94! `[CLR][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](In that case, where would[N]the red star that we've[N]started seeing recently[N]be[AD]?)[FIN][PAL:0] The condor's head[N] The condor's right leg[N] The condor's left leg[N] The condor's tail[PAL:4]`
+
+?INCLUDE 'sE6_gaia'
+sE6_gaia.dialogstring_08E1EE! `[BOR:4][DLG:3,11][SIZ:D,4][PRT:@StoryTheme15]Enemies beyond thy sword's[N]reach may fall to[N]Dark Flare.[WAI][N]Clear them, and the way[N]forward may open.[FIN]`
+sE6_gaia.dialogstring_08E428! `[BOR:4][DLG:3,11][SIZ:D,4][PRT:@StoryTheme15]The Great Wall holds[N]slopes too steep to climb[N]normally. Thy Spin Dash[N]can carry thee upward.[FIN]`
+
+?INCLUDE 'sc02_erik'
+sc02_erik.dialogstring_04BBDA! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: What's wrong?[N]You look almost as scared[N]as I am.[WAI][N]There's a crazy man[N]pretending to be our[N]housekeeper.[WAI][N]I don't know how he got a[N]key to our house.[END]`
+
+?INCLUDE 'sc02_lance'
+sc02_lance.dialogstring_04B40D! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: What's the matter,[N]Will? Ya look pretty[N]down.[WAI][N]Something going on ya[N]can't tell us about?[END]`
+
+?INCLUDE 'sc06_kara_return'
+sc06_kara_return.dialogstring_04A746! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: What the[AD]!?[N]Why does it look like[N]this[AD]?[END]`
+sc06_kara_return.dialogstring_04A9F8! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: You're insufferable.[END]`
+sc06_kara_return.dialogstring_04AA20! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Ah, you're my[N]friend too, right?![FIN][DLG:3,4][SIZ:D,3][PAL:0] Yeah, of course[N] We hardly know each other`
+sc06_kara_return.dialogstring_04AF7F! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](No. There has to be a[N]clue somewhere in the[N]house[AD])[END]`
+sc06_kara_return.dialogstring_04A7A8! `[CLD][BOR:7][DLG:3,4][SIZ:D,1][PRT:@StoryTheme1]Kara: Mr. Biiill[AD]![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@StoryTheme0]Will: Grandma Lola![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I'll check upstairs![END]`
+sc06_kara_return.dialogstring_04A81F! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: What happened!?[FIN][CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: Look at this mark![WAI][N]A jackal[AD][N]It means Jackal was here![FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: Jackal[AD]?[FIN][CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: The assassin my[N]parents hired.[WAI][N]He's relentless. Once he[N]chooses a target, he never[N]stops hunting them.[WAI][N]Human life means nothing[N]to him.[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: Then Grandpa and[N]Grandma[AD][END]`
+
+?INCLUDE 'sc06_lily'
+sc06_lily.dialogstring_04AC0C! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: You don't have to[N]worry, you two.[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: You're the girl from[N]the castle basement[AD][END]`
+sc06_lily.dialogstring_04AC77! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Of course not![WAI][N]A barrier hides our[N]village from ordinary[N]people.[WAI][N]Come on, Will![FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme0]Will: Right![FIN][CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: I'm coming too![FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Your Highness, it[N]could be dangerous[AD][FIN][CLD][BOR:7][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1]Kara: I'm coming. I want[N]to be truly free![FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Figures, Your[N]Highness.[END]`
+sc06_lily.dialogstring_04AD69! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Do you want to[N]say goodbye to everyone[N]before we go?[WAI][N]It may be a while before[N]we come back.[END]`
+sc06_lily.dialogstring_04ADCA! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Ready already?[WAI][N]Or do you want to look[N]around town a little[N]longer?[END]`
+sc06_lily.dialogstring_04AE24! `[CLR]Lilly: I see. Come back[N]when you're ready to set[N]out.[END]`
+sc06_lily.dialogstring_04AE61! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: I feel like all[N]sorts of wonderful things[N]are ahead of us.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: And plenty of[N]trouble too, I'm sure[AD][N]*Sigh*[AD][END]`
+sc06_lily.dialogstring_04AEC1! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: Have you ever even[N]been outside the castle?[N]The 'plan' is listen to[N]Will and me.[END]`
+sc06_lily.dialogstring_04AEF7! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: What did you say,[N]you sheltered little[AD]![WAI][N]Will's my friend. You[N]understand that, right?[END]`
+
+?INCLUDE 'sg4C_spirits'
+sg4C_spirits.dialogstring_05F371! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: We meet[N]again, huh? Mweheheheh.[WAI][N]We have watched kingdoms[N]rise, prosper, and crumble[N]beneath this garden.[WAI][N]We watched the Incas fall.[N]They were not the first,[N]nor were they the last.[END]`
+sg4C_spirits.dialogstring_05F3C9! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: This garden in[N]the sky is our vessel.[WAI][N]It carried our people long[N]ago, before the comet's[N]light changed our bodies.[WAI][N]The great markings below[N]once guided this vessel[N]across the heavens.[WAI][N]Their makers vanished,[N]but the stars they[N]marked shine on.[END]`
+sg4C_spirits.dialogstring_05F46E! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1A]Moon Tribe: The garden has[N]two faces.[WAI][N]Leap from the edge and you[N]may land on the world[N]beneath the one you see.[WAI][N]Up and down are only[N]a question of where[N]you stand.[END]`
+
+?INCLUDE 'sg52_switch'
+sg52_switch.dialogstring_05F71C! `[DEF][SIZ:D,4]This tile makes a sound[AD][END]`
+
+?INCLUDE 'sg55_mystic_statue'
+sg55_mystic_statue.dialogstring_0ACF0E! `[DEF]When the giant bird falls,[N]Will finds a Mystic[N]Statue among its remains![END]`
+sg55_mystic_statue.dialogstring_0ACF4A! `[DEF]Through the roar of a[N]propeller, Neil's voice[N]booms from a megaphone![FIN][CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme6]Neil: Will! You're[N]getting too close to the[N]ground![FIN][CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@StoryTheme6]I'll catch you with the[N]aeroplane. Now jump![END]`
+
+?INCLUDE 'sp58_missed_flight'
+sp58_missed_flight.dialogstring_06805C! `[CLD][BOR:D][DLG:3,4][SIZ:D,3][PRT:@StoryTheme6]Neil: Shoot! I missed![FIN][CLD][BOR:7][SEP:1,7FFF][SEP:2,5D92][SEP:3,1004][SEP:13,1004][SEP:11,777F][SEP:12,561E][SFX:1B][PAL:4][BOR:2][DLG:3,6][SIZ:C,2]Kara: Neil, you idiot![N]Will's going to die![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@StoryTheme4]Lance: Neil! There's still[N]time. Turn around![FIN][CLD][BOR:D][DLG:3,4][SIZ:D,3][PRT:@StoryTheme6]Neil: Right! I'll get him[N]this time![END]`
+
+?INCLUDE 'sp58_monologue'
+sp58_monologue.dialogstring_0683EB! `[DEF]Will and the others barely[N]escaped from the aeroplane[N]in time[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](Neil's a great inventor,[N]but every machine he[N]builds seems to be[N]missing one little thing.)[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme13](I guess nobody's perfect.[N]Not even Neil.)[END]`
+
+?INCLUDE 'sp5A_villagers'
+sp5A_villagers.dialogstring_068ED4! `[DEF][SFX:0][DLY:9]Got the Seabed Palace Key![PAU:78][END]`
+sp5A_villagers.dialogstring_068BB6! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]For a moment, I knew what[N]it felt like to be dying.[WAI][N]I never knew how badly I[N]wanted to live until I[N]almost couldn't.[WAI][N]It makes me wonder whether[N]the animals we eat feel[N]that same fear.[END]`
+sp5A_villagers.dialogstring_068CBD! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]Good grief[AD] A beautiful[N]woman invited me here, and[N]look where that got me.[END]`
+sp5A_villagers.dialogstring_068E20! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]If you'd arrived any[N]later, we'd have been[N]turned into demons too[AD][END]`
+sp5A_villagers.dialogstring_068C33! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]We used to be slave[N]merchants. We were[N]arrested for trafficking[N]people.[WAI][N]Then corrupt officials[N]sold us to vampires.[WAI][N]I suppose there is justice[N]in that, though I wish I'd[N]learned it another way.[END]`
+sp5A_villagers.dialogstring_068D29! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]There's no doubt about it;[N]vampires sleep in these[N]coffins.[WAI][N]Those bastards are[N]planning something[N]horrible[AD][END]`
+sp5A_villagers.dialogstring_068D7A! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]A vampire husband and wife[N]rule this palace.[WAI][N]They bring people[N]here from all over and[N]transform them into[N]demons for labor.[END]`
+sp5A_villagers.dialogstring_068DD0! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]This palace is connected[N]to the lost continent[N]of Mu.[WAI][N]The vampire couple[N]has been searching for[N]something there.[END]`
+sp5A_villagers.dialogstring_068E67! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]I overheard the vampires.[WAI][N]They said a Mystic Statue[N]is hidden somewhere on Mu.[END]`
+sp5A_villagers.dialogstring_068EA9! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]I snatched a key from the[N]vampire woman. Here, take[N]it.[FIN]`
+sp5A_villagers.dialogstring_068F02! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme16]I stole a key from the[N]vampire woman. I'd give it[N]to you, but you don't have[N]room to carry it[AD][END]`
+sp5A_villagers.dialogstring_068F53! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]There's a passage to the[N]continent of Mu on the[N]upper floor of the palace.[END]`
+sp5A_villagers.dialogstring_068B22! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme16]You saved me! Thank you![WAI][N]I was taken here from[N]Freejia and transformed[N]into a demon.[FIN][CLD][DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: What[AD]? Then some[N]of the demons here used[N]to be people[AD]?[END]`
+
+?INCLUDE 'sp5B_lily'
+sp5B_lily.dialogstring_068765! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: I saw Erik in the[N]other room a moment ago,[N]but something was wrong.[WAI][N]His body was half[N]transparent. I could see[N]right through him.[WAI][N]I tried speaking to him,[N]but he couldn't hear me.[WAI][N]Let's stick together until[N]we figure out what's[N]happening.[END]`
+
+?INCLUDE 'sp5C_stone_coffin'
+sp5C_stone_coffin.dialogstring_06939E! `[DEF][SFX:0][DLY:9]Got the Purity Stone![PAU:78][END]`
+sp5C_stone_coffin.dialogstring_069377! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: I found this weird[N]rock in the coffin.[FIN]`
+sp5C_stone_coffin.dialogstring_0693B7! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: I found this weird[N]rock in the coffin. But it[N]doesn't look like you have[N]room to carry it[AD][END]`
+
+?INCLUDE 'sp5E_passageway'
+sp5E_passageway.dialogstring_069753! `[DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: This passage goes[N]on forever[AD] Are we really[N]headed toward Mu?[END]`
+
+?INCLUDE 'st68_erik'
+st68_erik.dialogstring_06AE70! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: I gotta pee! Give me[N]some space.[END]`
+
+?INCLUDE 'st68_kara'
+st68_kara.dialogstring_06B13C! `[CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme3]Erik: Is the tunnel caving[N]in?![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,2][PRT:@StoryTheme1]Kara: This is bad[AD]!![N]Run!![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@StoryTheme2]Lilly: Run where!? We're[N]in a tunnel![END]`
+st68_kara.dialogstring_06B195! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Everyone, quiet![N]Listen to that repeating[N]vibration.[WAI][N]It's Morse code.[WAI][N]Ships use short and long[N]signals to represent[N]words.[WAI][N]I think I can decode it.[N]Give me a moment.[END]`
+st68_kara.dialogstring_06B250! `[CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@StoryTheme5][DLY:4]I'm Seth[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme4]Lance: Seth?![FIN][CLD][DLG:3,4][SIZ:D,2][PRT:@StoryTheme7]Lilly: Shh. Let Neil hear[N]the rest.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@StoryTheme5][DLY:4]A great sea beast[N]swallowed me.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme5][DLY:4]When I woke, my body had[N]become like theirs.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme5][DLY:4]The others here say they[N]aren't monsters, just[N]another form of life[N]shaped for the sea.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme5][DLY:4]They say the comet's[N]light pushes living things[N]toward new forms.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme5][DLY:4]Some call that corruption.[N]Others call it evolution.[N]Characteristically, I[N]still don't know the word.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme5][DLY:4]I can breathe here. I[N]am still myself.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme5][DLY:4]I wish I could rejoin you,[N]but this body has another[N]road now.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme5][DLY:4]Find the truth about[N]the comet and the ruins[N]for me.[END]`
+st68_kara.dialogstring_06B3EC! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: The signal stopped.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Poor Seth[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Seth learned Morse[N]code too, huh? Guess all[N]those books paid off.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: But he's not even[N]human anymore![FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: I wouldn't say that.[N]We call the human body[N]the best one because it[N]is the body we know.[WAI][N]If Seth can think, choose,[N]and care about us, maybe[N]his shape isn't the part[N]that matters most.[WAI][N]Come on. We still have a[N]long road ahead.[END]`
+
+?INCLUDE 'st68_lance'
+st68_lance.dialogstring_06AF03! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: How the heck long[N]does this tunnel go on[AD]?[END]`
+
+?INCLUDE 'st68_lily'
+st68_lily.dialogstring_06B67B! `[PAU:1E][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: Yeah. I'm hungry.[N][PAU:28][AD]I'm kidding.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: You know, Will,[N]we've all changed since we[N]left home.[WAI][N]Maybe journeys make people[N]grow whether they mean to[N]or not.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme0]Will: My change is a[N]little more literal.[N]You've seen me become[N]that warrior.[WAI][N]I think something happened[N]to me at the Tower of[N]Babel. I think the comet[N]may be part of it.[WAI][N]Sometimes, as Freedan,[N]I remember things that[N]never happened to me.[WAI][N]Battles. Faces. Places[N]I've never seen.[WAI][N]When I change back, it[N]fades, like waking from[N]someone else's dream.[WAI][N]Sometimes I worry that if[N]I stay as Freedan for too[N]long... that I might lose[N][PAU:18]myself.[WAI][N]I don't understand[N]why. But I think this[N]journey is leading me[N]to the answer.[WAI][N]What about you, Lilly?[N]Why did you come this far?[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: I told myself[N]we were discovering[N]history... maybe even[N]making it.[WAI][N]I think that after being[N]saved by Lance... and you,[N]enough times...[WAI][N]I think somewhere we[N]became family, and not[N]just friends. I even think[N]of Kara as a sister now.[WAI][N]But don't you DARE[N]tell her that![WAI][N]We have another long day[N]tomorrow. I'm going to[N]sleep.[END]`
+
+?INCLUDE 'st68_neil'
+st68_neil.dialogstring_06ACB9! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: People must have[N]walked this tunnel[N]thousands of years ago.[WAI][N]It's strange. Knowing they[N]stood where we stand makes[N]them feel less distant.[END]`
+
+?INCLUDE 'wa78_children'
+wa78_children.dialogstring_078C12! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Child: If a snake bites[N]you, run around like[N]crazy. It'll eventually[N]plop off.[END]`
+wa78_children.dialogstring_078C59! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Child: A snake bit me when[N]I went to the Great Wall[N]of China before[AD][WAI][N]If one of those snakes[N]bites you, it won't let go[N]easily.[END]`
+wa78_children.dialogstring_078CC5! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Savvas: My dad is an[N]explorer.[WAI][N]He's going to come back[N]to us soon, right after he[N]discovers the Gold Ship![END]`
+
+?INCLUDE 'wa78_crazy_man'
+wa78_crazy_man.dialogstring_07A0A7! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]A strange white-haired man[N]wandered into town a[N]little over a year ago.[WAI][N]Ever since, he's done[N]nothing but ramble about[N]the Tower of Babel.[END]`
+
+?INCLUDE 'wa78_diary'
+wa78_diary.dialogstring_079C19! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](Kara hid her diary[N]here[AD] Should I read it?)[N][PAL:0] Yes[N] No[PAL:4]`
+wa78_diary.dialogstring_079C4A! `[CLR][BOR:3][SEP:1,7FDE][SEP:2,3A94][SEP:3,0C03][SEP:13,0C03][SEP:11,6FDF][SEP:12,B1E][SFX:7][PAL:4](No. I'd feel guilty[N]reading it without[N]permission.)[END]`
+wa78_diary.dialogstring_079C81! `[CLR][BOR:7][BOR:1][DLG:3,D][SIZ:D,6][SFX:0][PRT:@StoryTheme1]Day X of month X:[N]After a very long road, we[N]finally reached Watermia.[FIN]I was thirsty on the way.[N]My feet blistered, and I[N]wrapped them in my[N]handkerchief.[FIN]Before this journey, I[N]would have complained the[N]whole time.[N]This time I kept going.[N]Maybe I've changed more[N]than I realized.[FIN]Today I heard a Watermia[N]legend.[N]"Make a wish from a lotus[N]leaf beneath the full[N]moon, and the one you love[N]will look closely at you.ˮ[FIN]It's a lovely story.[N]Maybe I'll try it[AD][END]`
+
+?INCLUDE 'wa78_glass_game'
+wa78_glass_game.dialogstring_07927C! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Every month on a full moon[N]night, people play Russian[N]Glass.[WAI][N]It's the ultimate form of[N]gambling where you bet[N]your very life.[WAI][N]But you're still young,[N]little boy. I definitely[N]don't think you should be[N]throwing your life away.[END]`
+wa78_glass_game.dialogstring_0793B6! `[CLD][BOR:9][DLG:3,15][SIZ:D,2][PRT:@StoryTheme24]Competitor:[N]Raaaaaaaaagh[AD]!![FIN][CLD][DEF][SFX:0]The competitor drains the[N]contents of the glass in[N]one gulp[AD][END]`
+wa78_glass_game.dialogstring_07944D! `[BOR:9][DLG:3,15][SIZ:D,2][PRT:@StoryTheme24]Competitor: One glass[N]left[AD][WAI][CLD][PAU:3C][BOR:9][DLG:3,13][SIZ:D,3][PRT:@StoryTheme1C][DLY:2]Spectator: It's over![N]The boy won![FIN][CLD][BOR:9][SEP:1,5FDF][SEP:2,662F][SEP:3,1060][SEP:13,1060][SEP:11,7FFF][SEP:12,6F6E][SFX:10][PAL:4][BOR:2][DLG:3,11][SIZ:A,3]Spectator: Stop! [N]You don't[N]have to drink it![FIN][CLD][BOR:9][DLG:3,13][SIZ:D,3][PRT:@StoryTheme24][DLY:3]Competitor: No.[N]I won't crawl away in[N]shame.[FIN][CLD][DEF][SFX:0][DLY:2]The man lifts the final[N]glass.[END]`
+wa78_glass_game.dialogstring_079520! `[CLD][BOR:9][DLG:3,13][SIZ:D,3][PRT:@StoryTheme1C]Spectator: Put it down![N]You've already lost![FIN][CLD][BOR:9][DLG:3,13][SIZ:D,3][PRT:@StoryTheme1C]There's no need to hurry[N]toward death![FIN][CLD][DEF][SFX:0][DLY:3]Ignoring the crowd, the[N]man drains the glass.[END]`
+wa78_glass_game.dialogstring_0796A9! `[BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]This is where we meet for[N]Russian Glass.[FIN]Are you participating?[WAI][N][PAL:0] Yes[N] No[PAL:4]`
+wa78_glass_game.dialogstring_079704! `[CLR]You're really wagering[N]your life on Russian[N]Glass?![FIN]This is not a harmless[N]game.[FIN]I'll ask once more. Do you[N]truly accept the risk?[WAI][N][PAL:0] Yes[N] No[PAL:4]`
+wa78_glass_game.dialogstring_0798E8! `[DEF]Will closes his eyes and[N]drinks the glass in one[N]swallow.[END]`
+wa78_glass_game.dialogstring_079922! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@StoryTheme13](One glass looks dark red,[N]almost like blood.)[FIN](Is this strange power in[N]my body warning me[AD]?)[FIN][DLG:3,11][SIZ:D,4](Should I drink it?)[N][PAL:0] Yes[N] No[PAL:4]`
+
+?INCLUDE 'wa78_intro'
+wa78_intro.dialogstring_0780B6! `[DEF][DLY:2]Will and the others[N]arrived in Watermia, the[N]Floating City.[FIN][DEF][DLY:2]Houses rested on rafts[N]all across the bright[N]water.[PAU:58][CLR]The people were welcoming,[N]and a fisherman named Luke[N]offered them his home[N]while he was away at sea.[FIN][DEF][DLY:2]Will thought he'd welcome[N]the chance to rest...[FIN][DEF][DLY:2]But after a few quiet[N]days, he was already[N]getting restless.[FIN][DEF][DLY:2]He kept wondering what was[N]waiting beyond the next[N]horizon.[PAU:84][CLD]`
+wa78_intro.dialogstring_078139! `[DEF]This is Luke's house.[N]He's a fisherman, and a[N]generous one.[FIN][DEF]He'll be away on a long[N]voyage, so he told Will[N]and the others to make[N]themselves at home.[END]`
+
+?INCLUDE 'wa78_men'
+wa78_men.dialogstring_078607! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Man: This animal is[N]called a Kruk.[WAI][N]It's perfect for crossing[N]the desert because it can[N]go a long time without[N]food or water.[END]`
+wa78_men.dialogstring_078674! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Man: This is a gambling[N]house.[WAI][N]A kid coming in here must[N]be pretty desperate for[N]money[AD][END]`
+wa78_men.dialogstring_07876E! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]This lotus leaf is full.[N]Find another if you want[N]a ride.[END]`
+wa78_men.dialogstring_07879B! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Luke: Yo. How do you like[N]the house? You're free to[N]use it while I'm away on[N]my voyage.[END]`
+wa78_men.dialogstring_07881B! `[CLD][BOR:9][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1C]You won't make much[N]betting small.[WAI][N]Of course, if you're[N]willing to bet your life,[N]you can make a fortune.[END]`
+wa78_men.dialogstring_078881! `[CLD][BOR:9][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1C]They're gambling with[N]human lives.[WAI][N]One bad choice and someone[N]dies for the crowd's[N]entertainment.[WAI][N]I don't understand how[N]people can get used to[N]watching that.[END]`
+wa78_men.dialogstring_0788E0! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]A strange white-haired man[N]lives in a house deep in[N]this town.[WAI][N]I'm not sure, but I think[N]he was part of Olman's[N]expedition to survey the[N]Tower of Babel.[END]`
+
+?INCLUDE 'wa78_moving_woman'
+wa78_moving_woman.dialogstring_07846A! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Woman: A girl in pink was[N]making a wish on that[N]lotus leaf a moment ago.[END]`
+
+?INCLUDE 'wa78_prize_kruk'
+wa78_prize_kruk.dialogstring_079B30! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](These must be the Kruks[N]the letter mentioned.)[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme13](I need to tell everyone[N]what happened.)[END]`
+
+?INCLUDE 'wa78_women'
+wa78_women.dialogstring_0789C7! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Water never stays in one[N]place. It keeps moving,[N]clear and alive.[WAI][N]I think people should live[N]a little more like that.[END]`
+wa78_women.dialogstring_078A73! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]A human life isn't cheap.[WAI][N]Don't throw yours away on[N]worthless gambling.[END]`
+wa78_women.dialogstring_078AF8! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Woman: I'm going to have[N]a baby soon.[WAI][N]My husband is so excited.[N]He's been working harder[N]than ever to support us.[END]`
+wa78_women.dialogstring_078B73! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]They call him the "crazy[N]old man,ˮ but he's[N]actually still young.[WAI][N]His hair turned completely[N]white.[WAI][N]I wonder what he saw that[N]frightened him so badly[AD][END]`
+wa78_women.dialogstring_078B3B! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Woman: We never needed[N]money that badly.[WAI][N]Being beside someone you[N]love is its own kind of[N]good fortune.[END]`
+
+?INCLUDE 'wa79_erik'
+wa79_erik.dialogstring_07A4C8! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme3]Erik: There's a full moon[N]tonight.[WAI][N]Somehow, towns always feel[N]a little different under[N]a full moon.[END]`
+
+?INCLUDE 'wa79_kara'
+wa79_kara.dialogstring_07A613! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@StoryTheme1]Kara: Watermia is[N]beautiful, but I've heard[N]some ugly rumors.[WAI][N]Something about people[N]gambling with their lives.[WAI][N]Maybe beautiful places[N]always have another side.[WAI][N]Freejia did too.[END]`
+
+?INCLUDE 'wa79_lance'
+wa79_lance.dialogstring_07AD31! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Alright, now that[N]everyone's here, let's[N]celebrate Lilly's[N]birthday.[END]`
+wa79_lance.dialogstring_07AD63! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Lilly, hey[AD][N]Can I talk to ya for a[N]minute?[WAI][N]I'll be waitin' outside.[END]`
+wa79_lance.dialogstring_07ADEA! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: I'm sorry, but I'm[N]stayin' here.[WAI][N]I can't just leave that[N]old man of mine.[WAI][N]And after that[AD] [PAU:78]Uh, I[N]guess I'm feelin' shy or[N]somethin'[AD][WAI][N]The thing is, I'm goin'[N]out with Lilly.[WAI][N]I ain't kiddin' about how[N]I feel. We wanna stay[N]together for a while.[WAI][N]And Lilly says she wants[N]that too.[WAI][N]Travelin' with everyone[N]was fun. You all take[N]care, alright?[END]`
+
+?INCLUDE 'wa79_lily'
+wa79_lily.dialogstring_07AA5E! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@StoryTheme2]Lilly: I'm staying in[N]this town too.[WAI][N]As for why[AD][N]Well, ask Lance.[END]`
+
+?INCLUDE 'wa79_neil'
+wa79_neil.dialogstring_07A255! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: There's a vast[N]desert west of here.[WAI][N]We can't cross it on foot.[N]We'll need Kruks.[WAI][N]The question is where to[N]find some[AD][END]`
+wa79_neil.dialogstring_07A2BE! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@StoryTheme6]Neil: Four Kruks?[N]Those are worth a fortune.[WAI][N][AD]You look like there's a[N]story behind them.[N]I won't pry.[WAI][N]We were planning to head[N]west toward Euro next.[WAI][N]But Lance and Lilly say[N]they're staying here.[N]Ask them why.[END]`
+
+?INCLUDE 'wa7A_lance'
+wa7A_lance.dialogstring_07ABC4! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@StoryTheme4]Lance: Something's wrong[N]with him[AD][WAI][N]I finally found my missin'[N]old man, and he can't[N]speak or think straight[AD][END]`
+
+?INCLUDE 'wa7D_glass_opponent'
+wa7D_glass_opponent.dialogstring_078E2D! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@StoryTheme1C]Woman: You were my[N]husband's opponent in[N]Russian Glass, weren't[N]you?[WAI][N]He told me he'd found good[N]work and that I shouldn't[N]worry.[WAI][N]I never imagined this was[N]what he meant.[WAI][N]He left this letter marked[N]"To My Opponent.ˮ[N]Please read it.[WAI][N]There are four Kruks[N]outside. He wanted you to[N]have them.[END]`
+
+?INCLUDE 'wa7F_lance'
+wa7F_lance.dialogstring_07B0A2! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Lance: Yeah. Words that're[N]harder to say than any[N]tongue twister I've ever[N]tried[AD][END]`
+wa7F_lance.dialogstring_07B174! `[CLD][DEF]We had no idea that[N]conversation had happened.[FIN][CLD][DEF]Lilly didn't return to our[N]room that night.[END]`
+
+?INCLUDE 'wa7F_lily'
+wa7F_lily.dialogstring_07B277! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: What is it?[WAI][N]You're acting awfully[N]nervous. That's not like[N]you.[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Lance: Feels strange to[N]me too. I brought ya a[N]birthday present.[WAI][N]I thought about a lot of[N]things, but this seemed[N]most like ya.[END]`
+wa7F_lily.dialogstring_07B2E4! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: Wow! This is[N]amaaazing! It's a bouquet[N]of roses[AD]![WAI][N]Rosebuds[AD] These will bloom[N]into roses, won't they?[END]`
+wa7F_lily.dialogstring_07B329! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: They smell[N]wonderful. Thank you.[N]I really am happy.[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@StoryTheme4]Lance: There's somethin'[N]else I wanted to give ya.[N]Not a thing. Just words.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@StoryTheme2]Lilly: What?[END]`
+
+StoryTheme0 `[SEP:1,7FDE][SEP:2,3A94][SEP:3,0C03][SEP:13,0C03][SEP:11,6FDF][SEP:12,B1E][SFX:D][PAL:4]`
+
+StoryTheme1 `[SEP:1,7FFF][SEP:2,5D92][SEP:3,1004][SEP:13,1004][SEP:11,777F][SEP:12,561E][SFX:1B][PAL:4]`
+
+StoryTheme2 `[SEP:1,7BF9][SEP:2,599F][SEP:3,0000][SEP:13,0000][SEP:11,7FDE][SEP:12,7E86][SFX:19][PAL:4]`
+
+StoryTheme3 `[SEP:1,6FBF][SEP:2,4234][SEP:3,1880][SEP:13,1880][SEP:11,5F7F][SEP:12,9FF][SFX:19][PAL:4]`
+
+StoryTheme4 `[SEP:1,7FDE][SEP:2,46D3][SEP:3,1000][SEP:13,1000][SEP:11,73F7][SEP:12,2322][SFX:1C][PAL:4]`
+
+StoryTheme5 `[SEP:1,7BBF][SEP:2,726D][SEP:3,0864][SEP:13,0864][SEP:11,7F3D][SEP:12,7137][SFX:1A][PAL:4]`
+
+StoryTheme6 `[SEP:1,739C][SEP:2,3967][SEP:3,1080][SEP:13,1080][SEP:11,739C][SEP:12,4631][SFX:1A][PAL:4]`
+
+StoryTheme7 `[SFX:2B][SEP:11,673F][SEP:12,24FF][PAL:4]`
+
+StoryTheme13 `[SEP:1,7FDE][SEP:2,3A94][SEP:3,0C03][SEP:13,0C03][SEP:11,6FDF][SEP:12,B1E][SFX:7][PAL:4]`
+
+StoryTheme15 `[SEP:1,7FFC][SEP:2,7E10][SEP:3,1000][SEP:13,1000][SEP:11,7FFF][SEP:12,4A96][SFX:D][PAL:4]`
+
+StoryTheme16 `[SEP:1,7FFF][SEP:2,7A94][SEP:3,0000][SEP:13,0000][SEP:11,7FFB][SEP:12,762F][SFX:10][PAL:4]`
+
+StoryTheme17 `[SEP:1,7FFC][SEP:2,7E10][SEP:3,1000][SEP:13,1000][SEP:11,7FFF][SEP:12,4A96][SFX:10][PAL:4]`
+
+StoryTheme18 `[SEP:1,4F70][SEP:2,7FFF][SEP:3,1C85][SEP:13,1C85][SEP:11,7FFB][SEP:12,762F][SFX:10][PAL:4]`
+
+StoryTheme19 `[SEP:1,77FD][SEP:2,564F][SEP:3,1000][SEP:13,1000][SEP:11,7FFF][SEP:12,4332][SFX:10][PAL:4]`
+
+StoryTheme20 `[SEP:1,4BBF][SEP:2,5E18][SEP:3,0086][SEP:13,0086][SEP:11,7FFF][SEP:12,2E7E][SFX:10][PAL:4]`
+
+StoryTheme21 `[SEP:1,3DFF][SEP:2,3169][SEP:3,1084][SEP:13,1084][SEP:11,7FBB][SEP:12,59EE][SFX:1C][PAL:4]`
+
+StoryTheme22 `[SEP:1,51FB][SEP:2,354A][SEP:3,1084][SEP:13,1084][SEP:11,7F7F][SEP:12,5676][SFX:1B][PAL:4]`
+
+StoryTheme23 `[SEP:1,53DC][SEP:2,41D2][SEP:3,1804][SEP:13,1804][SEP:11,6FFD][SEP:12,2A92][SFX:2B][PAL:4]`
+
+StoryTheme24 `[SEP:1,7FDE][SEP:2,46D3][SEP:3,1000][SEP:13,1000][SEP:11,73F7][SEP:12,2322][SFX:10][PAL:4]`
+
+StoryTheme1A `[SEP:1,7FFF][SEP:2,7A94][SEP:3,2108][SEP:13,2108][SEP:11,7FFF][SEP:12,7A94][SFX:10][PAL:4]`
+
+StoryTheme1B `[SEP:1,7FDE][SEP:2,3A94][SEP:3,0C03][SEP:13,0C03][SEP:11,6FDF][SEP:12,B1E][SFX:10][PAL:4]`
+
+StoryTheme1D `[SEP:1,63FF][SEP:2,51B2][SEP:3,2060][SEP:13,2060][SEP:11,73FF][SEP:12,7F75][SFX:10][PAL:4]`
+
+StoryTheme1C `[SEP:1,5FDF][SEP:2,662F][SEP:3,1060][SEP:13,1060][SEP:11,7FFF][SEP:12,6F6E][SFX:10][PAL:4]`
+
+StoryTheme1E `[SEP:1,7FFC][SEP:2,3150][SEP:3,0000][SEP:13,0000][SEP:11,7FFF][SEP:12,4B78][SFX:10][PAL:4]`

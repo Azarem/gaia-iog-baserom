@@ -1,43 +1,26 @@
-﻿
-; ==============================================================================
-; Inventory item swapping - L/R shoulder cycle equipped slot
-; ==============================================================================
-; What it does: While inventory overlay is active ($09EC bit $4000 clear), X
-;   or L/R scans $0AB4 slots and updates $0AC4/$0AC6 then refreshes icon via JSL.
-; Vanilla behavior: No shoulder-button equip cycling in the input hook chain.
-; Hooks (overrides): PlayerInputHooks+ append (registry in player_input_core).
-; Adds: item_swapping_main (JSL target from hook chain).
-; Depends on: EquippedIcon JSL, player actor $09AA, joypad $0656.
-; State: $0AC4 index ($FFFF empty), $0AC6 type, $09EC bit $0002 debounce.
-; Hazards/notes: PHX/PLX around EquippedIcon (icon code clobbers X); hook must
-;   stay at file end; X must remain actor slot for COP [07] after swap.
-; ==============================================================================
+; Cycle the equipped item in the field using the two mapped actions.
+; Consume the cycle inputs until release, like other one-press actions.
+; The old Cycle B mask in joypadMaskStd also suppresses Cycle F.
+
+!cycle_joypad_current           0656
+!cycle_joypad_held              0658
+!cycle_joypad_mask              065A
 
 item_swapping_main:
   LDA $09EC
   BIT #$4000
   BNE item_swapping_end
   LDA $09AA
-  BEQ item_swapping_end    ;Skip if player has no actor
-  LDA $0656
+  BEQ item_swapping_end
+  LDA $cycle_joypad_mask
   BIT #$0004
-  BEQ item_swapping_reset    ;Skip if not pressing X
-  BIT #$0010
-  BNE item_swapping_right
-  BIT #$0020
-  BNE item_swapping_left
-
-item_swapping_reset:
-  LDA #$0002
-  TRB $09EC
-
-item_swapping_end:
-  RTL    
-
-item_swapping_left:
-  LDA $09EC
-  BIT #$0002
   BNE item_swapping_end
+  LDA $cycle_joypad_current
+  AND #$0006
+  BEQ item_swapping_end
+  TSB $cycle_joypad_held
+  BIT #$0002
+  BNE item_swapping_right
 
   LDY $0AC4
   BPL item_swap_left_begin
@@ -56,8 +39,6 @@ item_swap_left_top:
 item_swap_store:
   STY $0AC4
   STA $0AC6
-  LDA #$0002
-  TSB $09EC
   COP [07] ( #10 )
   PHX                      ;EquippedIcon clobbers X, hooks must keep X = actor id
   JSL @EquippedIcon
@@ -66,10 +47,6 @@ item_swap_store:
 
 
 item_swapping_right:
-  LDA $09EC
-  BIT #$0002
-  BNE item_swapping_end
-
   LDY $0AC4
   BPL item_swap_right_begin
   LDY #$FFFF
@@ -85,6 +62,9 @@ item_swap_right_top:
   AND #$00FF
   BEQ item_swap_right_top
   BRA item_swap_store
+
+item_swapping_end:
+  RTL
 
 item_swap_right_nothing:
   LDY #$FFFF

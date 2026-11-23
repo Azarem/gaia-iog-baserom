@@ -1,9 +1,9 @@
 ; ==============================================================================
 ; Edward Castle flower - thank-you dialog on interact
 ; ==============================================================================
-; What it does: Replaces the flower's empty interact handler with dialog when
-;   the player uses the tile (COP D0/D1 routes to thankful_flower_interact).
-; Vanilla behavior: code_09BC4C is an empty interact stub after SetInteractHandler.
+; What it does: Routes the flower to its thank-you dialogue when
+;   the player talks to the flower after playing the song or opening the door.
+; Vanilla behavior: code_09BC4C shows the hint to play the flute.
 ; Hooks (overrides): ec11_flower code_09BC4C (prepend COP interact wiring).
 ; Adds: thankful_flower_interact, thankful_flower_str dialog text.
 ; Depends on: ec11_flower scene actor.
@@ -25,4 +25,4 @@ thankful_flower_interact {
     RTL 
 }
 
-thankful_flower_str `[TPL:18][TPL:D]Thank you, that was[N]lovely![END]`
+thankful_flower_str `[BOR:6][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme18]Thank you, that was[N]lovely![END]`

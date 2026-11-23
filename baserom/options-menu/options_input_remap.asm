@@ -47,13 +47,13 @@
 ---------------------------------------------
 ; Lookup table: save byte bit position -> joypadCurrent action flag word.
 ; Indexed by bit position (0-7), each entry is a 16-bit word.
-; Bit 0 is shifted out first by LSR, so entry 0 = Cycle Item.
+; Bit 0 is shifted out first by LSR, so entry 0 = Cycle B.
 
 ActionFlagTable [
-  #$0004   ;00 bit 0 -> ACTION_CYCLE_ITEM
+  #$0004   ;00 bit 0 -> Cycle B
   #$0008   ;01 bit 1 -> ACTION_USE_ITEM
-  #$0010   ;02 bit 2 -> ACTION_BLOCK2
-  #$0020   ;03 bit 3 -> ACTION_BLOCK1
+  #$0002   ;02 bit 2 -> Cycle F (separate from native guard bits)
+  #$0020   ;03 bit 3 -> Block
   #$0040   ;04 bit 4 -> ACTION_RUN
   #$0080   ;05 bit 5 -> ACTION_ATTACK
   #$4000   ;06 bit 6 -> ACTION_CANCEL
@@ -62,8 +62,8 @@ ActionFlagTable [
 
 ---------------------------------------------
 ; Default button mapping bytes — written on new game and old-save detection.
-;   A=$A0 (Confirm+Attack), B=$42 (Cancel+UseItem), X=$01 (Cycle Item)
-;   Y=$10 (Run), L=$08 (Block2), R=$04 (Block1)
+;   A=$A0 (Confirm+Attack), B=$42 (Cancel+UseItem), X=$01 (Cycle B)
+;   Y=$10 (Run), L=$08 (Block), R=$04 (Cycle F)
 
 DefaultButtonMap [
   #$A0   ;00 A

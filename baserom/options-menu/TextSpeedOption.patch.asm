@@ -1,8 +1,8 @@
 ; ==============================================================================
 ; Text Speed option - dialogue per-character delay from options menu
 ; ==============================================================================
-; Cinematic (2): unpaced text waits one frame normally and
-;   zero frames while Run is held. Normal (0, new-game default) keeps unpaced text instant.
+; Cinematic (2, new-game default): unpaced text waits one frame normally and
+;   zero frames while Run is held. Normal (0) keeps unpaced text instant.
 ;   Both preserve authored delays and apply Fast timing while Run is held.
 ; Instant (1) skips all character delays. Legacy value 3 falls back to
 ;   Normal, matching the options registry's out-of-range handling.

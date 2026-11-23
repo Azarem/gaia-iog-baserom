@@ -21,6 +21,7 @@
 !scene_current                  0644
 !inventory_slots                0AB4
 !herb_count                     0B55
+!herb_capacity                  0B5C  ; saved byte after the four relic flag bytes
 !jewel_count                    0B56
 !crystal_count                  0B57
 
@@ -212,6 +213,23 @@ InventoryCountersCheckAndStore {
     RTL
 
   iccas_get_count:
+    CMP #$00                ; Counter index zero is Herb.
+    BNE iccas_other_stack
+    JSL $@NormalizeHerbCapacity
+    JSL $@StoreOneHerb
+    BCS icaas_inventory_full
+    LDA $herb_capacity
+    CMP #$FF
+    BEQ iccas_herb_done
+    INC $herb_capacity
+  iccas_herb_done:
+    LDY #$0000
+    TXA
+    PLX
+    SEC
+    RTL
+
+  iccas_other_stack:
     TAY
     LDA $herb_count, Y
     BNE iccas_increment
@@ -405,3 +423,31 @@ sprite_composition.loc_03C82D! {
 
 ;loc_02E3AB+:
     ;JSR $&InventoryCountersGenerateSprites
+
+; M=8. Seed the lower bound on older saves before a pickup or consumption.
+NormalizeHerbCapacity {
+    LDA $herb_count
+    CMP $herb_capacity
+    BCC herb_cap_ready
+    STA $herb_capacity
+  herb_cap_ready:
+    RTL
+}
+
+; M=8. Carry clear on success. Only the first Herb needs a free slot.
+; Natural pickups grow earned capacity in the caller; Gem only refills stock.
+StoreOneHerb {
+    LDA $herb_count
+    CMP #$FF
+    BEQ herb_store_done
+    CMP #$00
+    BNE herb_store_increment
+    LDA #$06
+    JSL $@InventoryCheckAndStore
+    BCS herb_store_done
+  herb_store_increment:
+    INC $herb_count
+    CLC
+  herb_store_done:
+    RTL
+}

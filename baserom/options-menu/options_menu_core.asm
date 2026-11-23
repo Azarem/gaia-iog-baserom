@@ -128,7 +128,7 @@ BtnNameR   |R|
 ; assigned button letter, reading WRAM at $0BD0 + row*2.
 ;
 ; Row order matches ActionBitMasks: Confirm, Attack, Cancel, Use Item,
-; Block, Block2, Run, Cycle Item.
+; Block, Cycle F, Run, Cycle B.
 
 optstr_rows_left |[PAL:0][POS:C6,1]\
 Act/Confirm [TBL:@ButtonDisplayTable,BD0][N]\
@@ -136,9 +136,9 @@ Attack      [TBL:@ButtonDisplayTable,BD2][N]\
 Cancel      [TBL:@ButtonDisplayTable,BD4][N]\
 Use Item    [TBL:@ButtonDisplayTable,BD6][N]\
 Block       [TBL:@ButtonDisplayTable,BD8][N]\
-[PAL:14]Block2      [PAL:0][TBL:@ButtonDisplayTable,BDA][N]\
+[PAL:14]Cycle F     [PAL:0][TBL:@ButtonDisplayTable,BDA][N]\
 [PAL:14]Run         [PAL:0][TBL:@ButtonDisplayTable,BDC][N]\
-[PAL:14]Cycle Item  [PAL:0][TBL:@ButtonDisplayTable,BDE]|
+[PAL:14]Cycle B     [PAL:0][TBL:@ButtonDisplayTable,BDE]|
 
 ---------------------------------------------
 ; Btn. Preset — built-in setting (not persisted).
@@ -209,9 +209,9 @@ ActionBitMasks [
   #$40   ;02 Cancel
   #$02   ;03 Use Item
   #$08   ;04 Block1
-  #$04   ;05 Block2
+  #$04   ;05 Cycle F
   #$10   ;06 Run
-  #$01   ;07 Cycle Item
+  #$01   ;07 Cycle B
 ]
 
 ---------------------------------------------
