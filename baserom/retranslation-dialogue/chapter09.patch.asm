@@ -1,11 +1,11 @@
 ; GaiaLabs Retranslation, chapter 09. Dialogue only.
 
 ?INCLUDE 'ir1D_monologue'
-ir1D_monologue.dialogstring_09D04C! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme0]Will: At the Incan cliffs[N]of Larai, dreadful wind[N]was raging.[FIN]Could this be the breath[N]of god that the elder[N]spoke of…[FIN]A place without wind is[N]probably sleeping quietly[N]somewhere on this cliff.[FIN]I felt it throbbing in my[N]chest.[END]`
+ir1D_monologue.dialogstring_09D04C! `[CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@CastleV051Thought](The Incan Cliffs of[N]Larai[AD] I can feel the wind[N]raging around me.)[FIN](Could this be the "breath[N]of the spirits" the Elder[N]spoke of?)[FIN](Then somewhere on this[N]cliff must be a place the[N]wind cannot reach.)[FIN](My heart won't stop[N]pounding.)[END]`
 
 ?INCLUDE 'item_use_system'
 item_use_system.dialogstring_03865D! `[DLG:3,15][SIZ:D,2]There's no hole there to[N]use the prison key in.[END]`
-item_use_system.dialogstring_038746! `[DLG:3,13][SIZ:D,3]Could the secret of the[N]Inca be hidden in this[N]statue…?[END]`
+item_use_system.dialogstring_038746! `[CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@CastleV051Thought](Could the Inca's secret[N]be hidden in this statue?)[END]`
 item_use_system.dialogstring_03893E! `[DLG:3,11][SIZ:D,4]It seems that you couldn't[N]find a hole to insert the[N]water caltrop shaped block[N]into around here.[END]`
 item_use_system.dialogstring_03897C! `[DLG:3,15][SIZ:D,2]Inserted the block into[N]the open tile.[END]`
 

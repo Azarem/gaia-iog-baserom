@@ -1,7 +1,68 @@
 ; GaiaLabs Retranslation, chapter 24. Dialogue only.
 
 ?INCLUDE 'wa78_intro'
-wa78_intro.dialogstring_0780B6! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0][DLY:2]We arrived at the[N]Floating City, Watermia.[N]It was a beautiful town[N]made up of rows of houses[N]that were built on rafts.[PAU:58][CLR]Since the townspeople are[N]nice too, we ended up[N]being given accommodations[N]in the house of a friendly[N]young man named Luke.[PAU:84][CLD]`
+; Luke's welcome waits for the arrival narration to close. Flag $0A is
+; local to this scene and is cleared before and after the handoff.
+wa78_intro.wa78_intro! [
+  actor-def < #00, #00, #38, {
+
+  WatermiaArrivalStart:
+    COP [BranchOnFlagByte] ( #8D, #01, &code_07808E )
+    LDA #$0008
+    TSB $12
+    LDA #$CFFC
+    TSB $joypadMaskStd
+    LDY $playerActor
+    LDA $0010, Y
+    ORA #$2000
+    STA $0010, Y
+    LDA $0014, Y
+    STA $14
+    LDA $0016, Y
+    STA $16
+    LDA #$0800
+    TRB $10
+    COP [WaitByte] ( #01 )
+    LDA #$0800
+    TSB $10
+    COP [ClearFlagByte] ( #0A )
+    COP [SpawnListAppend] ( @code_0780AD, #00, #00, #$2000 )
+    COP [SpawnAfterFlags] ( @code_078090, #$2800 )
+    COP [StageSpriteLoopMoveY] ( #07, #08, #02 )
+    COP [AnimLoop]
+    COP [StageSpriteLoopMoveXY] ( #07, #10, #11, #02 )
+    COP [AnimLoop]
+    LDY $playerActor
+    LDA $14
+    STA $0014, Y
+    LDA $16
+    STA $0016, Y
+    COP [SetFlagByte] ( #8D )
+    LDA #$0800
+    TRB $10
+    COP [WaitByte] ( #1D )
+    COP [WaitOnFlagByte] ( #0A, #01 )
+    COP [ClearFlagByte] ( #0A )
+    COP [PrintDialogString] ( &dialogstring_078139 )
+    COP [WaitByte] ( #3B )
+    LDA #$0404
+    STA $gfxCacheIdxB
+    COP [QueueMapChange] ( #79, #$0070, #$00B0, #00, #$1100 )
+    LDA #$CFFC
+    TRB $joypadMaskStd
+    COP [SetEntryHere]
+    RTL
+} >
+]
+
+wa78_intro.code_0780AD! {
+    COP [WaitByte] ( #1D )
+    COP [PrintDialogString] ( &dialogstring_0780B6 )
+    COP [SetFlagByte] ( #0A )
+    COP [Die]
+}
+
+wa78_intro.dialogstring_0780B6! `[DEF][DLY:2]Will and the others[N]arrived in Watermia, the[N]Floating City.[PAU:58][CLR]Houses rested on rafts[N]all across the bright[N]water.[PAU:58][CLR]The people were welcoming,[N]and a fisherman named Luke[N]offered them his home[N]while he was away at sea.[PAU:58][CLR]Will thought he'd welcome[N]the chance to rest[AD][PAU:58][CLR]But after a few quiet[N]days, he was already[N]getting restless.[PAU:58][CLR]He kept wondering what was[N]waiting beyond the next[N]horizon.[PAU:84][CLD]`
 wa78_intro.dialogstring_078139! `[DEF]This is Luke's house.[N]He's a fisherman, and a[N]generous one.[FIN][DEF]He'll be away on a long[N]voyage, so he told Will[N]and the others to make[N]themselves at home.[END]`
 
 ?INCLUDE 'wa79_kara'
@@ -20,7 +81,7 @@ wa79_neil.dialogstring_07A217! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationThem
 wa78_men.dialogstring_07879B! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Luke: Yo. How do you like[N]the house? You're free to[N]use it while I'm away on[N]my voyage.[END]`
 
 ?INCLUDE 'wa78_diary'
-wa78_diary.dialogstring_079C19! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0]Kara hid her diary here…[N]Read it?[N][PAL:0] Yes[N] No[PAL:4]`
+wa78_diary.dialogstring_079C19! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](Kara hid her diary here[AD][N]Should I read it?)[N][PAL:0] Yes[N] No[PAL:4]`
 wa78_diary.dialogstring_079C4A! `[CLR][BOR:3][PRT:@CastleV051Thought](No. I'd feel guilty[N]reading it without[N]permission.)[END]`
 wa78_diary.dialogstring_079C81! `[CLR][BOR:1][DLG:3,D][SIZ:D,6][PRT:@RetranslationTheme1][SFX:0]Day X of month X:[N]After a very long road, we[N]finally reached Watermia.[FIN]I was thirsty on the way.[N]My feet blistered, and I[N]wrapped them in my[N]handkerchief.[FIN]Before this journey, I[N]would have complained the[N]whole time.[N]This time I kept going.[N]Maybe I've changed more[N]than I realized.[FIN]Today I heard a Watermia[N]legend.[N]"Make a wish from a lotus[N]leaf beneath the full[N]moon, and the one you love[N]will look closely at you."[FIN]It's a lovely story.[N]Maybe I'll try it[AD][END]`
 
@@ -135,7 +196,7 @@ wa79_kara.dialogstring_07A79C! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationThem
 wa79_kara.dialogstring_07A7E2! `[BOR:7][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Kara: I wonder what[N]happened to Lance and[N]Lilly. I'm worried…[END]`
 
 ?INCLUDE 'item_use_system'
-item_use_system.dialogstring_039514! `[DLG:3,17][SIZ:D,1]Opened Lance's letter.[FIN][CLD][BOR:1][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme4]Lance: I'm going ta tha[N]Great Wall o' China fer a[N]little bit.[FIN][CLD][BOR:1][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]I had intended ta keep[N]this a secret from[N]everyone, but I thought[N]I'd only tell you…[FIN]I'll put this letter in[N]yer luggage, but I wonder[N]if you'll notice. I think[N]yer pretty dumb after all.[FIN]I learned a method ta cure[N]my old man's disease from[N]tha townspeople's stories…[FIN]It seems like that[N]medicine is at tha Great[N]Wall o' China.[FIN]Tha path is long, but I'll[N]just run it like a[N]marathon and be right[N]back. Don't worry.[FIN]P.S.: Ah, that's right,[N]I nearly forgot… Lilly[N]ended up turnin' me down.[END]`
+item_use_system.dialogstring_039514! `[DLG:3,15][SIZ:D,2]Will opens Lance's letter.[FIN][CLD][BOR:1][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Lance: I'm going to the[N]Great Wall of China for[N]a little while.[FIN]I meant to keep it secret,[N]but I figured I'd tell[N]you.[FIN]I'm hiding this letter in[N]your luggage. Betting it[N]takes you a bit to notice.[FIN]Lilly turned me down.[N]I think maybe she's got[N]feelings for you, Will.[FIN]Don't worry. I don't blame[N]you. You never did[N]anything wrong.[FIN]Maybe I just haven't given[N]her much reason to see me[N]that way.[FIN]I heard an old legend[N]about the Great Wall.[FIN]They say living statues[N]that never age still[N]guard a sacred statue[N]hidden there.[FIN]Sounds a lot like one of[N]the Mystic Statues we're[N]looking for, doesn't it?[FIN]So I'm going to find it.[N]Maybe if I come back with[N]one of those things, Lilly[N]will see me differently.[FIN]Don't follow me.[N]I need to do this one[N]myself.[END]`
 
 ?INCLUDE 'wa78_glass_game'
 wa78_glass_game.dialogstring_07927C! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Every month on a full moon[N]night, people play Russian[N]Glass.[WAI][N]It's the ultimate form of[N]gambling where you bet[N]your very life.[WAI][N]But you're still young,[N]little boy. I definitely[N]don't think you should be[N]throwing your life away.[END]`

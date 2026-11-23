@@ -2,7 +2,7 @@
 ; Seth's Jewel - Gold Ship Seth NPC gift
 ; ==============================================================================
 ; What it does: Seth on the wrecked Gold Ship gives item $29 (Seth's Jewel) on first talk
-;   instead of Red Jewel $01; repeat dialog unchanged after flag $E0.
+;   instead of Red Jewel $01. Repeat dialogue after flag $E0 is defined in chapter10.patch.asm.
 ; Vanilla behavior: gs2B_seth GiveItem #01, "Will gets a Red Jewel!" text; same flags
 ;   $51 (despawn) and $E0 (already gave jewel); inventory-full -> HiddenRedJewelInventoryFull.
 ; Hooks (overrides): gs2B_seth.code_059652 interact handler; dialogstring_05966E pickup line.

@@ -39,12 +39,12 @@ sp5C_key_coffin.dialogstring_069167! `[BOR:6][DLG:3,11][SIZ:D,4][PRT:@Retranslat
 ?INCLUDE 'sp5C_stone_coffin'
 sp5C_stone_coffin.dialogstring_0692E2! `[DEF][PRT:@RetranslationTheme0]Will: The coffins are [N]lined up...[PAL:0][END]`
 sp5C_stone_coffin.dialogstring_06930A! `[DLG:3,15][SIZ:D,2]Lilly started talking[N]from Will's pocket.[FIN][BOR:6][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme2]Lilly: This coffin[N]doesn't open?[FIN][CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme2]I can open it if I go into[N]the hole. Shall I take a[N]look?[END]`
-sp5C_stone_coffin.dialogstring_069377! `[BOR:6][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme2]Lilly: I discovered this[N]weird rock in the coffin.[FIN]`
+sp5C_stone_coffin.dialogstring_069377! `[BOR:6][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme2]Lilly: I found this weird[N]rock in the coffin.[FIN]`
 sp5C_stone_coffin.dialogstring_0693B7! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: I found this weird[N]rock in the coffin. But it[N]doesn't look like you have[N]room to carry it[AD][END]`
-sp5C_stone_coffin.dialogstring_06939E! `[CLD][DLG:3,15][SIZ:D,2][SFX:0][DLY:9]Got the purification[N]stone![PAU:78][END]`
+sp5C_stone_coffin.dialogstring_06939E! `[CLD][DLG:3,15][SIZ:D,2][SFX:0][DLY:9]Got the Purity Stone![PAU:78][END]`
 
 ?INCLUDE 'item_use_system'
-item_use_system.dialogstring_039244! `[DLG:3,15][SIZ:D,2]Held up the purification[N]stone![FIN]`
+item_use_system.dialogstring_039244! `[DLG:3,15][SIZ:D,2]Will holds up the[N]Purity Stone![FIN]`
 item_use_system.dialogstring_03925F! `However, nothing happened![END]`
 
 ?INCLUDE 'sp5B_neil'
@@ -54,10 +54,10 @@ sp5B_neil.dialogstring_06898C! `[BOR:D][DLG:3,4][SIZ:D,1][PRT:@RetranslationThem
 sp5B_lance.dialogstring_068930! `[BOR:3][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme4]Lance: Ungh, ungh.[END]`
 
 ?INCLUDE 'sp5D_fountain'
-sp5D_fountain.dialogstring_0694AA! `[BOR:6][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme2]Lilly: Ah…! It's a[N]fountain made of blood…[FIN][CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme2]I wonder if this is[N]somehow related to that[N]rock we just picked up?[END]`
+sp5D_fountain.dialogstring_0694AA! `[CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: Ah[AD]! It's a[N]fountain made of blood[AD][FIN]Could this have something[N]to do with that stone[N]we just found?[END]`
 
 ?INCLUDE 'item_use_system'
-item_use_system.dialogstring_03926F! `[DLG:3,11][SIZ:D,4]The stone grew brighter[N]and immediately[N]disappeared into the[N]fountain…[END]`
+item_use_system.dialogstring_03926F! `[DLG:3,11][SIZ:D,4]The stone grows brighter[N]and disappears into the[N]fountain[AD][END]`
 
 ?INCLUDE 'sp5A_villagers'
 sp5A_villagers.dialogstring_068B22! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]You saved me! Thank you![WAI][N]I was taken here from[N]Freejia and transformed[N]into a demon.[FIN][CLD][DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: What[AD]? Then some[N]of the demons here used[N]to be people[AD]?[END]`
@@ -68,18 +68,18 @@ sp5A_villagers.dialogstring_068CF6! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@Retranslatio
 sp5A_villagers.dialogstring_068D29! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]There's no doubt about it;[N]vampires sleep in these[N]coffins.[WAI][N]Those bastards are[N]planning something[N]horrible[AD][END]`
 sp5A_villagers.dialogstring_068D7A! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]A vampire husband and wife[N]rule this palace.[WAI][N]They bring people[N]here from all over and[N]transform them into[N]demons for labor.[END]`
 sp5A_villagers.dialogstring_068DD0! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]This palace is connected[N]to the lost continent[N]of Mu.[WAI][N]The vampire couple[N]has been searching for[N]something there.[END]`
-sp5A_villagers.dialogstring_068E20! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]Imagine if you were one[N]step later in rescuing us[N]from being transformed[N]into demons…[END]`
+sp5A_villagers.dialogstring_068E20! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]If you'd arrived any[N]later, we'd have been[N]turned into demons too[AD][END]`
 sp5A_villagers.dialogstring_068E67! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]I overheard the vampires.[WAI][N]They said a Mystic Statue[N]is hidden somewhere on Mu.[END]`
 sp5A_villagers.dialogstring_068EA9! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]I snatched a key from the[N]vampire woman. Here, take[N]it.[END]`
-sp5A_villagers.dialogstring_068ED4! `[DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Got the seabed palace key![PAU:78][END]`
-sp5A_villagers.dialogstring_068F02! `[DEF]I stole a key from the[N]vampire woman. I'd like[N]to give it to you, but[N]your inventory's full...[END]`
+sp5A_villagers.dialogstring_068ED4! `[DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Got the Seabed Palace Key![PAU:78][END]`
+sp5A_villagers.dialogstring_068F02! `[DEF]I stole a key from the[N]vampire woman. I'd give[N]it to you, but you don't[N]have room to carry it[AD][END]`
 sp5A_villagers.dialogstring_068F53! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]There's a passage to the[N]continent of Mu on the[N]upper floor of the palace.[END]`
 sp5A_villagers.dialogstring_068F89! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme16]What should we do after[N]being left in the middle[N]of the sea like this…?[END]`
 sp5A_villagers.dialogstring_068FC0! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]What will happen to[N]everyone who was abducted[N]and brought to this[N]palace?[END]`
 
 ?INCLUDE 'item_use_system'
-item_use_system.dialogstring_039179! `[DLG:3,15][SIZ:D,2]Tried using the palace[N]key.[FIN]`
-item_use_system.dialogstring_0391B6! `The key made an eerie[N]sound as it turned.[FIN]`
+item_use_system.dialogstring_039179! `[DLG:3,15][SIZ:D,2]Will tries the[N]Seabed Palace Key.[FIN]`
+item_use_system.dialogstring_0391B6! `The key makes an eerie[N]sound as it turns.[FIN]`
 item_use_system.dialogstring_0391D9! `[DLG:3,15][SIZ:D,2]Lilly begins to speak[N]from your pocket.[FIN][CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme2]The passage ahead of here[N]leads to the fantastic[N]continent of Mu, right?[END]`
 
 ?INCLUDE 'sp5E_passageway'

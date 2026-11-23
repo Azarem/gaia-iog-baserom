@@ -31,10 +31,10 @@ gs2E_crew3.dialogstring_0589DB! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@Retranslati
 gs2E_crew2.dialogstring_058940! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1B][PAL:0]Ah, Your Majesty. The[N]Mystic Statue is inside[N]this box.[WAI][N]It seems we'll be[N]departing soon.[WAI][N][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1B][PAL:0]Would you like to climb[N]the lookout tower?[WAI][N]You can watch as we set[N]off.[END]`
 
 ?INCLUDE 'gs2E_crew1'
-gs2E_crew1.dialogstring_05883E! `[BOR:5][DLG:3,4][SIZ:D,5][PRT:@RetranslationTheme1B]Her Majesty, the Queen,[N]has carefully put on the[N]ring that Your Majesty had[N]bestowed upon her[N]previously.[FIN][CLD][BOR:5][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme1B]Ah, that's right.[FIN][CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1B]Your Majesty sent the ring[N]when you and the Queen[N]were driven out by the[N]invaders and separated.[FIN]As for the Queen, she's[N]probably only concerned[N]with how well Your Majesty[N]is doing.[END]`
+gs2E_crew1.dialogstring_05883E! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1B]Her Majesty still wears[N]the ring you gave her.[FIN]The one you sent after[N]the invaders separated[N]you both.[FIN]The Queen has prayed,[N]every night, for your[N]safe return.[END]`
 
 ?INCLUDE 'gs2E_queen'
-gs2E_queen.dialogstring_058A30! `[BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Incan Queen: How wonderful[N]that you've returned safe[N]and well for me, my[N]darling.[FIN]The Mystic Statue of the[N]wind that you had spoken[N]of had protected me many[N]times until today![FIN]You said it was a stone[N]statue blessed by the[N]gods, right?[FIN][::][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]I believe it has been[N]placed in a treasure box[N]in the storehouse below;[FIN]please confirm it with[N]your own eyes.[END]`
+gs2E_queen.dialogstring_058A30! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Incan Queen: My darling[AD][N]You returned safely.[FIN]The Mystic Statue of the[N]wind protected me just as[N]you promised it would.[FIN]You said it was a statue[N]blessed by the spirits.[FIN][::][CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]It rests in a treasure[N]chest in the storehouse[N]below.[FIN]Please see it with your[N]own eyes.[END]`
 
 ?INCLUDE 'gs2C_crow_crew'
 gs2C_crow_crew.dialogstring_0584BC! `[BOR:5][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1B]Lookout: King, please look[N]outside. The ship is[N]leaving the cave![END]`
@@ -62,7 +62,19 @@ gs2D_lily.dialogstring_058DDA! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 gs2B_bones.dialogstring_058BD7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Thought](An Incan was standing[N]here just a moment ago[AD])[END]`
 
 ?INCLUDE 'gs2B_seth'
-gs2B_seth.dialogstring_0596C1! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Now that you mention it,[N]this might be the first[N]time I've given something[N]to you.[FIN]Please treasure it.[END]`
+gs2B_seth.code_059669! {
+    COP [BranchIfHasItem] ( #1C, &GoldShipSethWithGlasses )
+    COP [PrintDialogString] ( &dialogstring_0596C1 )
+    RTL
+}
+
+GoldShipSethWithGlasses {
+    COP [PrintDialogString] ( &GoldShipSethGlassesDialogue )
+    RTL
+}
+
+GoldShipSethGlassesDialogue `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Sunglasses and a[N]sparkling gem.[FIN]I may be at risk of[N]becoming[N]characteristically generous.[END]`
+gs2B_seth.dialogstring_0596C1! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Uncharacteristically for[N]me, I believe this is my[N]first gift to you.[WAI][N]Take good care of it.[END]`
 
 ?INCLUDE 'gs2B_erik'
 gs2B_erik.dialogstring_059240! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme3]Erik: Wah…![N]You surprised me…!![FIN]Geez, Will.[N]Don't scare me…![END]`

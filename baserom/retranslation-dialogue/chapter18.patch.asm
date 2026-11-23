@@ -5,14 +5,14 @@ dm3E_intro.dialogstring_05FA59! `[DEF]A mysterious garden floats[N]in the sky ab
 
 ?INCLUDE 'sg4C_spirits'
 sg4C_spirits.dialogstring_05F371! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: We meet[N]again, huh? Mweheheheh.[WAI][N]We have watched kingdoms[N]rise, prosper, and crumble[N]beneath this garden.[WAI][N]We watched the Incas fall.[N]They were not the first,[N]nor were they the last.[END]`
-sg4C_spirits.dialogstring_05F3C9! `[BOR:8][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1A]Race of the Moon: This[N]mid-air garden is our[N]vehicle.[FIN]Four crystal balls are[N]enshrined in the four[N]areas.[FIN]Go around clockwise and[N]you can get them all.[N]Mweheheheh…[END]`
+sg4C_spirits.dialogstring_05F3C9! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: This garden in[N]the sky is our vessel.[FIN]It carried our people[N]long ago, before the[N]comet's light changed[N]our bodies.[FIN]The great markings below[N]once guided this vessel[N]across the heavens.[FIN]Their makers vanished,[N]but the stars they[N]marked shine on.[END]`
 sg4C_spirits.dialogstring_05F46E! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: The garden has[N]two faces.[WAI][N]Leap from the edge and you[N]may land on the world[N]beneath the one you see.[WAI][N]Up and down are only[N]a question of where[N]you stand.[END]`
 
 ?INCLUDE 'sg52_switch'
 sg52_switch.dialogstring_05F71C! `[DEF][CLD][DLG:3,F][SIZ:D,5]This tile makes a sound[AD][END]`
 
 ?INCLUDE 'sg55_mystic_statue'
-sg55_mystic_statue.dialogstring_0ACF0E! `[DLG:3,13][SIZ:D,3]After defeating the huge[N]bird, you found a Mystic[N]Statue in its corpse!![END]`
+sg55_mystic_statue.dialogstring_0ACF0E! `[CLD][DLG:3,13][SIZ:D,3]When the giant bird falls,[N]Will finds a Mystic Statue[N]among its remains![END]`
 sg55_mystic_statue.dialogstring_0ACF4A! `[DEF]Through the roar of a[N]propeller, Neil's voice[N]booms from a megaphone![FIN][CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Will! You're[N]getting too close to the[N]ground![FIN][CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme6]I'll catch you with the[N]aeroplane. Now jump![END]`
 
 ?INCLUDE 'sp58_missed_flight'

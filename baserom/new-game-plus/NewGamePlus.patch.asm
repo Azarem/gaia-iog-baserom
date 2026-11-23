@@ -41,8 +41,8 @@ diary_ngp_option {
     COP [E2] ( @diary_ngp_stub )
     COP [40] ( #$0800, &DiaryStartSlotUp )
     COP [40] ( #$0400, &DiaryStartSlotDown )
-    COP [40] ( #$0080, &diary_ngp_confirm )
-    COP [40] ( #$8000, &DiaryStartCancel )
+    COP [BranchIfPressed] ( #$8000, &diary_ngp_confirm )
+    COP [BranchIfPressed] ( #$4000, &DiaryStartCancel )
     RTL 
 }
 

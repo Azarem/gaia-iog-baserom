@@ -32,7 +32,7 @@ av75_voice_rooms.dialogstring_06DB4F! `[BOR:3][DLG:3,4][SIZ:D,1][PRT:@Retranslat
 av75_voice_rooms.dialogstring_06DB9F! `[BOR:3][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme3]That's correct!![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme3]Your hair was fluttering[N]because the wind was[N]blowing, wasn't it.[FIN]You have passed my tests[N]splendidly. Alright, you[N]may return.[END]`
 
 ?INCLUDE 'av74_ishtar'
-av74_ishtar.dialogstring_06CF5E! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme3]Ishtar: I had been[N]waiting for you to come.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]You should sprinkle this[N]magic powder over the[N]picture of that girl, then[N]give it a heartfelt kiss.[FIN]Something should happen if[N]you truly feel for that[N]girl.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme3]Well, you'll probably[N]understand eventually.[FIN]I painted my own[N]self-portrait.[FIN]I will soon be assimilated[N]into the picture…[FIN]That girl…[N]Protect her carefully…[END]`
+av74_ishtar.dialogstring_06CF5E! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Ishtar: I have been[N]waiting for you.[FIN]Sprinkle this Magic[N]Powder over the girl's[N]portrait, then give her[N]a heartfelt kiss.[FIN]If your feelings are true,[N]something should happen.[WAI][N]As for me, my work is[N]finished.[FIN]I painted my own portrait.[WAI][N]Look at it. It will never[N]grow old. It will never[N]become sick.[FIN]It will never lose its[N]beauty to time.[WAI][N]A portrait never changes.[N]That is its perfection.[FIN]Soon I will become part[N]of mine as well.[WAI][N]That girl[AD] take care of[N]her.[END]`
 av74_ishtar.dialogstring_06D039! `[BOR:3][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme3]…[END]`
 
 ?INCLUDE 'av74_kara'
@@ -51,7 +51,7 @@ av74_kara.dialogstring_06D3CC! `[BOR:7][DLG:3,4][SIZ:D,2][PRT:@RetranslationThem
 
 ?INCLUDE 'av6A_erik'
 av6A_erik.dialogstring_06C568! `[BOR:D][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme6]Neil: Kara![N]I was worried…!![FIN][BOR:6][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme2]Lilly: Why do you always[N]run around by yourself…!?[FIN]Don't you have any concern[N]for anyone else…!?[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Kara: If you're talking[N]about that, Will already[N]scolded me.[FIN]Because of that, I[N]sincerely apologize to[N]everyone…! *Bow*…[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Well, it seems that[N]even the perpetrator[N]understands the matter,[N]so I can tolerate it.[FIN]Anyway, it seems that if[N]we proceed about three[N]days to the south, you get[N]to the Floating City.[FIN]I think we'll try to[N]leave right away. Talk to[N]me when you're prepared[N]to leave.[END]`
-av6A_erik.dialogstring_06C6A0! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme3]Erik: Ah, speaking of[N]that…[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]In the fallen angels'[N]village, I noticed[N]something that looked[N]like a Red Jewel.[END]`
+av6A_erik.dialogstring_06C6A0! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Erik: Oh! That reminds me![FIN]Back in Fallen Wing[N]Village, I think I saw a[N]shiny Red Jewel.[END]`
 
 ?INCLUDE 'av6A_lily'
 av6A_lily.dialogstring_06C2F8! `[CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: Kara is acting[N]strange, isn't she?[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]I have a sense for these[N]things. Did something[N]happen between you two?[END]`
@@ -63,6 +63,6 @@ av6A_lance.dialogstring_06BFBE! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@Retranslati
 av6A_kara.dialogstring_06C417! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: They say Watermia[N]is built from houses[N]floating on rafts.[WAI][N]Doesn't that sound[N]romantic? I think it'll[N]be fun.[END]`
 
 ?INCLUDE 'av6A_neil'
-av6A_neil.dialogstring_06C10D! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]Neil: Is it okay to go?[N][PAL:0] Yes[N] Wait a bit[PAL:4]`
+av6A_neil.dialogstring_06C10D! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]Neil: Ready to go?[N][PAL:0] Yes[N] Wait a bit[PAL:4]`
 av6A_neil.dialogstring_06C136! `[CLR]Neil: Don't rush things.[N]Take your time finishing[N]your business.[END]`
 av6A_neil.dialogstring_06C15C! `[CLR]Neil: It seems that the[N]Floating City is a[N]considerably hot place.[FIN]Everyone mustn't get[N]heatstroke, so take care.[END]`

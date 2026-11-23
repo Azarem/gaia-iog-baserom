@@ -11,9 +11,9 @@ dm3F_elevator_door.dialogstring_05D676! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@Ca
 
 ?INCLUDE 'dm3F_laborer'
 dm3F_laborer.dialogstring_0AA791! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme16]Slave: I'm begging you![N]Please cut this chain!![END]`
-dm3F_laborer.dialogstring_0AA7B4! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme16]Slave: T-thank you!! I[N]will never forget this[N]favour.[FIN][CLD][DLG:3,17][SIZ:D,1]Please take this key.[FIN]`
+dm3F_laborer.dialogstring_0AA7B4! `[CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme16]Slave: T-thank you!! I'll[N]never forget what you've[N]done.[FIN][CLD][BOR:3][DLG:3,17][SIZ:D,1][PRT:@RetranslationTheme16]Please take this key.[FIN]`
 dm3F_laborer.dialogstring_0AA7EF! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]You have the[N]key to the mine![PAU:D0][CLD]`
-dm3F_laborer.dialogstring_0AA811! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]There are people who have[N]been put to work even in[N]the depths of the diamond[N]mine.[FIN][CLD][DLG:3,15][SIZ:D,2]Please use this key and[N]save them somehow.[FIN]`
+dm3F_laborer.dialogstring_0AA811! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]There are more slaves[N]being forced to work deep[N]in the diamond mine.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme16]Please use this key and[N]save them.[FIN]`
 dm3F_laborer.dialogstring_0AA85C! `[CLD][DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Got the lift key![PAU:D0][CLD]`
 dm3F_laborer.dialogstring_0AA874! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]Thank you for saving me.[N]Let me repay you with a[N]useful secret.[WAI][N]This mine has hidden rooms[N]whose entrances look just[N]like ordinary walls.[WAI][N]But air slips through the[N]cracks.[WAI][N]With hair like yours,[N]you'll notice a draft when[N]it starts blowing it[N]around.[END]`
 dm3F_laborer.dialogstring_0AA97D! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]There are eight slaves[N]working in this mine,[N]including me.[WAI][N]Please save the others.[END]`
@@ -41,7 +41,7 @@ dm45_key.dialogstring_05D506! `[DLG:3,15][SIZ:D,2]You found the Mine Key![N]Your
 
 ?INCLUDE 'dm44_cell_door'
 dm44_cell_door.dialogstring_05D5AC! `[DEF][CLD][DLG:3,F][SIZ:D,5]The door won't open until[N]both locks are released[AD][END]`
-dm44_cell_door.dialogstring_05D5D1! `[DLG:3,11][SIZ:D,4]I have both keys…[N]Put in the keys?[N] Yes[N] No`
+dm44_cell_door.dialogstring_05D5D1! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](I have both keys[AD][N]Put them in?)[N][PAL:0] Yes[N] No[PAL:4]`
 dm44_cell_door.dialogstring_05D5FF! `[CLR]The key turns with[N]a strange sound.[END]`
 
 ?INCLUDE 'dm47_remus'
@@ -50,7 +50,7 @@ dm47_remus.dialogstring_05D1AE! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@Retranslat
 
 ?INCLUDE 'dm47_imas'
 dm47_imas.dialogstring_05D0C9! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Imas: Please! Cut this[N]chain[AD]![END]`
-dm47_imas.dialogstring_05D0E3! `[BOR:3][DLG:3,17][SIZ:D,1][PRT:@RetranslationTheme5]Imas: Thank you.[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]In the village where we[N]were born, something[N]strange is happening to[N]all the animals.[FIN]Afterward, we found that[N]other strange things were[N]happening;[FIN]…people turning to stone,[N]even people dying from[N]unknown diseases…[END]`
+dm47_imas.dialogstring_05D0E3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Imas: Thank you.[WAI][N]Something terrible is[N]happening in our village.[FIN]Animals are dying without[N]explanation. People fall[N]ill with unknown diseases.[FIN]Some have even turned to[N]stone[AD][END]`
 
 ?INCLUDE 'dm47_sam'
 dm47_sam.dialogstring_05D2C0! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Sam: Please! Cut this[N]chain[AD]![END]`

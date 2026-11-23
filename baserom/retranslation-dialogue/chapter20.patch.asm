@@ -53,7 +53,7 @@ mu67_vampires.dialogstring_0AFCE4! `[CLD][BOR:B][DLG:3,11][SIZ:D,4][PRT:@Retrans
 mu67_erik.dialogstring_06A38D! `[CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme3]Forget everything else-[N]stop the booomb[AD]! Hurry,[N]hurry[AD]!![END]`
 
 ?INCLUDE 'mu67_bomb'
-mu67_bomb.dialogstring_06A4E9! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme0]It seems that both a red[N]wire and a blue wire are[N]hanging out of the bomb…[FIN]Which will you cut?[N][PAL:0] Go with red[N] Go with blue[PAL:4]`
+mu67_bomb.dialogstring_06A4E9! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@CastleV051Thought](A red wire and a blue[N]wire are hanging out of[N]the bomb[AD][FIN]Which one should I cut?)[N][PAL:0] Cut red[N] Cut blue[PAL:4]`
 mu67_bomb.dialogstring_06A54E! `[CLR]The red wire is cut![END]`
 mu67_bomb.dialogstring_06A566! `[CLR]The blue wire is cut![END]`
 mu67_bomb.dialogstring_06A719! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](...........)[FIN](It was a dud.[N]I'm saved...)[PAL:0][END]`

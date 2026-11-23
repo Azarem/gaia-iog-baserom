@@ -7,7 +7,7 @@ na4B_neil.dialogstring_05E8F7! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@Retranslati
 na4B_lily.dialogstring_05F0C8! `[BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Awesome, aren't[N]they? The people from[N]ancient times. How could[N]they have drawn these…?[END]`
 
 ?INCLUDE 'na4B_lance'
-na4B_lance.dialogstring_05EF2D! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Lance: I suppose that[N]until tha other day, I've[N]been spendin' all o' my[N]days doin' things like…[FIN]commutin' to and from[N]school, studyin', and[N]playin'.[FIN]I couldn't even dream that[N]I'd be here…[END]`
+na4B_lance.dialogstring_05EF2D! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Lance: Study, play, hear[N]stories[AD] never thought[N]I'd live 'em.[FIN]Seth would've loved all[N]this.[END]`
 
 ?INCLUDE 'na4B_erik'
 na4B_erik.dialogstring_05F278! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme3]Erik: I'm scared for some[N]reason… I'll be close to[N]Neil.[END]`
@@ -43,7 +43,7 @@ na4B_lily.dialogstring_05F160! `[PAU:28][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@Ret
 
 ?INCLUDE 'na4B_neil'
 na4B_neil.dialogstring_05EB2E! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme6]Neil: [N]we'll talk about it when[N]everyone comes back.[FIN][::][CLD][BOR:D][DLG:3,17][SIZ:D,1][PRT:@RetranslationTheme6][DLY:0]Neil: That's it…![FIN][CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme6][DLY:0]There are nine stars in[N]the constellation of[N]Cygnus, and there are also[N]nine stones…[FIN]`
-na4B_neil.dialogstring_05EB94! `[CLR][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0]In that case, where would[N]the red star that we've[N]started seeing recently[N]be…?[FIN][PAL:0] The condor's head[N] The condor's right leg[N] The condor's left leg[N] The condor's tail[PAL:4]`
+na4B_neil.dialogstring_05EB94! `[CLR][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](In that case, where would[N]the red star that we've[N]started seeing recently[N]be[AD]?)[FIN][PAL:0] The condor's head[N] The condor's right leg[N] The condor's left leg[N] The condor's tail[PAL:4]`
 na4B_neil.dialogstring_05EBE5! `[CLR]Will: No, wait. It should[N]be underneath the[N]constellation of Cygnus…[FIN]`
 na4B_neil.dialogstring_05EC0E! `[CLR]Will: That's it…! It would[N]be right in the joint of[N]the left leg![FIN][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Alright…! Let's try[N]to examine that part of[N]the left leg![END]`
 
@@ -64,4 +64,4 @@ na4B_buried_tile.dialogstring_05E6C0! `[DEF][CLD][DLG:3,F][SIZ:D,5]A strange til
 na4B_buried_tile.dialogstring_05E721! `[CLD][BOR:D][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme6]Neil: Will[AD]! Stay back![FIN][CLD][BOR:D][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme6]We don't know what's[N]under there[AD]!![END]`
 na4B_buried_tile.dialogstring_05E753! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme3][DLY:0]Erik: Wah…! It looks like[N]something huge is[N]descending from above[N]us…!![END]`
 na4B_buried_tile.dialogstring_05E774! `[BOR:7][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1][DLY:0]Kara: Aah…! Will…!![N]Will…!!![PAU:28][CLD]`
-na4B_buried_tile.dialogstring_05E811! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0]Will: Since the Nazca[N]plain seems to be wide, I[N]guess I shouldn't go very[N]far…[END]`
+na4B_buried_tile.dialogstring_05E811! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](Going off on my own[N]would be perfect[AD])[FIN](If I wanted to get lost[N]in a desert I don't know.)[END]`

@@ -5,7 +5,7 @@ na49_neil.dialogstring_05D984! `[PAU:1E][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@Retr
 na49_neil.dialogstring_05D9C1! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Will! Wow![WAI][N]You've really grown since[N]I last saw you.[WAI][N]That longer hair really[N]suits you, too.[END]`
 
 ?INCLUDE 'na49_lily'
-na49_lily.dialogstring_05DDC0! `[BOR:7][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme1]Kara: This guy kinda[N]stiiiinks…[END]`
+na49_lily.dialogstring_05DDC0! `[CLD][BOR:7][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Kara: Hello. We're Will's[N]friends. My name[AD][WAI][N]What's that horrible smell?[END]`
 na49_lily.dialogstring_05DDDF! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Kara! You can't[N]just say that![WAI][N]Try something nicer,[N]like...[WAI][N]"The room has a very[N]powerful smell."[END]`
 
 ?INCLUDE 'na49_neil'
@@ -15,7 +15,7 @@ na49_neil.dialogstring_05DA04! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 na49_lance.dialogstring_05E1EE! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Lance: I've only had[N]mine on for three weeks.[N]Guess I lose![WAI][N]Of course... I did forget[N]a lot during that time.[END]`
 
 ?INCLUDE 'na49_kara'
-na49_kara.dialogstring_05E086! `[BOR:7][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Kara: Come on, I can't[N]even believe these[N]people…![FIN]It's gross that I've[N]already had to breathe[N]that same air…!![END]`
+na49_kara.dialogstring_05E086! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: Anything I said[N]about enjoying your musk[N]was just sun poisoning[N]and heat stroke![END]`
 
 ?INCLUDE 'na49_neil'
 na49_neil.dialogstring_05DAC7! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Alright, enough[N]about socks. Welcome. Make[N]yourselves at home.[WAI][N]I have leftovers that are[N]only a few days old...[WAI][N]I [SFX:A]think.[END]`
@@ -38,7 +38,7 @@ na49_camera.dialogstring_05E55C! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@Retranslat
 
 ?INCLUDE 'na49_neil'
 na49_neil.dialogstring_05DD04! `[BOR:D][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme6]Neil: Will, where are you[N]going?[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]You took the trouble of[N]coming here, so relax a[N]while longer before you[N]go.[END]`
-na49_neil.dialogstring_05DB9C! `[BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Anyway, you came here[N]because I can do something[N]for you, right? Please[N]tell me what you need.[FIN][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme0]Will told Neil about the[N]events that happened until[N]now; hearing the voice of[N]his missing father,[FIN]searching for the Mystic[N]Statues that are spread[N]across ruins throughout[N]the world, and so on.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]Neil: Hohoho… I think[N]that's a very interesting[N]story…[FIN]I'm a little interested in[N]ancient ruins too, you[N]know?[FIN]The ruins that you've told[N]me are scattered all over[N]the world…[FIN]But there's a mysterious[N]connection between them.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]If you draw a line on the[N]world map between all the[N]ruins you've been to so[N]far…[FIN]…it somehow forms a huge[N]image of the constellation[N]of Cygnus, the swan.[END]`
+na49_neil.dialogstring_05DB9C! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: You're a long way[N]from South Cape. What[N]brings you out here?[FIN][CLD][DEF]Will tells Neil about his[N]father's voice, the ruins,[N]and the scattered Mystic[N]Statues.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Hm. Now that's[N]interesting. I've studied[N]ancient ruins a little[N]myself.[FIN]These ruins belong to[N]different peoples and[N]different ages.[FIN]Yet their legends keep[N]circling the same stars.[FIN]There's a theory that if[N]you draw lines between[N]the ruins on a map, they[N]form Cygnus, the swan.[END]`
 
 ?INCLUDE 'na49_kara'
 na49_kara.dialogstring_05E0C1! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: Cygnus?![FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Exactly. And the[N]Tower of Babel, where[N]Will's father vanished,[WAI][N]lies almost perfectly in[N]the center of that giant[N]swan.[END]`

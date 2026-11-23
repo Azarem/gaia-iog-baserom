@@ -1,11 +1,36 @@
 ; GaiaLabs Retranslation, chapter 27. Dialogue only.
 
 ?INCLUDE 'eu91_intro'
-eu91_intro.dialogstring_07BEDA! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0][SFX:10][DLY:1]The desert was howling[N]with sandstorms. We[N]crossed it, ending up at[N]Euro.[PAU:60][CLR]Euro was a metropolis[N]greater than anything I[N]could imagine. Busy[N]looking people were[N]running around everywhere.[PAU:7C][CLR]Neil's parents live in[N]this town, running the[N]Reuleck Corporation.[PAU:60][CLR]Neil was returning home[N]after three years.[PAU:60][CLR]After his parents welcomed[N]us, they showed us[N]something awe-worthy…[PAU:60][CLR]Fireworks launching! Line[N]dancers appearing![PAU:60][CLR]I felt like the town had[N]just erupted into a whole[N]festival.[PAU:60][CLD]`
+eu91_intro.dialogstring_07BEDA! `[CLD][DEF][SFX:10][DLY:1]After crossing a desert[N]howling with sandstorms,[N]Will and the others[N]finally reached Euro.[PAU:60][CLR]It was the largest city[N]Will had ever seen.[PAU:30][CLR]Merchants and workers[N]hurried through every[N]street.[PAU:7C][CLR]Neil's parents ran the[N]Reuleck Corporation[N]from here.[PAU:60][CLR]When their son returned[N]after three years, they[N]welcomed the group like[N]royalty:[PAU:30][CLR]fireworks, dancers,[N]music[AD][PAU:60][CLR]For a moment, the whole[N]city felt like a festival.[PAU:60][CLD]`
 eu91_intro.dialogstring_07C011! `[DEF]This is the mansion where[N]Neil's parents live.[FIN][CLD][DEF]Neil leads the others to[N]a guest room.[END]`
 
 ?INCLUDE 'eu96_neil'
-eu96_neil.dialogstring_07DBE9! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]Neil: Well, while you're[N]in this room, please take[N]it easy.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]I'll talk to my parents[N]for a little bit. It's[N]already been three years,[N]hasn't it?[END]`
+; In the first guest-room scene, the flute speaks after Neil walks out.
+eu96_neil.eu96_neil! [
+  actor-def < #13, #00, #10, {
+
+  EuroGuestRoomNeilStart:
+    COP [BranchOnFlagByte] ( #AC, #01, &code_07DB5D )
+    COP [BranchOnFlagByte] ( #AB, #01, &code_07DBD2 )
+    COP [BranchOnFlagByte] ( #AA, #01, &code_07DB5F )
+    COP [BranchOnFlagByte] ( #A4, #01, &code_07DB5D )
+    COP [SetFlagByte] ( #A4 )
+    LDA #$CFFC
+    TSB $joypadMaskStd
+    COP [WaitByte] ( #1D )
+    COP [PrintDialogString] ( &dialogstring_07DBE9 )
+    COP [StageSpriteLoopMoveY] ( #16, #02, #01 )
+    COP [AnimLoop]
+    COP [WaitByte] ( #3B )
+    COP [PrintDialogString] ( &EuroGuestRoomFluteDialogue )
+    LDA #$CFFC
+    TRB $joypadMaskStd
+} >
+]
+
+EuroGuestRoomFluteDialogue `[CLD][DEF]A few minutes later, a[N]familiar voice comes[N]from Will's flute.[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: Will[AD] Something in[N]this city is hidden[N]behind familiar faces.[FIN]I cannot see it clearly[N]from where I am.[FIN]Long ago, I heard of a[N]vessel kept at the[N]sanctuary on Mount Kehres.[FIN]It is called the Tearpot.[N]They say its waters[N]reveal what ordinary[N]sight cannot.[FIN]Find it. Then look again.[FIN][CLD][DEF]The voice fades from[N]the flute.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Erik: Will! You weren't[N]lying! I mean, I didn't[N]think you were a liar.[FIN]I just thought maybe[N]you'd gone a little crazy.[N]You do talk to yourself[N]a lot.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: Erik![AD]Will, that[N]really was your father?[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: Yeah. That's the[N]voice I've been hearing.[END]`
+
+eu96_neil.dialogstring_07DBE9! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Make yourselves at[N]home. I'm going to talk[N]to my parents for a while.[FIN]It has been three years,[N]after all.[END]`
 
 ?INCLUDE 'eu96_erik'
 eu96_erik.dialogstring_07DAC1! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Erik: This house is so[N]huge, I wonder what I'll[N]do if I want to go pee at[N]night…[END]`
@@ -14,16 +39,16 @@ eu96_erik.dialogstring_07DAC1! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationThem
 eu96_kara.dialogstring_07DA00! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: It's an amaaazing[N]house, isn't it[AD]?[WAI][N]I suppose some merchants[N]are richer than kings[N]these days[AD][END]`
 
 ?INCLUDE 'eu95_ann'
-eu95_ann.dialogstring_07DF7A! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Ann: So, a man wearing a[N]dark blue mantle came here[N]a few days ago.[FIN]He was asking if a girl[N]named Kara had come[N]to this city.[FIN]I cowered from the way he[N]glared with his icy eyes.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]It might be good to tell[N]this to Kara, but…[N][PAL:0] If that's what you want![N] Please don't, I beg you![PAL:4]`
-eu95_ann.dialogstring_07E03D! `[CLR]I can't stomach how that[N]Kara girl acts like such[N]a little lady.[FIN]If that's what you're[N]going to say, I think I'll[N]bully you a little.[END]`
-eu95_ann.dialogstring_07E092! `[CLR]Hehehe. I've gotten a hold[N]of your weak point.[FIN][::]Aah. I think I want to eat[N]some apples. Go buy them[N]from the market for me![END]`
+eu95_ann.dialogstring_07DF7A! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Ann: A man in a dark blue[N]mantle came here a few[N]days ago.[FIN]He asked whether a girl[N]named Kara had come to[N]the city.[FIN]The way he stared at me[N]with those cold eyes[AD] I[N]was terrified.[FIN]Maybe I should tell Kara,[N]but[AD][N][PAL:0] Tell her if you want.[N] Please don't tell her.[PAL:4]`
+eu95_ann.dialogstring_07E03D! `[CLR]I can't stand the way[N]Kara acts like such a[N]proper little lady.[FIN]Maybe I'll tease her a[N]little instead.[END]`
+eu95_ann.dialogstring_07E092! `[CLR]Hehehe. Now I know your[N]weak point.[FIN][::]Aah. I suddenly want an[N]apple. Go buy one from[N]the market for me![END]`
 eu95_ann.dialogstring_07E0DE! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1][JMP:&dialogstring_07E092+M]`
 
 ?INCLUDE 'eu95_neils_mother'
 eu95_neils_mother.dialogstring_07E31B! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1E]Neil's mother: We've[N]already made more money[N]than we could ever spend.[WAI][N]We'd like to enjoy the[N]rest of our lives now.[WAI][N]Neil, won't you come home[N]and take over the company?[END]`
 
 ?INCLUDE 'eu95_neil'
-eu95_neil.dialogstring_07E3B5! `[BOR:D][DLG:3,4][SIZ:D,5][PRT:@RetranslationTheme6]Neil: I guess it's a[N]matter of whether I should[N]live for my own sake or[N]live for the sake of other[N]people…[END]`
+eu95_neil.dialogstring_07E3B5! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: I spent three years[N]trying to build a life[N]that was mine.[FIN]But Reuleck is mine too,[N]whether I like it or not.[N]The question is what I[N]do with it.[END]`
 
 ?INCLUDE 'eu91_men2'
 eu91_men2.dialogstring_07C9DB! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]Neil's parents, who run[N]the Reuleck Corporation,[N]live here.[END]`
@@ -44,8 +69,8 @@ eu91_merchant_counter.dialogstring_07C1DC! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:
 
 ?INCLUDE 'eu91_women1'
 eu91_women1.dialogstring_07C836! `[BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]Do you believe in[N]fortune-telling?[N][PAL:0] Yes[N] No[PAL:4]`
-eu91_women1.dialogstring_07C860! `[CLR]That's how it is, is it?[N]So you're saying that if[N]you have your future told,[N]it might be a dark future…[FIN]An extremely huge comet[N]is grazing across the[N]Earth… They say that[N]people will die off…[FIN]Well, if that's how it is,[N]all I'm going to do from[N]now on is binge eat…!![END]`
-eu91_women1.dialogstring_07C8D5! `[CLR]That's good, isn't it?[N]Me, I'll believe anything…[END]`
+eu91_women1.dialogstring_07C860! `[CLR]So you do want your[N]future told?[FIN]Some prophecies speak of[N]a huge comet passing[N]close to Earth and[N]countless people dying.[FIN]Maybe that's why I'd[N]rather not know my future.[FIN]I'd spend the whole time[N]eating from nerves![END]`
+eu91_women1.dialogstring_07C8D5! `[CLR]Maybe that's for the best.[N]Me, I'll believe almost[N]anything[AD][END]`
 
 ?INCLUDE 'eu91_merchant_counter'
 eu91_merchant_counter.dialogstring_07C182! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]This is a fish market. We[N]sell fish that's arrived[N]fresh from Watermia.[END]`
@@ -65,7 +90,7 @@ eu91_women2.dialogstring_07CAE0! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@Retransla
 eu91_men1.dialogstring_07C509! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]This town flourishes[N]thanks to the Reuleck[N]Corporation.[WAI][N]There are plenty of bad[N]rumors about them too, but[N]I still think the company[N]is amazing.[END]`
 
 ?INCLUDE 'eu91_merchant_counter'
-eu91_merchant_counter.dialogstring_07C0F3! `[BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]You're looking at me like[N]you want something… I[N]understand. I'll give you[N]one of these apples.[FIN]Will received an apple![END]`
+eu91_merchant_counter.dialogstring_07C0F3! `[BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]You're looking at me like[N]you want something[AD][FIN]Alright, alright. Take[N]one of these apples.[FIN]Will receives an apple![END]`
 eu91_merchant_counter.dialogstring_07C0DD! `[BOR:D][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1E]How about a sweet and[N]delicious apple?[END]`
 
 ?INCLUDE 'item_use_system'
@@ -104,7 +129,7 @@ eu9A_rudy.dialogstring_07E72A! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 
 ?INCLUDE 'eu91_men1'
 eu91_men1.dialogstring_07C6FE! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1E]If I remember right, you[N]can find mushroom droplets[N]all over Mount Kehres[AD][WAI][N]Ah, listen to me ramble.[END]`
-eu91_men1.dialogstring_07C63F! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1E]I went with my brother to[N]play on Mount Kehres when[N]I was little.[FIN]We went to the place that[N]they call the holy grounds[N]and got lost.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1E]If I remember correctly,[N]there were giant mushrooms[N]and plant stalks sprouting[N]as if they were a maze.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,5][PRT:@RetranslationTheme1E]If the droplets from a[N]mushroom are poured onto[N]the end of a stalk, it[N]will suddenly spring to[N]life and grow a path.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme1E]Everyone else vividly[N]remembers it too.[END]`
+eu91_men1.dialogstring_07C63F! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1E]I went to Mount Kehres[N]with my brother when I[N]was little.[FIN]We wandered deep into the[N]grounds and got lost.[FIN]I remember giant mushrooms[N]and plant stalks growing[N]like a maze.[FIN]Pour mushroom droplets on[N]the tip of a stalk and[N]it will spring to life,[N]forming a path.[FIN]Funny how clearly I still[N]remember it.[END]`
 eu91_men1.dialogstring_07C4AA! `[BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]The residential area is[N]ahead of here. You can't[N]enter unless you're a[N]townsperson.[END]`
 
 ?INCLUDE 'eu91_women1'
@@ -154,7 +179,7 @@ eu97_dark_medicine.dialogstring_07CEB6! `[CLR]However, it seems that[N]Dark Flar
 ?INCLUDE 'eu97_life_medicine'
 eu97_life_medicine.dialogstring_07CD39! `[BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]That is the Medicine of[N]Life. Will you drink it?[N][PAL:0] Yes[N] No[PAL:4]`
 eu97_life_medicine.dialogstring_07CD9B! `[CLR]Is that so…[N]Do you not like it?[END]`
-eu97_life_medicine.dialogstring_07CD64! `[CLR][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0]The taste irritated your[N]mouth… However, your[N]endurance rose!![END]`
+eu97_life_medicine.dialogstring_07CD64! `[CLR][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0]The taste burns Will's[N]mouth[AD] But his endurance[N]rises!![END]`
 eu97_life_medicine.dialogstring_07CDB3! `[BOR:D][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1E]I'm sorry… There is a[N]limit of one per person.[END]`
 
 ?INCLUDE 'eu91_men1'
@@ -175,7 +200,7 @@ eu92_rofsky.dialogstring_07D6C2! `[DLG:3,4][SIZ:D,2][SFX:10]Two elderly people a
 eu92_rofsky.dialogstring_07D61E! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Rofski: We were arguing[N]about the Tearpot kept at[N]the sanctuary on Mount[N]Kehres.[WAI][N]Old legends claim it holds[N]tears once shed by the[N]spirits.[WAI][N]They say those tears will[N]reveal truth when humanity[N]needs it most.[END]`
 
 ?INCLUDE 'eu92_erasquez'
-eu92_erasquez.dialogstring_07D7C7! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme4]Elazquez: You there… I[N]feel from thee a[N]mysterious power…[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,5][PRT:@RetranslationTheme4]I'm already blind, but[N]since I've lost my sight,[N]I've developed a keen[N]sense for things that are[N]clearly special.[FIN]This is perfect. Will you[N]go to the holy grounds of[N]Mount Kehres and see the[N]state of the Tearpot for[N]me?[FIN][CLD][SFX:10][DLG:3,4][SIZ:D,3][SFX:10]Rofski drew the location[N]of Mount Kehres on Will's[N]map![END]`
+eu92_erasquez.dialogstring_07D7C7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Elazquez: You there[AD] I[N]sense a strange power[N]around you.[FIN]Though I am blind, I've[N]learned to notice what my[N]eyes once hid.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: We're looking for[N]something called the[N]Tearpot.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Elazquez: The Tearpot[AD]?[N]Rofski and I were just[N]arguing over whether it[N]was more than a legend.[FIN][CLD][DEF][SFX:10]Rofski marks Mount Kehres[N]on Will's map.[END]`
 eu92_erasquez.dialogstring_07D892! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Elazquez: It's said that[N]the tears of the gods in[N]the Tearpot can reflect[N]the true form of things.[END]`
 
 ?INCLUDE 'eu95_ann'
