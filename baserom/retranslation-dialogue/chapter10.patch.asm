@@ -68,6 +68,7 @@ gs2D_lily.dialogstring_058DDA! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 gs2B_bones.dialogstring_058BD7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Thought](An Incan was standing[N]here just a moment ago[AD])[END]`
 
 ?INCLUDE 'gs2B_seth'
+gs2B_seth.dialogstring_05966E! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Seth: A little while ago[N]I found this odd jewel[N]inside the ship.[WAI][N]Here, I'll give it to you,[N]alright?[FIN][CLD][DEF]Will receives a Red Jewel![END]`
 gs2B_seth.code_059669! {
     COP [BranchIfHasItem] ( #1C, &GoldShipSethWithGlasses )
     COP [PrintDialogString] ( &dialogstring_0596C1 )

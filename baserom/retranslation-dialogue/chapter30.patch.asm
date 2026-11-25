@@ -24,7 +24,7 @@ sE6_gaia.dialogstring_08E58B! `[CLD][BOR:4][DLG:3,11][SIZ:D,4][PRT:@CastleV051Ga
 
 ?INCLUDE 'awBA_glasses'
 awBA_glasses.dialogstring_089FBB! `[DLG:3,15][SIZ:D,2]There's something shiny[N]buried in the ground.[FIN]`
-awBA_glasses.dialogstring_089FDC! `[CLR][SFX:0][DLY:9]Will finds the Black[N]Crystal Glasses![PAU:78][END]`
+awBA_glasses.dialogstring_089FDC! `[CLR][SFX:0][DLY:9]Will finds the[N]Knight's Emblem![PAU:78][END]`
 
 ?INCLUDE 'item_use_system'
 item_use_system.dialogstring_039984! `[DLG:3,11][SIZ:D,4]These are glasses made of[N]black quartz. It seems[N]that even intense light[N]can be blocked with these…[END]`

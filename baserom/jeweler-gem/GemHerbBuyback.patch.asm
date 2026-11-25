@@ -91,3 +91,125 @@ GemPurchaseRefill {
     COP [PrintDialogString] ( &GemTooPoorNear )
     RTL
 }
+
+; $0AB0 is BCD. Preserve the original Defense claim flag ($EA).
+; $EF and $F6 record the Ledger and Negative Arc respectively.
+jeweler_gem.JewelerInteract! {
+    COP [PrintDialogString] ( &dialogstring_08D094 )
+    LDA $jewelsCollected
+    BEQ JewelerRewardTierCascade
+    COP [PrintDialogString] ( &dialogstring_08D0C8 )
+
+  jeweler_gem.JewelerRewardTierCascade!:
+    COP [BranchOnFlagByte] ( #EF, #01, &GemCheckHerb )
+    LDA $jewelsCollected
+    CMP #$0001
+    BCC GemCheckHerb
+    COP [GiveItem] ( #29, &JewelerInventoryFull )
+    COP [SetFlagByte] ( #EF )
+    COP [PrintDialogString] ( &GemLedgerRewardNear )
+    JMP $&GemCheckHerb
+}
+
+GemCheckHerb {
+    COP [BranchOnFlagByte] ( #E9, #01, &JewelerCheck5 )
+    LDA $jewelsCollected
+    CMP #$0003
+    BCC gem_skip_herb
+    JMP $&JewelerRewardHerb
+  gem_skip_herb:
+    JMP $&JewelerCheck5
+}
+
+jeweler_gem.JewelerCheck5! {
+    COP [BranchOnFlagByte] ( #F6, #01, &JewelerCheck8 )
+    LDA $jewelsCollected
+    CMP #$0005
+    BCC JewelerCheck8
+    COP [GiveItem] ( #2A, &JewelerInventoryFull )
+    COP [SetFlagByte] ( #F6 )
+    COP [PrintDialogString] ( &GemArcRewardNear )
+    JMP $&JewelerCheck8
+}
+
+jeweler_gem.JewelerCheck12! {
+    COP [BranchOnFlagByte] ( #EC, #01, &GemCheckDefense )
+    LDA $jewelsCollected
+    CMP #$0012
+    BCC gem_skip_attack
+    JMP $&JewelerRewardStr
+  gem_skip_attack:
+    JMP $&GemCheckDefense
+}
+
+jeweler_gem.JewelerRewardStr! {
+    INC $playerStr
+    COP [SetFlagByte] ( #EC )
+    COP [PrintDialogString] ( &dialogstring_08D3F9 )
+    JMP $&GemCheckDefense
+}
+
+GemCheckDefense {
+    COP [BranchOnFlagByte] ( #EA, #01, &JewelerCheck20 )
+    LDA $jewelsCollected
+    CMP #$0015
+    BCC gem_skip_defense
+    JMP $&JewelerRewardDef
+  gem_skip_defense:
+    JMP $&JewelerCheck20
+}
+
+jeweler_gem.JewelerRewardDef! {
+    INC $playerDef
+    COP [SetFlagByte] ( #EA )
+    COP [PrintDialogString] ( &dialogstring_08D332 )
+    JMP $&JewelerCheck20
+}
+
+; List rewards in threshold order across two pages. Each row resets the palette.
+jeweler_gem.JewelerShowInventory! {
+    COP [PrintDialogString] ( &dialogstring_08D267 )
+    COP [PrintDialogString] ( &dialogstring_08D617 )
+    COP [BranchOnFlagByte] ( #EF, #00, &gem_ledger_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_ledger_row:
+    COP [PrintDialogString] ( &GemLedgerRowNear )
+    COP [BranchOnFlagByte] ( #E9, #00, &gem_herb_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_herb_row:
+    COP [PrintDialogString] ( &dialogstring_08D621 )
+    COP [BranchOnFlagByte] ( #F6, #00, &gem_arc_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_arc_row:
+    COP [PrintDialogString] ( &dialogstring_08D636 )
+    COP [BranchOnFlagByte] ( #EB, #00, &gem_hp_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_hp_row:
+    COP [PrintDialogString] ( &dialogstring_08D64A )
+    COP [BranchOnFlagByte] ( #EC, #00, &gem_attack_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_attack_row:
+    COP [PrintDialogString] ( &dialogstring_08D65E )
+    COP [PrintDialogString] ( &GemListNextPageNear )
+    COP [BranchOnFlagByte] ( #EA, #00, &gem_defense_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_defense_row:
+    COP [PrintDialogString] ( &GemDefenseRowNear )
+    COP [BranchOnFlagByte] ( #ED, #00, &gem_dash_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_dash_row:
+    COP [PrintDialogString] ( &dialogstring_08D672 )
+    COP [BranchOnFlagByte] ( #EE, #00, &gem_flare_row )
+    COP [PrintDialogString] ( &dialogstring_08D611 )
+  gem_flare_row:
+    COP [PrintDialogString] ( &dialogstring_08D67D )
+    COP [PrintDialogString] ( &dialogstring_08D68A )
+    COP [PrintDialogString] ( &dialogstring_08D0F1 )
+    JMP $&code_08CF4B
+}
+
+GemLedgerRewardNear `[PRT:@GemLedgerReward]`
+GemArcRewardNear `[PRT:@GemArcReward]`
+GemLedgerRowNear `[PRT:@GemLedgerRow]`
+GemListNextPageNear `[PRT:@GemListNextPage]`
+GemDefenseRowNear `[PRT:@GemDefenseRow]`

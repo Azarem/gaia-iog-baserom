@@ -269,10 +269,4 @@ CapeResident `[SEP:1,7FFF][SEP:2,7A94][SEP:3,0][SEP:13,0][SEP:11,7FFB][SEP:12,76
 
 CapeGuard `[SEP:1,77FD][SEP:2,564F][SEP:3,1000][SEP:13,1000][SEP:11,7FFF][SEP:12,4332][SFX:10][PAL:4]`
 
-; Angkor Wat remains a later pickup if Will arrives without the glasses.
-?INCLUDE 'awBA_glasses'
-awBA_glasses.code_089F7F- {
-    COP [BranchIfHasItem] ( #1C, &code_089FB5 )
-}
-
 sc01_fisherman.dialogstring_048479! `[DLG:3,11][SIZ:D,3]Will finds a Red Jewel![END]`
