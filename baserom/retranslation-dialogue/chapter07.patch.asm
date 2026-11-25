@@ -46,7 +46,7 @@ it15_fable_woman.dialogstring_04DF22! `[BOR:6][DLG:3,D][SIZ:D,4][PRT:@Retranslat
 sE6_gaia.dialogstring_08DF80! `[BOR:4][DLG:3,11][SIZ:D,4][PRT:@CastleV051Gaia]Some walls are weaker than[N]they appear. Thy Psycho[N]Dash can break them.[FIN]`
 sE6_gaia.dialogstring_08EB68! `[DLG:3,13][SIZ:D,3][DLY:5]Became able to use the[N]Power of Darkness,[N][ADR:&AbilityNameTable,AAC]![PAU:50][FIN]`
 sE6_gaia.dialogstring_08EB85! `[BOR:4][DLG:3,11][SIZ:D,4][PRT:@CastleV051Gaia][DLY:2][ADR:&AbilityDescriptionTable,AAC][END]`
-sE6_gaia.dialogstring_08EBDF! `The Psycho Dash is a power[N]that only Will, the young[N]boy, can use.[FIN]With a body check attack[N]thou canst easily crush[N]things like obstacles and[N]destructible walls.[FIN]Thou shouldst charge up[N]using the attack button…`
+sE6_gaia.dialogstring_08EBDF! `Psycho Dash is Will's[N]charged attack.[FIN]Hold attack to gather[N]power, then release it[N]to dash forward.`
 
 ?INCLUDE 'it15_running_man'
 it15_running_man.dialogstring_04DE32! `[BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme18]Try running down that hill[N]over there. You'll[N]definitely be surprised.[END]`
@@ -64,19 +64,19 @@ it15_lola.dialogstring_04F249! `[CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@Retranslati
 it15_bill.dialogstring_04EFAE! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Bill: Go on. The Elder[N]knows more than anyone[N]around here.[END]`
 
 ?INCLUDE 'it19_inca_statue_a'
-it19_inca_statue_a.dialogstring_04F38D! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]You've found[N]Incan Statue A.[PAU:A0][CLD]`
-it19_inca_statue_a.dialogstring_04F3A8! `[DLG:3,13][SIZ:D,3]You've found Incan [N]Statue A! But your [N]inventory is full! [END]`
+it19_inca_statue_a.dialogstring_04F38D! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]Will finds[N]Incan Statue A.[PAU:A0][CLD]`
+it19_inca_statue_a.dialogstring_04F3A8! `[DLG:3,13][SIZ:D,3]Will finds[N]Incan Statue A! But your [N]inventory is full! [END]`
 
 ?INCLUDE 'it15_elder'
 it15_elder.dialogstring_04E9FF! `[DEF]Will hears a feeble voice[N]behind him[AD][FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Mysterious voice: It was[N]good that you came, Will[AD][END]`
 it15_elder.dialogstring_04EA45! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Elder: Here. I'm among[N]the flowers.[WAI][N]I've prolonged my life[N]far beyond its proper[N]span.[WAI][N]Do not mistake a life[N]without end for a life[N]without burden.[END]`
 it15_elder.dialogstring_04EA77! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Elder: Without the flower[N]fairies' protection, this[N]old body would fail.[FIN]Looking at you, I can see[N]both of your parents.[FIN]It feels like yesterday[N]that your father came[N]to this village.[FIN][CLD][BOR:3][DLG:3,17][SIZ:D,1][PRT:@RetranslationTheme0]Will: Dad came here[AD]?[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Elder: Your mother, Shira,[N]was Bill and Lola's[N]daughter.[FIN]She was the most gifted[N]person our clan had seen[N]in generations.[FIN]It was Shira who raised[N]the barrier that hides[N]Itory from the world.[FIN]Yet your father walked[N]through it as though it[N]were not there.[FIN]He fell in love with her,[N]and she chose to leave[N]with him.[FIN]Your father carried a[N]strange power of his own.[WAI][N]Even I never understood[N]it.[FIN]`
-it15_elder.dialogstring_04EC46! `[BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]That being said, were you[N]summoned by your father?[N][PAL:0] Yes[N] No[PAL:4]`
-it15_elder.dialogstring_04EC76! `[CLR]Elder: What? You weren't[N]summoned by him?[FIN]Then perhaps we've[N]misunderstood the signs[AD][END]`
+it15_elder.dialogstring_04EC46! `[BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Did your father ask you[N]to go to the ruins?[N][PAL:0] Yes[N] No[PAL:4]`
+it15_elder.dialogstring_04EC76! `[CLR]Elder: He didn't ask you to go?[FIN]Then perhaps we've[N]misunderstood the signs[AD][END]`
 it15_elder.dialogstring_04ECAB! `[CLR]Elder: I understand[AD][N]Then Lola's hunch was[N]right after all.[END]`
 it15_elder.dialogstring_04ECCB! `[BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme4]So, do you intend to go?[N][PAL:0] Yes[N] No[PAL:4]`
-it15_elder.dialogstring_04ECEC! `[CLR]Elder: What? You're not[N]nearly as bold as your[N]father was.[END]`
-it15_elder.dialogstring_04ED19! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Elder: Very well. I will[N]entrust you with the[N]Incan idol kept by our[N]village.[FIN]Two idols open the path to[N]the Inca's oldest secret.[WAI][N]They have been guarded[N]for centuries.[FIN]One rests in the cave[N]below. Use your wits, and[N]you may claim it.[END]`
+it15_elder.dialogstring_04ECEC! `[CLR]Elder: Take your time, Will.[N]The cave will be here[N]when you're ready.[END]`
+it15_elder.dialogstring_04ED19! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Elder: Our village guards one of[N]the two Incan idols.[FIN]It rests in the cave[N]below. Use your wits, and[N]you may claim it.[END]`
 it15_elder.dialogstring_04EDF4! `[BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Elder: Ah! You found the[N]Incan idol. Well done![FIN]Perhaps you really were[N]meant to uncover the[N]Inca's secret.[FIN]Listen carefully to the[N]legend handed down in[N]Itory.[FIN][::][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme4]"At the Cliff of Larai,[N]beneath the ruins,[FIN]offer the Incan idols[N]where the breath of the[N]spirits cannot reach.[FIN]The valley wind shall[N]guide you to the golden[N]ship."[FIN]Do you understand?[N][PAL:0] Yes[N] No[PAL:4]`
 it15_elder.dialogstring_04EF1C! `[JMP:&dialogstring_04EDF4+M]`
 it15_elder.dialogstring_04EF23! `[CLR]Elder: It is said that[N]one more idol is held by[N]the Moon Tribe.[WAI][N]Lilly will show you the[N]way there. Be careful.[END]`

@@ -16,12 +16,12 @@ ir26_bones.dialogstring_09C7AE! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thoug
 ir1D_bones.dialogstring_09C285! `[DEF][CLD][DLG:3,F][SIZ:D,5]A note lies on the ground[N]near the body. It reads:[FIN][CLD][BOR:1][DLG:3,D][SIZ:D,6][PRT:@RetranslationTheme16][SFX:0]"If I could only move[N]those gold statues, I[N]could go farther[AD]"[END]`
 
 ?INCLUDE 'ir1F_gold_tile'
-ir1F_gold_tile.dialogstring_09C410! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme0]It seems like if I step on[N]this golden floor,[N]something makes a sound…[FIN]There are four golden[N]floors…[FIN]Is there nothing that can[N]act as a weight…?[END]`
+ir1F_gold_tile.dialogstring_09C410! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@CastleV051Thought](This gold tile makes a[N]sound when I step on it.)[FIN](There are four tiles[N]like it.)[FIN](Could I weigh them down[N]with something?)[END]`
 
 ?INCLUDE 'ir1D_wind_melody'
 ir1D_wind_melody.dialogstring_09C5D5! `[DEF]The valley wind plays a[N]melody. It's as if the[N]Incan statues are singing[AD][END]`
 ir1D_wind_melody.dialogstring_09C614! `[DLG:3,15][SIZ:D,2]Memorized the Wind's[N]Melody![END]`
-ir1D_wind_melody.dialogstring_09C637! `[DLG:3,11][SIZ:D,3]You can hear the Melody[N]of the Wind. But your[N]inventory is full.[END]`
+ir1D_wind_melody.dialogstring_09C637! `[DLG:3,11][SIZ:D,3]Will hears the Melody[N]of the Wind. But your[N]inventory is full.[END]`
 
 ?INCLUDE 'ir28_bones'
 ir28_bones.dialogstring_09C8B3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](Could this be an explorer[N]seeking the Incan gold[N]ship[AD]?)[WAI][N](So he lost his life to[N]the ceiling trap[AD])[END]`
@@ -30,7 +30,7 @@ ir28_bones.dialogstring_09C8B3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051
 ir26_journal_bones.dialogstring_09C90D! `[DEF][CLD][DLG:3,F][SIZ:D,5]A notebook is clutched in[N]one hand. Its pages read:[FIN][CLD][BOR:1][DLG:3,D][SIZ:D,6][SFX:0]       Notes on the Inca[N]The Inca left no written[N]language. Their legends[N]were preserved in sound.[FIN]I discovered that the[N]valley wind itself plays a[N]melody, and decoded its[N]meaning:[FIN]"Recite it in the chamber[N]tiled in gold[AD]"[N]If that melody were played[N]there, perhaps[AD][END]`
 
 ?INCLUDE 'item_use_system'
-item_use_system.dialogstring_038A2B! `[DEF]He softly played[N]the Wind Melody.[END]`
+item_use_system.dialogstring_038A2B! `[DEF]Will softly plays[N]the Wind Melody.[END]`
 item_use_system.dialogstring_038A46! `[DLG:3,11][SIZ:D,4]In the vicinity where the[N]flute's sound was echoing,[N]a golden block began to[N]shine![END]`
 
 ?INCLUDE 'sE6_gaia'
@@ -43,3 +43,7 @@ item_use_system.dialogstring_0387D4! `[DLG:3,15][SIZ:D,2]Offered Incan Figure B 
 
 ?INCLUDE 'ir29_transform'
 ir29_transform.dialogstring_09CFED! `[DLG:3,4][SIZ:D,4]Will, having erased the[N]presence of the demons,[N]may release his[N]transformation…[END]`
+
+item_use_system.dialogstring_038836! `[DEF]Will softly plays the[N]Incan melody.[FIN]`
+
+item_use_system.dialogstring_038A8A! `[DEF]Will softly plays[N]the Wind Melody.[FIN]But nothing happens.[END]`

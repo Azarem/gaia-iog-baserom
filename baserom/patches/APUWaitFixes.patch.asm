@@ -214,6 +214,19 @@ dm47_sam.loc_05D24B! {
     RTL
 }
 
+; Both audio paths share the farewell. Sam teaches the melody without taking any items.
+dm47_sam.loc_05D271! {
+    COP [PrintDialogString] ( &dialogstring_05D40C )
+    LDA #$FFFC
+    TRB $joypadMaskStd
+    COP [SetEntryHere]
+    RTL
+}
+
+dm47_sam.code_05D286! {
+    JMP loc_05D271
+}
+
 -----------------------------------------
 ?INCLUDE 'sp5C_stone_coffin'
 -----------------------------------------

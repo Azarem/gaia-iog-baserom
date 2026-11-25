@@ -59,4 +59,4 @@ consolestring_seths_jewel_desc |[DBL]Strange jewel[DBL]Seth found on[DBL]the Gol
 item_pickup_text_table.item_pickup_text_table#52: &dialogstring_seths_jewel_get
 
 
-dialogstring_seths_jewel_get `You found Seth's Jewel!`
+dialogstring_seths_jewel_get `Will finds Seth's Jewel!`

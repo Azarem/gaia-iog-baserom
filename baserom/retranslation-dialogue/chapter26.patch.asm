@@ -10,10 +10,10 @@ wa79_erik.dialogstring_07A4C8! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 wa79_neil.dialogstring_07A255! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: There's a vast[N]desert west of here.[WAI][N]We can't cross it on foot.[N]We'll need Kruks.[WAI][N]The question is where to[N]find some[AD][END]`
 
 ?INCLUDE 'wa79_lily'
-wa79_lily.dialogstring_07AA34! `[BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: It'd be nice if[N]Lance's father could get[N]well quickly, wouldn't it?[END]`
+wa79_lily.dialogstring_07AA34! `[CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: I hope Lance gets[N]to spend more time with[N]his father.[END]`
 
 ?INCLUDE 'wa79_lance'
-wa79_lance.dialogstring_07ADA9! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme4]Lance: I gave tha medicine[N]to my old man just now.[FIN]I think he'll slowly[N]recover after this…[END]`
+wa79_lance.dialogstring_07ADA9! `[CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme4]Lance: It may take time,[N]but my dad's still there.[END]`
 
 ?INCLUDE 'wa78_moving_woman'
 wa78_moving_woman.dialogstring_07846A! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Woman: A girl in pink was[N]making a wish on that[N]lotus leaf a moment ago.[END]`
@@ -28,7 +28,7 @@ wa78_glass_game.dialogstring_079610! `[BOR:9][DLG:3,13][SIZ:D,3][PRT:@Retranslat
 wa78_glass_game.dialogstring_0795B9! `[BOR:9][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1C]How can you bet your life[N]like this? You're still[N]young.[END]`
 wa78_glass_game.dialogstring_079835! `[BOR:9][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1C]You have courage, don't[N]you?[END]`
 wa78_glass_game.dialogstring_07986C! `[BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]It seems that your[N]opponent has earned a lot[N]of money through this[N]game.[FIN]I wonder what in the[N]world he's using it for…[END]`
-wa78_glass_game.dialogstring_0792F7! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme24]Competitor: Hmph. You're[N]barely old enough to know[N]what a life is worth.[WAI][N]The rules are simple.[N]One of five glasses holds[N]poison.[WAI][N]We take turns drinking.[N]The last person alive[N]wins. I'll go first.[END]`
+wa78_glass_game.dialogstring_0792F7! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme24]Competitor: Hmph. You're[N]barely old enough to know[N]what a life is worth.[WAI][N]The rules are simple.[N]One of five glasses holds[N]poison.[WAI][N]We take turns drinking.[FIN]If you pick the poisoned[N]glass, you lose.[WAI][N]If there's only one left,[N]you've already lost.[FIN]I'll go first.[END]`
 wa78_glass_game.dialogstring_0793B6! `[CLD][BOR:9][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme24]Competitor:[N]Raaaaaaaaagh[AD]!![FIN][CLD][DEF][SFX:0]The competitor drains the[N]contents of the glass in[N]one gulp[AD][END]`
 wa78_glass_game.dialogstring_079922! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](This glass looks dark[N]red, almost like blood.)[FIN](Is this strange power[N]in my body warning me[AD]?)[FIN](Should I drink it?)[N][PAL:0] Yes[N] No[PAL:4]`
 wa78_glass_game.dialogstring_079992! `[CLR]Will: I'll skip this[N]glass…[END]`
@@ -65,4 +65,4 @@ wa79_lily.dialogstring_07AA5E! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 
 ?INCLUDE 'wa79_neil'
 wa79_neil.dialogstring_07A2BE! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Four Kruks?[N]Those are worth a fortune.[WAI][N][AD]You look like there's a[N]story behind them.[N]I won't pry.[WAI][N]We were planning to head[N]west toward Euro next.[WAI][N]But Lance and Lilly say[N]they're staying here.[N]Ask them why.[END]`
-wa79_neil.dialogstring_07A366! `[BOR:D][DLG:3,4][SIZ:D,5][PRT:@RetranslationTheme6]Neil: I think that the[N]moment where a boy and a[N]girl develop feelings for[N]each other is wonderful[N]and magical.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]I want to believe that[N]we'll never forget this[N]feeling.[FIN]Anyway. My parents' house[N]is in Euro, isn't it?[FIN]I think we'll familiarize[N]ourselves with Will's power[N]somehow if we go there.[FIN]Alright, let's head out to[N]Euro…!![END]`
+wa79_neil.dialogstring_07A366! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Those two certainly[N]took long enough to say[N]what they meant.[WAI][N]Still, I'm glad something[N]good came out of all this.[WAI][N]Anyway, my parents live[N]in Euro to the west.[N]People from all over the[N]world pass through there.[WAI][N]If we're looking for more[N]clues about the ruins and[N]Will's powers, it's as[N]good a place as any.[WAI][N]Let's head for Euro.[END]`

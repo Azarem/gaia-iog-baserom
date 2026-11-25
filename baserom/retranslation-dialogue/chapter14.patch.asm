@@ -12,9 +12,9 @@ dm3F_elevator_door.dialogstring_05D676! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@Ca
 ?INCLUDE 'dm3F_laborer'
 dm3F_laborer.dialogstring_0AA791! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme16]Slave: I'm begging you![N]Please cut this chain!![END]`
 dm3F_laborer.dialogstring_0AA7B4! `[CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme16]Slave: T-thank you!! I'll[N]never forget what you've[N]done.[FIN][CLD][BOR:3][DLG:3,17][SIZ:D,1][PRT:@RetranslationTheme16]Please take this key.[FIN]`
-dm3F_laborer.dialogstring_0AA7EF! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]You have the[N]key to the mine![PAU:D0][CLD]`
+dm3F_laborer.dialogstring_0AA7EF! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]Will has the[N]Mine Key![PAU:D0][CLD]`
 dm3F_laborer.dialogstring_0AA811! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]There are more slaves[N]being forced to work deep[N]in the diamond mine.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme16]Please use this key and[N]save them.[FIN]`
-dm3F_laborer.dialogstring_0AA85C! `[CLD][DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Got the lift key![PAU:D0][CLD]`
+dm3F_laborer.dialogstring_0AA85C! `[CLD][DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Will receives the lift key![PAU:D0][CLD]`
 dm3F_laborer.dialogstring_0AA874! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]Thank you for saving me.[N]Let me repay you with a[N]useful secret.[WAI][N]This mine has hidden rooms[N]whose entrances look just[N]like ordinary walls.[WAI][N]But air slips through the[N]cracks.[WAI][N]With hair like yours,[N]you'll notice a draft when[N]it starts blowing it[N]around.[END]`
 dm3F_laborer.dialogstring_0AA97D! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]There are eight slaves[N]working in this mine,[N]including me.[WAI][N]Please save the others.[END]`
 dm3F_laborer.dialogstring_0AA9C5! `[CLR]But your inventory[N]is full![END]`
@@ -36,8 +36,8 @@ dm3F_elevator_door.dialogstring_05D696! `[DLG:3,15][SIZ:D,2]Used the lift platfo
 dm44_cell_door.dialogstring_05D593! `[DEF][CLD][DLG:3,F][SIZ:D,5]Two keyholes are set into[N]the gate.[END]`
 
 ?INCLUDE 'dm45_key'
-dm45_key.dialogstring_05D4EB! `[DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Found the key to the mine![PAU:D0][END]`
-dm45_key.dialogstring_05D506! `[DLG:3,15][SIZ:D,2]You found the Mine Key![N]Your inventory is full![END]`
+dm45_key.dialogstring_05D4EB! `[DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Will finds the Mine Key![PAU:D0][END]`
+dm45_key.dialogstring_05D506! `[DLG:3,15][SIZ:D,2]Will finds the Mine Key![N]Your inventory is full![END]`
 
 ?INCLUDE 'dm44_cell_door'
 dm44_cell_door.dialogstring_05D5AC! `[DEF][CLD][DLG:3,F][SIZ:D,5]The door won't open until[N]both locks are released[AD][END]`
@@ -54,7 +54,12 @@ dm47_imas.dialogstring_05D0E3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@Retranslati
 
 ?INCLUDE 'dm47_sam'
 dm47_sam.dialogstring_05D2C0! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Sam: Please! Cut this[N]chain[AD]![END]`
-dm47_sam.dialogstring_05D2DA! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Sam: Thank you.[WAI][N]Erik told me one of your[N]friends has lost his[N]memory.[WAI][N]Our people have passed[N]down a melody said to[N]awaken memories buried[N]in the heart.[WAI][N]Please listen.[FIN][CLD][DEF]Sam hums a mysterious[N]melody.[END]`
-dm47_sam.dialogstring_05D40C! `[DLG:3,15][SIZ:D,2]Learned the Melody of[N]Memories![FIN][BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme5]Sam: I do have one[N]request…[FIN][CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme5]I would gladly take the[N]prison key so that I can[N]remember meeting you.[FIN]I expect that you probably[N]won't be using it from[N]now, after all.[END]`
-dm47_sam.dialogstring_05D377! `[DLG:3,15][SIZ:D,2]Learned the Melody of[N]Memories![FIN][BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme5]Sam: I do have one[N]request…[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]I would gladly take the[N]prison key and Wind's[N]Melody so that I can[N]remember meeting you.[FIN]I expect that you probably[N]won't be using them from[N]now, after all.[END]`
+dm47_sam.dialogstring_05D2DA! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Sam: Thank you.[WAI][N]Erik told me there's[N]someone you're trying to[N]reach.[WAI][N]Our people have a melody[N]we play to remind someone[N]of home.[WAI][N]Please listen.[FIN][CLD][DEF]Sam hums a mysterious[N]melody.[END]`
+dm47_sam.dialogstring_05D40C! `[CLD][DLG:3,15][SIZ:D,2]Will learns the Melody of[N]Memories![FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme5]Sam: I won't forget what[N]you did for us.[WAI][N]I hope this melody helps[N]you reach him.[END]`
+dm47_sam.dialogstring_05D377! `[END]`
 dm47_sam.dialogstring_05D48E! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme5]I won't forget you for my[N]entire life.[END]`
+
+?INCLUDE 'item_use_system'
+item_use_system.dialogstring_038F98! `[DEF]Will starts playing the[N]melody he remembers.[FIN]But nothing happens.[END]`
+
+item_use_system.dialogstring_038FCD! `[DEF][CLR]Will starts playing the[N]melody he remembers.[END]`

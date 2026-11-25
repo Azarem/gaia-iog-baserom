@@ -1,7 +1,7 @@
 ; GaiaLabs Retranslation, chapter 27. Dialogue only.
 
 ?INCLUDE 'eu91_intro'
-eu91_intro.dialogstring_07BEDA! `[CLD][DEF][SFX:10][DLY:1]After crossing a desert[N]howling with sandstorms,[N]Will and the others[N]finally reached Euro.[PAU:60][CLR]It was the largest city[N]Will had ever seen.[PAU:30][CLR]Merchants and workers[N]hurried through every[N]street.[PAU:7C][CLR]Neil's parents ran the[N]Reuleck Corporation[N]from here.[PAU:60][CLR]When their son returned[N]after three years, they[N]welcomed the group like[N]royalty:[PAU:30][CLR]fireworks, dancers,[N]music[AD][PAU:60][CLR]For a moment, the whole[N]city felt like a festival.[PAU:60][CLD]`
+eu91_intro.dialogstring_07BEDA! `[CLD][DEF][SFX:10][DLY:1]After crossing a desert[N]howling with sandstorms,[N]Will and the others[N]finally reach Euro.[PAU:60][CLR]It's the largest city[N]Will has ever seen.[PAU:30][CLR]Merchants and workers[N]hurry through every[N]street.[PAU:7C][CLR]Neil's parents run the[N]Reuleck Corporation[N]from here.[PAU:60][CLR]Neil returns after three[N]years. His parents give[N]the group a royal[N]welcome:[PAU:30][CLR]fireworks, dancers,[N]music[AD][PAU:60][CLR]For a moment, the whole[N]city feels like a[N]festival.[PAU:60][CLD]`
 eu91_intro.dialogstring_07C011! `[DEF]This is the mansion where[N]Neil's parents live.[FIN][CLD][DEF]Neil leads the others to[N]a guest room.[END]`
 
 ?INCLUDE 'eu96_neil'
@@ -40,8 +40,8 @@ eu96_kara.dialogstring_07DA00! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 
 ?INCLUDE 'eu95_ann'
 eu95_ann.dialogstring_07DF7A! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Ann: A man in a dark blue[N]mantle came here a few[N]days ago.[FIN]He asked whether a girl[N]named Kara had come to[N]the city.[FIN]The way he stared at me[N]with those cold eyes[AD] I[N]was terrified.[FIN]Maybe I should tell Kara,[N]but[AD][N][PAL:0] Tell her if you want.[N] Please don't tell her.[PAL:4]`
-eu95_ann.dialogstring_07E03D! `[CLR]I can't stand the way[N]Kara acts like such a[N]proper little lady.[FIN]Maybe I'll tease her a[N]little instead.[END]`
-eu95_ann.dialogstring_07E092! `[CLR]Hehehe. Now I know your[N]weak point.[FIN][::]Aah. I suddenly want an[N]apple. Go buy one from[N]the market for me![END]`
+eu95_ann.dialogstring_07E03D! `[CLR]I can't stand the way[N]Kara acts like such a[N]proper little lady.[FIN]On second thought, she[N]can find out for herself.[END]`
+eu95_ann.dialogstring_07E092! `[CLR]So you'd rather I kept[N]quiet? Funny.[FIN][::]I suddenly want an apple.[N]Go buy one from the[N]market for me![END]`
 eu95_ann.dialogstring_07E0DE! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1][JMP:&dialogstring_07E092+M]`
 
 ?INCLUDE 'eu95_neils_mother'
@@ -83,7 +83,7 @@ eu91_merchant_counter.dialogstring_07C1B6! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@Retr
 eu91_merchant_counter.dialogstring_07C160! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]This is wine. You're a bit[N]young for that, aren't[N]you?[END]`
 
 ?INCLUDE 'eu91_women2'
-eu91_women2.dialogstring_07CB60! `[DEF]I saw that. There are[N]many people confined[N]under the school.[END]`
+eu91_women2.dialogstring_07CB60! `[BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]I saw people being led[N]into the shrine. None of[N]them came back out.[END]`
 eu91_women2.dialogstring_07CAE0! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]I saw[AD] A lot of people[N]imprisoned in the basement[N]of the shrine[AD][END]`
 
 ?INCLUDE 'eu91_men1'
@@ -110,7 +110,7 @@ eu91_men1.dialogstring_07C5AB! `[BOR:D][DLG:3,15][SIZ:D,2][PRT:@RetranslationThe
 eu94_employee.dialogstring_07CF75! `[DEF][SFX:0]Two men are discussing[N]business[AD][FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1E]Man: I hear Reuleck trades[N]in almost anything.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Company man: Tea, fruit,[N]animal hides[AD] you name it.[WAI][N]Off the books, labor too.[N]Men, women, children.[WAI][N]If someone has a price,[N]someone will pay it.[END]`
 
 ?INCLUDE 'eu91_men1'
-eu91_men1.dialogstring_07C60A! `[BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1E]Man: Nahhh, if this[N]company deals with[N]everything, they've really[N]saved me.[END]`
+eu91_men1.dialogstring_07C60A! `[BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1E]Man: Reuleck buys[N]everything I bring to[N]market.[FIN]I don't know how I'd get[N]by without them.[END]`
 
 ?INCLUDE 'eu94_employee'
 eu94_employee.dialogstring_07CF1F! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Company worker: U-umm[AD][N]What's with this kid[AD]?[WAI][N]The adults are discussing[N]business. Go play outside[N]or something![END]`
@@ -142,11 +142,11 @@ eu91_men1.dialogstring_07C480! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@Retranslati
 wa79_lily.dialogstring_07AAA3! `[CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: There's a rumor[N]going around that a big[N]star[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]is going to collide[N]with the Earth or[N]something like that.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]I'm definitely not going[N]to believe gossip like[N]that.[END]`
 
 ?INCLUDE 'wa79_lance'
-wa79_lance.dialogstring_07AEDE! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme4]Lance: It seems like my[N]old man is gettin' better[N]day by day…[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]It seems like he's able ta[N]talk normally now.[FIN]I think it would be nice[N]if ya could also meet yer[N]old man soon.[FIN]Oh, that's right. If I[N]remember, I think ya were[N]collectin' Red Jewels.[FIN][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]I found a Red Jewel from[N]inside my old man's[N]possessions. Take it[N]along.[FIN][CLD][DLG:3,4][SIZ:D,1]Will received a Red Jewel![END]`
+wa79_lance.dialogstring_07AEDE! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme4]Lance: My old man's been[N]talkin' a little more[N]each day.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]I think it would be nice[N]if ya could also meet yer[N]old man soon.[FIN]Oh, that's right. If I[N]remember, I think ya were[N]collectin' Red Jewels.[FIN][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]I found a Red Jewel from[N]inside my old man's[N]possessions. Take it[N]along.[FIN][CLD][DLG:3,4][SIZ:D,1]Will receives a Red Jewel![END]`
 wa79_lance.dialogstring_07AFA7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Lance: It'd be nice if[N]ya could meet your old man[N]soon too.[END]`
 
 ?INCLUDE 'wa7A_lances_father'
-wa7A_lances_father.dialogstring_07B412! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Lance's father: Oh…[N]Will, isn't it? I'm sorry;[N]I guess I must have[N]worried you.[FIN]Lance and Lilly really did[N]all they could to nurse me[N]back to health…[FIN]I used to think that I[N]didn't want a child to[N]dominate my life.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,5][PRT:@RetranslationTheme3]But now that things have[N]turned out like this, I[N]can see that it's nice to[N]have a child that's loyal[N]to you.[END]`
+wa7A_lances_father.dialogstring_07B412! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Lance's father: Oh[AD] Will,[N]you've grown so much.[WAI][N]Lance and Lilly stayed[N]with me. Day after day.[FIN]At first I could barely[N]speak to them.[WAI][N]But they kept coming back.[FIN]Little by little, I began[N]to feel like myself again.[FIN]I used to think having a[N]child would only tie me[N]down.[FIN]Now I'm grateful mine[N]never gave up on me.[FIN]There's something else[N]you should know, Will.[WAI][N]There was sabotage at the[N]Tower.[FIN]A man joined our[N]expedition shortly before[N]we went in.[FIN]He deliberately set off a[N]trap and forced us into[N]that room.[FIN]At the time, I didn't[N]understand why.[WAI][N]I've since learned who[N]that man really was.[FIN]The Jackal.[FIN]Someone must have hired[N]him to make sure your[N]father's expedition[N]would fail.[END]`
 
 ?INCLUDE 'eu91_men2'
 eu91_men2.dialogstring_07C9FF! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]Reuleck changed this town[N]almost beyond recognition.[WAI][N]Euro became a world center[N]of trade as the company[N]grew.[WAI][N]Growth that fast always[N]casts a shadow somewhere.[END]`
@@ -160,8 +160,8 @@ eu97_clerk1.dialogstring_07CC0A! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTh
 ?INCLUDE 'eu91_shop_queue'
 eu91_shop_queue.dialogstring_07D423! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]How many times have I[N]lined up for things like[N]this already?[END]`
 eu91_shop_queue.dialogstring_07D43E! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]There's a lot of joy to be[N]found through hardship,[N]isn't there?[END]`
-eu91_shop_queue.dialogstring_07D3F6! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]Humanity is seeing a queue[N]and wanting to join it for[N]some reason, right?[END]`
-eu91_shop_queue.dialogstring_07D479! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]Humanity is seeing a queue[N]and wanting to join it for[N]some reason, right?[END]`
+eu91_shop_queue.dialogstring_07D3F6! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]I saw the line and figured[N]there must be something[N]worth buying.[END]`
+eu91_shop_queue.dialogstring_07D479! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]I've been here half an[N]hour. Still no idea what[N]they're selling.[END]`
 eu91_shop_queue.dialogstring_07D4A9! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]They're selling something[N]called the Medicine of[N]Life.[WAI][N]I don't know if it works.[N]Still[AD] who doesn't wish[N]for a little more time?[END]`
 
 ?INCLUDE 'eu97_clerk2'
@@ -192,7 +192,7 @@ eu9D_altar.dialogstring_07E5BE! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTh
 eu9D_slaves.dialogstring_07D207! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]I understand a little of[N]your language. We were[N]brought here from a[N]distant place…[END]`
 eu9D_slaves.dialogstring_07D1D3! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]We are forced to learn the[N]language here, and then[N]are sold off to separate[N]places…[END]`
 eu9D_slaves.dialogstring_07D196! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]The bones scattered over[N]there were our companions…[N]If we don't obey an order,[N]that's how it ends for us.[END]`
-eu9D_slaves.dialogstring_07D167! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]I want to talk in the[N]language of my motherland…[N]But I'll be beaten if I do[N]that…[END]`
+eu9D_slaves.dialogstring_07D167! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]I want to speak my own[N]language…[WAI][N]But I'll be beaten if I[N]do…[END]`
 eu9D_slaves.dialogstring_07D0DC! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]Strange diseases have been[N]spreading through our[N]homeland.[WAI][N]One illness even turns the[N]body to stone.[WAI][N]I fled hoping to survive[AD][N]only to end up sold as a[N]slave here.[END]`
 
 ?INCLUDE 'eu92_rofsky'
@@ -205,7 +205,7 @@ eu92_erasquez.dialogstring_07D892! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@Retranslation
 
 ?INCLUDE 'eu95_ann'
 eu95_ann.dialogstring_07E0E5! `[BOR:7][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme1]Ann: Thank you. I think I[N]still want to eat one.[END]`
-eu95_ann.dialogstring_07E10A! `[BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Ann: Why do you keep going[N]back and forth to the[N]market like this, bringing[N]apples for me as many[FIN][N]times as I ask…?[FIN]Is it for that Kara[N]girl…? Or…?[FIN]Well, that's alright. As[N]thanks, I'll give you this[N]jewel.[FIN][CLD][SFX:10][DLG:3,4][SIZ:D,1][SFX:10]Will got a Red Jewel![END]`
+eu95_ann.dialogstring_07E10A! `[BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Ann: Why do you keep going[N]back and forth to the[N]market like this, bringing[N]apples for me as many[FIN][N]times as I ask…?[FIN]Is it for that Kara[N]girl…? Or…?[FIN]Well, that's alright. As[N]thanks, I'll give you this[N]jewel.[FIN][CLD][SFX:10][DLG:3,4][SIZ:D,1][SFX:10]Will receives a Red Jewel![END]`
 eu95_ann.dialogstring_07E19D! `[BOR:7][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme1]Ann: Take good care of[N]Kara, alright…?[END]`
 
 ?INCLUDE 'eu93_found'

@@ -20,7 +20,7 @@ it1A_moon_tribe.dialogstring_09D388! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@Retra
 it1A_moon_tribe.dialogstring_09D30F! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: Wherever[N]there is light, a shadow[N]follows.[WAI][N]Long ago, the comet's[N]light washed over us[N]completely.[WAI][N]Our bodies changed until[N]we became these shadows,[N]untouched by age.[WAI][N]We gained an eternity[N]beyond ordinary life.[WAI][N]Do not assume eternity[N]and mercy are the same.[END]`
 it1A_moon_tribe.dialogstring_09D462! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: One of our[N]kind was taken away.[WAI][N]We wonder where they were[N]taken[AD][FIN]Perhaps you'll cross[N]paths with them before[N]we do.[N]Mweheheheheh[AD][END]`
 it1A_moon_tribe.dialogstring_09D4AD! `[CLR][PAL:4]Moon Tribe: We may come[N]chase you later.[N]Mweheheheheheheh[AD][END]`
-it1A_moon_tribe.dialogstring_09D4DC! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: This is the[N]comet's fourth approach in[N]800-year cycles.[WAI][N]Each return stirs the[N]Power of Darkness more[N]strongly in answer.[WAI][N]What will be born from the[N]light this time[AD]?[END]`
+it1A_moon_tribe.dialogstring_09D4DC! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: The comet[N]returns every eight hundred[N]years. This is its fourth[N]approach.[WAI][N]Each return stirs the[N]Power of Darkness more[N]strongly in answer.[WAI][N]What will be born from the[N]light this time[AD]?[END]`
 it1A_moon_tribe.dialogstring_09D574! `[CLD][BOR:8][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1A]Moon Tribe: We have lived[N]beyond the measure of[N]time.[FIN]With these eyes, we[N]watched the Incan kingdom[N]rise and fall.[FIN]The Incan idol rests in[N]the cave beneath us.[FIN]We have taken a liking to[N]you.[WAI][N]So we'll give you a chance[N]to claim the Incan idol.[FIN]If you can earn it.[N]Mweheheheheh[AD][END]`
 
 ?INCLUDE 'it1A_lily'
@@ -38,8 +38,8 @@ it1A_lily.dialogstring_04F68F! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Wi
 it1A_lily.dialogstring_04F653! `[CLR]Lilly: That's a lie. I[N]know you, Will. Whatever[N]you say now, you're going[N]eventually, aren't you?[FIN]`
 
 ?INCLUDE 'it1B_inca_statue_b'
-it1B_inca_statue_b.dialogstring_04FAF9! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]You've got[N]Incan Statue B![PAU:A0][CLD]`
-it1B_inca_statue_b.dialogstring_04FB16! `[DLG:3,13][SIZ:D,3]You've found Incan [N]Statue B! But your [N]inventory is full![END]`
+it1B_inca_statue_b.dialogstring_04FAF9! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]Will finds[N]Incan Statue B![PAU:A0][CLD]`
+it1B_inca_statue_b.dialogstring_04FB16! `[DLG:3,13][SIZ:D,3]Will finds[N]Incan Statue B! But your [N]inventory is full![END]`
 
 ?INCLUDE 'ir1C_lily'
 ir1C_lily.dialogstring_09CAE5! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: This is the[N]entrance to the Incan[N]ruins.[WAI][N]The Inca once ruled a vast[N]land. Their oldest mystery[N]is supposed to be hidden[N]here.[WAI][N]The Elder told me that[N]when invaders came, the[N]Inca prepared to abandon[N]their homeland.[WAI][N]They built a giant ship[N]covered in their finest[N]goldwork and planned to[N]seek a new land.[WAI][N]But no surviving record[N]describes that ship ever[N]leaving.[WAI][N]The legend says it still[N]waits somewhere beneath[N]these ruins.[WAI][N]The Elder doesn't usually[N]involve outsiders in[N]things like this.[WAI][N]He must trust you, Will.[END]`

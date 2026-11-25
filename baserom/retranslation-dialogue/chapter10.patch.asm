@@ -7,7 +7,7 @@ gs2C_descent.dialogstring_0581FF! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV0
 gs2C_crew5.dialogstring_0583E7! `[BOR:5][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1B]Hooray! Hooray! His[N]Majesty, the King, has[N]returned![END][JMP:&dialogstring_058394+M]`
 
 ?INCLUDE 'gs2C_crew4'
-gs2C_crew4.dialogstring_058394! `[BOR:5][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1B]Ah, Your Majesty![N]You're safe and well…!![FIN][::][BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme0]Will: (They're calling ME[N]the King???)[END]`
+gs2C_crew4.dialogstring_058394! `[BOR:5][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1B]Ah, Your Majesty![N]You're safe![FIN][::][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@CastleV051Thought](They're calling me[N]the king?!)[END]`
 
 ?INCLUDE 'gs2C_crew1'
 gs2C_crew1.dialogstring_058260! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1B][PAL:0]Your Majesty[AD]! You're[N]safe! Now we can finally[N]set sail on the open sea.[END]`
@@ -37,23 +37,29 @@ gs2E_crew1.dialogstring_05883E! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@Retranslati
 gs2E_queen.dialogstring_058A30! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Incan Queen: My darling[AD][N]You returned safely.[FIN]The Mystic Statue of the[N]wind protected me just as[N]you promised it would.[FIN]You said it was a statue[N]blessed by the spirits.[FIN][::][CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]It rests in a treasure[N]chest in the storehouse[N]below.[FIN]Please see it with your[N]own eyes.[END]`
 
 ?INCLUDE 'gs2C_crow_crew'
-gs2C_crow_crew.dialogstring_0584BC! `[BOR:5][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1B]Lookout: King, please look[N]outside. The ship is[N]leaving the cave![END]`
+gs2C_crow_crew.dialogstring_0584BC! `[BOR:5][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1B]Lookout: Your Majesty,[N]look! We're leaving the[N]cave![END]`
 gs2C_crow_crew.dialogstring_0584FB! `[CLD][BOR:5][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1B][PAL:0]Lookout: We lived in[N]darkness for so long.[WAI][N]To us, the sunlight on[N]this ocean feels like a[N]blessing from the spirits.[WAI][N][BOR:5][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1B][PAL:0]With beauty like this in[N]the world, why do people[N]still choose to destroy[N]one another's homes?[END]`
 
 ?INCLUDE 'gs2E_sleep'
 gs2E_sleep.dialogstring_058759! `[CLD][BOR:5][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1B][PAL:0]I'm sorry this bed is so[N]humble, Your Majesty.[WAI][N]Please rest as long as you[N]need.[END]`
-gs2E_sleep.dialogstring_0586CC! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme0]Will: In an intense state[N]of drowsiness, I had been[N]lured into a deep, deep[N]dream.[END]`
+gs2E_sleep.dialogstring_0586CC! `[CLD][DEF][DLG:3,11][SIZ:D,4]A heavy drowsiness comes[N]over Will, drawing him[N]into a deep dream.[END]`
 
 ?INCLUDE 'gs2A_shira'
-gs2A_shira.dialogstring_0594B8! `[PAU:50][BOR:3][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme0]Will: M-mom…!?[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme2]Will's mother, Shira: Will[N]Please look at the sky…[FIN]See, isn't that comet out[N]there pretty?[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Hey, about that comet.[N]It arrives at the Earth[N]after many, many years,[N]then goes away again.[FIN]Even when there are people[N]who call it a star that[N]summons misfortune,[FIN]there are also those who[N]call it a star of luck…[FIN]Will.[N]Which do you think it is?[N][PAL:0] Star of misfortune [N] Star of luck[PAL:4]`
-gs2A_shira.dialogstring_0595B4! `[CLR]Is that how it is… Well,[N]then I'll pray that the[N]misfortune doesn't visit,[N]okay…?[FIN][JMP:&dialogstring_0595E6+M]`
-gs2A_shira.dialogstring_0595E6! `[CLR]All right…[N]Then hope that happiness[N]doesn't slip away….[FIN][::]My dear Will. You know,[N]I'll always be watching[N]over you.[END]`
+; The rewritten prompt occupies two rows before the two answers.
+gs2A_shira.code_059484! {
+    COP [SetFlagByte] ( #0E )
+    COP [PrintDialogString] ( &dialogstring_0594B8 )
+    COP [DialogueOptions] ( #02, #02, &code_list_059491 )
+}
+gs2A_shira.dialogstring_0594B8! `[PAU:50][CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@CastleV051Will]Will: M-mom…!?[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Will's mother, Shira:[N]Will, look at the sky.[FIN]Isn't that comet[N]beautiful?[FIN]It comes near the Earth[N]after many, many years,[N]then passes away again.[FIN]Some people call it a star[N]of disaster.[FIN]Others call it a star[N]of blessing, a light[N]that can free people[N]from suffering.[FIN]Will, which do you[N]think it is?[N][PAL:0] Star of misfortune[N] Star of blessing[PAL:4]`
+gs2A_shira.dialogstring_0595B4! `[CLR]Then I hope you'll be[N]ready for what it brings.[FIN][JMP:&dialogstring_0595E6+M]`
+gs2A_shira.dialogstring_0595E6! `[CLR]Then I hope its light[N]brings the good you see[N]in it.[FIN][::]My dear Will, I'll always[N]be watching over you.[END]`
 
 ?INCLUDE 'gs2D_lily'
 gs2D_lily.dialogstring_058DBB! `[BOR:6][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme2]Lilly: Will![FIN]Will! Get up![END]`
 
 ?INCLUDE 'gs2D_lance'
-gs2D_lance.dialogstring_05902D! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme4]Lance: Ya were actin'[N]weird, so tha three o' us[N]went sneakin' behind ya.[FIN]Then we ended up at a[N]weird village…[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Waaait a second.[N]That's where I was born,[N]so how can you call it a[N]weird village…!?[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme4]Lance: Ain't it weird[N]enough…?[FIN]It's a village ya can't[N]see…[FIN]Will. Don't go hidin' yer[N]journey from us.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme4]Ya ain't friends unless ya[N]share the fun times and[N]the hard times.[END]`
+gs2D_lance.dialogstring_05902D! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Lance: Ya were actin'[N]strange, so the three of[N]us followed ya.[WAI][N]That's how we ended up in[N]that invisible village…[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: When you didn't[N]come back, we asked the[N]Elder for help.[WAI][N]He told us where to look.[N]We finally found you[N]asleep in this wreck.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Lance: Will, don't go[N]hidin' your journey from[N]us.[WAI][N]We're friends. That means[N]sharin' the good times and[N]the hard ones.[END]`
 
 ?INCLUDE 'gs2D_lily'
 gs2D_lily.dialogstring_058DDA! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: You were taking[N]too long to come back, so[N]we asked the Elder to[N]divine where you were.[WAI][N]He said you were alone,[N]roaming the sea. We were[N]shocked![END]`
@@ -83,7 +89,7 @@ gs2B_erik.dialogstring_059240! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationThe
 gs2D_kara.dialogstring_058C21! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: They died waiting[N]for a king who could never[N]return[AD][WAI][N]I hate thinking that[N]people who lived in[N]peace[WAI][N]could have their[N]whole lives broken apart[N]like this.[END]`
 
 ?INCLUDE 'gs2D_mummy'
-gs2D_mummy.dialogstring_058B4F! `[DEF][CLD][DLG:3,F][SIZ:D,5]The Queen's mummy rests[N]quietly.[N]A gold ring remains on her[N]long, slender finger[AD][END]`
+gs2D_mummy.dialogstring_058B4F! `[DEF][CLD][DLG:3,F][SIZ:D,5]The Queen's mummy rests[N]quietly.[N]A gold ring set with a[N]pale blue stone remains[N]on her finger[AD][END]`
 
 ?INCLUDE 'gs2D_lily'
 gs2D_lily.dialogstring_058E4A! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: That ring must be[N]one of the treasures that[N]sailed with this ship.[WAI][N]It still stands out among[N]all this gold.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: So many people died[N]chasing treasures like[N]this, didn't they?[WAI][N][AD]It's beautiful.[WAI][N]I know I probably[N]shouldn't, but I want it.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: From a mummy?![N]What if it's cursed?[END]`

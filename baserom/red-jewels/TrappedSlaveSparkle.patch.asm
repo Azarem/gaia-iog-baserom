@@ -60,4 +60,4 @@ dm40_trapped_slave.code_05D7CB! {
 dm40_trapped_slave_normal_str `[PRT:@dialogstring_05D819]I want to give you a[N]present. Here's 3 Red[N]Jewels for your trouble.[END]`
 dm40_trapped_slave_full_str `[PRT:@dialogstring_05D819]I want to give you a[N]present. I'm sending 3[N]Red Jewels to[N]the Jeweler.[END]`
 
-dm40_trapped_slave.dialogstring_05D819! `[DEF]Thank you.[N]I was buried in[N]the cave-in...[FIN]What would happen if[N]we took longer...[FIN]`
+dm40_trapped_slave.dialogstring_05D819! `[DEF]Thank you.[N]I was buried alive in[N]that cave-in…[FIN]If you'd come a little[N]later, I don't know what[N]would have happened.[FIN]`

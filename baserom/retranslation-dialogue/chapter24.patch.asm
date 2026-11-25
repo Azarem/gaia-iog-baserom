@@ -62,7 +62,7 @@ wa78_intro.code_0780AD! {
     COP [Die]
 }
 
-wa78_intro.dialogstring_0780B6! `[DEF][DLY:2]Will and the others[N]arrived in Watermia, the[N]Floating City.[PAU:58][CLR]Houses rested on rafts[N]all across the bright[N]water.[PAU:58][CLR]The people were welcoming,[N]and a fisherman named Luke[N]offered them his home[N]while he was away at sea.[PAU:58][CLR]Will thought he'd welcome[N]the chance to rest[AD][PAU:58][CLR]But after a few quiet[N]days, he was already[N]getting restless.[PAU:58][CLR]He kept wondering what was[N]waiting beyond the next[N]horizon.[PAU:84][CLD]`
+wa78_intro.dialogstring_0780B6! `[DEF][DLY:2]Will and the others[N]reach Watermia, the[N]Floating City.[PAU:58][CLR]Houses rest on rafts[N]all across the bright[N]water.[PAU:58][CLR]The townspeople welcome[N]them. Luke, a fisherman,[N]has offered them his home[N]while he's away at sea.[PAU:58][CLR]Will expects to welcome[N]the chance to rest[AD][PAU:58][CLR]But after a few quiet[N]days, he grows restless.[PAU:58][CLR]He wonders what waits[N]beyond the next horizon.[PAU:84][CLD]`
 wa78_intro.dialogstring_078139! `[DEF]This is Luke's house.[N]He's a fisherman, and a[N]generous one.[FIN][DEF]He'll be away on a long[N]voyage, so he told Will[N]and the others to make[N]themselves at home.[END]`
 
 ?INCLUDE 'wa79_kara'
@@ -102,7 +102,7 @@ wa78_children.dialogstring_078C59! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@Retrans
 wa78_children.dialogstring_078C12! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Child: If a snake bites[N]you, run around like[N]crazy. It'll eventually[N]plop off.[END]`
 
 ?INCLUDE 'wa78_centipede_man'
-wa78_centipede_man.dialogstring_0782BD! `[BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Man: They say that a[N]giant centipede called[N]the Sand Fanger inhabits the[N]Great Wall of China.[FIN]It seems that its bodily[N]fluids have the power to[N]cure any kind of disease.[FIN][CLD][BOR:9][DLG:3,F][SIZ:D,5][PRT:@RetranslationTheme1C]Chinese herbal medicine[N]uses a lot of weird things[N]as ingredients but I don't[N]think I'd just drink[N]insect lifeblood…[END]`
+wa78_centipede_man.dialogstring_0782BD! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Man: They say that a[N]giant centipede called[N]the Sand Fanger inhabits the[N]Great Wall of China.[END]`
 
 ?INCLUDE 'wa78_children'
 wa78_children.dialogstring_078D02! `[BOR:9][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1C]Child: I'll teach you[N]something good.[FIN][CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Try waiting behind the[N]gambling house, on the[N]right side. A lotus leaf[N]will arrive.[END]`
@@ -123,7 +123,7 @@ wa78_women.dialogstring_078AF8! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@Retranslat
 wa7D_glass_opponent.dialogstring_078E01! `[BOR:9][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme24]Man: *cough* *cough*[N]Wh-what? I've only caught[N]a little cold.[END]`
 
 ?INCLUDE 'wa78_men'
-wa78_men.dialogstring_0785C9! `[BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Man: This is Watermia.[N]It's easy to move because[N]everyone's houses are on[N]rafts.[END]`
+wa78_men.dialogstring_0785C9! `[BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Man: If a neighbor moves,[N]look along the water.[FIN]The whole house might be[N]tied up somewhere else.[END]`
 
 ?INCLUDE 'wa78_water_kid'
 wa78_water_kid.dialogstring_0784CF! `[BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Child: We drink this[N]water, we cook our rice in[N]this water, we wash our[N]clothes with this water.[END]`
@@ -156,7 +156,7 @@ wa7B_competitor_right.dialogstring_07A188! `[BOR:9][DLG:3,4][SIZ:D,1][PRT:@Retra
 wa7B_competitor_left.dialogstring_07A132! `[BOR:9][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme1C]Raaaaaagh…![N]I can still keep going…!![END]`
 
 ?INCLUDE 'wa7A_lances_father'
-wa7A_lances_father.dialogstring_07B3C2! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Lance's father: Hey, didja[N]know? I just went[N]exploring with my friends.[N]It was scary, but fuuun![END]`
+wa7A_lances_father.dialogstring_07B3C2! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Lance's father: They[N]went into the room[AD][WAI][N]Screaming[AD] then suddenly[N]nothing.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]You were left in there[AD][N][PAU:1E]alone, Will.[WAI][N]Had to get you out.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Threw a blanket over[N]myself. Went in.[WAI][N]Just to grab you.[WAI][N]Didn't[AD] I couldn't[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]You were in a daze.[WAI][N]Got you home, but[AD][N]my mind[AD] broken.[WAI][N]Couldn't go back.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Didn't want them to see[N]me broken.[WAI][N]Better if they thought[N]I died[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme4]Lance: Ya should've come[N]home.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme3]Lance's father: So[N]sorry[AD][N]So sorry[AD][END]`
 
 ?INCLUDE 'wa7A_lance'
 wa7A_lance.dialogstring_07AB82! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme4]Lance: Will… Don't ya[N]remember this guy…?[FIN]That's right, it's my old[N]man.[END]`
@@ -187,16 +187,18 @@ wa7F_lily.dialogstring_07B329! `[CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@Retranslati
 ?INCLUDE 'wa7F_lance'
 wa7F_lance.dialogstring_07B0A2! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Lance: Yeah. Words that're[N]harder to say than any[N]tongue twister I've ever[N]tried[AD][END]`
 wa7F_lance.dialogstring_07B0E1! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme4][DLY:2]Lance: Lilly…[N]I care about ya a lot…[END]`
-wa7F_lance.dialogstring_07B108! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme4][DLY:2]Lance: It's okay if ya[N]don't reply immediately…[FIN]But I wanted ta convey[N]my own feelings ta ya…[END]`
+wa7F_lance.dialogstring_07B108! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme4][DLY:2]Lance: Ya don't have to[N]answer me right now.[FIN]I just needed ya to know[N]how I feel.[END]`
 wa7F_lance.dialogstring_07B158! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme4]Lance: Lilly![N]Please wait…!![PAU:50][CLD]`
-wa7F_lance.dialogstring_07B174! `[CLD][DEF]We had no idea that[N]conversation had happened.[FIN][CLD][DEF]Lilly didn't return to our[N]room that night.[END]`
+wa7F_lance.dialogstring_07B174! `[CLD][DEF]Lilly doesn't return to[N]their room that night.[END]`
 
 ?INCLUDE 'wa79_kara'
-wa79_kara.dialogstring_07A79C! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme0]Will: Then, the following[N]morning…[FIN]When my eyes opened, there[N]was no sign of Lance…[END]`
+wa79_kara.dialogstring_07A79C! `[CLD][DEF]When Will wakes, Lance[N]is gone, too.[END]`
 wa79_kara.dialogstring_07A7E2! `[BOR:7][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Kara: I wonder what[N]happened to Lance and[N]Lilly. I'm worried…[END]`
 
 ?INCLUDE 'item_use_system'
-item_use_system.dialogstring_039514! `[DLG:3,15][SIZ:D,2]Will opens Lance's letter.[FIN][CLD][BOR:1][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]Lance: I'm going to the[N]Great Wall of China for[N]a little while.[FIN]I meant to keep it secret,[N]but I figured I'd tell[N]you.[FIN]I'm hiding this letter in[N]your luggage. Betting it[N]takes you a bit to notice.[FIN]Lilly turned me down.[N]I think maybe she's got[N]feelings for you, Will.[FIN]Don't worry. I don't blame[N]you. You never did[N]anything wrong.[FIN]Maybe I just haven't given[N]her much reason to see me[N]that way.[FIN]I heard an old legend[N]about the Great Wall.[FIN]They say living statues[N]that never age still[N]guard a sacred statue[N]hidden there.[FIN]Sounds a lot like one of[N]the Mystic Statues we're[N]looking for, doesn't it?[FIN]So I'm going to find it.[N]Maybe if I come back with[N]one of those things, Lilly[N]will see me differently.[FIN]Don't follow me.[N]I need to do this one[N]myself.[END]`
+item_use_system.dialogstring_039514! `[DLG:3,15][SIZ:D,2]Will opens Lance's letter.[FIN][CLD][BOR:1][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]I'm going to the[N]Great Wall of China.[FIN]I meant to keep it secret,[N]but I figured I'd tell[N]you.[FIN]I'm hiding this letter in[N]your luggage. Betting it[N]takes you a bit to notice.[FIN]Lilly turned me down.[N]I think maybe she's got[N]feelings for you, Will.[FIN]Don't worry. I don't blame[N]you. You never did[N]anything wrong.[FIN]Maybe I just haven't given[N]her much reason to see me[N]that way.[FIN]I heard an old legend[N]about the Great Wall.[FIN]They say living sculptures[N]that never age still[N]guard a sacred statue[N]hidden there.[FIN]Sounds a lot like one of[N]the Mystic Statues we're[N]looking for, doesn't it?[FIN]So I'm going to find it.[N]Maybe if I come back with[N]one of those things, Lilly[N]will see me differently.[FIN]Don't follow me.[N]I need to do this one[N]myself.[END]`
 
 ?INCLUDE 'wa78_glass_game'
 wa78_glass_game.dialogstring_07927C! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Every month on a full moon[N]night, people play Russian[N]Glass.[WAI][N]It's the ultimate form of[N]gambling where you bet[N]your very life.[WAI][N]But you're still young,[N]little boy. I definitely[N]don't think you should be[N]throwing your life away.[END]`
+
+item_use_system.dialogstring_03944D! `[DEF]Will opens Lance's[N]father's journal.[FIN]Read which entry? [N] Tower of Babel [N] Mystic Statues [N] Great Wall of China `

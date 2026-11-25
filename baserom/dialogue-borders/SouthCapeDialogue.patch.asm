@@ -63,7 +63,7 @@ sc02_entry.dialogstring_04BE87! `[DEF]The four friends called[N]this seaside cav
 sc02_entry.dialogstring_04BF35! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Lance: What the heck,[N]Will? Going home already?[WAI][N]Dinner time's still a ways[N]off, so let's stick around[N]and have fun a bit longer.[END]`
 
 ?INCLUDE 'sc02_erik'
-sc02_erik.dialogstring_04B9AF! `[DEF][DLY:0]Suddenly, Erik came[N]rushing in, looking[N]urgent![WAI][CLD]`
+sc02_erik.dialogstring_04B9AF! `[DEF][DLY:0]Suddenly, Erik rushes in,[N]looking alarmed![WAI][CLD]`
 sc02_erik.dialogstring_04BA55! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Lance: Come on, so what?[N]With ya barging in here[N]like that, I thought[N]something cooler happened.[WAI][N]Besides, that "princess"[N]is just that selfish girl[N]Kara, yeah? Who cares[N]about someone like that?[END]`
 sc02_erik.dialogstring_04B9F2! `[BOR:2][PRT:@CapeUpper4][PRT:@CapeErik]Erik: *huff huff*[N]News! It's BIG news![WAI][N]Edward Castle's princess[N]has gone missing! They say[N]she came to this town![END]`
 sc02_erik.dialogstring_04BB59! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Erik: Dang, I thought[N]everyone was gonna be so[N]amazed[AD][END]`
@@ -120,10 +120,10 @@ CapeSethGiveGlasses {
 }
 
 CapeSethGlassesOffer `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Ha, I just won these[N]cool sun glasses from[N]Lance, but I already wear[N]glasses,[WAI][N]so I can't use them.[FIN][CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Here Will, I owe you for[N]helping me find my shark[N]tooth necklace, so you[N]take it.[END]`
-CapeGlassesReceived `[DEF]Received the Black[N]Crystal Glasses![END]`
+CapeGlassesReceived `[DEF]Will receives the Black[N]Crystal Glasses![END]`
 
 sc02_seth.dialogstring_04B612! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Girls are lame.[N]Adventure stories in[N]books are more fun.[END]`
-sc02_seth.dialogstring_04B72B! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Come on![N]What R you waiting for?[END]`
+sc02_seth.dialogstring_04B72B! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Come on![N]What are you waiting for?[END]`
 sc02_seth.dialogstring_04B77C! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: No matter how many[N]times I see it, it's still[N]amazing.[WAI][N]Characteristically, Will[N]can move only that statue.[N]But why can't you move[N]anything else[AD]?[END]`
 sc02_seth.dialogstring_04B7DE! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Characteristically,[N]people rely on five[N]senses: sight, hearing,[N]taste, smell, and touch.[WAI][N]But Will seems to have a[N]sixth sense. The way he[N]interacts with the world[N]is different.[WAI][N]Moving things, knowing[N]which card to pick, and[N]dreams that come true[AD][FIN][CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Whatever happened last[N]year[AD] it changed Will.[END]`
 sc02_seth.dialogstring_04B5B6! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Ahaha! I'm sure to[N]win again.[END]`
@@ -158,7 +158,7 @@ sc06_bill.dialogstring_0494B1! `[CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Bil
 sc06_bill.dialogstring_04953E! `[CLD][BOR:2][PRT:@CapeUpper1][PRT:@CapeKara][DLY:0]No-o-o-o-o!!![FIN][CLD][DEF]A shriek rings out from[N]the first floor![END]`
 sc06_bill.dialogstring_04958A! `[CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Bill: Well, I can't say I[N]believed much of that[N]girl's story.[WAI][N]It sounded pretty flimsy[N]to me.[WAI][N]Still, she had a wonderful[N]singing voice[AD][WAI][N]and she certainly seemed[N]interested in meeting you.[WAI][N]You may not think much of[N]girls in pretty dresses[N]yet, Will[AD][WAI][N]but trust your grandpa.[N]You will soon enough![N]Bwahahaha.[END]`
 sc06_bill.dialogstring_0495EB! `[CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Bill: There's a prison[N]beneath the castle.[WAI][N]I designed it as a maze[N]so prisoners couldn't[N]escape easily.[WAI][N]These days I can't help[N]thinking about everyone[N]still being locked inside[N]something I built[AD][END]`
-sc06_bill.dialogstring_049685! `[CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Bill: Hey, Will. Doesn't[N]Grandma Lola's cooking[N]seem a little odd[N]lately?[WAI][N]Last night, licorice and[N]rice. Before that, mouse[N]fritters. I can barely[N]keep up.[WAI][N]I can't tell if her mind[N]is starting to go with[N]age, or if she's stressed[N]about something[AD][WAI][N][AD]something she isn't[N]sharing. I'm not sure[N]which I fear more.[END]`
+sc06_bill.dialogstring_049685! `[CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Bill: Hey, Will. Doesn't[N]Grandma Lola's cooking[N]seem a little odd[N]lately?[WAI][N]Last night, licorice and[N]rice. Before that, mouse[N]fritters. I can barely[N]keep up.[WAI][N]Something's been weighing[N]on her, Will. I wish she'd[N]tell me what.[END]`
 
 ?INCLUDE 'sc06_hamlet'
 sc06_hamlet.dialogstring_04A311! `[CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeThought](I know Aunt Lola's been[N]trying new recipes, but[N]I don't think pork is[N]supposed to be this raw.)[END]`
@@ -179,7 +179,7 @@ sc06_lola.dialogstring_0499F1! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Lola: Oh,
 sc06_lola.dialogstring_049ABB! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Lola: Welcome home, Will.[N]Silly me. I lose track of[N]time when singing opera.[WAI][N]Dinner isn't ready yet.[END]`
 sc06_lola.dialogstring_049A3F! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Lola: Ohohohoo! Stop it,[N]dear! Bringing up a thing[N]like that right now[AD][WAI][N][PAU:F]Oh yes! Will, try not to[N]be too surprised.[WAI][N]Until just a moment ago,[N]there was a girl here[N]singing with us, you know[AD][END]`
 sc06_lola.dialogstring_049B82! `[PAU:40][BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Lola: Okay, that's enough[N]depressing talk. Dinner's[N]about ready. Let's eat.[WAI][N]I baked a delicious pie.[N]Please come along now,[N]both of you. We'll sit[N]at the table upstairs.[END]`
-sc06_lola.dialogstring_049D29! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeThought][SFX:7][DLY:5](What a wonderful[N]melody[AD])[FIN][CLD][PAU:58][DEF][SFX:0]Even though Will had never[N]heard it before, for some[N]reason, it filled him with[N]a deep longing.[FIN][CLD][PAU:60][PRT:@CapeUpper1][SFX:0]Learned Lola's Melody![PAU:40][END]`
+sc06_lola.dialogstring_049D29! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeThought][SFX:7][DLY:5](What a wonderful[N]melody[AD])[FIN][CLD][PAU:58][DEF][SFX:0]Will has never heard it[N]before, yet it fills him[N]with a deep longing.[FIN][CLD][PAU:60][PRT:@CapeUpper1][SFX:0]Will learns Lola's Melody![PAU:40][END]`
 sc06_lola.dialogstring_049D94! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Lola: Go, and be careful.[END]`
 sc06_lola.code_0499D3! {
     COP [PrintDialogString] ( &CapeLolaDinnerRepeat )
@@ -193,7 +193,7 @@ sc06_lola.dialogstring_049BE5! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Lola: Goo
 sc06_main_soldier.dialogstring_04A3BB! `[CLD][BOR:7][PRT:@CapeUpper4][PRT:@CapeGuard]Soldier: Your Highness.[N]We've been looking for[N]you![FIN][CLD][PAU:F][BOR:2][DLG:3,6][SIZ:C,2][PRT:@CapeKara]Kara: I don't know any[N]of you. Get out![FIN][CLD][PAU:F][BOR:7][PRT:@CapeUpper4][PRT:@CapeGuard]Soldier: What are you[N]saying? If I don't bring[N]you home, my head will[N]roll![END]`
 
 ?INCLUDE 'sc06_monologue'
-sc06_monologue.dialogstring_04A4CC! `[DEF]In the end, dinner was a[N]snail pie that was[N]absolutely loaded with[N]whipped cream[AD][FIN][CLD][DEF]Will could only stomach a[N]small piece, but Grandpa[N]Bill powered through and[N]ate three slices.[FIN][CLD][DEF]That night, Will dreamt[N]that he and Kara[N]were traveling around the[N]world together[AD][END]`
+sc06_monologue.dialogstring_04A4CC! `[DEF]Dinner turns out to be[N]snail pie piled high[N]with whipped cream[AD][FIN][CLD][DEF]Will can stomach only a[N]small piece, but Grandpa[N]Bill powers through three[N]slices.[FIN][CLD][DEF]That night, Will dreams[N]that he and Kara travel[N]around the world together[AD][END]`
 sc06_monologue.dialogstring_04A582! `[CLD][BOR:3][PRT:@CapeLower4][PRT:@CapeThought](But I never told her[N]my name[AD])[END]`
 
 ?INCLUDE 'sc07_chef'
@@ -274,3 +274,5 @@ CapeGuard `[SEP:1,77FD][SEP:2,564F][SEP:3,1000][SEP:13,1000][SEP:11,7FFF][SEP:12
 awBA_glasses.code_089F7F- {
     COP [BranchIfHasItem] ( #1C, &code_089FB5 )
 }
+
+sc01_fisherman.dialogstring_048479! `[DLG:3,11][SIZ:D,3]Will finds a Red Jewel![END]`

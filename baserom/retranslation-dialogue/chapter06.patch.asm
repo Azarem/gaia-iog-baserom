@@ -22,7 +22,7 @@ ec0A_kara.dialogstring_04D012! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 
 ?INCLUDE 'ec0A_barrel_roast'
 ec0A_barrel_roast.dialogstring_04D114! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1][DLY:0]Kara: If I remember[N]right, they store food in[N]these barrels.[END]`
-ec0A_barrel_roast.dialogstring_04D141! `[DEF][SFX:0][DLY:9]Got bone-in smoked meat![PAU:FF][FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1][DLY:0]Kara: Good. We're ready.[N]Let's go before the[N]soldiers find us![END]`
+ec0A_barrel_roast.dialogstring_04D141! `[DEF][SFX:0][DLY:9]Will takes the smoked[N]meat![PAU:FF][FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1][DLY:0]Kara: Good. We're ready.[N]Let's go before the[N]soldiers find us![END]`
 
 ?INCLUDE 'item_use_system'
 item_use_system.dialogstring_038D85! `[DEF]Will nibbles the smoked[N]meat.[FIN][DEF]Its taste is unlike[N]anything he has eaten[N]before.[FIN][DEF]What kind of meat could[N]this possibly be[AD]?[END]`
