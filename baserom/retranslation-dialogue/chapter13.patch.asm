@@ -94,7 +94,7 @@ fr32_slaver1.dialogstring_05B840! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@Retransl
 
 ?INCLUDE 'fr32_slaver2'
 fr32_slaver2.dialogstring_05B8CD! `[BOR:A][DLG:3,17][SIZ:D,1][PRT:@RetranslationTheme20]A slave escaped.[FIN][CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme20]You haven't noticed him[N]anywhere, have you?[N][PAL:0] Yes[N] No[PAL:4]`
-fr32_slaver2.dialogstring_05B90C! `[CLR]What did you say!? If you[N]tell me where they are, I[N]might be so kind as to[N]give you a Red Jewel.[WAI][N][PAL:0] Inform him[N] Smile and lie[PAL:4]`
+fr32_slaver2.dialogstring_05B90C! `[CLR]Tell me where he's hiding,[N]and I might make it worth[N]your while. How does a[N]Red Jewel sound?[WAI][N][PAL:0] Inform him[N] Smile and lie[PAL:4]`
 fr32_slaver2.dialogstring_05B8F1! `[CLD][BOR:A][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme20]Is that so.[N]If you see him, tell me.[END]`
 fr32_slaver2.dialogstring_05B9AF! `[CLD][DLG:3,13][SIZ:D,3]But Will doesn't know[N]where the escaped slave[N]is hiding.[FIN][::][CLD][BOR:A][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme20]Man: Hey[AD] Little boy[AD][N]Don't make fun of adults![END]`
 

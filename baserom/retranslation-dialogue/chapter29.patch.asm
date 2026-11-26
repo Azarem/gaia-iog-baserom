@@ -62,7 +62,7 @@ nvAC_beckon_kid.dialogstring_089190! `[CLR][DEF][DLG:3,13][SIZ:D,3]The boy lets 
 nvAC_beckon_kid.dialogstring_0891A2! `[DEF]The boy stands before a[N]skeleton, tears filling[N]his eyes.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Thought](Family? A friend?[N]There's no way to ask.)[END]`
 
 ?INCLUDE 'nvAC_hamlet'
-nvAC_hamlet.dialogstring_0888AD! `[CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@CastleV051Will][PAL:0]Squee squee[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Thought](I'll never hear that[N]sound again.)[FIN][CLD][DEF]Smoke from the cooking[N]fire drifts through[N]the village.[END]`
+nvAC_hamlet.dialogstring_0888AD! `[CLD][BOR:3][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme16]Squee squee[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Thought](I'll never hear that[N]sound again.)[FIN][CLD][DEF]Smoke from the cooking[N]fire drifts through[N]the village.[END]`
 
 ?INCLUDE 'nvAC_erik'
 nvAC_erik.dialogstring_0885DC! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme3]Erik: When we first saw[N]the bones, I thought these[N]people must be monsters.[WAI][N]But they were starving.[N]They've lost brothers,[N]sisters, parents…[WAI][N]I don't know what I'd do[N]if I were that hungry.[END]`

@@ -6,7 +6,7 @@ ir1D_monologue.dialogstring_09D04C! `[CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@Castle
 ?INCLUDE 'item_use_system'
 item_use_system.dialogstring_03865D! `[DLG:3,15][SIZ:D,2]There's no hole there to[N]use the prison key in.[END]`
 item_use_system.dialogstring_038746! `[CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@CastleV051Thought](Could the Inca's secret[N]be hidden in this statue?)[END]`
-item_use_system.dialogstring_03893E! `[DLG:3,11][SIZ:D,4]It seems that you couldn't[N]find a hole to insert the[N]water caltrop shaped block[N]into around here.[END]`
+item_use_system.dialogstring_03893E! `[DLG:3,11][SIZ:D,2]Will can't find a slot[N]for the Blue Block here.[END]`
 item_use_system.dialogstring_03897C! `[DLG:3,15][SIZ:D,2]Inserted the block into[N]the open tile.[END]`
 
 ?INCLUDE 'ir26_bones'
@@ -20,8 +20,8 @@ ir1F_gold_tile.dialogstring_09C410! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@CastleV051T
 
 ?INCLUDE 'ir1D_wind_melody'
 ir1D_wind_melody.dialogstring_09C5D5! `[DEF]The valley wind plays a[N]melody. It's as if the[N]Incan statues are singing[AD][END]`
-ir1D_wind_melody.dialogstring_09C614! `[DLG:3,15][SIZ:D,2]Memorized the Wind's[N]Melody![END]`
-ir1D_wind_melody.dialogstring_09C637! `[DLG:3,11][SIZ:D,3]Will hears the Melody[N]of the Wind. But your[N]inventory is full.[END]`
+ir1D_wind_melody.dialogstring_09C614! `[DLG:3,15][SIZ:D,2]Will learns the Wind[N]Melody![END]`
+ir1D_wind_melody.dialogstring_09C637! `[DLG:3,11][SIZ:D,3]Will hears the Wind[N]Melody, but the inventory[N]is full.[END]`
 
 ?INCLUDE 'ir28_bones'
 ir28_bones.dialogstring_09C8B3! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](Could this be an explorer[N]seeking the Incan gold[N]ship[AD]?)[WAI][N](So he lost his life to[N]the ceiling trap[AD])[END]`
@@ -31,15 +31,15 @@ ir26_journal_bones.dialogstring_09C90D! `[DEF][CLD][DLG:3,F][SIZ:D,5]A notebook 
 
 ?INCLUDE 'item_use_system'
 item_use_system.dialogstring_038A2B! `[DEF]Will softly plays[N]the Wind Melody.[END]`
-item_use_system.dialogstring_038A46! `[DLG:3,11][SIZ:D,4]In the vicinity where the[N]flute's sound was echoing,[N]a golden block began to[N]shine![END]`
+item_use_system.dialogstring_038A46! `[DLG:3,11][SIZ:D,3]As the flute's notes[N]echo, a golden block[N]begins to glow.[END]`
 
 ?INCLUDE 'sE6_gaia'
 sE6_gaia.dialogstring_08DFEE! `[PRT:@dialogstring_08DE96]A gigantic foe waits[N]ahead.[FIN]When struck, it answers by[N]casting rays of light from[N]its head.[FIN]After thy blow lands, seek[N]refuge behind the creature[N]before it turns on thee.[FIN]`
 
 ?INCLUDE 'item_use_system'
 item_use_system.dialogstring_038772! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme0]The altar's shape and the[N]figure's shape don't seem[N]to match.[END]`
-item_use_system.dialogstring_0386BE! `[DLG:3,15][SIZ:D,2]Offered Incan Figure A on[N]the altar.[END]`
-item_use_system.dialogstring_0387D4! `[DLG:3,15][SIZ:D,2]Offered Incan Figure B at[N]the altar.[END]`
+item_use_system.dialogstring_0386BE! `[DLG:3,15][SIZ:D,2]Will offers Incan Statue[N]A on the altar.[END]`
+item_use_system.dialogstring_0387D4! `[DLG:3,15][SIZ:D,2]Will offers Incan Statue[N]B on the altar.[END]`
 
 ?INCLUDE 'ir29_transform'
 ir29_transform.dialogstring_09CFED! `[DLG:3,4][SIZ:D,4]Will, having erased the[N]presence of the demons,[N]may release his[N]transformation…[END]`

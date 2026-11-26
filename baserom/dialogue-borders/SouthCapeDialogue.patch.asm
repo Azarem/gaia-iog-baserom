@@ -119,7 +119,7 @@ CapeSethGiveGlasses {
     JML $@f_inventory_full.InventoryFullMessage
 }
 
-CapeSethGlassesOffer `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Ha, I just won these[N]cool sun glasses from[N]Lance, but I already wear[N]glasses,[WAI][N]so I can't use them.[FIN][CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Here Will, I owe you for[N]helping me find my shark[N]tooth necklace, so you[N]take it.[END]`
+CapeSethGlassesOffer `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Ha, I just won these[N]cool sunglasses from[N]Lance, but I already wear[N]glasses,[WAI][N]so I can't use them.[FIN][CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Here, Will. I owe you for[N]helping me find my shark's[N]tooth necklace.[WAI][N]They're yours.[END]`
 CapeGlassesReceived `[DEF]Will receives the Black[N]Crystal Glasses![END]`
 
 sc02_seth.dialogstring_04B612! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeSeth]Seth: Girls are lame.[N]Adventure stories in[N]books are more fun.[END]`
@@ -207,7 +207,7 @@ sc08_erik.dialogstring_048E00! `[BOR:3][PRT:@CapeUpper4][PRT:@CapeErik]Erik: I'l
 sc08_lance.dialogstring_048D3A! `[CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeLance]Lance: Alright! Same as[N]always, we'll meet at the[N]cave by the seashore![END]`
 
 ?INCLUDE 'sc08_priest'
-sc08_priest.dialogstring_048AE9! `[CLD][DEF][DLY:0]A year has passed since[N]Will joined his father[N]on an expedition to the[N]Tower of Babel.[FIN][DEF]The expedition ended in[N]disaster.[FIN][DEF]Only Will returned to[N]South Cape, with no memory[N]of how he survived.[FIN][CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeThought](Everyone says I was[N]lucky[AD][N]But Dad isn't gone. I[N]won't believe that.[WAI][N]Someday I'll become an[N]explorer and travel the[N]world.[WAI][N]Somewhere out there, I'll[N]find him.)[END]`
+sc08_priest.dialogstring_048AE9! `[CLD][DEF][DLY:0]A year has passed since[N]Will and his father set[N]out for the Tower of[N]Babel.[FIN][DEF]The expedition ended in[N]disaster.[FIN][DEF]A few months after they[N]left, Will returned to[N]South Cape with no memory[N]of how he survived.[FIN][CLD][BOR:3][PRT:@CapeUpper4][PRT:@CapeThought](Everyone says I was[N]lucky[AD][N]But Dad isn't gone. I[N]won't believe that.[WAI][N]Someday I'll become an[N]explorer and travel the[N]world.[WAI][N]Somewhere out there, I'll[N]find him.)[END]`
 sc08_priest.dialogstring_048C98! `[CLD][BOR:3][PRT:@CapeLower4][PRT:@CapeResident]Priest: Come now, Will.[N]Please pray with me.[FIN][CLD][BOR:3][PRT:@CapeLower4][PRT:@CapeResident]May the world[N]continue to shine on for[N]all eternity[AD][END]`
 sc08_priest.dialogstring_048C01! `[BOR:3][PRT:@CapeLower4][PRT:@CapeResident]Priest: Let's go ahead and[N]end today's lesson here.[WAI][N]Going forward, I'd like[N]the four of you to do your[N]best not to fall behind.[WAI][N]Furthermore, demons have[N]been sighted outside of[N]town. If you must go far,[N]please bring a parent.[END]`
 sc08_priest.dialogstring_048CDB! `[CLD][BOR:3][PRT:@CapeLower3][PRT:@CapeResident]Will[AD] you seem troubled.[FIN][CLD][BOR:3][PRT:@CapeLower4][PRT:@CapeResident]I won't ask you to explain[N]what happened.[FIN][CLD][BOR:3][PRT:@CapeLower4][PRT:@CapeResident]But whatever lies ahead,[N]don't forget that South[N]Cape is your home.[END]`

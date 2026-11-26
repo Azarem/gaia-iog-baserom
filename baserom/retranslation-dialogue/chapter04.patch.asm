@@ -45,10 +45,10 @@ ec0A_kara.dialogstring_04CC96! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@Retranslatio
 ec0A_kara.dialogstring_04CCE4! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1][DLY:0]Kara: He's awful![N]Awful[AD]![WAI][N]My father has been[N]taking things[AD][N]important things![WAI][N]Just because he can[AD][WAI][N]After I escaped to[N]find you, they won't[N]even let me go outside![WAI][N]There's even a rumor[N]that my parents hired[N]an assassin[AD][FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will][DLY:0]Will: Wait, you escaped[N]to see me?[END]`
 
 ?INCLUDE 'ec0A_kara_guard'
-ec0A_kara_guard.dialogstring_04CB20! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme19][DLY:0]Soldier: Your Majesty,[N]it's about time[AD][END]`
+ec0A_kara_guard.dialogstring_04CB20! `[BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme19][DLY:0]Soldier: Your Highness,[N]it's about time[AD][END]`
 
 ?INCLUDE 'ec0A_kara'
-ec0A_kara.dialogstring_04CDC0! `[PAU:28][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1][DLY:0]Kara: I've been having[N]strange dreams lately.[WAI][N]In them, a voice kept[N]telling me I had to[N]find you[AD][WAI][N]That's why I went to[N]South Cape.[WAI][N]I'm scared, Will.[N]Dad and Mom seem like[N]different people now.[WAI][N]I'm begging you, help me.[N]Take me out of here[N]somehow! Please[AD][FIN][CLD][PAU:1E][BOR:7][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme19]Soldier: Your Majesty[AD][FIN][::][CLD][BOR:7][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Kara: Please. You're[N]definitely going to come[N]for me, right, Will?[END]`
+ec0A_kara.dialogstring_04CDC0! `[PAU:28][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1][DLY:0]Kara: I've been having[N]strange dreams lately.[WAI][N]In them, a voice kept[N]telling me I had to[N]find you[AD][WAI][N]That's why I went to[N]South Cape.[WAI][N]I'm scared, Will.[N]Dad and Mom seem like[N]different people now.[WAI][N]I'm begging you, help me.[N]Take me out of here[N]somehow! Please[AD][FIN][CLD][PAU:1E][BOR:7][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme19]Soldier: Your Highness[AD][FIN][::][CLD][BOR:7][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme1]Kara: Please. You're[N]definitely going to come[N]for me, right, Will?[END]`
 ec0A_kara.dialogstring_04CE45! `[JMP:&dialogstring_04CDC0+M]`
 
 ?INCLUDE 'ec0A_kara_guard'
@@ -76,8 +76,8 @@ ec0A_edward.code_04C3EC! {
     COP [PrintDialogString] ( &dialogstring_04C40E )
     COP [DialogueOptions] ( #02, #03, &code_list_04C3F6 )
 }
-ec0A_edward.dialogstring_04C40E! `[BOR:7][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme4]King Edward: YOU'RE Will?[N]You're dressed rather[N]drab, I'd think.[FIN][CLD][BOR:7][DLG:3,F][SIZ:D,5][PRT:@RetranslationTheme4]Well, let's get on with[N]it. Did you bring the[N]Crystal Ring?[WAI][PAL:0][N] Yes[N] No`
-ec0A_edward.dialogstring_04C460! `[CLR][PRT:@RetranslationTheme4]Good. An honest lad.[N]Give me the Ring.[FIN][PRT:@CastleV051Will]Will: [N].............[FIN][PRT:@RetranslationTheme4]King Edward:[N]Hmm?[PAU:3C][CLD][BOR:2][DLG:3,11][SIZ:B,2][PRT:@RetranslationTheme4]Are you lying[N]to me, young whelp?![FIN]`
+ec0A_edward.dialogstring_04C40E! `[BOR:7][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme4]King Edward: YOU'RE Will?[N]Rather drab clothes for[N]a royal summons.[FIN][CLD][BOR:7][DLG:3,F][SIZ:D,5][PRT:@RetranslationTheme4]Well, let's get on with[N]it. Did you bring the[N]Crystal Ring?[WAI][PAL:0][N] Yes[N] No`
+ec0A_edward.dialogstring_04C460! `[CLR][PRT:@RetranslationTheme4]Good. An honest lad.[N]Give me the Ring.[FIN][PRT:@CastleV051Will]Will: [N].............[FIN][PRT:@RetranslationTheme4]King Edward:[N]Hmm?[PAU:50][CLD][BOR:2][DLG:3,11][SIZ:B,2][PRT:@RetranslationTheme4]Are you lying[N]to me, young whelp?![FIN]`
 ec0A_edward.dialogstring_04C4D5! `[CLD][BOR:2][DLG:3,11][SIZ:C,3][PRT:@RetranslationTheme4]How dare you [N]shamelessly say[N]something like that[AD]!?[FIN]`
 ec0A_edward.dialogstring_04C4FB! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme4]I knew you didn't have it![N]Well. Soldiers! Throw him[N]in the prison![FIN]Then go search Will's[N]house for the Crystal[N]Ring![END]`
 ec0A_edward.dialogstring_04C556! `[PAU:1E][BOR:7][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme19]Soldier: Yes, sir![N]Right away![PAU:30][CLD]`

@@ -11,7 +11,7 @@ item_use_system.dialogstring_038DDA! `[DEF]Will and Kara bite into[N]the smoked 
 
 ?INCLUDE 'dc2F_adrift'
 dc2F_adrift.dialogstring_059CEB! `[DLG:9,7][SIZ:7,1]2nd Day Adrift[END]`
-dc2F_adrift.dialogstring_059EE3! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: It's beautiful[AD][N]Even though I'm watching[N]it all day, I don't think[N]I'm getting tired of it[AD][WAI][N]Kara: I miss home a[N]little. Mother and Father[N]weren't always bad.[WAI][N]Father would read me[N]stories sometimes while[N]I lay in bed.[WAI][N]He'd tell me about a[N]wondrous light that healed[N]the sick[AD][WAI][N][AD]and an order of[N]guardians and scholars[N]who fought to save all[N]from pain and suffering.[WAI][N]I used to love those[N]stories.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: What happened[N]to them?[WAI][N]Kara: I don't know.[END]`
+dc2F_adrift.dialogstring_059EE3! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: It's beautiful[AD][N]Even though I'm watching[N]it all day, I don't think[N]I'm getting tired of it[AD][WAI][N]Kara: I miss home a[N]little. Mother and Father[N]weren't always bad.[WAI][N]Father would read me[N]stories sometimes while[N]I lay in bed.[WAI][N]He'd tell me about a[N]wondrous light that healed[N]the sick[AD][WAI][N][AD]and an order of[N]guardians and scholars[N]who fought to save all[N]from pain and suffering.[WAI][N]I used to love those[N]stories.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: What happened[N]to them?[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme1]Kara: I don't know.[END]`
 
 ; Day two starts with Kara's story about home, then cycles through the three repeat talks.
 dc2F_adrift.code_05993C! {

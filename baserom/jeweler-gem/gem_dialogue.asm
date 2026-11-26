@@ -36,7 +36,7 @@ GemRefilled `[CLR]One Herb, good as new![END]`
 GemNoRoom `[CLR]Make room for an Herb[N]and come back.[END]`
 GemDeclined `[CLD]`
 
-GemLedgerReward `[CLR]Your first Red Jewel earns[N]you my Ledger.[FIN]It keeps track of the Red[N]Jewels you've given me[N]and what's still out there[N]in the area.[FIN][CLD][DEF]Will receives Gem's[N]Ledger![FIN]`
+GemLedgerReward `[CLR]Your first Red Jewel earns[N]you my Ledger.[FIN]It tells you how many Red[N]Jewels you've given me[N]and how many each region[N]has in all.[FIN][CLD][DEF]Will receives Gem's[N]Ledger![FIN]`
 GemArcReward `[CLR]Five Red Jewels! This is[N]the Negative Arc.[FIN][CLD][DEF]Will receives the[N]Negative Arc![FIN]`
 GemLedgerRow `Gem's Ledger   1[N][PAL:0]`
 GemListNextPage `[FIN][CLD][DLG:3,D][SIZ:A,4][SFX:0][PAL:0]`

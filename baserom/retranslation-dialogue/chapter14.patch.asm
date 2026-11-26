@@ -14,7 +14,7 @@ dm3F_laborer.dialogstring_0AA791! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@Retranslation
 dm3F_laborer.dialogstring_0AA7B4! `[CLD][BOR:3][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme16]Slave: T-thank you!! I'll[N]never forget what you've[N]done.[FIN][CLD][BOR:3][DLG:3,17][SIZ:D,1][PRT:@RetranslationTheme16]Please take this key.[FIN]`
 dm3F_laborer.dialogstring_0AA7EF! `[DLG:3,15][SIZ:D,2][SFX:0][DLY:9]Will has the[N]Mine Key![PAU:D0][CLD]`
 dm3F_laborer.dialogstring_0AA811! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]There are more slaves[N]being forced to work deep[N]in the diamond mine.[FIN][CLD][BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme16]Please use this key and[N]save them.[FIN]`
-dm3F_laborer.dialogstring_0AA85C! `[CLD][DLG:3,17][SIZ:D,1][SFX:0][DLY:9]Will receives the lift key![PAU:D0][CLD]`
+dm3F_laborer.dialogstring_0AA85C! `[CLD][DLG:3,17][SIZ:D,2][SFX:0][DLY:9]Will receives the[N]Elevator Key![PAU:D0][CLD]`
 dm3F_laborer.dialogstring_0AA874! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]Thank you for saving me.[N]Let me repay you with a[N]useful secret.[WAI][N]This mine has hidden rooms[N]whose entrances look just[N]like ordinary walls.[WAI][N]But air slips through the[N]cracks.[WAI][N]With hair like yours,[N]you'll notice a draft when[N]it starts blowing it[N]around.[END]`
 dm3F_laborer.dialogstring_0AA97D! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme16]There are eight slaves[N]working in this mine,[N]including me.[WAI][N]Please save the others.[END]`
 dm3F_laborer.dialogstring_0AA9C5! `[CLR]But your inventory[N]is full![END]`

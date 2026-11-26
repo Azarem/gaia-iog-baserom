@@ -26,7 +26,7 @@ NeilCottageKaraMuskReply `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme
 
 ?INCLUDE 'na49_neil'
 na49_neil.dialogstring_05DAC7! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Alright, enough[N]about socks. Welcome. Make[N]yourselves at home.[WAI][N]I have leftovers that are[N]only a few days old...[WAI][N]I [SFX:A]think.[END]`
-na49_neil.dialogstring_05DB1C! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: It's been about two[N]years, hasn't it?[WAI][N]I've built all sorts of[N]things since then.[WAI][N]There are four inventions[N]in this room I'm rather[N]proud of.[WAI][N]Go ahead and look around.[END]`
+na49_neil.dialogstring_05DB1C! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: It's been a while,[N]hasn't it?[WAI][N]I've built all sorts of[N]things since then.[WAI][N]There are four inventions[N]in this room I'm rather[N]proud of.[WAI][N]Go ahead and look around.[END]`
 
 ?INCLUDE 'na49_erik'
 na49_erik.dialogstring_05E2CE! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Erik: I bet Seth would've[N]loved seeing all these[N]inventions[AD][END]`

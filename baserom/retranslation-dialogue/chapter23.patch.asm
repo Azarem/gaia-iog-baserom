@@ -7,7 +7,7 @@ av70_hidden_passage.dialogstring_06D5ED! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@Ca
 av70_crawlspace.dialogstring_06D66C! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme0]The entrance is too[N]small for Will.[END]`
 
 ?INCLUDE 'av74_kara'
-av74_kara.dialogstring_06D2FF! `[CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@CastleV051Thought](A painting of Kara…[N]Was she somehow drawn[N]inside it?)[END]`
+av74_kara.dialogstring_06D2FF! `[CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@CastleV051Thought](That smile[AD] Kara is[N]always prettiest when[N]she smiles.)[END]`
 
 ?INCLUDE 'av74_ishtar'
 av74_ishtar.dialogstring_06CEF2! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Ishtar: You came for the[N]girl, didn't you? Kara,[N]was it?[WAI][N]Then pass through the[N]rooms ahead.[WAI][N]Solve each mystery, and I[N]will show you how to[N]restore her.[END]`

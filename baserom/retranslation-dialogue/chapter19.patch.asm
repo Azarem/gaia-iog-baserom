@@ -8,7 +8,7 @@ sp5A_phantom_ribber.dialogstring_068A1B! `[CLD][BOR:3][DLG:3,4][SIZ:D,3][PRT:@Ca
 
 ?INCLUDE 'sp5A_voice'
 sp5A_voice.dialogstring_0696A5! `[CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@CastleV051Thought](I can sense someone in[N]the room to the right…)[END]`
-sp5A_voice.dialogstring_069705! `[CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@CastleV051Thought](I can hear a faint voice[N]somewhere nearby…)[FIN]`
+sp5A_voice.dialogstring_069705! `[CLD][DEF][DLG:3,4][SIZ:D,2]A faint voice comes[N]from Will's flute.[FIN]`
 sp5A_voice.dialogstring_0695AF! `[CLD][DEF]A familiar voice comes[N]from Will's flute.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: Dad?! You're here![FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: Will… I'm glad I[N]can speak with you again.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: I've been hoping[N]I'd hear your voice.[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: I know. And there[N]is much I still wish I[N]could tell you.[FIN]But listen carefully. You[N]are not the only one[N]searching for the Mystic[N]Statues.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: Someone else is[N]looking for them?[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: Yes. Other forces[N]are at work, and their[N]purpose is far less noble[N]than ours.[FIN]The vampires who rule this[N]palace are aligned with[N]them.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: Then they're after[N]the statue on Mu…[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: They are. The[N]fountain below is being[N]used to create demons.[N]Be careful, Will.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: Dad--wait![FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: You must hurry.[N]Your friends' lives hang[N]in the balance.[FIN][CLD][DEF]The voice fades from the[N]flute.[END]`
 sp5A_voice.dialogstring_0696D5! `[CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@CastleV051Thought](I can sense someone in[N]the room to the left…)[END]`
 
@@ -16,17 +16,17 @@ sp5A_voice.dialogstring_0696D5! `[CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@CastleV051T
 sp5B_erik.dialogstring_0688B6! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme3]Erik: Where is this? It's[N]bleak… It's lonely… Mom,[N]help me…[END]`
 
 ?INCLUDE 'sp5A_voice'
-sp5A_voice.dialogstring_069612! `[PRT:@dialogstring_069705][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme17][PRT:@CastleV051Whisper]Mysterious voice: The[N]fountain of blood is on[N]the lowest floor…[WAI][N]The stone… use it to[N]purify… Hurry… hur…ry…[END]`
+sp5A_voice.dialogstring_069612! `[PRT:@dialogstring_069705][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: The fountain of[N]blood is on the lowest[N]floor.[WAI][N]Use the stone[AD] Hurry[AD][END]`
 
 ?INCLUDE 'sp5B_lily'
 sp5B_lily.dialogstring_068709! `[BOR:6][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme2]Lilly: Waah…!![PAU:14]`
 sp5B_lily.dialogstring_068721! `[BOR:6][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme2]Lilly: Geez… Don't[N]surprise me…!![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]My heart nearly jumped out[N]of my chest because of[N]you, you know…!![END]`
-sp5B_lily.dialogstring_068765! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: I saw Erik in the[N]other room a moment ago,[N]but something was wrong.[WAI][N]His body was half[N]transparent. I could see[N]right through him.[WAI][N]I tried speaking to him,[N]but he couldn't hear me.[WAI][N]Let's stick together until[N]we figure out what's[N]happening.[END]`
+sp5B_lily.dialogstring_068765! `[CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: I saw Erik in the[N]next room.[WAI][N]I called his name, but[N]he didn't even turn[N]around.[WAI][N]Will, I could see right[N]through him.[WAI][N]Let's stick together until[N]we figure out what's[N]happening.[END]`
 sp5B_lily.dialogstring_06882D! `[BOR:6][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme2]Lilly: I'll borrow your[N]pocket, alright?[END]`
 sp5B_lily.dialogstring_06885B! `[PAU:1E][BOR:6][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme2]Lilly: Alright. Let's go…[END]`
 
 ?INCLUDE 'sp5A_voice'
-sp5A_voice.dialogstring_069672! `[PRT:@dialogstring_069705][CLD][BOR:4][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme17][PRT:@CastleV051Whisper]Mysterious voice: The[N]Purity Stone in the[N]coffin…[END]`
+sp5A_voice.dialogstring_069672! `[PRT:@dialogstring_069705][CLD][BOR:4][DLG:3,4][SIZ:D,2][PRT:@CastleV051Flute]Flute: The Purity Stone[N]is in the coffin[AD][END]`
 
 ?INCLUDE 'sp5B_kara'
 sp5B_kara.dialogstring_06865E! `[BOR:7][DLG:3,4][SIZ:D,2][PRT:@RetranslationTheme1]Kara: Will… Where? Where[N]are you…??[END]`
@@ -54,7 +54,7 @@ sp5B_neil.dialogstring_06898C! `[BOR:D][DLG:3,4][SIZ:D,1][PRT:@RetranslationThem
 sp5B_lance.dialogstring_068930! `[BOR:3][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme4]Lance: Ungh, ungh.[END]`
 
 ?INCLUDE 'sp5D_fountain'
-sp5D_fountain.dialogstring_0694AA! `[CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: That's blood[AD][FIN]This must be the fountain[N]the voice meant.[FIN]Try holding up the stone,[N]Will.[END]`
+sp5D_fountain.dialogstring_0694AA! `[CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: That's blood[AD][PAU:28][N]Will, try using the[N]Purity Stone.[END]`
 
 ?INCLUDE 'item_use_system'
 item_use_system.dialogstring_03926F! `[DLG:3,11][SIZ:D,4]The stone grows brighter[N]and disappears into the[N]fountain[AD][END]`
@@ -64,7 +64,7 @@ sp5A_villagers.dialogstring_068B22! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@Retrans
 sp5A_villagers.dialogstring_068BB6! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]For a moment, I knew what[N]it felt like to be dying.[WAI][N]I never knew how badly I[N]wanted to live until I[N]almost couldn't.[WAI][N]It makes me wonder whether[N]the animals we eat feel[N]that same fear.[END]`
 sp5A_villagers.dialogstring_068C33! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]We used to be slave[N]merchants. We were[N]arrested for trafficking[N]people.[WAI][N]Then corrupt officials[N]sold us to vampires.[WAI][N]I suppose there is justice[N]in that, though I wish I'd[N]learned it another way.[END]`
 sp5A_villagers.dialogstring_068CBD! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]Good grief[AD] A beautiful[N]woman invited me here, and[N]look where that got me.[END]`
-sp5A_villagers.dialogstring_068CF6! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme16]A handsome man asked me to[N]come, so I came here… I[N]still can't believe men![END]`
+sp5A_villagers.dialogstring_068CF6! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]A handsome man invited me[N]here. I thought I was[N]being swept off my feet.[PAU:20][N]I suppose I was.[END]`
 sp5A_villagers.dialogstring_068D29! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]There's no doubt about it;[N]vampires sleep in these[N]coffins.[WAI][N]Those bastards are[N]planning something[N]horrible[AD][END]`
 sp5A_villagers.dialogstring_068D7A! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]A vampire husband and wife[N]rule this palace.[WAI][N]They bring people[N]here from all over and[N]transform them into[N]demons for labor.[END]`
 sp5A_villagers.dialogstring_068DD0! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]This palace is connected[N]to the lost continent[N]of Mu.[WAI][N]The vampire couple[N]has been searching for[N]something there.[END]`
@@ -83,4 +83,8 @@ item_use_system.dialogstring_0391B6! `The key makes an eerie[N]sound as it turns
 item_use_system.dialogstring_0391D9! `[CLD][DEF][DLG:3,15][SIZ:D,2]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: The passage ahead[N]leads to Mu, right?[END]`
 
 ?INCLUDE 'sp5E_passageway'
-sp5E_passageway.dialogstring_069753! `[DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: This passage goes[N]on forever[AD] Are we really[N]headed toward Mu?[END]`
+sp5E_passageway.dialogstring_069753! `[DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: We've been walking[N]forever. Will, are you[N]sure this leads to Mu?[END]`
+
+?INCLUDE 'system_strings'
+system_strings.consolestring_01DC05! |Purity [N] Stone|
+system_strings.consolestring_01DF46! |Purity Stone|

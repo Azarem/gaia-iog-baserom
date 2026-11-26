@@ -1,8 +1,8 @@
 ; GaiaLabs Retranslation, chapter 27. Dialogue only.
 
 ?INCLUDE 'eu91_intro'
-eu91_intro.dialogstring_07BEDA! `[CLD][DEF][SFX:10][DLY:1]After crossing a desert[N]howling with sandstorms,[N]Will and the others[N]finally reach Euro.[PAU:60][CLR]It's the largest city[N]Will has ever seen.[PAU:30][CLR]Merchants and workers[N]hurry through every[N]street.[PAU:7C][CLR]Neil's parents run the[N]Reuleck Corporation[N]from here.[PAU:60][CLR]Neil returns after three[N]years. His parents give[N]the group a royal[N]welcome:[PAU:30][CLR]fireworks, dancers,[N]music[AD][PAU:60][CLR]For a moment, the whole[N]city feels like a[N]festival.[PAU:60][CLD]`
-eu91_intro.dialogstring_07C011! `[DEF]This is the mansion where[N]Neil's parents live.[FIN][CLD][DEF]Neil leads the others to[N]a guest room.[END]`
+eu91_intro.dialogstring_07BEDA! `[CLD][DEF][SFX:10][DLY:1]After crossing a desert[N]howling with sandstorms,[N]Will and the others[N]finally reach Euro.[PAU:60][CLR]It's the largest city[N]Will has ever seen.[PAU:30][CLR]Merchants and workers[N]hurry through every[N]street.[PAU:7C][CLR]Euro is home to the[N]Reuleck Corporation,[N]Neil's family business.[PAU:60][CLR]After three years away,[N]Neil comes home to[N]fireworks, dancers,[N]and music.[PAU:60][CLD]`
+eu91_intro.dialogstring_07C011! `[DEF]Neil leads the others to[N]a guest room in his[N]family's mansion.[END]`
 
 ?INCLUDE 'eu96_neil'
 ; In the first guest-room scene, the flute speaks after Neil walks out.
@@ -30,7 +30,7 @@ eu96_neil.eu96_neil! [
 
 EuroGuestRoomFluteDialogue `[CLD][DEF]A few minutes later, a[N]familiar voice comes[N]from Will's flute.[FIN][CLD][BOR:4][DLG:3,4][SIZ:D,4][PRT:@CastleV051Flute]Flute: Will[AD] Something in[N]this city is hidden[N]behind familiar faces.[FIN]I cannot see it clearly[N]from where I am.[FIN]Long ago, I heard of a[N]vessel kept at the[N]sanctuary on Mount Kehres.[FIN]It is called the Tearpot.[N]They say its waters[N]reveal what ordinary[N]sight cannot.[FIN]Find it. Then look again.[FIN][CLD][DEF]The voice fades from[N]the flute.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Erik: Will! You weren't[N]lying! I mean, I didn't[N]think you were a liar.[FIN]I just thought maybe[N]you'd gone a little crazy.[N]You do talk to yourself[N]a lot.[FIN][CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: Erik![AD]Will, that[N]really was your father?[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: Yeah. That's the[N]voice I've been hearing.[END]`
 
-eu96_neil.dialogstring_07DBE9! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Make yourselves at[N]home. I'm going to talk[N]to my parents for a while.[FIN]It has been three years,[N]after all.[END]`
+eu96_neil.dialogstring_07DBE9! `[CLD][BOR:7][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme1]Kara: Neil, your welcome[N]party put even my[N]mother's royal birthday[N]balls to shame.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]Neil: My parents always[N]did know how to put on[N]a show.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,2][PRT:@CastleV051Will]Will: Erik, you might[N]want to change your pants.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,5][PRT:@RetranslationTheme3]Erik: Oh no! I put some[N]of the chocolates in my[N]pockets for later![N]I guess they melted[AD][PAU:20][N]Still tastes great though![FIN][CLD][BOR:7][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme1]Kara: Gross![FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Hahaha[AD][PAU:20][N]The party was great, but[N]I didn't get to really[N]talk to my parents.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Make yourselves at home.[N]I'm going to go catch up.[N]It has been three years,[N]after all.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@CastleV051Will]Will: Just let them get[N]a word in before you[N]start talking about all[N]your latest inventions.[FIN][CLD][BOR:D][DLG:3,4][SIZ:D,1][PRT:@RetranslationTheme6]Neil: No promises.[END]`
 
 ?INCLUDE 'eu96_erik'
 eu96_erik.dialogstring_07DAC1! `[BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme3]Erik: This house is so[N]huge, I wonder what I'll[N]do if I want to go pee at[N]night…[END]`
@@ -94,7 +94,7 @@ eu91_merchant_counter.dialogstring_07C0F3! `[BOR:D][DLG:3,11][SIZ:D,4][PRT:@Retr
 eu91_merchant_counter.dialogstring_07C0DD! `[BOR:D][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1E]How about a sweet and[N]delicious apple?[END]`
 
 ?INCLUDE 'item_use_system'
-item_use_system.dialogstring_039F6B! `[DLG:3,F][SIZ:D,5]You felt a tiny bit[N]relaxed when you filled[N]your mouth with the bright[N]red apple. It was a[N]tasty apple.[END]`
+item_use_system.dialogstring_039F6B! `[DLG:3,F][SIZ:D,3]Will bites into the bright[N]red apple. For a moment,[N]he relaxes.[END]`
 
 ?INCLUDE 'eu91_women1'
 eu91_women1.dialogstring_07C8EC! `[BOR:D][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1E]They say that there are[N]people in this town who[N]make it powerful.[END]`
@@ -139,7 +139,7 @@ eu91_women1.dialogstring_07C7BA! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@Retransla
 eu91_men1.dialogstring_07C480! `[CLD][BOR:D][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1E]This is Euro. Most of the[N]people here are merchants.[END]`
 
 ?INCLUDE 'wa79_lily'
-wa79_lily.dialogstring_07AAA3! `[CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: There's a rumor[N]going around that a big[N]star[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]is going to collide[N]with the Earth or[N]something like that.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]I'm definitely not going[N]to believe gossip like[N]that.[END]`
+wa79_lily.dialogstring_07AAA3! `[CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: People are saying[N]the comet will hit Earth.[FIN][CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]We know it's getting[N]closer. That's all we[N]know.[END]`
 
 ?INCLUDE 'wa79_lance'
 wa79_lance.dialogstring_07AEDE! `[BOR:3][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme4]Lance: My old man's been[N]talkin' a little more[N]each day.[FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]I think it would be nice[N]if ya could also meet yer[N]old man soon.[FIN]Oh, that's right. If I[N]remember, I think ya were[N]collectin' Red Jewels.[FIN][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]I found a Red Jewel from[N]inside my old man's[N]possessions. Take it[N]along.[FIN][CLD][DLG:3,4][SIZ:D,1]Will receives a Red Jewel![END]`

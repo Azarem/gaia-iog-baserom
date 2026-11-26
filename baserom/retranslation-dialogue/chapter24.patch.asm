@@ -62,7 +62,7 @@ wa78_intro.code_0780AD! {
     COP [Die]
 }
 
-wa78_intro.dialogstring_0780B6! `[DEF][DLY:2]Will and the others[N]reach Watermia, the[N]Floating City.[PAU:58][CLR]Houses rest on rafts[N]all across the bright[N]water.[PAU:58][CLR]The townspeople welcome[N]them. Luke, a fisherman,[N]has offered them his home[N]while he's away at sea.[PAU:58][CLR]Will expects to welcome[N]the chance to rest[AD][PAU:58][CLR]But after a few quiet[N]days, he grows restless.[PAU:58][CLR]He wonders what waits[N]beyond the next horizon.[PAU:84][CLD]`
+wa78_intro.dialogstring_0780B6! `[DEF][DLY:2]Will and the others[N]reach Watermia, the[N]Floating City.[PAU:58][CLR]Houses rest on rafts[N]all across the bright[N]water.[PAU:58][CLR]The townspeople welcome[N]them. Luke, a fisherman,[N]has offered them his home[N]while he's away at sea.[PAU:58][CLR]At first, Will is glad[N]for the rest.[PAU:58][CLR]After a few quiet days,[N]he catches himself[N]wondering what lies beyond[N]the next horizon.[PAU:84][CLD]`
 wa78_intro.dialogstring_078139! `[DEF]This is Luke's house.[N]He's a fisherman, and a[N]generous one.[FIN][DEF]He'll be away on a long[N]voyage, so he told Will[N]and the others to make[N]themselves at home.[END]`
 
 ?INCLUDE 'wa79_kara'
@@ -75,7 +75,7 @@ wa79_erik.dialogstring_07A475! `[BOR:3][DLG:3,4][SIZ:D,2][PRT:@RetranslationThem
 wa79_lily.dialogstring_07A92F! `[BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: Hey, by the way,[N]Lance noticed someone he[N]knows in town.[FIN]And it looks like he went[N]looking for them.[END]`
 
 ?INCLUDE 'wa79_neil'
-wa79_neil.dialogstring_07A217! `[BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]Neil: These houses on[N]rafts are inspiring me[N]for a new invention…[END]`
+wa79_neil.dialogstring_07A217! `[BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Look how steady[N]those rafts are. I could[N]put a whole workshop[N]on one.[END]`
 
 ?INCLUDE 'wa78_men'
 wa78_men.dialogstring_07879B! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Luke: Yo. How do you like[N]the house? You're free to[N]use it while I'm away on[N]my voyage.[END]`
@@ -83,7 +83,7 @@ wa78_men.dialogstring_07879B! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@Retranslatio
 ?INCLUDE 'wa78_diary'
 wa78_diary.dialogstring_079C19! `[BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](Kara hid her diary here[AD][N]Should I read it?)[N][PAL:0] Yes[N] No[PAL:4]`
 wa78_diary.dialogstring_079C4A! `[CLR][BOR:3][PRT:@CastleV051Thought](No. I'd feel guilty[N]reading it without[N]permission.)[END]`
-wa78_diary.dialogstring_079C81! `[CLR][BOR:1][DLG:3,D][SIZ:D,6][PRT:@RetranslationTheme1][SFX:0]Day X of month X:[N]After a very long road, we[N]finally reached Watermia.[FIN]I was thirsty on the way.[N]My feet blistered, and I[N]wrapped them in my[N]handkerchief.[FIN]Before this journey, I[N]would have complained the[N]whole time.[N]This time I kept going.[N]Maybe I've changed more[N]than I realized.[FIN]Today I heard a Watermia[N]legend.[N]"Make a wish from a lotus[N]leaf beneath the full[N]moon, and the one you love[N]will look closely at you."[FIN]It's a lovely story.[N]Maybe I'll try it[AD][END]`
+wa78_diary.dialogstring_079C81! `[CLR][BOR:1][DLG:3,D][SIZ:D,6][PRT:@RetranslationTheme1][SFX:0]Watermia[N]After a very long road, we[N]finally reached Watermia.[FIN]I was thirsty on the way.[N]My feet blistered, and I[N]wrapped them in my[N]handkerchief.[FIN]Before this journey, I[N]would have complained the[N]whole time.[N]This time I kept going.[N]Maybe I've changed more[N]than I realized.[FIN]Today I heard a Watermia[N]legend.[N]"Make a wish from a lotus[N]leaf beneath the full[N]moon, and the one you love[N]will look closely at you."[FIN]It's a lovely story.[N]Maybe I'll try it[AD][END]`
 
 ?INCLUDE 'wa78_kruk'
 wa78_kruk.dialogstring_079AEF! `[DLG:3,17][SIZ:D,1]Kyuui!!… Kyuui!!…[END]`
@@ -92,7 +92,7 @@ wa78_kruk.dialogstring_079AEF! `[DLG:3,17][SIZ:D,1]Kyuui!!… Kyuui!!…[END]`
 wa78_children.dialogstring_078CC5! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]Savvas: My dad is an[N]explorer.[WAI][N]He's going to come back[N]to us soon, right after he[N]discovers the Gold Ship![END]`
 
 ?INCLUDE 'wa78_women'
-wa78_women.dialogstring_078A26! `[BOR:9][DLG:3,F][SIZ:D,5][PRT:@RetranslationTheme1C]Nana: We haven't heard[N]news from our dad even[N]though it's already been[N]half a year since we[N]received his last letter…[FIN][CLD][BOR:9][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme1C]It'll be fine so long as[N]he's safe, but…[END]`
+wa78_women.dialogstring_078A26! `[BOR:9][DLG:3,F][SIZ:D,4][PRT:@RetranslationTheme1C]Nana: Dad's last letter[N]came six months ago.[WAI][N]Savvas still thinks he'll[N]come home with a Kruk.[FIN][CLD][BOR:9][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme1C]I'd be happy just to[N]see him walk through[N]the door.[END]`
 
 ?INCLUDE 'wa78_crazy_man'
 wa78_crazy_man.dialogstring_07A0A7! `[CLD][BOR:9][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme1C]A strange white-haired man[N]wandered into town a[N]little over a year ago.[WAI][N]Ever since, he's done[N]nothing but ramble about[N]the Tower of Babel.[END]`

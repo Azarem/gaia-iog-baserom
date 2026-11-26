@@ -1,10 +1,10 @@
 ; GaiaLabs Retranslation, chapter 20. Dialogue only.
 
 ?INCLUDE 'sp5A_monologue'
-sp5A_monologue.dialogstring_06856E! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Will]Will: So this is Mu…[N]I don't know what I[N]expected, but it wasn't[N]this.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Will...[N]Are you talking to me,[N]or yourself?[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Will]Will: Of course I was![N]Why? Do I seem like[N]the sort of person who[N]talks to himself?[END]`
+sp5A_monologue.dialogstring_06856E! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Will]Will: So this is Mu…[N]I don't know what I[N]expected, but it wasn't[N]this.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Are you talking to[N]me or to yourself?[FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Will]Will: You, obviously.[N]Who else would I be[N]talking to?[END]`
 
 ?INCLUDE 'mu61_hint'
-mu61_hint.dialogstring_0697C9! `[CLD][DEF][DLG:3,15][SIZ:D,2]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Hey, Will. Look at[N]these stone statues.[WAI][N]Don't they seem to be[N]staring at something?[N]Their lines of sight cross[N]at that treasure chest.[WAI][N]Maybe the other statues[N]are watching something[N]too. Or maybe I'm[N]overthinking it.[END]`
+mu61_hint.dialogstring_0697C9! `[CLD][DEF][DLG:3,15][SIZ:D,2]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: See where those[N]two statues are looking?[WAI][N]Right at the chest.[WAI][N]I wonder what the others[N]are looking at.[END]`
 
 ?INCLUDE 'mu62_hope_statue'
 mu62_hope_statue.dialogstring_0698D2! `[DLG:3,11][SIZ:D,4][SFX:0][DLY:9]Will finds a prayer statue![N][PAU:3C][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2][SFX:0][DLY:2]Lilly: I bet it goes on[N]the altar in the room[N]with the same name.[PAU:5A][END]`
@@ -46,7 +46,7 @@ mu67_erik.dialogstring_06A36B! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationThe
 
 ?INCLUDE 'mu67_vampires'
 mu67_vampires.dialogstring_0AFB45! `[CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme21]Vampire man: Well done![N]You found the Mystic[N]Statue for us.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme21]I thought letting you[N]escape the palace might[N]pay off.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme22]Vampire woman: Listen to[N]you![FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme22]You drool whenever fresh[N]prey wanders in.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme22]Especially children.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme21]Vampire man: You're one to[N]talk![FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme21]…Wait. This is no time for[N]a lover's quarrel.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme21]First we'll take that[N]Mystic Statue.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme21]You there-prepare[N]yourself![END]`
-mu67_vampires.dialogstring_0AFCA0! `[CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme22]Vampire woman: Hmph. So[N]much for him.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme22]Alright, you're next[AD]!![N]Get ready[AD]!![PAU:78][END]`
+mu67_vampires.dialogstring_0AFCA0! `[CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme22]Vampire woman: I told him[N]he was too sure of[N]himself.[FIN][CLD][BOR:B][DLG:3,13][SIZ:D,3][PRT:@RetranslationTheme22][AD]You'll answer for that.[PAU:78][END]`
 mu67_vampires.dialogstring_0AFCE4! `[CLD][BOR:B][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme21]Vampire man: You bastard[AD]![N]How could you do that to[N]my wife[AD]!! I'll never[N]forgive you[AD]!!!![PAU:78][END]`
 
 ?INCLUDE 'mu67_erik'
@@ -57,13 +57,13 @@ mu67_bomb.dialogstring_06A4E9! `[BOR:3][DLG:3,13][SIZ:D,3][PRT:@CastleV051Though
 mu67_bomb.dialogstring_06A54E! `[CLR]The red wire is cut![END]`
 mu67_bomb.dialogstring_06A566! `[CLR]The blue wire is cut![END]`
 mu67_bomb.dialogstring_06A719! `[CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Thought](...........)[FIN](It's a dud.[N]I'm saved...)[PAL:0][END]`
-mu67_bomb.dialogstring_06A57F! `[PAU:28][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Will]Will: It stopped[AD][FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme3]Erik: I'm saaaved[AD]![FIN][CLD][DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Sorry, Will.[N]I couldn't do anything.[WAI][N]My legs froze. I couldn't[N]even make my voice work.[WAI][N]I thought I was the[N]dependable one, but when[N]it mattered, I was[N]terrified.[WAI][N][AD]I'll stay in your[N]pocket a little longer,[N]if that's okay.[END]`
+mu67_bomb.dialogstring_06A57F! `[PAU:28][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@CastleV051Will]Will: It stopped[AD][FIN][CLD][BOR:3][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme3]Erik: I'm saaaved[AD]![FIN][CLD][DEF]Lilly speaks from inside[N]Will's pocket.[FIN][CLD][BOR:6][DLG:3,11][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: Will[AD] I heard[N]Erik calling and I just[N]froze.[WAI][N]I couldn't even answer[N]him.[WAI][N]Is it okay if I stay in[N]your pocket a little[N]longer?[END]`
 
 ?INCLUDE 'mu67_erik'
 mu67_erik.dialogstring_06A3B8! `[BOR:3][DLG:3,15][SIZ:D,2][PRT:@RetranslationTheme3]Erik: I won't tell anyone[N]that you transformed.[END]`
 
 ?INCLUDE 'mu67_neil_lily'
-mu67_neil_lily.dialogstring_06A7C7! `[CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme16]Neil: Will! Are you[N]safe[AD]?![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Lance: Will! Have you seen[N]Lilly? Is she okay?![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: I'm here[AD][END]`
+mu67_neil_lily.dialogstring_06A7C7! `[CLD][BOR:D][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme6]Neil: Will! Are you[N]safe?![FIN][CLD][BOR:3][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme4]Lance: Will! Have you seen[N]Lilly? Is she okay?![FIN][CLD][BOR:6][DLG:3,4][SIZ:D,4][PRT:@RetranslationTheme2]Lilly: I'm here[AD][END]`
 mu67_neil_lily.dialogstring_06AA4C! `[CLD][BOR:6][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme2]Lilly: Sorry we worried[N]you. Will and I looked[N]out for each other.[END]`
 mu67_neil_lily.dialogstring_06AA89! `[CLD][BOR:D][DLG:3,4][SIZ:D,3][PRT:@RetranslationTheme6]Neil: Oh? Will's[N]becoming quite the[N]gentleman, isn't he?[END]`
 
